@@ -301,6 +301,275 @@ landingPage:
     - 'Report: Auto-generate efficiency and emissions savings with audit trails.'
     - 'Scale: Template to new stations and roll up fleet-level KPIs.'
 ---
+
+```typescript
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead)
+  const proposal = await generateProposal(qualifiedLead)
+  const contract = await negotiateContract(proposal)
+  return await onboardCustomer(contract)
+}
+
+export async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  const compressorAssets = await assessCompressorFleet(lead.companyId)
+  const regulatoryProfile = await evaluateRegulatoryRequirements(lead.location)
+  const technicalFit = await evaluateTechnicalFeasibility(compressorAssets)
+  
+  if (technicalFit.score < 0.7 || compressorAssets.count < 5) {
+    throw new Error('Lead does not meet minimum qualification criteria')
+  }
+  
+  return {
+    ...lead,
+    compressorAssets,
+    regulatoryProfile,
+    technicalFit,
+    estimatedAnnualSavings: calculatePotentialSavings(compressorAssets)
+  }
+}
+
+export async function generateProposal(qualifiedLead: QualifiedLead): Promise<Proposal> {
+  const pilotScope = await designPilotProgram(qualifiedLead.compressorAssets)
+  const pricing = await calculatePricing(qualifiedLead)
+  const roi = await calculateROI(qualifiedLead.estimatedAnnualSavings, pricing)
+  
+  return {
+    customerId: qualifiedLead.id,
+    pilotScope,
+    pricing,
+    roi,
+    implementationTimeline: generateImplementationPlan(pilotScope),
+    successMetrics: definePilotSuccessMetrics(qualifiedLead.compressorAssets)
+  }
+}
+
+// Product Development Processes
+export async function developDigitalTwin(compressorStation: CompressorStation): Promise<DigitalTwin> {
+  const historianData = await ingestHistorianData(compressorStation.scadaEndpoint)
+  const controllerTags = await connectControllerTags(compressorStation.controllers)
+  const thermodynamicModel = await buildThermodynamicModel(historianData, controllerTags)
+  
+  const digitalTwin = await trainDigitalTwin({
+    stationId: compressorStation.id,
+    historianData,
+    controllerTags,
+    thermodynamicModel
+  })
+  
+  await validateDigitalTwin(digitalTwin, compressorStation)
+  return digitalTwin
+}
+
+export async function optimizeSetpoints(digitalTwin: DigitalTwin, constraints: OperatingConstraints): Promise<SetpointRecommendations> {
+  const currentState = await getCurrentOperatingState(digitalTwin)
+  const optimizationTargets = {
+    minimizeFuelConsumption: true,
+    minimizeRecycleHours: true,
+    maintainSurgeMargin: constraints.minSurgeMargin,
+    respectThroughputLimits: constraints.maxThroughput
+  }
+  
+  const recommendations = await runOptimizationEngine(currentState, optimizationTargets, constraints)
+  const mocNotes = await generateMOCDocumentation(recommendations)
+  
+  return {
+    recommendations,
+    mocNotes,
+    expectedSavings: calculateExpectedSavings(recommendations),
+    riskAssessment: assessSetpointRisks(recommendations, constraints)
+  }
+}
+
+// Revenue Generation Flows
+export async function processSubscriptionPayment(customer: Customer, billingPeriod: BillingPeriod): Promise<PaymentResult> {
+  const usage = await calculateUsage(customer.id, billingPeriod)
+  const invoice = await generateInvoice(customer, usage, billingPeriod)
+  
+  try {
+    const payment = await processPayment(invoice)
+    await updateCustomerAccount(customer.id, payment)
+    await deliverInvoice(customer, invoice)
+    return { success: true, payment, invoice }
+  } catch (error) {
+    await handlePaymentFailure(customer, invoice, error)
+    return { success: false, error, invoice }
+  }
+}
+
+export async function calculatePerformanceBasedFees(customer: Customer, period: ReportingPeriod): Promise<PerformancePayment> {
+  const baselineMetrics = await getBaselineMetrics(customer.id, period)
+  const actualMetrics = await getActualMetrics(customer.id, period)
+  const verifiedSavings = await verifyMeasuredSavings(baselineMetrics, actualMetrics)
+  
+  const fuelSavings = verifiedSavings.fuelSavings * customer.contract.fuelSavingsRate
+  const emissionsSavings = verifiedSavings.emissionsSavings * customer.contract.emissionsSavingsRate
+  
+  return {
+    customerId: customer.id,
+    period,
+    verifiedSavings,
+    fuelSavingsFee: fuelSavings,
+    emissionsSavingsFee: emissionsSavings,
+    totalPerformanceFee: fuelSavings + emissionsSavings
+  }
+}
+
+// Operational Procedures
+export async function monitorEmissions(compressorStation: CompressorStation): Promise<EmissionsAlert[]> {
+  const telemetryData = await collectTelemetryData(compressorStation)
+  const emissionsEvents = await detectEmissionsEvents(telemetryData)
+  const alerts: EmissionsAlert[] = []
+  
+  for (const event of emissionsEvents) {
+    if (event.magnitude > 5) { // >5 scf/min threshold
+      const alert = await createEmissionsAlert(event, compressorStation)
+      await notifyOperations(alert)
+      await createWorkOrder(alert)
+      alerts.push(alert)
+    }
+  }
+  
+  return alerts
+}
+
+export async function generateRegulatoryReports(customer: Customer, reportingPeriod: ReportingPeriod): Promise<RegulatoryReports> {
+  const emissionsData = await aggregateEmissionsData(customer.id, reportingPeriod)
+  const operatingStates = await getOperatingStates(customer.id, reportingPeriod)
+  
+  const ogmpReport = await generateOGMPReport(emissionsData, operatingStates)
+  const subpartWReport = await generateSubpartWReport(emissionsData, operatingStates)
+  const methaneFeesReport = await generateMethaneFeesReport(emissionsData)
+  
+  return {
+    customerId: customer.id,
+    period: reportingPeriod,
+    ogmpReport,
+    subpartWReport,
+    methaneFeesReport,
+    auditTrail: generateAuditTrail(emissionsData, operatingStates)
+  }
+}
+
+// Decision-Making Workflows
+export async function evaluatePilotSuccess(pilot: PilotProgram): Promise<PilotEvaluation> {
+  const metrics = await collectPilotMetrics(pilot)
+  const successCriteria = pilot.successCriteria
+  
+  const evaluation = {
+    pilotId: pilot.id,
+    metricsAchieved: {},
+    overallSuccess: true,
+    recommendations: []
+  }
+  
+  // Evaluate recycle hour reduction
+  const recycleReduction = (metrics.baselineRecycleHours - metrics.actualRecycleHours) / metrics.baselineRecycleHours
+  evaluation.metricsAchieved.recycleReduction = recycleReduction
+  if (recycleReduction < successCriteria.minRecycleReduction) {
+    evaluation.overallSuccess = false
+    evaluation.recommendations.push('Adjust setpoint optimization algorithm for better recycle reduction')
+  }
+  
+  // Evaluate methane intensity reduction
+  const methaneReduction = (metrics.baselineMethaneIntensity - metrics.actualMethaneIntensity) / metrics.baselineMethaneIntensity
+  evaluation.metricsAchieved.methaneReduction = methaneReduction
+  if (methaneReduction < successCriteria.minMethaneReduction) {
+    evaluation.overallSuccess = false
+    evaluation.recommendations.push('Enhance emissions detection algorithms')
+  }
+  
+  return evaluation
+}
+
+export async function makeScalingDecision(pilotEvaluation: PilotEvaluation, customer: Customer): Promise<ScalingDecision> {
+  if (!pilotEvaluation.overallSuccess) {
+    return {
+      decision: 'EXTEND_PILOT',
+      reasoning: 'Pilot did not meet success criteria',
+      nextSteps: pilotEvaluation.recommendations
+    }
+  }
+  
+  const customerCapacity = await assessCustomerCapacity(customer)
+  const technicalReadiness = await assessTechnicalReadiness(customer)
+  
+  if (customerCapacity.score > 0.8 && technicalReadiness.score > 0.8) {
+    return {
+      decision: 'FULL_DEPLOYMENT',
+      reasoning: 'Pilot successful and customer ready for full deployment',
+      nextSteps: await generateFullDeploymentPlan(customer)
+    }
+  } else {
+    return {
+      decision: 'PHASED_ROLLOUT',
+      reasoning: 'Pilot successful but gradual rollout recommended',
+      nextSteps: await generatePhasedRolloutPlan(customer, customerCapacity, technicalReadiness)
+    }
+  }
+}
+
+// Type Definitions
+interface Lead {
+  id: string
+  companyId: string
+  contactInfo: ContactInfo
+  location: string
+  compressorCount: number
+}
+
+interface QualifiedLead extends Lead {
+  compressorAssets: CompressorAssets
+  regulatoryProfile: RegulatoryProfile
+  technicalFit: TechnicalFitAssessment
+  estimatedAnnualSavings: number
+}
+
+interface CompressorStation {
+  id: string
+  location: string
+  scadaEndpoint: string
+  controllers: Controller[]
+  compressors: Compressor[]
+}
+
+interface DigitalTwin {
+  stationId: string
+  model: ThermodynamicModel
+  lastUpdated: Date
+  accuracy: number
+}
+
+interface SetpointRecommendations {
+  recommendations: Setpoint[]
+  mocNotes: string
+  expectedSavings: SavingsEstimate
+  riskAssessment: RiskAssessment
+}
+
+interface EmissionsAlert {
+  id: string
+  stationId: string
+  eventType: 'FUGITIVE' | 'VENTING' | 'BLOWDOWN'
+  magnitude: number
+  timestamp: Date
+  workOrderId?: string
+}
+
+interface PilotEvaluation {
+  pilotId: string
+  metricsAchieved: Record<string, number>
+  overallSuccess: boolean
+  recommendations: string[]
+}
+
+interface ScalingDecision {
+  decision: 'EXTEND_PILOT' | 'PHASED_ROLLOUT' | 'FULL_DEPLOYMENT'
+  reasoning: string
+  nextSteps: string[]
+}
+```
+
 # Compressor Optimization & Emissions Monitor — AI service for Natural Gas Extraction (NAICS 211130)
 
 Generated for NAICS 211130 — Natural Gas Extraction.
