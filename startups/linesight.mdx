@@ -357,3 +357,358 @@ landingPage:
 
 Generated for NAICS 315990 — Apparel Accessories and Other Apparel Manufacturing.
 Service: Seasonal Trend, Competitor, and Assortment Planner (Accessories)
+
+## Business Process Functions
+
+```typescript
+// Core Types
+interface Lead {
+  id: string;
+  company: string;
+  revenue: number;
+  segment: 'mid-market' | 'private-label' | 'outdoor-sports' | 'luxury' | 'odm';
+  contactInfo: ContactInfo;
+  painPoints: string[];
+  currentTools: string[];
+}
+
+interface Customer {
+  id: string;
+  company: string;
+  tier: 'starter' | 'growth' | 'enterprise';
+  contract: Contract;
+  onboardingStatus: 'pending' | 'in-progress' | 'complete';
+  integrations: Integration[];
+}
+
+interface Contract {
+  value: number;
+  term: number;
+  startDate: Date;
+  tier: string;
+  addOns: string[];
+}
+
+interface SeasonalPlan {
+  season: string;
+  categories: CategoryPlan[];
+  totalSkus: number;
+  targetMargin: number;
+  budget: number;
+  timeline: PlanningTimeline;
+}
+
+interface CategoryPlan {
+  category: 'belts' | 'hats' | 'gloves' | 'bags' | 'slg';
+  skuCount: number;
+  priceRange: { min: number; max: number };
+  materials: string[];
+  colors: string[];
+  moqConstraints: MOQConstraint[];
+}
+
+interface MarketSignal {
+  source: 'google-trends' | 'social' | 'competitor' | 'weather';
+  category: string;
+  trend: 'rising' | 'stable' | 'declining';
+  confidence: number;
+  data: any;
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const proposal = await generateProposal(qualifiedLead);
+  const contract = await negotiateContract(proposal);
+  return await onboardCustomer(contract);
+}
+
+export async function qualifyLead(lead: Lead): Promise<Lead> {
+  // Validate revenue range (10-300M USD)
+  if (lead.revenue < 10_000_000 || lead.revenue > 300_000_000) {
+    throw new Error('Lead outside target revenue range');
+  }
+  
+  // Score lead based on segment fit
+  const segmentScore = calculateSegmentFit(lead.segment);
+  const painPointScore = assessPainPoints(lead.painPoints);
+  
+  if (segmentScore + painPointScore < 0.7) {
+    throw new Error('Lead does not meet qualification criteria');
+  }
+  
+  return { ...lead, qualified: true };
+}
+
+export async function generateProposal(lead: Lead): Promise<Proposal> {
+  const tier = determineTier(lead.revenue, lead.segment);
+  const pricing = calculatePricing(tier, lead.revenue);
+  const roi = await calculateROI(lead);
+  
+  return {
+    tier,
+    pricing,
+    roi,
+    timeline: generateImplementationTimeline(),
+    customizations: identifyCustomizations(lead)
+  };
+}
+
+export async function negotiateContract(proposal: Proposal): Promise<Contract> {
+  const terms = await reviewTerms(proposal);
+  const finalPricing = await negotiatePricing(proposal.pricing, terms);
+  
+  return {
+    value: finalPricing.annual,
+    term: terms.duration,
+    startDate: new Date(),
+    tier: proposal.tier,
+    addOns: proposal.customizations
+  };
+}
+
+export async function onboardCustomer(contract: Contract): Promise<Customer> {
+  const customer = await createCustomerRecord(contract);
+  await setupDataConnections(customer);
+  await configureWorkflows(customer);
+  await scheduleTraining(customer);
+  
+  return customer;
+}
+
+// Product Development Processes
+export async function developSeasonalPlanningFeature(requirements: FeatureRequirements): Promise<Feature> {
+  const research = await conductMarketResearch(requirements);
+  const design = await designFeature(research, requirements);
+  const prototype = await buildPrototype(design);
+  const validation = await validateWithCustomers(prototype);
+  
+  if (validation.score < 0.8) {
+    return await iterateFeature(prototype, validation.feedback);
+  }
+  
+  return await buildProductionFeature(design, validation);
+}
+
+export async function enhanceCompetitorTracking(): Promise<void> {
+  const currentPanel = await getCurrentCompetitorPanel();
+  const gaps = await identifyPanelGaps(currentPanel);
+  
+  for (const gap of gaps) {
+    await addCompetitorToPanel(gap.competitor);
+    await setupDataScraping(gap.competitor);
+  }
+  
+  await updateTrackingAlgorithms();
+  await validateDataQuality();
+}
+
+export async function improveForecasting(): Promise<void> {
+  const historicalData = await getHistoricalForecastData();
+  const accuracy = calculateForecastAccuracy(historicalData);
+  
+  if (accuracy.mape > 0.25) {
+    await retrainForecastModels(historicalData);
+    await updateForecastingAlgorithms();
+    await validateImprovedAccuracy();
+  }
+}
+
+// Revenue Generation Flows
+export async function executeGrowthStrategy(customer: Customer): Promise<RevenueResult> {
+  const expansionOpportunities = await identifyExpansionOpportunities(customer);
+  const upsellResult = await executeUpsell(customer, expansionOpportunities);
+  const renewalResult = await manageRenewal(customer);
+  
+  return {
+    expansion: upsellResult,
+    renewal: renewalResult,
+    totalRevenue: upsellResult.revenue + renewalResult.revenue
+  };
+}
+
+export async function identifyExpansionOpportunities(customer: Customer): Promise<ExpansionOpportunity[]> {
+  const usage = await analyzeCustomerUsage(customer);
+  const additionalDivisions = await identifyAdditionalDivisions(customer);
+  const dataAddOns = await recommendDataAddOns(customer, usage);
+  
+  return [
+    ...additionalDivisions.map(div => ({ type: 'division', target: div })),
+    ...dataAddOns.map(addon => ({ type: 'data-addon', target: addon }))
+  ];
+}
+
+export async function executeUpsell(customer: Customer, opportunities: ExpansionOpportunity[]): Promise<UpsellResult> {
+  const prioritized = prioritizeOpportunities(opportunities);
+  const proposal = await createUpsellProposal(customer, prioritized);
+  
+  const result = await presentUpsellProposal(customer, proposal);
+  
+  if (result.accepted) {
+    await implementUpsell(customer, result.selectedItems);
+    return { success: true, revenue: result.additionalRevenue };
+  }
+  
+  return { success: false, revenue: 0 };
+}
+
+// Operational Procedures
+export async function processSeasonalPlanRequest(customer: Customer, request: PlanRequest): Promise<SeasonalPlan> {
+  await validateDataConnections(customer);
+  const marketData = await gatherMarketSignals(request.categories);
+  const competitorData = await analyzeCompetitors(request.categories);
+  const historicalData = await getCustomerSalesData(customer, request.timeframe);
+  
+  const plan = await generateSeasonalPlan({
+    marketData,
+    competitorData,
+    historicalData,
+    constraints: request.constraints,
+    targets: request.targets
+  });
+  
+  await validatePlan(plan, request.constraints);
+  await savePlanToCustomer(customer, plan);
+  
+  return plan;
+}
+
+export async function gatherMarketSignals(categories: string[]): Promise<MarketSignal[]> {
+  const signals = await Promise.all([
+    getGoogleTrends(categories),
+    getSocialSignals(categories),
+    getWeatherData(categories),
+    getSearchVelocity(categories)
+  ]);
+  
+  return signals.flat();
+}
+
+export async function generateSeasonalPlan(input: PlanInput): Promise<SeasonalPlan> {
+  const forecast = await generateDemandForecast(input);
+  const optimization = await optimizeAssortment(forecast, input.constraints);
+  const pricing = await optimizePricing(optimization, input.targets);
+  
+  return {
+    season: input.season,
+    categories: optimization.categories,
+    totalSkus: optimization.totalSkus,
+    targetMargin: pricing.margin,
+    budget: pricing.budget,
+    timeline: generateTimeline(input.constraints.leadTimes)
+  };
+}
+
+export async function monitorPlanPerformance(customer: Customer, plan: SeasonalPlan): Promise<void> {
+  const actualSales = await getActualSales(customer, plan.season);
+  const variance = calculateVariance(plan.forecast, actualSales);
+  
+  if (variance.mape > 0.3) {
+    await triggerPlanAdjustment(customer, plan, variance);
+  }
+  
+  await updateForecastModels(actualSales, plan.forecast);
+  await generatePerformanceReport(customer, plan, variance);
+}
+
+// Decision-Making Workflows
+export async function evaluateNewMarketEntry(market: Market): Promise<MarketDecision> {
+  const marketSize = await assessMarketSize(market);
+  const competition = await analyzeCompetition(market);
+  const customerFit = await evaluateCustomerFit(market);
+  const resourceRequirements = await calculateResourceNeeds(market);
+  
+  const score = calculateMarketScore({
+    marketSize,
+    competition,
+    customerFit,
+    resourceRequirements
+  });
+  
+  return {
+    market,
+    score,
+    recommendation: score > 0.7 ? 'enter' : 'pass',
+    reasoning: generateRecommendationReasoning(score, {
+      marketSize,
+      competition,
+      customerFit,
+      resourceRequirements
+    })
+  };
+}
+
+export async function prioritizeFeatureDevelopment(features: FeatureRequest[]): Promise<FeaturePriority[]> {
+  const scored = await Promise.all(
+    features.map(async feature => {
+      const impact = await calculateBusinessImpact(feature);
+      const effort = await estimateDevelopmentEffort(feature);
+      const customerDemand = await assessCustomerDemand(feature);
+      
+      return {
+        feature,
+        score: (impact * customerDemand) / effort,
+        impact,
+        effort,
+        customerDemand
+      };
+    })
+  );
+  
+  return scored.sort((a, b) => b.score - a.score);
+}
+
+export async function makeInvestmentDecision(investment: InvestmentProposal): Promise<InvestmentDecision> {
+  const roi = await calculateROI(investment);
+  const risk = await assessRisk(investment);
+  const strategicFit = await evaluateStrategicFit(investment);
+  const resourceAvailability = await checkResourceAvailability(investment);
+  
+  const decision = {
+    proposal: investment,
+    roi,
+    risk,
+    strategicFit,
+    approved: roi.irr > 0.25 && risk.score < 0.3 && strategicFit > 0.8 && resourceAvailability
+  };
+  
+  if (decision.approved) {
+    await allocateResources(investment);
+    await createImplementationPlan(investment);
+  }
+  
+  return decision;
+}
+
+// Continuous Improvement Workflows
+export async function executeLearningLoop(customer: Customer): Promise<void> {
+  const actuals = await captureActuals(customer);
+  const variances = await computeVariances(customer, actuals);
+  await updateGuardrails(customer, variances);
+  await updateForecastPriors(customer, actuals);
+  await generateLearningReport(customer, variances);
+}
+
+export async function optimizeBusinessProcesses(): Promise<void> {
+  const processes = await getAllBusinessProcesses();
+  
+  for (const process of processes) {
+    const metrics = await measureProcessPerformance(process);
+    const bottlenecks = await identifyBottlenecks(process, metrics);
+    
+    if (bottlenecks.length > 0) {
+      const improvements = await designProcessImprovements(process, bottlenecks);
+      await implementProcessChanges(process, improvements);
+      await validateImprovements(process);
+    }
+  }
+}
+
+// Helper function stubs (would be implemented separately)
+async function calculateSegmentFit(segment: string): Promise<number> { /* implementation */ }
+async function assessPainPoints(painPoints: string[]): Promise<number> { /* implementation */ }
+async function determineTier(revenue: number, segment: string): Promise<string> { /* implementation */ }
+async function calculatePricing(tier: string, revenue: number): Promise<any> { /* implementation */ }
+async function calculateROI(input: any): Promise<any> { /* implementation */ }
+// ... additional helper functions would be defined here
+```
