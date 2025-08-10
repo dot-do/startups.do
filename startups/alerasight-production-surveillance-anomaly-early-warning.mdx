@@ -298,3 +298,566 @@ landingPage:
 
 Generated for NAICS 211120 — Crude Petroleum Extraction.
 Service: Production Surveillance & Anomaly Early Warning
+
+## Business Process Functions
+
+```typescript
+// Core business entities
+interface Lead {
+  id: string;
+  company: string;
+  contactName: string;
+  email: string;
+  phone: string;
+  wellCount: number;
+  facilityCount: number;
+  currentSCADASystem: string;
+  painPoints: string[];
+  budget: number;
+  timeline: string;
+  decisionMakers: string[];
+}
+
+interface QualifiedLead extends Lead {
+  fitScore: number;
+  urgencyScore: number;
+  budgetConfirmed: boolean;
+  technicalRequirements: TechnicalRequirements;
+}
+
+interface TechnicalRequirements {
+  historianType: 'PI' | 'AVEVA' | 'Ignition' | 'CygNet' | 'Other';
+  dataConnectivity: 'VPN' | 'Direct' | 'Cloud';
+  edgeCapability: boolean;
+  complianceRequirements: string[];
+  integrationPoints: string[];
+}
+
+interface Pilot {
+  id: string;
+  customerId: string;
+  scope: PilotScope;
+  duration: number; // weeks
+  successCriteria: SuccessCriteria;
+  timeline: PilotTimeline;
+  budget: number;
+}
+
+interface PilotScope {
+  wellCount: number;
+  facilityCount: number;
+  liftTypes: string[];
+  dataPoints: number;
+  alertTypes: string[];
+}
+
+interface SuccessCriteria {
+  falsePositiveReduction: number; // percentage
+  detectionLeadTime: number; // minutes
+  mttrReduction: number; // percentage
+  deferredProductionRecovery: number; // barrels/day
+}
+
+interface Customer {
+  id: string;
+  company: string;
+  tier: 'Startup' | 'Growth' | 'Enterprise';
+  contractValue: number;
+  deploymentStatus: 'Pilot' | 'Production' | 'Expansion';
+  assets: MonitoredAsset[];
+  subscription: Subscription;
+}
+
+interface MonitoredAsset {
+  id: string;
+  type: 'Well' | 'Facility';
+  liftType?: 'ESP' | 'RodPump' | 'GasLift' | 'PlungerLift';
+  facilityType?: 'Separator' | 'Compressor' | 'LACT' | 'TankBattery';
+  dataPoints: string[];
+  alertPolicies: AlertPolicy[];
+}
+
+interface AlertPolicy {
+  severity: 'Low' | 'Medium' | 'High' | 'Critical';
+  dwellTime: number; // minutes
+  suppressionWindow: number; // minutes
+  escalationRules: EscalationRule[];
+}
+
+interface EscalationRule {
+  timeToEscalate: number; // minutes
+  recipients: string[];
+  channels: ('Email' | 'SMS' | 'Teams' | 'CMMS')[];
+}
+
+interface Subscription {
+  plan: 'Pilot' | 'Standard' | 'Professional' | 'Enterprise';
+  wellsIncluded: number;
+  facilitiesIncluded: number;
+  monthlyRecurring: number;
+  addOns: AddOn[];
+}
+
+interface AddOn {
+  name: string;
+  description: string;
+  monthlyFee: number;
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const proposal = await generateProposal(qualifiedLead);
+  const pilot = await negotiatePilot(proposal);
+  const pilotResults = await executePilot(pilot);
+  const contract = await negotiateContract(pilotResults);
+  return await onboardCustomer(contract);
+}
+
+export async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  // Score lead based on fit criteria
+  const fitScore = await calculateFitScore(lead);
+  const urgencyScore = await assessUrgency(lead);
+  const budgetConfirmed = await confirmBudget(lead);
+  const technicalRequirements = await assessTechnicalRequirements(lead);
+  
+  if (fitScore < 0.6 || !budgetConfirmed) {
+    throw new Error('Lead does not meet qualification criteria');
+  }
+  
+  return {
+    ...lead,
+    fitScore,
+    urgencyScore,
+    budgetConfirmed,
+    technicalRequirements
+  };
+}
+
+export async function generateProposal(qualifiedLead: QualifiedLead): Promise<Pilot> {
+  const scope = await definePilotScope(qualifiedLead);
+  const successCriteria = await defineSuccessCriteria(qualifiedLead);
+  const timeline = await createPilotTimeline(scope);
+  const budget = await calculatePilotBudget(scope);
+  
+  return {
+    id: generateId(),
+    customerId: qualifiedLead.id,
+    scope,
+    duration: 8, // 8-week pilot
+    successCriteria,
+    timeline,
+    budget
+  };
+}
+
+export async function executePilot(pilot: Pilot): Promise<PilotResults> {
+  await deployEdgeGateways(pilot);
+  await configureDataConnections(pilot);
+  await trainAnomalyModels(pilot);
+  await calibrateAlertPolicies(pilot);
+  const results = await monitorPilotPerformance(pilot);
+  await generatePilotReport(results);
+  return results;
+}
+
+// Product Development Processes
+export async function developAnomalyModel(assetType: string, liftType?: string): Promise<AnomalyModel> {
+  const trainingData = await collectTrainingData(assetType, liftType);
+  const labeledData = await labelAnomalies(trainingData);
+  const model = await trainModel(labeledData);
+  const validatedModel = await validateModel(model);
+  await deployModelToEdge(validatedModel);
+  return validatedModel;
+}
+
+export async function enhancePlaybooks(failureMode: string): Promise<Playbook> {
+  const historicalCases = await queryHistoricalCases(failureMode);
+  const expertKnowledge = await captureExpertKnowledge(failureMode);
+  const playbook = await synthesizePlaybook(historicalCases, expertKnowledge);
+  const validatedPlaybook = await validateWithSMEs(playbook);
+  await deployPlaybook(validatedPlaybook);
+  return validatedPlaybook;
+}
+
+export async function integrateDataSource(sourceType: string, customer: Customer): Promise<Integration> {
+  const connector = await selectConnector(sourceType);
+  const credentials = await configureCredentials(customer, sourceType);
+  const tagMapping = await mapTags(customer, sourceType);
+  const integration = await testConnection(connector, credentials, tagMapping);
+  await deployIntegration(integration);
+  return integration;
+}
+
+// Revenue Generation Flows
+export async function processSubscriptionBilling(customer: Customer): Promise<Invoice> {
+  const usage = await calculateUsage(customer);
+  const baseCharges = await calculateBaseCharges(customer.subscription);
+  const addOnCharges = await calculateAddOnCharges(customer.subscription.addOns, usage);
+  const invoice = await generateInvoice(customer, baseCharges, addOnCharges);
+  await sendInvoice(invoice);
+  return invoice;
+}
+
+export async function expandCustomerAccount(customer: Customer, expansionRequest: ExpansionRequest): Promise<Customer> {
+  const feasibilityAssessment = await assessExpansionFeasibility(expansionRequest);
+  const updatedPricing = await calculateExpansionPricing(customer, expansionRequest);
+  const contract = await negotiateExpansionContract(customer, updatedPricing);
+  const updatedCustomer = await deployExpansion(customer, expansionRequest);
+  await updateBillingPlan(updatedCustomer);
+  return updatedCustomer;
+}
+
+export async function deliverProfessionalServices(customer: Customer, serviceType: string): Promise<ServiceDelivery> {
+  const statement = await createStatementOfWork(customer, serviceType);
+  const team = await assignServiceTeam(statement);
+  const delivery = await executeService(team, statement);
+  const results = await validateServiceResults(delivery);
+  await invoiceServices(customer, results);
+  return delivery;
+}
+
+// Operational Procedures
+export async function monitorSystemHealth(): Promise<HealthReport> {
+  const edgeGatewayStatus = await checkEdgeGateways();
+  const cloudInfrastructure = await checkCloudInfrastructure();
+  const modelPerformance = await checkModelPerformance();
+  const dataQuality = await checkDataQuality();
+  const alertLatency = await checkAlertLatency();
+  
+  const healthReport = {
+    timestamp: new Date(),
+    edgeGatewayStatus,
+    cloudInfrastructure,
+    modelPerformance,
+    dataQuality,
+    alertLatency,
+    overallHealth: calculateOverallHealth([
+      edgeGatewayStatus,
+      cloudInfrastructure,
+      modelPerformance,
+      dataQuality,
+      alertLatency
+    ])
+  };
+  
+  if (healthReport.overallHealth < 0.95) {
+    await escalateHealthIssue(healthReport);
+  }
+  
+  return healthReport;
+}
+
+export async function handleCustomerAlert(alert: CustomerAlert): Promise<AlertResolution> {
+  const severity = await classifyAlertSeverity(alert);
+  const rootCause = await diagnoseRootCause(alert);
+  const playbook = await retrievePlaybook(rootCause);
+  const recommendations = await generateRecommendations(playbook, alert);
+  
+  await notifyCustomer(alert, recommendations);
+  await createCMMSTicket(alert, recommendations);
+  
+  const resolution = await trackResolution(alert);
+  await updateModelFeedback(alert, resolution);
+  
+  return resolution;
+}
+
+export async function performMaintenanceWindow(customer: Customer): Promise<MaintenanceResult> {
+  await notifyCustomerMaintenance(customer);
+  await pauseAlerting(customer);
+  
+  const modelUpdates = await deployModelUpdates(customer);
+  const configUpdates = await updateConfigurations(customer);
+  const systemUpdates = await updateSystemComponents(customer);
+  
+  await resumeAlerting(customer);
+  await validatePostMaintenance(customer);
+  await notifyMaintenanceComplete(customer);
+  
+  return {
+    modelUpdates,
+    configUpdates,
+    systemUpdates,
+    success: true
+  };
+}
+
+// Decision-Making Workflows
+export async function evaluateCustomerRenewal(customer: Customer): Promise<RenewalDecision> {
+  const usageAnalysis = await analyzeCustomerUsage(customer);
+  const satisfactionScore = await calculateSatisfactionScore(customer);
+  const businessImpact = await measureBusinessImpact(customer);
+  const competitiveRisk = await assessCompetitiveRisk(customer);
+  
+  const renewalProbability = await calculateRenewalProbability({
+    usageAnalysis,
+    satisfactionScore,
+    businessImpact,
+    competitiveRisk
+  });
+  
+  if (renewalProbability < 0.7) {
+    await initiateRetentionCampaign(customer);
+  }
+  
+  const renewalStrategy = await developRenewalStrategy(customer, renewalProbability);
+  
+  return {
+    customer,
+    renewalProbability,
+    strategy: renewalStrategy,
+    actionItems: await generateRenewalActionItems(renewalStrategy)
+  };
+}
+
+export async function prioritizeProductRoadmap(features: FeatureRequest[]): Promise<RoadmapPriority[]> {
+  const customerDemand = await analyzeCustomerDemand(features);
+  const technicalComplexity = await assessTechnicalComplexity(features);
+  const businessValue = await calculateBusinessValue(features);
+  const competitiveAdvantage = await evaluateCompetitiveAdvantage(features);
+  
+  const priorityScores = features.map(feature => ({
+    feature,
+    score: calculatePriorityScore({
+      demand: customerDemand[feature.id],
+      complexity: technicalComplexity[feature.id],
+      value: businessValue[feature.id],
+      advantage: competitiveAdvantage[feature.id]
+    })
+  }));
+  
+  return priorityScores
+    .sort((a, b) => b.score - a.score)
+    .map((item, index) => ({
+      ...item,
+      priority: index + 1,
+      quarter: assignToQuarter(item.feature, index)
+    }));
+}
+
+export async function makeInvestmentDecision(opportunity: InvestmentOpportunity): Promise<InvestmentDecision> {
+  const marketAnalysis = await analyzeMarketOpportunity(opportunity);
+  const technicalFeasibility = await assessTechnicalFeasibility(opportunity);
+  const financialProjection = await projectFinancials(opportunity);
+  const riskAssessment = await assessRisks(opportunity);
+  const resourceRequirements = await calculateResourceNeeds(opportunity);
+  
+  const roi = calculateROI(financialProjection, resourceRequirements);
+  const paybackPeriod = calculatePaybackPeriod(financialProjection);
+  const riskScore = calculateRiskScore(riskAssessment);
+  
+  const recommendation = await generateInvestmentRecommendation({
+    marketAnalysis,
+    technicalFeasibility,
+    roi,
+    paybackPeriod,
+    riskScore
+  });
+  
+  return {
+    opportunity,
+    recommendation,
+    roi,
+    paybackPeriod,
+    riskScore,
+    rationale: await generateDecisionRationale(recommendation)
+  };
+}
+
+// Helper types for the above functions
+interface PilotResults {
+  successCriteriaMetrics: Record<string, number>;
+  customerFeedback: string;
+  technicalPerformance: TechnicalMetrics;
+  businessImpact: BusinessImpactMetrics;
+}
+
+interface PilotTimeline {
+  phases: PilotPhase[];
+  totalDuration: number;
+  milestones: Milestone[];
+}
+
+interface PilotPhase {
+  name: string;
+  duration: number;
+  deliverables: string[];
+}
+
+interface Milestone {
+  name: string;
+  date: Date;
+  criteria: string[];
+}
+
+interface AnomalyModel {
+  id: string;
+  assetType: string;
+  liftType?: string;
+  version: string;
+  accuracy: number;
+  precision: number;
+  recall: number;
+  deploymentStatus: 'Training' | 'Validation' | 'Deployed' | 'Deprecated';
+}
+
+interface Playbook {
+  id: string;
+  failureMode: string;
+  symptoms: string[];
+  diagnosticSteps: string[];
+  recommendedActions: string[];
+  estimatedTimeToFix: number;
+  confidence: number;
+}
+
+interface Integration {
+  id: string;
+  sourceType: string;
+  status: 'Active' | 'Inactive' | 'Error';
+  lastSync: Date;
+  dataQualityScore: number;
+}
+
+interface Invoice {
+  id: string;
+  customerId: string;
+  amount: number;
+  dueDate: Date;
+  lineItems: LineItem[];
+}
+
+interface LineItem {
+  description: string;
+  quantity: number;
+  unitPrice: number;
+  total: number;
+}
+
+interface ExpansionRequest {
+  additionalWells: number;
+  additionalFacilities: number;
+  newBasins: string[];
+  additionalFeatures: string[];
+}
+
+interface ServiceDelivery {
+  id: string;
+  serviceType: string;
+  status: 'Planned' | 'InProgress' | 'Completed' | 'Cancelled';
+  deliverables: string[];
+  hoursSpent: number;
+}
+
+interface HealthReport {
+  timestamp: Date;
+  edgeGatewayStatus: number;
+  cloudInfrastructure: number;
+  modelPerformance: number;
+  dataQuality: number;
+  alertLatency: number;
+  overallHealth: number;
+}
+
+interface CustomerAlert {
+  id: string;
+  customerId: string;
+  assetId: string;
+  severity: 'Low' | 'Medium' | 'High' | 'Critical';
+  message: string;
+  timestamp: Date;
+  dataSnapshot: Record<string, any>;
+}
+
+interface AlertResolution {
+  alertId: string;
+  resolvedAt: Date;
+  actualCause: string;
+  actionsTaken: string[];
+  downtime: number;
+  deferredProduction: number;
+}
+
+interface MaintenanceResult {
+  modelUpdates: string[];
+  configUpdates: string[];
+  systemUpdates: string[];
+  success: boolean;
+}
+
+interface RenewalDecision {
+  customer: Customer;
+  renewalProbability: number;
+  strategy: RenewalStrategy;
+  actionItems: ActionItem[];
+}
+
+interface RenewalStrategy {
+  approach: 'Standard' | 'Retention' | 'Expansion' | 'Migration';
+  pricing: PricingStrategy;
+  timeline: Date[];
+  stakeholders: string[];
+}
+
+interface ActionItem {
+  task: string;
+  owner: string;
+  dueDate: Date;
+  priority: 'Low' | 'Medium' | 'High';
+}
+
+interface PricingStrategy {
+  discountPercentage?: number;
+  additionalFeatures?: string[];
+  contractLength: number;
+  paymentTerms: string;
+}
+
+interface FeatureRequest {
+  id: string;
+  title: string;
+  description: string;
+  requestedBy: string[];
+  estimatedEffort: number;
+}
+
+interface RoadmapPriority {
+  feature: FeatureRequest;
+  score: number;
+  priority: number;
+  quarter: string;
+}
+
+interface InvestmentOpportunity {
+  id: string;
+  title: string;
+  description: string;
+  estimatedInvestment: number;
+  timeframe: number;
+  strategicAlignment: number;
+}
+
+interface InvestmentDecision {
+  opportunity: InvestmentOpportunity;
+  recommendation: 'Approve' | 'Reject' | 'Defer' | 'ModifyAndApprove';
+  roi: number;
+  paybackPeriod: number;
+  riskScore: number;
+  rationale: string;
+}
+
+interface TechnicalMetrics {
+  detectionLatency: number;
+  falsePositiveRate: number;
+  modelAccuracy: number;
+  systemUptime: number;
+}
+
+interface BusinessImpactMetrics {
+  deferredProductionAvoided: number;
+  mttrReduction: number;
+  truckRollsReduced: number;
+  methaneIntensityReduction: number;
+}
+```
