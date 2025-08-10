@@ -329,3 +329,403 @@ landingPage:
 
 Generated for NAICS 111110 — Soybean Farming.
 Service: Soil Fertility & Lime Variable-Rate Prescriptions (P/K/Lime)
+
+## Business Process Functions
+
+```typescript
+// Core data types
+interface SoilTestData {
+  fieldId: string;
+  coordinates: { lat: number; lng: number }[];
+  testResults: {
+    pH: number;
+    phosphorus: number; // ppm or lbs/ac
+    potassium: number; // ppm or lbs/ac
+    organicMatter: number;
+    cationExchangeCapacity: number;
+    soilTexture: 'sand' | 'loam' | 'clay' | 'silt';
+  }[];
+  testDate: Date;
+  labProvider: string;
+}
+
+interface Lead {
+  id: string;
+  farmName: string;
+  contactInfo: {
+    name: string;
+    email: string;
+    phone: string;
+  };
+  acreage: number;
+  region: string;
+  currentPractices: string[];
+  painPoints: string[];
+  source: 'referral' | 'demo' | 'website' | 'event';
+}
+
+interface Customer {
+  id: string;
+  farmName: string;
+  contactInfo: {
+    name: string;
+    email: string;
+    phone: string;
+  };
+  subscription: {
+    plan: 'startup' | 'growth' | 'enterprise';
+    acreage: number;
+    pricePerAcre: number;
+  };
+  fields: string[];
+  onboardingComplete: boolean;
+}
+
+interface PrescriptionRequest {
+  fieldId: string;
+  soilTestData: SoilTestData;
+  yieldGoal: number;
+  budgetConstraints: {
+    maxCostPerAcre: number;
+    preferredProducts: string[];
+  };
+  applicationWindow: {
+    startDate: Date;
+    endDate: Date;
+  };
+  equipmentSpecs: {
+    spreaderType: string;
+    minRate: number;
+    maxRate: number;
+    sectionWidth: number;
+  };
+}
+
+interface Prescription {
+  id: string;
+  fieldId: string;
+  zones: {
+    zoneId: string;
+    coordinates: { lat: number; lng: number }[];
+    recommendations: {
+      phosphorus: { rate: number; product: string; cost: number };
+      potassium: { rate: number; product: string; cost: number };
+      lime: { rate: number; product: string; enpValue: number; cost: number };
+    };
+    expectedYieldResponse: number;
+    costPerAcre: number;
+  }[];
+  totalCost: number;
+  projectedSavings: number;
+  controllerFiles: {
+    format: 'ISOXML' | 'shapefile' | 'johnDeere' | 'agLeader';
+    fileUrl: string;
+  }[];
+  status: 'draft' | 'approved' | 'applied';
+  createdAt: Date;
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const demo = await scheduleDemoField(qualifiedLead);
+  const proposal = await generateProposal(demo);
+  const contract = await negotiateContract(proposal);
+  return await onboardCustomer(contract);
+}
+
+export async function qualifyLead(lead: Lead): Promise<Lead & { qualified: boolean; score: number }> {
+  const qualificationCriteria = {
+    minAcreage: 2000,
+    targetRegions: ['midwest', 'delta'],
+    existingSoilTesting: true,
+    variableRateCapability: true
+  };
+  
+  const score = calculateLeadScore(lead, qualificationCriteria);
+  const qualified = score >= 70;
+  
+  if (qualified) {
+    await sendQualificationEmail(lead);
+    await scheduleFollowUp(lead, '24_hours');
+  }
+  
+  return { ...lead, qualified, score };
+}
+
+export async function scheduleDemoField(lead: Lead): Promise<{ lead: Lead; demoField: string; demoDate: Date }> {
+  const availableFields = await identifyDemoFields(lead.region);
+  const selectedField = await selectOptimalDemoField(availableFields, lead.acreage);
+  const demoDate = await findAvailableSlot(lead.contactInfo, selectedField);
+  
+  await sendDemoConfirmation(lead, selectedField, demoDate);
+  await prepareFieldData(selectedField);
+  
+  return { lead, demoField: selectedField, demoDate };
+}
+
+// Product Development Processes
+export async function developPrescriptionEngine(): Promise<void> {
+  await calibrateRegionalGuidelines();
+  await trainMLModels();
+  await validateUniversityAlignment();
+  await testControllerCompatibility();
+  await optimizeEconomicAlgorithms();
+}
+
+export async function calibrateRegionalGuidelines(): Promise<void> {
+  const universities = ['iowa_state', 'purdue', 'ohio_state', 'illinois'];
+  
+  for (const university of universities) {
+    const guidelines = await fetchUniversityGuidelines(university);
+    await validateGuidelines(guidelines);
+    await integrateIntoEngine(university, guidelines);
+  }
+  
+  await runCalibrationTests();
+  await generateAccuracyReport();
+}
+
+export async function trainMLModels(): Promise<void> {
+  const trainingData = await aggregateHistoricalData();
+  const models = {
+    yieldResponse: await trainYieldResponseModel(trainingData),
+    costOptimization: await trainCostOptimizationModel(trainingData),
+    logisticsPlanning: await trainLogisticsModel(trainingData)
+  };
+  
+  await validateModelAccuracy(models);
+  await deployModelsToProduction(models);
+}
+
+// Revenue Generation Flows
+export async function generateRevenue(customer: Customer, prescriptionRequest: PrescriptionRequest): Promise<number> {
+  const prescription = await createPrescription(prescriptionRequest);
+  const invoice = await generateInvoice(customer, prescription);
+  const payment = await processPayment(invoice);
+  await deliverPrescription(prescription);
+  
+  return payment.amount;
+}
+
+export async function createPrescription(request: PrescriptionRequest): Promise<Prescription> {
+  const soilAnalysis = await analyzeSoilData(request.soilTestData);
+  const zones = await generateManagementZones(soilAnalysis);
+  const recommendations = await calculateRecommendations(zones, request.yieldGoal);
+  const optimizedRecs = await optimizeEconomics(recommendations, request.budgetConstraints);
+  const controllerFiles = await generateControllerFiles(optimizedRecs, request.equipmentSpecs);
+  
+  const prescription: Prescription = {
+    id: generateId(),
+    fieldId: request.fieldId,
+    zones: optimizedRecs,
+    totalCost: calculateTotalCost(optimizedRecs),
+    projectedSavings: calculateProjectedSavings(optimizedRecs),
+    controllerFiles,
+    status: 'draft',
+    createdAt: new Date()
+  };
+  
+  await savePrescription(prescription);
+  await notifyCustomer(prescription);
+  
+  return prescription;
+}
+
+export async function processSubscriptionBilling(customer: Customer): Promise<void> {
+  const usage = await calculateMonthlyUsage(customer);
+  const invoice = await generateSubscriptionInvoice(customer, usage);
+  
+  try {
+    await chargeCustomer(invoice);
+    await updateSubscriptionStatus(customer.id, 'active');
+    await sendInvoiceReceipt(customer, invoice);
+  } catch (error) {
+    await handlePaymentFailure(customer, invoice, error);
+  }
+}
+
+// Operational Procedures
+export async function processFieldData(soilTestData: SoilTestData): Promise<Prescription> {
+  const validatedData = await validateSoilData(soilTestData);
+  const qcResults = await runQualityControl(validatedData);
+  const harmonizedData = await harmonizeUnits(qcResults);
+  const enrichedData = await enrichWithSpatialData(harmonizedData);
+  
+  return await generatePrescriptionFromData(enrichedData);
+}
+
+export async function validateSoilData(data: SoilTestData): Promise<SoilTestData> {
+  const validationRules = {
+    pHRange: { min: 4.0, max: 9.0 },
+    phosphorusRange: { min: 0, max: 200 },
+    potassiumRange: { min: 0, max: 800 },
+    coordinateValidation: true
+  };
+  
+  const errors = [];
+  
+  for (const result of data.testResults) {
+    if (result.pH < validationRules.pHRange.min || result.pH > validationRules.pHRange.max) {
+      errors.push(`Invalid pH value: ${result.pH}`);
+    }
+    // Additional validation logic...
+  }
+  
+  if (errors.length > 0) {
+    throw new Error(`Soil data validation failed: ${errors.join(', ')}`);
+  }
+  
+  return data;
+}
+
+export async function optimizeLogistics(prescriptions: Prescription[]): Promise<{
+  blendSheets: any[];
+  truckLoads: any[];
+  fieldSequence: string[];
+  routingPlan: any;
+}> {
+  const productNeeds = await aggregateProductNeeds(prescriptions);
+  const blendSheets = await generateBlendSheets(productNeeds);
+  const truckLoads = await optimizeTruckLoads(blendSheets);
+  const fieldSequence = await optimizeFieldSequence(prescriptions);
+  const routingPlan = await generateRoutingPlan(fieldSequence, truckLoads);
+  
+  return { blendSheets, truckLoads, fieldSequence, routingPlan };
+}
+
+// Decision-Making Workflows
+export async function evaluatePrescriptionApproval(prescription: Prescription): Promise<{
+  approved: boolean;
+  confidence: number;
+  reasoning: string[];
+  requiredActions?: string[];
+}> {
+  const agronomicValidation = await validateAgronomicSoundness(prescription);
+  const economicAnalysis = await analyzeEconomicViability(prescription);
+  const riskAssessment = await assessApplicationRisk(prescription);
+  const complianceCheck = await verify4RCompliance(prescription);
+  
+  const confidence = calculateOverallConfidence([
+    agronomicValidation.confidence,
+    economicAnalysis.confidence,
+    riskAssessment.confidence,
+    complianceCheck.confidence
+  ]);
+  
+  const approved = confidence >= 0.85 && 
+                  agronomicValidation.approved && 
+                  economicAnalysis.viable && 
+                  riskAssessment.acceptable &&
+                  complianceCheck.compliant;
+  
+  const reasoning = [
+    ...agronomicValidation.reasoning,
+    ...economicAnalysis.reasoning,
+    ...riskAssessment.reasoning,
+    ...complianceCheck.reasoning
+  ];
+  
+  const requiredActions = approved ? undefined : [
+    ...agronomicValidation.requiredActions || [],
+    ...economicAnalysis.requiredActions || [],
+    ...riskAssessment.requiredActions || [],
+    ...complianceCheck.requiredActions || []
+  ];
+  
+  return { approved, confidence, reasoning, requiredActions };
+}
+
+export async function handleCustomerFeedback(
+  customerId: string, 
+  prescriptionId: string, 
+  feedback: {
+    rating: number;
+    comments: string;
+    actualYield?: number;
+    actualCost?: number;
+    applicationIssues?: string[];
+  }
+): Promise<void> {
+  await recordFeedback(customerId, prescriptionId, feedback);
+  
+  if (feedback.rating <= 3) {
+    await triggerCustomerSuccess(customerId, feedback);
+  }
+  
+  if (feedback.actualYield && feedback.actualCost) {
+    await updateModelTrainingData(prescriptionId, {
+      predictedYield: await getPredictedYield(prescriptionId),
+      actualYield: feedback.actualYield,
+      predictedCost: await getPredictedCost(prescriptionId),
+      actualCost: feedback.actualCost
+    });
+  }
+  
+  if (feedback.applicationIssues && feedback.applicationIssues.length > 0) {
+    await analyzeApplicationIssues(prescriptionId, feedback.applicationIssues);
+    await updateControllerCompatibility(feedback.applicationIssues);
+  }
+}
+
+// Helper functions (would be implemented separately)
+async function calculateLeadScore(lead: Lead, criteria: any): Promise<number> { return 85; }
+async function sendQualificationEmail(lead: Lead): Promise<void> {}
+async function scheduleFollowUp(lead: Lead, timing: string): Promise<void> {}
+async function identifyDemoFields(region: string): Promise<string[]> { return []; }
+async function selectOptimalDemoField(fields: string[], acreage: number): Promise<string> { return ''; }
+async function findAvailableSlot(contact: any, field: string): Promise<Date> { return new Date(); }
+async function sendDemoConfirmation(lead: Lead, field: string, date: Date): Promise<void> {}
+async function prepareFieldData(field: string): Promise<void> {}
+async function fetchUniversityGuidelines(university: string): Promise<any> { return {}; }
+async function validateGuidelines(guidelines: any): Promise<void> {}
+async function integrateIntoEngine(university: string, guidelines: any): Promise<void> {}
+async function runCalibrationTests(): Promise<void> {}
+async function generateAccuracyReport(): Promise<void> {}
+async function aggregateHistoricalData(): Promise<any> { return {}; }
+async function trainYieldResponseModel(data: any): Promise<any> { return {}; }
+async function trainCostOptimizationModel(data: any): Promise<any> { return {}; }
+async function trainLogisticsModel(data: any): Promise<any> { return {}; }
+async function validateModelAccuracy(models: any): Promise<void> {}
+async function deployModelsToProduction(models: any): Promise<void> {}
+async function generateInvoice(customer: Customer, prescription: Prescription): Promise<any> { return {}; }
+async function processPayment(invoice: any): Promise<{ amount: number }> { return { amount: 0 }; }
+async function deliverPrescription(prescription: Prescription): Promise<void> {}
+async function analyzeSoilData(data: SoilTestData): Promise<any> { return {}; }
+async function generateManagementZones(analysis: any): Promise<any[]> { return []; }
+async function calculateRecommendations(zones: any[], yieldGoal: number): Promise<any[]> { return []; }
+async function optimizeEconomics(recs: any[], constraints: any): Promise<any[]> { return []; }
+async function generateControllerFiles(recs: any[], specs: any): Promise<any[]> { return []; }
+async function generateId(): string { return Math.random().toString(36); }
+async function calculateTotalCost(zones: any[]): number { return 0; }
+async function calculateProjectedSavings(zones: any[]): number { return 0; }
+async function savePrescription(prescription: Prescription): Promise<void> {}
+async function notifyCustomer(prescription: Prescription): Promise<void> {}
+async function calculateMonthlyUsage(customer: Customer): Promise<any> { return {}; }
+async function generateSubscriptionInvoice(customer: Customer, usage: any): Promise<any> { return {}; }
+async function chargeCustomer(invoice: any): Promise<void> {}
+async function updateSubscriptionStatus(customerId: string, status: string): Promise<void> {}
+async function sendInvoiceReceipt(customer: Customer, invoice: any): Promise<void> {}
+async function handlePaymentFailure(customer: Customer, invoice: any, error: any): Promise<void> {}
+async function runQualityControl(data: SoilTestData): Promise<SoilTestData> { return data; }
+async function harmonizeUnits(data: SoilTestData): Promise<SoilTestData> { return data; }
+async function enrichWithSpatialData(data: SoilTestData): Promise<SoilTestData> { return data; }
+async function generatePrescriptionFromData(data: SoilTestData): Promise<Prescription> { return {} as Prescription; }
+async function aggregateProductNeeds(prescriptions: Prescription[]): Promise<any> { return {}; }
+async function generateBlendSheets(needs: any): Promise<any[]> { return []; }
+async function optimizeTruckLoads(sheets: any[]): Promise<any[]> { return []; }
+async function optimizeFieldSequence(prescriptions: Prescription[]): Promise<string[]> { return []; }
+async function generateRoutingPlan(sequence: string[], loads: any[]): Promise<any> { return {}; }
+async function validateAgronomicSoundness(prescription: Prescription): Promise<any> { return { approved: true, confidence: 0.9, reasoning: [] }; }
+async function analyzeEconomicViability(prescription: Prescription): Promise<any> { return { viable: true, confidence: 0.9, reasoning: [] }; }
+async function assessApplicationRisk(prescription: Prescription): Promise<any> { return { acceptable: true, confidence: 0.9, reasoning: [] }; }
+async function verify4RCompliance(prescription: Prescription): Promise<any> { return { compliant: true, confidence: 0.9, reasoning: [] }; }
+function calculateOverallConfidence(confidences: number[]): number { return confidences.reduce((a, b) => a + b) / confidences.length; }
+async function recordFeedback(customerId: string, prescriptionId: string, feedback: any): Promise<void> {}
+async function triggerCustomerSuccess(customerId: string, feedback: any): Promise<void> {}
+async function updateModelTrainingData(prescriptionId: string, data: any): Promise<void> {}
+async function getPredictedYield(prescriptionId: string): Promise<number> { return 0; }
+async function getPredictedCost(prescriptionId: string): Promise<number> { return 0; }
+async function analyzeApplicationIssues(prescriptionId: string, issues: string[]): Promise<void> {}
+async function updateControllerCompatibility(issues: string[]): Promise<void> {}
+```
