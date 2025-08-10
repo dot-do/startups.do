@@ -292,7 +292,574 @@ landingPage:
     - '4) Integrate maintenance: auto-create work orders and spares reservations.'
     - '5) Scale and refine: add assets, review KPIs, and iterate models.'
 ---
+
 # PolyRotor Predictive
 
 Generated for NAICS 325212 — Synthetic Rubber Manufacturing.
 Service: PdM for Compressors/Pumps/Gearboxes
+
+## Business Workflow Functions
+
+```typescript
+// Core business process types and interfaces
+interface Lead {
+  id: string;
+  companyName: string;
+  plantLocation: string;
+  contactInfo: ContactInfo;
+  assetCount: number;
+  recentDowntimeEvents: DowntimeEvent[];
+  existingSystems: ExistingSystems;
+  qualificationScore?: number;
+}
+
+interface Customer {
+  id: string;
+  lead: Lead;
+  contract: Contract;
+  onboardingStatus: OnboardingStatus;
+  assets: Asset[];
+  healthScores: AssetHealthScore[];
+}
+
+interface Asset {
+  id: string;
+  type: 'pump' | 'compressor' | 'gearbox';
+  criticality: 'high' | 'medium' | 'low';
+  location: string;
+  specifications: AssetSpecs;
+  sensors: Sensor[];
+  maintenanceHistory: MaintenanceRecord[];
+}
+
+interface PredictiveMaintenanceAlert {
+  assetId: string;
+  severity: 'critical' | 'warning' | 'info';
+  remainingUsefulLife: number;
+  confidenceInterval: [number, number];
+  rootCause: string;
+  recommendedActions: string[];
+  workOrderPriority: number;
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  // Step 1: Qualify the lead based on plant characteristics
+  const qualifiedLead = await qualifyLead(lead);
+  
+  if (qualifiedLead.qualificationScore < 70) {
+    throw new Error('Lead does not meet qualification criteria');
+  }
+
+  // Step 2: Conduct technical assessment and generate proposal
+  const technicalAssessment = await conductTechnicalAssessment(qualifiedLead);
+  const proposal = await generateProposal(qualifiedLead, technicalAssessment);
+  
+  // Step 3: Negotiate contract terms and pricing
+  const contract = await negotiateContract(proposal);
+  
+  // Step 4: Onboard the new customer
+  const customer = await onboardCustomer(qualifiedLead, contract);
+  
+  return customer;
+}
+
+export async function qualifyLead(lead: Lead): Promise<Lead> {
+  let score = 0;
+  
+  // Check for required systems (historian, CMMS)
+  if (lead.existingSystems.historian && lead.existingSystems.cmms) {
+    score += 30;
+  }
+  
+  // Evaluate asset count (20-80 critical assets preferred)
+  if (lead.assetCount >= 20 && lead.assetCount <= 80) {
+    score += 25;
+  }
+  
+  // Recent downtime events indicate pain point
+  if (lead.recentDowntimeEvents.length > 0) {
+    score += 25;
+  }
+  
+  // NAICS 325212 synthetic rubber plants get priority
+  if (lead.companyName.includes('rubber') || lead.companyName.includes('polymer')) {
+    score += 20;
+  }
+  
+  return { ...lead, qualificationScore: score };
+}
+
+// Product Development Processes
+export async function developPredictiveModel(
+  assetType: Asset['type'],
+  trainingData: SensorData[],
+  operatingConditions: OperatingConditions[]
+): Promise<PredictiveModel> {
+  // Step 1: Data preprocessing and feature engineering
+  const processedData = await preprocessSensorData(trainingData);
+  const features = await extractPolymerServiceFeatures(processedData, operatingConditions);
+  
+  // Step 2: Train hybrid physics + ML model
+  const physicsModel = await buildPhysicsInformedModel(assetType);
+  const mlModel = await trainMachineLearningModel(features);
+  const hybridModel = await combineModels(physicsModel, mlModel);
+  
+  // Step 3: Validate model performance
+  const validation = await validateModel(hybridModel, testData);
+  
+  if (validation.meanAbsoluteError > 0.20) {
+    throw new Error('Model does not meet <20% MAE requirement');
+  }
+  
+  return hybridModel;
+}
+
+export async function segmentOperatingModes(
+  sensorData: SensorData[],
+  processConditions: ProcessConditions[]
+): Promise<OperatingMode[]> {
+  // Handle batch/transient operation cycles specific to polymer service
+  const modes = await identifyOperatingModes(sensorData, processConditions);
+  
+  // Filter out transient periods to reduce false alarms
+  const stableModes = modes.filter(mode => mode.duration > 300); // 5+ minutes
+  
+  return stableModes;
+}
+
+// Revenue Generation Flows
+export async function generateRevenue(customer: Customer): Promise<RevenueStream[]> {
+  const revenueStreams: RevenueStream[] = [];
+  
+  // SaaS subscription revenue per asset
+  const subscriptionRevenue = await calculateSubscriptionRevenue(customer);
+  revenueStreams.push(subscriptionRevenue);
+  
+  // Implementation and integration fees
+  if (customer.onboardingStatus === 'new') {
+    const implementationFee = await calculateImplementationFee(customer);
+    revenueStreams.push(implementationFee);
+  }
+  
+  // Optional managed services
+  if (customer.contract.managedServices) {
+    const managedServicesRevenue = await calculateManagedServicesRevenue(customer);
+    revenueStreams.push(managedServicesRevenue);
+  }
+  
+  // Performance-linked upside based on verified savings
+  const performanceBonus = await calculatePerformanceBonus(customer);
+  if (performanceBonus.amount > 0) {
+    revenueStreams.push(performanceBonus);
+  }
+  
+  return revenueStreams;
+}
+
+export async function calculateSubscriptionRevenue(customer: Customer): Promise<RevenueStream> {
+  const assetTiers = customer.assets.map(asset => {
+    const basePrice = asset.criticality === 'high' ? 3000 : 
+                     asset.criticality === 'medium' ? 2000 : 1000;
+    
+    return {
+      assetId: asset.id,
+      annualPrice: basePrice,
+      monthlyPrice: basePrice / 12
+    };
+  });
+  
+  const totalAnnual = assetTiers.reduce((sum, tier) => sum + tier.annualPrice, 0);
+  
+  return {
+    type: 'subscription',
+    amount: totalAnnual,
+    frequency: 'annual',
+    description: `SaaS subscription for ${customer.assets.length} monitored assets`
+  };
+}
+
+// Operational Procedures
+export async function monitorAssetHealth(assets: Asset[]): Promise<PredictiveMaintenanceAlert[]> {
+  const alerts: PredictiveMaintenanceAlert[] = [];
+  
+  for (const asset of assets) {
+    try {
+      // Ingest multi-signal data from historian and sensors
+      const sensorData = await ingestSensorData(asset);
+      const processData = await ingestProcessData(asset);
+      
+      // Detect anomalies vs contextual baselines
+      const anomalies = await detectAnomalies(sensorData, processData, asset);
+      
+      if (anomalies.length > 0) {
+        // Estimate RUL and failure mode likelihood
+        const rulEstimate = await estimateRemainingUsefulLife(asset, anomalies);
+        const failureModes = await identifyFailureModes(anomalies, asset.type);
+        
+        // Generate alert with recommended actions
+        const alert: PredictiveMaintenanceAlert = {
+          assetId: asset.id,
+          severity: rulEstimate.days < 7 ? 'critical' : 
+                   rulEstimate.days < 30 ? 'warning' : 'info',
+          remainingUsefulLife: rulEstimate.days,
+          confidenceInterval: rulEstimate.confidenceInterval,
+          rootCause: failureModes[0]?.description || 'Unknown',
+          recommendedActions: await generateRecommendedActions(failureModes, asset),
+          workOrderPriority: calculateWorkOrderPriority(rulEstimate, asset.criticality)
+        };
+        
+        alerts.push(alert);
+      }
+    } catch (error) {
+      console.error(`Error monitoring asset ${asset.id}:`, error);
+      // Continue monitoring other assets
+    }
+  }
+  
+  return alerts;
+}
+
+export async function integrateWithCMMS(
+  alerts: PredictiveMaintenanceAlert[],
+  cmmsSystem: 'SAP_PM' | 'Maximo'
+): Promise<WorkOrder[]> {
+  const workOrders: WorkOrder[] = [];
+  
+  for (const alert of alerts) {
+    try {
+      // Draft inspection/work order with parts list and priority
+      const workOrder = await createWorkOrder(alert, cmmsSystem);
+      
+      // Auto-generate prioritized notifications aligned to RUL and maintenance windows
+      await scheduleWorkOrder(workOrder, alert.remainingUsefulLife);
+      
+      workOrders.push(workOrder);
+    } catch (error) {
+      console.error(`Failed to create work order for alert ${alert.assetId}:`, error);
+    }
+  }
+  
+  return workOrders;
+}
+
+// Decision-Making Workflows
+export async function prioritizeAssets(
+  assets: Asset[],
+  productionPlan: ProductionPlan,
+  safetyRisks: SafetyRisk[]
+): Promise<Asset[]> {
+  // Focus on top 20-40% high-impact assets
+  const scoredAssets = assets.map(asset => ({
+    ...asset,
+    impactScore: calculateImpactScore(asset, productionPlan, safetyRisks)
+  }));
+  
+  // Sort by impact score and take top 40%
+  const sortedAssets = scoredAssets.sort((a, b) => b.impactScore - a.impactScore);
+  const topAssets = sortedAssets.slice(0, Math.ceil(assets.length * 0.4));
+  
+  return topAssets;
+}
+
+export async function makeMaintenanceDecision(
+  alert: PredictiveMaintenanceAlert,
+  maintenanceWindows: MaintenanceWindow[],
+  spareParts: SparePart[]
+): Promise<MaintenanceDecision> {
+  // Evaluate maintenance timing options
+  const urgency = alert.severity === 'critical' ? 'immediate' :
+                 alert.remainingUsefulLife < 14 ? 'urgent' : 'planned';
+  
+  // Check spare parts availability
+  const requiredParts = await identifyRequiredParts(alert);
+  const partsAvailable = requiredParts.every(part => 
+    spareParts.some(spare => spare.partNumber === part.partNumber && spare.quantity > 0)
+  );
+  
+  // Find optimal maintenance window
+  const optimalWindow = await findOptimalMaintenanceWindow(
+    alert.remainingUsefulLife,
+    maintenanceWindows,
+    urgency
+  );
+  
+  return {
+    alertId: alert.assetId,
+    decision: urgency === 'immediate' ? 'emergency_maintenance' : 'scheduled_maintenance',
+    scheduledDate: optimalWindow?.startDate,
+    requiredParts,
+    estimatedDuration: await estimateMaintenanceDuration(alert.rootCause),
+    riskAssessment: await assessMaintenanceRisk(alert, optimalWindow)
+  };
+}
+
+export async function optimizeMaintenanceStrategy(
+  customer: Customer,
+  performanceMetrics: PerformanceMetrics
+): Promise<MaintenanceStrategy> {
+  // Analyze historical performance and adjust thresholds
+  const analysis = await analyzeMaintenancePerformance(performanceMetrics);
+  
+  // Optimize alert thresholds to reduce false positives
+  if (analysis.falsePositiveRate > 0.02) {
+    await adjustAlertThresholds(customer.assets, analysis);
+  }
+  
+  // Recommend changes to maintenance intervals
+  const intervalRecommendations = await optimizeMaintenanceIntervals(
+    customer.assets,
+    analysis.mtbfData
+  );
+  
+  return {
+    customerId: customer.id,
+    optimizedThresholds: analysis.recommendedThresholds,
+    intervalAdjustments: intervalRecommendations,
+    expectedImprovements: {
+      downtimeReduction: analysis.projectedDowntimeReduction,
+      costSavings: analysis.projectedCostSavings,
+      falsePositiveReduction: analysis.projectedFalsePositiveReduction
+    }
+  };
+}
+
+// Utility functions (would be implemented separately)
+async function conductTechnicalAssessment(lead: Lead): Promise<TechnicalAssessment> {
+  // Implementation would assess plant infrastructure, data availability, etc.
+  throw new Error('Not implemented');
+}
+
+async function generateProposal(lead: Lead, assessment: TechnicalAssessment): Promise<Proposal> {
+  // Implementation would create customized proposal based on assessment
+  throw new Error('Not implemented');
+}
+
+async function negotiateContract(proposal: Proposal): Promise<Contract> {
+  // Implementation would handle contract negotiation workflow
+  throw new Error('Not implemented');
+}
+
+async function onboardCustomer(lead: Lead, contract: Contract): Promise<Customer> {
+  // Implementation would handle customer onboarding process
+  throw new Error('Not implemented');
+}
+
+// Additional type definitions would be defined in separate files
+interface ContactInfo {
+  name: string;
+  email: string;
+  phone: string;
+  title: string;
+}
+
+interface DowntimeEvent {
+  date: Date;
+  duration: number;
+  cause: string;
+  cost: number;
+}
+
+interface ExistingSystems {
+  historian: boolean;
+  cmms: boolean;
+  vibrationMonitoring: boolean;
+}
+
+interface Contract {
+  id: string;
+  startDate: Date;
+  duration: number;
+  value: number;
+  managedServices: boolean;
+}
+
+interface OnboardingStatus {
+  status: 'new' | 'in_progress' | 'complete';
+  completionPercentage: number;
+}
+
+interface AssetSpecs {
+  manufacturer: string;
+  model: string;
+  capacity: number;
+  operatingConditions: OperatingConditions;
+}
+
+interface Sensor {
+  id: string;
+  type: 'vibration' | 'temperature' | 'pressure' | 'current';
+  location: string;
+  calibrationDate: Date;
+}
+
+interface MaintenanceRecord {
+  date: Date;
+  type: string;
+  description: string;
+  cost: number;
+  partsReplaced: string[];
+}
+
+interface SensorData {
+  timestamp: Date;
+  sensorId: string;
+  value: number;
+  unit: string;
+}
+
+interface OperatingConditions {
+  temperature: number;
+  pressure: number;
+  flowRate: number;
+  viscosity: number;
+}
+
+interface PredictiveModel {
+  id: string;
+  assetType: Asset['type'];
+  accuracy: number;
+  lastTrained: Date;
+}
+
+interface ProcessConditions {
+  batchId: string;
+  recipe: string;
+  startTime: Date;
+  endTime: Date;
+}
+
+interface OperatingMode {
+  id: string;
+  name: string;
+  duration: number;
+  characteristics: Record<string, number>;
+}
+
+interface RevenueStream {
+  type: string;
+  amount: number;
+  frequency: string;
+  description: string;
+}
+
+interface WorkOrder {
+  id: string;
+  assetId: string;
+  priority: number;
+  description: string;
+  scheduledDate: Date;
+  estimatedDuration: number;
+}
+
+interface ProductionPlan {
+  schedules: ProductionSchedule[];
+  priorities: string[];
+}
+
+interface ProductionSchedule {
+  assetId: string;
+  startTime: Date;
+  endTime: Date;
+  product: string;
+}
+
+interface SafetyRisk {
+  assetId: string;
+  riskLevel: 'high' | 'medium' | 'low';
+  description: string;
+}
+
+interface MaintenanceWindow {
+  startDate: Date;
+  endDate: Date;
+  availability: 'available' | 'reserved' | 'unavailable';
+}
+
+interface SparePart {
+  partNumber: string;
+  description: string;
+  quantity: number;
+  leadTime: number;
+}
+
+interface MaintenanceDecision {
+  alertId: string;
+  decision: string;
+  scheduledDate?: Date;
+  requiredParts: SparePart[];
+  estimatedDuration: number;
+  riskAssessment: RiskAssessment;
+}
+
+interface RiskAssessment {
+  level: 'low' | 'medium' | 'high';
+  factors: string[];
+  mitigation: string[];
+}
+
+interface PerformanceMetrics {
+  downtimeReduction: number;
+  falsePositiveRate: number;
+  mtbfData: MTBFData[];
+  costSavings: number;
+}
+
+interface MTBFData {
+  assetId: string;
+  meanTimeBetweenFailures: number;
+  trend: 'improving' | 'stable' | 'declining';
+}
+
+interface MaintenanceStrategy {
+  customerId: string;
+  optimizedThresholds: Record<string, number>;
+  intervalAdjustments: IntervalAdjustment[];
+  expectedImprovements: ExpectedImprovements;
+}
+
+interface IntervalAdjustment {
+  assetId: string;
+  currentInterval: number;
+  recommendedInterval: number;
+  rationale: string;
+}
+
+interface ExpectedImprovements {
+  downtimeReduction: number;
+  costSavings: number;
+  falsePositiveReduction: number;
+}
+
+interface TechnicalAssessment {
+  infrastructureScore: number;
+  dataQuality: number;
+  integrationComplexity: number;
+  recommendations: string[];
+}
+
+interface Proposal {
+  id: string;
+  customerId: string;
+  scope: string[];
+  pricing: PricingStructure;
+  timeline: ProjectTimeline;
+}
+
+interface PricingStructure {
+  setupFee: number;
+  monthlyFee: number;
+  performanceBonus: number;
+}
+
+interface ProjectTimeline {
+  phases: ProjectPhase[];
+  totalDuration: number;
+}
+
+interface ProjectPhase {
+  name: string;
+  duration: number;
+  deliverables: string[];
+}
+```
