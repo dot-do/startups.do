@@ -117,3 +117,373 @@ export default function Page() {
     </>
   )
 }
+
+## Business Process Functions
+
+```typescript
+// Core Types
+interface Lead {
+  id: string
+  company: string
+  contactName: string
+  email: string
+  phone: string
+  claimsVolume: number
+  currentProvider?: string
+  painPoints: string[]
+  source: 'broker' | 'direct' | 'referral'
+}
+
+interface Customer {
+  id: string
+  company: string
+  tier: 'startup' | 'growth' | 'enterprise'
+  contractValue: number
+  integrationStatus: 'pending' | 'active' | 'complete'
+  claimsProcessed: number
+  satisfactionScore: number
+}
+
+interface Claim {
+  id: string
+  customerId: string
+  type: 'auto' | 'property' | 'liability'
+  status: 'intake' | 'processing' | 'review' | 'approved' | 'denied' | 'paid'
+  amount: number
+  documents: Document[]
+  riskScore: number
+  fraudProbability: number
+  submittedAt: Date
+  processedAt?: Date
+}
+
+interface Document {
+  id: string
+  type: 'police_report' | 'photos' | 'estimate' | 'medical' | 'other'
+  url: string
+  extractedData: Record<string, any>
+  confidence: number
+}
+
+interface FraudAssessment {
+  score: number
+  factors: string[]
+  recommendation: 'approve' | 'review' | 'deny'
+  confidence: number
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead)
+  const proposal = await generateProposal(qualifiedLead)
+  const contract = await negotiateContract(proposal)
+  return await onboardCustomer(contract)
+}
+
+export async function qualifyLead(lead: Lead): Promise<Lead & { qualified: boolean; score: number }> {
+  const volumeScore = Math.min(lead.claimsVolume / 1000, 1) * 40
+  const painPointScore = lead.painPoints.length * 15
+  const sourceScore = lead.source === 'broker' ? 30 : lead.source === 'referral' ? 25 : 15
+  
+  const score = volumeScore + painPointScore + sourceScore
+  const qualified = score >= 60
+  
+  return { ...lead, qualified, score }
+}
+
+export async function generateProposal(lead: Lead): Promise<{
+  pricing: { plan: string; monthlyFee: number; perClaimFee: number }
+  implementation: { timeline: string; requirements: string[] }
+  roi: { cycleTimeReduction: string; costSavings: number }
+}> {
+  const plan = lead.claimsVolume < 1000 ? 'startup' : 'growth'
+  const monthlyFee = plan === 'startup' ? 199 : 999
+  const perClaimFee = plan === 'startup' ? 2.50 : 1.75
+  
+  const expectedSavings = lead.claimsVolume * 15 // $15 per claim in operational savings
+  
+  return {
+    pricing: { plan, monthlyFee, perClaimFee },
+    implementation: {
+      timeline: '2-4 weeks',
+      requirements: ['API integration', 'Document upload portal', 'Staff training']
+    },
+    roi: {
+      cycleTimeReduction: '80%',
+      costSavings: expectedSavings
+    }
+  }
+}
+
+// Claims Processing Workflows
+export async function processClaim(claim: Claim): Promise<Claim> {
+  const triaged = await triageClaim(claim)
+  const parsed = await parseDocuments(triaged)
+  const assessed = await assessFraud(parsed)
+  const reviewed = await humanReviewIfNeeded(assessed)
+  return await makeDecision(reviewed)
+}
+
+export async function triageClaim(claim: Claim): Promise<Claim> {
+  let priority = 'normal'
+  
+  if (claim.amount > 50000) priority = 'high'
+  if (claim.documents.length < 2) priority = 'low'
+  if (claim.type === 'liability') priority = 'high'
+  
+  return {
+    ...claim,
+    status: 'processing',
+    metadata: { ...claim.metadata, priority, triageTime: new Date() }
+  }
+}
+
+export async function parseDocuments(claim: Claim): Promise<Claim> {
+  const parsedDocuments = await Promise.all(
+    claim.documents.map(async (doc) => {
+      const extractedData = await extractDocumentData(doc)
+      const confidence = calculateExtractionConfidence(extractedData)
+      
+      return {
+        ...doc,
+        extractedData,
+        confidence
+      }
+    })
+  )
+  
+  return { ...claim, documents: parsedDocuments }
+}
+
+export async function assessFraud(claim: Claim): Promise<Claim & { fraudAssessment: FraudAssessment }> {
+  const factors = []
+  let score = 0
+  
+  // Amount-based risk
+  if (claim.amount > 25000) {
+    factors.push('High claim amount')
+    score += 20
+  }
+  
+  // Document quality risk
+  const avgConfidence = claim.documents.reduce((sum, doc) => sum + doc.confidence, 0) / claim.documents.length
+  if (avgConfidence < 0.8) {
+    factors.push('Low document quality')
+    score += 15
+  }
+  
+  // Pattern matching (simplified)
+  const timeOfDay = new Date(claim.submittedAt).getHours()
+  if (timeOfDay < 6 || timeOfDay > 22) {
+    factors.push('Unusual submission time')
+    score += 10
+  }
+  
+  const fraudProbability = Math.min(score / 100, 0.95)
+  let recommendation: 'approve' | 'review' | 'deny' = 'approve'
+  
+  if (fraudProbability > 0.7) recommendation = 'deny'
+  else if (fraudProbability > 0.3) recommendation = 'review'
+  
+  const fraudAssessment: FraudAssessment = {
+    score: fraudProbability,
+    factors,
+    recommendation,
+    confidence: 0.85
+  }
+  
+  return { ...claim, fraudAssessment, riskScore: score, fraudProbability }
+}
+
+export async function humanReviewIfNeeded(claim: Claim & { fraudAssessment: FraudAssessment }): Promise<Claim> {
+  if (claim.fraudAssessment.recommendation === 'review' || claim.amount > 10000) {
+    return await queueForHumanReview(claim)
+  }
+  
+  return claim
+}
+
+export async function makeDecision(claim: Claim): Promise<Claim> {
+  if (claim.fraudProbability > 0.7) {
+    return { ...claim, status: 'denied', processedAt: new Date() }
+  }
+  
+  if (claim.fraudProbability < 0.3 && claim.amount < 10000) {
+    return await approveClaim(claim)
+  }
+  
+  return { ...claim, status: 'review' }
+}
+
+// Revenue Generation Flows
+export async function calculateRevenue(customer: Customer, period: 'month' | 'quarter' | 'year'): Promise<{
+  subscriptionRevenue: number
+  perClaimRevenue: number
+  totalRevenue: number
+  projectedGrowth: number
+}> {
+  const monthlySubscription = customer.tier === 'startup' ? 199 : 999
+  const perClaimFee = customer.tier === 'startup' ? 2.50 : 1.75
+  
+  const months = period === 'month' ? 1 : period === 'quarter' ? 3 : 12
+  const claimsPerMonth = customer.claimsProcessed / months
+  
+  const subscriptionRevenue = monthlySubscription * months
+  const perClaimRevenue = perClaimFee * customer.claimsProcessed
+  const totalRevenue = subscriptionRevenue + perClaimRevenue
+  
+  const growthRate = customer.satisfactionScore > 8 ? 0.15 : 0.05
+  const projectedGrowth = totalRevenue * growthRate
+  
+  return {
+    subscriptionRevenue,
+    perClaimRevenue,
+    totalRevenue,
+    projectedGrowth
+  }
+}
+
+export async function identifyUpsellOpportunities(customer: Customer): Promise<{
+  opportunities: string[]
+  potentialValue: number
+  priority: 'high' | 'medium' | 'low'
+}> {
+  const opportunities = []
+  let potentialValue = 0
+  
+  if (customer.tier === 'startup' && customer.claimsProcessed > 800) {
+    opportunities.push('Upgrade to Growth plan')
+    potentialValue += 800 * 12 // Monthly difference
+  }
+  
+  if (customer.claimsProcessed > 500) {
+    opportunities.push('Add premium fraud detection')
+    potentialValue += 0.50 * customer.claimsProcessed * 12
+  }
+  
+  if (customer.satisfactionScore > 8) {
+    opportunities.push('Referral program participation')
+    potentialValue += 2000 // Estimated referral value
+  }
+  
+  const priority = potentialValue > 10000 ? 'high' : potentialValue > 5000 ? 'medium' : 'low'
+  
+  return { opportunities, potentialValue, priority }
+}
+
+// Operational Procedures
+export async function monitorSystemHealth(): Promise<{
+  claimsProcessingRate: number
+  averageCycleTime: number
+  fraudDetectionAccuracy: number
+  customerSatisfaction: number
+  systemUptime: number
+}> {
+  return {
+    claimsProcessingRate: await calculateProcessingRate(),
+    averageCycleTime: await calculateAverageCycleTime(),
+    fraudDetectionAccuracy: await calculateFraudAccuracy(),
+    customerSatisfaction: await calculateCustomerSatisfaction(),
+    systemUptime: await getSystemUptime()
+  }
+}
+
+export async function escalateIssue(issue: {
+  type: 'technical' | 'customer' | 'fraud' | 'compliance'
+  severity: 'low' | 'medium' | 'high' | 'critical'
+  description: string
+  affectedCustomers?: string[]
+}): Promise<{ ticketId: string; assignedTo: string; eta: string }> {
+  const assignedTo = issue.severity === 'critical' ? 'on-call-engineer' : 
+                    issue.type === 'customer' ? 'customer-success' :
+                    issue.type === 'fraud' ? 'fraud-specialist' : 'support-team'
+  
+  const eta = issue.severity === 'critical' ? '1 hour' :
+              issue.severity === 'high' ? '4 hours' :
+              issue.severity === 'medium' ? '24 hours' : '72 hours'
+  
+  return {
+    ticketId: `ACME-${Date.now()}`,
+    assignedTo,
+    eta
+  }
+}
+
+// Decision-Making Workflows
+export async function evaluatePartnership(partner: {
+  name: string
+  type: 'broker' | 'insurer' | 'technology'
+  reachEstimate: number
+  integrationComplexity: 'low' | 'medium' | 'high'
+  revenueShare: number
+}): Promise<{
+  recommendation: 'proceed' | 'negotiate' | 'decline'
+  score: number
+  reasoning: string[]
+}> {
+  let score = 0
+  const reasoning = []
+  
+  // Reach scoring
+  const reachScore = Math.min(partner.reachEstimate / 1000, 50)
+  score += reachScore
+  reasoning.push(`Market reach: ${partner.reachEstimate} potential customers`)
+  
+  // Integration complexity penalty
+  const complexityPenalty = partner.integrationComplexity === 'high' ? -20 : 
+                           partner.integrationComplexity === 'medium' ? -10 : 0
+  score += complexityPenalty
+  if (complexityPenalty < 0) reasoning.push(`Integration complexity: ${partner.integrationComplexity}`)
+  
+  // Revenue share evaluation
+  if (partner.revenueShare > 0.3) {
+    score -= 15
+    reasoning.push('High revenue share requirement')
+  } else if (partner.revenueShare < 0.15) {
+    score += 10
+    reasoning.push('Favorable revenue share terms')
+  }
+  
+  let recommendation: 'proceed' | 'negotiate' | 'decline' = 'decline'
+  if (score > 40) recommendation = 'proceed'
+  else if (score > 20) recommendation = 'negotiate'
+  
+  return { recommendation, score, reasoning }
+}
+
+// Helper functions (would be implemented elsewhere)
+async function extractDocumentData(doc: Document): Promise<Record<string, any>> {
+  // AI-powered document parsing
+  return {}
+}
+
+async function calculateExtractionConfidence(data: Record<string, any>): Promise<number> {
+  return 0.85
+}
+
+async function queueForHumanReview(claim: Claim): Promise<Claim> {
+  return { ...claim, status: 'review' }
+}
+
+async function approveClaim(claim: Claim): Promise<Claim> {
+  return { ...claim, status: 'approved', processedAt: new Date() }
+}
+
+async function calculateProcessingRate(): Promise<number> { return 150 }
+async function calculateAverageCycleTime(): Promise<number> { return 4.2 }
+async function calculateFraudAccuracy(): Promise<number> { return 0.94 }
+async function calculateCustomerSatisfaction(): Promise<number> { return 8.7 }
+async function getSystemUptime(): Promise<number> { return 99.8 }
+async function negotiateContract(proposal: any): Promise<any> { return proposal }
+async function onboardCustomer(contract: any): Promise<Customer> { 
+  return {
+    id: 'new-customer',
+    company: contract.company,
+    tier: contract.plan,
+    contractValue: contract.value,
+    integrationStatus: 'pending',
+    claimsProcessed: 0,
+    satisfactionScore: 8
+  }
+}
+```
