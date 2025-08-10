@@ -178,3 +178,562 @@ leanCanvas:
 - **Continuous Optimization**: Companies with ongoing AI performance monitoring achieve 2.1x better outcomes
 
 Generated from Occupation 000000 — All Occupations.
+
+## Business Process Functions
+
+```typescript
+// Core business process types
+interface Lead {
+  id: string;
+  email: string;
+  company: string;
+  role: string;
+  source: string;
+  score: number;
+  metadata: Record<string, any>;
+}
+
+interface Customer {
+  id: string;
+  organizationId: string;
+  tier: 'starter' | 'pro' | 'enterprise';
+  seats: number;
+  mrr: number;
+  onboardingStatus: 'pending' | 'active' | 'churned';
+  integrations: string[];
+}
+
+interface Product {
+  id: string;
+  name: string;
+  version: string;
+  features: string[];
+  status: 'development' | 'testing' | 'released';
+  roadmapPriority: number;
+}
+
+interface Revenue {
+  customerId: string;
+  amount: number;
+  type: 'subscription' | 'usage' | 'professional_services';
+  period: string;
+  status: 'pending' | 'collected' | 'failed';
+}
+
+interface WorkflowContext {
+  ai: any;
+  db: any;
+  taskQueue: any;
+  notifications: any;
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead, context: WorkflowContext): Promise<Customer> {
+  try {
+    const qualifiedLead = await qualifyLead(lead, context);
+    const proposal = await generateProposal(qualifiedLead, context);
+    const contract = await negotiateContract(proposal, context);
+    const customer = await onboardCustomer(contract, context);
+    
+    await context.notifications.send({
+      type: 'customer_acquired',
+      customerId: customer.id,
+      value: customer.mrr
+    });
+    
+    return customer;
+  } catch (error) {
+    await context.taskQueue.retry('acquireCustomer', { lead, error });
+    throw error;
+  }
+}
+
+export async function qualifyLead(lead: Lead, context: WorkflowContext): Promise<Lead> {
+  const enrichedLead = await context.ai.generateObject({
+    model: 'gpt-4',
+    prompt: `Qualify this lead for OmniCopilot based on company size, role, and use case fit: ${JSON.stringify(lead)}`,
+    schema: {
+      score: 'number',
+      reasoning: 'string',
+      nextAction: 'string'
+    }
+  });
+  
+  return {
+    ...lead,
+    score: enrichedLead.score,
+    metadata: {
+      ...lead.metadata,
+      qualification: enrichedLead
+    }
+  };
+}
+
+export async function generateProposal(lead: Lead, context: WorkflowContext): Promise<any> {
+  const proposal = await context.ai.generateObject({
+    model: 'gpt-4',
+    prompt: `Generate a customized proposal for ${lead.company} (${lead.role}) focusing on their specific workflow automation needs`,
+    schema: {
+      tier: 'string',
+      seats: 'number',
+      integrations: 'array',
+      roi_projection: 'object',
+      implementation_timeline: 'string'
+    }
+  });
+  
+  await context.db.proposals.create({
+    leadId: lead.id,
+    ...proposal,
+    status: 'sent'
+  });
+  
+  return proposal;
+}
+
+export async function negotiateContract(proposal: any, context: WorkflowContext): Promise<any> {
+  const contract = await context.ai.generateObject({
+    model: 'gpt-4',
+    prompt: `Generate contract terms based on proposal: ${JSON.stringify(proposal)}`,
+    schema: {
+      pricing: 'object',
+      terms: 'object',
+      sla: 'object',
+      security_requirements: 'array'
+    }
+  });
+  
+  return contract;
+}
+
+export async function onboardCustomer(contract: any, context: WorkflowContext): Promise<Customer> {
+  const customer = await context.db.customers.create({
+    organizationId: contract.organizationId,
+    tier: contract.pricing.tier,
+    seats: contract.pricing.seats,
+    mrr: contract.pricing.monthly_value,
+    onboardingStatus: 'pending',
+    integrations: []
+  });
+  
+  await setupInitialIntegrations(customer, context);
+  await scheduleOnboardingTasks(customer, context);
+  
+  return customer;
+}
+
+// Product Development Processes
+export async function developProduct(feature: any, context: WorkflowContext): Promise<Product> {
+  try {
+    const requirements = await gatherRequirements(feature, context);
+    const design = await createDesign(requirements, context);
+    const implementation = await implementFeature(design, context);
+    const testing = await testFeature(implementation, context);
+    const product = await releaseFeature(testing, context);
+    
+    return product;
+  } catch (error) {
+    await context.taskQueue.retry('developProduct', { feature, error });
+    throw error;
+  }
+}
+
+export async function gatherRequirements(feature: any, context: WorkflowContext): Promise<any> {
+  const requirements = await context.ai.generateObject({
+    model: 'gpt-4',
+    prompt: `Analyze customer feedback and market research to define requirements for: ${feature.name}`,
+    schema: {
+      functional_requirements: 'array',
+      non_functional_requirements: 'array',
+      acceptance_criteria: 'array',
+      priority: 'string'
+    }
+  });
+  
+  return requirements;
+}
+
+export async function createDesign(requirements: any, context: WorkflowContext): Promise<any> {
+  const design = await context.ai.generateObject({
+    model: 'gpt-4',
+    prompt: `Create technical design for requirements: ${JSON.stringify(requirements)}`,
+    schema: {
+      architecture: 'object',
+      api_spec: 'object',
+      ui_mockups: 'array',
+      integration_points: 'array'
+    }
+  });
+  
+  return design;
+}
+
+export async function implementFeature(design: any, context: WorkflowContext): Promise<any> {
+  await context.taskQueue.schedule('development_sprint', {
+    design,
+    estimatedDays: 14
+  });
+  
+  return { status: 'implemented', design };
+}
+
+export async function testFeature(implementation: any, context: WorkflowContext): Promise<any> {
+  const testResults = await context.ai.generateObject({
+    model: 'gpt-4',
+    prompt: `Generate test plan and execute tests for: ${JSON.stringify(implementation)}`,
+    schema: {
+      unit_tests: 'array',
+      integration_tests: 'array',
+      user_acceptance_tests: 'array',
+      performance_metrics: 'object'
+    }
+  });
+  
+  return testResults;
+}
+
+export async function releaseFeature(testing: any, context: WorkflowContext): Promise<Product> {
+  const product = await context.db.products.create({
+    name: testing.design.name,
+    version: generateVersion(),
+    features: testing.design.features,
+    status: 'released',
+    roadmapPriority: testing.design.priority
+  });
+  
+  await context.notifications.send({
+    type: 'feature_released',
+    productId: product.id,
+    features: product.features
+  });
+  
+  return product;
+}
+
+// Revenue Generation Flows
+export async function generateRevenue(customer: Customer, context: WorkflowContext): Promise<Revenue> {
+  try {
+    const usage = await trackUsage(customer, context);
+    const billing = await calculateBilling(customer, usage, context);
+    const payment = await processPayment(billing, context);
+    const revenue = await recordRevenue(payment, context);
+    
+    await optimizeRevenue(customer, revenue, context);
+    
+    return revenue;
+  } catch (error) {
+    await context.taskQueue.retry('generateRevenue', { customer, error });
+    throw error;
+  }
+}
+
+export async function trackUsage(customer: Customer, context: WorkflowContext): Promise<any> {
+  const usage = await context.db.usage.aggregate({
+    customerId: customer.id,
+    period: 'current_month'
+  });
+  
+  return usage;
+}
+
+export async function calculateBilling(customer: Customer, usage: any, context: WorkflowContext): Promise<any> {
+  const billing = await context.ai.generateObject({
+    model: 'gpt-4',
+    prompt: `Calculate billing for customer ${customer.id} with usage: ${JSON.stringify(usage)}`,
+    schema: {
+      base_subscription: 'number',
+      usage_charges: 'number',
+      add_ons: 'number',
+      total: 'number',
+      due_date: 'string'
+    }
+  });
+  
+  return billing;
+}
+
+export async function processPayment(billing: any, context: WorkflowContext): Promise<any> {
+  const payment = await context.taskQueue.schedule('payment_processing', {
+    amount: billing.total,
+    customerId: billing.customerId,
+    dueDate: billing.due_date
+  });
+  
+  return payment;
+}
+
+export async function recordRevenue(payment: any, context: WorkflowContext): Promise<Revenue> {
+  const revenue = await context.db.revenue.create({
+    customerId: payment.customerId,
+    amount: payment.amount,
+    type: 'subscription',
+    period: getCurrentPeriod(),
+    status: 'collected'
+  });
+  
+  return revenue;
+}
+
+export async function optimizeRevenue(customer: Customer, revenue: Revenue, context: WorkflowContext): Promise<void> {
+  const optimization = await context.ai.generateObject({
+    model: 'gpt-4',
+    prompt: `Analyze revenue optimization opportunities for customer: ${JSON.stringify(customer)}`,
+    schema: {
+      upsell_opportunities: 'array',
+      expansion_potential: 'number',
+      churn_risk: 'number',
+      recommended_actions: 'array'
+    }
+  });
+  
+  if (optimization.churn_risk > 0.7) {
+    await context.taskQueue.schedule('retention_campaign', {
+      customerId: customer.id,
+      risk_factors: optimization.churn_risk
+    });
+  }
+  
+  if (optimization.expansion_potential > 0.5) {
+    await context.taskQueue.schedule('expansion_outreach', {
+      customerId: customer.id,
+      opportunities: optimization.upsell_opportunities
+    });
+  }
+}
+
+// Operational Procedures
+export async function operateDaily(context: WorkflowContext): Promise<void> {
+  try {
+    await monitorSystemHealth(context);
+    await processCustomerRequests(context);
+    await updateMetrics(context);
+    await generateReports(context);
+    await optimizeOperations(context);
+  } catch (error) {
+    await context.taskQueue.retry('operateDaily', { error });
+    throw error;
+  }
+}
+
+export async function monitorSystemHealth(context: WorkflowContext): Promise<void> {
+  const health = await context.ai.generateObject({
+    model: 'gpt-4',
+    prompt: 'Analyze system health metrics and identify any issues',
+    schema: {
+      uptime: 'number',
+      response_times: 'object',
+      error_rates: 'object',
+      capacity_utilization: 'object',
+      alerts: 'array'
+    }
+  });
+  
+  if (health.alerts.length > 0) {
+    await context.notifications.send({
+      type: 'system_alert',
+      alerts: health.alerts,
+      priority: 'high'
+    });
+  }
+}
+
+export async function processCustomerRequests(context: WorkflowContext): Promise<void> {
+  const requests = await context.db.support_tickets.findMany({
+    status: 'open',
+    priority: ['high', 'critical']
+  });
+  
+  for (const request of requests) {
+    await context.taskQueue.schedule('process_support_ticket', {
+      ticketId: request.id,
+      priority: request.priority
+    });
+  }
+}
+
+export async function updateMetrics(context: WorkflowContext): Promise<void> {
+  const metrics = await context.ai.generateObject({
+    model: 'gpt-4',
+    prompt: 'Calculate daily business metrics for OmniCopilot',
+    schema: {
+      active_users: 'number',
+      revenue: 'number',
+      churn_rate: 'number',
+      nps_score: 'number',
+      support_resolution_time: 'number'
+    }
+  });
+  
+  await context.db.metrics.create({
+    date: new Date().toISOString(),
+    ...metrics
+  });
+}
+
+export async function generateReports(context: WorkflowContext): Promise<void> {
+  const report = await context.ai.generateText({
+    model: 'gpt-4',
+    prompt: 'Generate daily executive summary report for OmniCopilot operations'
+  });
+  
+  await context.notifications.send({
+    type: 'daily_report',
+    report,
+    recipients: ['executives', 'operations']
+  });
+}
+
+export async function optimizeOperations(context: WorkflowContext): Promise<void> {
+  const optimization = await context.ai.generateObject({
+    model: 'gpt-4',
+    prompt: 'Identify operational optimization opportunities',
+    schema: {
+      cost_savings: 'array',
+      efficiency_improvements: 'array',
+      automation_opportunities: 'array',
+      resource_allocation: 'object'
+    }
+  });
+  
+  await context.taskQueue.schedule('implement_optimizations', optimization);
+}
+
+// Decision-Making Workflows
+export async function makeStrategicDecision(decision: any, context: WorkflowContext): Promise<any> {
+  try {
+    const analysis = await analyzeOptions(decision, context);
+    const recommendation = await generateRecommendation(analysis, context);
+    const approval = await seekApproval(recommendation, context);
+    const implementation = await implementDecision(approval, context);
+    
+    await trackDecisionOutcome(implementation, context);
+    
+    return implementation;
+  } catch (error) {
+    await context.taskQueue.retry('makeStrategicDecision', { decision, error });
+    throw error;
+  }
+}
+
+export async function analyzeOptions(decision: any, context: WorkflowContext): Promise<any> {
+  const analysis = await context.ai.generateObject({
+    model: 'gpt-4',
+    prompt: `Analyze decision options: ${JSON.stringify(decision)}`,
+    schema: {
+      options: 'array',
+      pros_cons: 'object',
+      risk_assessment: 'object',
+      financial_impact: 'object',
+      timeline: 'object'
+    }
+  });
+  
+  return analysis;
+}
+
+export async function generateRecommendation(analysis: any, context: WorkflowContext): Promise<any> {
+  const recommendation = await context.ai.generateObject({
+    model: 'gpt-4',
+    prompt: `Generate recommendation based on analysis: ${JSON.stringify(analysis)}`,
+    schema: {
+      recommended_option: 'string',
+      reasoning: 'string',
+      success_criteria: 'array',
+      risk_mitigation: 'array',
+      implementation_plan: 'object'
+    }
+  });
+  
+  return recommendation;
+}
+
+export async function seekApproval(recommendation: any, context: WorkflowContext): Promise<any> {
+  const approval = await context.taskQueue.schedule('approval_workflow', {
+    recommendation,
+    approvers: ['ceo', 'cto', 'cfo'],
+    deadline: '7_days'
+  });
+  
+  return approval;
+}
+
+export async function implementDecision(approval: any, context: WorkflowContext): Promise<any> {
+  const implementation = await context.taskQueue.schedule('decision_implementation', {
+    decision: approval.decision,
+    plan: approval.implementation_plan,
+    timeline: approval.timeline
+  });
+  
+  return implementation;
+}
+
+export async function trackDecisionOutcome(implementation: any, context: WorkflowContext): Promise<void> {
+  await context.db.decisions.create({
+    id: implementation.id,
+    decision: implementation.decision,
+    outcome: 'pending',
+    metrics: implementation.success_criteria,
+    created_at: new Date().toISOString()
+  });
+  
+  await context.taskQueue.schedule('decision_review', {
+    decisionId: implementation.id,
+    reviewDate: addDays(new Date(), 90)
+  });
+}
+
+// Utility functions
+function generateVersion(): string {
+  const now = new Date();
+  return `${now.getFullYear()}.${now.getMonth() + 1}.${now.getDate()}`;
+}
+
+function getCurrentPeriod(): string {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function addDays(date: Date, days: number): Date {
+  const result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result;
+}
+
+// Workflow orchestration functions
+export async function setupInitialIntegrations(customer: Customer, context: WorkflowContext): Promise<void> {
+  const integrations = await context.ai.generateObject({
+    model: 'gpt-4',
+    prompt: `Recommend initial integrations for ${customer.tier} tier customer`,
+    schema: {
+      recommended_integrations: 'array',
+      setup_priority: 'array',
+      configuration: 'object'
+    }
+  });
+  
+  for (const integration of integrations.recommended_integrations) {
+    await context.taskQueue.schedule('setup_integration', {
+      customerId: customer.id,
+      integration,
+      priority: integrations.setup_priority.indexOf(integration)
+    });
+  }
+}
+
+export async function scheduleOnboardingTasks(customer: Customer, context: WorkflowContext): Promise<void> {
+  const tasks = [
+    { name: 'welcome_call', delay: 0 },
+    { name: 'integration_setup', delay: 1 },
+    { name: 'training_session', delay: 3 },
+    { name: 'first_automation', delay: 7 },
+    { name: 'success_review', delay: 30 }
+  ];
+  
+  for (const task of tasks) {
+    await context.taskQueue.schedule(task.name, {
+      customerId: customer.id,
+      scheduledFor: addDays(new Date(), task.delay)
+    });
+  }
+}
+```
