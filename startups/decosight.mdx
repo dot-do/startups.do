@@ -1,0 +1,314 @@
+---
+name: DecoSight AI
+slug: decosight
+naics:
+  primary: '332431'
+  occupations: []
+service:
+  title: Decorator/Printer Defect Triage Vision Service
+  description: >-
+    Classify and quantify print/varnish defects (mottling, registration, voids,
+    streaks) and suggest likely root causes.
+  targetUsers:
+    - Decorator Supervisor
+    - Quality Engineers
+    - Process Engineers
+  triggers:
+    - New camera images batch
+    - Scrap spike at decorator/printer
+    - 'Change of ink, plate, blanket, or speed'
+  inputs:
+    - High-resolution images from decorator QA cameras or mobile uploads
+    - Defect taxonomy and historical labels
+    - 'Process context: speed, ink viscosity/temp, plate/blanket age'
+  steps:
+    - 1) Ingest and label images (active learning loop)
+    - 2) Run detection/segmentation model per frame
+    - 3) Aggregate by run/shift; estimate scrap and hotspots
+    - '4) Suggest checks (viscosity, nip pressure, registration)'
+  tools:
+    - YOLOv8/Detectron2/SegFormer
+    - Roboflow/Vertex AI for dataset management
+    - Python APIs to camera/FTP
+    - Slack/Teams alerts
+  outputs:
+    - Defect counts by type and time
+    - Heatmaps/annotated samples
+    - Top-3 likely causes and checklists
+    - Weekly model performance report
+  pricingModel:
+    - Setup + per-camera monthly
+    - Optional labeling package
+    - Per-site subscription for dashboards
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8.5
+    modelCapability: 8
+    overall: 8.3
+  risks:
+    - Data labeling effort and bias
+    - Lighting and motion blur variability
+    - False positives impacting trust
+  dependencies:
+    - Access to image streams or secure uploads
+    - Defect taxonomy and initial labeled set
+    - Decorator process metadata feed
+leanCanvas:
+  problem:
+    - >-
+      High-speed decorators (1,200–2,400 cans per minute) make it impractical
+      for human inspectors to consistently detect subtle print/varnish defects
+      in real time, causing scrap and unplanned downtime.
+    - >-
+      Common defects (mottling, registration drift, voids, streaks, varnish
+      skips) are detected too late (often at palletization or customer audit),
+      increasing rework and risk of chargebacks.
+    - >-
+      Root-cause analysis is slow and tribal-knowledge dependent; mean time to
+      root cause often exceeds one shift, prolonging instability and waste.
+    - >-
+      Data from decorators, ink kitchens, ovens, and vision stations is siloed,
+      limiting statistical process control (SPC) and continuous improvement.
+    - >-
+      Labor shortages and turnover reduce inspection expertise and consistency,
+      especially across night/weekend shifts.
+    - >-
+      Existing general-purpose vision systems require extensive manual tuning;
+      sensitivity either misses low-contrast defects or generates excessive
+      false rejects.
+  solution:
+    - >-
+      Inline, high-speed vision at the decorator exit and/or post-oven with
+      line-scan/area cameras synchronized to can pitch; edge inference
+      delivering <150 ms latency.
+    - >-
+      AI models trained on can-specific defect modes (mottling, misregistration
+      by color, voids, streaks, orange peel, blush, ghosting, varnish skips,
+      pickoff) with per-class confidence and severity scoring.
+    - >-
+      Root-cause suggestion engine linking patterns to likely causes (e.g., ink
+      viscosity drift, blanket wear, plate cylinder misalignment, nozzle
+      clogging, oven temperature zones), with recommended checks and standard
+      work.
+    - >-
+      Trend SPC dashboards (Cp/Cpk, control charts, DeltaE drift, defect ppm)
+      with alerts to Teams/Email/SMS and automatic event logging in MES/
+      historian.
+    - >-
+      Recipe/changeover verification: compare to golden images, set sensitivity
+      thresholds by SKU/artwork, and guardrails for first-article approval.
+    - >-
+      APIs and drivers for decorator PLCs, ejector/marker control, MES
+      (Ignition, FactoryTalk), historians (PI), and quality systems
+      (InfinityQS).
+    - >-
+      Optional closed-loop hooks: nudge recommendations (e.g., ink
+      temp/viscosity, registration correction) for operator approval; maintains
+      audit trail.
+  uniqueValueProp: >-
+    Continuous, high-speed AI inspection that not only flags and quantifies
+    print/varnish defects in real time, but also suggests the most likely root
+    causes and corrective actions — reducing scrap 10–30%, lowering false
+    rejects, and cutting time-to-stability after changeovers by 50%+.
+  unfairAdvantage: >-
+    A can-decoration-specific defect and root-cause dataset built via OEM
+    partnerships and multi-plant pilots, combined with physics-informed,
+    high-speed models tuned for decorator dynamics — enabling reliable detection
+    at 2,000+ cpm with actionable root-cause suggestions that general-purpose
+    vision vendors struggle to deliver.
+  customerSegments:
+    - >-
+      Primary: Beverage can manufacturers (two-piece aluminum) — plant and
+      corporate Ops/Quality/Engineering at Ball, Crown, Ardagh, Canpack,
+      Envases, McClellan, etc.
+    - >-
+      Secondary: Food/general line metal can manufacturers (three-piece
+      steel/aluminum) — Silgan, Trivium, Sonoco, etc.
+    - >-
+      OEMs/Integrators: Decorator OEMs (Stolle, Belvac), D2S OEMs (Hinterkopf),
+      line integrators, and automation providers seeking embedded vision
+      modules.
+    - >-
+      Consumables suppliers seeking joint value: ink/varnish/coating vendors and
+      plate/blanket suppliers (co-marketing and diagnostics).
+  channels:
+    - >-
+      Direct enterprise sales to top 10 global can producers (target: corporate
+      Ops/Quality/Engineering), with multi-plant framework agreements.
+    - >-
+      Lighthouse pilot program: 8–12 week pilots per line with ROI guarantee
+      (e.g., pay only if scrap reduction ≥10% or FP ≤5/100k achieved).
+    - >-
+      OEM partnerships: bundle with decorator OEMs (Stolle, Belvac) and D2S
+      (Hinterkopf) as factory option or retrofit kit; revenue-share.
+    - >-
+      Systems integrators/automation partners for installation and PLC/MES
+      integration in NA/EU/LatAm.
+    - >-
+      Industry events and associations: Cannex Fillex, MetPack, Latamcan, Can
+      Manufacturers Institute; technical papers and live demos with case data.
+    - >-
+      Content-led demand gen: defect taxonomy guides, SPC templates, ROI
+      calculators; targeted outreach to plant managers/quality directors.
+    - >-
+      Customer expansion motion: land-and-expand from one line to all lines at a
+      site within 6 months; expand to post-oven and end-of-line inspection;
+      cross-sell analytics add-ons.
+  revenueStreams:
+    - >-
+      Annual subscription per line (software + support): Standard $75k/line/yr;
+      Pro (root-cause + SPC + integrations) $110k/line/yr; Enterprise (fleet
+      analytics + closed-loop hooks) $140k/line/yr.
+    - >-
+      Hardware package (one-time or lease): cameras, optics, lighting, edge
+      compute, encoders, mounts — $90k–$160k per line depending on
+      configuration; 15–20% annual hardware support optional.
+    - >-
+      Professional services: installation/commissioning $20k–$40k per line;
+      custom integrations and dashboards $200–$250/hr.
+    - >-
+      Training and certification: operator/maintenance courses $5k/site; annual
+      recertification $2k/site.
+    - >-
+      Premium analytics and data retention add-ons: long-term storage,
+      cross-plant benchmarking, advanced reports $10k–$30k/yr per site.
+    - >-
+      Outcome-based pricing option for pilots: fee-at-risk tied to scrap
+      reduction versus baseline (e.g., 20–40% of quantified savings, capped).
+  costStructure:
+    - >-
+      COGS hardware per line: $55k–$110k (cameras, lenses, lighting, compute,
+      I/O, mounts, cabling).
+    - >-
+      Cloud and data infrastructure: $150–$400/month per line (telemetry,
+      updates, model registry) with edge-first design to minimize cost.
+    - >-
+      R&D: computer vision/ML engineers, printing domain experts, QA —
+      ~$2.5M–$4M/year in early scale phase.
+    - >-
+      Field engineering and support: installation, calibration, on-call support
+      — ~$6k–$12k per line in labor during year 1.
+    - >-
+      Sales and marketing: enterprise AE/SE teams, events, demos — CAC target
+      $80k–$150k per multi-line account.
+    - >-
+      Data labeling and synthetic generation: $50k–$200k/year depending on
+      volume/rare defect campaigns.
+    - 'Warranty, spares, and insurance: 2–3% of hardware revenue reserved.'
+    - >-
+      Partner and certification costs: OEM qualification, safety certifications,
+      and IT security audits $50k–$150k/year.
+  keyMetrics:
+    - >-
+      Defect detection: per-class precision/recall; overall recall ≥98% for
+      critical defects; FP ≤5 per 100k cans.
+    - >-
+      Quality impact: scrap rate delta vs. baseline; target 10–30% reduction in
+      decorator-related scrap within 90 days.
+    - >-
+      Stability: mean time to detect (MTTD) <1 minute; mean time to root cause
+      (MTTRC) <30 minutes after detection.
+    - >-
+      Operational: sensitivity changes per shift, operator interventions per
+      100k cans, system uptime ≥99.5%.
+    - >-
+      Economic: payback period <12 months per line; ROI >150% in year 1; savings
+      per line/year: $100k–$300k typical.
+    - >-
+      Adoption: number of lines activated per plant within 6 months; usage of
+      root-cause recommendations (>70% acceptance rate).
+    - >-
+      Model health: drift score, retraining frequency, and validation AUC/F1 on
+      holdout plant data.
+    - >-
+      Sales: pilot win rate >40%; expansion rate (lines per plant) >3x within 12
+      months; net revenue retention >120%.
+storyBrand:
+  character: >-
+    Production and quality leaders at metal can plants (NAICS 332431) who must
+    catch and fix decorator/press issues before they become scrap.
+  problem: >-
+    High-speed lines produce mottling, registration shifts, voids, and streaks
+    that operators miss; root causes are unclear, driving scrap, rework,
+    downtime, and customer complaints.
+  guide: >-
+    We’re can-decorating and industrial vision experts who deploy AI on live
+    decorators to classify and quantify print/varnish defects and suggest likely
+    root causes, with minimal disruption to production.
+  plan: >-
+    Assess line and sample images -> Pilot on one decorator with AI models ->
+    Calibrate defect thresholds and root-cause library -> Train team and
+    integrate alarms/dashboards -> Scale to all lines with ongoing support.
+  callToAction: >-
+    Schedule a 30-minute discovery call or send sample images for a free defect
+    triage report.
+  success: >-
+    Real-time defect classification and counts, faster root-cause fixes, fewer
+    stops, lower scrap, higher first-pass yield, and on-time, compliant
+    shipments that keep customers confident.
+  failure: >-
+    Rely on manual checks and guesswork, let repeat defects slip through, waste
+    time troubleshooting, pay for rework and chargebacks, and risk lost
+    contracts.
+landingPage:
+  hero:
+    title: AI Defect Triage for Metal Can Decorators
+    subtitle: >-
+      Classify, quantify, and pinpoint root causes for mottling, registration,
+      voids, and streaks—automatically, at line speed.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - >-
+      Manual inspection is subjective and misses intermittent print/varnish
+      defects.
+    - 'Late detection drives scrap, rework, and downtime.'
+    - Root-cause hunts slow changeovers and reduce OEE.
+    - Inconsistent defect tagging across shifts and plants.
+    - No quantified severity to support customer disposition.
+    - Limited trend visibility lets chronic issues recur.
+  solution:
+    - >-
+      Real-time vision detects and classifies print/varnish defects on the
+      decorator.
+    - 'Quantifies severity by area, density, and location per can/lot/shift.'
+    - >-
+      Suggests likely root causes tied to process factors (ink, plates,
+      blankets, varnish, cure).
+    - Instant alerts enable on-the-fly corrections and reduced scrap.
+    - Standardized defect taxonomy and reports across lines and sites.
+    - Dashboards and audit trails prove quality to customers and auditors.
+  features:
+    - >-
+      Defect coverage: mottling, misregistration, voids/pinholes,
+      streaks/smears, haze/over-varnish.
+    - 'Severity scoring with heatmaps, percent coverage, and positional tagging.'
+    - >-
+      Root-cause guidance (e.g., ink viscosity/solvent balance, plate wear,
+      blanket glaze, can wobble, oven temp/airflow).
+    - 'Works with existing cameras; supports 2‑piece, 3‑piece, and ends.'
+    - >-
+      Edge appliance for on-prem processing; runs at line speed with low
+      latency.
+    - 'Integrations: PLC/SCADA, MES, CMMS, historian (OPC UA, REST API).'
+    - Operator feedback loop retrains and version-controls models.
+    - >-
+      Auto-calibration for lighting and registration; recipe-aware thresholds by
+      SKU/artwork.
+    - 'Role-based access, audit logs, and offline mode for secure plants.'
+  steps:
+    - 'Discovery: line survey, defect taxonomy, KPIs, and data plan.'
+    - >-
+      Connect: tap existing cameras or deploy kit; calibrate to decorator
+      timing.
+    - 'Train: build baseline model from historical images and golden samples.'
+    - 'Pilot: run on one line; tune thresholds; validate against QA checks.'
+    - 'Go live: enable alerts, dashboards, and MES/PLC integrations.'
+    - >-
+      Improve: monthly model updates, new defect classes, and performance
+      reviews.
+---
+# DecoSight AI
+
+Generated for NAICS 332431 — Metal Can Manufacturing.
+Service: Decorator/Printer Defect Triage Vision Service

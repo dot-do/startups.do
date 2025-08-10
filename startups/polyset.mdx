@@ -1,0 +1,345 @@
+---
+name: PolySet Advisor — AI Setpoint & Recipe Optimization for Synthetic Rubber
+slug: polyset
+naics:
+  primary: '325212'
+  occupations: []
+service:
+  title: Polymerization Recipe & Setpoint Advisor
+  description: >-
+    AI agent recommends safe setpoint tweaks and recipe adjustments for
+    emulsion/solution polymerization to hit CTQs (e.g., Mooney viscosity, Tg,
+    bound styrene) with fewer lab cycles.
+  targetUsers:
+    - Process engineers
+    - APC/control engineers
+    - Control room supervisors
+  triggers:
+    - Start-of-shift review
+    - Grade change initiated
+    - Quality deviation or high scrap risk detected
+  inputs:
+    - >-
+      Historian tags: reactor temps/pressures, feed ratios, initiator/chain
+      transfer flow, conversion indicators
+    - 'LIMS: Mooney, Tg, gel, ML/HL, bound styrene, microstructure'
+    - Grade specs and constraints
+    - Batch logs and APC model parameters
+  steps:
+    - Pull last 30–90 days of batch/continuous runs and latest LIMS
+    - Train/refresh constrained ML models and soft sensors for CTQs
+    - >-
+      Run what-if setpoint sweeps within guardrails; estimate probability of
+      meeting spec
+    - Explain drivers (SHAP) and generate ranked setpoint deltas
+    - >-
+      Draft trial plan with ramp rates and interlocks; route to engineer for
+      approval
+    - Publish advisory to control room and log outcomes for learning
+  tools:
+    - OSIsoft/AVEVA PI Web API or OPC historian
+    - scikit-learn/XGBoost
+    - SHAP
+    - Aspen Polymer Plus or custom kinetics model (optional)
+    - Python/Jupyter
+    - Slack/Teams email bot
+  outputs:
+    - 'Daily advisory: setpoint deltas, expected CTQ shift, risk level'
+    - Trial plan with guardrails and undo plan
+    - Cpk/OOS risk trend dashboard
+  pricingModel:
+    - One-time setup (data connectors + model build)
+    - Per-line monthly subscription
+    - Success fee on OOS reduction (optional)
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 4
+    modelCapability: 4
+    overall: 4
+  risks:
+    - Recommendations applied without review could impact safety/quality
+    - Data lag or bad tags leading to wrong advice
+    - Model drift across seasons/grades
+    - APC interaction effects not captured
+  dependencies:
+    - Read-only historian + LIMS access via VPN/API
+    - Grade recipes/specs
+    - Approval workflow and audit trail
+leanCanvas:
+  problem:
+    - >-
+      High variability in CTQs (Mooney viscosity, Tg, bound styrene, molecular
+      weight distribution) leads to 3–8% off-spec or downgraded product and
+      frequent rework/scrap.
+    - >-
+      Trial-and-error lab cycles during grade transitions or recipe changes take
+      2–5 days with 3–7 iterations, delaying shipments and consuming monomers,
+      solvents, and lab capacity.
+    - >-
+      Feedstock variability (styrene/butadiene purity, inhibitor content,
+      solvent composition, water hardness, emulsifier lot differences) and
+      ambient conditions drift impact kinetics unpredictably.
+    - >-
+      Limited use of historical data: rich data in DCS/historian/LIMS is
+      underutilized for predictive setpoint/recipe optimization; models live in
+      spreadsheets or siloed APC projects.
+    - >-
+      Safety and EHS constraints limit exploration; operators are reluctant to
+      change setpoints without quantified risk within PHA-approved envelopes.
+    - >-
+      Knowledge drain and shift-to-shift variability cause inconsistent
+      responses to disturbances and slow onboarding of new engineers/operators.
+    - >-
+      Integrating polymerization know-how (kinetic mechanisms) with
+      plant-specific idiosyncrasies (reactor fouling, RTD, heat transfer) is
+      hard with generic ML tools.
+    - >-
+      Change management/MOC burden makes it difficult to validate and audit
+      process changes, slowing continuous improvement.
+  solution:
+    - >-
+      Data-first onboarding: connectors to DCS/historians (OSIsoft PI, Aspen
+      IP.21), LIMS (LabWare, LabVantage), and MES to assemble
+      per-batch/continuous run datasets with CTQs and process variables.
+    - >-
+      Hybrid kinetic-ML models per grade family: mechanistic polymerization
+      kinetics and heat/mass transfer blended with data-driven corrections for
+      plant-specific effects (fouling, RTD, impurities).
+    - >-
+      Uncertainty-aware CTQ prediction: forecast Mooney, Tg, bound styrene with
+      prediction intervals; flag data regime gaps; trigger active-learning
+      experiments when needed.
+    - >-
+      Constrained optimization engine: Bayesian/MPC-style recommender proposes
+      safe setpoint trajectories (temperature profile,
+      initiator/emulsifier/chain-transfer feeds, monomer ratios, agitation) and
+      recipe adjustments within validated safety and equipment limits.
+    - >-
+      Safety guardrails by design: recommendations restricted to
+      PHA/MOC-approved envelopes with interlocks (pressure/temp, oxygen ppm,
+      inhibitor minima, maximum polymer solids) and automatic checks for
+      cumulative risk.
+    - >-
+      Operator co-pilot UI: scenario simulator with expected CTQ shift, risk
+      bands, time-to-target; natural language rationale; one-click MOC record
+      creation with full audit trail.
+    - >-
+      DoE assistant: suggests minimal, safe lab or plant trials to close model
+      blind spots or accelerate new grade qualification; calculates expected
+      information gain.
+    - >-
+      ROI dashboard: tracks off-spec reduction, lab cycle savings,
+      energy/solvent savings, and throughput gains; integrates with finance to
+      quantify verified savings.
+  uniqueValueProp: >-
+    Hit CTQs first time with quantified safety. PolySet Advisor recommends
+    auditable, PHA-compliant setpoint and recipe tweaks that cut lab cycles
+    30–50%, reduce off-spec 20–40%, and improve throughput 2–5% for emulsion and
+    solution polymerization lines.
+  unfairAdvantage: >-
+    Purpose-built hybrid models for rubber polymerization with embedded safety
+    envelopes and uncertainty quantification, plus a validated PoV playbook that
+    delivers measurable ROI in 12 weeks. Optional federated learning enables
+    cross-site learning without sharing raw data, compounding model advantage
+    while respecting IP and governance.
+  customerSegments:
+    - >-
+      Global synthetic rubber manufacturers (NAICS 325212): SBR
+      (emulsion/solution), BR, NBR, EPDM, IIR/BIIR producers; multi-site
+      enterprises with 2–6 polymerization lines per site.
+    - >-
+      Plant operations: production managers, shift supervisors, control room
+      operators responsible for hitting CTQs and on-time delivery.
+    - >-
+      Technical/Process: polymerization/process engineers, APC engineers,
+      quality leaders, Six Sigma/OpEx leads.
+    - >-
+      R&D/Scale-up: recipe/grade developers transferring formulations from pilot
+      to plant; tech service teams supporting tire/industrial rubber customers.
+    - >-
+      Digital transformation leaders and IT/OT owners managing
+      DCS/historian/LIMS integration and data governance.
+    - >-
+      Tollers and contract manufacturers producing elastomers for third parties
+      with strict CTQs and penalties for off-spec.
+  channels:
+    - >-
+      Direct enterprise sales to top-50 synthetic rubber producers;
+      land-and-expand from one pilot line to multi-site rollouts.
+    - >-
+      Alliances with DCS/historian vendors (AVEVA PI, AspenTech, Honeywell,
+      Yokogawa, ABB) and system integrators for joint go-to-market and
+      integration services.
+    - >-
+      Partnerships with LIMS vendors (LabWare, Thermo Fisher, LabVantage) to
+      bundle recipe-CTQ optimization modules.
+    - >-
+      Industry presence: ACS Rubber Division (Spring/Fall), RubberCon/IRC, Tire
+      Technology Expo; present case studies with quantified ROI.
+    - >-
+      Account-based marketing targeting roles: VP Manufacturing/Operations,
+      Plant Managers, Heads of Process Engineering/Quality, Digital
+      Transformation; LinkedIn + industry newsletters.
+    - >-
+      Proof-of-value playbook: 12-week paid pilot on 1 grade family and 1 line
+      with pre/post KPIs, then commercial conversion and template replication
+      across lines.
+  revenueStreams:
+    - >-
+      Annual subscription per site: $180k–$300k for core advisor (includes 1
+      line and 1 grade family).
+    - >-
+      Add-on per additional line: $40k–$75k/year; per additional grade family:
+      $15k–$30k/year.
+    - >-
+      One-time onboarding/integration fee: $100k–$250k per site depending on
+      systems complexity.
+    - >-
+      Optional success fee: 5–10% of verified savings (off-spec, energy,
+      solvent), capped at $300k/site/year.
+    - >-
+      Professional services: operator training, recipe re-qualification support,
+      custom connectors ($200–$300/hr or fixed-scope packages).
+    - >-
+      Premium modules: federated learning/multi-site benchmarking, DoE
+      automation, APC linkage to MPC ($50k–$150k/year).
+  costStructure:
+    - >-
+      R&D: polymerization kinetic modeling, ML engineering, safety guardrails,
+      connectors; team of 6–12 engineers/data scientists.
+    - >-
+      Implementation and customer success: 2–4 FTEs per enterprise during
+      rollout; travel and on-site workshops.
+    - >-
+      Cloud infrastructure and MLOps: data pipelines, model training/serving,
+      security/compliance (SOC 2/ISO 27001); $5k–$20k/site/month at scale.
+    - Liability/EHS insurance; legal and compliance for MOC/PSM alignment.
+    - 'Sales and marketing: enterprise AE/SE teams, industry events, partner MDF.'
+    - >-
+      Data governance/security: VPC isolation, key management, audit logging,
+      penetration testing.
+  keyMetrics:
+    - >-
+      CTQ prediction error (RMSE): Mooney ≤ ±2–3 units; Tg ≤ ±1.0 °C; bound
+      styrene ≤ ±0.7 wt%.
+    - 'Off-spec/downgrade reduction: target 20–40% within 6 months of go-live.'
+    - >-
+      Lab iteration reduction per changeover: 30–50% fewer lab cycles to hit
+      spec.
+    - >-
+      Throughput/cycle time: 2–5% improvement (e.g., faster convergence to
+      target, fewer holds).
+    - >-
+      Energy/solvent savings: 3–8% reduction per ton via optimized
+      temperature/feeds and fewer reworks.
+    - >-
+      Operator adoption: ≥60% of recommendations accepted in first 90 days, ≥80%
+      by month 6.
+    - >-
+      Time-to-value: first accepted recommendation by week 4; pilot ROI ≥3x
+      within 12 weeks.
+    - >-
+      Model refresh health: retrain cadence ≤ monthly; model drift alarms <2 per
+      month per line.
+    - >-
+      Financial: ARR, gross margin ≥75% by year 3; CAC payback ≤12 months; Net
+      Revenue Retention ≥120%.
+    - >-
+      Safety/compliance: 0 recommendations outside approved envelopes; 100%
+      recommendations auditable and MOC-linked.
+storyBrand:
+  character: >-
+    Process and manufacturing engineers at synthetic rubber plants (NAICS
+    325212) responsible for hitting CTQs while maintaining safety, throughput,
+    and cost.
+  problem: >-
+    External: Variable feedstocks and complex kinetics push Mooney, Tg, and
+    bound styrene off target. Internal: Trial-and-error lab cycles, lost time,
+    and firefighting. Philosophical: Hitting CTQs shouldn’t require guesswork or
+    risk.
+  guide: >-
+    Empathy: We understand the pressure to keep trains full and specs tight
+    without compromising safety. Authority: Built by polymer scientists and
+    APC/ML engineers; proven on emulsion and solution lines; safety, compliance,
+    and operating limits encoded as hard constraints with transparent, auditable
+    recommendations.
+  plan: >-
+    1) Discover: connect historian/LIMS, define CTQs, limits, and guardrails. 2)
+    Calibrate: learn from historical runs + mechanistic rules; simulate safe
+    perturbations; propose candidate recipes/setpoints. 3) Deploy: run in shadow
+    mode, enable sign-off workflow, then operator-facing recommendations with
+    interlocks; continuous learning and weekly review. Commitment: never propose
+    outside approved safety and compliance boundaries—you control approvals.
+  callToAction: >-
+    Direct: Schedule a 30-minute demo and data readiness check. Transitional:
+    Run a no-risk pilot on one grade/reactor this quarter.
+  success: >-
+    First-time-right batches; fewer lab iterations; tighter CTQ distributions;
+    less off-grade and rework; faster grade changes; lower raw/energy per ton;
+    captured know-how; traceable decisions; calmer, safer operations.
+  failure: >-
+    Status quo means off-spec lots, scrap and rework, schedule slips, higher
+    energy/monomer use, tribal-knowledge churn, audit headaches, and customer
+    complaints.
+landingPage:
+  hero:
+    title: Polymerization Recipe & Setpoint Advisor
+    subtitle: >-
+      AI guidance for emulsion and solution synthetic rubber to hit Mooney, Tg,
+      and bound styrene with fewer lab cycles and less off-spec.
+    ctaText: See a demo
+    ctaHref: /demo
+  problem:
+    - Trial-and-error lab cycles to meet CTQs waste time and materials.
+    - 'Off-spec risk from drift in conversion, microstructure, and solids.'
+    - Startups and grade changes run long and variable.
+    - Tacit recipe know-how is siloed in spreadsheets and operator memory.
+    - >-
+      Unclear tradeoffs across temperature, monomer ratio, initiator, CTA, and
+      feed profiles.
+    - 'Data is scattered across DCS, historian, LIMS, and MES.'
+    - Safety and quality constraints limit operator willingness to adjust.
+    - Customer specs and audits demand tighter control and traceability.
+  solution:
+    - >-
+      AI agent proposes safe setpoint tweaks and recipe adjustments to meet
+      CTQs.
+    - Learns from historical batches and plant limits using hybrid physics/ML.
+    - >-
+      What-if simulation forecasts impact on Mooney, Tg, bound styrene, and
+      conversion.
+    - Uncertainty-aware guidance with confidence bands and guardrails.
+    - 'Built-in approvals, audit trail, and versioned recipes.'
+    - Integrates with DCS/MES/LIMS/historian for live context and lab feedback.
+    - 'Supports E‑SBR, S‑SBR, NBR, BR; batch and continuous reactors.'
+    - 'Human-in-the-loop: operator reviews and applies with one click.'
+  features:
+    - >-
+      CTQ targeting: Mooney viscosity, glass transition (Tg), bound styrene,
+      conversion.
+    - >-
+      Setpoint advisor for temperature profile, initiator/CTA dosing, monomer
+      and solvent ratios, emulsifier/soap levels, agitation.
+    - 'Grade playbooks for startup, ramp, and grade change.'
+    - Explainable recommendations with key driver and sensitivity insights.
+    - Scenario planning for raw material variability and ambient conditions.
+    - 'Recipe optimization under cost, safety, and quality constraints.'
+    - Backtesting against historical campaigns with side-by-side deltas.
+    - Multi-unit support and grade libraries with inheritance.
+    - 'Connectors: OPC UA/Modbus, OSIsoft PI, Aspen IP.21, SQL, CSV/API, LIMS.'
+    - 'Governance: e-sign approvals, limits enforcement, and change management.'
+    - 'Deployment options: on-prem or private cloud; IT/OT security hardened.'
+    - Audit-ready logs and electronic batch records.
+  steps:
+    - Connect data sources and define safe operating envelopes.
+    - Import recipes and historical batches; tag CTQs and lab results.
+    - Configure per-grade targets and constraints.
+    - Backtest and run shadow mode with SME review.
+    - Train operators; enable view-only advisor on pilot reactors.
+    - Go live with approval workflow; expand by grade and unit.
+    - 'Track KPIs and iterate: first-pass quality, lab cycles, changeover time.'
+---
+# PolySet Advisor — AI Setpoint & Recipe Optimization for Synthetic Rubber
+
+Generated for NAICS 325212 — Synthetic Rubber Manufacturing.
+Service: Polymerization Recipe & Setpoint Advisor
