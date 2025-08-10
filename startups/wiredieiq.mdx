@@ -1,0 +1,323 @@
+---
+name: WireDieIQ
+slug: wiredieiq
+naics:
+  primary: '331222'
+  occupations: []
+service:
+  title: Die Wear & Breakage Prediction + Replacement Scheduler
+  description: >-
+    Predict die wear/remaining life from tonnage, reduction schedules, speeds,
+    and lube health; propose changeout timing and regrind/purchase plan to avoid
+    breaks.
+  targetUsers:
+    - Process engineers
+    - Die shop
+    - Maintenance planners
+    - Production schedulers
+  triggers:
+    - Shift end ETL
+    - New die installed
+    - Tonnage per die exceeds threshold
+    - Breakage event logged
+  inputs:
+    - Die usage history (tons/pass)
+    - 'Line historian tags (speed, tension, temp)'
+    - Reduction/draft per pass
+    - Lube/emulsion lab results
+    - Breakage/defect logs
+    - Die inventory & costs
+  steps:
+    - Ingest historian/CSV via OPC UA/MQTT/CSV
+    - Clean and align by coil/die/pass timestamps
+    - 'Feature engineering (draft %, slip, heat load, lube condition)'
+    - Train/update RUL model (GBM) + simple rules
+    - Forecast RUL and break probability by die/pass
+    - Optimize changeout plan vs. schedule and die stock
+    - Push approved changes/orders to CMMS/ERP; notify
+  tools:
+    - OPC UA or MQTT connector (Ignition/Node-RED)
+    - 'Python (pandas, XGBoost, scikit-learn)'
+    - OR-Tools for scheduling
+    - CMMS API (Fiix/UpKeep)
+    - Power BI/Grafana dashboard
+    - LangChain agent for orchestration
+  outputs:
+    - Per-die RUL and risk score
+    - Weekly die change calendar
+    - Regrind/purchase recommendations
+    - Email/Teams alerts
+    - Savings/MTBF report
+  pricingModel:
+    - One-time integration/setup
+    - Monthly subscription per line
+    - Optional savings-share on avoided breaks
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 7
+    overall: 8
+  risks:
+    - Inaccurate or missing die/tonnage tracking
+    - Confounding factors (material grade changes)
+    - Over-reliance on predictions may cause premature changes
+    - IT/OT access delays
+  dependencies:
+    - Historian/OPC UA access
+    - Die tracking discipline (barcode/RFID helpful)
+    - CMMS/ERP API tokens
+    - Basic lube and temp data availability
+leanCanvas:
+  problem:
+    - >-
+      Unplanned wire breaks from die wear create costly downtime (typically 2–6
+      hours/event at $3k–$8k/hour lost contribution margin). Plants lack
+      reliable early-warning signals.
+    - >-
+      Die life varies significantly with reduction schedule, speed, lube health,
+      and material; rule-of-thumb tonnage limits are inaccurate, leading to
+      premature changeouts (waste) or late changeouts (breaks).
+    - >-
+      Regrind and new die purchasing are reactive; plants pay rush
+      fees/expedites and carry excess die inventory due to poor forecasting.
+    - >-
+      Data relevant to die wear is siloed across PLCs (speed, loads), QA
+      (diameter/oval), maintenance (die IDs, regrinds), and lube systems; few
+      plants have integrated models to convert this to actionable schedules.
+    - >-
+      OEE is eroded by non-productive changeovers and quality drift as dies wear
+      (increased ovality/surface defects).
+  solution:
+    - >-
+      Data ingestion from existing sources: tonnage counters, capstan/line
+      speed, motor current/torque, pass schedule, material grade/diameter,
+      inline diameter/ovality gauges, lubricant condition (temperature,
+      concentration, consumption), and die history (usage/regrinds).
+    - >-
+      Physics-informed ML models estimate die wear rate and remaining useful
+      life (RUL) per die, pass, and material, using reduction schedule, speed,
+      lube health, and thermal/friction signals.
+    - >-
+      Scheduler generates changeout windows aligned to production plan,
+      minimizing unplanned stops and clustering changeovers to reduce setup
+      loss.
+    - >-
+      Inventory and procurement module forecasts regrind/new die demand by ID
+      and size, triggers PO/regrind orders in ERP/CMMS, and optimizes safety
+      stock by lead time and usage variability.
+    - >-
+      Alerting and what-if: early-break risk alerts; simulate impact of speed or
+      lube setpoint changes on die life and throughput.
+    - >-
+      Closed-loop improvement: track post-changeout outcomes and re-train models
+      for each line/material to continuously improve accuracy.
+  uniqueValueProp: >-
+    Predict die wear and remaining life with line-specific physics-informed AI,
+    then schedule optimal changeouts and regrinds to cut wire breaks 30–50%,
+    reduce die cost 10–20%, and lift OEE 3–7%—with automated purchase/regrind
+    plans so you never run out of the right die at the right time.
+  unfairAdvantage: >-
+    A cross-plant dataset linking die IDs, regrind history, and actual break
+    events with process conditions, enabling accurate, line-specific RUL
+    predictions; coupled with an integrated scheduler–procurement engine that
+    converts predictions into avoided downtime and hard cost savings—difficult
+    for generic PdM tools or single-plant solutions to replicate.
+  customerSegments:
+    - >-
+      Steel wire drawing plants (NAICS 331222): independent wire drawers and
+      divisions within integrated steel producers.
+    - >-
+      Subsegments: cold heading/fastener wire, spring wire, rope wire, PC
+      strand/wire, bead/tire cord (high-carbon steel), stainless/galvanized
+      wire.
+    - >-
+      Economic buyers: Plant Managers, Operations Directors, Continuous
+      Improvement leaders.
+    - >-
+      Daily users/influencers: Process Engineers, Die Room Managers,
+      Maintenance/CMMS Admins, Quality Engineers, Procurement/MRO Buyers.
+  channels:
+    - >-
+      Direct sales to top 200 North American wire drawers; target
+      Plant/Operations leaders with ROI cases referencing die cost and break
+      reduction.
+    - >-
+      Partnerships with die makers/regrind shops (e.g., Ceratizit, Hyperion,
+      Esteves, Fort Wayne Wire Die) to bundle predictive scheduling with regrind
+      programs.
+    - >-
+      Alliances with lubricant suppliers (Quaker Houghton, Condat, Henkel) to
+      co-sell with lube monitoring kits; revenue share on upgrades to sensor
+      packages.
+    - >-
+      OEM/sensor partners (Zumbach, Sikora, Beta LaserMike, Niehoff, SAMP, Koch)
+      for data integration endorsements and co-marketing.
+    - >-
+      Industry associations and events: Wire Association International (WAI),
+      Interwire, IWCS; publish benchmark study on “Die Wear Economics in Steel
+      Wire Drawing.”
+    - >-
+      Content-led inbound: calculator for ‘Cost of a Wire Break’, case studies
+      showing OEE lift and die cost/ton reduction.
+    - >-
+      Pilot-first land-and-expand motion: 90-day paid pilot on 2–3 lines, then
+      scale to full plant, then multi-plant enterprise agreements.
+  revenueStreams:
+    - >-
+      SaaS subscription per active drawing line: $8,000–$15,000 ARR/line
+      depending on feature tier and data depth.
+    - >-
+      Enterprise tier: multi-plant license with volume discounts and SSO/SOC2
+      features.
+    - >-
+      Professional services: onboarding, integrations, and model calibration
+      ($15k–$75k per site depending on complexity).
+    - >-
+      Optional hardware kits (edge gateway, RFID readers, basic temp/current
+      sensors) with one-time fee ($5k–$20k/line if required).
+    - >-
+      Training and premium support packages; annual model validation/audit
+      service.
+    - >-
+      Potential partner referral fees from die/lube vendors (transparent,
+      customer-approved).
+  costStructure:
+    - >-
+      R&D: data science, metallurgical/process engineering, software
+      engineering, QA.
+    - >-
+      Cloud and edge compute: data ingestion, storage, model training/inference,
+      monitoring.
+    - Hardware COGS for optional sensor/edge kits and installation labor.
+    - Integration and onboarding services; customer success and support.
+    - 'Sales and marketing: industry events, demos, content, partner enablement.'
+    - >-
+      Security/compliance: SOC2/ISO 27001 audits, penetration tests, cyber
+      insurance.
+    - 'General & administrative: legal, finance, HR.'
+  keyMetrics:
+    - >-
+      Prediction accuracy: mean absolute percentage error (MAPE) of RUL < 20%
+      after 90 days; improve to < 10% by month 12 per line/material.
+    - >-
+      Break avoidance: reduce unplanned wire breaks by 30–50% within 6 months;
+      target < 0.5 breaks per 1,000 tons on stabilized lines.
+    - >-
+      Downtime reduction: cut unplanned downtime minutes by 15–25% per line;
+      increase schedule adherence to > 95%.
+    - >-
+      Die economics: 10–20% reduction in die cost per ton; 1–2 additional
+      regrind cycles where metallurgically viable; 15–30% reduction in
+      rush/expedite fees.
+    - >-
+      Inventory: increase die inventory turns to > 4x/year; > 98% die
+      availability for scheduled changeouts with 20–30% safety stock reduction.
+    - >-
+      Quality: reduce diameter/ovality near-spec excursions by 30%; maintain CpK
+      > 1.33 as dies approach changeout.
+    - >-
+      User adoption: > 80% operator acknowledgement rate on alerts; > 90% of
+      changeouts executed within recommended window.
+    - 'Financial: pilot payback < 90 days; 5–10x ROI year one on full deployment.'
+storyBrand:
+  character: >-
+    Wire‑drawing plant managers, engineers, and maintenance leads (NAICS 331222)
+    who must hit throughput and quality while controlling die spend.
+  problem: >-
+    Unseen die wear causes surprise wire breaks, downtime, scrap, and missed
+    shipments; manual logs and guesswork lead to over/underuse of dies—you
+    shouldn’t have to gamble on die life.
+  guide: >-
+    We understand a single break can wreck a shift. Our AI, trained on tonnage,
+    reduction schedules, speeds, lube health, die geometry, and history,
+    delivers clear, trusted predictions proven to cut breaks and cost.
+  plan: >-
+    1) Connect line/quality data and die history; 2) Predict remaining life and
+    break risk per die, simulate schedules; 3) Auto‑generate changeout windows
+    plus regrind/purchase plan, push to CMMS/ERP with alerts.
+  callToAction: >-
+    Book a 30‑minute demo and start a 4‑week pilot on one line; or download the
+    readiness checklist and ROI model.
+  success: >-
+    Predictable runs with zero surprise die breaks; 20–40% fewer die‑related
+    stops; 5–10% longer die life; lower scrap and lube use; right‑sized die
+    inventory and regrinds; on‑time delivery and confident schedules.
+  failure: >-
+    Ongoing firefighting—mid‑run die failures, emergency changeovers, wasted
+    regrinds, excess die stock, safety risks, overtime, and unhappy customers.
+landingPage:
+  hero:
+    title: Stop wire breaks. Schedule die changes with confidence.
+    subtitle: >-
+      AI predicts remaining die life from tonnage, reduction schedules, speeds,
+      and lube health—then plans changeouts, regrinds, and purchases before
+      failures.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - Unplanned wire breaks halt lines and crush OEE.
+    - Fixed-interval die changes waste life—or run to failure.
+    - >-
+      Wear varies with reductions, speed, material, and lube health—too complex
+      for spreadsheets.
+    - 'No clear remaining-life view per die, pass, and product route.'
+    - >-
+      Regrind vs. replace is guesswork; inventory and lead times cause
+      stockouts.
+    - 'Quality drift and scrap rise as dies wear (diameter, ovality, surface).'
+    - 'Maintenance, die shop, and production schedules are misaligned.'
+  solution:
+    - >-
+      Predict remaining die life by pass, product, and line using your operating
+      data.
+    - >-
+      Recommend optimal changeout windows to prevent breaks with minimal
+      downtime.
+    - Generate regrind vs. new purchase plans tied to vendor lead times.
+    - Create die shop schedules and pull-lists aligned to the production plan.
+    - Alert when lube health or speed accelerates wear and risk.
+    - 'Run what-if scenarios for new reduction paths, speeds, and materials.'
+    - Push work orders to CMMS/ERP and update SCADA/Andon in real time.
+    - 'Visualize life heatmaps, risk scores, and cost avoided.'
+  features:
+    - >-
+      Data inputs: tonnage, reductions, drawing speed, lube
+      temp/viscosity/contamination, material grade, pass count, die history.
+    - 'Hybrid wear models: physics-informed plus ML with cold-start defaults.'
+    - SKU/route-specific life curves with confidence intervals.
+    - 'Remaining-life counters per die and pass, updated each coil/shift.'
+    - >-
+      Prescriptive change windows aligned to planned orders and crew
+      availability.
+    - Regrind depth optimization and die rotation suggestions.
+    - 'Purchase planning with safety stock, vendor lead times, and budget limits.'
+    - 'SPC linkage: diameter/surface alarms drive wear acceleration updates.'
+    - Automatic work order creation and die-shop traveler printing.
+    - 'Integrations: PLC/SCADA, historians, LIMS, CMMS, ERP (REST/OPC UA).'
+    - Mobile and Andon alerts for “change next coil/within 1 hour” events.
+    - 'Multi-plant rollup, role-based access, and audit trails.'
+    - Offline buffering and secure on-prem/edge deployment option.
+  steps:
+    - >-
+      Connect: Link PLC/SCADA, historian, LIMS, CMMS/ERP; import die master and
+      history.
+    - >-
+      Calibrate: Train on 3–12 months of runs; validate against past breaks and
+      changeouts.
+    - >-
+      Configure: Set cost targets, lead times, regrind limits, and production
+      calendars.
+    - >-
+      Pilot: Run in shadow mode 2–4 weeks; compare predicted vs. actual, tune
+      thresholds.
+    - >-
+      Go live: Enable alerts, auto-work orders, and die shop schedules across
+      lines.
+    - >-
+      Improve: Weekly reviews of avoided breaks, extended die life, and scrap
+      reduction.
+---
+# WireDieIQ
+
+Generated for NAICS 331222 — Steel Wire Drawing.
+Service: Die Wear & Breakage Prediction + Replacement Scheduler
