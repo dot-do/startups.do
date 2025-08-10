@@ -1,6 +1,5 @@
-import { Suspense } from 'react'
-import { StartupContent } from '@/components/startup-content'
-import { StartupSkeleton } from '@/components/startup-skeleton'
+export const revalidate = 86400
+
 import { Navbar } from '@/components/landing/navbar'
 import { Hero1 } from '@/components/landing/hero-1'
 import { Features2 } from '@/components/landing/features-2'
@@ -8,9 +7,36 @@ import { Pricing } from '@/components/landing/pricing'
 import { Faq } from '@/components/landing/faqs'
 import { Cta } from '@/components/landing/cta'
 import { Footer } from '@/components/landing/footer'
+import { getStartup, listStartups } from '@/lib/startups'
+import { generateLandingSections } from '@/lib/ai'
+import type { Metadata } from 'next'
+import { unstable_cache } from 'next/cache'
+
+const cachedSectionsFor = (name: string, idea: string, ctx: string) =>
+  unstable_cache(
+    async () => generateLandingSections(idea, ctx),
+    ['landing-sections', name],
+    { revalidate }
+  )()
 
 export default async function Page({ params }: { params: Promise<{ name: string }> }) {
   const { name } = await params
+
+  const doc = await getStartup<Record<string, unknown>>(name)
+
+  const businessIdea =
+    (doc.data?.['name'] as string) || `AI-powered startup called "${name}"`
+
+  const additionalContext = [
+    typeof (doc.data as any)?.tagline === 'string' ? `Tagline: ${(doc.data as any).tagline}` : null,
+    typeof (doc.data as any)?.description === 'string' ? `Description: ${(doc.data as any).description}` : null,
+    Array.isArray((doc.data as any)?.problem) ? `Problem:\n${((doc.data as any).problem as string[]).join('\n')}` : null,
+    Array.isArray((doc.data as any)?.solution) ? `Solution:\n${((doc.data as any).solution as string[]).join('\n')}` : null
+  ]
+    .filter(Boolean)
+    .join('\n')
+
+  await cachedSectionsFor(name, businessIdea, additionalContext)
 
   return (
     <>
@@ -19,10 +45,6 @@ export default async function Page({ params }: { params: Promise<{ name: string 
       </div>
       <Hero1 />
       <main className="mx-auto max-w-7xl px-6 lg:px-8">
-        
-        {/* <Suspense fallback={<StartupSkeleton />}>
-          <StartupContent name={name} />
-        </Suspense> */}
         <section id="features">
           <Features2 />
         </section>
@@ -39,11 +61,19 @@ export default async function Page({ params }: { params: Promise<{ name: string 
   )
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ name: string }> }) {
+export async function generateStaticParams() {
+  const names = await listStartups()
+  return names.slice(0, 10).map((name) => ({ name }))
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ name: string }> }): Promise<Metadata> {
   const { name } = await params
-  
+  const doc = await getStartup<Record<string, unknown>>(name)
+  const title = (doc.data?.['name'] as string) || name
+  const desc = (doc.data as any)?.tagline || `Explore the AI-generated startup concept for ${title}`
+
   return {
-    title: `${name} - AI Generated Startup`,
-    description: `Explore the AI-generated startup concept for ${name}`,
+    title: `${title} - AI Generated Startup`,
+    description: desc
   }
 }
