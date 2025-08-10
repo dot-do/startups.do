@@ -83,6 +83,259 @@ variants:
     changes: ["No human-in-loop", "Lower limits"]
 ---
 
+// Business Process Functions for Acme Auto Claims AI
+
+interface Lead {
+  source: 'broker' | 'direct'
+  insurerType: 'auto' | 'tpa'
+  claimsVolume: number
+  currentCycleTime: number
+}
+
+interface Customer {
+  id: string
+  name: string
+  type: 'auto-insurer' | 'tpa'
+  integrationStatus: 'pilot' | 'integrated' | 'scaled'
+  contractTerms: ContractTerms
+}
+
+interface Claim {
+  id: string
+  fnolData: FNOLData
+  documents: Document[]
+  riskScore: number
+  status: 'intake' | 'triage' | 'review' | 'approved' | 'denied' | 'paid'
+  cycleTime: number
+}
+
+interface FNOLData {
+  claimantInfo: any
+  incidentDetails: any
+  vehicleInfo: any
+  timestamp: Date
+}
+
+interface Document {
+  type: 'photo' | 'report' | 'estimate'
+  url: string
+  extractedData: any
+  confidence: number
+}
+
+interface ContractTerms {
+  pricingModel: 'per-claim' | 'saas'
+  monthlyFee?: number
+  perClaimFee?: number
+  volumeTier: 'startup' | 'growth' | 'enterprise'
+}
+
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead)
+  const proposal = await generateProposal(qualifiedLead)
+  const contract = await negotiateContract(proposal)
+  return await onboardCustomer(contract)
+}
+
+export async function qualifyLead(lead: Lead): Promise<Lead & { qualified: boolean }> {
+  const meetsVolumeThreshold = lead.claimsVolume >= 100
+  const hasIntegrationCapability = lead.insurerType === 'auto' || lead.insurerType === 'tpa'
+  const improvementPotential = lead.currentCycleTime > 60 // minutes
+  
+  return {
+    ...lead,
+    qualified: meetsVolumeThreshold && hasIntegrationCapability && improvementPotential
+  }
+}
+
+export async function generateProposal(lead: Lead): Promise<ContractTerms> {
+  const volumeTier = lead.claimsVolume < 1000 ? 'startup' : 
+                    lead.claimsVolume < 10000 ? 'growth' : 'enterprise'
+  
+  if (lead.source === 'broker') {
+    return {
+      pricingModel: 'per-claim',
+      perClaimFee: volumeTier === 'startup' ? 5 : volumeTier === 'growth' ? 3 : 2,
+      volumeTier
+    }
+  }
+  
+  return {
+    pricingModel: 'saas',
+    monthlyFee: volumeTier === 'startup' ? 199 : volumeTier === 'growth' ? 999 : 2999,
+    volumeTier
+  }
+}
+
+export async function negotiateContract(proposal: ContractTerms): Promise<ContractTerms> {
+  const pilotDiscount = 0.5
+  return {
+    ...proposal,
+    monthlyFee: proposal.monthlyFee ? proposal.monthlyFee * pilotDiscount : undefined,
+    perClaimFee: proposal.perClaimFee ? proposal.perClaimFee * pilotDiscount : undefined
+  }
+}
+
+export async function onboardCustomer(contract: ContractTerms): Promise<Customer> {
+  const customer: Customer = {
+    id: generateCustomerId(),
+    name: 'New Customer',
+    type: 'auto-insurer',
+    integrationStatus: 'pilot',
+    contractTerms: contract
+  }
+  
+  await setupIntegrations(customer)
+  await configureWorkflows(customer)
+  return customer
+}
+
+export async function processClaim(fnolData: FNOLData): Promise<Claim> {
+  const claim = await intakeClaim(fnolData)
+  const triaged = await triageClaim(claim)
+  const scored = await scoreFraudRisk(triaged)
+  const reviewed = await humanReview(scored)
+  return await makeDecision(reviewed)
+}
+
+export async function intakeClaim(fnolData: FNOLData): Promise<Claim> {
+  return {
+    id: generateClaimId(),
+    fnolData,
+    documents: [],
+    riskScore: 0,
+    status: 'intake',
+    cycleTime: 0
+  }
+}
+
+export async function triageClaim(claim: Claim): Promise<Claim> {
+  const documents = await parseDocuments(claim.fnolData)
+  const extractedData = await extractClaimData(documents)
+  
+  return {
+    ...claim,
+    documents: documents,
+    status: 'triage'
+  }
+}
+
+export async function parseDocuments(fnolData: FNOLData): Promise<Document[]> {
+  return []
+}
+
+export async function extractClaimData(documents: Document[]): Promise<any> {
+  return {}
+}
+
+export async function scoreFraudRisk(claim: Claim): Promise<Claim> {
+  const riskFactors = await analyzeRiskFactors(claim)
+  const riskScore = await calculateRiskScore(riskFactors)
+  
+  return {
+    ...claim,
+    riskScore,
+    status: riskScore > 0.7 ? 'review' : 'approved'
+  }
+}
+
+export async function analyzeRiskFactors(claim: Claim): Promise<any[]> {
+  return []
+}
+
+export async function calculateRiskScore(riskFactors: any[]): Promise<number> {
+  return Math.random()
+}
+
+export async function humanReview(claim: Claim): Promise<Claim> {
+  if (claim.status !== 'review') {
+    return claim
+  }
+  
+  const reviewDecision = await requestHumanReview(claim)
+  return {
+    ...claim,
+    status: reviewDecision.approved ? 'approved' : 'denied'
+  }
+}
+
+export async function requestHumanReview(claim: Claim): Promise<{ approved: boolean }> {
+  return { approved: true }
+}
+
+export async function makeDecision(claim: Claim): Promise<Claim> {
+  if (claim.status === 'approved') {
+    await initiatePayout(claim)
+    return { ...claim, status: 'paid' }
+  }
+  
+  return claim
+}
+
+export async function initiatePayout(claim: Claim): Promise<void> {
+  await processPayment(claim)
+  await notifyClaimant(claim)
+}
+
+export async function processPayment(claim: Claim): Promise<void> {
+  
+}
+
+export async function notifyClaimant(claim: Claim): Promise<void> {
+  
+}
+
+export async function generateRevenue(customer: Customer, claims: Claim[]): Promise<number> {
+  if (customer.contractTerms.pricingModel === 'per-claim') {
+    const processedClaims = claims.filter(c => c.status === 'paid' || c.status === 'denied')
+    return processedClaims.length * (customer.contractTerms.perClaimFee || 0)
+  }
+  
+  return customer.contractTerms.monthlyFee || 0
+}
+
+export async function optimizeOperations(metrics: { cycleTime: number, fraudRate: number, csat: number }): Promise<void> {
+  if (metrics.cycleTime > 5) {
+    await tuneWorkflowParameters()
+  }
+  
+  if (metrics.fraudRate > 0.01) {
+    await enhanceFraudDetection()
+  }
+  
+  if (metrics.csat < 0.9) {
+    await improveClaimantExperience()
+  }
+}
+
+export async function tuneWorkflowParameters(): Promise<void> {
+  
+}
+
+export async function enhanceFraudDetection(): Promise<void> {
+  
+}
+
+export async function improveClaimantExperience(): Promise<void> {
+  
+}
+
+function generateCustomerId(): string {
+  return `cust_${Date.now()}`
+}
+
+function generateClaimId(): string {
+  return `claim_${Date.now()}`
+}
+
+async function setupIntegrations(customer: Customer): Promise<void> {
+  
+}
+
+async function configureWorkflows(customer: Customer): Promise<void> {
+  
+}
+
 export default function Page() {
   return (
     <>
