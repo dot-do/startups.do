@@ -316,3 +316,400 @@ landingPage:
 
 Generated for NAICS 331222 — Steel Wire Drawing.
 Service: Yield & Surface Defect Root-Cause Analytics (Vision + Process)
+
+## Business Process Functions
+
+The following TypeScript functions define DrawSense's core business processes as executable code:
+
+```typescript
+// Types and Interfaces
+interface Lead {
+  id: string;
+  company: string;
+  naics: string;
+  plantSize: 'small' | 'medium' | 'large';
+  annualRevenue: number;
+  numberOfLines: number;
+  contactInfo: ContactInfo;
+  painPoints: string[];
+  currentSolutions: string[];
+}
+
+interface ContactInfo {
+  name: string;
+  title: string;
+  email: string;
+  phone: string;
+}
+
+interface Customer {
+  id: string;
+  lead: Lead;
+  contractValue: number;
+  implementationPlan: ImplementationPlan;
+  subscriptionTier: 'basic' | 'pro' | 'enterprise';
+  onboardingStatus: 'pending' | 'in-progress' | 'completed';
+}
+
+interface DefectData {
+  imageUrl: string;
+  timestamp: Date;
+  lineId: string;
+  defectType: 'seam' | 'lap' | 'die-line' | 'zinc-pickup' | 'pitting' | 'scratch';
+  severity: number;
+  processParameters: ProcessParameters;
+}
+
+interface ProcessParameters {
+  dieStack: string;
+  reductionSchedule: number[];
+  capstanSpeed: number;
+  drawingForce: number;
+  lubeTemperature: number;
+  lubePressure: number;
+  lubeConcentration: number;
+  bathTemperature: number;
+  bathAluminum: number;
+  airWipePressure: number;
+}
+
+interface RootCauseAnalysis {
+  defectId: string;
+  likelyCauses: string[];
+  correlatedParameters: string[];
+  confidenceScore: number;
+  recommendations: Recommendation[];
+}
+
+interface Recommendation {
+  action: string;
+  parameter: string;
+  adjustment: string;
+  expectedImpact: string;
+  priority: 'high' | 'medium' | 'low';
+}
+
+interface ImplementationPlan {
+  phases: Phase[];
+  timeline: number; // weeks
+  totalCost: number;
+  expectedROI: number;
+}
+
+interface Phase {
+  name: string;
+  duration: number; // weeks
+  deliverables: string[];
+  cost: number;
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  try {
+    const qualifiedLead = await qualifyLead(lead);
+    const proposal = await generateProposal(qualifiedLead);
+    const contract = await negotiateContract(proposal);
+    const customer = await onboardCustomer(contract);
+    
+    await updateCRM(customer, 'acquired');
+    await scheduleKickoffMeeting(customer);
+    
+    return customer;
+  } catch (error) {
+    await logError('customer-acquisition', error);
+    throw new Error(`Failed to acquire customer: ${error.message}`);
+  }
+}
+
+export async function qualifyLead(lead: Lead): Promise<Lead> {
+  // Qualify based on NAICS 331222, plant size, and revenue
+  if (lead.naics !== '331222') {
+    throw new Error('Lead not in target NAICS 331222');
+  }
+  
+  if (lead.annualRevenue < 50000000 || lead.numberOfLines < 5) {
+    throw new Error('Lead does not meet minimum size requirements');
+  }
+  
+  const painPointScore = await assessPainPoints(lead.painPoints);
+  if (painPointScore < 7) {
+    throw new Error('Insufficient pain point alignment');
+  }
+  
+  return { ...lead, qualified: true };
+}
+
+export async function generateProposal(lead: Lead): Promise<ImplementationPlan> {
+  const baselineAssessment = await conductBaselineAssessment(lead);
+  const roiProjection = await calculateROI(lead, baselineAssessment);
+  
+  const phases: Phase[] = [
+    {
+      name: 'Readiness Assessment',
+      duration: 2,
+      deliverables: ['Data integration plan', 'Hardware requirements', 'ROI baseline'],
+      cost: 25000
+    },
+    {
+      name: 'Pilot Implementation',
+      duration: 12,
+      deliverables: ['1-2 line deployment', 'Model training', 'Initial results'],
+      cost: 60000
+    },
+    {
+      name: 'Full Deployment',
+      duration: 16,
+      deliverables: ['All lines deployment', 'Operator training', 'Integration complete'],
+      cost: lead.numberOfLines * 35000
+    }
+  ];
+  
+  return {
+    phases,
+    timeline: phases.reduce((total, phase) => total + phase.duration, 0),
+    totalCost: phases.reduce((total, phase) => total + phase.cost, 0),
+    expectedROI: roiProjection
+  };
+}
+
+// Product Development Processes
+export async function developDefectClassificationModel(
+  trainingData: DefectData[]
+): Promise<string> {
+  try {
+    const preprocessedData = await preprocessImages(trainingData);
+    const labeledData = await labelDefects(preprocessedData);
+    const trainedModel = await trainVisionModel(labeledData);
+    const validatedModel = await validateModel(trainedModel);
+    
+    await deployModel(validatedModel);
+    await updateModelRegistry(validatedModel);
+    
+    return validatedModel.id;
+  } catch (error) {
+    await logError('model-development', error);
+    throw new Error(`Model development failed: ${error.message}`);
+  }
+}
+
+export async function enhanceProcessCorrelationEngine(
+  processData: ProcessParameters[],
+  defectData: DefectData[]
+): Promise<void> {
+  const correlationMatrix = await calculateCorrelations(processData, defectData);
+  const causalityAnalysis = await performGrangerCausality(processData, defectData);
+  const featureImportance = await calculateSHAPValues(processData, defectData);
+  
+  await updateCorrelationEngine({
+    correlations: correlationMatrix,
+    causality: causalityAnalysis,
+    importance: featureImportance
+  });
+  
+  await validateRecommendationAccuracy();
+}
+
+// Revenue Generation Flows
+export async function processSubscriptionRevenue(customer: Customer): Promise<number> {
+  try {
+    const monthlyRevenue = await calculateMonthlySubscription(customer);
+    const usageRevenue = await calculateUsageBasedRevenue(customer);
+    const supportRevenue = await calculateSupportRevenue(customer);
+    
+    const totalRevenue = monthlyRevenue + usageRevenue + supportRevenue;
+    
+    await recordRevenue(customer.id, totalRevenue);
+    await updateARRMetrics(customer.id, monthlyRevenue * 12);
+    
+    return totalRevenue;
+  } catch (error) {
+    await logError('revenue-processing', error);
+    throw new Error(`Revenue processing failed: ${error.message}`);
+  }
+}
+
+export async function calculateMonthlySubscription(customer: Customer): Promise<number> {
+  const baseRate = getSubscriptionRate(customer.subscriptionTier);
+  const lineCount = await getActiveLineCount(customer.id);
+  const volumeDiscount = lineCount > 5 ? 0.15 : 0;
+  
+  return baseRate * lineCount * (1 - volumeDiscount);
+}
+
+export async function expandCustomerRevenue(customer: Customer): Promise<void> {
+  const expansionOpportunities = await identifyExpansionOpportunities(customer);
+  
+  for (const opportunity of expansionOpportunities) {
+    if (opportunity.type === 'additional-lines') {
+      await proposeLineExpansion(customer, opportunity);
+    } else if (opportunity.type === 'premium-features') {
+      await proposePremiumUpgrade(customer, opportunity);
+    } else if (opportunity.type === 'additional-sites') {
+      await proposeSiteExpansion(customer, opportunity);
+    }
+  }
+}
+
+// Operational Procedures
+export async function processDefectAlert(defectData: DefectData): Promise<void> {
+  try {
+    const classification = await classifyDefect(defectData);
+    const rootCause = await analyzeRootCause(defectData);
+    const recommendations = await generateRecommendations(rootCause);
+    
+    await sendOperatorAlert({
+      defectType: classification.type,
+      severity: classification.severity,
+      recommendations: recommendations.slice(0, 3), // Top 3 recommendations
+      timestamp: new Date()
+    });
+    
+    await updateProcessDashboard(defectData.lineId, classification);
+    await logDefectEvent(defectData, classification, rootCause);
+    
+  } catch (error) {
+    await logError('defect-processing', error);
+    await sendCriticalAlert('Defect processing system failure');
+  }
+}
+
+export async function performPreventiveMaintenance(lineId: string): Promise<void> {
+  const maintenanceSchedule = await getMaintenanceSchedule(lineId);
+  const dieWearPrediction = await predictDieWear(lineId);
+  const lubeHealthStatus = await assessLubeHealth(lineId);
+  
+  if (dieWearPrediction.replacementNeeded) {
+    await scheduleDieReplacement(lineId, dieWearPrediction.recommendedDate);
+  }
+  
+  if (lubeHealthStatus.changeNeeded) {
+    await scheduleLubeChange(lineId, lubeHealthStatus.recommendedDate);
+  }
+  
+  await updateMaintenanceLog(lineId, {
+    dieWear: dieWearPrediction,
+    lubeHealth: lubeHealthStatus,
+    nextScheduledMaintenance: maintenanceSchedule.nextDate
+  });
+}
+
+export async function generateQualityReport(
+  customerId: string,
+  timeRange: { start: Date; end: Date }
+): Promise<string> {
+  const defectData = await getDefectData(customerId, timeRange);
+  const yieldMetrics = await calculateYieldMetrics(customerId, timeRange);
+  const processMetrics = await getProcessMetrics(customerId, timeRange);
+  
+  const report = await compile8DReport({
+    defects: defectData,
+    yield: yieldMetrics,
+    process: processMetrics,
+    recommendations: await generateActionPlan(defectData)
+  });
+  
+  await saveReport(report);
+  await emailReport(customerId, report.id);
+  
+  return report.id;
+}
+
+// Decision-Making Workflows
+export async function makeProcessAdjustmentDecision(
+  defectData: DefectData,
+  currentParameters: ProcessParameters
+): Promise<ProcessParameters> {
+  try {
+    const rootCause = await analyzeRootCause(defectData);
+    const recommendations = await generateRecommendations(rootCause);
+    const riskAssessment = await assessAdjustmentRisk(recommendations, currentParameters);
+    
+    const approvedAdjustments = recommendations.filter(rec => 
+      rec.priority === 'high' && riskAssessment[rec.parameter] < 0.3
+    );
+    
+    const newParameters = await applyAdjustments(currentParameters, approvedAdjustments);
+    
+    await logDecision({
+      originalParameters: currentParameters,
+      adjustments: approvedAdjustments,
+      newParameters: newParameters,
+      reasoning: rootCause.likelyCauses,
+      timestamp: new Date()
+    });
+    
+    return newParameters;
+  } catch (error) {
+    await logError('decision-making', error);
+    return currentParameters; // Fail safe - return original parameters
+  }
+}
+
+export async function prioritizeCustomerIssues(issues: CustomerIssue[]): Promise<CustomerIssue[]> {
+  const scoredIssues = await Promise.all(
+    issues.map(async (issue) => {
+      const impactScore = await calculateBusinessImpact(issue);
+      const urgencyScore = await calculateUrgency(issue);
+      const effortScore = await estimateResolutionEffort(issue);
+      
+      return {
+        ...issue,
+        priorityScore: (impactScore * urgencyScore) / effortScore
+      };
+    })
+  );
+  
+  return scoredIssues.sort((a, b) => b.priorityScore - a.priorityScore);
+}
+
+export async function optimizeResourceAllocation(
+  customers: Customer[],
+  availableResources: Resource[]
+): Promise<AllocationPlan> {
+  const customerPriorities = await calculateCustomerPriorities(customers);
+  const resourceCapacities = await assessResourceCapacities(availableResources);
+  
+  const allocationPlan = await solveOptimizationProblem({
+    customers: customerPriorities,
+    resources: resourceCapacities,
+    constraints: await getBusinessConstraints(),
+    objective: 'maximize_customer_satisfaction'
+  });
+  
+  await validateAllocationPlan(allocationPlan);
+  await updateResourceSchedule(allocationPlan);
+  
+  return allocationPlan;
+}
+
+// Helper function stubs (would be implemented separately)
+async function assessPainPoints(painPoints: string[]): Promise<number> { /* implementation */ }
+async function conductBaselineAssessment(lead: Lead): Promise<any> { /* implementation */ }
+async function calculateROI(lead: Lead, baseline: any): Promise<number> { /* implementation */ }
+async function preprocessImages(data: DefectData[]): Promise<DefectData[]> { /* implementation */ }
+async function labelDefects(data: DefectData[]): Promise<DefectData[]> { /* implementation */ }
+async function trainVisionModel(data: DefectData[]): Promise<any> { /* implementation */ }
+async function validateModel(model: any): Promise<any> { /* implementation */ }
+async function deployModel(model: any): Promise<void> { /* implementation */ }
+async function updateModelRegistry(model: any): Promise<void> { /* implementation */ }
+async function calculateCorrelations(process: ProcessParameters[], defects: DefectData[]): Promise<any> { /* implementation */ }
+async function performGrangerCausality(process: ProcessParameters[], defects: DefectData[]): Promise<any> { /* implementation */ }
+async function calculateSHAPValues(process: ProcessParameters[], defects: DefectData[]): Promise<any> { /* implementation */ }
+async function updateCorrelationEngine(data: any): Promise<void> { /* implementation */ }
+async function validateRecommendationAccuracy(): Promise<void> { /* implementation */ }
+async function getSubscriptionRate(tier: string): number { /* implementation */ }
+async function getActiveLineCount(customerId: string): Promise<number> { /* implementation */ }
+async function identifyExpansionOpportunities(customer: Customer): Promise<any[]> { /* implementation */ }
+async function classifyDefect(data: DefectData): Promise<any> { /* implementation */ }
+async function analyzeRootCause(data: DefectData): Promise<RootCauseAnalysis> { /* implementation */ }
+async function generateRecommendations(rootCause: RootCauseAnalysis): Promise<Recommendation[]> { /* implementation */ }
+async function sendOperatorAlert(alert: any): Promise<void> { /* implementation */ }
+async function updateProcessDashboard(lineId: string, classification: any): Promise<void> { /* implementation */ }
+async function logDefectEvent(data: DefectData, classification: any, rootCause: RootCauseAnalysis): Promise<void> { /* implementation */ }
+async function logError(context: string, error: any): Promise<void> { /* implementation */ }
+async function sendCriticalAlert(message: string): Promise<void> { /* implementation */ }
+async function updateCRM(customer: Customer, status: string): Promise<void> { /* implementation */ }
+async function scheduleKickoffMeeting(customer: Customer): Promise<void> { /* implementation */ }
+async function negotiateContract(proposal: ImplementationPlan): Promise<any> { /* implementation */ }
+async function onboardCustomer(contract: any): Promise<Customer> { /* implementation */ }
+```
