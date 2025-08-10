@@ -48,7 +48,7 @@ export default function Home() {
     <div className='min-h-svh bg-background text-foreground'>
       <Navbar githubUrl='https://github.com/dot-do/startups.do' />
       <main className='mx-auto px-4 max-w-screen-2xl'>
-        <Hero title='Startups.do' subtitle='Build autonomous businesses– not just software.' />
+        <Hero title='Business-as-Code' subtitle='Build autonomous businesses– not just software.' />
         <StartupGrid items={ITEMS} />
       </main>
     </div>
