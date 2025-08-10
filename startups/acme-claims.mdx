@@ -83,6 +83,220 @@ variants:
     changes: ["No human-in-loop", "Lower limits"]
 ---
 
+// Business Process Functions - Acme Claims AI
+
+interface Lead {
+  id: string
+  company: string
+  contactEmail: string
+  claimsVolume: number
+  currentProvider?: string
+}
+
+interface Customer {
+  id: string
+  company: string
+  contractValue: number
+  integrationStatus: 'pending' | 'active' | 'complete'
+  claimsProcessed: number
+}
+
+interface ClaimIntake {
+  id: string
+  customerId: string
+  incidentDate: Date
+  description: string
+  documents: Document[]
+  claimantInfo: ClaimantInfo
+}
+
+interface Document {
+  id: string
+  type: 'photo' | 'police_report' | 'estimate' | 'medical'
+  url: string
+  extractedData?: any
+}
+
+interface ClaimantInfo {
+  name: string
+  phone: string
+  email: string
+  policyNumber: string
+}
+
+interface FraudRiskScore {
+  score: number
+  confidence: number
+  riskFactors: string[]
+  recommendation: 'approve' | 'review' | 'deny'
+}
+
+interface ClaimDecision {
+  claimId: string
+  decision: 'approved' | 'denied' | 'needs_review'
+  payoutAmount?: number
+  reasoning: string
+  reviewedBy?: string
+}
+
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead)
+  const proposal = await generateProposal(qualifiedLead)
+  const contract = await negotiateContract(proposal)
+  return await onboardCustomer(contract)
+}
+
+export async function qualifyLead(lead: Lead): Promise<Lead> {
+  if (lead.claimsVolume < 100) {
+    throw new Error('Lead does not meet minimum volume requirements')
+  }
+  
+  const creditCheck = await performCreditCheck(lead.company)
+  const marketAnalysis = await analyzeMarketFit(lead)
+  
+  return {
+    ...lead,
+    qualified: true,
+    creditScore: creditCheck.score,
+    marketFit: marketAnalysis.score
+  }
+}
+
+export async function processClaimIntake(intake: ClaimIntake): Promise<ClaimDecision> {
+  try {
+    const parsedDocuments = await parseDocuments(intake.documents)
+    const fraudScore = await detectFraud(intake, parsedDocuments)
+    const claimAssessment = await assessClaim(intake, parsedDocuments, fraudScore)
+    
+    if (fraudScore.recommendation === 'review' || claimAssessment.requiresHumanReview) {
+      return await routeToHumanReview(intake, fraudScore, claimAssessment)
+    }
+    
+    const decision = await makeAutomatedDecision(claimAssessment, fraudScore)
+    
+    if (decision.decision === 'approved') {
+      await initiatePayout(decision)
+    }
+    
+    await notifyClaimant(intake.claimantInfo, decision)
+    return decision
+    
+  } catch (error) {
+    return await handleClaimError(intake, error)
+  }
+}
+
+export async function detectFraud(
+  intake: ClaimIntake, 
+  parsedDocuments: any[]
+): Promise<FraudRiskScore> {
+  const historicalPatterns = await analyzeHistoricalPatterns(intake)
+  const documentAnalysis = await analyzeDocumentAuthenticity(parsedDocuments)
+  const behavioralSignals = await analyzeBehavioralSignals(intake)
+  
+  const riskFactors = [
+    ...historicalPatterns.riskFactors,
+    ...documentAnalysis.riskFactors,
+    ...behavioralSignals.riskFactors
+  ]
+  
+  const aggregateScore = calculateRiskScore([
+    historicalPatterns.score,
+    documentAnalysis.score,
+    behavioralSignals.score
+  ])
+  
+  return {
+    score: aggregateScore,
+    confidence: Math.min(
+      historicalPatterns.confidence,
+      documentAnalysis.confidence,
+      behavioralSignals.confidence
+    ),
+    riskFactors,
+    recommendation: aggregateScore > 0.8 ? 'deny' : 
+                   aggregateScore > 0.4 ? 'review' : 'approve'
+  }
+}
+
+export async function generateRevenue(customer: Customer): Promise<number> {
+  const monthlyClaimsVolume = await getMonthlyClaimsVolume(customer.id)
+  const pricingTier = await determinePricingTier(customer)
+  
+  let revenue = 0
+  
+  if (pricingTier.model === 'per_claim') {
+    revenue = monthlyClaimsVolume * pricingTier.pricePerClaim
+  } else if (pricingTier.model === 'saas') {
+    revenue = pricingTier.monthlyFee
+  }
+  
+  const upsellOpportunities = await identifyUpsellOpportunities(customer)
+  revenue += await executeUpsells(upsellOpportunities)
+  
+  await trackRevenue(customer.id, revenue)
+  return revenue
+}
+
+export async function optimizeOperations(): Promise<void> {
+  const performanceMetrics = await gatherPerformanceMetrics()
+  
+  if (performanceMetrics.avgCycleTime > 300) { // 5 minutes
+    await optimizeProcessingPipeline()
+  }
+  
+  if (performanceMetrics.fraudRate > 0.02) { // 2%
+    await enhanceFraudDetection()
+  }
+  
+  if (performanceMetrics.customerSatisfaction < 4.5) {
+    await improveCustomerExperience()
+  }
+  
+  await updateOKRProgress(performanceMetrics)
+}
+
+export async function makeStrategicDecisions(): Promise<void> {
+  const marketData = await analyzeMarketTrends()
+  const competitorAnalysis = await analyzeCompetitors()
+  const customerFeedback = await aggregateCustomerFeedback()
+  
+  const productRoadmap = await updateProductRoadmap({
+    marketData,
+    competitorAnalysis,
+    customerFeedback
+  })
+  
+  const pricingStrategy = await optimizePricing(marketData, competitorAnalysis)
+  const expansionPlan = await planMarketExpansion(marketData)
+  
+  await implementStrategicChanges({
+    productRoadmap,
+    pricingStrategy,
+    expansionPlan
+  })
+}
+
+// Helper functions (implementation details)
+async function parseDocuments(documents: Document[]): Promise<any[]> {
+  return Promise.all(documents.map(doc => extractDataFromDocument(doc)))
+}
+
+async function routeToHumanReview(
+  intake: ClaimIntake, 
+  fraudScore: FraudRiskScore, 
+  assessment: any
+): Promise<ClaimDecision> {
+  const reviewQueue = await getAvailableReviewer()
+  return await assignToReviewer(reviewQueue, intake, fraudScore, assessment)
+}
+
+async function initiatePayout(decision: ClaimDecision): Promise<void> {
+  await validatePayoutAmount(decision.payoutAmount)
+  await processPayment(decision.claimId, decision.payoutAmount)
+  await updateClaimStatus(decision.claimId, 'paid')
+}
+
 export default function Page() {
   return (
     <>
