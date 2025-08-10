@@ -67,11 +67,7 @@ export async function createDevinSession(params: CreateDevinSessionParams, init?
   if (!res.ok) {
     const body = (data && typeof data === 'object' ? (data as Record<string, unknown>) : undefined) || undefined
     const message =
-      (body?.message as string | undefined) ||
-      (body?.error as string | undefined) ||
-      (body?.reason as string | undefined) ||
-      res.statusText ||
-      'Request failed'
+      (body?.message as string | undefined) || (body?.error as string | undefined) || (body?.reason as string | undefined) || res.statusText || 'Request failed'
 
     const error: DevinApiError = {
       status: res.status,

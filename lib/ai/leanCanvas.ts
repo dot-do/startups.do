@@ -1,6 +1,6 @@
-import { generateObject } from "ai"
-import { openai } from ".";
-import { z } from "zod"
+import { generateObject } from 'ai'
+import { openai } from '.'
+import { z } from 'zod'
 
 // Simple schema
 const leanCanvasSchema = z.object({
@@ -20,7 +20,7 @@ const leanCanvasSchema = z.object({
   unfairAdvantage: z.string(),
   marketSize: z.string(),
   competitiveAnalysis: z.array(z.string())
-}) 
+})
 
 export const leanCanvas = async (businessIdea: string, additionalContext?: string) => {
   const prompt = `Generate a comprehensive lean canvas for the following business idea: "${businessIdea}"
@@ -32,11 +32,11 @@ export const leanCanvas = async (businessIdea: string, additionalContext?: strin
   - Realistic market assumptions
   - Clear value propositions
   - Actionable go-to-market strategies
-  - Concrete metrics and KPIs`;
+  - Concrete metrics and KPIs`
 
   return generateObject({
     model: openai('gpt-5'),
     schema: leanCanvasSchema,
     prompt
-  });
-};
+  })
+}
