@@ -1,13 +1,14 @@
+import 'dotenv/config'
 import { ideate } from '../lib/ai/ideate'
 
 async function main() {
   const res = await ideate({
-    maxIndustries: 1,
-    maxOccupations: 1,
+    maxIndustries: 100,
+    maxOccupations: 100,
     occupationSelectableOnly: true,
     naicsMinDepth: 6,
     naicsMaxDepth: 6,
-    maxServicesPerMarket: 1,
+    maxServicesPerMarket: 5,
     persist: true,
   })
   console.log('Persisted ideas:', res.length)

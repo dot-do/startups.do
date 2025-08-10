@@ -1,5 +1,6 @@
 #!/usr/bin/env tsx
 
+import 'dotenv/config'
 import { listStartups, getStartup } from '../lib/startups'
 import { createStartupDevinSession } from '../lib/devin'
 
