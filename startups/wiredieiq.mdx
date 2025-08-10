@@ -317,7 +317,381 @@ landingPage:
       Improve: Weekly reviews of avoided breaks, extended die life, and scrap
       reduction.
 ---
+
 # WireDieIQ
 
 Generated for NAICS 331222 — Steel Wire Drawing.
 Service: Die Wear & Breakage Prediction + Replacement Scheduler
+
+## Business Process Functions
+
+```typescript
+// Core Data Types
+interface Lead {
+  id: string;
+  company: string;
+  plantLocation: string;
+  contactInfo: ContactInfo;
+  wireDrawingLines: number;
+  currentDieManagement: 'manual' | 'basic-tracking' | 'spreadsheet';
+  painPoints: string[];
+  estimatedAnnualDieCost: number;
+  estimatedDowntimeHours: number;
+}
+
+interface QualifiedLead extends Lead {
+  qualificationScore: number;
+  decisionMakers: ContactInfo[];
+  budget: number;
+  timeline: string;
+  technicalRequirements: TechnicalRequirements;
+}
+
+interface Customer {
+  id: string;
+  lead: QualifiedLead;
+  contract: Contract;
+  onboardingStatus: 'pending' | 'in-progress' | 'complete';
+  subscriptionTier: 'basic' | 'enterprise';
+  linesDeployed: number;
+}
+
+interface DieWearData {
+  dieId: string;
+  tonnageProcessed: number;
+  reductionSchedule: number[];
+  lineSpeed: number;
+  lubeHealth: LubeCondition;
+  motorCurrent: number;
+  temperature: number;
+  timestamp: Date;
+}
+
+interface RULPrediction {
+  dieId: string;
+  remainingUsefulLife: number;
+  confidenceInterval: [number, number];
+  breakProbability: number;
+  recommendedChangeoutWindow: DateRange;
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const proposal = await generateProposal(qualifiedLead);
+  const contract = await negotiateContract(proposal);
+  const customer = await onboardCustomer(contract);
+  
+  await trackCustomerAcquisitionMetrics(customer);
+  return customer;
+}
+
+export async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  const qualificationScore = await calculateQualificationScore(lead);
+  
+  if (qualificationScore < 70) {
+    await nurtureLead(lead);
+    throw new Error('Lead not qualified for immediate pursuit');
+  }
+  
+  const decisionMakers = await identifyDecisionMakers(lead);
+  const technicalRequirements = await assessTechnicalRequirements(lead);
+  const budget = await estimateBudget(lead);
+  
+  return {
+    ...lead,
+    qualificationScore,
+    decisionMakers,
+    technicalRequirements,
+    budget,
+    timeline: await estimateDecisionTimeline(lead)
+  };
+}
+
+export async function generateProposal(qualifiedLead: QualifiedLead): Promise<Proposal> {
+  const roiCalculation = await calculateROI(qualifiedLead);
+  const technicalSolution = await designTechnicalSolution(qualifiedLead);
+  const pricing = await calculatePricing(qualifiedLead);
+  const implementation = await planImplementation(qualifiedLead);
+  
+  return {
+    customerId: qualifiedLead.id,
+    roiCalculation,
+    technicalSolution,
+    pricing,
+    implementation,
+    validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
+  };
+}
+
+// Product Development Processes
+export async function developDieWearPredictionModel(): Promise<MLModel> {
+  const trainingData = await collectTrainingData();
+  const features = await engineerFeatures(trainingData);
+  const model = await trainPhysicsInformedModel(features);
+  const validatedModel = await validateModel(model);
+  
+  await deployModel(validatedModel);
+  return validatedModel;
+}
+
+export async function collectTrainingData(): Promise<DieWearData[]> {
+  const historianData = await ingestHistorianData();
+  const dieHistory = await extractDieHistory();
+  const breakageEvents = await collectBreakageEvents();
+  
+  return await correlateDataSources(historianData, dieHistory, breakageEvents);
+}
+
+export async function trainPhysicsInformedModel(features: FeatureSet): Promise<MLModel> {
+  const physicsConstraints = await definePhysicsConstraints();
+  const mlModel = await trainGradientBoostingModel(features);
+  const hybridModel = await combinePhysicsAndML(physicsConstraints, mlModel);
+  
+  return await optimizeModelParameters(hybridModel);
+}
+
+// Revenue Generation Flows
+export async function generateRevenue(customer: Customer): Promise<RevenueEvent> {
+  const subscription = await processSubscriptionPayment(customer);
+  const professionalServices = await deliverProfessionalServices(customer);
+  const hardwareRevenue = await processHardwareSales(customer);
+  
+  const totalRevenue = subscription.amount + professionalServices.amount + hardwareRevenue.amount;
+  
+  await updateRevenueMetrics(totalRevenue);
+  await triggerUpsellOpportunities(customer);
+  
+  return {
+    customerId: customer.id,
+    totalAmount: totalRevenue,
+    breakdown: { subscription, professionalServices, hardwareRevenue },
+    date: new Date()
+  };
+}
+
+export async function processSubscriptionPayment(customer: Customer): Promise<PaymentEvent> {
+  const subscriptionRate = await getSubscriptionRate(customer.subscriptionTier);
+  const monthlyAmount = subscriptionRate * customer.linesDeployed;
+  
+  const payment = await chargeCustomer(customer, monthlyAmount);
+  await updateSubscriptionStatus(customer, 'active');
+  
+  return payment;
+}
+
+export async function identifyUpsellOpportunities(customer: Customer): Promise<UpsellOpportunity[]> {
+  const opportunities: UpsellOpportunity[] = [];
+  
+  if (customer.linesDeployed < await getTotalLines(customer)) {
+    opportunities.push({
+      type: 'additional-lines',
+      estimatedValue: await calculateAdditionalLineValue(customer),
+      probability: 0.7
+    });
+  }
+  
+  if (customer.subscriptionTier === 'basic') {
+    opportunities.push({
+      type: 'enterprise-upgrade',
+      estimatedValue: await calculateEnterpriseUpgradeValue(customer),
+      probability: 0.4
+    });
+  }
+  
+  return opportunities;
+}
+
+// Operational Procedures
+export async function operateWireDieIQSystem(): Promise<void> {
+  await every('5 minutes', async () => {
+    await ingestRealTimeData();
+    await updateRULPredictions();
+    await checkAlertConditions();
+  });
+  
+  await every('1 hour', async () => {
+    await optimizeChangeoutSchedules();
+    await updateInventoryRecommendations();
+  });
+  
+  await every('1 day', async () => {
+    await retrainModels();
+    await generateDailyReports();
+    await processCustomerSuccess();
+  });
+}
+
+export async function ingestRealTimeData(): Promise<void> {
+  const opcuaData = await collectOPCUAData();
+  const mqttData = await collectMQTTData();
+  const csvData = await processCSVUploads();
+  
+  const cleanedData = await cleanAndAlignData([opcuaData, mqttData, csvData]);
+  await storeProcessedData(cleanedData);
+}
+
+export async function updateRULPredictions(): Promise<RULPrediction[]> {
+  const currentData = await getCurrentDieData();
+  const predictions: RULPrediction[] = [];
+  
+  for (const dieData of currentData) {
+    const prediction = await predictRemainingUsefulLife(dieData);
+    predictions.push(prediction);
+    
+    if (prediction.breakProbability > 0.8) {
+      await triggerUrgentAlert(prediction);
+    }
+  }
+  
+  await updatePredictionDatabase(predictions);
+  return predictions;
+}
+
+// Decision-Making Workflows
+export async function makeChangeoutDecision(dieId: string): Promise<ChangeoutDecision> {
+  const currentPrediction = await getRULPrediction(dieId);
+  const productionSchedule = await getProductionSchedule();
+  const dieInventory = await getDieInventory();
+  
+  const decision = await optimizeChangeoutTiming({
+    prediction: currentPrediction,
+    schedule: productionSchedule,
+    inventory: dieInventory
+  });
+  
+  if (decision.recommended) {
+    await scheduleChangeout(decision);
+    await updateCMMS(decision);
+    await notifyOperations(decision);
+  }
+  
+  return decision;
+}
+
+export async function makeProcurementDecision(): Promise<ProcurementPlan> {
+  const demandForecast = await forecastDieDemand();
+  const currentInventory = await getCurrentInventory();
+  const supplierLeadTimes = await getSupplierLeadTimes();
+  
+  const procurementPlan = await optimizeProcurement({
+    forecast: demandForecast,
+    inventory: currentInventory,
+    leadTimes: supplierLeadTimes
+  });
+  
+  await executeProcurementPlan(procurementPlan);
+  return procurementPlan;
+}
+
+export async function makeRegindDecision(dieId: string): Promise<RegindDecision> {
+  const dieCondition = await assessDieCondition(dieId);
+  const regindHistory = await getRegindHistory(dieId);
+  const regindCost = await getRegindCost(dieId);
+  const newDieCost = await getNewDieCost(dieId);
+  
+  const decision = await evaluateRegindViability({
+    condition: dieCondition,
+    history: regindHistory,
+    regindCost,
+    newDieCost
+  });
+  
+  if (decision.recommended) {
+    await scheduleRegrind(dieId, decision);
+  } else {
+    await scheduleNewDiePurchase(dieId);
+  }
+  
+  return decision;
+}
+
+// Event-Driven Workflows
+export async function onDieBreakageEvent(event: BreakageEvent): Promise<void> {
+  await logBreakageEvent(event);
+  await updateModelWithBreakageData(event);
+  await triggerEmergencyResponse(event);
+  await analyzeRootCause(event);
+  await updatePreventiveMeasures(event);
+}
+
+export async function onNewDieInstalled(event: DieInstallationEvent): Promise<void> {
+  await registerNewDie(event.dieId);
+  await initializeRULTracking(event.dieId);
+  await updateInventorySystem(event);
+  await notifyPredictionSystem(event);
+}
+
+export async function onProductionScheduleChange(event: ScheduleChangeEvent): Promise<void> {
+  await reoptimizeChangeoutSchedule(event);
+  await updateDieRequirements(event);
+  await notifyRelevantStakeholders(event);
+}
+
+// Customer Success Workflows
+export async function ensureCustomerSuccess(customer: Customer): Promise<void> {
+  const healthScore = await calculateCustomerHealthScore(customer);
+  
+  if (healthScore < 70) {
+    await triggerCustomerSuccessIntervention(customer);
+  }
+  
+  await trackUsageMetrics(customer);
+  await generateCustomerReports(customer);
+  await identifyExpansionOpportunities(customer);
+}
+
+export async function calculateCustomerHealthScore(customer: Customer): Promise<number> {
+  const usageMetrics = await getUsageMetrics(customer);
+  const supportTickets = await getSupportTickets(customer);
+  const paymentHistory = await getPaymentHistory(customer);
+  const userAdoption = await getUserAdoptionMetrics(customer);
+  
+  return await computeHealthScore({
+    usage: usageMetrics,
+    support: supportTickets,
+    payments: paymentHistory,
+    adoption: userAdoption
+  });
+}
+
+// Continuous Improvement Workflows
+export async function improvePredictionAccuracy(): Promise<void> {
+  const predictionErrors = await analyzePredictionErrors();
+  const modelPerformance = await evaluateModelPerformance();
+  
+  if (modelPerformance.mape > 0.15) {
+    await retrainModelWithNewData();
+    await tuneHyperparameters();
+  }
+  
+  await updatePhysicsConstraints();
+  await validateImprovedModel();
+}
+
+export async function optimizeBusinessProcesses(): Promise<void> {
+  const processMetrics = await gatherProcessMetrics();
+  const bottlenecks = await identifyBottlenecks(processMetrics);
+  
+  for (const bottleneck of bottlenecks) {
+    await implementProcessImprovement(bottleneck);
+  }
+  
+  await measureImprovementImpact();
+}
+```
+
+## Implementation Notes
+
+The business process functions above represent the core operational workflows for WireDieIQ:
+
+- **Customer Acquisition**: Lead qualification, proposal generation, and onboarding
+- **Product Development**: ML model development and physics-informed prediction systems
+- **Revenue Generation**: Subscription processing, upselling, and professional services
+- **Operations**: Real-time data ingestion, prediction updates, and system monitoring
+- **Decision Making**: Automated changeout timing, procurement planning, and regrind decisions
+- **Event Handling**: Response to breakage events, die installations, and schedule changes
+- **Customer Success**: Health monitoring, usage tracking, and expansion identification
+- **Continuous Improvement**: Model retraining and process optimization
+
+These functions can be orchestrated using the workflows.do platform to create autonomous business processes that handle routine operations while escalating complex decisions to human operators.
