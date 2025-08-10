@@ -347,7 +347,404 @@ landingPage:
       Export the Rx to your planter, plant with confidence, and get a season-end
       performance report.
 ---
+
 # SoyRate AI
 
 Generated for NAICS 111110 — Soybean Farming.
 Service: Variable-Rate Seeding (VRS) Prescriptions for Soybean
+
+## Business-as-Code Workflows
+
+The following TypeScript functions define SoyRate AI's core business processes as executable code:
+
+```typescript
+// Types and Interfaces
+interface Lead {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  farmName: string;
+  soybeanAcres: number;
+  planterCapability: 'basic' | 'advanced' | 'premium';
+  currentSeedingMethod: 'static' | 'manual-vrs' | 'none';
+  source: 'direct' | 'partner' | 'referral';
+  region: string;
+}
+
+interface QualifiedLead extends Lead {
+  qualificationScore: number;
+  hasHistoricalData: boolean;
+  planterCompatibility: boolean;
+  budgetRange: string;
+  decisionTimeframe: string;
+}
+
+interface Customer {
+  id: string;
+  lead: QualifiedLead;
+  contractValue: number;
+  acres: number;
+  onboardingStatus: 'pending' | 'in-progress' | 'complete';
+  partnerChannel?: string;
+}
+
+interface FieldData {
+  boundaries: GeoJSON;
+  historicalYield: YieldMap[];
+  soilData: SoilLayer;
+  topography: ElevationData;
+  satelliteImagery: ImageryData;
+  weatherData: WeatherHistory;
+}
+
+interface VRSPrescription {
+  fieldId: string;
+  zones: ManagementZone[];
+  seedingRates: SeedingRate[];
+  testStrips: TestStrip[];
+  roiProjection: ROIAnalysis;
+  exportFormats: PrescriptionFile[];
+}
+
+interface ROIValidation {
+  fieldId: string;
+  actualYield: number;
+  projectedYield: number;
+  seedSavings: number;
+  yieldLift: number;
+  netProfit: number;
+  validated: boolean;
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  try {
+    const qualifiedLead = await qualifyLead(lead);
+    const proposal = await generateProposal(qualifiedLead);
+    const contract = await negotiateContract(proposal);
+    const customer = await onboardCustomer(contract);
+    
+    await trackConversion(lead, customer);
+    return customer;
+  } catch (error) {
+    await logAcquisitionFailure(lead, error);
+    throw error;
+  }
+}
+
+export async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  const qualificationScore = await calculateQualificationScore(lead);
+  const hasHistoricalData = await checkDataAvailability(lead);
+  const planterCompatibility = await validatePlanterCompatibility(lead);
+  
+  if (qualificationScore < 70) {
+    throw new Error('Lead does not meet qualification criteria');
+  }
+  
+  return {
+    ...lead,
+    qualificationScore,
+    hasHistoricalData,
+    planterCompatibility,
+    budgetRange: await estimateBudgetRange(lead),
+    decisionTimeframe: await assessDecisionTimeframe(lead)
+  };
+}
+
+export async function generateProposal(qualifiedLead: QualifiedLead): Promise<Proposal> {
+  const pricingTier = await determinePricingTier(qualifiedLead);
+  const customizations = await identifyCustomizations(qualifiedLead);
+  const roiProjection = await projectROI(qualifiedLead);
+  
+  return await createProposal({
+    lead: qualifiedLead,
+    pricing: pricingTier,
+    customizations,
+    roiProjection,
+    validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
+  });
+}
+
+// Product Development Processes
+export async function developVRSPrescription(fieldData: FieldData): Promise<VRSPrescription> {
+  try {
+    const cleanedData = await ingestAndCleanData(fieldData);
+    const managementZones = await createManagementZones(cleanedData);
+    const populationModel = await buildPopulationModel(managementZones);
+    const seedingRates = await optimizeSeedingRates(populationModel);
+    const testStrips = await generateTestStrips(managementZones);
+    const roiAnalysis = await calculateROI(seedingRates, fieldData);
+    const prescriptionFiles = await exportPrescriptions(seedingRates, managementZones);
+    
+    return {
+      fieldId: fieldData.fieldId,
+      zones: managementZones,
+      seedingRates,
+      testStrips,
+      roiProjection: roiAnalysis,
+      exportFormats: prescriptionFiles
+    };
+  } catch (error) {
+    await logPrescriptionError(fieldData.fieldId, error);
+    throw error;
+  }
+}
+
+export async function createManagementZones(fieldData: FieldData): Promise<ManagementZone[]> {
+  const yieldStability = await analyzeYieldStability(fieldData.historicalYield);
+  const soilProductivity = await calculateSoilProductivity(fieldData.soilData);
+  const terrainWetness = await deriveTerrainWetness(fieldData.topography);
+  
+  return await generateZones({
+    yieldStability,
+    soilProductivity,
+    terrainWetness,
+    minZoneSize: 2.5, // acres
+    maxZones: 8
+  });
+}
+
+export async function buildPopulationModel(zones: ManagementZone[]): Promise<PopulationModel> {
+  const responseData = await gatherResponseData(zones);
+  const riskFactors = await assessRiskFactors(zones);
+  
+  return await trainModel({
+    responseData,
+    riskFactors,
+    modelType: 'soybean-specific-ml',
+    validationSplit: 0.2
+  });
+}
+
+// Revenue Generation Flows
+export async function processSubscriptionPayment(customer: Customer): Promise<PaymentResult> {
+  const billingAmount = await calculateBillingAmount(customer);
+  const paymentMethod = await getPaymentMethod(customer);
+  
+  try {
+    const payment = await chargeCustomer(paymentMethod, billingAmount);
+    await updateSubscriptionStatus(customer, 'active');
+    await sendPaymentConfirmation(customer, payment);
+    
+    return { success: true, payment };
+  } catch (error) {
+    await handlePaymentFailure(customer, error);
+    throw error;
+  }
+}
+
+export async function calculatePartnerCommission(partner: Partner, sales: Sale[]): Promise<Commission> {
+  const totalRevenue = sales.reduce((sum, sale) => sum + sale.amount, 0);
+  const commissionRate = await getPartnerCommissionRate(partner);
+  const commissionAmount = totalRevenue * commissionRate;
+  
+  return {
+    partnerId: partner.id,
+    period: getCurrentBillingPeriod(),
+    totalRevenue,
+    commissionRate,
+    commissionAmount,
+    sales
+  };
+}
+
+export async function processOutcomeBasedPricing(validation: ROIValidation): Promise<OutcomePayment> {
+  if (!validation.validated || validation.netProfit <= 0) {
+    return { amount: 0, reason: 'No positive ROI validated' };
+  }
+  
+  const sharePercentage = await getOutcomeSharePercentage(validation.fieldId);
+  const paymentAmount = validation.netProfit * sharePercentage;
+  
+  return {
+    amount: paymentAmount,
+    baseProfit: validation.netProfit,
+    sharePercentage,
+    fieldId: validation.fieldId
+  };
+}
+
+// Operational Procedures
+export async function onboardCustomer(contract: Contract): Promise<Customer> {
+  const customer = await createCustomerRecord(contract);
+  
+  try {
+    await setupDataConnections(customer);
+    await configureIntegrations(customer);
+    await scheduleTraining(customer);
+    await assignAccountManager(customer);
+    
+    await updateOnboardingStatus(customer, 'complete');
+    await sendWelcomePackage(customer);
+    
+    return customer;
+  } catch (error) {
+    await updateOnboardingStatus(customer, 'failed');
+    await escalateOnboardingIssue(customer, error);
+    throw error;
+  }
+}
+
+export async function executeFieldTrial(trial: FieldTrial): Promise<TrialResults> {
+  await plantTestStrips(trial);
+  await monitorGrowthStages(trial);
+  const harvestData = await collectHarvestData(trial);
+  const analysis = await analyzeTrialResults(harvestData);
+  
+  await publishTrialResults(analysis);
+  return analysis;
+}
+
+export async function maintainIntegrations(): Promise<IntegrationStatus[]> {
+  const integrations = await getAllIntegrations();
+  const results = [];
+  
+  for (const integration of integrations) {
+    try {
+      await testIntegrationHealth(integration);
+      await updateIntegrationStatus(integration, 'healthy');
+      results.push({ integration: integration.name, status: 'healthy' });
+    } catch (error) {
+      await handleIntegrationFailure(integration, error);
+      results.push({ integration: integration.name, status: 'failed', error });
+    }
+  }
+  
+  return results;
+}
+
+// Decision-Making Workflows
+export async function approveCustomPrescription(
+  prescription: VRSPrescription,
+  agronomist: Agronomist
+): Promise<ApprovalResult> {
+  const riskAssessment = await assessPrescriptionRisk(prescription);
+  const agronomicReview = await conductAgronomicReview(prescription, agronomist);
+  
+  if (riskAssessment.riskLevel === 'high') {
+    return {
+      approved: false,
+      reason: 'High risk assessment',
+      requiredActions: riskAssessment.mitigationSteps
+    };
+  }
+  
+  if (!agronomicReview.approved) {
+    return {
+      approved: false,
+      reason: agronomicReview.concerns,
+      requiredActions: agronomicReview.recommendations
+    };
+  }
+  
+  await markPrescriptionApproved(prescription, agronomist);
+  return { approved: true };
+}
+
+export async function escalateCustomerIssue(issue: CustomerIssue): Promise<EscalationResult> {
+  const severity = await assessIssueSeverity(issue);
+  const assignee = await determineEscalationPath(severity);
+  
+  await createEscalationTicket(issue, assignee);
+  await notifyStakeholders(issue, severity);
+  
+  if (severity === 'critical') {
+    await triggerEmergencyResponse(issue);
+  }
+  
+  return {
+    escalated: true,
+    assignee,
+    severity,
+    ticketId: issue.ticketId
+  };
+}
+
+export async function optimizePricingStrategy(marketData: MarketData): Promise<PricingUpdate> {
+  const competitorAnalysis = await analyzeCompetitorPricing(marketData);
+  const demandElasticity = await calculateDemandElasticity(marketData);
+  const costStructure = await getCurrentCostStructure();
+  
+  const optimalPricing = await calculateOptimalPricing({
+    competitorAnalysis,
+    demandElasticity,
+    costStructure,
+    targetMargin: 0.7
+  });
+  
+  return {
+    currentPricing: await getCurrentPricing(),
+    recommendedPricing: optimalPricing,
+    expectedImpact: await projectPricingImpact(optimalPricing),
+    implementationDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+  };
+}
+
+// Validation and Monitoring
+export async function validateROI(fieldId: string): Promise<ROIValidation> {
+  const asPlantedData = await getAsPlantedData(fieldId);
+  const standCounts = await getStandCounts(fieldId);
+  const yieldData = await getHarvestYield(fieldId);
+  const baseline = await getBaselinePerformance(fieldId);
+  
+  const yieldLift = yieldData.actualYield - baseline.expectedYield;
+  const seedSavings = await calculateSeedSavings(asPlantedData, baseline);
+  const netProfit = (yieldLift * yieldData.commodityPrice) + seedSavings - yieldData.additionalCosts;
+  
+  return {
+    fieldId,
+    actualYield: yieldData.actualYield,
+    projectedYield: baseline.expectedYield,
+    seedSavings,
+    yieldLift,
+    netProfit,
+    validated: netProfit > 0
+  };
+}
+
+export async function monitorSystemHealth(): Promise<HealthStatus> {
+  const apiHealth = await checkAPIHealth();
+  const databaseHealth = await checkDatabaseHealth();
+  const integrationHealth = await checkIntegrationHealth();
+  const modelPerformance = await checkModelPerformance();
+  
+  return {
+    overall: calculateOverallHealth([apiHealth, databaseHealth, integrationHealth, modelPerformance]),
+    components: {
+      api: apiHealth,
+      database: databaseHealth,
+      integrations: integrationHealth,
+      models: modelPerformance
+    },
+    timestamp: new Date()
+  };
+}
+
+// Helper functions (pseudocode - would be implemented elsewhere)
+async function calculateQualificationScore(lead: Lead): Promise<number> { /* Implementation */ }
+async function checkDataAvailability(lead: Lead): Promise<boolean> { /* Implementation */ }
+async function validatePlanterCompatibility(lead: Lead): Promise<boolean> { /* Implementation */ }
+async function estimateBudgetRange(lead: Lead): Promise<string> { /* Implementation */ }
+async function assessDecisionTimeframe(lead: Lead): Promise<string> { /* Implementation */ }
+async function determinePricingTier(lead: QualifiedLead): Promise<PricingTier> { /* Implementation */ }
+async function identifyCustomizations(lead: QualifiedLead): Promise<Customization[]> { /* Implementation */ }
+async function projectROI(lead: QualifiedLead): Promise<ROIProjection> { /* Implementation */ }
+async function createProposal(params: ProposalParams): Promise<Proposal> { /* Implementation */ }
+async function negotiateContract(proposal: Proposal): Promise<Contract> { /* Implementation */ }
+async function trackConversion(lead: Lead, customer: Customer): Promise<void> { /* Implementation */ }
+async function logAcquisitionFailure(lead: Lead, error: Error): Promise<void> { /* Implementation */ }
+async function ingestAndCleanData(fieldData: FieldData): Promise<CleanedFieldData> { /* Implementation */ }
+async function analyzeYieldStability(yieldMaps: YieldMap[]): Promise<YieldStability> { /* Implementation */ }
+async function calculateSoilProductivity(soilData: SoilLayer): Promise<ProductivityIndex> { /* Implementation */ }
+async function deriveTerrainWetness(topography: ElevationData): Promise<WetnessIndex> { /* Implementation */ }
+async function generateZones(params: ZoneParams): Promise<ManagementZone[]> { /* Implementation */ }
+async function gatherResponseData(zones: ManagementZone[]): Promise<ResponseData> { /* Implementation */ }
+async function assessRiskFactors(zones: ManagementZone[]): Promise<RiskFactors> { /* Implementation */ }
+async function trainModel(params: ModelParams): Promise<PopulationModel> { /* Implementation */ }
+async function optimizeSeedingRates(model: PopulationModel): Promise<SeedingRate[]> { /* Implementation */ }
+async function generateTestStrips(zones: ManagementZone[]): Promise<TestStrip[]> { /* Implementation */ }
+async function calculateROI(rates: SeedingRate[], fieldData: FieldData): Promise<ROIAnalysis> { /* Implementation */ }
+async function exportPrescriptions(rates: SeedingRate[], zones: ManagementZone[]): Promise<PrescriptionFile[]> { /* Implementation */ }
+async function logPrescriptionError(fieldId: string, error: Error): Promise<void> { /* Implementation */ }
+```
