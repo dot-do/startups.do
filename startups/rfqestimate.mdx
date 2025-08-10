@@ -320,7 +320,437 @@ landingPage:
     - Export to ERP/MRP and CRM; send quote to customer.
     - Track outcome and actuals; model auto‑calibrates.
 ---
+
 # RFQEstimate.AI
 
 Generated for NAICS 336999 — All Other Transportation Equipment Manufacturing.
 Service: RFQ-to-Quote Estimator
+
+## Business Process Functions
+
+```typescript
+// Core data types for RFQ estimation workflows
+interface Lead {
+  id: string;
+  company: string;
+  contact: ContactInfo;
+  industry: string;
+  estimatedVolume: number;
+  source: 'website' | 'referral' | 'event' | 'outbound';
+}
+
+interface ContactInfo {
+  name: string;
+  title: string;
+  email: string;
+  phone?: string;
+}
+
+interface RFQPackage {
+  id: string;
+  customerId: string;
+  documents: Document[];
+  bom: BillOfMaterials;
+  specifications: Specification[];
+  deadline: Date;
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+}
+
+interface Document {
+  type: 'pdf' | 'cad' | 'drawing' | 'specification';
+  filename: string;
+  content: Buffer;
+  metadata: Record<string, any>;
+}
+
+interface BillOfMaterials {
+  items: BOMItem[];
+  totalQuantity: number;
+  currency: string;
+}
+
+interface BOMItem {
+  partNumber: string;
+  description: string;
+  quantity: number;
+  material: string;
+  specifications: string[];
+}
+
+interface Specification {
+  type: 'tolerance' | 'material' | 'finish' | 'compliance';
+  requirements: string[];
+  criticality: 'low' | 'medium' | 'high';
+}
+
+interface Customer {
+  id: string;
+  company: string;
+  tier: 'tier1' | 'tier2' | 'tier3';
+  complianceRequirements: string[];
+  paymentTerms: string;
+  preferredCommunication: string;
+}
+
+interface CostEstimate {
+  materialCost: number;
+  laborCost: number;
+  overheadCost: number;
+  toolingCost: number;
+  subcontractCost: number;
+  totalCost: number;
+  margin: number;
+  confidence: number;
+}
+
+interface RiskAssessment {
+  toleranceRisks: Risk[];
+  complianceRisks: Risk[];
+  supplyChainRisks: Risk[];
+  scheduleRisks: Risk[];
+  overallScore: number;
+}
+
+interface Risk {
+  category: string;
+  description: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  probability: number;
+  mitigation: string;
+}
+
+interface Quote {
+  id: string;
+  rfqId: string;
+  pricing: CostEstimate;
+  leadTime: number;
+  terms: string[];
+  assumptions: string[];
+  risks: RiskAssessment;
+  validUntil: Date;
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  // Step 1: Qualify the lead based on industry, volume, and fit
+  const qualifiedLead = await qualifyLead(lead);
+  
+  // Step 2: Generate initial proposal and capability presentation
+  const proposal = await generateProposal(qualifiedLead);
+  
+  // Step 3: Negotiate contract terms and compliance requirements
+  const contract = await negotiateContract(proposal);
+  
+  // Step 4: Onboard customer with system setup and training
+  return await onboardCustomer(contract);
+}
+
+async function qualifyLead(lead: Lead): Promise<Lead> {
+  // Validate industry fit (NAICS 336999 focus)
+  if (!isTargetIndustry(lead.industry)) {
+    throw new Error('Lead outside target industry');
+  }
+  
+  // Check volume thresholds and growth potential
+  const volumeScore = assessVolumeOpportunity(lead.estimatedVolume);
+  
+  // Score lead quality and prioritize follow-up
+  const qualificationScore = calculateLeadScore(lead, volumeScore);
+  
+  return { ...lead, qualificationScore };
+}
+
+async function generateProposal(lead: Lead): Promise<Proposal> {
+  // Create customized capability presentation
+  const capabilities = await buildCapabilityDeck(lead.industry);
+  
+  // Develop ROI model based on lead's current process
+  const roiModel = await calculateROIProjection(lead);
+  
+  // Generate pilot program proposal
+  const pilotTerms = await designPilotProgram(lead);
+  
+  return {
+    capabilities,
+    roiModel,
+    pilotTerms,
+    pricing: await generatePilotPricing(lead)
+  };
+}
+
+async function negotiateContract(proposal: Proposal): Promise<Contract> {
+  // Review and adjust pricing based on negotiations
+  const finalPricing = await negotiatePricing(proposal.pricing);
+  
+  // Establish compliance and security requirements
+  const complianceTerms = await defineComplianceRequirements(proposal);
+  
+  // Set implementation timeline and milestones
+  const timeline = await createImplementationPlan(proposal);
+  
+  return {
+    pricing: finalPricing,
+    compliance: complianceTerms,
+    timeline,
+    terms: await generateContractTerms(proposal)
+  };
+}
+
+async function onboardCustomer(contract: Contract): Promise<Customer> {
+  // Set up customer environment and integrations
+  await provisionCustomerEnvironment(contract);
+  
+  // Configure process libraries and cost models
+  await customizeProcessLibraries(contract);
+  
+  // Train customer team on system usage
+  await conductTraining(contract);
+  
+  // Establish success metrics and monitoring
+  await setupMetricsTracking(contract);
+  
+  return await createCustomerRecord(contract);
+}
+
+// RFQ Processing and Estimation Workflows
+export async function processRFQ(rfqPackage: RFQPackage): Promise<Quote> {
+  // Step 1: Ingest and parse all RFQ documents
+  const parsedRFQ = await ingestRFQ(rfqPackage);
+  
+  // Step 2: Extract features, tolerances, and requirements
+  const extractedData = await extractRequirements(parsedRFQ);
+  
+  // Step 3: Generate cost and time estimates
+  const estimate = await generateEstimate(extractedData);
+  
+  // Step 4: Assess risks and compliance requirements
+  const risks = await assessRisks(extractedData);
+  
+  // Step 5: Generate final quote package
+  return await generateQuote(estimate, risks, rfqPackage);
+}
+
+async function ingestRFQ(rfqPackage: RFQPackage): Promise<ParsedRFQ> {
+  // Validate document formats and completeness
+  await validateDocuments(rfqPackage.documents);
+  
+  // OCR and parse PDF drawings and specifications
+  const parsedDocuments = await parseDocuments(rfqPackage.documents);
+  
+  // Extract and normalize BOM data
+  const normalizedBOM = await normalizeBOM(rfqPackage.bom);
+  
+  // Create unified RFQ data model
+  return await createRFQModel(parsedDocuments, normalizedBOM, rfqPackage.specifications);
+}
+
+async function extractRequirements(parsedRFQ: ParsedRFQ): Promise<ExtractedData> {
+  // Use AI to extract geometric features and tolerances
+  const geometricFeatures = await extractGeometricFeatures(parsedRFQ.drawings);
+  
+  // Identify materials, finishes, and special processes
+  const materialRequirements = await extractMaterialRequirements(parsedRFQ);
+  
+  // Parse compliance and certification requirements
+  const complianceRequirements = await extractComplianceRequirements(parsedRFQ);
+  
+  // Generate process routing suggestions
+  const processRouting = await generateProcessRouting(geometricFeatures, materialRequirements);
+  
+  return {
+    features: geometricFeatures,
+    materials: materialRequirements,
+    compliance: complianceRequirements,
+    routing: processRouting
+  };
+}
+
+async function generateEstimate(extractedData: ExtractedData): Promise<CostEstimate> {
+  // Calculate material costs with current pricing
+  const materialCost = await calculateMaterialCosts(extractedData.materials);
+  
+  // Estimate labor time and costs by operation
+  const laborCost = await calculateLaborCosts(extractedData.routing);
+  
+  // Apply overhead rates and burden costs
+  const overheadCost = await calculateOverheadCosts(laborCost);
+  
+  // Estimate tooling and fixture requirements
+  const toolingCost = await calculateToolingCosts(extractedData.features);
+  
+  // Get subcontractor quotes for special processes
+  const subcontractCost = await calculateSubcontractCosts(extractedData.routing);
+  
+  // Apply margin and confidence scoring
+  const totalCost = materialCost + laborCost + overheadCost + toolingCost + subcontractCost;
+  const margin = await calculateMargin(totalCost, extractedData);
+  const confidence = await calculateConfidence(extractedData);
+  
+  return {
+    materialCost,
+    laborCost,
+    overheadCost,
+    toolingCost,
+    subcontractCost,
+    totalCost,
+    margin,
+    confidence
+  };
+}
+
+async function assessRisks(extractedData: ExtractedData): Promise<RiskAssessment> {
+  // Analyze tolerance stack-ups and DFMA issues
+  const toleranceRisks = await assessToleranceRisks(extractedData.features);
+  
+  // Check compliance requirements and export controls
+  const complianceRisks = await assessComplianceRisks(extractedData.compliance);
+  
+  // Evaluate supply chain and long-lead time risks
+  const supplyChainRisks = await assessSupplyChainRisks(extractedData.materials);
+  
+  // Assess schedule and capacity risks
+  const scheduleRisks = await assessScheduleRisks(extractedData.routing);
+  
+  // Calculate overall risk score
+  const overallScore = await calculateOverallRiskScore([
+    toleranceRisks,
+    complianceRisks,
+    supplyChainRisks,
+    scheduleRisks
+  ]);
+  
+  return {
+    toleranceRisks,
+    complianceRisks,
+    supplyChainRisks,
+    scheduleRisks,
+    overallScore
+  };
+}
+
+async function generateQuote(
+  estimate: CostEstimate,
+  risks: RiskAssessment,
+  rfqPackage: RFQPackage
+): Promise<Quote> {
+  // Generate pricing with risk adjustments
+  const adjustedPricing = await adjustPricingForRisks(estimate, risks);
+  
+  // Calculate lead time with risk buffers
+  const leadTime = await calculateLeadTime(rfqPackage, risks);
+  
+  // Generate terms and conditions
+  const terms = await generateTermsAndConditions(risks, rfqPackage);
+  
+  // Document assumptions and exclusions
+  const assumptions = await generateAssumptions(estimate, risks);
+  
+  // Set quote validity period
+  const validUntil = await calculateQuoteValidity(rfqPackage);
+  
+  return {
+    id: generateQuoteId(),
+    rfqId: rfqPackage.id,
+    pricing: adjustedPricing,
+    leadTime,
+    terms,
+    assumptions,
+    risks,
+    validUntil
+  };
+}
+
+// Revenue Generation Workflows
+export async function processRevenue(quote: Quote, customer: Customer): Promise<Revenue> {
+  // Step 1: Convert quote to contract
+  const contract = await convertQuoteToContract(quote, customer);
+  
+  // Step 2: Execute production planning
+  const productionPlan = await createProductionPlan(contract);
+  
+  // Step 3: Monitor production and costs
+  const actualCosts = await trackProductionCosts(productionPlan);
+  
+  // Step 4: Generate invoices and collect payment
+  const revenue = await processInvoicing(contract, actualCosts);
+  
+  // Step 5: Calibrate cost models with actuals
+  await calibrateCostModels(quote, actualCosts);
+  
+  return revenue;
+}
+
+// Operational Procedures
+export async function calibrateSystem(customer: Customer): Promise<CalibrationResult> {
+  // Collect actual cost and time data from ERP/MES
+  const actualData = await collectActualData(customer);
+  
+  // Compare estimates to actuals for accuracy analysis
+  const accuracyAnalysis = await analyzeEstimateAccuracy(actualData);
+  
+  // Update cost models and time standards
+  const updatedModels = await updateCostModels(accuracyAnalysis);
+  
+  // Retrain AI models with new data
+  await retrainAIModels(actualData);
+  
+  return {
+    accuracyImprovement: accuracyAnalysis.improvement,
+    modelUpdates: updatedModels,
+    confidence: accuracyAnalysis.newConfidence
+  };
+}
+
+// Decision-Making Workflows
+export async function makeQuoteDecision(
+  quote: Quote,
+  businessRules: BusinessRules
+): Promise<QuoteDecision> {
+  // Evaluate quote against business rules
+  const ruleEvaluation = await evaluateBusinessRules(quote, businessRules);
+  
+  // Check capacity and resource availability
+  const capacityCheck = await checkCapacityAvailability(quote);
+  
+  // Assess strategic value and customer relationship
+  const strategicValue = await assessStrategicValue(quote);
+  
+  // Make go/no-go decision
+  const decision = await makeGoNoGoDecision(ruleEvaluation, capacityCheck, strategicValue);
+  
+  return {
+    decision: decision.recommendation,
+    reasoning: decision.rationale,
+    conditions: decision.conditions,
+    approvalRequired: decision.requiresApproval
+  };
+}
+
+// Product Development Processes
+export async function developProduct(requirements: ProductRequirements): Promise<Product> {
+  // Analyze market requirements and customer feedback
+  const marketAnalysis = await analyzeMarketRequirements(requirements);
+  
+  // Design new features and capabilities
+  const featureDesign = await designNewFeatures(marketAnalysis);
+  
+  // Develop and test new functionality
+  const developedFeatures = await developFeatures(featureDesign);
+  
+  // Validate with customer pilots
+  const validationResults = await validateWithCustomers(developedFeatures);
+  
+  // Release to production
+  return await releaseToProduction(validationResults);
+}
+
+// Helper function stubs (these would be implemented separately)
+async function isTargetIndustry(industry: string): Promise<boolean> { /* implementation */ }
+async function assessVolumeOpportunity(volume: number): Promise<number> { /* implementation */ }
+async function calculateLeadScore(lead: Lead, volumeScore: number): Promise<number> { /* implementation */ }
+async function buildCapabilityDeck(industry: string): Promise<any> { /* implementation */ }
+async function calculateROIProjection(lead: Lead): Promise<any> { /* implementation */ }
+async function designPilotProgram(lead: Lead): Promise<any> { /* implementation */ }
+async function generatePilotPricing(lead: Lead): Promise<any> { /* implementation */ }
+// ... additional helper functions would be implemented as needed
+```
