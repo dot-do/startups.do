@@ -350,7 +350,491 @@ landingPage:
       Capture results; the model learns and refines recommendations for the next
       run
 ---
+
 # CuPass AI
 
 Generated for NAICS 331420 — Copper Rolling, Drawing, Extruding, and Alloying.
 Service: Pass Schedule and Speed Optimizer (Rolling/Drawing)
+
+## Business Process Functions
+
+```typescript
+// Core business data types
+interface Lead {
+  id: string;
+  companyName: string;
+  contactInfo: ContactInfo;
+  plantDetails: PlantDetails;
+  currentChallenges: string[];
+  estimatedAnnualVolume: number;
+  numberOfLines: number;
+  existingSystemsInfo: SystemInfo[];
+}
+
+interface ContactInfo {
+  primaryContact: string;
+  email: string;
+  phone: string;
+  role: 'Plant Manager' | 'Process Engineer' | 'Operations VP' | 'Metallurgist';
+}
+
+interface PlantDetails {
+  location: string;
+  naicsCode: string;
+  processTypes: ('rolling' | 'drawing' | 'extrusion')[];
+  alloyTypes: string[];
+  currentOEE: number;
+  energyIntensity: number; // kWh/ton
+  breakFrequency: number; // breaks per million meters
+}
+
+interface SystemInfo {
+  type: 'PLC' | 'SCADA' | 'MES' | 'Historian' | 'LIMS';
+  vendor: string;
+  version: string;
+  integrationComplexity: 'Low' | 'Medium' | 'High';
+}
+
+interface QualifiedLead extends Lead {
+  fitScore: number;
+  priorityLevel: 'High' | 'Medium' | 'Low';
+  estimatedROI: number;
+  decisionTimeframe: string;
+  budget: number;
+}
+
+interface Proposal {
+  leadId: string;
+  solutionConfiguration: SolutionConfig;
+  pricing: PricingStructure;
+  implementation: ImplementationPlan;
+  expectedOutcomes: KPITargets;
+  riskAssessment: RiskProfile;
+}
+
+interface SolutionConfig {
+  deploymentMode: 'Advisory' | 'Closed-loop';
+  linesIncluded: number;
+  edgeGatewayRequired: boolean;
+  integrations: SystemInfo[];
+  customModelingRequired: boolean;
+}
+
+interface PricingStructure {
+  onboardingFee: number;
+  monthlySubscription: number;
+  hardwareCosts: number;
+  professionalServices: number;
+  performanceBonus?: number;
+}
+
+interface ImplementationPlan {
+  phases: Phase[];
+  totalDuration: number; // weeks
+  milestones: Milestone[];
+  resourceRequirements: ResourceRequirement[];
+}
+
+interface Phase {
+  name: string;
+  duration: number; // weeks
+  deliverables: string[];
+  dependencies: string[];
+}
+
+interface Milestone {
+  name: string;
+  week: number;
+  successCriteria: string[];
+  kpiTargets: Partial<KPITargets>;
+}
+
+interface ResourceRequirement {
+  role: string;
+  hoursRequired: number;
+  skillLevel: 'Junior' | 'Senior' | 'Expert';
+}
+
+interface KPITargets {
+  breakReduction: number; // percentage
+  energyReduction: number; // percentage
+  dieLifeImprovement: number; // percentage
+  oeeImprovement: number; // points
+  scrapReduction: number; // percentage
+  changeoverTimeReduction: number; // percentage
+}
+
+interface RiskProfile {
+  technicalRisks: Risk[];
+  businessRisks: Risk[];
+  mitigationStrategies: string[];
+  overallRiskLevel: 'Low' | 'Medium' | 'High';
+}
+
+interface Risk {
+  description: string;
+  probability: number; // 0-1
+  impact: 'Low' | 'Medium' | 'High';
+  mitigation: string;
+}
+
+interface Contract {
+  proposalId: string;
+  signedDate: Date;
+  contractValue: number;
+  paymentTerms: PaymentTerms;
+  sla: ServiceLevelAgreement;
+  terminationClauses: string[];
+}
+
+interface PaymentTerms {
+  onboardingPayment: number;
+  monthlyPayments: number;
+  performanceBonusStructure?: PerformanceBonusStructure;
+}
+
+interface PerformanceBonusStructure {
+  baselineMetrics: KPITargets;
+  bonusPercentage: number;
+  measurementPeriod: number; // months
+}
+
+interface ServiceLevelAgreement {
+  uptimeGuarantee: number; // percentage
+  responseTime: number; // hours
+  resolutionTime: number; // hours
+  supportHours: string;
+}
+
+interface Customer {
+  id: string;
+  contractId: string;
+  onboardingStatus: OnboardingStatus;
+  deploymentDetails: DeploymentDetails;
+  performanceMetrics: PerformanceMetrics;
+  healthScore: number;
+}
+
+interface OnboardingStatus {
+  currentPhase: string;
+  completionPercentage: number;
+  nextMilestone: string;
+  blockers: string[];
+}
+
+interface DeploymentDetails {
+  linesDeployed: LineDeployment[];
+  systemIntegrations: IntegrationStatus[];
+  trainingCompleted: TrainingRecord[];
+}
+
+interface LineDeployment {
+  lineId: string;
+  lineName: string;
+  deploymentDate: Date;
+  status: 'Planning' | 'In Progress' | 'Testing' | 'Live' | 'Optimizing';
+  currentKPIs: KPITargets;
+}
+
+interface IntegrationStatus {
+  systemType: string;
+  status: 'Not Started' | 'In Progress' | 'Testing' | 'Complete' | 'Failed';
+  lastUpdated: Date;
+  issues: string[];
+}
+
+interface TrainingRecord {
+  trainingType: string;
+  attendees: string[];
+  completionDate: Date;
+  certificationLevel: string;
+}
+
+interface PerformanceMetrics {
+  actualKPIs: KPITargets;
+  trendsOverTime: MetricTrend[];
+  benchmarkComparison: BenchmarkData;
+  lastUpdated: Date;
+}
+
+interface MetricTrend {
+  metric: string;
+  values: { date: Date; value: number }[];
+  trend: 'Improving' | 'Stable' | 'Declining';
+}
+
+interface BenchmarkData {
+  industryAverage: KPITargets;
+  topQuartile: KPITargets;
+  customerRanking: number; // percentile
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  try {
+    const qualifiedLead = await qualifyLead(lead);
+    const proposal = await generateProposal(qualifiedLead);
+    const contract = await negotiateContract(proposal);
+    const customer = await onboardCustomer(contract);
+    
+    await trackCustomerAcquisition(customer);
+    return customer;
+  } catch (error) {
+    await handleAcquisitionError(lead, error);
+    throw error;
+  }
+}
+
+export async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  const fitScore = await calculateFitScore(lead);
+  const roiEstimate = await estimateROI(lead);
+  const priorityLevel = await determinePriority(lead, fitScore);
+  
+  if (fitScore < 0.6) {
+    throw new Error('Lead does not meet minimum qualification criteria');
+  }
+  
+  return {
+    ...lead,
+    fitScore,
+    priorityLevel,
+    estimatedROI: roiEstimate,
+    decisionTimeframe: await estimateDecisionTimeframe(lead),
+    budget: await estimateBudget(lead)
+  };
+}
+
+export async function generateProposal(qualifiedLead: QualifiedLead): Promise<Proposal> {
+  const solutionConfig = await designSolution(qualifiedLead);
+  const pricing = await calculatePricing(solutionConfig, qualifiedLead);
+  const implementation = await createImplementationPlan(solutionConfig, qualifiedLead);
+  const expectedOutcomes = await projectKPITargets(qualifiedLead, solutionConfig);
+  const riskAssessment = await assessRisks(qualifiedLead, solutionConfig);
+  
+  return {
+    leadId: qualifiedLead.id,
+    solutionConfiguration: solutionConfig,
+    pricing,
+    implementation,
+    expectedOutcomes,
+    riskAssessment
+  };
+}
+
+export async function negotiateContract(proposal: Proposal): Promise<Contract> {
+  const negotiationRounds = await conductNegotiation(proposal);
+  const finalTerms = await finalizePricingAndTerms(proposal, negotiationRounds);
+  const contract = await generateContract(finalTerms);
+  
+  await validateContract(contract);
+  await obtainLegalApproval(contract);
+  
+  return contract;
+}
+
+export async function onboardCustomer(contract: Contract): Promise<Customer> {
+  const customer = await createCustomerRecord(contract);
+  await initiateOnboarding(customer);
+  await scheduleKickoffMeeting(customer);
+  await setupProjectManagement(customer);
+  
+  return customer;
+}
+
+// Product Development Processes
+export async function developProduct(requirements: ProductRequirements): Promise<ProductRelease> {
+  const roadmap = await createProductRoadmap(requirements);
+  const features = await developFeatures(roadmap);
+  const testing = await conductTesting(features);
+  const release = await deployRelease(testing);
+  
+  return release;
+}
+
+export async function enhanceAIModels(performanceData: PerformanceData[]): Promise<ModelUpdate> {
+  const analysisResults = await analyzePerformanceData(performanceData);
+  const improvements = await identifyModelImprovements(analysisResults);
+  const updatedModels = await trainImprovedModels(improvements);
+  const validation = await validateModelUpdates(updatedModels);
+  
+  if (validation.performanceGain < 0.05) {
+    throw new Error('Model improvements do not meet minimum threshold');
+  }
+  
+  return await deployModelUpdate(updatedModels);
+}
+
+export async function developIntegration(systemInfo: SystemInfo): Promise<IntegrationModule> {
+  const compatibility = await assessCompatibility(systemInfo);
+  const connector = await buildConnector(systemInfo, compatibility);
+  const testing = await testIntegration(connector);
+  const documentation = await createIntegrationDocs(connector);
+  
+  return {
+    connector,
+    testing,
+    documentation,
+    supportedVersions: compatibility.supportedVersions
+  };
+}
+
+// Revenue Generation Flows
+export async function generateRevenue(customer: Customer): Promise<RevenueRecord> {
+  const subscription = await processSubscriptionRevenue(customer);
+  const services = await processServicesRevenue(customer);
+  const performance = await processPerformanceBonuses(customer);
+  const upsells = await identifyUpsellOpportunities(customer);
+  
+  return {
+    customerId: customer.id,
+    subscriptionRevenue: subscription,
+    servicesRevenue: services,
+    performanceBonuses: performance,
+    upsellPotential: upsells,
+    totalRevenue: subscription + services + performance
+  };
+}
+
+export async function optimizeSubscriptionPricing(marketData: MarketData): Promise<PricingStrategy> {
+  const competitorAnalysis = await analyzeCompetitorPricing(marketData);
+  const valueAnalysis = await calculateCustomerValue(marketData);
+  const priceElasticity = await modelPriceElasticity(marketData);
+  
+  return await generatePricingRecommendations(competitorAnalysis, valueAnalysis, priceElasticity);
+}
+
+export async function expandCustomerAccount(customer: Customer): Promise<ExpansionPlan> {
+  const currentUsage = await analyzeCurrentUsage(customer);
+  const additionalNeeds = await identifyAdditionalNeeds(customer);
+  const expansionOpportunities = await prioritizeExpansionOpportunities(additionalNeeds);
+  
+  return await createExpansionPlan(customer, expansionOpportunities);
+}
+
+// Operational Procedures
+export async function operateSystem(customer: Customer): Promise<OperationalStatus> {
+  const monitoring = await monitorSystemHealth(customer);
+  const performance = await trackPerformanceMetrics(customer);
+  const alerts = await processAlerts(customer);
+  const maintenance = await performPreventiveMaintenance(customer);
+  
+  return {
+    systemHealth: monitoring,
+    performanceMetrics: performance,
+    activeAlerts: alerts,
+    maintenanceStatus: maintenance,
+    overallStatus: await calculateOverallStatus(monitoring, performance, alerts)
+  };
+}
+
+export async function supportCustomer(supportRequest: SupportRequest): Promise<SupportResolution> {
+  const classification = await classifyRequest(supportRequest);
+  const priority = await determinePriority(supportRequest, classification);
+  const assignment = await assignToEngineer(supportRequest, priority);
+  const resolution = await resolveIssue(supportRequest, assignment);
+  
+  await updateCustomerHealth(supportRequest.customerId, resolution);
+  return resolution;
+}
+
+export async function maintainInfrastructure(): Promise<MaintenanceReport> {
+  const healthChecks = await performHealthChecks();
+  const updates = await applySystemUpdates();
+  const backups = await verifyBackups();
+  const security = await runSecurityScans();
+  
+  return {
+    healthStatus: healthChecks,
+    updatesApplied: updates,
+    backupStatus: backups,
+    securityStatus: security,
+    recommendedActions: await generateMaintenanceRecommendations(healthChecks, security)
+  };
+}
+
+// Decision-Making Workflows
+export async function makeStrategicDecision(decision: StrategyDecision): Promise<DecisionOutcome> {
+  const dataAnalysis = await gatherDecisionData(decision);
+  const scenarios = await modelScenarios(decision, dataAnalysis);
+  const riskAssessment = await assessDecisionRisks(scenarios);
+  const recommendation = await generateRecommendation(scenarios, riskAssessment);
+  
+  const approval = await seekApproval(recommendation);
+  if (approval.approved) {
+    return await implementDecision(recommendation);
+  } else {
+    return await revisitDecision(decision, approval.feedback);
+  }
+}
+
+export async function optimizeOperations(operationalData: OperationalData): Promise<OptimizationPlan> {
+  const inefficiencies = await identifyInefficiencies(operationalData);
+  const improvements = await prioritizeImprovements(inefficiencies);
+  const implementation = await planImplementation(improvements);
+  const impact = await projectImpact(implementation);
+  
+  return {
+    improvements,
+    implementation,
+    projectedImpact: impact,
+    timeline: implementation.timeline,
+    resourceRequirements: implementation.resources
+  };
+}
+
+export async function allocateResources(resourceRequest: ResourceRequest): Promise<ResourceAllocation> {
+  const availability = await checkResourceAvailability(resourceRequest);
+  const priorities = await assessPriorities(resourceRequest);
+  const allocation = await optimizeAllocation(availability, priorities);
+  const approval = await approveAllocation(allocation);
+  
+  if (approval.approved) {
+    return await executeAllocation(allocation);
+  } else {
+    return await replanAllocation(resourceRequest, approval.constraints);
+  }
+}
+
+// Helper functions (pseudocode - would be implemented separately)
+async function calculateFitScore(lead: Lead): Promise<number> {
+  // Analyze plant size, process types, current challenges, budget indicators
+  // Return score 0-1 based on ICP alignment
+}
+
+async function estimateROI(lead: Lead): Promise<number> {
+  // Calculate potential savings based on current metrics and industry benchmarks
+  // Factor in energy costs, downtime costs, scrap costs, die replacement costs
+}
+
+async function determinePriority(lead: Lead, fitScore: number): Promise<'High' | 'Medium' | 'Low'> {
+  // Combine fit score with urgency indicators and deal size
+}
+
+async function designSolution(qualifiedLead: QualifiedLead): Promise<SolutionConfig> {
+  // Configure solution based on plant requirements and constraints
+}
+
+async function calculatePricing(config: SolutionConfig, lead: QualifiedLead): Promise<PricingStructure> {
+  // Apply pricing model based on complexity, lines, and customer segment
+}
+
+async function createImplementationPlan(config: SolutionConfig, lead: QualifiedLead): Promise<ImplementationPlan> {
+  // Generate phased implementation plan with milestones and resource requirements
+}
+
+async function projectKPITargets(lead: QualifiedLead, config: SolutionConfig): Promise<KPITargets> {
+  // Project realistic KPI improvements based on baseline and solution capabilities
+}
+
+async function assessRisks(lead: QualifiedLead, config: SolutionConfig): Promise<RiskProfile> {
+  // Identify technical and business risks with mitigation strategies
+}
+
+async function trackCustomerAcquisition(customer: Customer): Promise<void> {
+  // Update CRM, notify teams, trigger onboarding workflows
+}
+
+async function handleAcquisitionError(lead: Lead, error: any): Promise<void> {
+  // Log error, notify sales team, update lead status
+}
+```
