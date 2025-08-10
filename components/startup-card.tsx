@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
@@ -17,8 +18,30 @@ export function StartupCard({ item, onReveal }: { item: StartupItem; onReveal?: 
     }
   }, [])
 
+  const toSlug = (s: string) => s.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
+  const derivedHref = `/${toSlug(item.name)}`
+
+  // Match Navbar's deterministic variant styling based on the URL segment (slug)
+  const logoVariantIndex = React.useMemo(() => {
+    const s = toSlug(item.name || '')
+    let h = 0
+    for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0
+    return s ? h % 6 : 0
+  }, [item.name])
+
+  const baseLogoClass = 'uppercase font-normal tracking-[0.2em] text-[1.1em]'
+  const logoVariants = [
+    '',
+    'normal-case font-thin tracking-[0] text-[1.9em]',
+    'normal-case font-bold tracking-[-0.05em] text-[1.7em]',
+    'font-mono uppercase tracking-[0.3em] text-[1.15em]',
+    'normal-case italic underline-offset-4 tracking-[0.05em] text-[1.4em]',
+    'bg-gradient-to-r from-primary to-primary/40 text-transparent bg-clip-text font-extrabold tracking-tight text-[1.6em]',
+  ]
+  const nameClass = cn(baseLogoClass, logoVariants[logoVariantIndex])
+
   const handleClick: React.MouseEventHandler<HTMLElement> = (e) => {
-    if (item.href && isCoarse && !revealed) {
+    if (derivedHref && isCoarse && !revealed) {
       e.preventDefault()
       setRevealed(true)
       onReveal?.(item.id)
@@ -26,7 +49,7 @@ export function StartupCard({ item, onReveal }: { item: StartupItem; onReveal?: 
   }
 
   const handleKeyDown: React.KeyboardEventHandler<HTMLElement> = (e) => {
-    if (!item.href) return
+    if (!derivedHref) return
     if (e.key === ' ' || e.key === 'Spacebar') {
       e.preventDefault()
       ;(e.currentTarget as HTMLElement).click()
@@ -35,59 +58,21 @@ export function StartupCard({ item, onReveal }: { item: StartupItem; onReveal?: 
 
   const handleMouseLeave = () => setRevealed(false)
 
-  const Wrapper: any = item.href ? 'a' : 'div'
-  const wrapperProps: any = item.href
-    ? { href: item.href, target: '_blank', rel: 'noopener noreferrer', 'aria-label': item.ariaLabel || item.name }
-    : { role: 'button', tabIndex: 0, 'aria-label': item.ariaLabel || item.name }
-
   return (
-    <Wrapper
+    <Link
+      href={derivedHref}
+      target='_blank'
+      rel='noopener noreferrer'
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       onMouseLeave={handleMouseLeave}
       className='group group/item block cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md'
-      {...wrapperProps}
+      aria-label={item.ariaLabel || item.name}
     >
       <Card className='relative min-h-[260px] rounded-md border bg-card/60 transition-colors hover:bg-card overflow-hidden motion-safe:group-hover:scale-[1.01] motion-reduce:transition-none'>
         {/* randomized text effect */}
         <div className='absolute inset-0 flex items-center justify-center p-4 text-center'>
-          <div
-            className='
-              uppercase font-normal tracking-[0.2em] text-[1.1em]
-
-    group-[:nth-child(3n+2)]/item:normal-case
-    group-[:nth-child(3n+2)]/item:font-thin
-    group-[:nth-child(3n+2)]/item:tracking-[0]
-    group-[:nth-child(3n+2)]/item:text-[1.9em]
-
-    group-[:nth-child(7n+3)]/item:normal-case
-    group-[:nth-child(7n+3)]/item:font-bold
-    group-[:nth-child(7n+3)]/item:tracking-[-0.05em]
-    group-[:nth-child(7n+3)]/item:text-[1.7em]
-
-    group-[:nth-child(4n+1)]/item:font-mono
-    group-[:nth-child(4n+1)]/item:uppercase
-    group-[:nth-child(4n+1)]/item:tracking-[0.3em]
-    group-[:nth-child(4n+1)]/item:text-[1.15em]
-
-    group-[:nth-child(6n+4)]/item:normal-case
-    group-[:nth-child(6n+4)]/item:italic
-    group-[:nth-child(6n+4)]/item:underline-offset-4
-    group-[:nth-child(6n+4)]/item:tracking-[0.05em]
-    group-[:nth-child(6n+4)]/item:text-[1.4em]
-
-    group-[:nth-child(9n)]/item:bg-gradient-to-r
-    group-[:nth-child(9n)]/item:from-primary
-    group-[:nth-child(9n)]/item:to-primary/40
-    group-[:nth-child(9n)]/item:text-transparent
-    group-[:nth-child(9n)]/item:bg-clip-text
-    group-[:nth-child(9n)]/item:font-extrabold
-    group-[:nth-child(9n)]/item:tracking-tight
-    group-[:nth-child(9n)]/item:text-[1.6em]
-            '
-          >
-            {item.name}
-          </div>
+          <div className={nameClass}>{item.name}</div>
         </div>
 
         <div
@@ -107,7 +92,7 @@ export function StartupCard({ item, onReveal }: { item: StartupItem; onReveal?: 
           </Badge>
         </div>
       </Card>
-    </Wrapper>
+    </Link>
   )
 }
 
