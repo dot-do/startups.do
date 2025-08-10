@@ -1,0 +1,305 @@
+---
+name: LiftOpt Setpoint AI
+slug: liftopt-setpoint-ai
+naics:
+  primary: '211120'
+  occupations: []
+service:
+  title: Gas-Lift Setpoint Optimization Agent
+  description: >-
+    Recommend gas injection adjustments to maximize oil while staying within
+    constraints and facility limits.
+  targetUsers:
+    - Production Optimization Engineers
+    - Control Room Operators
+  triggers:
+    - Daily schedule after well test updates
+    - User-initiated optimization run
+    - When facility gas availability changes
+  inputs:
+    - Wellhead pressures/temperatures/rates
+    - Gas injection rates/pressures
+    - Well test results and PVT
+    - 'Constraints (min BHP, max WC, facility gas cap)'
+  steps:
+    - Pull latest data and constraints
+    - Estimate current well response to gas (data-driven nodal surrogate)
+    - Propose small-step setpoint changes per well within limits
+    - Simulate portfolio impact vs gas availability
+    - Issue recommendations with rollback plan and monitoring KPIs
+    - Track results and learn response curves over time
+  tools:
+    - Historian API
+    - Python (statsmodels/scikit-learn)
+    - Optional vendor model API (PROSPER/GAP) if licensed
+    - Optimization (cvxpy/OR-Tools)
+    - Teams/Change-log bot
+  outputs:
+    - Per-well setpoint recommendations with deltas
+    - Portfolio oil gain estimate and gas budget use
+    - Guardrails and check-back time
+    - Change log for MOC
+  pricingModel:
+    - Pilot (4–6 weeks) + monthly subscription per asset
+    - Optional success fee on incremental barrels (validated by allocation)
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 3
+    modelCapability: 3
+    overall: 3
+  risks:
+    - Wrong setpoint could harm lift performance
+    - Requires strict human approval and rollback
+    - Facility constraints may be dynamic
+    - Sparse/biased well test data
+  dependencies:
+    - Access to injection and production tags
+    - Test/allocations data
+    - Operating envelopes and MOC process
+    - Approval to propose setpoints (advisory-only by default)
+leanCanvas:
+  problem:
+    - >-
+      Static gas‑lift setpoints become suboptimal as reservoir pressure, water
+      cut, and facility loading change, causing 2–8% lost oil and 5–25% excess
+      injection gas per well versus achievable performance.
+    - >-
+      Engineers spend 6–12 hours/week per asset manually tuning 50–200 wells via
+      trial‑and‑error; changes are episodic (weekly/monthly), not continuous.
+    - >-
+      Facility and compressor constraints (HP, MAWP, separator/liquids handling,
+      emissions/flare permits) are not co‑optimized across wells, leading to 2–6
+      gas‑shortage events/month and unfair or ad hoc gas allocation.
+    - >-
+      Lack of closed‑loop guardrails increases operational risk, so teams adopt
+      overly conservative setpoints; setpoint drift and undocumented changes
+      complicate audits and MOC.
+    - >-
+      Existing tools trend data and detect anomalies but do not deliver
+      constraint‑aware, prescriptive setpoint recommendations across
+      wells/facilities in near real time.
+    - >-
+      Data silos and historian latency (15–60 min) hinder optimization; poor
+      sensor quality (5–10% tags) degrades confidence in manual decisions.
+  solution:
+    - >-
+      Secure historian/SCADA integration (OSIsoft PI/Aveva, Cygnet, Ignition,
+      OPC UA/Modbus); ingest rates, pressures, temps, choke/valve positions,
+      compressor status, flaring/emissions, alarms.
+    - >-
+      Build physics‑informed surrogate models per well (IPR/VLP and gas‑lift
+      response curves) calibrated from history and safe, automated micro
+      step‑tests; detect slugging/instability and sensor drift.
+    - >-
+      Run a multi‑objective optimizer that allocates injection gas across wells
+      subject to compressor HP, line pressure, facility liquids throughput,
+      MAWP, emissions permits, and contractual gas availability to maximize net
+      barrels ($/day).
+    - >-
+      Deliver ranked setpoint recommendations with expected deltas (bopd,
+      Mscf/d, $/day), confidence bands, and guardrails; batch or streaming
+      advisories to control room and engineers.
+    - >-
+      Optional limited‑authority autopilot via DCS/PLC with interlocks,
+      rate‑of‑change limits, and automatic rollback; full MOC and audit trail.
+    - >-
+      A/B testing framework: randomized or staggered trials with counterfactual
+      modeling and uplift measurement; weekly reports to validate impact and
+      guide expansion.
+    - >-
+      SRE monitoring, data‑quality scoring, model drift detection, and SLA;
+      one‑click pause/rollback and safe re‑optimization on constraint changes.
+  uniqueValueProp: >-
+    Increase oil 2–5% and cut injection gas 5–15% with a constraint‑aware,
+    physics+ML optimizer that recommends (or safely auto‑applies) gas‑lift
+    setpoint changes every 5–15 minutes while honoring well integrity and
+    facility limits. Deploy via historian connectors in 4–6 weeks with <90‑day
+    payback.
+  unfairAdvantage: >-
+    Facility‑aware, constraint‑first optimizer that safely reallocates injection
+    gas across wells in real time, combining physics‑informed models, live
+    compressor curves, and emissions limits. Pre‑built historian/SCADA
+    connectors cut integration to days, and a large library of curated gas‑lift
+    step tests accelerates calibration and improves accuracy from day one. A
+    safety case and MOC playbook streamline approvals for advisory and
+    limited‑authority autopilot.
+  customerSegments:
+    - >-
+      Mid‑size E&Ps in North America with 100–2,000 producing wells and 50–1,000
+      gas‑lift wells (Permian, Eagle Ford, Anadarko).
+    - >-
+      Offshore operators (Gulf of Mexico, North Sea, Brazil, West Africa) with
+      10–200 gas‑lift wells per facility and strict facility/emissions
+      constraints.
+    - >-
+      Production engineering and operations teams; artificial lift specialists;
+      facilities and process engineers; digital transformation leaders.
+    - >-
+      Compression service providers and lift OEMs seeking optimization as a
+      value‑add; OT system integrators delivering digital oilfield projects.
+  channels:
+    - >-
+      Direct enterprise sales to production/asset engineering managers; standard
+      90‑day pilot on 20–50 wells with clear success criteria and executive
+      sponsor.
+    - >-
+      Alliances with lift OEMs (Weatherford, SLB, Baker Hughes), compression
+      vendors (Archrock/Enerflex), and OT integrators (Sensia, Wood, Yokogawa,
+      Emerson) for co‑sell and delivery.
+    - >-
+      Cloud marketplaces (Azure/AWS) for streamlined procurement and private
+      offers; leverage cloud credits for pilots.
+    - >-
+      Thought leadership: SPE papers, case studies, webinars, and ROI
+      calculators; presence at OTC, URTeC, ADIPEC; targeted ABM to top 200
+      gas‑lift operators.
+    - >-
+      Partner programs with historian vendors (Aveva/PI, Inductive Automation)
+      and data platforms to be listed as a validated solution.
+    - >-
+      Land‑and‑expand: start with one asset, expand to facility‑wide allocation,
+      then multi‑asset enterprise license.
+  revenueStreams:
+    - >-
+      Subscription per well per month: Advisory $300–$500/well/mo; Autopilot
+      $600–$800/well/mo.
+    - >-
+      Facility/asset optimizer module: $50k–$250k/year depending on scope
+      (compressor fleet, emissions constraints).
+    - >-
+      Implementation/integration: $1k–$3k per well plus $25k–$150k per facility
+      (one‑time).
+    - >-
+      Value‑based fees for pilots: 10–20% of verified incremental NPV or $/bbl
+      uplift (creditable to subscription on conversion).
+    - >-
+      Training and premium support/SLA packages; on‑prem/VPC surcharge for
+      regulated/offshore deployments.
+  costStructure:
+    - >-
+      Core team: petroleum engineers, optimization/ML scientists, data/platform
+      engineers, product and customer success ($3–5M/year at seed/Series A
+      scale).
+    - >-
+      Cloud/edge costs: $15–$40/well/month for compute, time‑series storage,
+      inference, observability; VPNs and bastion hosts.
+    - >-
+      Professional services for onboarding, site visits, and step‑tests; travel
+      and PPE; partner delivery margins (10–25%).
+    - >-
+      Sales/marketing: events, ABM, demos, proof kits; solution architect
+      support.
+    - >-
+      Security/compliance: SOC 2 audits, penetration tests, E&O and cyber
+      insurance, secure code tooling.
+    - >-
+      R&D: model improvements, compressor map libraries, facility digital twin,
+      connectors, and safety validation harnesses.
+  keyMetrics:
+    - >-
+      Value KPIs: incremental oil (+1.5–3.0% P50 per well in pilots), gas saved
+      (5–15% of injection), $/day uplift, emissions reduction (kg CO2e/boe).
+    - >-
+      Adoption: recommendation acceptance rate ≥60% in first 60 days;
+      autopilot‑enabled wells (#); weekly active users; time‑to‑first‑value ≤30
+      days.
+    - >-
+      Reliability: data uptime ≥99.5%; mean time to detect data issues <5
+      minutes; model retrain cadence; constraint‑violation advisories prevented
+      (#/month).
+    - >-
+      Performance: optimizer convergence <30 seconds; confidence calibration
+      error <10%; stability incidents (hunting) = 0 attributable.
+    - >-
+      Commercial: pilot conversion ≥60%; CAC payback <12 months; net revenue
+      retention >120%; ARR per customer and expansion rate.
+    - >-
+      Safety/compliance: zero MAWP exceedances attributable; 100% change audit
+      completeness; MOC cycle time <10 business days.
+storyBrand:
+  character: >-
+    Production and operations engineers at upstream oil producers running
+    gas‑lift wells who must hit oil targets without exceeding compressor, line,
+    or flaring limits.
+  problem: >-
+    Manual, once‑a‑day setpoint changes can’t keep up with changing reservoir
+    and facility conditions. Over/under‑injection wastes gas, trips compressors,
+    and leaves barrels in the ground. Teams lack a trustworthy, constraint‑aware
+    recommendation engine.
+  guide: >-
+    We’re petroleum engineers and AI practitioners who understand field
+    realities and facility limits. We deliver a transparent, physics‑informed
+    optimization service that respects hard constraints, integrates with SCADA,
+    and keeps engineers in the loop.
+  plan: >-
+    1) Connect data (SCADA/historian, well metadata, facility limits). 2)
+    Calibrate per‑well response and constraints. 3) Run shadow mode to prove
+    value. 4) Go live with human‑approved setpoint recommendations and alerts.
+    5) Review KPIs and refine guardrails.
+  callToAction: >-
+    Start a 60‑day pilot on 5–20 gas‑lift wells to quantify uplift and gas
+    savings.
+  success: >-
+    Consistently higher oil, lower gas per barrel, fewer trips and flaring
+    events, steadier wells, and audit‑ready recommendations that honor
+    compressor and line constraints—without adding headcount.
+  failure: >-
+    Keep leaving barrels behind, burning excess gas, tripping equipment, and
+    firefighting with manual setpoint tweaks.
+landingPage:
+  hero:
+    title: Gas-Lift Setpoint Optimization Agent
+    subtitle: >-
+      AI that recommends gas injection rates to maximize oil while honoring well
+      and facility limits.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - Static setpoints leave barrels behind.
+    - 'Manual tuning can’t keep up with changing GOR, WCUT, and line pressure.'
+    - 'Compression, export, and flare limits force conservative operation.'
+    - Multi‑well interactions make lift‑gas allocation guesswork.
+    - Engineer time is scarce; surveillance cycles are slow.
+    - 'Over‑injection risks slugging, instability, and facility upsets.'
+    - No clear view of trade‑offs or constraint margins.
+  solution:
+    - Real‑time setpoint recommendations that maximize oil within hard limits.
+    - >-
+      Optimizes lift‑gas allocation across wells under gas and facility
+      constraints.
+    - Advisory or closed‑loop control with approvals and guardrails.
+    - Explainable guidance with constraint margins and expected impact.
+    - Adaptive to changing conditions; auto‑backs off during upsets.
+    - Built for upstream operations (NAICS 211120) and existing SCADA/DCS.
+  features:
+    - 'SCADA/historian connectors: PI, CygNet, Ignition, OPC UA, Modbus.'
+    - 'Hybrid models: physics‑informed ML plus nodal/gas‑lift relationships.'
+    - >-
+      Facility‑aware optimization: compressors, separators, line backpressure,
+      export, flare.
+    - >-
+      Constraint handling: WHP, casing, ramp rates, valve step sizes, gas
+      budget.
+    - Robust optimization under uncertainty and data quality checks.
+    - >-
+      Explainability: constraint attributions, sensitivities, and confidence
+      bands.
+    - What‑if planning for gas‑lift allocation and facility scenarios.
+    - 'Advisory or closed‑loop with interlocks, watchdogs, and safe fallbacks.'
+    - 'Role‑based approvals, audit trail, and change logs.'
+    - 'Deploy cloud or edge; VPC isolation, SSO, SOC2‑ready patterns.'
+    - 'Impact tracking: baselines, A/B tests, and KPI reporting.'
+  steps:
+    - 'Connect: Link SCADA/historian and allocations; map tags and units.'
+    - 'Calibrate: Import tests and curves; fit per‑well models and limits.'
+    - 'Configure: Set facility constraints, gas budgets, and objectives.'
+    - 'Validate: Run advisory mode; compare to current setpoints and KPIs.'
+    - 'Pilot: Enable on a subset of wells; tune guardrails and workflows.'
+    - 'Automate: Turn on closed‑loop control with approvals and interlocks.'
+    - 'Scale: Roll across pads/fields; schedule model refresh and retraining.'
+    - 'Govern: Monitor dashboards, review uplift, export reports to stakeholders.'
+---
+# LiftOpt Setpoint AI
+
+Generated for NAICS 211120 — Crude Petroleum Extraction.
+Service: Gas-Lift Setpoint Optimization Agent
