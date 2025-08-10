@@ -178,3 +178,604 @@ leanCanvas:
 - **Continuous Optimization**: Companies with ongoing AI performance monitoring achieve 2.1x better outcomes
 
 Generated from Occupation 000000 — All Occupations.
+
+```typescript
+// Customer Acquisition Workflows
+
+export interface Lead {
+  id: string;
+  email: string;
+  company: string;
+  role: string;
+  employees: number;
+  tools: string[];
+  painPoints: string[];
+  source: string;
+}
+
+export interface QualifiedLead extends Lead {
+  score: number;
+  segment: 'enterprise' | 'mid-market' | 'smb';
+  fitReason: string;
+  urgency: 'high' | 'medium' | 'low';
+}
+
+export interface Customer {
+  id: string;
+  lead: QualifiedLead;
+  contract: Contract;
+  onboardingStatus: 'pending' | 'in-progress' | 'completed';
+  skillPacks: string[];
+  integrations: string[];
+}
+
+export async function acquireCustomer(lead: Lead, {ai, db}: {ai: any, db: any}): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead, {ai, db});
+  const proposal = await generateProposal(qualifiedLead, {ai, db});
+  const contract = await negotiateContract(proposal, {ai, db});
+  return await onboardCustomer(contract, {ai, db});
+}
+
+export async function qualifyLead(lead: Lead, {ai, db}: {ai: any, db: any}): Promise<QualifiedLead> {
+  // Score lead based on company size, tools, and pain points
+  const score = await ai.generateObject({
+    model: 'gpt-4',
+    prompt: `Score this lead from 0-100 based on fit for OmniCopilot:
+    Company: ${lead.company} (${lead.employees} employees)
+    Role: ${lead.role}
+    Tools: ${lead.tools.join(', ')}
+    Pain Points: ${lead.painPoints.join(', ')}`,
+    schema: {
+      score: 'number',
+      segment: 'string',
+      fitReason: 'string',
+      urgency: 'string'
+    }
+  });
+
+  await db.events.create({
+    type: 'lead.qualified',
+    leadId: lead.id,
+    score: score.score,
+    segment: score.segment
+  });
+
+  return {
+    ...lead,
+    score: score.score,
+    segment: score.segment as 'enterprise' | 'mid-market' | 'smb',
+    fitReason: score.fitReason,
+    urgency: score.urgency as 'high' | 'medium' | 'low'
+  };
+}
+
+export async function generateProposal(lead: QualifiedLead, {ai, db}: {ai: any, db: any}): Promise<Proposal> {
+  const skillPacks = await recommendSkillPacks(lead, {ai, db});
+  const pricing = await calculatePricing(lead, skillPacks, {ai, db});
+  
+  const proposal = await ai.generateObject({
+    model: 'gpt-4',
+    prompt: `Generate a proposal for ${lead.company} based on their needs:
+    Segment: ${lead.segment}
+    Pain Points: ${lead.painPoints.join(', ')}
+    Recommended Skill Packs: ${skillPacks.join(', ')}`,
+    schema: {
+      title: 'string',
+      executiveSummary: 'string',
+      proposedSolution: 'string',
+      implementation: 'string',
+      timeline: 'string',
+      roi: 'string'
+    }
+  });
+
+  return {
+    ...proposal,
+    leadId: lead.id,
+    skillPacks,
+    pricing,
+    validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
+  };
+}
+
+// Product Development Processes
+
+export interface SkillPack {
+  id: string;
+  name: string;
+  occupation: string;
+  industry?: string;
+  functions: AIFunction[];
+  workflows: Workflow[];
+  integrations: string[];
+  status: 'development' | 'testing' | 'published' | 'deprecated';
+}
+
+export interface AIFunction {
+  id: string;
+  name: string;
+  description: string;
+  prompt: string;
+  model: string;
+  schema: object;
+  examples: object[];
+  accuracy: number;
+  latency: number;
+}
+
+export async function developSkillPack(occupation: string, requirements: string[], {ai, db}: {ai: any, db: any}): Promise<SkillPack> {
+  const functions = await generateAIFunctions(occupation, requirements, {ai, db});
+  const workflows = await createWorkflows(functions, {ai, db});
+  const integrations = await identifyIntegrations(occupation, {ai, db});
+  
+  const skillPack: SkillPack = {
+    id: `skill-pack-${occupation.toLowerCase().replace(/\s+/g, '-')}`,
+    name: `${occupation} Skill Pack`,
+    occupation,
+    functions,
+    workflows,
+    integrations,
+    status: 'development'
+  };
+
+  await db.skillPacks.create(skillPack);
+  await testSkillPack(skillPack, {ai, db});
+  
+  return skillPack;
+}
+
+export async function generateAIFunctions(occupation: string, requirements: string[], {ai, db}: {ai: any, db: any}): Promise<AIFunction[]> {
+  const functions = await ai.generateObject({
+    model: 'gpt-4',
+    prompt: `Generate AI functions for ${occupation} based on these requirements:
+    ${requirements.join('\n')}
+    
+    Each function should solve a specific task and include:
+    - Clear description
+    - Optimized prompt
+    - Input/output schema
+    - Example usage`,
+    schema: {
+      functions: [{
+        name: 'string',
+        description: 'string',
+        prompt: 'string',
+        schema: 'object',
+        examples: 'array'
+      }]
+    }
+  });
+
+  return functions.functions.map((fn: any, index: number) => ({
+    id: `fn-${occupation}-${index}`,
+    ...fn,
+    model: 'gpt-4',
+    accuracy: 0.85, // Initial estimate
+    latency: 2000 // Initial estimate in ms
+  }));
+}
+
+// Revenue Generation Flows
+
+export interface Contract {
+  id: string;
+  customerId: string;
+  plan: 'starter' | 'pro' | 'enterprise';
+  seats: number;
+  monthlyValue: number;
+  annualValue: number;
+  skillPackAddons: string[];
+  startDate: Date;
+  renewalDate: Date;
+  status: 'active' | 'churned' | 'paused';
+}
+
+export async function processSubscription(customer: Customer, plan: string, seats: number, {ai, db}: {ai: any, db: any}): Promise<Contract> {
+  const pricing = await calculatePricing(customer.lead, [], {ai, db});
+  const contract = await createContract(customer, plan, seats, pricing, {ai, db});
+  await provisionAccess(customer, contract, {ai, db});
+  await trackRevenue(contract, {ai, db});
+  
+  return contract;
+}
+
+export async function calculatePricing(lead: QualifiedLead, skillPacks: string[], {ai, db}: {ai: any, db: any}): Promise<PricingCalculation> {
+  const basePricing = {
+    starter: 20,
+    pro: 40,
+    enterprise: 75
+  };
+
+  const segmentMultiplier = {
+    'smb': 0.8,
+    'mid-market': 1.0,
+    'enterprise': 1.2
+  };
+
+  const skillPackPricing = skillPacks.length * 10;
+  const basePrice = basePricing[lead.segment === 'enterprise' ? 'enterprise' : lead.segment === 'smb' ? 'starter' : 'pro'];
+  const adjustedPrice = basePrice * segmentMultiplier[lead.segment];
+
+  return {
+    basePrice: adjustedPrice,
+    skillPackAddons: skillPackPricing,
+    totalMonthly: adjustedPrice + skillPackPricing,
+    totalAnnual: (adjustedPrice + skillPackPricing) * 12 * 0.9, // 10% annual discount
+    currency: 'USD'
+  };
+}
+
+export async function expandAccount(customer: Customer, additionalSeats: number, newSkillPacks: string[], {ai, db}: {ai: any, db: any}): Promise<Contract> {
+  const currentContract = await db.contracts.findById(customer.contract.id);
+  const expansionRevenue = await calculateExpansionRevenue(currentContract, additionalSeats, newSkillPacks, {ai, db});
+  
+  const updatedContract = await db.contracts.update(currentContract.id, {
+    seats: currentContract.seats + additionalSeats,
+    skillPackAddons: [...currentContract.skillPackAddons, ...newSkillPacks],
+    monthlyValue: currentContract.monthlyValue + expansionRevenue.monthly,
+    annualValue: currentContract.annualValue + expansionRevenue.annual
+  });
+
+  await db.events.create({
+    type: 'account.expanded',
+    customerId: customer.id,
+    additionalSeats,
+    newSkillPacks,
+    additionalRevenue: expansionRevenue.monthly
+  });
+
+  return updatedContract;
+}
+
+// Operational Procedures
+
+export async function deploySkillPack(customerId: string, skillPackId: string, {ai, db}: {ai: any, db: any}): Promise<DeploymentResult> {
+  const customer = await db.customers.findById(customerId);
+  const skillPack = await db.skillPacks.findById(skillPackId);
+  
+  // Validate customer permissions and plan limits
+  await validateDeployment(customer, skillPack, {ai, db});
+  
+  // Configure integrations
+  const integrations = await configureIntegrations(customer, skillPack.integrations, {ai, db});
+  
+  // Deploy AI functions
+  const functions = await deployFunctions(skillPack.functions, customer, {ai, db});
+  
+  // Set up workflows
+  const workflows = await activateWorkflows(skillPack.workflows, customer, {ai, db});
+  
+  // Configure permissions and governance
+  await setupGovernance(customer, skillPack, {ai, db});
+  
+  const deployment: DeploymentResult = {
+    customerId,
+    skillPackId,
+    status: 'active',
+    integrations,
+    functions,
+    workflows,
+    deployedAt: new Date(),
+    health: 'healthy'
+  };
+
+  await db.deployments.create(deployment);
+  
+  return deployment;
+}
+
+export async function monitorWorkflowHealth(customerId: string, {ai, db}: {ai: any, db: any}): Promise<HealthReport> {
+  const deployments = await db.deployments.findByCustomer(customerId);
+  const metrics = await gatherMetrics(deployments, {ai, db});
+  
+  const healthReport = await ai.generateObject({
+    model: 'gpt-4',
+    prompt: `Analyze workflow health for customer ${customerId}:
+    Success Rate: ${metrics.successRate}%
+    Average Latency: ${metrics.avgLatency}ms
+    Error Rate: ${metrics.errorRate}%
+    User Satisfaction: ${metrics.userSatisfaction}/5
+    
+    Identify issues and recommend actions.`,
+    schema: {
+      overallHealth: 'string',
+      issues: ['string'],
+      recommendations: ['string'],
+      alertLevel: 'string'
+    }
+  });
+
+  if (healthReport.alertLevel === 'critical') {
+    await escalateToSupport(customerId, healthReport, {ai, db});
+  }
+
+  return {
+    customerId,
+    timestamp: new Date(),
+    metrics,
+    ...healthReport
+  };
+}
+
+// Decision-Making Workflows
+
+export async function evaluateChurnRisk(customerId: string, {ai, db}: {ai: any, db: any}): Promise<ChurnRiskAssessment> {
+  const customer = await db.customers.findById(customerId);
+  const usage = await db.usage.findByCustomer(customerId, { days: 30 });
+  const support = await db.support.findByCustomer(customerId, { days: 90 });
+  
+  const riskAssessment = await ai.generateObject({
+    model: 'gpt-4',
+    prompt: `Assess churn risk for customer:
+    Usage Trend: ${usage.trend}
+    Support Tickets: ${support.tickets.length}
+    Last Login: ${usage.lastLogin}
+    Feature Adoption: ${usage.featureAdoption}%
+    
+    Provide risk score and recommended interventions.`,
+    schema: {
+      riskScore: 'number',
+      riskLevel: 'string',
+      factors: ['string'],
+      interventions: ['string'],
+      timeline: 'string'
+    }
+  });
+
+  if (riskAssessment.riskScore > 70) {
+    await triggerRetentionWorkflow(customer, riskAssessment, {ai, db});
+  }
+
+  return {
+    customerId,
+    assessedAt: new Date(),
+    ...riskAssessment
+  };
+}
+
+export async function approveHighValueAction(actionType: string, details: any, requesterId: string, {ai, db}: {ai: any, db: any}): Promise<ApprovalResult> {
+  const approvalRequired = await determineApprovalRequirement(actionType, details, {ai, db});
+  
+  if (!approvalRequired.required) {
+    return {
+      approved: true,
+      autoApproved: true,
+      reason: 'Below approval threshold'
+    };
+  }
+
+  const approvers = await getApprovers(actionType, details.value, {ai, db});
+  const approvalRequest = await createApprovalRequest(actionType, details, requesterId, approvers, {ai, db});
+  
+  // For high-value actions, require human approval
+  if (details.value > 50000) {
+    await notifyApprovers(approvalRequest, {ai, db});
+    return {
+      approved: false,
+      pending: true,
+      approvalRequestId: approvalRequest.id,
+      reason: 'Requires executive approval'
+    };
+  }
+
+  // For medium-value actions, use AI-assisted approval
+  const aiRecommendation = await ai.generateObject({
+    model: 'gpt-4',
+    prompt: `Should this action be approved?
+    Action: ${actionType}
+    Value: $${details.value}
+    Requester: ${requesterId}
+    Risk Factors: ${details.riskFactors?.join(', ') || 'None'}`,
+    schema: {
+      recommendation: 'string',
+      confidence: 'number',
+      reasoning: 'string'
+    }
+  });
+
+  if (aiRecommendation.confidence > 0.8 && aiRecommendation.recommendation === 'approve') {
+    return {
+      approved: true,
+      autoApproved: true,
+      aiRecommendation,
+      reason: 'AI-approved with high confidence'
+    };
+  }
+
+  await notifyApprovers(approvalRequest, {ai, db});
+  return {
+    approved: false,
+    pending: true,
+    approvalRequestId: approvalRequest.id,
+    aiRecommendation,
+    reason: 'Requires human review'
+  };
+}
+
+// Supporting Types and Interfaces
+
+interface Proposal {
+  leadId: string;
+  title: string;
+  executiveSummary: string;
+  proposedSolution: string;
+  implementation: string;
+  timeline: string;
+  roi: string;
+  skillPacks: string[];
+  pricing: PricingCalculation;
+  validUntil: Date;
+}
+
+interface PricingCalculation {
+  basePrice: number;
+  skillPackAddons: number;
+  totalMonthly: number;
+  totalAnnual: number;
+  currency: string;
+}
+
+interface Workflow {
+  id: string;
+  name: string;
+  trigger: string;
+  steps: WorkflowStep[];
+  approvals: ApprovalStep[];
+}
+
+interface WorkflowStep {
+  id: string;
+  type: 'ai-function' | 'integration' | 'human-review' | 'decision';
+  config: any;
+}
+
+interface ApprovalStep {
+  id: string;
+  condition: string;
+  approvers: string[];
+  timeout: number;
+}
+
+interface DeploymentResult {
+  customerId: string;
+  skillPackId: string;
+  status: 'active' | 'failed' | 'pending';
+  integrations: any[];
+  functions: any[];
+  workflows: any[];
+  deployedAt: Date;
+  health: 'healthy' | 'warning' | 'critical';
+}
+
+interface HealthReport {
+  customerId: string;
+  timestamp: Date;
+  metrics: any;
+  overallHealth: string;
+  issues: string[];
+  recommendations: string[];
+  alertLevel: string;
+}
+
+interface ChurnRiskAssessment {
+  customerId: string;
+  assessedAt: Date;
+  riskScore: number;
+  riskLevel: string;
+  factors: string[];
+  interventions: string[];
+  timeline: string;
+}
+
+interface ApprovalResult {
+  approved: boolean;
+  autoApproved?: boolean;
+  pending?: boolean;
+  approvalRequestId?: string;
+  aiRecommendation?: any;
+  reason: string;
+}
+
+// Helper functions (pseudocode - would reference other functions)
+async function recommendSkillPacks(lead: QualifiedLead, {ai, db}: {ai: any, db: any}): Promise<string[]> {
+  // AI-powered skill pack recommendation based on role and industry
+  return [];
+}
+
+async function negotiateContract(proposal: Proposal, {ai, db}: {ai: any, db: any}): Promise<Contract> {
+  // Contract negotiation workflow
+  return {} as Contract;
+}
+
+async function onboardCustomer(contract: Contract, {ai, db}: {ai: any, db: any}): Promise<Customer> {
+  // Customer onboarding process
+  return {} as Customer;
+}
+
+async function createWorkflows(functions: AIFunction[], {ai, db}: {ai: any, db: any}): Promise<Workflow[]> {
+  // Generate workflows from AI functions
+  return [];
+}
+
+async function identifyIntegrations(occupation: string, {ai, db}: {ai: any, db: any}): Promise<string[]> {
+  // Identify required integrations for occupation
+  return [];
+}
+
+async function testSkillPack(skillPack: SkillPack, {ai, db}: {ai: any, db: any}): Promise<void> {
+  // Test skill pack functionality and accuracy
+}
+
+async function createContract(customer: Customer, plan: string, seats: number, pricing: PricingCalculation, {ai, db}: {ai: any, db: any}): Promise<Contract> {
+  // Create and store contract
+  return {} as Contract;
+}
+
+async function provisionAccess(customer: Customer, contract: Contract, {ai, db}: {ai: any, db: any}): Promise<void> {
+  // Provision customer access and resources
+}
+
+async function trackRevenue(contract: Contract, {ai, db}: {ai: any, db: any}): Promise<void> {
+  // Track revenue metrics and forecasting
+}
+
+async function calculateExpansionRevenue(contract: Contract, additionalSeats: number, newSkillPacks: string[], {ai, db}: {ai: any, db: any}): Promise<{monthly: number, annual: number}> {
+  // Calculate expansion revenue
+  return {monthly: 0, annual: 0};
+}
+
+async function validateDeployment(customer: Customer, skillPack: SkillPack, {ai, db}: {ai: any, db: any}): Promise<void> {
+  // Validate deployment prerequisites
+}
+
+async function configureIntegrations(customer: Customer, integrations: string[], {ai, db}: {ai: any, db: any}): Promise<any[]> {
+  // Configure required integrations
+  return [];
+}
+
+async function deployFunctions(functions: AIFunction[], customer: Customer, {ai, db}: {ai: any, db: any}): Promise<any[]> {
+  // Deploy AI functions for customer
+  return [];
+}
+
+async function activateWorkflows(workflows: Workflow[], customer: Customer, {ai, db}: {ai: any, db: any}): Promise<any[]> {
+  // Activate workflows for customer
+  return [];
+}
+
+async function setupGovernance(customer: Customer, skillPack: SkillPack, {ai, db}: {ai: any, db: any}): Promise<void> {
+  // Set up governance and compliance controls
+}
+
+async function gatherMetrics(deployments: DeploymentResult[], {ai, db}: {ai: any, db: any}): Promise<any> {
+  // Gather performance and health metrics
+  return {};
+}
+
+async function escalateToSupport(customerId: string, healthReport: HealthReport, {ai, db}: {ai: any, db: any}): Promise<void> {
+  // Escalate critical issues to support team
+}
+
+async function triggerRetentionWorkflow(customer: Customer, riskAssessment: ChurnRiskAssessment, {ai, db}: {ai: any, db: any}): Promise<void> {
+  // Trigger customer retention workflow
+}
+
+async function determineApprovalRequirement(actionType: string, details: any, {ai, db}: {ai: any, db: any}): Promise<{required: boolean, reason: string}> {
+  // Determine if approval is required
+  return {required: false, reason: ''};
+}
+
+async function getApprovers(actionType: string, value: number, {ai, db}: {ai: any, db: any}): Promise<string[]> {
+  // Get list of required approvers
+  return [];
+}
+
+async function createApprovalRequest(actionType: string, details: any, requesterId: string, approvers: string[], {ai, db}: {ai: any, db: any}): Promise<{id: string}> {
+  // Create approval request
+  return {id: ''};
+}
+
+async function notifyApprovers(approvalRequest: {id: string}, {ai, db}: {ai: any, db: any}): Promise<void> {
+  // Notify approvers of pending request
+}
+```
