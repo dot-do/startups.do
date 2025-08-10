@@ -75,9 +75,9 @@ const Hero1: React.FC<Hero1Props> = ({
 
   return (
     <section 
-      className={`dark font-public_sans relative bg-background py-12 before:absolute before:top-0 before:left-0 before:z-10 before:block before:h-[15rem] before:w-full before:bg-linear-to-b before:from-muted before:to-transparent before:content-[''] md:py-32 ${className}`}
+      className={`dark font-public_sans relative bg-background min-h-screen lg:min-h-[900px] xl:min-h-[960px] flex items-center py-12 before:absolute before:top-0 before:left-0 before:z-10 before:block before:h-[15rem] before:w-full before:bg-linear-to-b before:from-muted before:to-transparent before:content-[''] md:py-32 ${className}`}
     >
-      <div className="relative z-20 container">
+      <div className="relative z-20 mx-auto max-w-7xl px-6 lg:px-8">
         <div className="relative z-20 mx-auto flex max-w-[56.25rem] flex-col items-center gap-6">
           {badgeConfig.show && (
             <a
