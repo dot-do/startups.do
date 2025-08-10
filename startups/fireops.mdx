@@ -1,0 +1,311 @@
+---
+name: FireOps Sentinel
+slug: fireops
+service:
+  title: Wildfire Risk & Operational Weather Alerts
+  description: >-
+    Daily fire weather indices, wind/gust thresholds, smoke and active fire
+    proximity alerts tailored to operations schedule.
+  targetUsers:
+    - Logging contractors
+    - Silviculture crews
+    - Forest managers
+  triggers:
+    - 'Daily schedule at 05:00 local'
+    - Threshold exceeded (wind/RH)
+    - Active fire within X km
+  inputs:
+    - AOI/crew operating locations
+    - 'User thresholds (wind, RH, ERC)'
+    - Work hours
+  steps:
+    - Pull gridded forecast (wind/RH/temp) and compute NFDRS/FWI proxies
+    - Ingest active fire hotspots (FIRMS) and smoke forecasts
+    - Score daily risk per AOI and time window
+    - Notify via SMS/email with plain-language guidance
+  tools:
+    - NOAA NDFD/HRRR or OpenWeather
+    - NASA FIRMS
+    - BlueSky/HRRR-Smoke (where available)
+    - Twilio/Email API
+  outputs:
+    - Daily risk email/SMS
+    - Map of risk layers
+    - CSV log for safety records
+  pricingModel:
+    - 'Subscription: $99/site/month + $5/user'
+    - SMS usage billed at cost
+  humanInLoop: false
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 9
+    overall: 9
+  risks:
+    - Forecast uncertainty
+    - Over/under-warning fatigue
+    - Coverage gaps in smoke models
+  dependencies:
+    - AOI coordinates
+    - API keys for weather/alerts
+leanCanvas:
+  problem:
+    - >-
+      Forestry support crews (logging, road building, tree planting, thinning,
+      prescribed burn prep) operate in remote, fire-prone areas with rapidly
+      changing weather; manual monitoring of disparate weather/fire sources
+      leaves gaps during critical windows.
+    - >-
+      Superintendents lack operations-aware alerts tied to crew schedules and
+      locations, resulting in avoidable shutdowns, near-misses, and
+      non-compliance with wind/gust and smoke exposure policies.
+    - >-
+      Regulators and prime contractors increasingly require documented risk
+      assessments and alert/audit trails, but crews lack simple,
+      low-connectivity tools to capture evidence of due diligence.
+    - >-
+      Existing weather apps are not tuned to fire weather indices (e.g., FWI,
+      ERC, Haines), proximity-to-active-fire, or smoke PM2.5 thresholds at the
+      sub-5 km scale relevant to forestry operations.
+    - >-
+      False alarms and generic regional alerts erode trust; teams need
+      calibrated, threshold-based alerts with two-way acknowledgment and concise
+      daily briefings, not generic forecasts.
+  solution:
+    - >-
+      Ingest and fuse authoritative data: NWS/NOAA HRRR & HREF wind/gusts, Red
+      Flag warnings, GFS/ICON, RAWS stations; satellite fire detections
+      (VIIRS/MODIS/GOES); perimeters (IRWIN/NIFC); smoke/PM2.5 forecasts
+      (HRRR-Smoke/CAMS/BlueSky).
+    - >-
+      Compute and update fire weather indices and triggers: FWI components
+      (FFMC, ISI, DMC, DC), ERC percentiles (where available), Haines Index,
+      wind/gust exceedance, RH/temperature/lighting; update at least hourly with
+      1–3 km spatial resolution where available.
+    - >-
+      Crew geofencing and schedule integration: define crew
+      polygons/lines/buffers (e.g., cut blocks, haul routes) and shift times to
+      only alert when and where crews are active.
+    - >-
+      Proximity and trajectory analytics: alert when active fire starts within
+      configurable radii (e.g., 10/25/50 km) and when modeled growth vectors or
+      wind could impact operations within N hours.
+    - >-
+      Smoke exposure alerts using PM2.5 thresholds (e.g., 35/55/150 µg/m³) and
+      AQI bands; provide recommended PPE/operational guidance by threshold.
+    - >-
+      Multi-channel, low-connectivity delivery: SMS, radio-ready short codes,
+      inReach/Zoleo/Iridium messaging, mobile app with offline caching, email,
+      and web dashboard; two-way acknowledgment and escalation.
+    - >-
+      Daily Ops Brief: auto-generated 06:00 local PDF/Email with site-specific
+      indices, thresholds, risk color-coding, and recommended actions; archived
+      for audits.
+    - >-
+      APIs and integrations: Esri/ArcGIS layers, Trimble Forestry, fleet
+      telematics, and safety platforms; export ICS-style reports (e.g., ICS-215A
+      risk summary).
+  uniqueValueProp: >-
+    Operations-aware wildfire and weather risk intelligence that aligns to each
+    crew’s schedule and location, delivering sub-hourly, hyperlocal alerts
+    (wind/gust, fire weather indices, smoke, active fire proximity) with
+    offline-capable, two-way acknowledgment and automatic compliance
+    reporting—reducing shutdowns, exposures, and paperwork.
+  unfairAdvantage: >-
+    Operations-aware design: we bind risk intelligence to actual crew geofences,
+    shifts, and policies with two-way, offline-capable acknowledgments and
+    immutable audit trails—creating a proprietary dataset of “alert -> action ->
+    outcome” signals that improves calibration and trust over time. Competitors
+    provide generic forecasts; we close the loop at the crew level in the woods.
+  customerSegments:
+    - >-
+      Primary: Support Activities for Forestry (NAICS 1153) contractors in
+      US/Canada (logging/thinning contractors, reforestation/planting crews,
+      road/landing builders, slash removal).
+    - >-
+      Secondary: Timberland owners/REITs and mill operators (operations,
+      safety/EHS, procurement) overseeing contractor safety/compliance.
+    - >-
+      Adjacent: Utility vegetation management field crews, prescribed burn
+      contractors, conservation NGOs, and public agency cooperators.
+    - >-
+      Influencers: Insurers (workers’ comp/property), regulators (state
+      forestry/wildfire agencies), prime contractors requiring EHS evidence.
+  channels:
+    - >-
+      Direct sales to timber companies and top-tier forestry contractors (VP
+      Ops, Safety/EHS, Regional Managers).
+    - >-
+      Partnerships/integrations with Trimble Forestry, Esri (ArcGIS
+      Marketplace), and fleet/telematics vendors used in forestry.
+    - >-
+      Safety/insurance partnerships offering premium credits or risk engineering
+      programs.
+    - >-
+      Industry associations/events: Society of American Foresters, Western
+      Forestry Contractors, Utility Arborist Association, Canadian Institute of
+      Forestry.
+    - >-
+      Regional pilots with state/provincial agencies and timberland owners;
+      convert cooperators to paid enterprise licenses.
+    - >-
+      Digital: targeted LinkedIn campaigns, webinars (“How to operationalize
+      wind/gust thresholds”), case studies, and email sequences to regional
+      contractor lists.
+  revenueStreams:
+    - >-
+      SaaS subscription per crew and per field user: e.g., $200/crew/month +
+      $10/field user/month; includes SMS and standard data.
+    - >-
+      Enterprise plan for timberland owners/REITs: $25k–$150k/year based on
+      number of operating areas, API access, SSO, and premium analytics.
+    - >-
+      Add-ons: satcom relay surcharge ($8/device/month pass-through + margin),
+      premium data (ECMWF/Spire), and higher alert volumes.
+    - >-
+      Professional services: onboarding, geofence setup, policy mapping, custom
+      integrations ($5k–$50k).
+    - >-
+      API usage for partners: e.g., $0.001 per alert delivered, $0.002 per risk
+      tile request beyond included quota.
+    - >-
+      Multi-year contracts with volume discounts; optional insurance-linked
+      outcome bonuses (e.g., shared savings on claim reductions where
+      applicable).
+  costStructure:
+    - >-
+      Cloud compute/storage for geospatial pipelines and inference (GPU/CPU),
+      $20k–$70k/year at 100 customers; scales with coverage.
+    - >-
+      Data licensing for premium models (ECMWF/Spire/CAMS where applicable),
+      $30k–$150k/year depending on scope; open sources (NOAA/NASA) primarily
+      free.
+    - >-
+      Messaging costs: SMS/voice (Twilio-like) ~$0.01–$0.05/message; satcom
+      relay fees (inReach/Zoleo/Iridium) pass-through + 10–20% margin.
+    - >-
+      Engineering and data science team (5–10 FTE initially), $900k–$2.5M/year;
+      DevOps/SRE and QA $250k–$600k/year.
+    - >-
+      Go-to-market (AE + SE + CS), $600k–$1.2M/year; marketing/events
+      $150k–$400k/year.
+    - >-
+      Compliance/security (SOC 2 Type II, penetration testing, logging),
+      $80k–$200k/year.
+    - 'Insurance (E&O/Cyber), finance/legal, and admin overhead $150k–$350k/year.'
+  keyMetrics:
+    - >-
+      Safety/operational: reduction in wind/smoke exposure events per 1,000
+      crew-hours (>30% within 6 months), near-miss reports linked to alerts
+      (+20%), shutdown hours attributable to unforecast gusts (-25%).
+    - >-
+      Alert performance: critical alert delivery SLA ≥ 95% within 60 seconds;
+      acknowledgment rate ≥ 90% within 5 minutes; false-positive rate for
+      threshold alerts < 5% per week; missed-event rate < 2% for validated
+      exceedances.
+    - >-
+      Forecast quality: Brier score for threshold exceedance ≤ 0.18; wind gust
+      MAE ≤ 3 m/s at RAWS sites; FWI categorical accuracy ≥ 80%.
+    - >-
+      Adoption/engagement: daily active roster coverage ≥ 85%; percent crews
+      with policy-mapped thresholds ≥ 80%; weekly Ops Brief open rate ≥ 70%.
+    - >-
+      Business: logo retention ≥ 95% annually; net revenue retention ≥ 115%; CAC
+      payback < 12 months; LTV/CAC ≥ 4; ARR growth ≥ 8% month-over-month in
+      first 24 months.
+    - >-
+      Compliance: 100% of alerts and acknowledgments retained with
+      tamper-evident logs; average time to generate audit report < 2 minutes.
+storyBrand:
+  character: >-
+    Forestry support operations managers and field supervisors who must plan
+    safe, efficient work in fire‑prone terrain.
+  problem: >-
+    Unpredictable fire weather, wind, and smoke threaten crew safety and
+    schedules, forcing costly guesswork when you shouldn’t have to gamble with
+    people, assets, or contracts.
+  guide: >-
+    We understand high‑stakes field ops and bring proven authority—AI that fuses
+    forecasts, active fire intelligence, and site conditions into
+    forestry‑ready, decision‑grade alerts.
+  plan: >-
+    Connect sites and work windows; set wind/gust, smoke, and fire‑proximity
+    thresholds; receive daily fire weather indices and real‑time, schedule‑aware
+    go/no‑go alerts via app, SMS, or integrations.
+  callToAction: >-
+    Start a 14‑day pilot with your current operations schedule—or request a
+    sample alert pack for upcoming blocks.
+  success: >-
+    Safer crews, fewer shutdowns, compliant wind/smoke criteria, optimized
+    scheduling and mobilization, lower fire exposure and liability, protected
+    equipment, and more productive days.
+  failure: >-
+    Missed red‑flag conditions, unsafe deployments, emergency evacuations, blown
+    budgets, regulatory citations, lost timber/equipment, and reputational
+    damage.
+landingPage:
+  hero:
+    title: Wildfire Risk & Operational Weather Alerts for Forestry
+    subtitle: >-
+      AI-tailored daily fire indices and on-shift wind, smoke, and proximity
+      alerts—aligned to your maps and operations schedule.
+    ctaText: Start Free Trial
+    ctaHref: /start
+  problem:
+    - >-
+      Sudden wind shifts and red flag conditions put crews and equipment at
+      risk.
+    - Daily safety windows change—manual checks are slow and inconsistent.
+    - Generic weather apps ignore forestry thresholds and shift times.
+    - >-
+      Smoke and active fire proximity to blocks, roads, and camps goes
+      unnoticed.
+    - Fragmented information across teams causes delays and unsafe decisions.
+    - 'Permit, burn, and shutdown calls lack auditable data.'
+  solution:
+    - >-
+      Shift-aware alerts for wind/gusts, humidity, temperature, lightning, and
+      smoke.
+    - Daily fire weather indices per site with clear stop/continue guidance.
+    - >-
+      Geofenced active fire and smoke proximity alarms with distance and
+      bearing.
+    - >-
+      Custom thresholds by activity: felling, skidding, prescribed burn, aerial
+      ops.
+    - 'Multi-channel delivery: SMS, email, radio gateway, and in-app.'
+    - 'Map-first dashboard unifying crews, sites, and alerts in real time.'
+  features:
+    - >-
+      Daily Fire Weather Indices (e.g., FWI/NFDRS) and dryness metrics tuned to
+      your region.
+    - Wind/gust thresholds with gust factor and exceedance windows by shift.
+    - 'Relative humidity, temperature, VPD, and heat index risk scoring.'
+    - Lightning nowcast and 72-hour outlook with auto standby triggers.
+    - Smoke plume tracking and PM2.5 thresholds for worksites and travel routes.
+    - >-
+      Active fire detection from satellite and agency feeds with confidence
+      flags.
+    - 'Proximity alerts by radius and azimuth for camps, landings, and heli-pads.'
+    - >-
+      Operations schedule engine: shifts, blackout periods, and season
+      calendars.
+    - 'GIS-ready: import shapefiles/KML/GeoJSON; ArcGIS and QGIS friendly.'
+    - >-
+      Alert routing and escalation by crew, contractor, and region; quiet hours
+      respected.
+    - Mobile/web apps with offline map caching and push notifications.
+    - 'Audit-ready logs: who was alerted, when, and why; export to CSV/PDF.'
+    - 'Integrations and API/webhooks for dispatch, EHS, and incident systems.'
+  steps:
+    - 'Add sites: draw or import blocks, roads, camps, and heli-pads on the map.'
+    - 'Set shifts and thresholds per activity (gusts, RH, smoke, proximity).'
+    - 'Invite teams and choose alert channels (SMS, email, radio, app).'
+    - Receive a 0600 daily brief plus on-shift threshold-crossing alerts.
+    - >-
+      Monitor live risk on the map, make stop/go calls, and export daily
+      reports.
+---
+# FireOps Sentinel
+
+Industry: Support Activities for Forestry
+Service: Wildfire Risk & Operational Weather Alerts

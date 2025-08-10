@@ -1,0 +1,304 @@
+---
+name: MillerGrade AI
+slug: millergrade
+service:
+  title: Grain Quality Ingestion & Automated Grading (CV + NIR)
+  description: >-
+    Automates lot grading by interpreting grain images and NIR readings to
+    classify defects and estimate key attributes.
+  targetUsers:
+    - QA/QC lab
+    - Receiving
+    - Procurement
+  triggers:
+    - New truck/railcar arrival
+    - Lab sample results ready
+  inputs:
+    - 'Sample images (macro, backlit)'
+    - 'NIR spectra (moisture, protein, ash)'
+    - COA PDFs from supplier
+    - Historical lab results
+  steps:
+    - 'Upload/ingest images, NIR files, and COAs'
+    - 'Run computer vision to detect impurities, broken kernels, color'
+    - Model attributes from NIR; cross-check against COA
+    - Grade lot vs spec thresholds; flag accept/conditional/reject
+    - Push decision and notes to ERP/receiving
+  tools:
+    - OpenCV/YOLOv8 for defect detection
+    - NIR instrument APIs (Perten/DA/Brabender via CSV/API)
+    - OCR (Tesseract/Azure Form Recognizer) for COAs
+    - QC database/LIMS-lite
+  outputs:
+    - Lot grade and pass/fail decision
+    - Attribute estimates with confidence
+    - Exception list with images
+    - ERP update or CSV
+  pricingModel:
+    - 'Per-site monthly + per-1,000 images'
+    - Optional instrument integration fee
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 7
+    overall: 7.5
+  risks:
+    - Poor image quality/lighting
+    - Instrument calibration drift
+    - Site-to-site variability in grading rules
+  dependencies:
+    - Consistent imaging SOP
+    - Access to NIR data/exports
+    - Spec thresholds and grading policy
+leanCanvas:
+  problem:
+    - >-
+      Manual grain grading at mill intake is slow (10–20 minutes per truck),
+      inconsistent across operators, and hard to audit—causing bottlenecks,
+      rework, and disputes with suppliers.
+    - >-
+      NIR instruments produce accurate readings but are siloed and require
+      expert interpretation; cross-instrument calibration drift leads to
+      0.2–0.5% protein error and 0.2–0.5% moisture error, degrading blending
+      decisions.
+    - >-
+      Variability in defect classification (sprout damage, broken kernels,
+      foreign material, insect damage, mold) results in 2–5% misclassification
+      of lots, leading to quality giveaway or unnecessary downgrades.
+    - >-
+      QA labor is tight; multi-site milling groups struggle to standardize
+      grading protocols and maintain consistent documentation for GFSI/BRC/FSMA
+      audits.
+    - >-
+      Intake throughput is constrained during harvest peaks (15–40 trucks/day
+      per site). Waiting time increases demurrage and supplier dissatisfaction.
+    - >-
+      Current systems lack end-to-end digital traceability from intake lot to
+      silo, blend, and flour COA, making root-cause analysis slow and expensive.
+  solution:
+    - >-
+      Hybrid edge-cloud platform that ingests synchronized grain images
+      (binocular/line-scan RGB) and NIR spectra; applies AI models to classify
+      defects, estimate protein/moisture/ash, and output grade/acceptance
+      decisions.
+    - >-
+      Human-in-the-loop review station with confidence thresholds and override
+      controls; learning loops to continuously improve local models while
+      maintaining corporate standards.
+    - >-
+      Calibration-transfer and drift monitoring across different NIR
+      brands/models with reference materials and scheduled validations;
+      automatic alerts and recalibration workflows.
+    - >-
+      One-click COA generation and immutable audit logs (e-signatures, change
+      control, traceability lot→silo→blend→flour batch) aligned with
+      GFSI/BRC/FSMA recordkeeping.
+    - >-
+      Integrations to NIR instruments (FOSS, Bruker, Perten), PLC/SCADA
+      (Siemens, Rockwell), LIMS/ERP (SAP, Infor), and weighbridge/receiving
+      systems via secure OT gateways.
+    - >-
+      Multi-site dashboards: intake KPIs, grade distribution, supplier
+      scorecards, and blend optimization suggestions based on real-time lots in
+      queue.
+  uniqueValueProp: >-
+    Automated, auditable lot grading in under 3 minutes per truck using computer
+    vision plus NIR—standardizing decisions across sites, reducing
+    misclassifications by 30–50%, and turning intake data into actionable
+    blending and procurement intelligence.
+  unfairAdvantage: >-
+    Cross-instrument calibration-transfer and drift monitoring validated with
+    reference labs, combined with a large, proprietary multi-year dataset of
+    grain images + NIR linked to certified grades; integrations to leading
+    NIR/OT stacks and auditor-recognized digital records reduce switching risk
+    and accelerate enterprise standardization.
+  customerSegments:
+    - >-
+      Primary: Industrial flour mills (150+ t/day) with 1–3 intake lanes;
+      multi-site milling groups seeking standardization across plants.
+    - >-
+      Buyers/Champions: QA/QC managers, Plant managers, Head millers,
+      Procurement/Grain buyers, Operations excellence leads, Digital/OT leaders.
+    - >-
+      Secondary: Grain elevators supplying mills that want pre-intake grading;
+      maltsters and specialty mills as adjacent segments.
+    - >-
+      Influencers: NIR OEM reps, system integrators, LIMS vendors, auditors and
+      certification bodies.
+  channels:
+    - >-
+      Direct enterprise sales to top 100 milling groups; 90-day paid pilots with
+      success criteria (agreement ≥95% with reference, decision time ≤3 min,
+      misclassification reduction ≥30%).
+    - >-
+      OEM partnerships with NIR vendors (co-selling, validated drivers) and
+      optical equipment OEMs (Bühler, Satake/Cimbria) for bundled intake
+      solutions.
+    - >-
+      System integrator network for OT/PLC and mechanical installs in target
+      regions (NA, EU, ANZ, MENA).
+    - >-
+      Industry events and associations: IAOM, GEAPS Exchange, AACC/ICC—live
+      demos; publish validation whitepapers with reference labs.
+    - >-
+      Content-led marketing: ROI calculator, case studies, supplier scorecard
+      benchmarks; webinars with QA leaders.
+    - >-
+      Land-and-expand: start with 1–2 intake lanes, then roll out to all sites;
+      upsell analytics and enterprise governance modules.
+  revenueStreams:
+    - >-
+      Annual subscription per intake lane: Starter $24k, Pro $36k, Enterprise
+      $48–60k (adds governance, advanced analytics, SLA 99.9%).
+    - >-
+      One-time implementation: $12–25k per lane (hardware kit, installation,
+      onsite calibration, training).
+    - >-
+      Hardware options: camera/lighting/gateway kit $8–15k per lane; leasing
+      available $300–$500/month.
+    - >-
+      Professional services: custom integrations, model extensions, validation
+      studies ($200–$250/hour or fixed SOW).
+    - >-
+      Enterprise add-ons: supplier analytics, blend optimization API, extended
+      data retention (+$5–10k/site/year).
+  costStructure:
+    - >-
+      R&D team (CV/ML engineers, data engineers, domain experts): ~35–45% of
+      opex.
+    - >-
+      Field deployment and support (install, calibration, training, success):
+      ~15–20%.
+    - >-
+      Cloud/Edge infrastructure (compute, storage, device management,
+      monitoring): ~10–15%.
+    - >-
+      Hardware BOM and logistics for kits: ~10% COGS on first-year deals; reduce
+      via volume.
+    - 'Sales and marketing (events, demos, content, partner MDF): ~15–20%.'
+    - 'Compliance, QA, and insurance (product liability, cyber): ~3–5%.'
+    - 'Data collection/annotation program and reference lab partnerships: ~5%.'
+  keyMetrics:
+    - >-
+      Model performance: protein RMSEP ≤0.3%, moisture MAE ≤0.3%, ash MAE
+      ≤0.05%; Cohen’s kappa ≥0.8 vs certified inspectors for defect grading.
+    - >-
+      Operational: median time-to-decision ≤3 minutes/truck; per-lane uptime
+      ≥99.5%; drift alarms <2/month per site.
+    - >-
+      Quality impact: misclassification reduction ≥30%; false accept/reject rate
+      each <2% vs reference; claim disputes reduced ≥25% within 6 months.
+    - >-
+      Financial: pilot-to-production conversion ≥70%; ACV per customer ≥$90k by
+      year 2 (multi-lane); gross margin ≥70% on software; CAC payback ≤12
+      months.
+    - >-
+      Adoption: operator override rate <10% after 60 days; training completion
+      100% within 2 weeks; multi-site rollout velocity ≥2 lanes/month/customer.
+    - >-
+      Customer success: NPS ≥45; renewal rate ≥95%; expansion revenue ≥20% of
+      ARR.
+storyBrand:
+  character: >-
+    Quality and operations leaders at flour mills who need fast, objective lot
+    grading to keep intake flowing and protect yield and compliance.
+  problem: >-
+    - External — Manual visual checks and sporadic lab tests are slow,
+    subjective, and miss mixed-quality loads.
+
+    - Internal — Teams feel pressure to accept or reject within minutes and
+    don’t fully trust inconsistent grades.
+
+    - Philosophical — Every load should be judged by transparent, data-driven
+    standards, not guesswork.
+  guide: >-
+    - Empathy — We understand intake crunches, audit demands, and the cost of a
+    wrong call.
+
+    - Authority — Our CV + NIR models interpret grain images and spectra to
+    classify defects and estimate key attributes (e.g., protein, moisture, ash).
+    Outputs are traceable, aligned to your grade specs, and ready for reporting.
+  plan: >-
+    - Process — 1) Connect camera/NIR sources or use our intake kit  2)
+    Calibrate to your grade specs and tolerances  3) Run automated grading;
+    review dashboards/APIs; refine with periodic checks.
+
+    - Agreement — Clear data ownership, strong security controls, uptime
+    commitments, and human-in-the-loop override anytime.
+  callToAction: |-
+    - Direct — Book a demo and start a 30-day pilot at one intake point.
+    - Transitional — Download a sample grading report and ROI worksheet.
+  success: |-
+    - Consistent, audit-ready grades with full traceability.
+    - Faster intake decisions and fewer rework loops.
+    - Better blends and yield from accurate attribute estimates.
+    - Fewer supplier disputes and chargebacks.
+    - Continuous improvement via feedback and historical analytics.
+  failure: |-
+    - Persisting with subjective calls that slow intake and risk spec failures.
+    - Ongoing rework, disputes, and margin leakage.
+    - Missed opportunities to optimize blends and procurement.
+landingPage:
+  hero:
+    title: AI Grain Grading for Flour Mills (CV + NIR)
+    subtitle: >-
+      Automate lot intake: interpret grain images and NIR scans to classify
+      defects, estimate attributes, and output consistent grades—fast and
+      consistent.
+    ctaText: Get a demo
+    ctaHref: /demo
+  problem:
+    - >-
+      Manual grading is slow, subjective, and inconsistent across shifts and
+      sites.
+    - Intake bottlenecks delay trucks and increase costs.
+    - Missed defects and variable readings create quality and compliance risk.
+    - Paper notes and siloed devices limit traceability and reporting.
+    - Hard to defend supplier claims without objective evidence.
+    - Skilled graders are scarce; training and calibration take time.
+  solution:
+    - >-
+      Multi-modal AI analyzes grain images and NIR spectra to grade lots
+      automatically.
+    - >-
+      Classifies defects and estimates key attributes with transparent
+      confidence.
+    - 'Maps results to your grading schema (e.g., USDA or in-house thresholds).'
+    - Generates digital COAs and a full audit trail per lot.
+    - Integrates with ERP/MES/LIMS and existing lab/instrument workflows.
+    - Continuously improves using your historical and labeled data.
+  features:
+    - 'Computer Vision + NIR fusion for robust, real-world grading.'
+    - >-
+      Defect detection: foreign material, broken/screenings, sprout, insect
+      damage, heat/disease stains.
+    - >-
+      Attribute estimation: protein, moisture, ash, hardness/vitreousness, test
+      weight (HL weight).
+    - Kernel size distribution and uniformity metrics.
+    - 'Configurable grading rules, thresholds, and acceptance criteria.'
+    - >-
+      Confidence scores, image overlays, and spectrum explainability for each
+      decision.
+    - Edge capture with offline mode; seamless cloud sync when online.
+    - Fast analysis per sample to keep intake moving; queue-aware processing.
+    - 'Digital COA with timestamps, operator/device IDs, and lot traceability.'
+    - 'APIs and connectors (REST, CSV export); hooks for ERP/MES/LIMS.'
+    - Supplier scorecards and evidence packages for claims resolution.
+    - 'Multi-site dashboards, alerts, and role-based access with SSO.'
+    - Calibration management and transfer for NIR models; drift monitoring.
+    - Supports wheat/durum out of the box; extensible to additional grains.
+  steps:
+    - Connect your camera and NIR device (or use ours) and set grading rules.
+    - 'Capture a sample: the system ingests images and spectra automatically.'
+    - 'AI analyzes, estimates attributes, and assigns a grade with confidence.'
+    - >-
+      Review flags, accept/reject, and auto-generate a COA and release/hold
+      decision.
+    - Sync results to ERP/LIMS and store a complete audit trail.
+    - Monitor performance and optionally retrain with your labeled samples.
+---
+# MillerGrade AI
+
+Industry: Flour Milling
+Service: Grain Quality Ingestion & Automated Grading (CV + NIR)

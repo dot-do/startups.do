@@ -1,0 +1,312 @@
+---
+name: WeldScope QC
+slug: weldscope
+service:
+  title: Visual Weld QC from Photos
+  description: >-
+    Automated weld bead measurement and defect detection from standardized photo
+    sets for remote QC triage.
+  targetUsers:
+    - QC Inspectors
+    - QA Managers
+    - Project Managers
+  triggers:
+    - Upload of weld photo set via portal/mobile app
+    - Completion of weld step in traveler
+  inputs:
+    - Weld photos/videos with scale reference
+    - 'Weld type, process, position'
+    - Acceptance criteria from WPS/code
+  steps:
+    - Validate image quality; prompt reshoot if needed
+    - 'Detect and measure bead features (leg size, throat, undercut, porosity)'
+    - Compare against WPS/code tolerances
+    - Score confidence; route low-confidence cases to human
+    - Generate annotated report and NCR suggestions if needed
+  tools:
+    - Computer vision (Detectron2/Roboflow)
+    - OpenCV for measurement
+    - LLM for narrative findings
+    - Web uploader/mobile form
+  outputs:
+    - Annotated images with measurements
+    - Pass/fail per weld with defect list
+    - NCR draft and corrective actions when applicable
+  pricingModel:
+    - Per-image or per-weld pricing
+    - Volume tiers for projects
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 4
+    modelCapability: 3.5
+    overall: 4
+  risks:
+    - Lighting/angle variability causing false results
+    - Auditor acceptance of AI-assisted inspection
+    - Worker adoption
+  dependencies:
+    - Standardized photo protocol and scale stickers
+    - Acceptance criteria library by material/process
+    - Data retention policy
+leanCanvas:
+  problem:
+    - >-
+      Visual weld inspection (VT) on plate work is labor-intensive and
+      inconsistent; inspectors spend 20–40% of time walking the floor or
+      traveling between sites to assess relatively simple welds.
+    - >-
+      Measurement of weld bead geometry (e.g., fillet leg length, throat,
+      reinforcement, bead width) is often done with gauges and varies by
+      inspector; re-measure/rework due to measurement variability can add 3–8%
+      cost to weld-related labor.
+    - >-
+      QC backlogs delay production; photos are already taken for traceability
+      but are unstandardized and not reliably actionable for accept/reject
+      triage.
+    - >-
+      Many shops lack structured, searchable weld QC data linked to
+      WPS/standards (AWS D1.1, ISO 5817, ASME IX), making audits and root-cause
+      analysis slow and error-prone.
+    - >-
+      Remote sites, field work, and shift work create coverage gaps for CWIs/QA
+      managers; minor issues wait hours or days for review.
+    - >-
+      Existing automated inspection options (3D scanners, inline laser systems)
+      are too expensive/complex for small/medium fabricators and don’t fit
+      manual/low-volume workflows.
+  solution:
+    - >-
+      Capture: Mobile app-guided, standardized photo sets (5–8 angles) using a
+      low-cost calibration/scale tag and lighting guidance.
+    - >-
+      Analyze: Cloud or on-prem AI that measures bead geometry (e.g., fillet leg
+      lengths, throat estimate, reinforcement, width) and flags visual defects
+      (porosity, undercut/overlap indicators, tie-in/undercut surface cues,
+      spatter, excessive reinforcement, incomplete fill at surface).
+    - >-
+      Decide: Auto-compare to WPS or standard (AWS D1.1, ISO 5817 class B/C/D,
+      ASME IX) to return Accept / Monitor / Refer-to-inspector decisions with
+      rationale and annotated images.
+    - >-
+      Triage workflow: Web dashboard for queueing, bulk review, escalation to
+      human inspectors, and auto-generated audit-ready reports tied to heat/lot,
+      welder ID, and job/part.
+    - >-
+      Integrations: API and connectors for MES/ERP/PLM (e.g., JobBOSS, ProShop,
+      SAP), welding management software (WPS libraries), and storage/Vault.
+    - >-
+      Human-in-the-loop: Optional remote CWI verification for borderline or
+      critical weld classes within SLA windows.
+  uniqueValueProp: >-
+    Standards-driven weld QC from standardized photos: accurate bead
+    measurements and visual defect detection in under 60 seconds, triaging
+    60–80% of welds remotely, cutting on-site inspection hours by 30–50% and
+    rework from measurement variability by 10–20% within 90 days—without
+    specialized cameras.
+  unfairAdvantage: >-
+    Standards-calibrated measurement from low-cost photo sets backed by
+    proprietary multi-view datasets and third-party CWI validation, plus a
+    physical calibration kit that ensures repeatability and creates switching
+    costs via historical quality records and WPS-linked acceptance libraries.
+  customerSegments:
+    - >-
+      Primary: Plate work manufacturers and structural metal fabricators (NAICS
+      332313/332312) with manual/semi-automatic welding: tank/vessel shops,
+      heavy equipment OEMs, shipbuilding modules, wind tower/large diameter pipe
+      sections, modular skid fabricators.
+    - >-
+      Secondary: NDT service providers and third-party inspection companies
+      offering VT/NDT packages who want faster triage and better documentation.
+    - >-
+      Roles/Buyers: QA/QC managers, Welding Engineers, Production Managers,
+      Certified Welding Inspectors (CWIs), Operations Directors, Digital
+      Transformation leads.
+    - >-
+      Beachhead: Mid-market fabricators (50–500 employees) with multi-site
+      operations and code compliance (AWS/ISO/ASME), producing 2,000–50,000
+      welds/month.
+  channels:
+    - >-
+      Targeted outbound to QA/QC and Welding Engineers via LinkedIn Sales
+      Navigator with problem-led messaging and 15–30 minute triage demo offer.
+    - >-
+      Industry events and associations: AWS meetings, FABTECH, IIW; sponsor
+      sessions on digitized VT; live capture booths for hands-on trials.
+    - >-
+      Partnerships: NDT service firms bundle remote VT triage; welding equipment
+      OEMs/robot integrators include capture kit; MES/ERP vendors co-sell via
+      marketplace listings.
+    - >-
+      Bottom-up product-led growth: 30-day pilot with 2 lines/cells, free
+      capture kits, and success plan focused on time-saved and rework reduction
+      KPIs.
+    - >-
+      Content/SEO: Case studies, accuracy validation whitepapers against AWS/ISO
+      criteria; “VT from Photos” playbook; ROI calculator.
+    - >-
+      Channel incentives: Revenue share (10–20%) to partners; spiffs for
+      inspectors who refer clients; discounted starter bundles for multi-site
+      rollouts.
+  revenueStreams:
+    - >-
+      SaaS subscriptions per site: Starter $399/month (up to 3 users, 2,500 weld
+      analyses), Pro $1,499/month (25 users, 25,000 analyses), Enterprise custom
+      (unlimited users, volume pricing, on-prem/VPC).
+    - >-
+      Usage overage: $0.08 per additional weld analysis (photo set) on Pro;
+      volume discounts to $0.04 at >100k/month.
+    - >-
+      Hardware: Photo standardization kit $399 per kit (COGS ~$85) with 2-year
+      warranty; bulk discounts.
+    - >-
+      Professional services: Onboarding/training $2,000 per site; integration
+      package $10,000+; standards/WPS library setup $1,500.
+    - >-
+      Human-in-the-loop verification: $0.50 per weld escalated to remote CWI;
+      enterprise SLAs priced per volume.
+    - >-
+      Data retention/compliance add-on: Long-term archival (>$0.002/GB-month
+      pass-through + 30% margin).
+  costStructure:
+    - >-
+      COGS per weld analysis: compute $0.010–0.015 (CPU/GPU mixed), storage
+      $0.001 (8 photos ~20–30 MB, 12 months avg retention), inference
+      orchestration $0.003, amortized model serving/monitoring $0.005 →
+      ~$0.02–0.03 total.
+    - >-
+      Fixed cloud costs: model training/inference clusters $18k–$35k/month at
+      scale; observability, CI/CD, security tooling $5k–$10k/month.
+    - >-
+      Hardware kit COGS: ~$85 (markers, scale, magnetic backing, light filter,
+      packaging); logistics $8–$12/unit.
+    - >-
+      People: ML/vision engineers ($160k–$220k/yr), full-stack ($130k–$180k),
+      QA/DevOps ($140k–$190k), CWI advisors ($80k–$150k), sales AEs ($110k base
+      + variable), CS ($90k–$120k).
+    - >-
+      Data labeling/SME validation: $0.05–$0.15/photo for new classes; initial
+      dataset 150k–300k labeled images; ongoing maintenance 5–10k images/month.
+    - >-
+      Sales & marketing: CAC target $6k–$15k per mid-market plant; event spend
+      $50k–$150k/year; content production $5k–$10k/month.
+    - >-
+      G&A and compliance: legal/insurance/audit $8k–$20k/month; SOC 2 Type II
+      $50k–$120k/yr.
+  keyMetrics:
+    - >-
+      Model accuracy: Fillet leg length MAE ≤0.5 mm; defect detection F1 ≥0.90
+      on major classes (porosity, undercut, overlap) on validated test sets;
+      false-accept rate ≤1% for critical classes.
+    - >-
+      Operational: P95 processing latency <60s/weld; uptime ≥99.9%; photo set
+      completeness ≥95% via capture checklist.
+    - >-
+      Business: Activation rate ≥60% of pilot users capturing ≥100 welds in
+      first 14 days; conversion ≥35% from pilot to paid; net revenue retention
+      ≥120% YoY.
+    - >-
+      Outcome: Reduce on-site inspection hours by ≥30%; rework due to
+      measurement variability -10–20%; time-to-disposition from hours to <10
+      minutes median; inspector-to-weld coverage ratio improved by 1.5–2x.
+    - >-
+      Quality program: % welds triaged remotely ≥70%; referral rate to NDT/CWI
+      ≤15% (target) with stable quality; audit nonconformance findings related
+      to documentation -50%.
+    - 'Unit economics: Gross margin ≥75%; payback period <9 months; LTV:CAC ≥4:1.'
+storyBrand:
+  character: >-
+    Plate‑work fabrication leaders (QA managers, welding supervisors, supplier
+    quality engineers) who must guarantee weld quality at speed and scale, often
+    across multiple sites and suppliers.
+  problem: >-
+    External: Manual visual inspection is slow, subjective, and travel‑heavy;
+    bead measurements lack consistency and traceability. Internal: Pressure to
+    hit deadlines without risking quality or reputation; they can’t be
+    everywhere at once. Philosophical: Weld quality shouldn’t depend on who is
+    on shift or where the part was made.
+  guide: >-
+    Empathy: We’ve lived the pain of subjective calls, NCRs, and costly rework.
+    Authority: Our AI measures weld beads and detects defects from standardized
+    photo sets, trained on thousands of annotated welds; aligned to ISO
+    5817/ASME acceptance criteria; pilots show 25–40% less rework and 60–80%
+    faster inspections.
+  plan: >-
+    1) Standardize capture: use our photo templates/targets with a phone or
+    industrial camera. 2) Upload/API: send sets; auto‑check completeness and
+    metadata. 3) Review & act: receive dimensioned measurements, defect tags,
+    and pass/fail triage with full audit trail; integrate to QMS/MES. Assurance:
+    data security (on‑prem/private cloud), human‑in‑the‑loop overrides, start
+    with limited‑scope pilot.
+  callToAction: >-
+    Direct: Start a 2‑week pilot on one weld class or line. Transitional: Book a
+    30‑minute demo and get a sample report + ROI calculator.
+  success: >-
+    Objective, consistent weld QC across shifts and suppliers; remote triage
+    without travel; early defect detection; 30–50% less rework; faster approvals
+    and throughput; clear, auditable measurement evidence; on‑time delivery and
+    happier customers.
+  failure: >-
+    Missed or late defect discovery; inconsistent, un‑auditable inspections;
+    schedule slips and expensive rework; failed customer audits, chargebacks,
+    and damaged reputation.
+landingPage:
+  hero:
+    title: Visual Weld QC from Photos
+    subtitle: >-
+      AI for plate work manufacturing: automated weld bead measurement and
+      defect detection from standardized photo sets. Remote QC triage in
+      minutes.
+    ctaText: Get a demo
+    ctaHref: /demo
+  problem:
+    - 'Manual weld inspection is slow, subjective, and hard to scale.'
+    - Travel and on-site checks delay throughput and tie up experts.
+    - Inconsistent photo capture leads to inconsistent measurements and rework.
+    - >-
+      Critical metrics (bead width, leg length, throat) aren’t measured
+      consistently against WPS.
+    - Defects are found late; triage happens after parts move downstream.
+    - >-
+      Documentation and traceability are scattered across photos and
+      spreadsheets.
+    - Customers demand standard-aligned evidence; audit prep is painful.
+  solution:
+    - Standardize photo capture and let AI measure every weld consistently.
+    - Automatic defect detection with pass/fail against your tolerances and WPS.
+    - Remote triage dashboard to prioritize issues and reduce on-site visits.
+    - Instant reports with objective measurements and annotated images.
+    - >-
+      Full traceability from part, joint, operator, and time through to
+      decision.
+    - API-first integration with MES/ERP and storage.
+  features:
+    - >-
+      Guided capture app with templates, angle prompts, and scale marker
+      validation.
+    - 'AI measurement: bead width, leg length, throat, convexity/concavity.'
+    - >-
+      Defect detection: undercut, porosity, overlap, cracks, lack of fusion,
+      spatter.
+    - >-
+      Rule engine: per-process tolerances by joint type, material, and
+      thickness.
+    - Batch processing at line speed; results in minutes.
+    - Triage queue with severity scoring and auto-routing.
+    - 'Annotated overlays, heatmaps, and side-by-side comparisons.'
+    - One-click pass/fail reports and audit-ready logs.
+    - Role-based access and encryption; on-prem or private cloud options.
+    - 'REST API, webhooks, and connectors for MES/ERP/PLM.'
+  steps:
+    - >-
+      Place the reference marker, select joint type, and capture the required
+      angles.
+    - Upload photos or auto-sync from the capture app.
+    - 'AI validates image quality, calibrates scale, and runs measurements.'
+    - Review defects and measurements in the triage dashboard.
+    - 'Approve, rework, or assign actions; auto-notify stakeholders.'
+    - Export reports and sync results to your MES/ERP.
+---
+# WeldScope QC
+
+Industry: Plate Work Manufacturing
+Service: Visual Weld QC from Photos

@@ -1,0 +1,307 @@
+---
+name: TimberMix Estimator (AI)
+slug: timbermix
+service:
+  title: Timber Volume & Product Mix Estimator
+  description: >-
+    Combines cruise data, lidar/canopy metrics, and allometry to estimate
+    volumes by species and product class with uncertainty.
+  targetUsers:
+    - Consulting foresters
+    - TIMOs/REITs
+    - Procurement foresters
+  triggers:
+    - Cruise data upload
+    - Pre-sale valuation
+    - Annual revaluation
+  inputs:
+    - Plot/cruise data (DBH/height/species)
+    - Stand boundaries
+    - Optional lidar/CHM or drone-derived canopy metrics
+    - Local product specs/prices
+  steps:
+    - QA/QC cruise data and align with stands
+    - Extract RS features (CHM/texture/indices)
+    - Train/transfer models to stands lacking plots
+    - Apply species/product taper/allometry
+    - Quantify uncertainty via bootstrapping
+    - Export tables and valuation snapshot
+  tools:
+    - R or Python (scikit-learn/XGBoost)
+    - USFS/FIA equations
+    - PDAL for lidar
+    - PostGIS/GeoPandas
+  outputs:
+    - Volume tables by species/product/stand
+    - Uncertainty bands
+    - Valuation worksheet (linked to price table)
+  pricingModel:
+    - 'Per-tract: $1,500–$5,000 depending size/data'
+    - 'Optional price-linked monthly refresh: $250/mo'
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Bias if plot data sparse or unrepresentative
+    - Product spec misalignment
+    - Market price volatility
+  dependencies:
+    - Cruise data quality
+    - Access to lidar or drone data (optional)
+leanCanvas:
+  problem:
+    - >-
+      Inventory is costly and slow: full cruises can cost $3–$7/acre (or
+      $8–$15/plot) and take weeks to months; frequency is limited, leaving
+      owners with stale data.
+    - >-
+      Existing remote-sensing products typically estimate biomass or canopy
+      height, not merchantable volumes by species and product class
+      (pulpwood/chip‑n‑saw/sawtimber), which mills and harvest planners actually
+      need.
+    - >-
+      Uncertainty is rarely quantified or calibrated, leading to
+      over/underestimation of yield and 1–3% revenue leakage per harvest due to
+      misallocation of crews, equipment, and mill contracts.
+    - >-
+      Data is fragmented (cruise plots, LiDAR tiles, FIA allometry, mill specs)
+      and manually stitched together, creating errors and lost analyst time.
+    - >-
+      Carbon, insurance, and regulatory use cases require auditable uncertainty
+      and reproducible methods; most tools don’t meet that bar.
+    - >-
+      Operational decisions (harvest scheduling, product allocation, stumpage
+      bidding) need current, stand-level estimates; existing methods don’t
+      update fast enough after storms, fire, or pest outbreaks.
+  solution:
+    - >-
+      Fuse cruise plots, LiDAR/canopy metrics, and species/allometry libraries
+      to produce merchantable volumes by species and product class
+      (pulpwood/chip‑n‑saw/sawtimber) at stand/sub-stand resolution.
+    - >-
+      Calibrated uncertainty: Bayesian model updating with targeted, low-cost
+      plots to achieve <5% bias and well-calibrated 90% prediction intervals at
+      the stand level.
+    - >-
+      Species grouping and taper models aligned to customer mill specs; product
+      class thresholds configurable per region and mill.
+    - >-
+      Change detection using new LiDAR, radar, and optical sources to trigger
+      refreshes after disturbance or growth events; automated reprocessing to
+      keep inventories current.
+    - >-
+      APIs and integrations with GIS (Esri), inventory/cruise tools, and
+      planning software to push outputs into existing workflows in hours, not
+      weeks.
+    - >-
+      Scenario tools: estimate yield and value under different cutting specs and
+      market price decks to support contract bidding and harvest scheduling.
+    - >-
+      QA/QC and audit trail: versioning, data provenance, and validation reports
+      (per-stand error metrics, coverage tests) suitable for board reviews,
+      carbon audits, and regulators.
+  uniqueValueProp: >-
+    Field-calibrated, stand-level volumes by species and product class with
+    quantified, auditable uncertainty—delivered 10x faster and 30–50% cheaper
+    than conventional cruising, and directly integrated with harvest planning
+    and mill specifications.
+  unfairAdvantage: >-
+    A calibration-first, uncertainty-quantified product mix engine trained on
+    multi-source data (cruise + LiDAR + mill outturn) with region-specific
+    taper/allometry libraries and targeted-plot design—yielding audit-ready
+    estimates with fewer field plots and faster refresh cycles than competitors.
+    Deep integrations into forestry workflows and a growing proprietary dataset
+    create increasing returns to scale and switching costs.
+  customerSegments:
+    - TIMOs and REITs managing 50k–5M acres in North America and Australasia
+    - Industrial forest owners (integrated with mills) with >25k acres
+    - Regional forestry consulting firms serving 1k–100k-acre owners
+    - Sawmills and procurement foresters optimizing log supply and product mix
+    - State/provincial forestry agencies managing public timberlands
+    - >-
+      Forest carbon project developers needing verifiable baselines and
+      uncertainties
+    - >-
+      Insurers/reinsurers and lenders needing defensible timber and risk
+      exposure estimates (secondary buyer via partners)
+  channels:
+    - >-
+      Beachhead GTM: Focus on US Southeast pine belt and PNW conifers (high
+      LiDAR coverage, standard log classes, large industrial owners).
+    - >-
+      Direct sales to top 200 landowners and 50 sawmills: targeted outreach with
+      30–60 day pilots on 25k–100k acres; success criteria pre-agreed (e.g., <5%
+      bias vs. blind check plots; cycle time <72 hours; ROI >2x on reduced
+      cruising and improved allocation).
+    - >-
+      Partnerships with regional forestry consultants (10–20 partners) offering
+      co-branded services; revenue share 15–20%.
+    - >-
+      OEM/Integration with inventory and planning software (Esri Partner
+      Network; inventory/cruise vendors) to embed outputs and enable in-app
+      purchasing.
+    - >-
+      Public sector procurement: respond to annual state/provincial
+      solicitations; pilot on demonstration forests; align with agency
+      modernization programs.
+    - >-
+      Industry channels: SAF, FRA, ForestTech conferences; webinars; case
+      studies with quantified accuracy and cost savings; peer-reviewed
+      whitepapers with universities.
+    - >-
+      Data partners: LiDAR and imagery providers bundle analytics with their
+      acquisitions; offer joint bids for new acquisitions.
+  revenueStreams:
+    - >-
+      SaaS subscription: $2,000/month/org base (includes platform, integrations,
+      QA reports, 5 seats).
+    - >-
+      Usage-based processing: $0.06/acre per refresh (volume discounts to
+      $0.04/acre >500k acres). Minimum annual commit $25k.
+    - >-
+      Calibration services: fixed-scope package $15k/region (design plots, field
+      protocol, model update, validation).
+    - >-
+      Professional services: $1,500/day (custom integrations, mill-specific spec
+      development, legacy data migrations).
+    - >-
+      API pricing for partners: $0.005/acre returned via API with monthly
+      minimums.
+    - 'Premium support/SLA (24/7, dedicated CSM): +12% of contract value.'
+    - >-
+      Reseller/partner program: 15–20% margin for consulting partners;
+      co-marketing funds tied to volume.
+  costStructure:
+    - >-
+      Personnel: Year 1 team of 8–10 (2 ML engineers, 2 data engineers, 2 forest
+      biometricians, 1 GIS engineer, 2 AEs/CSMs, 1 PM) ≈ $1.6–$2.2M/yr.
+    - >-
+      Cloud compute/storage: $0.015–$0.03/acre per refresh for LiDAR processing
+      and model inference; storage ≈ $0.002/acre/year for tiles and outputs.
+    - >-
+      Data acquisition: commercial LiDAR/imagery where public data is absent ≈
+      $0.02–$0.10/acre when needed (pass-through or co-funded with client).
+    - >-
+      Sales/marketing: events, travel, demos, case studies ≈ $150k–$300k/yr
+      initially.
+    - 'Partner fees: 10–20% revenue share on deals sourced by resellers/OEMs.'
+    - 'Compliance/security: SOC2 readiness, pen tests, DPA/legal ≈ $75k–$120k/yr.'
+  keyMetrics:
+    - >-
+      Model performance: stand-level bias within ±5% for merchantable volume;
+      RMSE/MAE per species/product class; 90% PI coverage within 85–95%.
+    - >-
+      Species classification: overall accuracy >85% with per-class F1 >0.8 in
+      target regions.
+    - >-
+      Operational: median processing turnaround <48 hours; successful tile
+      ingest rate >98%; data freshness (time since last update) <6 months in
+      active areas.
+    - >-
+      Business: acres processed/month; active organizations; ACV (target
+      $50k–$200k); gross margin >70%; CAC payback <9 months; net revenue
+      retention >110%; annual logo churn <5%.
+    - >-
+      Adoption: seats per org; API calls/month; number of integrated systems per
+      customer (goal: ≥2).
+    - >-
+      Value realized: reduction in cruise cost per acre (target 30–50%); uplift
+      in realized sawtimber yield vs. plan (target +1–3%); planning cycle time
+      reduced by >50%.
+    - >-
+      Quality/security: support CSAT >4.5/5; uptime >99.5%; audit pass rate
+      100%.
+storyBrand:
+  character: >-
+    Timberland managers, procurement foresters, and forestry consultants who
+    need defensible volume and product mix estimates for planning, bidding, and
+    reporting.
+  problem: >-
+    Fragmented cruise data, inconsistent methods, and underused LiDAR lead to
+    slow, biased estimates—creating risky bids, uncertain harvest plans, and
+    reports that are hard to defend.
+  guide: >-
+    Timber Volume & Product Mix Estimator combines forestry expertise with
+    AI—integrating cruise plots, LiDAR/canopy metrics, and species-specific
+    allometry to produce transparent estimates with quantified uncertainty.
+  plan: >-
+    1) Upload cruise and LiDAR/canopy data or connect your GIS. 2) Configure
+    species, product classes, and allometric rules. 3) Receive tract/stand
+    volumes by species and product with confidence intervals, maps, and
+    exports/API.
+  callToAction: >-
+    Schedule a 30-minute demo or start a pilot on one tract to validate against
+    your ground truth.
+  success: >-
+    Confident bids and harvest plans, optimized product mix, higher recovery and
+    revenue, faster inventory cycles, and audit-ready, defensible reports across
+    your portfolio.
+  failure: >-
+    Rely on guesswork, misclassify product mix, over- or under-harvest, incur
+    write-downs and disputes, and miss revenue due to uncertainty you could
+    measure and reduce.
+landingPage:
+  hero:
+    title: AI Timber Volume & Product Mix Estimator
+    subtitle: >-
+      Fuse cruise data, lidar/canopy metrics, and allometry to deliver species-
+      and product-class volumes with quantified uncertainty.
+    ctaText: Start an Estimate
+    ctaHref: '#get-started'
+  problem:
+    - >-
+      Plot data alone misses spatial variability and leaves volume risk
+      unquantified.
+    - Manual spreadsheets and lookups waste time and invite errors.
+    - Inconsistent merch rules and allometry lead to biased product mixes.
+    - >-
+      Difficult to reconcile cruise plots with lidar/canopy metrics across
+      stands.
+    - 'No clear uncertainty bounds to support bids, harvest plans, or reporting.'
+  solution:
+    - >-
+      Unify cruise plots, lidar/canopy metrics, and allometry in one calibrated
+      model.
+    - >-
+      Output species- and product-class volumes with confidence intervals at
+      stand and tract levels.
+    - >-
+      Apply your merch rules and mill specs to simulate product mixes
+      accurately.
+    - Detect and correct bias between plots and remote-sensing metrics.
+    - 'Deliver map layers, rollups, and audit-ready reports in minutes.'
+  features:
+    - 'Multi-source data fusion: cruise plots, lidar/CHM, and stand boundaries.'
+    - >-
+      Calibrated allometry by region; supports custom equations and species
+      groups.
+    - >-
+      Merch rules engine (top DIB, min length, trim, defect) with scenario
+      save/compare.
+    - 'Product bucking simulator for sawlog, chip-n-saw, and pulp classes.'
+    - >-
+      Uncertainty quantification with interval reporting and coverage
+      diagnostics.
+    - Bias detection and correction between plot expansion and canopy metrics.
+    - 'Stand/tract rollups, maps, and heatmaps; drill from tract to stem class.'
+    - >-
+      Batch processing and API access for large inventories and procurement
+      runs.
+    - >-
+      GIS-friendly exports (CSV, GeoJSON, Shapefile/GeoPackage) and printable
+      summaries.
+    - Audit trail with versioning for reproducibility and compliance.
+  steps:
+    - Upload cruise plots and lidar/canopy layers or connect via API.
+    - 'Choose species groups, allometry, and merch rules (or import presets).'
+    - 'Calibrate and validate: review fit stats, residuals, and bias flags.'
+    - Generate volumes by species and product class with uncertainty intervals.
+    - Compare scenarios (different specs/prices) and select the best mix.
+    - 'Export maps, tables, and reports to share with teams and partners.'
+---
+# TimberMix Estimator (AI)
+
+Industry: Support Activities for Forestry
+Service: Timber Volume & Product Mix Estimator

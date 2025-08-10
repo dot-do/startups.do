@@ -1,0 +1,356 @@
+---
+name: RFQ-to-Quote Copilot for Laminated Sheets & Shapes
+slug: rfqto2
+service:
+  title: RFQ-to-Quote Copilot for Laminated Sheets & Shapes
+  description: >-
+    AI agent parses RFQs/drawings/specs, proposes laminate stackups/materials,
+    estimates costs and lead times, drafts quotes and clarifying questions.
+  targetUsers:
+    - Sales engineering
+    - Estimating
+    - Applications engineering
+    - Inside sales
+  triggers:
+    - New RFQ email/upload
+    - Portal RFQ submission
+    - Sales rep request
+  inputs:
+    - PDF drawings/DXF/DWG
+    - 'Material/performance specs (thickness, resin, fillers, UV, flame, color)'
+    - Annual volume/MOQ/target price
+    - 'Routing standards (machine rates, setup times)'
+    - Material/overhead/labor cost tables
+    - Historical quotes/win-loss data
+  steps:
+    - Ingest RFQ email/portal submission and parse attachments
+    - 'Extract key specs, tolerances, compliance requirements'
+    - Search internal material catalog for candidate laminates/resins/stackups
+    - 'Estimate yield, run time, changeovers; compute cost and lead time'
+    - Flag spec gaps and generate concise clarification questions
+    - 'Generate quote (price tiers, lead time, terms) and cost breakdown'
+    - Route to approver; push to CRM/ERP on approval
+  tools:
+    - 'Document parser/OCR (e.g., AWS Textract, Tesseract)'
+    - CAD parser (DXF/DWG)
+    - LLM for spec extraction and Q&A
+    - Costing engine (custom or spreadsheet via API)
+    - 'ERP/CRM APIs (SAP, Epicor, NetSuite, Salesforce)'
+    - Email/Teams/Slack integration
+  outputs:
+    - Quote PDF/JSON with assumptions
+    - Candidate stackup/material recommendations
+    - Clarification question list
+    - Cost and margin breakdown
+    - ERP/CRM opportunity update
+  pricingModel:
+    - 'Per-RFQ (e.g., $20–$60)'
+    - or Monthly subscription (tiered by RFQ volume)
+    - One-time setup for templates/mappings
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8.5
+  risks:
+    - Spec misinterpretation leading to wrong quote
+    - Out-of-date cost tables
+    - IP sensitivity of drawings
+    - Over-automation without proper approvals
+  dependencies:
+    - Access to cost tables and routings
+    - ERP/CRM API credentials
+    - Material catalog/stackup library
+    - Quote templates and terms
+leanCanvas:
+  problem:
+    - >-
+      RFQs arrive as messy PDFs, emails, and drawings; manual parsing takes
+      30–120 minutes per RFQ and is error-prone.
+    - >-
+      Estimators struggle to map specifications to NEMA grades (e.g., G-10/FR-4,
+      CE, LE), UL 94 ratings, and supplier-specific equivalents, causing delays
+      and misquotes.
+    - >-
+      Scrap/yield on cut-to-size panels and nesting is estimated heuristically;
+      underestimating waste erodes margin, overestimating loses deals.
+    - >-
+      Lead times are inconsistent due to press capacity, cure times, machining
+      queue, and material availability; customers want reliable options with
+      expedite pricing.
+    - >-
+      Expert knowledge sits with a few senior estimators; turnover or retirement
+      creates risk and throughput bottlenecks.
+    - >-
+      Customers increasingly require multi-quantity, multi-material, and
+      alternate-substitute options; generating these variants manually is slow.
+    - >-
+      Clarifying questions are sent late or incompletely, increasing cycle time
+      and reducing win rate.
+    - >-
+      Compliance and documentation (UL file numbers, traceability, RoHS/REACH)
+      are manual add-ons that prolong quoting and introduce mistakes.
+    - >-
+      ERP/CPQ modules are generic; they don’t interpret prints/specs, propose
+      laminate stackups, or compute routing automatically.
+  solution:
+    - >-
+      AI RFQ ingestion: parse emails, PDFs, DXF/DWG/STEP; detect materials,
+      tolerances, finishes, UL/ASTM/NEMA callouts.
+    - >-
+      Laminate stackup recommender: map specs to NEMA grades and supplier
+      equivalents; suggest alternates with compliance notes.
+    - >-
+      Costing engine: material yield optimization (panel selection, nesting,
+      scrap), press cycle/cure, machining ops (saw/CNC/waterjet), secondary
+      finishes, packaging, freight class.
+    - >-
+      Lead-time estimator: capacity-aware (press slots, cure windows, machining
+      calendars), raw stock availability, supplier lead times; automatic
+      expedite options.
+    - >-
+      Quote composer: multi-quantity price breaks, substitute options, T&Cs,
+      validity windows; 1-click export to ERP/CPQ and branded PDF/Email.
+    - >-
+      Clarifying questions generator: flags spec conflicts, missing
+      dimensions/tolerances, impossible callouts, and offers resolution
+      templates.
+    - >-
+      Human-in-the-loop: review/approve changes, editable BOM/routing; track
+      revisions and approval trails.
+    - >-
+      Data and compliance: maintains UL file numbers, lot traceability fields,
+      RoHS/REACH status in the quote; auto-attach CoC templates.
+    - >-
+      Integrations: inbox connectors (O365/Gmail), ERP/MES (Epicor, Infor,
+      JobBOSS2/E2, DELMIAWorks, ProShop), CAD (SolidWorks, AutoCAD), cloud
+      storage (SharePoint/Box/Drive).
+  uniqueValueProp: >-
+    Quote laminated plastics 2–5x faster with +/-5–8% cost accuracy by Day 30.
+    Our AI reads RFQs/drawings, proposes compliant laminate stackups and
+    substitutes, optimizes cut plans, models press/machining time and lead
+    times, then drafts quotes and clarifying questions—purpose-built for
+    NEMA-grade laminated sheets and shapes.
+  unfairAdvantage: >-
+    Domain-specific data network effects and models: each deployment improves
+    laminate stackup mapping, yield optimization, and time/cost estimates across
+    NEMA grades and suppliers. Proprietary vision+text parsers for drawings and
+    a laminate-aware nesting/press model create accuracy and speed competitors
+    can’t match. Early ERP/distributor partnerships embed us in the quoting
+    workflow and make switching costly.
+  customerSegments:
+    - >-
+      Mid-market laminated plastics manufacturers (NAICS 326130): 50–500
+      employees; make laminated sheets/shapes and perform cut-to-size and
+      machining.
+    - >-
+      Plastics distributors with value-added fabrication (IAPD members) quoting
+      cut-to-size and machined components.
+    - >-
+      Composite laminate producers (phenolic/epoxy/melamine glass, paper,
+      cotton) with in-house press and machining.
+    - >-
+      Job shops specializing in non-metallic machining (CNC routing/waterjet)
+      for electrical/industrial applications.
+    - >-
+      Enterprise OEM captive shops processing high RFQ volume for internal
+      programs.
+  channels:
+    - >-
+      Direct sales to Estimating/Sales Engineering/Operations leaders at NAICS
+      326130 firms.
+    - >-
+      Industry associations and events: IAPD, CAMX, SPE; sponsor and run live
+      quoting challenges.
+    - >-
+      ERP/VAR partnerships (Epicor, ECI/JobBOSS2, ProShop) with co-marketing and
+      revenue sharing.
+    - >-
+      Distributor partnerships (Curbell, Piedmont, Professional Plastics) to
+      reach fabrication customers; co-branded pilots.
+    - >-
+      Content and SEO: laminate cost guides, NEMA grade cross-reference tools,
+      ROI calculators; webinars on quoting speed/accuracy.
+    - >-
+      Targeted ABM for top 500 US/Canada laminated plastics makers; LinkedIn and
+      Thomasnet retargeting.
+    - >-
+      Freemium/trial: 30-day pilot or first 200 RFQ pages/CAD files; prove 50%+
+      cycle time reduction.
+    - >-
+      Customer reference program and community (benchmarks, playbooks,
+      templates).
+  revenueStreams:
+    - 'Subscription (SaaS):'
+    - >-
+      - Professional: $1,500/month includes 5 users, 500 RFQs/month, standard
+      integrations, email support.
+    - >-
+      - Enterprise: $3,500–$6,000/month includes 20 users, 2,000 RFQs/month,
+      SSO, sandbox, premium support, VPC option.
+    - >-
+      Usage-based overages: $0.10–$0.25 per OCR page; $1–$3 per CAD model; $0.02
+      per nested part for batch nesting.
+    - >-
+      Implementation/onboarding: $8k–$25k per site (data mapping, cost model
+      calibration, ERP integration).
+    - >-
+      Premium modules: Advanced nesting optimization, on-prem deployment, custom
+      material libraries, multi-site rollup analytics.
+    - 'Training and certification for estimators: $500 per seat.'
+    - >-
+      Professional services: historical quote backfill, cost model tuning, API
+      customization.
+  costStructure:
+    - >-
+      R&D: AI/ML engineers, manufacturing domain experts, CAD/OCR licensing
+      (e.g., HOOPS Exchange/Open Cascade, OCR engines).
+    - >-
+      Cloud infrastructure: GPU inference for vision/LLM, storage of drawings,
+      secure VPC deployments.
+    - >-
+      Third-party APIs: OCR, email connectors, freight rating, address
+      validation.
+    - 'Integrations team: ERP/PLM connectors, maintenance.'
+    - >-
+      Sales & marketing: events (IAPD/CAMX), ABM tools, content creation, demos,
+      commissions (10–15%).
+    - 'Customer success & support: onboarding, training, model calibration, SLAs.'
+    - 'Security & compliance: SOC 2, pen tests, logging, SIEM, cyber insurance.'
+    - 'G&A: legal (MSAs, DPAs), finance, office, travel for onsite pilots.'
+  keyMetrics:
+    - 'Time-to-first-quote in pilot: ≤14 days from kickoff.'
+    - >-
+      Quote cycle time reduction: 50–70% vs baseline (target median <4 hours
+      from RFQ to draft).
+    - >-
+      Cost accuracy: median absolute percent error vs actual COGS within +/-8%
+      by Day 30; +/-5% by Month 6.
+    - >-
+      Estimator throughput: increase from 3–5 to 8–12 quotes per estimator per
+      day.
+    - 'Win rate uplift: +3–10 percentage points on comparable opportunities.'
+    - >-
+      Clarifying coverage: ≥80% of RFQs with incomplete specs receive
+      auto-generated questions before 24 hours.
+    - >-
+      Adoption/engagement: ≥70% monthly active users; ≥60% of quotes initiated
+      via copilot by Month 3.
+    - 'Integration SLA: ERP integration live in ≤30 days for 80% of customers.'
+    - 'Net Revenue Retention: ≥115%; Gross churn: <8% annually.'
+    - 'Implementation NPS: ≥50 within 60 days; Support CSAT: ≥4.5/5.'
+storyBrand:
+  character: >-
+    Estimators and sales engineers at laminated plastics plate, sheet
+    (non‑packaging), and shape manufacturers who need to turn RFQs into
+    accurate, profitable quotes fast.
+  problem: >-
+    External: RFQs arrive in mixed formats with incomplete specs, custom layups,
+    and tight deadlines. Internal: teams feel rushed, error‑prone, and worried
+    about margin leakage. Philosophical: quoting complex laminates should be
+    precise and predictable, not guesswork.
+  guide: >-
+    We understand the laminated plastics quoting grind. Our AI copilot parses
+    RFQs, drawings, and specs; maps requirements to NEMA grades (e.g.,
+    G‑10/FR‑4, XX, CE, LE), UL 94, and ASTM D709; and encodes your materials,
+    stackups, routings, and cost rules. Human‑in‑the‑loop review, change
+    tracking, and integrations build trust.
+  plan: >-
+    Process: 1) Upload RFQs/drawings/specs; 2) Copilot proposes laminate
+    stackups/materials, routings, yields, and flags gaps; 3) It estimates cost
+    and lead time; 4) Drafts quote and clarifying questions; 5) You review,
+    approve, and send. Agreement: start with a pilot; keep data under your
+    control; role‑based access; ERP/PLM integration; full audit trail.
+  callToAction: >-
+    Direct: Book a demo and run a live RFQ. Transitional: Start a short pilot on
+    recent RFQs and get a laminated quoting checklist + sample quote pack.
+  success: >-
+    Faster quote turnaround, higher hit rates, protected margins, standardized
+    stackups and pricing, less rework, quicker onboarding of new estimators, and
+    buyers who trust your clear, complete quotes.
+  failure: >-
+    Without the copilot: missed deadlines, lost bids, inconsistent pricing,
+    preventable errors, margin erosion, and dependency on scarce tribal
+    knowledge.
+landingPage:
+  hero:
+    title: RFQs to Quotes in Minutes for Laminated Sheets & Shapes
+    subtitle: >-
+      AI copilot that reads RFQs, drawings, and specs; proposes laminate
+      stackups and materials; auto-estimates cost and lead time; drafts quotes
+      and clarifying questions.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - >-
+      RFQs arrive as messy emails/PDFs—manual data entry drains engineering
+      time.
+    - 'Slow, inconsistent quoting loses jobs and erodes margins.'
+    - Key know‑how is tribal; pricing varies by estimator.
+    - 'Missed spec gaps trigger rework, chargebacks, and delays.'
+    - Hard to evaluate stackup/material alternates under supply constraints.
+    - Lead-time and capacity guesses lead to overpromises or sandbagging.
+    - Copy/paste into ERP/CRM is error‑prone; approvals stall on version chaos.
+  solution:
+    - >-
+      Centralize RFQs and auto-extract line items, dims, tolerances, and
+      requirements.
+    - >-
+      AI proposes manufacturable laminate stackups with vetted material
+      alternates.
+    - >-
+      Instant cost and lead-time estimates using your rates, yields, and
+      press/machine capacity.
+    - Auto-drafted quotes and clarification questions—ready to send.
+    - Push quotes to ERP/CRM; create items and price breaks with one click.
+    - Continuously learns from wins/losses to sharpen pricing and cycle times.
+  features:
+    - >-
+      RFQ ingestion: email capture, drag‑and‑drop PDFs, DXF/DWG/STEP,
+      spreadsheets.
+    - >-
+      Drawing/spec understanding: thickness, ply counts, cores, resin systems,
+      FST/UL ratings, tolerances, edge finish, machining notes.
+    - >-
+      Material intelligence: in‑house library + supplier catalogs (FR‑4/G10,
+      phenolics, UHMW, PVC, ABS, polycarbonate, carbon/glass composites).
+    - >-
+      Stackup recommender: meets stiffness/thermal/dielectric targets; suggests
+      cost/availability alternates.
+    - >-
+      Cost engine: yield & scrap optimization (nesting), layup/press cycles,
+      machining time, tooling, finishing, QC, packaging, freight; overhead &
+      margin rules.
+    - >-
+      Lead‑time model: supplier LT, cure times, capacity calendars, WIP;
+      expedite scenarios.
+    - >-
+      Quote composer: branded PDFs/eQuotes, terms, Incoterms, MOQs, price
+      breaks, multi‑option quotes.
+    - >-
+      Clarification generator: flags missing tolerances, color/finish, FST
+      class, edge treatments, grain/cut direction, adhesive callouts.
+    - >-
+      DFM checks: min radii, hole limits, ply symmetry, void/warp risk, CTE
+      mismatch, flatness.
+    - 'Change control: revisions, approvals, audit trail, version compare.'
+    - >-
+      Integrations: Epicor, ECI/JobBOSS, NetSuite, QuickBooks, Salesforce,
+      HubSpot; CSV/API.
+    - >-
+      Security: SSO, role‑based access, encryption at rest/in transit; private
+      cloud/on‑prem options.
+  steps:
+    - Connect your RFQ inbox or drag‑and‑drop files.
+    - AI parses RFQs and builds structured items with proposed stackups.
+    - >-
+      Review costs, lead times, and DFM flags; tweak rates and materials as
+      needed.
+    - Generate polished quotes and auto‑crafted clarification questions.
+    - Send and track customer views/answers; sync to ERP/CRM.
+    - 'Win/loss feedback updates pricing, cycle times, and material preferences.'
+---
+# RFQ-to-Quote Copilot for Laminated Sheets & Shapes
+
+Industry: Laminated Plastics Plate, Sheet (except Packaging), and Shape Manufacturing
+Service: RFQ-to-Quote Copilot for Laminated Sheets & Shapes

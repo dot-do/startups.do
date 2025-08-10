@@ -1,0 +1,288 @@
+---
+name: MaltGuard AI — Early Quality Prediction and Release Risk Scoring
+slug: maltguard
+service:
+  title: Early Quality Prediction and Release Risk Scoring
+  description: >-
+    Predicts final malt specs (e.g., moisture, color, FAN, DP) mid-process to
+    adjust and reduce off-spec risk.
+  targetUsers:
+    - Quality Manager
+    - Head Maltster
+    - Process Engineer
+  triggers:
+    - End of steep or mid-germination
+    - Lab spot results uploaded
+    - Significant process deviation detected
+  inputs:
+    - Process variables by phase
+    - 'Mid-process lab measures (moisture, temp, CO2)'
+    - Historical final COAs and batch metadata
+    - Barley lot characteristics
+  steps:
+    - 'Assemble feature store linking process, lab, and outcomes'
+    - Train supervised regressors per spec with calibration
+    - Score live batches for probability of meeting spec
+    - 'Recommend adjustments (e.g., air/heat profiles, durations)'
+    - Flag high-risk lots for additional sampling
+    - Track realized vs predicted for continuous learning
+  tools:
+    - XGBoost/LightGBM
+    - SHAP for explainability
+    - Python/pandas
+    - LIMS integration (CSV/API)
+    - Dashboard (Metabase/Looker Studio)
+  outputs:
+    - Spec achievement probabilities with error bands
+    - Adjustment suggestions per batch/phase
+    - COA risk dashboard
+    - Model drift/accuracy report
+  pricingModel:
+    - One-time setup
+    - Monthly subscription per site
+    - Optional bonus for reduced off-spec rate
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Spec drift with new barley varieties
+    - Limited mid-process lab data
+    - Over-reliance on model without operator judgment
+  dependencies:
+    - Access to LIMS and final COA data
+    - Process historian linkage to batches/lots
+    - SOP-approved adjustment playbooks
+leanCanvas:
+  problem:
+    - >-
+      Long feedback loop: final malt QC results are often known 12–48 hours
+      after kilning, limiting ability to correct mid-batch.
+    - >-
+      Off-spec and downgrades: 1–5% of lots require rework/blending or are
+      downgraded; a rejected 150–250 t lot can cost $60k–$150k in lost margin
+      and delay brewery deliveries.
+    - >-
+      High variability: crop year, variety, field, and storage conditions shift
+      moisture uptake, modification rate, FAN, DP, color, leading to operator
+      over- or under-processing.
+    - >-
+      Silo/bed heterogeneity: uneven moisture/temperature and airflow create
+      intra-bed variance, causing spec stack-ups that lab sampling misses.
+    - >-
+      Energy and time waste: conservative over-kilning and extended germination
+      add 2–6% energy/time with no quality gain.
+    - >-
+      Limited predictive tools: existing MES/SCADA trend charts and end-of-line
+      NIR lack domain-specific prediction and prescriptive guidance mid-process.
+  solution:
+    - >-
+      Edge-connected AI models ingest process and sensor data (NIR, temp/RH,
+      airflow, CO2, bed depth, moisture probes, turning schedule) to predict
+      final specs with quantified uncertainty.
+    - >-
+      Release Risk Score per batch/SKU: probability of failing contract specs,
+      weighted by commercial impact (penalties, downgrade price, customer
+      priority).
+    - >-
+      Prescriptive actions: dynamic kiln profile tweaks, germination
+      extension/shortening, turning rate, airflow/recirculation, blending
+      suggestions with confidence and expected impact on each spec.
+    - >-
+      What-if simulation: test recipe and schedule changes before executing,
+      with predicted deltas for moisture, color (EBC/SRM), FAN (mg/L), DP
+      (WK/Lintner), extract, and energy use.
+    - >-
+      Integration with LIMS/MES/SCADA for automatic data pulls and pushback of
+      setpoint recommendations; OPC UA/MQTT-enabled edge gateway for secure OT
+      connectivity.
+    - >-
+      Model governance: per-plant calibration library, variety/crop-year drift
+      detection, and semi-automated recalibration workflows aligned to ASBC/EBC
+      methods.
+    - >-
+      Batch genealogy and audit trail: from barley lot intake to final QC
+      results and customer shipment for traceability and continuous improvement.
+  uniqueValueProp: >-
+    Prevent off-spec malt before it happens. Predict final specs (moisture,
+    color, FAN, DP, extract, beta-glucans, friability) 6–24 hours before batch
+    completion, quantify release risk by customer SKU, and recommend targeted
+    adjustments to maximize first-pass yield, on-time release, and margin.
+  unfairAdvantage: >-
+    Plant-calibrated, physics-informed ML trained on cross-site datasets that
+    predict earlier in the process with calibrated uncertainty and prescriptive
+    actions, coupled with OEM/SI integrations and verified ROI case studies.
+    Competitors offer general analytics or end-of-line QC, not mid-process
+    prediction plus actionable playbooks and risk-sharing contracts.
+  customerSegments:
+    - Global malting groups operating multi-site plants (100k–500k t/y each).
+    - Regional and independent malthouses (20k–100k t/y).
+    - >-
+      Craft malthsters (2k–20k t/y) seeking premium consistency and
+      certification.
+    - Breweries/distilleries with captive maltings.
+    - >-
+      OEMs and system integrators for malting equipment, kilns, and controls
+      (partnership channel).
+  channels:
+    - >-
+      Direct enterprise sales to top malting groups; multi-plant framework
+      agreements.
+    - >-
+      Pilot-led sales motion for regional/craft malting; 8–12 week paid pilots
+      with ROI targets.
+    - >-
+      OEM partnerships with malting/kiln and controls vendors for co-selling and
+      pre-integration.
+    - System integrator alliances for on-site deployment and OT connectivity.
+    - >-
+      Industry associations and events: EBC Congress, World Brewing Congress,
+      BrauBeviale, Drinktec, MaltCon.
+    - >-
+      Content-led demand gen: technical whitepapers (case studies on off-spec
+      reduction), webinars with process engineers, ROI calculator, and operator
+      playbooks.
+    - >-
+      Customer references via breweries/distilleries requiring tighter specs to
+      pull adoption through supply chain.
+  revenueStreams:
+    - >-
+      SaaS subscription per site, tiered by annual capacity (e.g., Small ≤30k
+      t/y $40k ARR; Medium 30–150k t/y $80k–$150k ARR; Large >150k t/y
+      $180k–$300k ARR).
+    - >-
+      One-time onboarding/integration fee per plant $40k–$120k depending on
+      complexity and connector scope.
+    - >-
+      Optional per-ton fee for variable usage ($0.10–$0.30/t) in lieu of higher
+      fixed ARR for craft/regional sites.
+    - >-
+      Performance-based bonus/credit: share of verified downgrade/rework savings
+      (e.g., 10–20%) with floor/ceiling.
+    - >-
+      Professional services: model recalibration, multi-site rollout, operator
+      training, custom reports ($5k–$25k per engagement).
+    - >-
+      Premium add-ons: ESG/energy optimizer, enterprise analytics, data lake
+      integration.
+  costStructure:
+    - >-
+      R&D and model development: $2–4M/year (data science, MLOps, process
+      engineering).
+    - >-
+      Implementation and customer success: $250k–$600k/year per 8–12 active
+      plants (field engineers, calibration scientists).
+    - >-
+      Cloud and data infrastructure: $8k–$20k/site/year (depends on data rates,
+      retention, redundancy).
+    - >-
+      Edge hardware and gateway kits (if supplied): $5k–$15k/site upfront;
+      spares/maintenance $1k–$3k/year.
+    - >-
+      Sales and marketing: enterprise AE/SE teams, events, travel
+      ($500k–$1.5M/year at scale).
+    - >-
+      Liability and product insurance; ISO/SOC2 compliance; legal for
+      data-sharing and performance-based contracts.
+    - Partner commissions for OEM/SI co-selling (10–20% of ARR on first year).
+  keyMetrics:
+    - >-
+      Quality outcomes: off-spec/downgrade rate (% of lots); target 20–40%
+      relative reduction within 6 months of go-live.
+    - >-
+      First-pass release rate (FPR) and spec capability (Ppk/Cpk) for moisture,
+      color, FAN, DP, extract; target Ppk ≥1.33 on critical-to-quality specs.
+    - Rework and blending tonnage reduced (t/month) and recovered margin ($/t).
+    - >-
+      Prediction performance: MAE/RMSE per spec; prediction horizon achieved (h
+      before end); model confidence coverage calibration (e.g., 95% PI
+      coverage).
+    - >-
+      Operational: intervention adoption rate (% of recommended actions
+      executed); cycle time variance; on-time release %.
+    - >-
+      Financial: ARR/site, gross margin %, net revenue retention (NRR >115%),
+      logo retention (>95%), CAC payback (<12 months).
+    - >-
+      Sustainability: energy intensity (kWh/t) and CO2/t reduction; target 2–5%
+      energy savings from optimized kilning.
+    - >-
+      Reliability: system uptime >99.5%; data latency <60 s; integration lead
+      time ≤8 weeks/site.
+storyBrand:
+  character: >-
+    Malt plant managers and quality leaders who must release every batch on
+    spec, on time, with minimal rework.
+  problem: >-
+    Final specs (moisture, color, FAN, DP) are only known late, forcing holds,
+    blends, and rework; teams fly blind mid-process under pressure; quality
+    shouldn’t depend on end-of-kiln guesswork.
+  guide: >-
+    We’re malt operations and data/AI specialists who understand batch
+    variability. Our models are calibrated on your historical process and lab
+    data, validated before go-live, and delivered with clear, actionable
+    guidance.
+  plan: >-
+    1) Connect process and lab data streams; 2) Calibrate and validate
+    early-spec prediction and Release Risk Score on your history; 3) Go live
+    with real-time predictions and adjustment recommendations.
+  callToAction: >-
+    Start a 60-day pilot on one kiln/line to quantify on-spec lift and risk
+    reduction.
+  success: >-
+    See specs days earlier, adjust steep/germ/kiln to hit targets, raise on-spec
+    release rate, cut rework and energy, stabilize schedules, and earn brewer
+    confidence.
+  failure: >-
+    Keep discovering off-spec at release, paying for blends/scrap, missing
+    shipments, and eroding margins with every surprised batch.
+landingPage:
+  hero:
+    title: Predict Final Malt Specs Mid‑Process
+    subtitle: >-
+      AI forecasts moisture, color, FAN, and DP during steeping, germination,
+      and kilning—so you can adjust early, cut off‑spec risk, and accelerate
+      release.
+    ctaText: Schedule a Demo
+    ctaHref: /demo
+  problem:
+    - Final specs known only at end—too late to fix
+    - 'Off‑spec batches drive rework, blending, lost margin'
+    - Manual trend watching; insights arrive after shifts
+    - Variable barley lots make setpoints a moving target
+    - Energy and time wasted finishing doomed batches
+    - Release decisions stall shipments and cash flow
+    - Rising demands for traceability and auditability
+  solution:
+    - Predict final specs hours before kilning completes
+    - Continuous Release Risk Score for every batch
+    - Actionable setpoint guidance to stay within spec
+    - Confidence bands to quantify prediction uncertainty
+    - Alerts when risk spikes—mobile and control room
+    - Faster QA handoff via LIMS/MES integrations
+    - What‑if simulation before changing parameters
+  features:
+    - 'Spec forecasts: moisture, color (EBC/SRM), FAN, DP'
+    - Release Risk Score (0–100) with top drivers explained
+    - 'Recommendations for airflow, temperature, rests, turns'
+    - 'Integrations: SCADA/PLC, historians, LIMS, MES'
+    - Edge or cloud deployment with offline buffering
+    - Model retraining for new barley lots and seasons
+    - 'Batch timeline: predicted vs. actual with drift flags'
+    - 'Role‑based access, full audit trail, and SSO'
+    - Alarm tuning and anomaly detection to cut noise
+    - Encrypted data in transit and at rest; API access
+  steps:
+    - 'Connect sensors, historian, and lab data'
+    - Train models on your historical batches
+    - Run in shadow mode to validate accuracy
+    - Go live with risk scoring and recommendations
+    - Tune guardrails with QA and operations
+    - 'Track impact: off‑spec, energy, cycle time'
+    - Continuously update models as inputs change
+---
+# MaltGuard AI — Early Quality Prediction and Release Risk Scoring
+
+Industry: Malt Manufacturing
+Service: Early Quality Prediction and Release Risk Scoring

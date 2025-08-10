@@ -1,0 +1,326 @@
+---
+name: PlateQuote AI — RFQ-to-Quote Assistant for Plate Fabrication
+slug: platequote
+service:
+  title: RFQ-to-Quote Assistant for Plate Fabrication
+  description: >-
+    Turn customer RFQs (drawings + specs) into itemized quotes with material,
+    cutting, bending, welding, finishing, and freight estimates.
+  targetUsers:
+    - Estimators
+    - Sales Engineers
+    - Owners/GM
+  triggers:
+    - New RFQ email or portal upload
+    - 'Files dropped into a watched folder (e.g., SharePoint/Drive/FTP)'
+  inputs:
+    - PDF drawings and specs
+    - DXF/STEP/IGES part files
+    - Quantities and delivery address
+    - Material grade/thickness/finish/tolerance notes
+    - Any weld procedure or test requirements
+  steps:
+    - Ingest files; OCR and text-structure extraction
+    - >-
+      Parse CAD/2D to identify thickness, bend lines, holes, weld symbols,
+      lengths
+    - Preliminary nesting and cut-time estimate by material/thickness
+    - Estimate welding and fit-up based on joint length/type and access
+    - >-
+      Add forming, machining, coating, handling, and QA based on routing
+      templates
+    - Calculate lead time/critical path; flag risk items
+    - Generate itemized quote with notes; optional human review
+    - Email/PDF output and CRM/ERP write-back
+  tools:
+    - OCR (AWS Textract/Tesseract)
+    - CAD kernel (OpenCascade)
+    - >-
+      Nesting engine (e.g., DeepNest CLI/NestFab or integration to SigmaNEST via
+      file exchange)
+    - Python cost model; Google OR-Tools for lead-time check
+    - OpenAI/LLM for spec extraction
+    - 'Email/CRM/ERP API (e.g., JobBOSS/Epicor/SAP B1)'
+  outputs:
+    - Itemized quote PDF/HTML
+    - Cost breakdown CSV (material/cut/form/weld/finish/freight)
+    - Preliminary nest images (DXF/PNG) with utilization
+    - Risk/assumption notes
+  pricingModel:
+    - Per-RFQ fee (tiered by part count/complexity)
+    - Subscription with monthly RFQ volume cap
+    - One-time setup for rate tables and templates
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 4
+    overall: 4.5
+  risks:
+    - Misread drawings/specs causing underquote
+    - Unknown customer tolerances or coatings
+    - Liability for delivery commitments
+    - Data/IP confidentiality
+  dependencies:
+    - Accurate machine rates and labor multipliers
+    - Current plate and consumable price lists
+    - Shipping rate API or tables
+    - Access to ERP/CRM for quote sync
+leanCanvas:
+  problem:
+    - >-
+      RFQ-to-quote cycle is slow (median 1–3 hours/RFQ) causing lost bids when
+      customers expect responses within 24 hours.
+    - >-
+      High estimator labor cost and shortages; 1 estimator typically processes
+      only 6–12 RFQs/day.
+    - >-
+      Manual parsing of PDFs/CAD leads to errors (missing bends/welds/finishes)
+      causing 3–7 percentage points margin leakage and rework.
+    - >-
+      Material price volatility and poor nesting estimates lead to 5–12% scrap
+      variance and inaccurate material costs.
+    - >-
+      Fragmented process across email, CAD, spreadsheets, nesting software, and
+      ERP increases manual touchpoints (8–15 per RFQ) and quote version
+      confusion.
+    - >-
+      Lack of consistent cost models across cutting, bending, welding,
+      finishing, and freight creates inconsistent pricing and slow approvals.
+    - >-
+      Difficulty integrating with ERP/MRP (JobBOSS2, E2 Shoptech, Global Shop,
+      ProShop, Epicor) leads to double entry and data silos.
+    - >-
+      Compliance/security requirements (ISO 9001, ITAR/CMMC in defense work)
+      make cloud tools risky without proper controls.
+  solution:
+    - >-
+      Ingest and normalize RFQs from email/portal: PDFs, DXF/DWG, STEP/IGES,
+      BOMs, spec sheets; auto-detect part counts and revisions.
+    - >-
+      Extract manufacturing features: plate thickness/material, cut
+      lengths/holes, bend lines/angles, weld types/lengths, finish specs (blast,
+      paint, powder, galvanize), tolerances, QA notes.
+    - >-
+      Run cost models: auto-nesting for material yield; machine-specific
+      cut-time (laser/plasma/waterjet) with pierce counts; press brake setup/run
+      time; weld process (MIG/TIG/SAW) time from joint length/position;
+      finishing cycle times; packaging and quality; overhead and markup rules.
+    - >-
+      Fetch material prices (live APIs or vendor price sheets), compute freight
+      via LTL estimates from weight/dims and destination, and apply
+      customer-specific pricing tiers.
+    - >-
+      Generate itemized quote with alternates/options, lead times, and risk
+      buffers; one-click sync to ERP for routing, BOM, and CRM follow-up.
+    - >-
+      Closed-loop calibration: compare estimates to actuals (clocked times,
+      drops/scrap, buy costs) to continuously tighten accuracy per machine,
+      material, and estimator.
+  uniqueValueProp: >-
+    Turn unstructured RFQs (drawings + specs) into calibrated, itemized quotes
+    in minutes—covering material, cutting, bending, welding, finishing, and
+    freight—integrated to your ERP, with accuracy that improves from your shop’s
+    historicals.
+  unfairAdvantage: >-
+    Closed-loop accuracy improvement driven by each shop’s actuals (clocked
+    times, buy costs, scrap), yielding a proprietary dataset and per-machine
+    calibration that is hard to replicate; deep ERP/nesting integrations and
+    ITAR/private cloud support create switching costs and trust moats.
+  customerSegments:
+    - >-
+      Plate work fabrication shops (NAICS 332313) with 10–250 employees, serving
+      heavy equipment, construction, energy, mining, ag, and defense.
+    - >-
+      Sheet/plate job shops with CNC plasma/oxyfuel/laser/waterjet and press
+      brakes; frequent RFQs (10–100 per week).
+    - >-
+      Titles: Estimator, Sales Engineer, Operations Manager, Owner/GM, Inside
+      Sales.
+    - >-
+      ERP-enabled shops using JobBOSS2, E2 Shoptech, ProShop ERP, Global Shop
+      Solutions, Epicor Kinetic, NetSuite.
+    - >-
+      Contract manufacturers producing weldments, bases, frames, tanks, chutes,
+      brackets, and plate assemblies with finishing requirements.
+  channels:
+    - >-
+      Founder-led sales to 50 target shops to secure design partners; warm
+      intros via suppliers and ERP VARs.
+    - >-
+      Partnerships with ERP vendors (JobBOSS2, E2, ProShop, Global Shop, Epicor)
+      and nesting/CAD vendors (SigmaNEST, Lantek, Hypertherm ProNest) for
+      co-marketing and integrations.
+    - >-
+      Industry associations and events: FMA membership, exhibit at FABTECH;
+      webinars with case studies; sponsor estimator roundtables.
+    - >-
+      Outbound SDR to NAICS 332313/332322 lists; cadenced email + phone to
+      Estimators/Operations leaders; demo-led selling with ROI calculators.
+    - >-
+      Content-led growth: quoting benchmarks report; interactive online
+      cutting/welding time calculators; YouTube teardown of sample RFQs.
+    - >-
+      Freemium tools: free RFQ inbox triage and spec extraction for up to 20
+      parts/month to generate leads.
+    - >-
+      Referral program: 10% discount for 12 months for both referrer and
+      referee; supplier channel incentives.
+  revenueStreams:
+    - >-
+      SaaS subscription (tiered by RFQ volume and seats): Starter $300/month (up
+      to 50 RFQs), Pro $800/month (up to 250 RFQs), Scale $1,800/month (up to
+      1,000 RFQs), Enterprise custom.
+    - >-
+      Usage overage: $0.75–$2.00 per additional RFQ processed, with volume
+      discounts.
+    - >-
+      Implementation/onboarding: $2,000–$15,000 one-time depending on
+      integrations, data migration, and calibration scope.
+    - >-
+      Premium modules: Advanced nesting optimizer (+$300/month), ITAR/private
+      cloud hosting (+$1,500/month), Advanced analytics (+$200/month).
+    - >-
+      Professional services: Custom integrations, historical job analysis,
+      estimator training workshops ($150–$250/hour).
+  costStructure:
+    - >-
+      R&D: ML engineers, CAD/geometry specialists, back-end engineers, product
+      design ($200k–$400k/month at scale).
+    - >-
+      Cloud compute and storage: AI inference, CAD processing, nesting
+      optimization ($3–$8 per 100 RFQs; target COGS < 20% of ARR).
+    - >-
+      Third-party libraries/licensing: CAD parsers, nesting kernels,
+      security/compliance tooling ($5k–$20k/month).
+    - >-
+      Sales & marketing: SDRs, AEs, events (FABTECH booth ~$25k), content
+      production, partner MDF ($80k–$200k/month).
+    - >-
+      Customer success & support: onboarding managers, technical support,
+      solution architects ($60k–$120k/month).
+    - >-
+      Compliance & security: SOC 2 audits, pen tests, ITAR/private cloud
+      environments ($5k–$25k/month).
+    - >-
+      G&A: legal (ITAR, data processing agreements), finance, HR, insurance
+      ($30k–$80k/month).
+  keyMetrics:
+    - >-
+      Product accuracy: feature extraction precision/recall > 95% on
+      bends/holes; cut-time MAPE < 10%; weld-time MAPE < 15% after 60 days of
+      calibration.
+    - >-
+      Cycle time: median time from RFQ import to draft quote < 10 minutes; 90th
+      percentile < 30 minutes.
+    - >-
+      Estimator productivity: quotes per estimator per day +2× within 90 days;
+      manual touch time < 20 minutes/RFQ.
+    - >-
+      Win rate: increase by 2–5 percentage points due to faster response and
+      consistent pricing; measure by customer segment.
+    - >-
+      Margin control: estimate vs actual gross margin variance < ±3 percentage
+      points on closed jobs.
+    - >-
+      Adoption: % RFQs auto-parsed without manual fix > 80% by day 30; % quotes
+      sent within 24 hours > 90%.
+    - >-
+      Data coverage: % of RFQs with freight estimates > 95%; % with finishing
+      estimates > 90%.
+    - >-
+      Business KPIs: ARR, NRR > 110%, gross margin > 70%, CAC payback < 12
+      months, logo churn < 10% annually, sales cycle < 60 days.
+    - >-
+      GTM funnel: demo-to-trial conversion > 40%, trial-to-paid > 30%, average
+      ACV $9k–$25k.
+storyBrand:
+  character: >-
+    Estimators and owners at plate fabrication shops who need to turn customer
+    RFQs (drawings + specs) into accurate quotes fast.
+  problem: >-
+    RFQs arrive in multiple formats and high volume; manual takeoffs are slow
+    and inconsistent, causing missed deadlines, pricing errors, and margin
+    erosion—when quoting should be predictable and quick.
+  guide: >-
+    RFQ-to-Quote Assistant is plate-work–trained AI that understands nesting,
+    heat codes, routings, and shop rates; we get your day-to-day and bring
+    proven costing models validated across thousands of quotes.
+  plan: >-
+    1) Upload PDFs/CAD/specs. 2) AI extracts geometry and BOM, then costs
+    material, cutting, bending, welding, finishing, and freight using your rates
+    and rules. 3) You review, adjust, and export the itemized quote to ERP/CRM.
+  callToAction: >-
+    Start a free trial or book a 20-minute demo; send one RFQ and get a
+    ready-to-send quote in minutes.
+  success: >-
+    Respond 5–10x faster, raise win rates, standardize pricing, protect margins,
+    free up estimator time, and deliver clear, professional, itemized quotes
+    customers trust.
+  failure: >-
+    Keep missing bids, mispricing jobs, burning estimator hours, and watching
+    profits slip as RFQs pile up.
+landingPage:
+  hero:
+    title: RFQ-to-Quote Assistant for Plate Fabrication
+    subtitle: >-
+      Turn drawings and specs into itemized quotes—material, cutting, bending,
+      welding, finishing, and freight—calculated in minutes.
+    ctaText: Upload an RFQ
+    ctaHref: /upload-rfq
+  problem:
+    - Quoting takes hours or days; buyers expect same-day responses.
+    - Manual takeoffs from PDFs/DXFs cause errors and rework.
+    - Inconsistent estimates eat margin or lose bids.
+    - Estimator bottlenecks and tribal knowledge slow throughput.
+    - 'Weld lengths, nests, and finishing are hard to estimate consistently.'
+    - 'Freight and taxes get missed, creating surprises later.'
+    - Revisions create version chaos and pricing confusion.
+    - 'No quick way to compare options, alternates, or what-if scenarios.'
+  solution:
+    - >-
+      Parse RFQs to extract parts, materials, thicknesses, quantities, and
+      tolerances.
+    - >-
+      Auto-build routings for cutting, bending, welding, finishing, and
+      packaging.
+    - >-
+      Calculate times, consumables, and costs using your machines and shop
+      rates.
+    - Optimize sheet nesting to cut waste and protect margins.
+    - 'Include freight and taxes with weight, dims, and carrier zone rules.'
+    - >-
+      Output itemized, customer-ready quotes with controlled margins and
+      approvals.
+    - Continuously learn from past jobs to tighten accuracy over time.
+    - Sync quotes to ERP/CRM and convert to work orders on acceptance.
+  features:
+    - PDF/DXF/DWG parsing and BOM extraction
+    - 2D viewer with dimension detection and weld length calculation
+    - Auto nesting for plasma/laser/waterjet with remnant tracking
+    - Material library with supplier price feeds and grade/heat control
+    - 'Routing templates for cut, form, weld, drill, tap, bevel'
+    - Parametric cycle-time models; per-part and per-operation overrides
+    - 'Finishing modules: blast, paint, powder coat, galvanize'
+    - 'Freight estimator by weight, dims, pallets, and zones (LTL/parcel)'
+    - 'Margin guardrails, multi-tier pricing, and approval workflows'
+    - 'Quote templates with options, alternates, and lead-time choices'
+    - Branded quote PDFs and online acceptance with e-sign
+    - Revision control and full audit trail
+    - 'Integrations: JobBOSS, E2, ProShop, Odoo, NetSuite, Acumatica (API/CSV)'
+    - 'Multi-currency, imperial/metric units, and tax rules'
+    - 'Role-based access, SSO, and SOC 2-ready security'
+    - Cloud or private deployment
+    - 'Analytics on win rates, cycle times, and material utilization'
+    - RFQ email inbox ingestion and auto-assignment
+  steps:
+    - 'Upload RFQ files (PDF, DXF/DWG, specs).'
+    - AI extracts parts and builds an itemized BOM and routings.
+    - 'Review materials, machines, and rates; apply shop overrides.'
+    - Generate optimized nests; confirm cut paths and drop usage.
+    - Add finishing and freight; set margins and terms.
+    - Create and send the branded quote; sync to ERP on win.
+---
+# PlateQuote AI — RFQ-to-Quote Assistant for Plate Fabrication
+
+Industry: Plate Work Manufacturing
+Service: RFQ-to-Quote Assistant for Plate Fabrication

@@ -1,0 +1,360 @@
+---
+name: ParamForge AI
+slug: paramforge
+service:
+  title: Extrusion/Draw Parameter Recommender
+  description: >-
+    Learns from historical runs to suggest starting setpoints (billet/furnace
+    temp, ram speed, reduction schedule, lubricant) by alloy/profile.
+  targetUsers:
+    - Process Engineer
+    - Press Supervisor
+    - Quality Engineer
+  triggers:
+    - New run/changeover
+    - New die commissioned
+    - Spec change or recurring scrap cause
+  inputs:
+    - 'Historical process logs (temps, speeds, pressures)'
+    - Die ID and profile geometry metrics
+    - Alloy and billet size
+    - 'Prior run outcomes (rate, scrap, defects)'
+    - Ambient and furnace performance data
+  steps:
+    - Clean/align run data and outcomes
+    - Fit gradient-boosted models and Bayesian optimizer within safe limits
+    - Retrieve similar-run playbooks/notes via embeddings
+    - Propose bounded setpoints with confidence and guardrails
+    - Engineer review/approval
+    - Capture feedback to retrain
+  tools:
+    - Python
+    - XGBoost/LightGBM
+    - Weights & Biases
+    - MES/SCADA via OPC UA/PI Web API
+    - Vector DB (FAISS/pgvector)
+  outputs:
+    - Recommended parameter set with bounds
+    - Expected throughput and yield impact
+    - Comparable historical runs
+  pricingModel:
+    - Per-press subscription + setup
+    - Optional gainshare on scrap/throughput improvement
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 7
+    modelCapability: 7
+    overall: 7
+  risks:
+    - Safety/quality if setpoints misapplied
+    - Sparse data per die/profile
+    - Drift with tooling wear
+  dependencies:
+    - Historian/MES logs
+    - Standard operating limits by alloy/die
+    - Run outcome labeling
+leanCanvas:
+  problem:
+    - >-
+      Nonferrous (Ni/Ti/Mg/Zn/refractory) extrusion/drawing/rolling shops rely
+      on tribal knowledge and static runbooks, causing inconsistent start-up
+      conditions and extended trial-and-error on new alloys/profiles.
+    - >-
+      High scrap/rework (often 5–15% on high-value Ni/Ti and refractory runs)
+      due to poor initial setpoints for billet/furnace temp, ram speed,
+      reduction schedule, and lubricant selection.
+    - >-
+      Long setup and qualification cycles (3–10 trials to hit spec for new
+      profiles or heat lots), tying up presses/mills and delaying deliveries.
+    - >-
+      Insufficient capture of context (heat chemistry, billet lot history, die
+      wear state, ambient conditions), making learnings non-transferable and
+      limiting continuous improvement.
+    - >-
+      Existing tools (finite element simulators, generic analytics) are offline,
+      slow, or require specialized expertise, and do not give on-press, safe,
+      and explainable starting setpoints.
+    - >-
+      Data is fragmented across MES/PLC/historian/LIMS/quality systems;
+      integration and cleaning are major barriers to AI adoption in harsh plant
+      environments.
+    - >-
+      Risk aversion in critical applications (aerospace, medical, energy)
+      requires guardrails and traceability that most AI tools do not provide.
+  solution:
+    - >-
+      Data connectors unify historical run data (MES/ERP orders, PLC/SCADA tags,
+      historian time series, LIMS chemistry, quality/NDT results, die ledger,
+      ambient data).
+    - >-
+      Feature engineering per run: alloy family and precise chemistry, billet
+      history (cast/forge/soak), die ID and wear cycles, extrusion ratio, prior
+      pass reductions, lube type/condition, container/die/billet temps,
+      speed/ram pressure traces, backpressure, breakdown/load events.
+    - >-
+      Alloy-profile recommender: proposes initial billet/furnace temperatures,
+      container/die temps, ram speed curve, reduction schedule, and lubricant
+      selection with uncertainty bounds and rationale.
+    - >-
+      Physics- and standards-informed guardrails: metallurgical constraints
+      (e.g., beta-transus/two-phase windows for Ti, incipient melt margins for
+      Ni, Mg oxidation risk windows) to prevent unsafe suggestions.
+    - >-
+      What-if and scenario planning: simulate expected quality risks (surface
+      defects, dimensional variance, microstructure proxies) vs. setpoint
+      changes before committing.
+    - >-
+      Closed-loop learning: capture operator overrides, actual outcomes, and NDT
+      results to continuously update models; per-shift performance feedback.
+    - >-
+      On-press/MES UI: minimal-click recommendation acceptance with
+      traceability; export setpoints to PLC where allowed; generate electronic
+      run cards.
+    - >-
+      Explainability and audit: reason codes, influential factors, and
+      compliance-ready logs for AS9100/ISO 9001 audits.
+    - >-
+      Deployment options: on-prem or hybrid; ITAR/EAR-ready data isolation;
+      SSO/AD integration; API/OPC UA connectors.
+  uniqueValueProp: >-
+    AI that learns from your historical runs to recommend safe, explainable
+    starting setpoints by alloy/profile — cutting scrap 15–30%, reducing
+    trials-to-spec by 50%, and shortening setups 25–40% within 90 days, with
+    on-prem options and metallurgical guardrails for critical applications.
+  unfairAdvantage: >-
+    Physics-informed, alloy-specific constraint engine combined with explainable
+    recommender models built from real plant data, delivered on-prem with
+    OEM/lube partnerships. Team combines AI, metallurgical expertise, and
+    ex-operator know-how, enabling safe, trusted, and quickly adopted
+    recommendations in critical applications where generic AI tools struggle.
+  customerSegments:
+    - >-
+      Primary: Nonferrous extrusion shops for nickel superalloys, titanium,
+      magnesium, zinc, cobalt, zirconium/niobium/tantalum — bars, tubes, wire,
+      and custom profiles.
+    - >-
+      Secondary: Nonferrous cold-draw wire/tube mills handling Ni/Ti/Mg/Zn and
+      specialty precious metals for medical and electronics.
+    - >-
+      Tertiary: Integrated mills with both hot and cold operations seeking
+      closed-loop optimization and knowledge capture across processes.
+    - >-
+      Economic buyers: VP/Director of Operations, Plant Manager, CTO/Head of
+      Manufacturing Engineering.
+    - >-
+      Champions: Process/Metallurgical Engineers, Quality Managers, Continuous
+      Improvement leaders.
+    - >-
+      Influencers: Die and lubricant suppliers, OEM press/mill vendors,
+      MES/SCADA owners, IT/OT security leads.
+  channels:
+    - >-
+      Direct enterprise sales to mid-market and enterprise mills/extruders
+      (North America, EU, Japan).
+    - >-
+      OEM partnerships with extrusion press/mill vendors for co-selling and
+      factory acceptance test bundles.
+    - >-
+      Alliances with lubricant suppliers and die shops to embed recommendations
+      into their technical service programs.
+    - >-
+      Systems integrators (SI) for MES/SCADA integration in regulated
+      environments.
+    - >-
+      Industry events and associations: TMS Annual Meeting, International
+      Titanium Association (ITA), Wire & Tube Düsseldorf, FABTECH, IMA
+      (Magnesium), ASM/TMS local chapters.
+    - >-
+      Content-led marketing: case studies with quantified savings, webinars with
+      metallurgists/operators, whitepapers on physics-informed AI for Ni/Ti.
+    - >-
+      Land-and-expand: start with 1–2 lines and high-value alloys, then roll out
+      across lines/plants.
+  revenueStreams:
+    - >-
+      SaaS subscription per line/press: $30k–$60k per line per year (tiered by
+      functionality and volume).
+    - >-
+      Enterprise license for multi-site deployments: $300k–$1.2m annually
+      depending on number of lines and modules.
+    - >-
+      One-time implementation/integration fee: $80k–$250k per site (data
+      connectors, model onboarding, validation).
+    - >-
+      Optional success fee: 10–20% of verified first-year savings above
+      baseline, capped at 2x subscription.
+    - >-
+      Professional services: metallurgical consulting, custom physics
+      integration, model validation reports ($200–$300/hr).
+    - 'Training and certification for operators/engineers: $5k–$20k per cohort.'
+    - >-
+      Hardware add-ons (optional): edge gateways, thermal sensors, lube
+      monitoring kits — cost-plus or rental.
+  costStructure:
+    - >-
+      R&D: ML engineers, metallurgists, and software developers ($3–5m/yr at
+      scale).
+    - >-
+      Implementation and support: field engineers, SIs, travel to plants
+      ($5k–$20k per deployment).
+    - >-
+      Hosting/infra: on-prem support toolchain, edge devices, cloud model
+      registry and CI/CD ($15k–$50k per site/yr).
+    - >-
+      Sales and marketing: conferences, pilots, POCs, partner MDF
+      ($500k–$1.5m/yr).
+    - >-
+      Security and compliance: pen tests, SOC 2/ISO 27001, ITAR/EAR processes
+      ($150k–$400k/yr).
+    - Liability and product insurance for industrial operations.
+    - Partner/OEM commissions (10–20% of first-year contract).
+    - >-
+      Ongoing model maintenance and customer success (1 FTE per 4–6 active
+      sites).
+  keyMetrics:
+    - >-
+      Scrap and rework rate reduction on targeted profiles (% and $/month).
+      Target: 15–30% reduction within 6 months.
+    - >-
+      Trials-to-spec per new profile or heat lot. Baseline 3–5; target 1–2
+      within 3 months.
+    - 'Setup time to first good run (minutes). Target: 25–40% reduction.'
+    - >-
+      Throughput/press productivity (kg/hour) on constrained lines. Target:
+      +5–12%.
+    - >-
+      Die life (runs or kg per die) and lube consumption per kg. Target: +10–20%
+      die life; −5–10% lube usage.
+    - 'Energy intensity (kWh/kg). Target: −5–10% within 6 months.'
+    - >-
+      Recommendation adoption rate (% of runs using accepted setpoints). Target:
+      >70% by month 4.
+    - >-
+      Recommendation acceptance vs. override rate; reasons for override captured
+      >90% of time.
+    - >-
+      Model accuracy: MAPE for predicted exit temperature/pressure/defect risk
+      <10–15%; confidence calibration error <5%.
+    - >-
+      Time-to-first-recommendation after kick-off. Target: <6 weeks for first
+      alloy/profile.
+    - >-
+      Mean time to integrate a new alloy/profile into library. Target: <2 weeks
+      with 200+ labeled runs.
+    - >-
+      Security/SLA: system uptime >99.5% during production hours; incident
+      response <4 hours.
+storyBrand:
+  character: >-
+    Process engineers, metallurgists, and production leaders at nonferrous
+    (except copper and aluminum) rolling, drawing, and extrusion mills who need
+    the right starting parameters by alloy/profile to hit throughput, quality,
+    and delivery without endless trials.
+  problem: >-
+    - External: Choosing billet/furnace temps, ram or line speed, reduction
+    schedule, and lubricant for new alloys/profiles is slow and risky—leading to
+    scrap, breakages, die wear, and missed deliveries; tribal knowledge is
+    scattered.
+
+    - Internal: Teams feel pressure and uncertainty; onboarding new operators is
+    hard; nights/weekends firefighting.
+
+    - Philosophical: You shouldn’t have to guess and waste metal to learn what
+    your own plant already knows.
+  guide: >-
+    - Empathy: We understand the chaos of first-article runs, die changes, and
+    alloy variability across Mg, Ti, Ni, Zn, Pb/Sn, and specialty alloys.
+
+    - Authority: An AI recommender trained on your historical runs, QC results,
+    and die history; outputs validated, constraint-aware suggestions with
+    confidence; secure on-prem or cloud; proven to reduce trials and stabilize
+    quality.
+  plan: |-
+    - Process Plan:
+      1) Connect press/line logs, furnace data, QC/lab results, and die/tooling metadata.
+      2) Train by alloy, profile, and die to suggest starting setpoints (billet/furnace temp, ram/line speed, pass/reduction schedule, lubricant) with guardrails.
+      3) Pilot on one line and a few alloys; capture operator feedback after each run to improve.
+    - Agreement Plan:
+      - Your data stays yours; security reviewed; human-in-the-loop approvals.
+      - Start small: 4-week pilot, no PLC changes required.
+      - Clear QA sign-off and rollback path.
+  callToAction: >-
+    - Direct: Book a 30‑minute discovery to scope a pilot.
+
+    - Transitional: Download the data-mapping checklist, ROI calculator, and
+    sample run-log schema.
+  success: >-
+    - First-article runs start closer to right; fewer trials, less scrap, and
+    fewer die incidents.
+
+    - Faster setups, higher throughput, steadier properties/surface, longer die
+    life, lower energy per tonne.
+
+    - Captured tribal knowledge, faster onboarding, predictable deliveries, and
+    happier customers.
+  failure: >-
+    - Keep guessing setpoints, leading to breakages, rework, erratic properties,
+    overtime, and missed orders.
+
+    - Knowledge walks out with retirements; tooling and energy costs climb;
+    customer trust erodes.
+landingPage:
+  hero:
+    title: Extrusion/Draw Parameter Recommender for Nonferrous Metals
+    subtitle: >-
+      AI that learns from your runs to propose starting setpoints
+      (billet/furnace temp, ram speed, reduction schedule, lubricant) by alloy
+      and profile—excluding Cu/Al.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - 'Trial-and-error setups burn billets, energy, and hours.'
+    - 'Recipes do not transfer cleanly across alloys, dies, presses, or seasons.'
+    - Tribal knowledge varies by shift; startups are inconsistent.
+    - New profiles trigger long run-ups and extra QC loops.
+    - 'Data is siloed across MES, PLC logs, and spreadsheets.'
+    - 'Balancing spec, die life, and press limits is high-risk.'
+    - Over/underheating and aggressive reductions drive defects and tool wear.
+  solution:
+    - >-
+      Learns from historical runs to propose starting setpoints by
+      alloy/profile/line.
+    - >-
+      Recommends billet and furnace temperatures, ram/press speed, reduction per
+      pass, and lubricant.
+    - 'Outputs parameter windows with constraints, confidence, and rationale.'
+    - >-
+      Flags risk for tearing, orange peel, die lines, and wall variation before
+      you start.
+    - 'What-if suggestions for new die, wall, temper, or lubricant changes.'
+    - 'One-click export to route sheets, work orders, and HMI.'
+    - 'Secure by design: on-prem or private cloud; your IP stays yours.'
+    - Continuously improves with operator feedback and QA outcomes.
+  features:
+    - >-
+      Alloy-aware models for nickel, titanium, magnesium, zinc, cobalt,
+      refractory, and specialty nonferrous alloys.
+    - 'Extrusion, drawing, and rolling modes with hot/cold process awareness.'
+    - >-
+      Constraint modeling for press/bench/stand limits (tonnage, speed,
+      container/die/roll temps).
+    - Digital pass schedule and die library with version control.
+    - Recommended lubricant type and application rate by alloy and speed.
+    - Energy and cycle-time estimates for the proposed recipe.
+    - 'Tooling life and risk scoring for dies, mandrels, and guides.'
+    - 'SPC-ready outputs: control limits and inspection checkpoints.'
+    - 'Connectors for MES/ERP/SCADA and file imports (CSV, OPC UA).'
+    - 'Full audit trail, approvals, and traceability for every recommendation.'
+  steps:
+    - 'Connect data: import past runs, alloy certs, die IDs, and sensor logs.'
+    - 'Calibrate: map machines, constraints, and QA definitions.'
+    - 'Train: build models per alloy/profile/line.'
+    - 'Generate: receive a starting recipe with parameter windows and rationale.'
+    - >-
+      Run and learn: capture operator/QC feedback; the model updates
+      automatically.
+---
+# ParamForge AI
+
+Industry: Nonferrous Metal (except Copper and Aluminum) Rolling, Drawing, and Extruding
+Service: Extrusion/Draw Parameter Recommender

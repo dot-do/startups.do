@@ -1,0 +1,295 @@
+---
+name: ContraTag AI
+slug: contratag
+service:
+  title: Interaction & Contraindication Tagging (Precomputed PDP Warnings)
+  description: >-
+    Precompute ingredient-level interaction and condition tags so PDPs and cart
+    guardrails can display context-sensitive warnings.
+  targetUsers:
+    - Stores selling condition-adjacent supplements
+    - Brands with high-ingredient variability
+  triggers:
+    - Catalog change
+    - Quarterly knowledge refresh
+  inputs:
+    - Ingredient lists per SKU
+    - List of common meds/conditions of interest
+    - Severity taxonomy and display rules
+  steps:
+    - Map ingredients to canonical entities
+    - Query knowledge bases for interactions/contraindications
+    - Assign severity (info/caution/avoid) with sources
+    - Write tags/metafields; expose PDP/widget JSON
+    - Monitor for knowledge updates
+  tools:
+    - RxNorm/MedlinePlus/API
+    - 'Optional: DrugBank/Natural Medicines (licensed)'
+    - LLM for evidence summarization
+    - Shopify metafields/GraphQL
+  outputs:
+    - Per-SKU interaction tags + sources
+    - Display-ready warning snippets
+  pricingModel:
+    - Setup + per-SKU tagging fee
+    - Annual refresh fee
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 7
+    overall: 8
+  risks:
+    - Source licensing/coverage gaps
+    - False positives/negatives causing liability
+    - Customer over-reliance on warnings
+  dependencies:
+    - Access to ingredient data
+    - Legal-approved disclaimer text
+    - Licenses for medical data (if used)
+leanCanvas:
+  problem:
+    - >-
+      Supplement retailers struggle to reliably map SKUs to accurate ingredient
+      lists, dosages, and synonyms, making interaction/contraindication
+      detection unreliable.
+    - >-
+      Customers often lack context on interactions with medications (e.g., blood
+      thinners), conditions (e.g., pregnancy, hypertension), allergies, or
+      age-related risks at point of purchase.
+    - >-
+      Existing medical interaction databases are not optimized for retail
+      PDPs/cart flows (latency, consumer language, explainability, ecommerce
+      integrations), leading to poor adoption.
+    - >-
+      Legal and compliance risk from insufficient warnings create potential
+      liability and brand damage; manual rule maintenance doesn’t scale across
+      tens of thousands of SKUs and frequent reformulations.
+    - >-
+      Retailers lack measurable, controlled ways to balance safety warnings with
+      conversion, leading to either over-warning (conversion loss) or
+      under-warning (safety gaps).
+  solution:
+    - >-
+      Build and maintain a supplement-focused knowledge graph linking SKUs to
+      standardized ingredients, doses, synonyms, and evidence-backed
+      interactions/contraindications.
+    - >-
+      Batch precompute risk tags per SKU (and per typical consumer profiles) to
+      enable sub-200ms PDP rendering; provide low-latency API for cart-level
+      checks and alternative recommendations.
+    - >-
+      Human-in-the-loop pharmacist QA and escalation workflow for edge cases and
+      new ingredients; evidence grading and explainable summaries.
+    - >-
+      SDK/widgets for PDP and cart: context-sensitive warnings, pill
+      identifiers, pregnancy/lactation flags, allergy highlights, and
+      alternative-safe suggestions.
+    - >-
+      Integrations with PIMs, ecommerce platforms, and CDPs to ingest product
+      data, push tags, and optionally incorporate user-declared conditions/meds
+      (privacy-safe).
+    - >-
+      Analytics dashboard to A/B test warning levels, monitor prevented risky
+      carts, and quantify impact on conversion, returns, and CS tickets.
+    - >-
+      Audit logging, consent and disclaimers, jurisdictional rulepacks
+      (US/EU/CA), and legal/compliance templates.
+  uniqueValueProp: >-
+    Precomputed, pharmacist-validated interaction and contraindication tags at
+    the ingredient level, delivered as fast PDP widgets and cart guardrails that
+    increase consumer trust, reduce safety risk, and require minimal engineering
+    effort.
+  unfairAdvantage: >-
+    A supplement-specific knowledge graph with pharmacist-curated rules and
+    SKU-level mappings continuously refreshed from real retailer catalogs,
+    coupled with precomputation for sub-200ms PDP experiences and tight
+    ecommerce/PIM integrations. Over time, feedback loops from override logs and
+    A/B results create defensible precision and conversion tuning unmatched by
+    generic medical databases.
+  customerSegments:
+    - >-
+      Mid-market and enterprise online supplement retailers (5k–200k SKUs) and
+      marketplaces (e.g., sport nutrition, wellness, vitamins).
+    - >-
+      DTC supplement brands with 50+ SKUs seeking trust signals and compliant
+      PDPs.
+    - Online pharmacy/OTC retailers carrying supplements alongside medications.
+    - >-
+      PIM/ecommerce platform partners (Salsify, Akeneo, Shopify Plus,
+      BigCommerce, Adobe Commerce) needing embedded safety tagging.
+    - >-
+      Digital health membership programs and chronic condition platforms
+      recommending supplements.
+  channels:
+    - >-
+      Direct enterprise sales to top 200 online supplement retailers; land with
+      6–12 week pilots.
+    - >-
+      App/extension marketplace listings (Shopify Plus, BigCommerce, Adobe
+      Commerce) with 14–30 day trials.
+    - >-
+      Partnerships with PIMs (Salsify, Akeneo) and product data providers;
+      co-sell and embed tagging into enrichment workflows.
+    - >-
+      Alliances with pharmacy associations and clinical knowledge vendors for
+      credibility and referrals.
+    - >-
+      Content marketing: safety benchmark reports by category, case studies
+      showing conversion impact, and regulatory checklists.
+    - >-
+      Events: Natural Products Expo, HLTH, NRF, and ecommerce platform partner
+      conferences; sponsor safety/quality tracks.
+    - >-
+      Targeted outbound to compliance, product, and CX leaders; ROI calculators
+      and pilot-based business cases.
+  revenueStreams:
+    - >-
+      SaaS subscription tiered by active SKUs and traffic: SMB (≤5k SKUs):
+      $1.5k–$3k/mo; Mid-market (5k–50k): $6k–$15k/mo; Enterprise (50k+):
+      $25k–$60k+/mo.
+    - >-
+      Usage-based API overages: $0.001–$0.003 per PDP or cart check after
+      included allotment.
+    - >-
+      One-time implementation/onboarding: $10k–$100k depending on data quality
+      and integrations.
+    - >-
+      Premium add-ons: pharmacist review SLAs, custom evidence curation,
+      jurisdictional rulepacks, white-label widgets.
+    - >-
+      Data enrichment licensing: normalized ingredient feeds and risk tags
+      exported to PIM/CDP.
+    - >-
+      Outcome-based options for pilots (e.g., fee credits tied to agreed KPI
+      improvements).
+  costStructure:
+    - >-
+      Engineering and data science (ML/NLP, knowledge graph, integrations):
+      $200k–$400k/month at scale.
+    - >-
+      Pharmacist/clinical QA (FTEs + contractors): $40k–$120k/month depending on
+      volume and SLAs.
+    - >-
+      Data licensing and content partnerships (evidence databases, ontologies):
+      $20k–$80k/month.
+    - >-
+      Cloud infrastructure (batch compute, vector DB/graph DB, APIs, logging):
+      $30k–$80k/month; scales with traffic.
+    - >-
+      Security/compliance (SOC 2, pen tests, DPA/legal): $5k–$20k/month
+      averaged.
+    - 'Sales/Marketing (AE/SE, partner MDF, events): $60k–$150k/month.'
+    - 'Liability insurance and legal counsel: $5k–$30k/month.'
+    - 'Customer success and support: $20k–$60k/month.'
+  keyMetrics:
+    - >-
+      Coverage: % of catalog with verified ingredient mapping ≥98% within 30
+      days; freshness: tags updated within 48 hours of SKU change.
+    - >-
+      Accuracy: precision/recall vs. gold-standard sets ≥95%/90%; retailer
+      override rate <3% of warnings.
+    - 'Performance: PDP P95 latency <200ms; cart check P95 <300ms; uptime ≥99.9%.'
+    - >-
+      Safety impact: risky cart preventions per 10k sessions; target 5–20 per
+      10k; post-intervention incident rate reduction ≥50%.
+    - >-
+      Business impact: PDP engagement with advisories 10–25%; conversion delta
+      controlled via A/B within ±0.5% while raising repeat purchase rate ≥1–3%.
+    - >-
+      CX impact: -20–40% reduction in safety-related tickets/chargebacks/returns
+      in 90 days.
+    - >-
+      Adoption: time-to-value (first PDP live) ≤21 days; active widget
+      penetration ≥80% of PDPs; cart interception coverage ≥70% within 60 days.
+    - >-
+      Financial: Gross margin ≥75%; logo retention ≥95%; NRR ≥115%; CAC payback
+      ≤12 months.
+storyBrand:
+  character: >-
+    Supplement eCommerce retailers and product teams who need accurate,
+    real-time safety guidance on PDPs and in cart.
+  problem: >-
+    Shoppers worry about ingredient interactions and health conditions; teams
+    can’t maintain accurate warnings manually—generic PDPs miss risks, erode
+    trust, and increase liability.
+  guide: >-
+    We understand the cost of unsafe or noisy guidance. Our AI + expert-curated
+    knowledge base precomputes reliable ingredient-level interaction and
+    condition tags with auditability.
+  plan: >-
+    1) Connect your catalog (CSV/feed/API). 2) We standardize ingredients and
+    compute interaction/contraindication/condition tags. 3) Use our PDP/cart SDK
+    or API to show context-sensitive warnings and guardrails. 4) Monitor
+    analytics and updates in your dashboard.
+  callToAction: >-
+    Book a 20-minute demo; request a sample tag report for your top SKUs; start
+    with a sandbox API key.
+  success: >-
+    Clear, context-sensitive PDP and cart warnings; safer carts; higher trust
+    and conversion; fewer support tickets and returns; stronger compliance
+    posture and brand reputation.
+  failure: >-
+    Shoppers remain uncertain or buy risky combos; abandoned carts, complaints,
+    refunds, and regulatory exposure; lost trust and revenue.
+landingPage:
+  hero:
+    title: Precomputed Interaction & Contraindication Tags for Supplement PDPs
+    subtitle: >-
+      Instant, context-aware warnings on PDPs and carts. Protect customers,
+      reduce risk, and lift conversion—without slowing pages.
+    ctaText: Book a demo
+    ctaHref: '#demo'
+  problem:
+    - Shoppers can’t spot risky ingredient interactions from PDP copy alone.
+    - >-
+      Manual research and tagging don’t scale across thousands of SKUs and
+      reformulations.
+    - Runtime checks slow pages and hurt conversion.
+    - Inconsistent warnings create compliance and liability exposure.
+    - Support teams field avoidable “Is this safe with…?” tickets.
+  solution:
+    - >-
+      AI precomputes ingredient-level interaction and condition tags for every
+      SKU.
+    - Edge-cached tags render in PDPs and carts in under 50 ms.
+    - >-
+      Configurable guardrails show severity-based warnings, blockers, or soft
+      nudges.
+    - 'Confidence scores, sources, and change logs power QA and auditability.'
+    - 'Plug-ins and APIs drop into Shopify, BigCommerce, and custom stacks.'
+  features:
+    - >-
+      Ingredient ontology with alias/synonym resolution (common and scientific
+      names).
+    - 'Drug, condition, age, pregnancy/lactation, surgery, and allergen tagging.'
+    - >-
+      Severity tiers (info, caution, do-not-combine) with retailer-defined
+      actions.
+    - Localized copy and regulatory disclaimers by market/locale.
+    - Batch backfill plus continuous sync via webhooks and catalog feeds.
+    - 'Drop-in UI components for PDP warnings, comparison, and cart intercepts.'
+    - 'Rule engine for custom exclusions, house policies, and brand voice.'
+    - Confidence scoring with source trails and versioned knowledge base.
+    - 'Manual overrides, review workflows, and full audit history.'
+    - >-
+      Analytics: warning impressions, dismissals, prevented orders, CS
+      deflection.
+    - A/B testing hooks to optimize copy and thresholds without code changes.
+    - Edge caching/CDN for sub-50 ms tag fetch at scale.
+    - 'SDKs (JS, Liquid, REST/GraphQL) and no-code connectors.'
+    - Privacy-first design—no PHI required; context keys only.
+    - 'Enterprise readiness: SLAs, monitoring, alerts, and rollback controls.'
+  steps:
+    - >-
+      Connect your catalog feed and ingredient lists (CSV, API, or platform
+      app).
+    - Auto-normalize ingredients to our ontology; review suggested matches.
+    - Generate tags and QA with confidence scores and sources.
+    - Embed PDP/cart components or call the Tags API server-side.
+    - 'Configure guardrails, severity thresholds, locales, and disclaimers.'
+    - Go live and monitor analytics; iterate with A/B tests and policy updates.
+---
+# ContraTag AI
+
+Industry: Food (Health) Supplement Retailers
+Service: Interaction & Contraindication Tagging (Precomputed PDP Warnings)

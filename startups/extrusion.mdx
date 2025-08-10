@@ -1,0 +1,369 @@
+---
+name: Extrusion Line Schedule Optimizer (ELSO)
+slug: extrusion
+service:
+  title: Extrusion Line Schedule Optimizer
+  description: >-
+    Creates optimized production schedules across compounding lines minimizing
+    changeovers, meeting due dates, and leveling load.
+  targetUsers:
+    - Production Planning
+    - Operations Managers
+  triggers:
+    - Daily/weekly planning cycle
+    - New high-priority order
+    - Machine downtime/maintenance update
+  inputs:
+    - Confirmed orders and due dates
+    - 'Machine capabilities, run rates, changeover matrices (resin family/color)'
+    - Labor/shift calendars
+    - Inventory and WIP status
+  steps:
+    - >-
+      Build scheduling model with constraints and objectives (OTD, changeover,
+      utilization)
+    - 'Compute baseline schedule and alternatives (rush, overtime, split-batches)'
+    - Highlight conflicts/bottlenecks and recommend actions
+    - Publish schedule to ERP/dispatch board and notify stakeholders
+  tools:
+    - Google OR-Tools/Pyomo
+    - ERP/APS interface
+    - Pandas
+    - Gantt visualization (Plotly)
+  outputs:
+    - Frozen schedule and what-if scenarios
+    - Changeover plan and cleaning requirements
+    - 'KPIs (OTD, utilization, changeover hours)'
+  pricingModel:
+    - Setup/integration fee
+    - Monthly subscription per site
+    - Optional per-run optimization fee
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Incomplete changeover data leading to infeasible plans
+    - Planner override without feedback loop
+    - Last-minute order changes reduce realized benefits
+  dependencies:
+    - Accurate routings and changeover times
+    - Timely order and maintenance data
+leanCanvas:
+  problem:
+    - >-
+      Sequence-dependent changeovers (polymer family, color, additive package,
+      screw/barrel changes) drive 15–35% of available hours into non-productive
+      time.
+    - >-
+      Planners rely on spreadsheets/whiteboards; rescheduling for hot orders
+      causes 5–15% schedule churn and overtime.
+    - >-
+      Due-date adherence (OTIF) often <85% because of conflicting priorities, QC
+      holds, and bottleneck lines.
+    - >-
+      Uneven load across lines leads to >20% utilization variance, starving some
+      lines while overloading others.
+    - >-
+      Existing APS tools rarely model plastics-specific constraints (purge
+      times, color families, feeder limits, regrind %, run-rate curve) leading
+      to unrealistic schedules.
+    - >-
+      Frequent expedites and small campaigns increase scrap during purges by
+      1–3% and energy costs by 3–8%.
+    - >-
+      Multi-plant visibility is limited; campaign planning and capacity promises
+      to sales are guesswork.
+    - >-
+      Data fragmentation across ERP/MES/LIMS/maintenance causes manual data prep
+      consuming 4–8 hours per planner weekly.
+  solution:
+    - >-
+      Purpose-built optimizer combining mixed-integer/constraint programming
+      with heuristics tuned for extrusion compounding (sequence-dependent
+      changeovers, purge/color families, screw/barrel setups, feeder limits).
+    - >-
+      Finite-capacity multi-line scheduler that respects due dates, QC hold
+      buffers, maintenance windows, shifts, and materials availability.
+    - >-
+      Run-rate prediction model using historical jobs (polymer family, filler %,
+      regrind, target properties) to improve duration estimates by 15–30%.
+    - >-
+      Campaigning engine to group compatible jobs (by polymer/color/additive
+      family) to minimize purges and flushes while honoring delivery dates.
+    - >-
+      What-if scenario sandbox to simulate rush orders, maintenance, or formula
+      changes; compare KPIs before/after.
+    - >-
+      Close-the-loop connectors to ERP/MES/LIMS for order status, actuals
+      feedback, and automated dispatch lists.
+    - >-
+      Load leveling across lines and crews; energy-aware scheduling to avoid
+      peak tariffs where applicable.
+    - >-
+      Rapid onboarding: data mapping templates for SAP, Infor, Epicor, Plex,
+      NetSuite; initial results in 2–4 weeks.
+  uniqueValueProp: >-
+    Plastics-aware AI that cuts changeover time 25–40%, lifts OTIF to 95%+, and
+    levels line utilization within ±10%, delivered as a 30-day plug-in to your
+    ERP/MES with measurable ROI in one quarter.
+  unfairAdvantage: >-
+    A plastics-specific optimization engine with learned setup matrices and
+    run-rate models, plus prebuilt ERP/MES connectors and a growing anonymized
+    dataset from compounding lines—enabling faster deployments and better
+    schedules than generalist APS tools or spreadsheets.
+  customerSegments:
+    - >-
+      Custom compounders of purchased resins (make-to-order) with 3–20 extrusion
+      lines per site.
+    - Toll compounders serving resin producers and converters.
+    - >-
+      Masterbatch and color concentrate producers with high color/additive
+      changeovers.
+    - 'Engineered thermoplastics compounders (PA, PBT, PC/ABS, POM, TPE).'
+    - >-
+      In-house compounding operations at converters with multiple twin-screw
+      lines.
+    - >-
+      Primary personas: Operations/Plant Managers, Production
+      Planners/Schedulers, Supply Chain Directors, VP Ops, CI leaders.
+    - >-
+      Geographies: North America and Europe initial focus; expansion to Middle
+      East and Asia-Pacific.
+  channels:
+    - >-
+      Account-based sales to 500–700 target plants in NA/EU with 4–15 extrusion
+      lines; outreach to Plant/Operations leaders via LinkedIn and email.
+    - >-
+      Pilot-led selling: 6–8 week paid pilot on one site/6–10 lines with success
+      criteria (e.g., -25% changeover hours, +8 pts OTIF).
+    - >-
+      Partnerships with ERP/MES integrators (SAP, Infor, Epicor, Plex) and
+      solver vendors (Gurobi/CPLEX) for co-selling and referrals.
+    - >-
+      Industry events and media: Compounding World Expo, AMI/SPE conferences;
+      speak with customer case studies.
+    - >-
+      Content marketing: calculators, benchmark reports, and webinars on
+      campaign planning and changeover reduction.
+    - >-
+      Marketplaces: SAP Store, Microsoft Azure Marketplace, Rockwell Automation
+      partner program.
+    - >-
+      Customer expansion motion: land scheduling, upsell to multi-plant
+      orchestration, energy-aware module, and CTP for Sales.
+  revenueStreams:
+    - >-
+      SaaS subscription priced per active line: $800–$1,500 per line per month;
+      volume discounts.
+    - >-
+      Onboarding/integration fee: $25k–$80k per site depending on ERP/MES
+      complexity.
+    - >-
+      Premium modules: energy-aware scheduling, multi-plant balancing, advanced
+      CTP ($10k–$40k ARR add-on).
+    - >-
+      Professional services: data cleansing, changeover matrix design, scheduler
+      training workshops.
+    - >-
+      Outcome-based pricing option for pilots (e.g., 10% of verified first-year
+      savings, capped).
+  costStructure:
+    - >-
+      R&D and product (optimization engineers, data scientists, full-stack
+      engineers).
+    - >-
+      Cloud hosting and solver licensing (Gurobi/CPLEX), monitoring, and data
+      storage.
+    - Implementation and customer success teams; travel for onsite workshops.
+    - 'Sales and marketing: ABM tools, events, content production, partner MDF.'
+    - 'Security/compliance: SOC 2 Type II, pentesting, SSO/SCIM, data privacy.'
+    - Partner commissions/marketplace fees.
+    - 'General and administrative (legal, finance, insurance).'
+  keyMetrics:
+    - >-
+      Customer outcome KPIs per site: changeover hours per week (-25–40%), OTIF
+      (+5–15 pts to ≥95%), schedule adherence (≥90%), line utilization variance
+      (≤10% stdev), purge/scrap rate (-1–2 pts), expedites per month (-50%).
+    - >-
+      Throughput and lead time: finished tons per week (+5–12%), average
+      promised lead time (-15–30%).
+    - >-
+      Planning efficiency: planner time spent scheduling (-50%), reschedule
+      frequency (-30%).
+    - >-
+      Adoption: daily active planners, % of orders scheduled by optimizer
+      (>80%), manual overrides per 100 orders (<10).
+    - 'Implementation: time-to-first-schedule (<2 weeks), time-to-ROI (<90 days).'
+    - >-
+      Commercial: pilot win rate (>40%), sales cycle length (<120 days), ARR per
+      plant ($50k–$150k), gross margin (>70%), net revenue retention (>115%).
+storyBrand:
+  character: >-
+    Plant schedulers and operations leaders at custom compounding facilities who
+    must deliver on-time orders across multiple extrusion lines.
+  problem: >-
+    External:
+
+    - Constant changeovers, color/material cleanouts, and dryer/feeder
+    constraints kill throughput
+
+    - Rush orders and competing priorities cause missed due dates and uneven
+    line loading
+
+    - Manual, spreadsheet-based scheduling fails to capture sequence-dependent
+    setup times
+
+    Internal:
+
+    - Schedulers are overwhelmed and firefighting; nights/weekends are the norm
+
+    - Leaders fear lost credibility with sales and customers due to unreliable
+    promises
+
+    Philosophical:
+
+    - Modern compounding plants shouldn’t rely on guesswork—production schedules
+    should be data-driven and dependable
+  guide: >-
+    Empathy:
+
+    - We’ve lived the pain of campaign planning, QC holds, and
+    sequence-dependent changeovers
+
+    - We know every plant has unique constraints and tribal knowledge that must
+    be respected
+
+    Authority:
+
+    - Built by ex-plant schedulers and optimization experts; validated in
+    plastics manufacturing
+
+    - Integrates with leading ERPs/MES (SAP, Infor, Plex, Epicor) and respects
+    lot traceability
+
+    - Documented results: fewer changeovers, higher OTD, leveled load, and
+    reduced overtime
+  plan: >-
+    Process plan:
+
+    1) Connect data: orders, routes, changeover matrices, constraints (dryers,
+    QC, crews)
+
+    2) Simulate and validate: run what-if scenarios and compare to historical
+    performance
+
+    3) Go live co-pilot: daily optimized schedule with human-in-the-loop
+    adjustments
+
+    4) Improve continuously: feedback learns plant rules; metrics dashboards
+    track OTD, setups, and load leveling
+
+    Agreement plan:
+
+    - 4-week pilot with clear success criteria (OTD, changeover hours, schedule
+    stability)
+
+    - Keep your data private and secure; easy rollback; no long-term lock-in
+  callToAction: |-
+    Direct:
+    - Book a 30-minute assessment
+    - Start a 4-week pilot
+    Transitional:
+    - Get an ROI estimate with your data
+    - Download the scheduling best-practices checklist
+  success: >-
+    - 20–40% fewer changeovers via smart sequencing and campaigns
+
+    - 95%+ on-time delivery with realistic, constraint-aware schedules
+
+    - Leveled line loading that reduces overtime and burnout
+
+    - Lower scrap and fewer contamination risks from better color/material
+    sequencing
+
+    - Faster promise dates and confident order-acceptance with accurate what-if
+    planning
+
+    - Schedulers regain time; plants meet commitments reliably
+  failure: |-
+    - Continued firefighting, missed due dates, and expediting costs
+    - Overtime and burnout from lumpy schedules and late changes
+    - Excess WIP, dirty changeovers, and capacity left idle on adjacent lines
+    - Lost trust with sales and customers, and lost repeat business
+landingPage:
+  hero:
+    title: Extrusion Line Schedule Optimizer
+    subtitle: >-
+      AI scheduling for custom compounding of purchased resins. Minimize
+      changeovers, hit due dates, and balance load across lines.
+    ctaText: Get a Live Demo
+    ctaHref: /demo
+  problem:
+    - Frequent changeovers and cleaning eat hours and resin.
+    - Rush orders derail the plan and due dates slip.
+    - Uneven line loading creates overtime on one line and idle time on another.
+    - >-
+      Spreadsheets can’t handle setup matrices, color sequencing, and
+      contamination rules.
+    - 'Material, dryer, and operator constraints surface too late.'
+    - ERP/MES data is disconnected from the floor schedule.
+  solution:
+    - AI-optimized finite-capacity schedules across all compounding lines.
+    - >-
+      Setup-aware sequencing that reduces color, formulation, and hardware
+      changeovers.
+    - Due-date protection with load leveling and smart campaign planning.
+    - 'Real-time re-optimization when orders, materials, or equipment change.'
+    - 'Constraint-aware planning for materials, dryers, tooling, and skills.'
+    - >-
+      One-click publish to the floor with clear run cards and changeover
+      guidance.
+  features:
+    - >-
+      Setup matrix modeling: light-to-dark color flow, additive families,
+      screw/barrel swaps, and cleaning times.
+    - >-
+      Cross-contamination rules and restricted pairings by formulation or
+      pigment.
+    - >-
+      Finite capacity with shift calendars, maintenance windows, and labor skill
+      coverage.
+    - >-
+      Inventory-aware planning: resin, additives, packaging, and lot
+      reservations.
+    - Multi-line balancing and campaign grouping to cut start/stop losses.
+    - Rush-order insertion and what-if scenarios without breaking due dates.
+    - >-
+      KPIs: changeover hours, on-time delivery, utilization, WIP, and
+      throughput.
+    - >-
+      ERP/MES integration (SAP, Oracle, Microsoft, Odoo) via API; CSV upload
+      supported.
+    - >-
+      Shop-floor view by line: sequence, setup notes, and clean/flush
+      instructions.
+    - Audit trail and versioned schedules with compare and rollback.
+    - >-
+      Extrusion-specific resources: dryers, feeders, pelletizers, water baths,
+      stranders.
+    - 'Role-based access and approvals for planners, supervisors, and sales.'
+  steps:
+    - 'Connect orders, BOMs, routings, and inventory from ERP/MES.'
+    - 'Define setup matrix, color sequencing, and contamination constraints.'
+    - 'Set objectives: minimize changeovers, meet due dates, level load.'
+    - Generate the optimal multi-line schedule in seconds.
+    - 'Review KPIs, adjust constraints, and lock runs as needed.'
+    - >-
+      Publish to the floor; print or display run cards with setup and cleaning
+      steps.
+    - >-
+      Respond to changes with one-click re-optimization for rush or material
+      issues.
+    - Sync back to ERP and share schedules with sales and logistics.
+---
+# Extrusion Line Schedule Optimizer (ELSO)
+
+Industry: Custom Compounding of Purchased Resins
+Service: Extrusion Line Schedule Optimizer

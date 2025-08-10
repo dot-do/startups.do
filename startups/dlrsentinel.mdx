@@ -1,0 +1,284 @@
+---
+name: DLR Sentinel
+slug: dlrsentinel
+service:
+  title: Dynamic Line Rating (DLR) Estimator and Alerting
+  description: >-
+    Estimate safe dynamic line ratings using ambient conditions and conductor
+    properties; issue alerts when DLR deviates from static ratings.
+  targetUsers:
+    - Operations planning
+    - Real-time ops support
+    - Asset management
+  triggers:
+    - Hourly weather updates
+    - Approaching thermal constraints
+    - Wildfire/weather advisories
+  inputs:
+    - Conductor type/parameters and static ratings
+    - 'Span metadata (routing, elevation)'
+    - 'Weather feeds (wind speed/dir, ambient temp, solar)'
+    - 'Optional: historical line temp/sag if available'
+  steps:
+    - Map spans to nearest weather cells
+    - Apply IEEE 738 thermal model for rating estimation
+    - Calibrate against any available temperature/sag data
+    - Produce conservative P50 and stressed P10 ratings
+    - Alert when DLR materially higher/lower than static
+    - Publish to dashboard/API
+  tools:
+    - 'Python, IEEE 738 implementation'
+    - NOAA/ECMWF/Open-Meteo APIs
+    - PostGIS for geospatial mapping
+    - Grafana/Alertmanager
+  outputs:
+    - Time-stamped DLR estimates per span
+    - Uncertainty bounds and safety margins
+    - Alerts and recommended temporary ratings
+    - Audit log for compliance
+  pricingModel:
+    - Setup per-circuit (metadata integration)
+    - Monthly subscription per 100 spans
+    - Optional validation study add-on
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Weather mapping error across complex terrain
+    - Conservative bias may reduce benefits; optimistic bias increases risk
+    - Liability if misapplied in operations
+  dependencies:
+    - Accurate conductor properties and span geodata
+    - Weather API reliability
+    - Policy on conservatism/uncertainty handling
+leanCanvas:
+  problem:
+    - >-
+      Static ratings force conservative limits that underutilize transmission
+      capacity by 5–20% in many hours, driving congestion costs and renewable
+      curtailment.
+    - >-
+      Operators lack a trusted, real-time estimate of safe dynamic ampacity with
+      confidence bounds, creating fear of thermal/sag violations and limiting
+      adoption.
+    - >-
+      Sensor-based DLR requires capex, outages/line work, and maintenance;
+      coverage is often sparse, making system-wide scaling slow and expensive.
+    - >-
+      Alerts about rating deviations are either absent or noisy and are not
+      integrated into EMS/SCADA workflows, leading to low operator trust and
+      actionability.
+    - >-
+      Utilities need auditable models, data lineage, and change-management
+      workflows to meet regulatory expectations; many AI tools are black-box and
+      not compliance-ready.
+  solution:
+    - >-
+      Real-time and forecast DLR computation using IEEE 738 heat balance with
+      conductor parameters and microclimate-adjusted weather; physics + ML
+      residual model to correct for terrain and local effects.
+    - >-
+      Uncertainty quantification (P50/P90/P95) and recommended operational
+      rating bands to meet risk tolerances; safe fallbacks to static ratings.
+    - >-
+      Actionable alerts: upward headroom (DLR >> static) to increase transfers
+      and downward derate risk (DLR < static) with configurable thresholds,
+      lookahead, and confidence.
+    - >-
+      Turnkey integrations via ICCP/TASE.2, IEC 61850, CIM profiles, and OSIsoft
+      PI; operator HMI tiles and web map with corridor views and event
+      timelines.
+    - >-
+      Sensor-fusion: ingest LineVision/Ampacimon/Heimdall and utility sensors
+      (sag, temp, vibration) to calibrate and validate; automatic model
+      recalibration over time.
+    - >-
+      Audit-ready governance: versioned models, data lineage, backtesting, and
+      reporting for internal review and regulatory filings.
+  uniqueValueProp: >-
+    Operator-grade, software-first DLR estimation and alerting that safely
+    unlocks 5–20% transfer capacity during favorable conditions, reduces
+    congestion and curtailment, and integrates directly with EMS/SCADA—without
+    mandatory new hardware—backed by quantified uncertainty and audit-ready
+    reporting.
+  unfairAdvantage: >-
+    Validated physics-ML DLR with probabilistic safety guarantees and automated
+    microclimate calibration that works without dedicated sensors, coupled with
+    plug-and-play EMS connectors and audit-ready governance. Defensible via
+    unique datasets, field validations across climates, and integration
+    footprint that shortens time-to-value vs. hardware-first or bespoke internal
+    efforts.
+  customerSegments:
+    - >-
+      Transmission Owners/Operators (TO/TOP) at 115–500 kV (IOUs, munis,
+      co-ops).
+    - >-
+      ISOs/RTOs and Reliability Coordinators seeking congestion relief and
+      improved situational awareness.
+    - >-
+      Independent Transmission Companies and Grid Developers optimizing new and
+      existing corridors.
+    - Balancing Authorities and Control Centers in non-ISO regions.
+    - >-
+      Secondary: Renewable developers and traders needing congestion and derate
+      forecasting (view-only/API).
+  channels:
+    - >-
+      Direct enterprise sales to transmission utilities and ISOs; engage via
+      RFIs/RFPs and security reviews.
+    - >-
+      Co-selling with DLR hardware vendors (sensor-fusion) and EMS vendors
+      (pre-built connectors) to shorten procurement.
+    - >-
+      Paid pilots (3–6 months) at known congestion corridors with success
+      criteria: accuracy, alert precision/recall, added headroom hours, and
+      integration readiness; convert to multi-year MSA.
+    - >-
+      Targeted outreach using ISO congestion reports and public curtailment data
+      to quantify corridor-specific ROI pre-sales.
+    - >-
+      Participation in IEEE PES/CIGRE/EPRI working groups; publish peer-reviewed
+      case studies and operator testimonials.
+    - >-
+      Leverage DOE/EU demonstration grants and utility innovation programs to
+      de-risk first deployments.
+    - >-
+      System integrator partnerships for EMS/ICCP/CIM integration and
+      change-management training.
+  revenueStreams:
+    - >-
+      Annual SaaS subscription per monitored circuit or per circuit-mile:
+      Estimation-only $150–$300 per mile/year (minimum $12,000 per
+      circuit/year).
+    - >-
+      Sensor-fusion advanced tier (ingests third-party sensors, probabilistic
+      forecasting, expanded SLAs): $250–$500 per mile/year (minimum $20,000 per
+      circuit/year).
+    - >-
+      One-time setup and integration per utility: $25,000–$150,000 depending on
+      number of systems, security requirements, and data onboarding.
+    - >-
+      Professional services: calibration studies, EMS/HMI integration, training
+      ($200–$300/hour or fixed-price SOW).
+    - >-
+      Enterprise/control-area license for unlimited circuits with volume
+      discounts.
+    - >-
+      Optional managed data service (weather/licensing, conductor database
+      management) add-on.
+  costStructure:
+    - >-
+      COGS: weather data licensing, cloud compute/storage, secure networking
+      (approx. 20–30% of COGS).
+    - >-
+      R&D: power systems engineers, data scientists, software/DevOps, QA;
+      continuous model development and validation.
+    - >-
+      Security/compliance: SOC 2/ISO 27001 program, NERC CIP-aligned controls,
+      pen tests, audits, logging/monitoring, incident response.
+    - >-
+      Sales/BD: long-cycle enterprise sales, RFP responses, pilots (equipment,
+      travel), conferences and publications.
+    - >-
+      Professional services and customer success: onboarding, integrations,
+      training, quarterly value reviews.
+    - >-
+      Legal/insurance: MSAs, data processing agreements, cyber and E&O
+      insurance; partnerships revenue share with sensor vendors/integrators.
+  keyMetrics:
+    - >-
+      DLR accuracy: MAPE/MAE vs. ground-truth sensors; target <= 10% MAPE on
+      hourly DLR.
+    - >-
+      Safety: probability of exceeding thermal/sag limits when operating at
+      recommended rating; target < 0.5% of intervals.
+    - >-
+      Alert quality: precision >= 90% and recall >= 85% for both headroom and
+      derate alerts; false positives < 5%.
+    - >-
+      Reliability: service availability >= 99.95%; data latency < 30 seconds;
+      successful EMS/ICCP data push rate > 99%.
+    - >-
+      Business impact: additional headroom hours per corridor/month; congestion
+      cost reduction ($/MW-h) vs. baseline; renewable curtailment reduction
+      (MWh).
+    - >-
+      Adoption: circuits onboarded; weekly active operator users;
+      pilot-to-production conversion rate >= 60%; average sales cycle <= 12
+      months.
+    - >-
+      Security/compliance: zero critical incidents; time to close audit findings
+      <= 30 days; % assets in compliance >= 99%.
+storyBrand:
+  character: >-
+    Transmission operators and grid reliability managers who need trustworthy,
+    real‑time line capacity.
+  problem: >-
+    Static ratings ignore live weather and conductor conditions, causing
+    congestion, curtailment, and uncertainty about thermal limits and
+    compliance.
+  guide: >-
+    DLR Estimator and Alerting is a reliability‑first AI service that turns
+    ambient data and conductor properties into safe, defensible dynamic line
+    ratings—integrated with EMS/SCADA and built on industry thermal models.
+  plan: >-
+    1) Connect weather, SCADA/PMU, and conductor specs. 2) Calibrate and
+    validate on historical data; set thresholds for deviations. 3) Go live with
+    APIs, dashboards, and alerts into existing ops workflows.
+  callToAction: Schedule a demo and launch a 30‑day pilot on priority corridors.
+  success: >-
+    Dispatch with confidence, unlock safe headroom, reduce curtailment and
+    congestion costs, improve situational awareness, and align with AAR/DLR best
+    practices (e.g., FERC Order 881 context).
+  failure: >-
+    Continue flying blind: stranded capacity, surprise thermal violations,
+    avoidable outages and penalties, and unnecessary capex to solve a visibility
+    problem.
+landingPage:
+  hero:
+    title: Dynamic Line Rating Estimator & Alerts for Transmission Operators
+    subtitle: >-
+      Estimate safe dynamic line ratings from ambient conditions and conductor
+      properties. Get alerts when DLR deviates from static ratings.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - Static line ratings strand safe capacity
+    - Weather variability makes fixed limits unreliable
+    - Congestion and curtailment costs escalate
+    - Manual rating updates are slow and error-prone
+    - Limited visibility into span-level hot spots and clearance risk
+    - Hard-to-audit decisions and fragmented data sources
+  solution:
+    - Estimate safe DLR using ambient conditions and conductor properties
+    - Alert when DLR deviates from static ratings or falls below thresholds
+    - 'Forecast DLR to support dispatch, outages, and congestion management'
+    - Confidence bands and explainable drivers for operator trust
+    - Integrate with EMS/SCADA and market tools via APIs or ICCP
+    - Secure deployment on-prem or cloud with full audit trail
+  features:
+    - Real-time DLR at 1–5 min cadence
+    - 15 min–48 hour DLR forecasts
+    - 'Ambient inputs: temperature, wind, solar irradiance, precipitation'
+    - 'Conductor library with sag/clearance constraints (ACSR, ACSS, ACCC, HTLS)'
+    - Static vs dynamic rating overlay and what‑if scenarios
+    - 'Alerts: up/down deviation, ramp-rate, uncertainty, clearance risk'
+    - Data quality checks and conservative fallback logic
+    - 'Operator UI: map, timeline, and asset dashboards'
+    - 'Streams and APIs: REST, Webhooks, MQTT, ICCP connectors'
+    - 'Role-based access, SSO, and end-to-end encryption'
+    - Reports and exports for audit and compliance workflows
+    - 'Flexible deployment: cloud, on‑prem, or edge gateway'
+  steps:
+    - 'Connect weather, SCADA, and asset metadata'
+    - Select conductors and spans; set safety margins and policies
+    - Define alert rules and notification channels
+    - Integrate limits to EMS/EDC via API/ICCP
+    - 'Pilot, validate against historicals, and go live'
+---
+# DLR Sentinel
+
+Industry: Electric Bulk Power Transmission and Control
+Service: Dynamic Line Rating (DLR) Estimator and Alerting

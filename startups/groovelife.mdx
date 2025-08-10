@@ -1,0 +1,351 @@
+---
+name: GrooveLife AI
+slug: groovelife
+service:
+  title: Roll wear and groove life tracker
+  description: >-
+    Tracks roll tonnage, thermal cycles, and wear proxies to predict groove life
+    and plan changeovers with minimal disruption.
+  targetUsers:
+    - Mill Superintendent
+    - Roll Shop Lead
+    - Scheduler
+  triggers:
+    - Unexpected roll changes
+    - Excessive shape/size drift
+    - High setup time
+  inputs:
+    - Tonnage by pass/groove (MES)
+    - Product mix/grade history
+    - Cooling/lubrication events (SCADA)
+    - Roll grinding records
+  steps:
+    - Model groove life vs tonnage/mix/grade
+    - Detect drift from dimensional checks
+    - Predict remaining passes by groove
+    - Optimize changeover timing vs schedule
+    - Publish next-week roll plan
+  tools:
+    - Python/Pandas
+    - LightGBM
+    - OR-Tools
+    - Power BI
+  outputs:
+    - Remaining life per groove/roll
+    - Recommended changeover windows
+    - Impact on throughput and quality
+  pricingModel:
+    - Subscription per mill/month
+    - Optional integration to roll shop system
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 6
+    overall: 7
+  risks:
+    - Inaccurate tonnage attribution
+    - Unmodeled grinding/restoration effects
+    - Operator override without feedback
+  dependencies:
+    - MES pass/tonnage data
+    - Dimensional measurement feed
+    - Roll shop records
+leanCanvas:
+  problem:
+    - >-
+      Unplanned roll/groove changeovers cause 30–90 minutes of hot-line
+      downtime, costing $20k–$80k per hour and disrupting delivery schedules.
+    - >-
+      Conservative, fixed tonnage limits leave 10–25% of groove life unused,
+      increasing roll costs and changeover frequency.
+    - >-
+      Data to manage groove life is siloed (PLC, historian, roll shop
+      spreadsheets, operator logs) with no groove-level genealogy or automated
+      reconciliation.
+    - >-
+      Thermal cycling (start/stop, grade changes, cooling water anomalies)
+      accelerates wear unpredictably; mills lack continuous proxies to quantify
+      these effects.
+    - >-
+      Mismatch between roll shop availability and production plan (grades,
+      sizes, campaigns) leads to late or early changeovers and quality risk.
+    - >-
+      Surface defects and ovality drift from worn grooves are often detected
+      post-process, causing rework, scrap, or customer claims.
+    - >-
+      Limited visibility into wear rate drivers (speed, lube/cooling flow, motor
+      torque, separating force) prevents continuous optimization.
+    - >-
+      Excessive spare roll inventory is held to hedge uncertainty, tying up
+      capital and shop capacity.
+    - >-
+      Existing tools (tonnage counters, spreadsheets, generic analytics) don’t
+      deliver reliable, actionable groove life predictions or schedule
+      recommendations.
+    - >-
+      OEM/automation vendor lock-in and custom projects are costly and slow;
+      mills need vendor-agnostic solutions that integrate with existing systems.
+  solution:
+    - >-
+      Edge and historian connectors (OPC UA, Modbus/TCP, MQTT, PI/AVEVA,
+      Proficy) capture tonnage by pass, speed, motor torque/power, separating
+      force, cooling flows, and pyrometer data.
+    - >-
+      Roll/groove genealogy engine links roll IDs, groove IDs, stand/pass,
+      regrinds, dates, shift logs, and quality results to every billet/heat
+      processed.
+    - >-
+      Feature engineering of wear proxies: cumulative tonnage by groove, thermal
+      cycles (time above temp thresholds), torque/RSF deviations, water/lube
+      anomalies, speed/grade effects, cobble events.
+    - >-
+      Physics-informed ML (survival analysis + gradient boosting) predicts
+      remaining useful life (RUL) in tons/time for each groove and classifies
+      high-risk grooves for the next shift/campaign.
+    - >-
+      Scheduler optimizer recommends the best changeover window aligned to the
+      production plan (grades, sizes, orders), roll shop capacity, and quality
+      risk tolerance; publishes to MES/EAM (SAP PM, Maximo).
+    - >-
+      Root-cause analytics compares expected vs observed wear rates to flag
+      drivers (e.g., cooling imbalance, misalignment, speed changes) and
+      quantifies their impact.
+    - >-
+      Operator- and roll shop–focused interfaces: groove health dashboard,
+      shift-ahead alerts, what-if simulations (campaign changes), and mobile
+      notifications (Teams/SMS).
+    - >-
+      Deployment options: on-prem or hybrid cloud with offline buffering,
+      role-based access, and full audit trail.
+    - >-
+      90-day paid pilot playbook with success criteria (downtime avoided,
+      prediction accuracy, tonnage uplift) and ROI validation; scales to
+      multi-line enterprise rollout.
+  uniqueValueProp: >-
+    Predict groove life at the groove/pass level and align changeovers with the
+    production plan—reducing unplanned downtime by 30–50%, increasing
+    tonnage-per-groove by 5–12%, and cutting roll-related quality incidents, all
+    with a vendor-agnostic, fast-to-integrate AI service.
+  unfairAdvantage: >-
+    A groove-level, physics-informed ML stack and genealogy engine tuned on
+    cross-mill datasets, plus ready-made connectors to PLC/historians and
+    MES/EAM—delivering accurate predictions and actionable schedules with
+    minimal disruption and no OEM lock-in. Early mover network effects compound
+    as benchmarks improve across sites.
+  customerSegments:
+    - >-
+      EAF mini-mills producing long products (bar, wire rod, sections) with
+      10–30 stands/line.
+    - >-
+      Integrated steelmakers with long-rolling lines (rails, beams, merchant
+      bar).
+    - >-
+      Mill roles: mill superintendent, roll shop manager, maintenance planner,
+      process/metallurgy engineer, production scheduler, quality manager.
+    - >-
+      Corporate operations/CI teams standardizing best practices across
+      multi-site portfolios.
+    - >-
+      Roll service centers managing roll regrinding for multiple mills (as
+      partners or secondary customers).
+  channels:
+    - >-
+      Direct enterprise sales to steel producers (COO/VP Ops, mill managers)
+      with an ROI-led pitch and references.
+    - >-
+      OEM/automation partnerships (ABB, Siemens) and roll OEMs (Primetals, SMS
+      group, Danieli, WHEMCO/ESW) for co-selling and integration kits.
+    - >-
+      Historian/MES ecosystems (AVEVA PI, Seeq, Level 2/3 vendors) for
+      marketplace listings and joint webinars.
+    - >-
+      Paid 90-day pilots with clear success criteria: ≥30% reduction in
+      emergency changeovers, ≤15% MAPE on groove RUL, ≥5% tonnage-per-groove
+      uplift, documented downtime savings.
+    - >-
+      Industry conferences and technical papers (AISTech, METEC, Rolling
+      conferences) plus plant visits and demo days.
+    - >-
+      Account-based marketing to top 100 long-product producers; thought
+      leadership content (case studies, calculators).
+    - >-
+      Channel integrators with metals domain expertise for deployment at
+      regional mills.
+    - >-
+      Customer success playbooks for land-and-expand from one line to multi-site
+      standardization.
+  revenueStreams:
+    - >-
+      Annual subscription per rolling line or per stand (typical: $8k–$15k per
+      stand per month; $150k–$400k ARR per line depending on stands/features).
+    - >-
+      One-time onboarding/integration fee per site ($100k–$250k) based on data
+      sources and interfaces.
+    - >-
+      Paid pilot (90 days) at $50k–$90k credited toward subscription upon
+      conversion.
+    - >-
+      Premium modules: advanced optimizer, cross-site benchmarking, quality
+      linkage, and spare roll inventory optimization (+$25k–$75k ARR).
+    - >-
+      Professional services/training packages ($15k–$50k) and optional managed
+      monitoring (NOC-style) retainer.
+  costStructure:
+    - >-
+      COGS: edge hardware or VM licenses and cloud/on-prem compute/storage
+      ($1k–$3k per site per month), data egress, monitoring.
+    - >-
+      Implementation/integration labor (controls engineers, data engineers):
+      $50k–$150k per site average.
+    - >-
+      R&D: ML engineers, metallurgical/process SMEs, software engineers for
+      connectors/optimizers.
+    - >-
+      Sales and customer success (technical pre-sales, pilot execution,
+      training, support).
+    - Partner channel fees/revenue share (5–15%) for OEM/integrator-led deals.
+    - >-
+      Security/compliance (pen tests, certifications), documentation, and
+      product support (SLA, L2/L3).
+  keyMetrics:
+    - >-
+      Prediction accuracy: MAPE ≤ 15% for groove RUL (tons/time), site-level
+      median lead time ≥ 8 hours.
+    - >-
+      High-risk classification performance: recall ≥ 85% and precision ≥ 70% for
+      unplanned changeover risk within next shift.
+    - >-
+      Operational impact: 30–50% reduction in emergency changeovers by month 6;
+      5–12% increase in average tonnage-per-groove.
+    - >-
+      Downtime savings: ≥ 2–6 hours/month avoided per line by month 6 (validated
+      against historian/MES).
+    - >-
+      Quality: ≥ 20% reduction in roll-wear-related surface defects/ovality
+      excursions within 6 months.
+    - >-
+      User adoption: ≥ 70% weekly active usage among targeted roles (roll shop,
+      planner, shift leads).
+    - >-
+      Data coverage: ≥ 99% data pipeline uptime; ≤ 1% missing tags with
+      auto-imputation/alerts.
+    - >-
+      Schedule adherence: ≥ 90% adherence of recommended vs executed changeovers
+      (with exceptions tracked).
+    - >-
+      Integration latency: decisions published to MES/EAM within ≤ 2 minutes of
+      new plan or alert.
+    - >-
+      Financial ROI: payback ≤ 6–9 months; NRR ≥ 120% via module add-ons and
+      multi-line expansion.
+storyBrand:
+  character: >-
+    Mill and operations leaders in rolled steel shape plants who need
+    predictable groove life, maximized uptime, and safe, on-time changeovers.
+  problem: >-
+    External: roll/groove wear is invisible until it isn’t—causing scrap,
+    downtime, and risk. Internal: teams feel blind and reactive. Philosophical:
+    in a data-rich mill, you shouldn’t have to guess when to change grooves.
+  guide: >-
+    We understand the chaos of surprise roll failures. Our AI blends tonnage,
+    thermal cycles, and wear proxies with metallurgy-informed models; integrates
+    with PLC/MES; and keeps your data private and yours.
+  plan: >-
+    1) Connect counters/sensors (tonnage, temperatures, passes) or import run
+    history. 2) Calibrate on your products and roll sets. 3) Predict groove life
+    and optimal changeover windows by stand/pass. 4) Alert and schedule to
+    minimize disruption. 5) Review after each campaign to continuously improve.
+  callToAction: >-
+    Direct: schedule a 30-minute demo and pilot on one line. Transitional:
+    download a sample groove-life report and ROI model.
+  success: >-
+    Predictable groove life, fewer emergency changeovers, higher throughput,
+    lower scrap and roll costs, safer crews, and delivery dates you can keep.
+  failure: >-
+    Keep firefighting: sudden groove failures, lost tons per hour, overtime and
+    missed shipments, safety exposure, and budget surprises.
+landingPage:
+  hero:
+    title: Predict groove life. Plan changeovers. Keep rolling.
+    subtitle: >-
+      AI that tracks roll tonnage, thermal cycles, and wear proxies to forecast
+      groove life and schedule changeovers with minimal disruption.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - Unplanned roll and groove failures halt the mill and wreck schedules.
+    - >-
+      Conservative changeovers leave life on the table and inflate roll-shop
+      costs.
+    - Logs live in spreadsheets and notebooks—no single source of truth.
+    - Thermal and mechanical histories are invisible across stands and passes.
+    - 'Over‑worn grooves drive scrap, rework, and quality claims.'
+    - 'Planners firefight: overtime, missed orders, and frustrated crews.'
+  solution:
+    - >-
+      Physics‑informed ML predicts remaining groove life and tonnage with
+      confidence bands.
+    - >-
+      Real‑time tracking of tonnage and thermal cycles by stand, pass, and
+      groove.
+    - >-
+      Changeover windows optimized to production schedule, heat plan, and crew
+      availability.
+    - >-
+      Early‑warning alerts and red/amber/green status before risk thresholds are
+      crossed.
+    - >-
+      Automatic work orders to CMMS with grind instructions and roll‑set
+      recommendations.
+    - >-
+      Role‑specific dashboards for Operations, Planning, and Quality; mobile
+      notifications.
+    - >-
+      Closed‑loop learning from campaign outcomes to continuously improve
+      accuracy.
+    - >-
+      Typical outcomes: +0.5–2% availability, −20–40% emergency changeovers,
+      −5–10% roll‑shop cost/ton.
+  features:
+    - >-
+      Data connectors: PLC/Level 2, historian (e.g., PI), MES, lab/quality
+      systems.
+    - >-
+      Wear model: friction energy, contact pressure, and thermal fatigue;
+      calibrated to your campaigns.
+    - >-
+      Groove life forecast: remaining tonnage/time per groove and pass, with
+      confidence intervals.
+    - >-
+      Changeover planner: optimal slot suggestions with throughput and quality
+      impact.
+    - >-
+      Grade and pass‑schedule aware: heat, cooling, lube, and surface speed
+      effects included.
+    - >-
+      Quality guardrails: limits tied to underfill/overfill proxies; SPC
+      integrations.
+    - >-
+      Reporting: life consumption, MTBF/MTTR, emergency vs planned changes, cost
+      per ton.
+    - >-
+      Integrations: CMMS (SAP PM, Maximo), MES, email/SMS, REST API and
+      webhooks.
+    - >-
+      Security and deployment: role‑based access, SSO, audit trail; cloud or
+      on‑prem.
+    - >-
+      Offline resilience: local caching and sync to handle network
+      interruptions.
+  steps:
+    - Connect mill data sources (1–2 days).
+    - Calibrate models with 30–90 days of history (1–2 weeks).
+    - Pilot on one stand to validate predictions (2–4 weeks).
+    - Train operators and planners; tune thresholds and alerts (1 week).
+    - Go live across stands; integrate CMMS/MES and notifications (1–2 weeks).
+    - Monthly model refresh and KPI review for continuous improvement.
+---
+# GrooveLife AI
+
+Industry: Rolled Steel Shape Manufacturing
+Service: Roll wear and groove life tracker

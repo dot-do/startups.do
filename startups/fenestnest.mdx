@@ -1,0 +1,306 @@
+---
+name: FenestNest AI
+slug: fenestnest
+service:
+  title: 'Cut-List and Nesting Optimizer (Profiles, Sheet, and Glass)'
+  description: >-
+    Generates optimized cut lists and nests to minimize scrap and changeovers;
+    exports machine-ready files and labels.
+  targetUsers:
+    - Production Engineers
+    - Saw/CNC Operators
+    - Planners
+  triggers:
+    - Job release from ERP/MRP
+    - Approved shop drawing
+    - Manual upload of BOM
+  inputs:
+    - BOM with part lengths/quantities
+    - Stock lengths/sheet sizes and kerf
+    - 'Machine constraints (miter, notch, CNC ops)'
+    - Grain/finish/orientation rules
+    - Remnant inventory
+  steps:
+    - Parse BOM and normalize part specs
+    - Group by material/finish and constraints
+    - Run linear/2D nesting to minimize scrap and saw changes
+    - Allocate remnants and propose buy list if stock short
+    - 'Generate cut tickets, labels, and machine programs (DXF/NC)'
+    - Simulate yield vs previous runs; produce scrap and cost report
+    - Publish packages to operator tablet/print queue
+  tools:
+    - Nesting libraries (OpenNest/SVGnest or commercial API)
+    - OR-Tools for optimization
+    - CAD/DXF generators
+    - ERP/PLM API for BOM/status
+    - Label printing API (Zebra/Loftware)
+  outputs:
+    - Optimized cut lists and nests
+    - DXF/NC files where applicable
+    - Labels with QR/part IDs
+    - Scrap/yield report
+    - Remnant update and buy suggestions
+  pricingModel:
+    - Per-job fee
+    - Monthly subscription + per-nest compute
+    - Savings-share option against baseline scrap
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 7
+    overall: 7
+  risks:
+    - Machine post-processor mismatches
+    - Incorrect constraints causing fitment issues
+    - Remnant data accuracy
+  dependencies:
+    - Access to BOM and stock database
+    - Machine format/post requirements
+    - Label templates and printers
+leanCanvas:
+  problem:
+    - >-
+      Excess material waste: 8–20% scrap on aluminum profiles and 5–12% on
+      glass/sheet due to manual or siloed nesting and fragmented job batching.
+    - >-
+      High changeover and setup time: 20–40 minutes per saw/laser/glass-table
+      changeover; 4–8 changeovers per shift; 2–3 hours/day lost capacity.
+    - >-
+      Data re-entry and errors: BOMs from configurators/ERP are manually
+      reworked for machines; 1–3% miscuts/rework; labels not synchronized with
+      nests.
+    - >-
+      Poor remnant utilization: 30–60% of remnants never reused due to lack of
+      tracking/constraints, increasing raw material purchases by 2–5%.
+    - >-
+      Scheduling conflicts: rush jobs disrupt nests; no multi-objective
+      optimization to balance due dates, material yield, and machine time.
+    - >-
+      Limited traceability: inconsistent part labeling/serialization leads to
+      wrong-piece at assembly/field, 0.5–1.5% return/repair rate.
+  solution:
+    - >-
+      Multi-objective optimizer that simultaneously minimizes material scrap and
+      changeover time while meeting due dates and machine constraints across
+      profiles, sheet, and glass.
+    - >-
+      Edge + cloud architecture: secure on-prem edge agent connects
+      machines/labelers; cloud service performs heavy optimization; offline
+      fallback with cached recipes.
+    - >-
+      Native connectors to LogiKal, Soft Tech V6, A+W, FeneVision,
+      SchüCal/ReynaPro exports; ERP/MES connectors (SAP, Microsoft Dynamics 365,
+      NetSuite, Odoo) to import BOMs, orders, and route parameters.
+    - >-
+      Certified post-processors for common machines (e.g., Elumatec/Emmegi/FOM
+      saws; Bystronic/Trumpf lasers; Lisec/Bottero glass tables) generating
+      NC/DXF/G-code/CSV/BTX as required.
+    - >-
+      Dynamic remnant library with constraint-aware reuse (min length/width,
+      grain/miter limits, coating orientation for glass, expiry flags) and
+      barcode tracking.
+    - >-
+      Changeover-aware sequencing engine that batches by profile, tool, coating,
+      color/finish, or thickness to reduce tool swaps, blade head changes, or
+      re-zeroing.
+    - >-
+      One-click label generation with GS1/QR codes, station routing, and
+      assembly/barcoding rules; integrates with Zebra/Brady/TSC printers and
+      scanners.
+    - >-
+      Shop-floor dashboards: live queue, OEE aids, what-if simulation for rush
+      orders; KPI reporting on yield, minutes saved, and material $ saved.
+    - >-
+      Role-based APIs and audit logs; SOC 2-ready controls; regional data
+      residency options.
+  uniqueValueProp: >-
+    AI-driven, multi-material cut-list and nesting optimizer purpose-built for
+    fenestration that reduces scrap by 10–18% and changeover time by 25–40%,
+    boosts throughput 10–15%, and exports certified machine-ready files and
+    labels integrated with your configurator, ERP/MES, and shop-floor
+    printers—delivering payback in under 90 days for typical mid-sized plants.
+  unfairAdvantage: >-
+    A fenestration-specific, changeover-aware optimization engine trained on
+    cross-material data (profiles, sheet, glass) plus a certified library of
+    post-processors and configurator connectors. This combination delivers
+    measurable gains in both material yield and runtime efficiency that
+    general-purpose nesting tools and single-material OEM software rarely
+    achieve. Early access to partner OEM machine specs and system-house profile
+    libraries further raises switching costs.
+  customerSegments:
+    - >-
+      Primary: Mid-sized aluminum window/door and curtain wall fabricators
+      (50–500 employees) operating CNC profile saws, sheet laser/punch, and
+      glass cutting tables.
+    - >-
+      Secondary: Large multi-site fenestration manufacturers (Tier-1 system
+      fabricators) seeking standardized optimization across plants.
+    - >-
+      Adjacent: Glazing contractors with in-house fabrication;
+      storefront/partition manufacturers; OEM machine builders wanting embedded
+      optimization; aluminum system houses offering digital toolkits to
+      fabricator networks.
+  channels:
+    - >-
+      Direct sales to mid-market fabricators: build a list of 1,000 targets in
+      North America/EU; SDR outreach with a 12-week paid pilot offer; target 10%
+      meeting rate, 30% pilot conversion, 60% pilot-to-annual conversion.
+    - >-
+      OEM partnerships with machine makers (Elumatec, Emmegi, FOM, Bystronic,
+      Trumpf, Lisec, Bottero): certify post-processors, bundle in new-machine
+      sales; revenue-share 10–20%; co-marketing webinars and demo cells.
+    - >-
+      ISV integrations/marketplaces: LogiKal, Soft Tech, A+W, FeneVision
+      plug-ins; promote via partner directories; joint case studies; target 100
+      plugin installs in Year 1.
+    - >-
+      Industry events: GlassBuild America, Fensterbau Frontale, BAU,
+      FABTECH/EuroBLECH; run live nesting-to-label demos; capture 200+
+      MQLs/event; 10% to pilot.
+    - >-
+      Content/SEO: technical whitepapers on changeover-aware nesting, ROI
+      calculator, scrap benchmark study; goal 3,000 monthly organic visits by
+      Month 12, 2% demo CTA conversion.
+    - >-
+      Referral program: 1 free month per successful referral; aim for 15% of new
+      ARR via referrals by Year 2.
+    - >-
+      Regional resellers/system integrators for ERP/MES: training/certification;
+      target 10 active integrators by Year 2.
+  revenueStreams:
+    - >-
+      Subscription per work center (profiles, sheet, glass) with volume tiers:
+      Basic $400/month/center, Pro $900/month/center, Enterprise
+      $1,500/month/center (advanced features/API/HA).
+    - >-
+      Usage-based compute for large batch optimizations beyond plan quotas: $8
+      per 1,000 parts nested or $0.15 per square meter nested.
+    - >-
+      Professional services: onboarding/integration ($5k–$50k), custom
+      post-processors ($3k–$15k), on-site training ($2k/day).
+    - >-
+      Premium support/SLA (24/7, <1-hour response, dedicated CSM): +15% of
+      subscription.
+    - >-
+      OEM/partner licensing and revenue-share on bundled deals (10–20% of
+      first-year ARR).
+  costStructure:
+    - 'R&D and product (optimization scientists, software, QA): 35–45% of OPEX.'
+    - >-
+      Cloud/compute (GPU/CPU optimization clusters, data transfer, storage):
+      scales with usage at 8–12% of revenue target gross margin 75–80%.
+    - >-
+      Implementation/professional services: 10–15% of OPEX; aim for 30–40%
+      margin on services.
+    - 'Sales and marketing: 20–30% of OPEX including events, demos, partner MDF.'
+    - >-
+      Partner certifications and test labs (machine time, materials): fixed
+      $150k–$300k/year.
+    - >-
+      Customer support/CSM: 8–12% of OPEX; target support cost <3% of ARR by
+      Year 3.
+    - >-
+      Compliance/security/insurance (SOC 2, product liability):
+      $100k–$250k/year.
+  keyMetrics:
+    - >-
+      Yield improvement: (Baseline scrap% − Current scrap%) / Baseline scrap%
+      target +10–18% relative improvement within 90 days.
+    - >-
+      Changeover reduction: minutes of setup/changeover per shift target
+      −25–40%.
+    - 'Throughput: parts/shift or m²/shift +10–15% with same labor/machines.'
+    - >-
+      Remnant reuse rate: % of total material sourced from remnants target
+      15–25%; remnant $ value turnover <60 days.
+    - 'Right-first-time: miscut/rework rate ↓ to <0.5%.'
+    - >-
+      Time-to-first-value: days from contract to first accepted machine program
+      target <21 days.
+    - 'Adoption: % of jobs processed through optimizer >85% by Day 60 of go-live.'
+    - >-
+      Financial: payback period <90 days; CAC payback <12 months; GRR >90%, NRR
+      >115% by Year 2; monthly logo churn <1% mid-market.
+    - >-
+      Sales funnel: demo→pilot 30%, pilot→close 60%, average ARR/customer
+      $12k–$25k; win rate vs shortlist >35%.
+    - 'Support: first-response <2 hours, CSAT >4.5/5, NPS >40.'
+storyBrand:
+  character: >-
+    Operations and production managers at metal window and door manufacturers
+    who must deliver precise cuts and assemblies under tight margins and
+    deadlines.
+  problem: >-
+    Manual nesting and fragmented cut lists create scrap, excessive changeovers,
+    machine idle time, and labeling errors—leading to rework and missed ship
+    dates.
+  guide: >-
+    Cut-List and Nesting Optimizer is an AI service built for profiles, sheet,
+    and glass. We understand fenestration workflows and help teams hit yield and
+    lead times with machine-ready outputs.
+  plan: >-
+    1) Connect ERP/CAD and define stock, machines, and rules. 2) Upload jobs; AI
+    generates optimized nests and cut lists. 3) Export machine-ready files and
+    labels; track results and refine.
+  callToAction: >-
+    Schedule a 20-minute demo or upload a sample job for a free optimization
+    report and pilot.
+  success: >-
+    Higher yield and fewer changeovers, faster throughput, accurate labels, and
+    on-time delivery—driving predictable margins, confident scheduling, and
+    happier customers.
+  failure: >-
+    Ongoing scrap, bottlenecks, rework, and late orders that erode profit and
+    customer trust.
+landingPage:
+  hero:
+    title: AI Cut‑List & Nesting Optimizer for Window and Door Manufacturing
+    subtitle: >-
+      Minimize scrap and changeovers across profiles, sheet, and glass. Export
+      machine‑ready files and labels in minutes.
+    ctaText: Start optimizing
+    ctaHref: /get-started
+  problem:
+    - Material waste from manual cut lists and static nest rules
+    - Frequent saw/tool changeovers slow throughput
+    - 'Profiles, sheet, and glass planned in silos—errors cascade to assembly'
+    - Machines wait on clean files and labels
+    - Remnants pile up without visibility or reuse
+    - 'Operators spend hours fixing angles, allowances, and kerf issues'
+    - Quotes and schedules slip due to slow optimization
+  solution:
+    - 'Single AI engine optimizes profiles, sheet, and glass together'
+    - Targets lowest scrap and fewest changeovers automatically
+    - >-
+      Exports machine‑ready files for saws, lasers, routers, punches, and
+      waterjets
+    - 'Prints barcoded labels with cut, miter, and assembly data'
+    - 'Tracks and reuses remnants by size, finish, and location'
+    - Synchronizes results back to ERP/MES for real‑time status
+  features:
+    - 'Multi‑material optimization: profiles, sheet, and glass'
+    - 'Changeover-aware grouping by tool, finish, and profile'
+    - 'Miter, angle, notch, and end‑work handling'
+    - 'Sheet nesting with part rotation, grain, and common‑line cut options'
+    - Glass nesting with edge allowances and breakout rules
+    - Remnant tracking and automatic reuse on future jobs
+    - Cross‑job and cross‑day batching to fill stock lengths and sheets
+    - 'Machine‑ready exports (DXF, NC, CSV, label PDFs/ZPL)'
+    - 'CNC saw, laser, router, punch, and waterjet compatibility'
+    - 'Barcode labels: part ID, angles, hole ops, assembly zone'
+    - 'What‑if scenarios: cost, scrap, and time impact'
+    - 'Rules and constraints per finish, alloy, coating, and kerf'
+    - Operator notes and work instructions on labels
+    - 'Audit trail of nests, cuts, and leftovers'
+  steps:
+    - Import BOMs from ERP/CAD (CSV/DXF/API)
+    - 'Set stock, kerf, angles, sheet sizes, and glass allowances'
+    - Run AI optimization to minimize scrap and changeovers
+    - 'Review nests, simulate cuts, and lock keepers/remnants'
+    - Export CNC/label files and dispatch to machines
+    - Sync production results back to ERP/MES and track savings
+---
+# FenestNest AI
+
+Industry: Metal Window and Door Manufacturing
+Service: Cut-List and Nesting Optimizer (Profiles, Sheet, and Glass)

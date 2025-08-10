@@ -1,0 +1,384 @@
+---
+name: CoatCast AI
+slug: coatcast
+service:
+  title: SKU Demand Forecasting + Coating/Compounding Plan Co‑Pilot
+  description: >-
+    Forecast SKU demand and generate a feasible weekly coating/compounding plan
+    under capacity, changeover, and material constraints (e.g., silver nitrate,
+    PET base, binders).
+  targetUsers:
+    - Supply Chain Manager
+    - Production Planner
+    - Plant Manager
+  triggers:
+    - Weekly S&OP cycle
+    - Large customer order arrives
+    - Backlog or service level breach
+    - Commodity price spike scenario analysis
+  inputs:
+    - 24–36 months order/shipment history by SKU/customer
+    - SKU BOMs and routings
+    - Line/tank capacities and calendar
+    - Changeover matrices and cleaning times
+    - Lead times/MOQs/on‑hand/in‑transit
+    - Service level targets and priorities
+  steps:
+    - Ingest and clean data from ERP/MES
+    - Hierarchical demand forecasting (SKU/customer/region)
+    - 'Scenario simulations (promo, price, macro)'
+    - MILP optimization to create feasible weekly plan
+    - Export plan to Sheets/ERP and notify via Slack
+    - Planner review and iterate with guardrails
+  tools:
+    - Python/Pandas
+    - sktime/Prophet/NeuralProphet
+    - OR‑Tools/PuLP/Gurobi (optional)
+    - Snowflake/BigQuery connectors
+    - Google Sheets/Excel APIs
+    - Slack API
+    - Plotly Dash
+  outputs:
+    - SKU‑level forecasts with confidence intervals
+    - Optimized weekly run plan with changeovers
+    - Capacity utilization and bottleneck report
+    - What‑if scenario comparisons
+  pricingModel:
+    - One‑time onboarding (data/connectors/model)
+    - Monthly subscription by plant/SKU tier
+    - Optional scenario pack add‑on
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8.5
+  risks:
+    - Poor master data/changeover matrices reduce plan quality
+    - Sudden demand shocks outside model range
+    - Planner adoption/change management
+    - Integration effort with ERP
+  dependencies:
+    - Historical ERP/MES data access
+    - Defined constraints and business rules
+    - API/service account credentials
+    - Planner time for validation
+leanCanvas:
+  problem:
+    - >-
+      Intermittent and long-tail SKU demand (10–40% of SKUs sell <1 unit/week)
+      causes high MAPE (25–45%) and safety stock bloat.
+    - >-
+      Long raw-material lead times (8–16 weeks for PET base; 4–8 weeks for
+      silver salts/binders) misalign with weekly coating campaigns, creating
+      frequent shortages and expedites.
+    - >-
+      Sequence-dependent changeovers (emulsion, color, base width/thickness,
+      hopper configuration) consume 15–30% of available coater time in many
+      plants.
+    - >-
+      Emulsion/toner batch shelf life and temperature sensitivity lead to 3–7%
+      scrap from expiry or off-spec rework.
+    - >-
+      Siloed planning—demand planning in spreadsheets, production scheduling in
+      MES/whiteboards—causes low plan adherence (<70%) and firefighting.
+    - >-
+      Price volatility of silver and petrochemicals leads to unoptimized
+      allocation across SKUs and erratic COGS.
+    - >-
+      Finite-capacity constraints (kettle size, dryer limits, tenter frames,
+      slitting/finishing, crew shifts) aren’t captured in MRP, causing
+      infeasible plans.
+    - >-
+      Quality/yield variability (e.g., ±3–8% yield by width and speed) isn’t
+      reflected in plans, causing OTIF misses (target 95%, actual 85–92%).
+    - >-
+      Regulatory/environmental constraints (silver recovery, solvent emissions)
+      limit campaign lengths yet are rarely encoded in planning tools.
+    - >-
+      Limited scenario capability—planners can’t quickly test “what if silver
+      price spikes 20%” or “one coater down for 3 days,” delaying decisions.
+  solution:
+    - >-
+      Demand module: Hierarchical and intermittent-SKU forecasting with external
+      signals (camera/lab volumes, distributor inventory, promo calendars).
+    - >-
+      Planning module: Weekly 13–26 week rolling feasible plan using MILP/CP
+      optimizer with capacity, changeover, material, and shelf-life constraints.
+    - >-
+      Materials module: Multi-echelon inventory and MRP with supplier lead
+      times, MOQ/campaign sizing, and silver/PET allocation optimization.
+    - >-
+      Coating/Compounding Co-Pilot: Natural-language what-if, root-cause
+      analysis, guided S&OP playbooks, and explainable recommendations.
+    - >-
+      Scenario studio: Stress-test plans for outages, price shocks, rush orders;
+      compute service, cost, and capacity trade-offs.
+    - >-
+      Integration layer: Connectors for SAP/Oracle/D365, MES, LIMS, historians;
+      continuous data quality checks and master data governance.
+    - >-
+      Value tracking: Live KPIs (MAPE, OTIF, turns, changeovers, scrap, plan
+      adherence) with baselines and savings attribution.
+  uniqueValueProp: >-
+    AI-driven forecasting and finite-capacity planning that cuts changeovers
+    20–35%, reduces expired/emulsion scrap 2–5%, improves SKU-level service
+    level by 3–8 pts, and frees 5–10% capacity—purpose-built for film, paper,
+    plate, chemical, and toner manufacturing.
+  unfairAdvantage: >-
+    Prebuilt coating/compounding planning templates with sequence-dependent
+    changeovers, emulsion shelf-life models, and silver/PET allocation—codified
+    from domain SMEs—plus explainable co-pilot workflows and connectors
+    purpose-built for imaging media. Early lighthouse deployments generate
+    proprietary parameter priors (yield, changeover, contamination) that
+    accelerate time-to-value and are hard to replicate.
+  customerSegments:
+    - >-
+      Primary: Manufacturers of photographic film, photo paper, plates
+      (offset/CTP), photochemicals, and copier/printer toner (global,
+      mid-to-large plants).
+    - >-
+      Roles: VP Supply Chain, Director of Operations, S&OP Lead, Master
+      Scheduler, Plant Manager, Procurement Lead, Finance (COGS/working
+      capital).
+    - >-
+      Secondary: Toll coaters/compounders serving imaging and specialty
+      coatings; regional distributors seeking collaborative planning.
+    - >-
+      Geographies: North America, EU/UK, Japan, China, India; initial focus on
+      NA/EU/UK and Japan for higher data maturity.
+  channels:
+    - >-
+      Direct enterprise sales to a named list of 50 accounts (e.g., Fujifilm,
+      Eastman Kodak, Harman/Ilford, Foma, Agfa, Huaguang, Lucky, Canon, Ricoh,
+      Xerox, Mitsubishi Chemical, Ninestar, Tetenal, Champion).
+    - >-
+      Pilot-led land-and-expand: 12–16 week paid pilot per plant with success
+      criteria (≥3 pts service-level gain, ≥15% changeover reduction, ≤2% scrap
+      from expiry).
+    - >-
+      Alliances with ERP/MES SIs (Accenture, Capgemini, NTT Data, Deloitte,
+      Siemens Opcenter partners) for co-selling and implementation capacity.
+    - >-
+      Industry events and associations: AIMCAL R2R, ICE Europe, FESPA, drupa,
+      RadTech, The Recycler Live, China Print, LabelExpo; present case studies.
+    - >-
+      Content and ABM: domain whitepapers (e.g., “Silver-Optimized Planning in
+      Film Coating”), ROI calculators, webinars, and planner-focused demos.
+    - >-
+      Referral/data partnerships with distributors/labs for POS and inventory
+      signal-sharing programs.
+    - >-
+      Founder-led outreach to lighthouse plants; publish 2–3 reference case
+      studies within 12 months.
+    - >-
+      Pricing transparency with ROI guarantees: 6-month opt-out if KPIs not
+      achieved (with agreed baseline methodology).
+  revenueStreams:
+    - >-
+      Annual SaaS subscription per plant (modules + users): $90k–$350k ARR,
+      median $150k.
+    - >-
+      One-time onboarding/integration fee: $60k–$250k depending on data
+      complexity and number of lines.
+    - >-
+      Premium optimization package (Gurobi/CP license pass-through) + advanced
+      scenario studio: +$25k–$75k ARR.
+    - >-
+      Professional services: S&OP design, data governance, custom heuristics:
+      $150–$250/hr or fixed-scope packs.
+    - >-
+      Value-based kicker (optional): 5–10% of verified first-year savings above
+      threshold.
+    - >-
+      Training and certification for planners and S&OP leaders: $5k–$20k per
+      cohort.
+  costStructure:
+    - >-
+      Team: data science/OR, domain SMEs, engineering, implementations, support
+      (55–65% of spend in years 1–2).
+    - >-
+      Cloud infra and data: compute, storage, VPC peering, observability
+      (10–15%).
+    - 'Optimization solver licensing (Gurobi/CP): 3–6% depending on scale.'
+    - 'Sales and marketing: events, content, ABM tools, travel (10–18%).'
+    - 'Security/compliance: SOC 2, pen tests, audits, insurance (2–4%).'
+    - >-
+      G&A and legal (contracts with large OEMs, export controls for chemicals):
+      5–8%.
+    - 'Gross margin target: 70–75% by year 3; CAC payback target: <12 months.'
+  keyMetrics:
+    - >-
+      Forecast accuracy: WAPE ≤18% for A/B SKUs, ≤30% for C SKUs; bias within
+      ±5%.
+    - >-
+      Service level (SKU-week fill rate): +3–8 percentage points within 2
+      quarters; OTIF ≥95%.
+    - >-
+      Changeovers: −20–35% changeover hours per week; average campaign length
+      +15–25%.
+    - >-
+      Inventory: +1–2 turns; working capital −10–20%; days of silver inventory
+      −15%.
+    - 'Scrap due to expiry/off-spec: −2–5% of volume within 2 quarters.'
+    - >-
+      Capacity utilization: +5–10% effective capacity via better sequencing and
+      yield-aware speeds.
+    - >-
+      Plan adherence (frozen horizon): ≥85% adherence week over week; schedule
+      stability index ≥0.8.
+    - 'Expedites: −30–50% premium freight/expedite count within 6 months.'
+    - >-
+      Planner productivity: −30–50% time spent on schedule building and what-if;
+      <30 min to produce weekly feasible plan.
+    - 'ROI: 5–10x first-year ROI on subscription via savings and margin lift.'
+storyBrand:
+  character: >-
+    Plant schedulers, supply chain planners, and operations leaders in
+    photographic film, paper, plate, chemical, and copy toner manufacturing who
+    need reliable SKU forecasts and executable weekly coating/compounding plans.
+  problem: >-
+    External: Volatile SKU mix; long/variable lead times for silver nitrate, PET
+    base, and binders; constrained coaters/compounders; sequence-dependent
+    changeovers; campaign and shelf-life/aging constraints.
+
+    Internal: Constant firefighting; spreadsheets and generic MRP can’t keep up;
+    low confidence when making promise dates.
+
+    Philosophical: Planning analog imaging products should be science, not
+    guesswork—every plan should be feasible before it’s published.
+  guide: >-
+    Empathy: We understand midnight re-plans, legacy equipment limits, and
+    regulatory/quality demands unique to imaging chemicals and coated products.
+
+    Authority: Domain-tuned probabilistic forecasting plus constraint-based
+    optimization built for web coating and specialty chemicals; integrates with
+    ERP/MES; human-in-the-loop approvals and auditability.
+  plan: >-
+    Process: 1) Connect ERP/MES, BOMs, routings, inventory; 2) Calibrate
+    SKU-level demand (seasonality, promotions, intermittency); 3) Encode
+    constraints (coater widths, layer stacks, kettle sizes, changeover matrices,
+    curing/aging windows, material availability); 4) Generate feasible weekly
+    plan and what-if scenarios; 5) Review, approve, and publish to execution.
+
+    Agreement: Pilot one site/line in 6 weeks; keep current tools; data stays
+    private; clear success criteria and easy exit.
+  callToAction: >-
+    Direct: Schedule a 30-minute discovery and start a 6-week pilot.
+
+    Transitional: Get the feasibility checklist, sample plan, and an ROI range
+    based on your SKU portfolio.
+  success: >-
+    OTIF improves with plans you can trust; unnecessary changeovers and scrap
+    drop; raw-material drawdowns stabilize; asset utilization rises; planners
+    run scenarios in minutes; sales, planning, and manufacturing align around a
+    single, feasible weekly plan.
+  failure: >-
+    Without this, expect recurring stockouts/backorders, rush changeovers,
+    scrapped emulsions/expired chemicals, overtime and missed ship dates,
+    bloated safety stocks tying up silver/PET, and eroding credibility with
+    customers and finance.
+landingPage:
+  hero:
+    title: AI Co‑Pilot for SKU Demand & Weekly Coating/Compounding Plans
+    subtitle: >-
+      Forecast demand and auto‑build feasible weekly plans under capacity,
+      changeover, and material constraints—built for photographic film, paper,
+      plate, chemical, and copy toner manufacturing.
+    ctaText: Book a demo
+    ctaHref: /book-demo
+  problem:
+    - Volatile SKU demand creates stockouts on A‑items and overstock on tails.
+    - Manual spreadsheets and tribal knowledge don’t scale or survive turnover.
+    - Expensive coating/compounding changeovers drive waste and lost time.
+    - >-
+      Material bottlenecks (silver nitrate, PET base, binders, pigments) derail
+      plans.
+    - 'Plans ignore real line/kettle capacities, cleanouts, and setup calendars.'
+    - Shelf‑life and cure‑time misses cause scrap and write‑offs.
+    - 'No fast what‑if analysis for outages, late suppliers, or rush orders.'
+    - 'Poor OTIF, long lead times, and high WIP hurt customer trust and cash.'
+  solution:
+    - >-
+      SKU‑level probabilistic forecasts that quantify uncertainty and
+      seasonality.
+    - >-
+      Automated, feasible weekly coating/compounding plans respecting
+      capacities, changeovers, and materials.
+    - 'Optimized campaign sequencing to cut setups, flushes, and waste.'
+    - >-
+      Material‑aware planning: converts demand to silver, PET, binders,
+      pigments, and initiates timely buys.
+    - Shelf‑life and cure‑time compliant schedules to protect quality and OTIF.
+    - >-
+      What‑if sandbox for demand spikes, downtime, or delayed materials—compare
+      scenarios instantly.
+    - >-
+      One‑click exports to ERP/MES with clear build/coat/compound quantities by
+      line and week.
+    - >-
+      Live KPIs and alerts: service level, OTIF risk, utilization, inventory
+      days, silver usage.
+  features:
+    - >-
+      Data ingestion from ERP/MES (orders, BOMs, routings), POS/distributor
+      data, and CRM signals.
+    - >-
+      Hierarchical SKU forecasting (SKU‑plant/region/channel) with
+      reconciliation and new‑item analogs.
+    - >-
+      Uncertainty‑aware safety stock targets and reorder policies by
+      SKU/location.
+    - >-
+      Mixed‑integer optimization for line/kettle schedules with changeover
+      matrices and campaign rules.
+    - >-
+      Material balance by recipe: silver content, PET base width/gauge,
+      binders/pigments; alternates and substitutions.
+    - >-
+      Coating slotting by width/family; slitting/finishing capacity checks
+      before release.
+    - >-
+      Compounding kettle sizing with batch minimums, heat/cool time, and
+      cleanout logic.
+    - >-
+      Shelf‑life, cure‑time, and hold‑time constraints to prevent expiry and
+      rework.
+    - >-
+      Supplier lead times, MOQs, and calendars embedded in the plan with
+      automated buy signals.
+    - >-
+      Scenario planning: demand shocks, machine downtime, yield shifts, or
+      supply delays—side‑by‑side impact.
+    - >-
+      Exception management: shortage warnings, OTIF risk flags, and expedited
+      actions.
+    - >-
+      APIs and flat‑file connectors for SAP/Oracle/Infor; audit trails and
+      explainable decisions; Power BI dashboards.
+  steps:
+    - >-
+      Connect your data: ERP/MES/BOMs, historical orders, capacities, and
+      calendars.
+    - >-
+      Set constraints: line/kettle rates, changeovers, cleanouts, shift
+      patterns, shelf‑life rules, and materials.
+    - >-
+      Calibrate forecasts and service targets by SKU/location with quick
+      validation.
+    - >-
+      Generate the first feasible weekly plan—coating slots, compounding
+      batches, and material buys.
+    - >-
+      Review trade‑offs (utilization, OTIF, inventory, silver use) and approve
+      in one click.
+    - >-
+      Publish to ERP/MES and notify procurement, production, and planning
+      automatically.
+    - >-
+      Run what‑ifs weekly or on events; continuously learn and improve from
+      actuals.
+---
+# CoatCast AI
+
+Industry: Photographic Film, Paper, Plate, Chemical, and Copy Toner Manufacturing
+Service: SKU Demand Forecasting + Coating/Compounding Plan Co‑Pilot

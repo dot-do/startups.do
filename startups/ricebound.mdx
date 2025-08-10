@@ -1,0 +1,325 @@
+---
+name: RiceBound AI
+slug: ricebound
+service:
+  title: Remote Field Boundary & Rice Area Mapping
+  description: >-
+    Delineate paddy fields and confirm rice crop using satellite imagery for
+    accurate area measurement and planning.
+  targetUsers:
+    - Smallholder farmers
+    - Co-ops
+    - Agri NGOs
+    - Mill procurement teams
+  triggers:
+    - New farm onboarded
+    - Start of season
+    - Land area verification requested
+  inputs:
+    - Farmer GPS pin or rough sketch
+    - Village/region
+    - Season start date
+    - 'Optional: prior boundaries'
+  steps:
+    - Ingest farmer location and rough boundary
+    - Fetch recent and historical Sentinel-2 and Sentinel-1 imagery for AOI
+    - >-
+      Run segmentation to refine field boundaries; use SAR to detect paddy water
+      signatures
+    - Classify rice vs non-rice from seasonal NDVI/SAR patterns
+    - QA with human-in-loop if confidence < threshold
+    - 'Deliver GeoJSON/KML, area stats, and printable map'
+  tools:
+    - Google Earth Engine
+    - Sentinel-1/2 (Copernicus)
+    - Landsat 8/9
+    - Sentinel Hub API
+    - PostGIS/QGIS
+    - Mapbox Static Maps API
+  outputs:
+    - Field boundary GeoJSON/KML/Shapefile
+    - PDF/PNG field maps with area per parcel
+    - Confidence scores
+  pricingModel:
+    - Per-field mapping fee
+    - Per-hectare seasonal subscription for updates
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 5
+    overall: 5
+  risks:
+    - Cloud cover can delay optical imagery; mitigated via Sentinel-1 SAR
+    - Boundary confusion in fragmented paddies
+    - Farmer-provided pins may be inaccurate
+  dependencies:
+    - Open satellite data (Copernicus/NASA)
+    - Map rendering API access
+leanCanvas:
+  problem:
+    - >-
+      Rice procurement, subsidy disbursement, and insurance rely on
+      self-reported or manual measurements that are often off by 5–20%, causing
+      financial leakage and disputes.
+    - >-
+      Smallholder paddy plots (0.1–1.0 ha) are hard to delineate with optical
+      imagery during monsoon due to cloud cover; field teams are expensive and
+      slow.
+    - >-
+      Banks and insurers need fast, auditable crop confirmation to underwrite
+      loans and index insurance but lack reliable, scalable methods for
+      rice-specific identification.
+    - >-
+      Government and development programs need district- and scheme-level area
+      statistics within 1–2 weeks of sowing/harvest to plan procurement and
+      water allocation; current updates lag by 30–60 days.
+    - >-
+      Rice mills and traders face supply forecasting uncertainty (±15–25%)
+      without timely, geo-referenced area maps, increasing working capital and
+      logistics costs.
+    - >-
+      Sustainability reporting (e.g., SRP, methane reduction pilots, MRV) needs
+      verified rice area and seasonality at field-level; most tools are
+      generalized and not audit-ready.
+    - >-
+      Fragmented land records and boundary disputes require unbiased,
+      time-stamped area certificates acceptable to multiple stakeholders.
+    - >-
+      Existing generalist crop-monitoring tools underperform for rice phenology
+      in flooded conditions and multi-cropping geographies, leading to false
+      positives and missed fields.
+  solution:
+    - >-
+      Fuse Sentinel-1 SAR (6–12 day cadence) with Sentinel-2/PlanetScope optical
+      to detect rice-specific flooding/transplanting, tillering, and harvest
+      signatures.
+    - >-
+      Automated field boundary extraction optimized for smallholder mosaics,
+      refined by super-resolution and edge-snapping to irrigation features, with
+      topology checks.
+    - >-
+      Rice vs non-rice classification using multi-temporal phenology models and
+      region-calibrated thresholds, plus confidence scoring per field.
+    - >-
+      Produce per-field shapefiles, area certificates (timestamped, model+scene
+      lineage), and district roll-ups; expose via web dashboard and REST API.
+    - >-
+      Gap-fill heavy cloud periods with SAR time series and cross-scene
+      mosaicking; backfill optical details when clear sky returns.
+    - >-
+      Human-in-the-loop QA on a smart sample (1–3% of fields) to validate and
+      calibrate models; continuous benchmarking to audited ground truth.
+    - >-
+      Integrate with client systems (procurement apps, insurance platforms) via
+      APIs and scheduled S3/GeoPackage exports.
+    - >-
+      Offer service tiers: Verify (rice-only), Boundaries (area + certificate),
+      Pro (SAR+optical, weekly updates, SLA).
+  uniqueValueProp: >-
+    Monsoon-robust, audit-ready rice boundary and area mapping delivered in 72
+    hours at field-level, achieving ≤5% mean area error and ≥0.90 F1 rice
+    classification using SAR+optical fusion and rice-specific phenology
+    models—via API or portal at <$0.35/ha/season.
+  unfairAdvantage: >-
+    Rice-first IP: a multi-country, multi-season labeled dataset and SAR+optical
+    phenology models tuned to flooded paddy conditions, delivering reliable
+    accuracy through monsoon cloud cover; audit-ready certificates with model
+    lineage; ground-truth partnerships in key rice belts; and cost-efficient,
+    automated pipelines enabling <$0.35/ha pricing with ≥70% gross margin.
+  customerSegments:
+    - 'Rice mills and aggregators (procurement planning, contract farming)'
+    - 'Agricultural insurers (area/yield index design, claim validation)'
+    - Agri-lenders and MFIs (loan underwriting and monitoring)
+    - Government agriculture departments and procurement boards
+    - Irrigation/water resources authorities and watershed programs
+    - 'Farmer Producer Organizations (FPOs), cooperatives, and large estates'
+    - 'Agritech platforms (farm management, procurement, input retail)'
+    - 'Sustainability certifiers and MRV providers (e.g., SRP-aligned projects)'
+    - 'NGOs and development programs (food security, climate programs)'
+    - 'Input companies (seed/fertilizer), for demo plots and market sizing'
+  channels:
+    - >-
+      Direct enterprise sales to top 200 rice mills/aggregators in India,
+      Vietnam, Indonesia, Bangladesh, Thailand, and the Philippines.
+    - >-
+      Partnerships with insurers and agri-MFIs to bundle crop verification with
+      policies/loans.
+    - >-
+      Integration partnerships with agritech platforms and procurement apps
+      (white-label/API).
+    - >-
+      Pilots via IRRI/national ag research networks to validate accuracy and
+      build credibility.
+    - Government tenders and framework agreements for district/state mapping.
+    - Reseller SI partners for public sector geospatial and ag programs.
+    - >-
+      API listing on geospatial marketplaces and cloud marketplaces
+      (AWS/Azure/GCP).
+    - >-
+      Case studies and third-party accuracy audits published each season;
+      sustainability/food security conferences (SRP, IRRI, AGRITECHNICA Asia).
+    - >-
+      Targeted account-based marketing to procurement heads and actuarial teams;
+      webinars and demos around sowing windows.
+    - >-
+      Early adopter program: 50k–100k ha pilots priced at cost for first-season
+      references.
+    - Local field-service partners for ground truth collection and onboarding.
+    - >-
+      Thought leadership with open district-level rice maps (downsampled) to
+      drive inbound leads.
+  revenueStreams:
+    - >-
+      Per-hectare seasonal mapping (Verify: $0.08–$0.15/ha; Boundaries:
+      $0.15–$0.35/ha; Pro SAR+optical: $0.30–$0.60/ha).
+    - >-
+      Annual subscriptions for defined geographies (e.g., district/state) with
+      update cadence SLAs.
+    - >-
+      API usage fees for on-demand polygon verification (per 1,000 fields or per
+      ha).
+    - Enterprise licenses with volume discounts and private model hosting.
+    - >-
+      Professional services: integrations, custom analytics, historical
+      backfills.
+    - >-
+      Certification/reporting fees for audit-ready area certificates tied to
+      programs.
+    - >-
+      Revenue-share/embedded pricing with lenders/insurers (per policy/loan
+      verified).
+    - White-label portal for mills/platforms with branding fee.
+    - Training and capacity building for government/NGO teams.
+    - >-
+      Data licensing for academics/development partners (aggregated, anonymized
+      layers).
+  costStructure:
+    - >-
+      Satellite data: free Sentinel; optional PlanetScope/Very High Resolution
+      tasking for QA; SAR processing costs.
+    - >-
+      Cloud compute: model training/inference (GPU/CPU), orchestration (K8s),
+      storage (imagery, vector, logs).
+    - Engineering and data science team salaries; MLOps and DevOps tooling.
+    - >-
+      Labeling and ground-truth operations (managed partners; $0.02–$0.05/ha QA
+      sampling).
+    - Sales and customer success (enterprise AE/SE) and partner enablement.
+    - Third-party accuracy audits and certifications (annual).
+    - 'Compliance and security (SOC2/ISO 27001), penetration testing.'
+    - 'Support and onboarding (documentation, training, multilingual support).'
+    - 'Map tile serving, API gateway, monitoring (uptime, latency SLAs).'
+    - Local business development and travel for pilots and government bids.
+    - >-
+      R&D for rice phenology, super-resolution, and SAR-optical fusion
+      improvements.
+    - >-
+      Contingency for bad weather seasons (extra SAR scenes, adaptive
+      scheduling).
+  keyMetrics:
+    - >-
+      Technical accuracy: mean absolute area error ≤5%; boundary IoU ≥0.70 on
+      ≥0.2 ha plots; rice F1 ≥0.90, recall ≥0.92.
+    - >-
+      Coverage latency: 95% of updates delivered within 72 hours of scene
+      availability.
+    - >-
+      Field coverage: ≤2% missed fields (low-confidence) per district; reprocess
+      rate <5%.
+    - Confidence calibration error (ECE) ≤0.05 for classification probabilities.
+    - >-
+      Operational cost per ha (compute + data + QA) ≤ $0.07 at scale; gross
+      margin ≥70%.
+    - >-
+      Pilot conversion rate ≥60% to paid within one season; expansion revenue
+      >30% YoY per account.
+    - 'Customer acquisition cost (CAC) payback ≤6 months; LTV:CAC ≥4:1.'
+    - MRR/ARR growth; net revenue retention ≥120%.
+    - >-
+      API reliability: 99.5% uptime; P95 API latency <800 ms for polygon
+      verification.
+    - Dispute rate on area certificates <1% with median resolution time <7 days.
+    - >-
+      Ground-truth throughput: 95% of planned samples captured within season
+      window.
+    - >-
+      User adoption: ≥3 active users per enterprise account; ≥2 integrations
+      live within 90 days.
+    - Churn ≤5% annually; average contract length ≥2 years.
+    - >-
+      New labeled hectares added to training set per season (target +10M ha
+      time-series).
+    - >-
+      Market penetration: hectares mapped per country; share of top-50 mills
+      using service.
+storyBrand:
+  character: >-
+    Rice farm managers, co-ops, and planners who need precise paddy boundaries
+    and verified rice area without field crews.
+  problem: >-
+    Manual surveys and outdated maps are slow, inconsistent, and hard to
+    audit—causing planning errors, acreage disputes, and wasted inputs.
+  guide: >-
+    We combine satellite imagery, rice-specific AI, and agronomy support to
+    deliver defensible, up-to-date maps—because accurate area should be simple
+    and trusted.
+  plan: >-
+    1) Share farm list or area-of-interest. 2) We delineate paddy fields and
+    confirm rice crop from recent satellite scenes; you review online. 3) Export
+    audited areas (shapefiles/CSV) into planning, subsidy, or insurance
+    workflows; optional seasonal updates.
+  callToAction: Book a 15‑minute demo or start a pilot in your region.
+  success: >-
+    Confident, auditable acreage; fewer field visits; optimized water and
+    inputs; fair payments and insurance; on-time reporting and smoother
+    operations.
+  failure: >-
+    Without this, teams keep guessing acreage, face disputes and compliance
+    risk, misallocate inputs and water, and lose time on repeat field checks.
+landingPage:
+  hero:
+    title: Remote Rice Field Mapping & Area Verification
+    subtitle: >-
+      AI delineates paddy boundaries and confirms rice crop from satellite
+      imagery for accurate hectares, planning, and compliance.
+    ctaText: Request a Demo
+    ctaHref: /demo
+  problem:
+    - Inconsistent field areas lead to planning and payout errors.
+    - 'Walking fields with GPS is slow, costly, and risky in wet seasons.'
+    - Clouds and seasonal changes make manual mapping unreliable.
+    - Hard to verify if a field actually contains rice this season.
+    - Duplicate or overlapping claims inflate reported area.
+    - Fragmented smallholder plots are difficult to manage at scale.
+  solution:
+    - AI draws precise paddy field boundaries from satellite imagery.
+    - Rice crop presence is confirmed per season using time‑series data.
+    - Accurate area is computed and validated with confidence scores.
+    - 'Bulk mapping across villages, blocks, and districts—fully remote.'
+    - 'Simple dashboard, API, and GIS exports for fast operations.'
+    - Change tracking across seasons for monitoring and audits.
+  features:
+    - Rice‑specific model tuned to paddy phenology (optical + SAR).
+    - Season‑by‑season rice confirmation with confidence scoring.
+    - Boundary refinement that snaps to bunds and water edges where visible.
+    - Cloud‑resilient processing with gap‑filling from multi‑date imagery.
+    - Overlap and duplicate detection to reduce double‑counting.
+    - 'Bulk upload: CSV/KML/GeoJSON; batch processing at scale.'
+    - Editable boundaries with version history and audit trail.
+    - 'Area rollups by farmer, village, block, and custom regions.'
+    - 'One‑click exports: GeoJSON, SHP, CSV, and printable map reports.'
+    - API‑first integration with webhooks for automated workflows.
+    - 'Alerts for field change, planting windows, and harvest signals.'
+    - Multi‑language UI and offline-ready field verification app.
+  steps:
+    - Upload fields (CSV/KML) or draw on the map.
+    - Select region and season to analyze.
+    - AI delineates paddy boundaries and detects rice presence.
+    - 'Review flagged fields, apply edits, and approve.'
+    - 'Export areas and maps to GIS, reports, or API.'
+    - Track changes across seasons and monitor compliance.
+---
+# RiceBound AI
+
+Industry: Rice Farming
+Service: Remote Field Boundary & Rice Area Mapping

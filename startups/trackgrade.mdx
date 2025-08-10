@@ -1,0 +1,343 @@
+---
+name: TrackGrade ACS (Simulator & Flight Debrief)
+slug: trackgrade
+service:
+  title: Simulator/Track Debrief Analyzer (ACS‑Aligned)
+  description: >-
+    Uploads sim or real-flight track logs and auto-scores maneuvers vs ACS
+    tolerances with visual debrief.
+  targetUsers:
+    - Students
+    - CFIs
+    - Schools using sims or EFB track logs
+  triggers:
+    - Track/video upload
+    - Flight end webhook from EFB
+  inputs:
+    - 'GPX/KML/CSV track (ForeFlight, Garmin, MyFlightbook)'
+    - Optional cockpit video/audio
+    - Aircraft type and ACS standard
+    - Lesson objectives
+  steps:
+    - Parse track; segment phases and maneuvers
+    - Compute altitude/heading/airspeed/vertical speed tolerances
+    - 'Detect unstable approaches, pattern spacing, instrument procedures'
+    - Sync video to timeline and annotate events
+    - Generate ACS rubric scoring and coaching tips
+    - Share debrief to student/CFI dashboard
+  tools:
+    - Track parsers (GPX/KML)
+    - Signal processing libs
+    - OpenCV (optional video)
+    - ACS tolerance rules
+    - Cloud storage
+  outputs:
+    - Interactive debrief timeline
+    - ACS scorecard and trend graphs
+    - KML for Google Earth
+    - Sharable link/PDF
+  pricingModel:
+    - Per debrief ($4–$10)
+    - Bundles (10 debriefs)
+    - School site license
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - GPS inaccuracies skew scoring
+    - Mis-segmentation of maneuvers
+    - Liability if used as sole assessment
+  dependencies:
+    - Access to track logs
+    - Consistent ACS rules per aircraft
+    - Student consent for video/audio
+leanCanvas:
+  problem:
+    - >-
+      Instructors spend 10–20 minutes per sortie manually scrubbing track logs
+      to discuss deviations. At $60–$100/hr instructor cost, that’s $10–$30 per
+      flight. For a 40‑aircraft school flying 1,000 sorties/month, debrief
+      review time alone costs $10k–$30k/month.
+    - >-
+      No objective, standardized scoring against FAA ACS tolerances; grading is
+      inconsistent across CFIs, complicating stage checks and checkride
+      readiness assessments.
+    - >-
+      Flight data is fragmented (ForeFlight, Garmin Pilot, G1000 logs,
+      Redbird/Frasca/ALSIM, X‑Plane/MSFS), making cross‑platform analysis and
+      longitudinal progress tracking difficult.
+    - >-
+      Part 141 quality assurance and record‑keeping require documented
+      proficiency evidence. Manual gradebooks often lack traceability to raw
+      data, risking audit friction.
+    - >-
+      Students lack immediate, actionable feedback mapped to specific ACS tasks
+      (e.g., steep turns, stalls, holds, approaches), slowing skill acquisition
+      and reducing motivation.
+    - >-
+      School leaders have limited visibility into instructor effectiveness,
+      syllabus bottlenecks, and maneuver pass/fail hotspots across cohorts and
+      fleets.
+    - >-
+      Real-time safety insights (e.g., unstabilized approaches) are missed until
+      after events; early trend detection could prevent repeat deficiencies.
+    - >-
+      Liability and privacy concerns demand secure handling of PII and flight
+      data; most DIY workflows aren’t compliant or auditable.
+  solution:
+    - >-
+      Universal ingestion: one-click import from ForeFlight/garmin logs and
+      direct connectors for Redbird/Frasca/ALSIM, plus GPX/KML/CSV/JSON; desktop
+      plug‑ins for X‑Plane/MSFS/Prepar3D.
+    - >-
+      Maneuver detection engine: automatically segments flights
+      (takeoff/landing, steep turns, stalls, slow flight, holds,
+      intercept/track, approaches, unusual attitudes, ground reference) using
+      sensor fusion and geofencing.
+    - >-
+      ACS‑aligned scoring: computes tolerance compliance (e.g., altitude ±100
+      ft, heading ±10°, airspeed ±10 kt; CDI/GS deflection; timing ±10 s) and
+      outputs task‑level pass/fail with confidence.
+    - >-
+      Visual debrief: 2D/3D track, deviation heatmaps, trend timelines,
+      stability gates (e.g., 1,000’ AGL IFR/500’ VFR), and maneuver‑specific
+      overlays with annotated events.
+    - >-
+      Curriculum mapping and gradebook: links flight segments to lesson
+      objectives (Part 141 syllabi or custom), auto‑populates grades, flags
+      remediation items, and exports to LMS.
+    - >-
+      Progress analytics: student/instructor/squadron dashboards; cohort
+      comparisons; early‑warning alerts for repeated deficiencies (e.g.,
+      localizer tracking).
+    - >-
+      Compliance & audit: immutable scorecards with raw‑data traceability;
+      role‑based access; PII redaction; secure sharing for stage checks and
+      internal QA.
+    - >-
+      APIs & SDK: integration endpoints for EFBs, sim vendors, and school
+      systems; webhooks for automatic ingestion post‑flight.
+    - >-
+      Note: Training aid only—intended to support, not replace, instructor
+      judgment or DPE evaluation.
+  uniqueValueProp: >-
+    Upload sim or real‑flight logs and get an ACS‑aligned scorecard and visual
+    debrief in under 60 seconds—standardizing instruction, cutting debrief time
+    by 50%, and improving stage‑check and checkride pass rates with auditable
+    data.
+  unfairAdvantage: >-
+    ACS‑first scoring engine with validated maneuver detection across both sim
+    and aircraft data sources, plus deep LMS/gradebook integration and
+    documented outcome improvements from design‑partner schools. The combination
+    of cross‑platform ingestion, proprietary labeled datasets, and auditable ACS
+    mappings creates switching costs and defensibility.
+  customerSegments:
+    - >-
+      Primary: Part 141 flight schools; university aviation programs;
+      mid‑to‑large Part 61 schools (10+ CFIs, structured syllabi).
+    - >-
+      Secondary: Independent CFIs and students (Private, Instrument,
+      Commercial).
+    - >-
+      Simulator operators: AATD/FTD centers (Redbird, Frasca, ALSIM, ELITE) and
+      collegiate sim labs.
+    - >-
+      Enterprise/cadet programs at airlines and large academies seeking
+      standardization across locations.
+    - >-
+      B2B technology partners: EFB/logging providers (ForeFlight, Garmin Pilot),
+      schedulers/LMS (Flight Schedule Pro, Talon ETA, FlightLogger).
+  channels:
+    - >-
+      Direct sales to Part 141/collegiate programs with 6–12 week pilots:
+      install connectors on 2–3 sims and 10–20 aircraft; prove 15+ minutes saved
+      per sortie and improved stage‑check outcomes.
+    - >-
+      Partnership integrations: ForeFlight/garmin export flows and
+      Redbird/Frasca/ALSIM connectors; co‑marketing and marketplace listings
+      where available.
+    - >-
+      Events & communities: Redbird Migration, EAA AirVenture, Sun ’n Fun,
+      I/ITSEC, University Aviation Association; present case studies with
+      measurable deltas.
+    - >-
+      CFI ambassador program: free Pro accounts for CFIs who run 5+ students;
+      referral credits to schools.
+    - >-
+      Content/SEO: ACS debrief playbooks, tolerance explainer videos, sample
+      scorecards by rating (PPL/IR/COMM), “how to use track logs for ACS
+      mastery.”
+    - >-
+      Targeted ads and outbound: keywords like “ACS debrief,” “ForeFlight
+      debrief scoring,” “sim training analytics”; outbound to Directors of
+      Training and Chief Instructors.
+    - >-
+      Pilot offers: 60‑day free school pilot with success criteria (≥50% flights
+      auto‑scored, ≥10 minutes saved per sortie, ≥10‑point increase in ACS task
+      pass rate on stage checks).
+  revenueStreams:
+    - 'SaaS subscriptions:'
+    - >-
+      - School Standard: $399/month up to 20 active students, unlimited
+      debriefs, 1 connector.
+    - >-
+      - School Pro: $999/month up to 100 active students, 5 connectors, LMS/API,
+      analytics.
+    - >-
+      - Enterprise: custom pricing for multi‑site academies/airlines with SSO,
+      dedicated support.
+    - >-
+      Simulator add‑on: $99/sim/month for kiosk mode and batch debrief between
+      sessions.
+    - >-
+      Individual plans: Student/CFI $12/month (Basic) and $25/month (Pro with
+      analytics and PDF exports).
+    - >-
+      Usage‑based credits: $2/debrief for overflow beyond plan caps or
+      low‑volume operators.
+    - >-
+      Integration/implementation: $2k–$25k one‑time for custom LMS connectors,
+      SSO, data migrations.
+    - >-
+      Data insights (anonymized): cohort benchmarking reports to
+      schools/partners (opt‑in only).
+  costStructure:
+    - >-
+      Engineering: ingestion connectors, scoring engine, ML, UI/UX (initial team
+      6–10 FTE).
+    - >-
+      Cloud compute/storage: per‑debrief processing and long‑term
+      storage/backup; COGS target ≤$0.10 per 1‑hr debrief including storage.
+    - >-
+      Security/compliance: SOC 2 program, pen tests, monitoring, incident
+      response; annual budget allocation 8–12% of revenue post‑PMF.
+    - >-
+      Customer success and support: onboarding for schools, documentation,
+      training assets (videos, webinars).
+    - >-
+      Sales/marketing: conferences, demos, ads, content creation, partner
+      enablement.
+    - >-
+      Legal/insurance: E&O/cyber insurance, terms/disclaimers (training aid;
+      non‑deterministic scoring).
+    - >-
+      Data labeling and flight test program with CFIs to continuously validate
+      and tune models.
+  keyMetrics:
+    - 'Acquisition & activation:'
+    - '- Number of new schools per quarter; school pilot win rate (target ≥40%).'
+    - >-
+      - Time to first debrief (TTFD) ≤15 minutes from account creation; percent
+      of flights auto‑ingested ≥80%.
+    - 'Engagement:'
+    - '- Debriefs per active student per month (target ≥6).'
+    - '- Percent of sorties with ACS‑aligned scorecard ≥85%.'
+    - '- Median processing time <60 s; P95 <120 s.'
+    - 'Educational outcomes:'
+    - >-
+      - Reduction in average instructor debrief time by ≥10 minutes/flight after
+      month 1.
+    - >-
+      - Stage‑check ACS task pass rate improvement ≥10 percentage points vs.
+      baseline.
+    - >-
+      - First‑time checkride pass rate improvement ≥5 percentage points over two
+      cohorts.
+    - 'Model quality:'
+    - >-
+      - Maneuver detection F1 ≥0.92; tolerance scoring MAE ≤20% of ACS bands;
+      drift alarms if KPIs degrade >5%.
+    - 'Retention & satisfaction:'
+    - '- School logo churn <10% annually; seat expansion >20% YoY.'
+    - '- NPS ≥45; support CSAT ≥90%.'
+    - 'Unit economics:'
+    - '- Gross margin ≥80%; blended CAC payback ≤6 months; LTV:CAC ≥4:1.'
+storyBrand:
+  character: >-
+    Flight students, CFIs, and training managers who want fast, objective,
+    ACS‑aligned debriefs that turn raw track logs into clear next steps.
+  problem: >-
+    External: Manual, inconsistent debriefs and spreadsheets waste time and miss
+    errors in sim and real flights. Internal: Uncertainty about checkride
+    readiness and what to fix next. Philosophical: Performance should be
+    measured objectively against the FAA ACS, not opinions.
+  guide: >-
+    Empathy: We’re pilots and CFIs who know checkride pressure and messy data.
+    Authority: Built by aviation pros, aligned to FAA ACS tolerances, integrates
+    with common sim/EFB logs, and delivers consistent, evidence-based scoring.
+  plan: >-
+    Simple 3-step plan: 1) Upload sim or flight track logs. 2) AI auto-scores
+    maneuvers vs ACS tolerances and generates a visual debrief with deviations
+    and trends. 3) Review, assign targeted reps, re-fly, and track improvement.
+  callToAction: >-
+    Direct: Start a free trial and upload a log now. Transitional: Book a
+    15‑minute demo or explore a sample debrief.
+  success: >-
+    Objective, repeatable scoring; faster path to proficiency; fewer hours to
+    checkride; standardized instruction across CFIs; clear trend tracking by
+    maneuver; sharable reports for students, instructors, and QA.
+  failure: >-
+    Without it: wasted hours, subjective grading, repeated errors, missed safety
+    trends, blown budgets and timelines, and higher risk of checkride busts.
+landingPage:
+  hero:
+    title: ACS‑Aligned Flight Debrief Analyzer
+    subtitle: >-
+      Upload sim or flight tracks. Instantly auto‑score maneuvers against ACS
+      tolerances with clear visual debriefs and actionable coaching.
+    ctaText: Upload a Track
+    ctaHref: /upload
+  problem:
+    - Debriefs are subjective and inconsistent across instructors.
+    - Manual log review is slow and misses patterns.
+    - 'Students don’t get precise, ACS‑tied feedback.'
+    - Data formats vary across sims and EFBs.
+    - Readiness for stage checks and checkrides is hard to quantify.
+  solution:
+    - Ingests and normalizes logs from sims and EFBs automatically.
+    - Detects maneuvers and scores them against ACS tolerances in seconds.
+    - >-
+      Presents visual debriefs: timeline, map/3D track, approach profiles,
+      exceedance markers.
+    - Surfaces exact deltas to standard with pass/needs‑work flags.
+    - Generates shareable reports and tracks progress over time.
+  features:
+    - 'ACS‑aware scoring: Private, Instrument, Commercial maneuvers.'
+    - >-
+      Automatic maneuver detection: stalls, steep turns, S‑turns,
+      soft/short‑field T/O & landing, traffic patterns, holds, intercepts,
+      ILS/LPV/LOC, VOR/GPS approaches, missed approaches.
+    - >-
+      Objective metrics: altitude, airspeed, bank, heading, vertical speed,
+      CDI/GS deflection, lateral/vertical path, stabilized approach criteria.
+    - >-
+      Visual debriefs: heatmaps, exceedance flags, segment‑by‑segment grading,
+      approach profile plots.
+    - 'Exact deltas: see how far and how long outside tolerance by parameter.'
+    - >-
+      Instructor tools: annotations, time‑synced comments, assign practice,
+      compare flights side‑by‑side.
+    - >-
+      Student insights: top 3 fixes, skill trendlines, personalized drill
+      suggestions.
+    - >-
+      Integrations: ForeFlight, Garmin, X‑Plane, Redbird, common CSV/GPX/TCF
+      formats.
+    - >-
+      School dashboards: cohort trends, stage‑check readiness, standardization
+      support.
+    - 'Security: encrypted uploads, role‑based sharing, data retention controls.'
+  steps:
+    - Upload a GPX/CSV/TCF log from your sim or EFB.
+    - Choose certificate level and target maneuvers.
+    - Get instant ACS scorecards with pass/needs‑work and deltas.
+    - 'Review the visual debrief: timeline, map/3D, approach profile.'
+    - Add notes and share with your CFI or class.
+    - Track progress across flights and prep for stage checks and checkrides.
+---
+# TrackGrade ACS (Simulator & Flight Debrief)
+
+Industry: Flight Training
+Service: Simulator/Track Debrief Analyzer (ACS‑Aligned)

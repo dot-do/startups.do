@@ -1,0 +1,318 @@
+---
+name: Marker & Fabric Yield Optimizer (MFYO)
+slug: marker
+service:
+  title: Marker & Fabric Yield Optimizer
+  description: >-
+    Optimizes marker layouts to maximize fabric utilization given piece shapes,
+    fabric width, and constraints; returns marker files and yield reports.
+  targetUsers:
+    - Cutting Room Manager
+    - Pattern Maker
+    - Production Planner
+  triggers:
+    - Pattern pieces released
+    - Fabric width confirmed
+  inputs:
+    - Pattern pieces (DXF/SVG with grainline/nap/ply info)
+    - Fabric width/shrinkage/print repeat
+    - Lay length/ply count limits
+    - Cut quantities by size
+  steps:
+    - Normalize piece geometries and metadata
+    - 'Encode constraints (nap, one-way, match points, buffer)'
+    - Run nesting/packing to build markers per size ratio
+    - Compute yield and fabric needs with shrinkage
+    - Export marker plots and cut tickets
+    - 'Log alternatives for what-if (width, size mix changes)'
+  tools:
+    - OpenNest/SVGNest
+    - OR-Tools
+    - Custom geometry libs (Shapely)
+    - PDF/PNG plotter
+  outputs:
+    - Marker files (DXF/PDF/PNG)
+    - Yield & consumption report (CSV)
+    - Cut ticket bundle map (PDF)
+  pricingModel:
+    - 'Per marker (e.g., $20–$50)'
+    - Monthly subscription + usage overage
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 7
+    overall: 8
+  risks:
+    - Incorrect piece metadata leads to invalid constraints
+    - Pattern matching/stripe alignment edge cases
+    - File format inconsistencies
+  dependencies:
+    - Clean piece files with metadata
+    - Fabric/print constraints from tech pack
+leanCanvas:
+  problem:
+    - >-
+      Fabric is 35–60% of total garment cost; a 1% marker-yield loss can erase
+      margins on large orders.
+    - >-
+      Manual or rule-based marker making leaves 1–4% fabric on the table due to
+      suboptimal nesting, inconsistent operator skill, and time pressure.
+    - >-
+      Complex constraints (nap one-way, stripes/plaid matching, piece
+      orientation, shrinkage, buffer allowances, bundle ratios) are hard to
+      satisfy while maintaining high yield.
+    - >-
+      Cut plans rarely incorporate real roll maps (varying widths, defects,
+      end-loss), creating unexpected waste and rework at the spreader/cutter.
+    - >-
+      Slow turnaround in CAD rooms (hours/day per style) delays sampling and
+      bulk approval, causing missed ship dates or premium freight.
+    - >-
+      Existing solutions are siloed (CAD/CAM/OEM-specific), making multi-brand,
+      multi-plant integration and data consolidation difficult.
+    - >-
+      Lack of closed-loop feedback from cutting room to marker optimization
+      prevents continuous yield improvement.
+  solution:
+    - >-
+      Upload or API-push piece shapes (DXF-AAMA/ASTM), fabric width(s), roll
+      maps, size ratios, and constraints.
+    - >-
+      Our AI/optimizer generates optimized markers and cut plans considering
+      orientation, nap/stripe plaid matching, buffers, shrinkage, bundles, and
+      lay lengths.
+    - >-
+      Outputs: marker files (DXF-AAMA/ASTM, PLT/HPGL, common OEM formats), cut
+      tickets, and yield/cost reports; integrates back to PLM/ERP/CAD.
+    - >-
+      Closed-loop learning: ingest cut room feedback (actual consumption, end
+      losses, defect bypasses) to continuously improve yields.
+    - >-
+      Scenario simulation: compare what-if constraints (e.g., relax rotation 5°,
+      adjust buffer 1 mm) to quantify savings before change approval.
+    - >-
+      Multi-plant dashboard for utilization, waste hot-spots, and SKU/fabric
+      supplier benchmarks.
+  uniqueValueProp: >-
+    Increase fabric utilization by 1.5–3.5% and cut planning throughput by
+    50–80% via AI-driven, constraint-aware marker optimization that plugs into
+    existing CAD/cutters and returns ready-to-cut marker files and audit-ready
+    yield reports.
+  unfairAdvantage: >-
+    Closed-loop optimizer trained on real cut-room outcomes and roll-map data
+    across diverse fabrics and styles, delivered via vendor-agnostic APIs and
+    integration kits that let multi-plant groups realize measurable yield gains
+    without ripping and replacing existing CAD/cutter stacks.
+  customerSegments:
+    - >-
+      Mid-to-large cut-and-sew apparel manufacturers (except contractors)
+      producing 100k–3M+ units/month.
+    - Brand-owned manufacturing plants and vertically integrated OEM/ODMs.
+    - Multi-factory groups with centralized CAD/cut planning teams.
+    - >-
+      Categories with high fabric spend and complex constraints: denim/jeans,
+      workwear/uniforms, sportswear/athleisure, lingerie, outerwear, knit basics
+      at scale.
+    - >-
+      Roles: cutting room managers, CAD/marker room leads, industrial
+      engineering, production planning, costing/merchandising, operations/plant
+      managers, CTO/IT (integration).
+  channels:
+    - >-
+      Direct enterprise sales to factory groups and brand-owned plants;
+      land-and-expand by site.
+    - >-
+      OEM partnerships with cutter vendors and CAD providers to
+      bundle/white-label or co-sell (e.g., Lectra, Gerber-branded AccuMark,
+      Eastman, Bullmer, Morgan Tecnica, Yin).
+    - >-
+      Systems integrators/consultants focused on lean manufacturing and PLM/ERP
+      (e.g., Coats Digital ecosystem partners).
+    - >-
+      Industry associations and shows: AAFA, SPESA, SEAMS; events like
+      Texprocess Americas, PI Apparel, ITMA, CISMA; technical workshops and live
+      demos.
+    - >-
+      Content and ROI marketing: case studies showing ≥1.5% yield lift,
+      calculators, webinars; localized content for Bangladesh, Vietnam, India,
+      Türkiye, Mexico.
+    - >-
+      Freemium trials for small shops and paid pilots for mid-large plants with
+      an ROI guarantee (e.g., “2% yield improvement in 60 days or money-back”).
+    - >-
+      Regional agents in key sourcing hubs with revenue share (Bangladesh,
+      Vietnam, India, LATAM).
+  revenueStreams:
+    - >-
+      SaaS subscription (per site): $1,500–$5,000/month based on capacity;
+      includes X markers/month, support SLAs, analytics.
+    - >-
+      Usage-based overage: $0.10–$0.50 per additional marker or per m²
+      optimized; volume discounts.
+    - >-
+      Enterprise license for multi-site groups: $60k–$300k/year with centralized
+      analytics, SSO, premium support.
+    - >-
+      Professional services: onboarding, custom constraints, CAD/CAM connectors,
+      on-prem deployments ($5k–$50k one-time).
+    - >-
+      Savings-share option for pilots: 10–20% of verified fabric cost savings
+      for first 6–12 months, then convert to subscription.
+    - Training and certification for marker room teams ($2k–$10k per cohort).
+  costStructure:
+    - >-
+      R&D/Engineering (algorithms, CAD/CAM connectors, security): 6–12 FTEs,
+      $1.2M–$2.5M/year.
+    - >-
+      Cloud compute: $8k–$30k/month initially; scales with batch optimization
+      usage; reserved instances for cost control.
+    - >-
+      Sales and Customer Success: 3–8 FTEs plus travel/demo costs,
+      $600k–$1.6M/year.
+    - >-
+      Professional services/implementation: $100k–$400k/year, partially offset
+      by service revenue.
+    - >-
+      Compliance and security (SOC 2/ISO 27001), penetration testing, legal/IP:
+      $100k–$300k/year.
+    - >-
+      Marketing: events, webinars, content, localized collateral:
+      $150k–$400k/year.
+    - 'Support and training: $80k–$200k/year.'
+  keyMetrics:
+    - >-
+      Material utilization (marker efficiency %): baseline vs
+      post-implementation; target +1.5–3.5% within 90 days.
+    - >-
+      Fabric consumption per unit (meters or yards/garment): target -1–3% within
+      90 days.
+    - >-
+      Roll-end waste %: target reduction 10–20% by using roll-map aware
+      planning.
+    - >-
+      Time-to-marker (minutes per approved marker): target 50–80% reduction;
+      SLA: 95% of jobs <5 minutes in auto mode.
+    - >-
+      Auto-acceptance rate (no manual edits needed): target ≥70% within 60 days,
+      ≥85% within 6 months.
+    - 'Cutting room rework rate due to marker issues: target <1% of lays.'
+    - >-
+      Pilot ROI: payback <60 days; verified savings ≥$10k/month for mid-size
+      plants.
+    - >-
+      Adoption: weekly active operators, styles processed/week, plants live;
+      target 3 sites/quarter after first 2 quarters.
+    - >-
+      Churn <8% annually; NPS ≥45; average sales cycle 2–4 months for
+      single-site, 4–7 months for groups.
+    - >-
+      Model learning: % of markers improved after closed-loop feedback; target
+      ≥60% show incremental gains within 3 iterations.
+storyBrand:
+  character: >-
+    Cutting Room and Production Managers at apparel brands and factories who
+    must hit yield targets, control fabric cost, and ship on time.
+  problem: >-
+    External: Fabric is the largest COGS; manual marker making leaves money on
+    the table. Complex constraints (grainline, nap/one‑way, stripe/plaid
+    matching, buffers, shrinkage, fusing, size mixes, variable fabric widths)
+    slow teams and create inconsistency across CAD systems.
+
+    Internal: Pressure to squeeze yield, avoid re-cuts, and keep lines
+    fed—without burning out scarce marker-makers.
+
+    Philosophical: No team should overspend on fabric or landfill offcuts when
+    smarter layouts are possible.
+  guide: >-
+    Empathy: We understand cutting rooms live and die by yield, throughput, and
+    first‑time‑right markers.
+
+    Authority: Built by apparel IE and cutting veterans; interoperable with
+    standard CAD formats (e.g., DXF/AAMA, HPGL/PLT). Secure, enterprise‑ready,
+    with clear audit trails and version control. Pilot programs and sample
+    markers available.
+  plan: >-
+    Process Plan:
+
+    1) Upload piece shapes, fabric width, and constraints/size mix (or sync from
+    your CAD/PLM).
+
+    2) AI optimizes marker layouts under your rules; returns editable marker
+    files, lay plans, and yield reports.
+
+    3) Review/approve and export to your cutter workflow (Gerber, Lectra,
+    Optitex, etc.).
+
+    Agreement Plan: You own your files; human override/editing supported; data
+    is encrypted; transparent pricing and support; verify yield before cut with
+    side‑by‑side reports.
+  callToAction: >-
+    Direct: Book a 30‑minute demo or start a trial with your styles.
+
+    Transitional: Download sample marker pack, yield ROI calculator, and the
+    Cutting Room Yield Playbook.
+  success: >-
+    Higher fabric utilization, consistent yields, and faster marker turnaround.
+    Lower COGS and waste, increased cutting capacity, on‑time orders, and clear
+    sustainability reporting with traceable yield reports per style/lay.
+  failure: >-
+    Status quo persists: overbuying fabric, offcut waste, overtime and re-cuts,
+    missed ship dates, margin erosion, and a larger environmental footprint.
+landingPage:
+  hero:
+    title: Marker & Fabric Yield Optimizer
+    subtitle: >-
+      AI-built markers that maximize fabric utilization. Get cut‑ready files and
+      instant yield reports—on demand.
+    ctaText: Request a Demo
+    ctaHref: /demo
+  problem:
+    - Fabric waste from manual or rule‑based marking
+    - Slow rework when size ratios or fabric widths change
+    - 'Hard to enforce grainline, nap, and pairing rules'
+    - Inconsistent yields across shifts and factories
+    - CAD file incompatibilities create rework and delays
+    - 'Limited visibility for costing, PO approvals, and audits'
+    - Marker creation bottlenecks during peak style drops
+  solution:
+    - >-
+      AI nesting produces optimal markers from piece shapes, fabric width, and
+      constraints
+    - >-
+      Returns native marker files plus PDFs and HPGL—ready for spreading and
+      cutting
+    - 'Real‑time yield reports by style, fabric, size mix, and cut plan'
+    - >-
+      Constraint‑aware: grain, nap one‑way, pairing, block fusing, buffers,
+      notches
+    - 'Handles plaids/stripes, shrinkage, and defect/avoid zones'
+    - Optimizes multi‑width and remnant use; plans roll mixes
+    - Batch and API automation for high‑volume runs; cloud or on‑prem
+    - Versioned results with side‑by‑side yield comparisons and audit trails
+  features:
+    - Constraint‑aware AI nesting for apparel pieces
+    - 'Auto‑validation of grainline, nap, and orientation locks'
+    - Stripe/plaid matching with alignment rules
+    - Remnant and multi‑width optimization to reduce waste
+    - 'Cut‑table limits respected: lay length, ply height, buffer'
+    - Size ratio and cut‑plan optimizer for demand and capacity
+    - Fabric roll planning with shrinkage and defect mapping
+    - 'Exports: Gerber/EFI, Lectra, Optitex, DXF‑AAMA, HPGL, PDF'
+    - Yield dashboard with cost per garment and variance tracking
+    - Side‑by‑side comparisons vs. baselines and prior markers
+    - API and batch processing; integrate with PLM/ERP/MES
+    - 'Role‑based access, SSO, and full audit history'
+    - Metric/imperial units; multi‑language UI
+    - 99.9% uptime SLA and enterprise support
+  steps:
+    - Upload piece shapes and rules (or connect your CAD)
+    - 'Enter fabric specs: width, directionality, shrinkage, match rules'
+    - Set size ratios and cut‑table limits—or select auto‑optimize
+    - Run optimizer to preview markers and estimated yield
+    - 'Compare vs. baseline, lock best marker, and approve'
+    - Download marker files and yield reports; push to cutting room via API
+---
+# Marker & Fabric Yield Optimizer (MFYO)
+
+Industry: Cut and Sew Apparel Manufacturing (except Contractors)
+Service: Marker & Fabric Yield Optimizer

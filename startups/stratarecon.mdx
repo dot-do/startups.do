@@ -1,0 +1,316 @@
+---
+name: StrataRecon AI
+slug: stratarecon
+service:
+  title: Stockpile Volumetrics & Inventory Reconciliation (Drone/Imagery)
+  description: >-
+    Compute stockpile volumes from client-uploaded drone imagery and reconcile
+    with sales/scale data for accurate inventory.
+  targetUsers:
+    - Plant Managers
+    - Operations Managers
+    - Controllers
+  triggers:
+    - New drone survey uploaded
+    - Month-end inventory cycle
+  inputs:
+    - Drone photos/RTK logs or orthomosaic/DSM
+    - Ground control or base station data (optional)
+    - Scale ticket exports
+    - Product catalogue and densities
+    - Site boundary shapefile
+  steps:
+    - Ingest imagery; run photogrammetry to produce ortho/DSM/point cloud
+    - Auto-segment stockpiles; manual review if needed
+    - Compute volumes; convert to tons with density factors
+    - Ingest sales/scale data; reconcile deltas and highlight anomalies
+    - >-
+      Generate annotated map, 3D model, and variance report; push to
+      stakeholders
+  tools:
+    - OpenDroneMap or Pix4D API
+    - PDAL/CloudCompare
+    - GeoPandas/Shapely/GDAL
+    - PostGIS
+    - S3/Drive for storage
+  outputs:
+    - Per-pile volumes and tonnage
+    - Site inventory report with deltas vs sales
+    - 3D model/orthomosaic links
+    - Variance and anomaly list
+  pricingModel:
+    - One-time setup per site
+    - Per-survey processing fee
+    - Optional monthly monitoring subscription
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 9
+    overall: 8
+  risks:
+    - Poor imagery/GCPs reduce accuracy
+    - Density assumptions introduce error
+    - Use for financials requires agreed tolerance
+  dependencies:
+    - Client drone data uploads
+    - Access to scale/ERP exports
+    - Site boundary and density factors
+leanCanvas:
+  problem:
+    - >-
+      Inventory write-offs from volumetric errors and scale-ticket mismatches
+      (often 2–8% of inventory value per quarter).
+    - >-
+      Manual/topo surveys are slow, costly ($2k–$10k per count), unsafe (MSHA
+      risk), and infrequent (quarterly/annual) causing blind spots.
+    - >-
+      Siloed data: drone models, scale house data, ERP, and accounting don’t
+      reconcile, delaying month-end/quarter-close by 3–10 days.
+    - >-
+      Variable densities and moisture make volume-to-mass conversion
+      inconsistent, leading to over/understated COGS.
+    - >-
+      Operational decisions (re-handling, loader cycle planning, stockout
+      prevention) lack timely, accurate pile-level visibility.
+    - >-
+      Limited in-house drone/photogrammetry expertise leads to inconsistent
+      capture quality and unreliable results.
+  solution:
+    - >-
+      Self-serve portal to upload drone imagery (or integrate with DSPs);
+      automated photogrammetry builds geo-referenced 3D models and segments
+      stockpiles by material/location.
+    - >-
+      Volume engine computes per-pile volumes using robust base modeling
+      (TIN/plane, toe-finding, breaklines) and uncertainty scoring; supports
+      RTK/PPK, GCPs, and LiDAR imports.
+    - >-
+      Reconciliation engine matches pile-level deltas to scale tickets/ERP
+      transactions; flags shrinkage, over-shipments, and mis-coded materials;
+      provides audit trails for close.
+    - >-
+      Density and moisture management: per-material density tables with
+      seasonality and lab inputs; adjusts mass estimates with moisture readings
+      and weather data.
+    - >-
+      Integrations and APIs to scale house systems (Apex/Command Alkon, Libra),
+      ERPs (SAP, JDE), and data lakes; SSO and role-based access for finance,
+      ops, and survey teams.
+    - >-
+      Exception workflows: discrepancy thresholds, root-cause guidance, and
+      approval flows; one-click close pack (reports, roll-forwards,
+      adjustments).
+  uniqueValueProp: >-
+    Auditable, site-ready stockpile volumetrics with automated reconciliation to
+    scale/ERP data, delivering <2% volume error, sub-24h cycle counts, and
+    month-end close acceleration by 3–5 days—without adding survey crews.
+  unfairAdvantage: >-
+    Purpose-built reconciliation engine that links 3D volumetrics to
+    transactional scale/ERP data with auditable roll-forwards, backed by
+    proprietary dataset, capture QA, and finance-grade close workflows—difficult
+    for generic drone platforms to replicate quickly.
+  customerSegments:
+    - >-
+      Primary: Construction aggregates producers (quarries for crushed stone,
+      sand & gravel), regional vertically integrated producers (aggregates +
+      asphalt/ready-mix).
+    - 'Secondary: Frac sand operators and bulk material terminals (cement, salt).'
+    - >-
+      Tertiary: Large civil/earthwork contractors with on-site stockpiles;
+      ready-mix/asphalt plants with satellite yards.
+    - >-
+      Enablers/Partners: Drone service providers (DSPs), survey firms, scale/ERP
+      vendors (Command Alkon, Libra/Trimble, SAP, JD Edwards).
+  channels:
+    - >-
+      Direct sales to regional producers (5–100 sites) via account-based
+      marketing targeting CFOs, controllers, inventory managers, and quarry ops.
+    - >-
+      Partnerships with drone service providers and survey firms (white-label or
+      referral, 10–20% rev share).
+    - >-
+      Alliances/integrations with Command Alkon/Libra/Trimble resellers and ERP
+      SIs to co-sell during scale/ERP refreshes.
+    - >-
+      Industry events and associations: NSSGA, AGG1, MINExpo, World of
+      Asphalt—live demos with ROI calculator.
+    - >-
+      Content/PLG: accuracy benchmarks, month-end close playbooks, and a free
+      “one-site baseline audit” offer.
+    - >-
+      Outbound motion focused on top-200 US producers; inbound via targeted SEO
+      (stockpile measurement, drone volumetrics, inventory reconciliation).
+  revenueStreams:
+    - >-
+      SaaS subscription per site: $500–$1,200/site/month base (includes 1–2
+      scans/month, portfolio dashboards, reports).
+    - >-
+      Usage-based per scan beyond plan: $150–$300/scan depending on image count
+      and resolution.
+    - >-
+      Enterprise tier: $100k–$500k/year for 50–200 sites with volume discounts,
+      custom SLAs, private cloud/VPC.
+    - >-
+      Onboarding/pro services: $3k–$15k for integration setup, density/moisture
+      modeling, training.
+    - >-
+      Partner white-label API pricing for DSPs/survey firms (wholesale rate with
+      minimums).
+    - >-
+      Optional add-ons: LiDAR fusion, moisture sensor integrations, long-term
+      data archiving, premium support.
+  costStructure:
+    - >-
+      Cloud compute for photogrammetry/ML (GPU/CPU) and storage (orthos, point
+      clouds, meshes); CDN/egress.
+    - 'R&D: ML engineers, photogrammetry specialists, data labeling, QA.'
+    - >-
+      Integration engineering and maintenance for ERP/scale systems; API
+      hosting.
+    - >-
+      Sales/marketing: AE/SE teams, field demos, conferences, partner
+      commissions (10–20%).
+    - >-
+      Customer success/onboarding and tiered support (including month-end surge
+      coverage).
+    - 'Insurance, compliance (SOC 2), and legal for data/Audit readiness.'
+    - 'General & admin: finance, HR, office/remote ops.'
+  keyMetrics:
+    - >-
+      Technical accuracy: volume MAE <2% (vs LiDAR/GCP baseline) on compliant
+      captures; segmentation IoU >0.9; capture QA pass rate >95%.
+    - >-
+      Processing performance: median site processing time <120 minutes; 95th
+      percentile <8 hours during month-end.
+    - >-
+      Reconciliation efficacy: reduce unexplained variance to <0.8% of
+      throughput; flag resolution time <48 hours; % discrepancies auto-resolved
+      >60%.
+    - >-
+      Finance impact: month-end close time reduced by 3–5 days; quarterly
+      write-offs reduced by 30–60%; inventory accuracy >98%.
+    - >-
+      Adoption: scans/site/month (target 2–4), active user seats/site, dashboard
+      logins/week.
+    - >-
+      Commercial: gross margin >75%, net revenue retention >115%, logo retention
+      >90%, CAC payback <12 months.
+    - >-
+      Safety/ops: reduction in manual survey entries to active stockpiles by
+      >70%.
+storyBrand:
+  character: >-
+    Aggregates operations and inventory managers at sand & gravel/quarry sites
+    who must report precise stockpile levels.
+  problem: >-
+    - External: Piles change daily; manual surveys are slow, risky, and
+    inconsistent; volumes rarely match scale/sales data.
+
+    - Internal: Hard to trust the numbers; month-end turns into firefighting;
+    stress before audits and leadership reviews.
+
+    - Philosophical: You shouldn’t have to guess what’s on the ground when your
+    imagery and scale data can tell you exactly.
+  guide: >-
+    - Empathy: We know the pressure of reconciling piles, tickets, and
+    production under tight deadlines—without putting people on unstable
+    stockpiles.
+
+    - Authority: Built by geospatial/AI engineers for aggregates; proven on real
+    sites; integrates with common scale/ERP exports; delivers audit-ready,
+    repeatable methods.
+  plan: >-
+    Process:
+
+    1) Upload your drone imagery (or share a flight folder).
+
+    2) We generate a 3D model, segment piles, and compute accurate
+    volumes/changes.
+
+    3) Import sales/scale/production data.
+
+    4) Automated reconciliation quantifies variances, moisture adjustments, and
+    shrink.
+
+    5) Review exceptions, approve, and export inventory + variance report to
+    ERP.
+
+
+    Agreement:
+
+    - Start with a one-site pilot and clear success criteria.
+
+    - Transparent per-scan or per-site pricing; cancel anytime.
+
+    - Your data is private and portable; support included.
+  callToAction: >-
+    Direct: Book a 20-minute demo or start a pilot scan.
+
+    Transitional: Download a sample reconciliation report and audit pack; get a
+    drone capture checklist; run the ROI calculator.
+  success: |-
+    - Always-current, audit-ready inventory with clear variance explanations.
+    - Safer operations—no more walking piles.
+    - Close the month in hours, not days.
+    - Fewer write-offs; less working capital stranded in inventory.
+    - Trust and alignment across Ops, Sales, and Finance.
+    - Consistent, scalable method across sites.
+  failure: |-
+    - Surprise write-offs, stockouts/overstocks, and rework.
+    - Risky manual measurements and liability.
+    - Audit findings and eroded credibility.
+    - Missed production targets due to bad data.
+landingPage:
+  hero:
+    title: AI Stockpile Volumetrics & Inventory Reconciliation
+    subtitle: >-
+      Turn drone imagery into audit‑ready counts for sand & gravel. Compute
+      volumes, convert to tons, and reconcile with scale/sales—fast.
+    ctaText: Get a demo
+    ctaHref: /demo
+  problem:
+    - 'Manual tape/rod/RTK checks are slow, risky, and inconsistent.'
+    - 'Month‑end surprises: books don’t match scale tickets or ground truth.'
+    - Overlapping piles and messy bases create big volume errors.
+    - 'Multi‑site teams lack a standard, auditable counting workflow.'
+    - Generic photogrammetry tools are complex and not aggregates‑focused.
+    - 'Auditors need traceability, not screenshots and spreadsheets.'
+  solution:
+    - >-
+      Upload drone imagery; AI detects piles and computes precise volumes with
+      clean base modeling.
+    - Convert volumes to tons using per‑material density and moisture presets.
+    - Auto‑reconcile counted inventory with sales/scale data and flag variances.
+    - 'Drill into discrepancies by pile, material, date range, and site.'
+    - 'Maintain an audit trail—inputs, edits, and approvals are all tracked.'
+    - >-
+      Close inventory faster with a repeatable, standardized workflow across
+      sites.
+  features:
+    - AI pile delineation with editable boundaries and breaklines.
+    - Accurate volumetrics using TIN base surfaces; supports benches and walls.
+    - >-
+      Volume‑to‑ton conversion with configurable density/moisture; per‑pile
+      history.
+    - Variance analysis with tolerance bands; shrinkage and write‑off tracking.
+    - 'Ingest orthomosaics, DSM/DTM, and LAS/LAZ point clouds; RTK/GCP support.'
+    - >-
+      Quality controls: coverage checks, confidence scores, cross‑sections, QA
+      reports.
+    - 'Multi‑site dashboard with roles, approvals, and scheduled cycle counts.'
+    - Exports to CSV/Excel/PDF; REST API; integrates with scale/ERP systems.
+    - Notifications for large variances and nearing count deadlines.
+    - Secure cloud storage and full change logs for audit readiness.
+  steps:
+    - Capture the site with your drone (standard grid; RTK/GCP optional).
+    - Upload images or orthomosaic/point cloud to the platform.
+    - Review AI‑detected piles; adjust boundaries and base if needed.
+    - Set material density/moisture; auto‑convert volumes to tons.
+    - Connect sales/scale data; map materials/SKUs and date range.
+    - Review reconciliation; investigate and annotate variances.
+    - Approve counts; export reports and push to ERP; schedule the next cycle.
+---
+# StrataRecon AI
+
+Industry: Construction Sand and Gravel Mining
+Service: Stockpile Volumetrics & Inventory Reconciliation (Drone/Imagery)

@@ -1,0 +1,337 @@
+---
+name: CrunchLogic VMI AI
+slug: crunchlogic
+service:
+  title: Retailer VMI Order Recommender (Shelf-life Aware)
+  description: >-
+    Daily order quantity recommendations for VMI/retailer accounts considering
+    service levels, lead times, and shelf-life.
+  targetUsers:
+    - VMI Planner
+    - Key Account Manager
+    - Customer Supply Chain
+  triggers:
+    - Daily VMI review
+    - New lead time or policy change
+    - Freshness complaints
+  inputs:
+    - On-hand/in-transit by DC/store (EDI 852 or portal exports)
+    - Open orders/backorders
+    - Lead times and delivery calendars
+    - Forecast by SKU-location
+    - Shelf-life/FEFO rules
+    - Service level targets and MOQ
+  steps:
+    - 'Ingest on-hand, sales velocity, and lead times'
+    - Project depletion using forecast and promotions
+    - Optimize order quantities to target service levels with FEFO
+    - Flag freshness risk and recommend lot allocation
+    - Export order recs and exceptions
+    - Optional human review and release to EDI 850
+  tools:
+    - Python (OR-Tools optimization)
+    - EDI connectors (850/852/855/856)
+    - Google Sheets/Excel
+    - Power BI
+  outputs:
+    - Recommended order file by account/store/DC
+    - 'Exception list (policy conflicts, freshness risks)'
+    - Fill-rate/freshness KPI dashboard
+  pricingModel:
+    - Monthly subscription per-account or per-store
+    - One-time integration/setup
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 4
+    overall: 4
+  risks:
+    - Inaccurate master data (lead time/MOQ)
+    - EDI integration complexity
+    - Unreliable shelf-life data
+  dependencies:
+    - EDI/data access for 852/PO feeds
+    - Forecast input
+    - Shelf-life and policy master data
+leanCanvas:
+  problem:
+    - >-
+      High out-of-stock rates (typical 6–12%) at retailer DCs/stores under VMI,
+      causing lost sales and retailer penalties.
+    - >-
+      Excess and aged inventory from naive order rules leads to 0.8–2.0%
+      unsaleables/write-offs due to expired or near-expiry product.
+    - >-
+      Manual, spreadsheet-driven VMI planning cannot account for lead-time
+      variability, promotions, and shelf-life constraints simultaneously at
+      SKU-account scale.
+    - >-
+      Retailers impose minimum remaining shelf-life (MRSL) and OTIF policies;
+      poor adherence drives fines, returns, and relationship risk.
+    - >-
+      Limited visibility and weak forecasting of promo and seasonal lifts in
+      snacks (can be 1.5–3.0x base), causing either stockouts or overstocks.
+  solution:
+    - >-
+      Daily AI-driven order recommendations per SKU-account (and optionally per
+      DC/store for DSD) that hit service-level targets (e.g., 98–99.5%) while
+      respecting MRSL and case-pack/truck constraints.
+    - >-
+      Probabilistic demand forecasting that blends POS, shipments, promotions,
+      seasonality, events, and price changes; automatically learns
+      retailer-specific patterns.
+    - >-
+      Shelf-life and freshness optimization: enforces minimum remaining shelf
+      life at arrival, allocates freshest lots to longer-lead accounts, and
+      minimizes aging risk in the network.
+    - >-
+      Lead-time aware multi-echelon logic (plant → mfg DC → retailer DC →
+      store/DSD) that absorbs variability and proposes safety stocks to meet
+      target CSL at least cost.
+    - >-
+      “Human-in-the-loop” workflows: exception queues, what-if scenarios, and
+      one-click EDI/order portal submission with audit trails.
+    - >-
+      90-day pilot methodology: establish baseline KPIs, run shadow mode, then
+      controlled rollout with A/B measurement and performance guarantees.
+  uniqueValueProp: >-
+    Shelf-life aware, retailer-policy compliant VMI ordering that increases
+    on-shelf availability by 2–5 points and cuts stales/unsaleables 15–35%, with
+    daily, prescriptive order quantities per retailer account and fast
+    time-to-value (live in 6–8 weeks).
+  unfairAdvantage: >-
+    A purpose-built, shelf-life aware VMI optimizer for snack categories with
+    preconfigured retailer templates and connectors, plus a growing anonymized
+    benchmark dataset that improves forecasts and policy tuning over time;
+    offered with performance-backed pilots that de-risk adoption.
+  customerSegments:
+    - >-
+      Primary: Other Snack Food Manufacturers (salty snacks, popcorn, nuts/trail
+      mix, crackers, snack bars) with VMI or semi-VMI programs.
+    - >-
+      Ideal customer profile (ICP): $100M–$3B revenue snack manufacturers
+      supplying national/regional retailers (Walmart, Kroger, Target, Costco,
+      Dollar General, convenience chains) via retailer DCs or DSD.
+    - >-
+      Buyer personas: VP/Director of Customer Supply Chain, Director of Demand
+      Planning, VP Sales (Key Accounts), CFO/FP&A (interested in
+      deductions/unsaleables), VMI Planners/Analysts.
+    - >-
+      Secondary: Emerging better-for-you snack brands using 3PLs that offer
+      VMI-like replenishment; private label snack divisions within larger CPGs.
+  channels:
+    - >-
+      Direct sales to snack manufacturers’ Customer Supply Chain and Demand
+      Planning leaders via targeted outbound and ABM.
+    - >-
+      Partnerships with EDI/network providers (e.g., SPS Commerce,
+      TrueCommerce), 3PLs serving snacks, and supply-chain SIs for co-selling
+      and referrals.
+    - >-
+      Category management/broker networks and industry associations (SNAC
+      International) for warm intros and case-study webinars.
+    - >-
+      Content-led growth: VMI benchmarks report, shelf-life playbook, calculator
+      tools; thought leadership at GS1 Connect, CSCMP Edge, SNAXPO.
+    - >-
+      Pilot-to-land motion: 90-day paid pilot on 1–2 retailer accounts; expand
+      across additional accounts/categories upon KPI attainment.
+    - >-
+      Customer advisory board with 5–8 founding brands to refine
+      retailer-specific templates and co-market successes.
+  revenueStreams:
+    - >-
+      SaaS subscription (annual): tiered by number of retailer accounts and
+      SKU-locations. Typical: $6k/month (Growth) to $30k/month (Enterprise).
+    - >-
+      One-time implementation fee: $40k–$150k depending on integrations and
+      number of accounts.
+    - >-
+      Add-ons: promo optimization module, DSD store-level module, advanced
+      freshness analytics, custom S&OP integration ($10k–$100k/yr).
+    - >-
+      Performance-based kicker (optional): bonus fee tied to agreed KPI lift
+      (e.g., share of incremental margin from OSA improvement) after baseline
+      verification.
+    - >-
+      Professional services: data engineering, retailer onboarding, change
+      management, and planner training ($200–$300/hr or fixed bundles).
+  costStructure:
+    - >-
+      People: data science/ML (3–6 FTE), supply chain SMEs (2–3), integrations
+      (3–5), frontend/backend (4–8), customer success (2–4), sales/marketing
+      (2–5).
+    - >-
+      Cloud infrastructure: model training/serving, data pipelines, storage;
+      budget $8k–$25k/month at 10–20 customers, scaling with SKU-location
+      volume.
+    - >-
+      Data pipeline and EDI/network fees: $1k–$5k/month per customer depending
+      on partners and message volumes.
+    - >-
+      Security/compliance: SOC 2 Type 2, pen tests, DPA/legal; $75k–$150k
+      annually.
+    - >-
+      Sales and marketing: events, content, partner incentives; $150k–$300k
+      annually.
+    - Support/training and enablement tooling; $50k–$120k annually.
+  keyMetrics:
+    - >-
+      On-shelf availability (OSA) at store/DC and case fill rate: target +2–5pp
+      OSA lift; maintain ≥98.5% CSL per account.
+    - 'Unsaleables/write-offs as % of gross shipments: reduce by 15–35%.'
+    - >-
+      Forecast accuracy and bias: MAPE < 25% at SKU-DC weekly with promo-aware
+      models; bias |<5%|.
+    - >-
+      Inventory efficiency: days of supply at retailer DC and DSD depots within
+      policy bands (e.g., 10–14 DOS non-promo; 14–21 promo).
+    - >-
+      Lead-time reliability: coefficient of variation reduced by 10–20% through
+      lane monitoring and policy tuning.
+    - >-
+      Recommendation adoption: >70% auto-accepted recommendations within 90
+      days; <10% manual overrides without KPI degradation.
+    - 'Aged inventory risk: cases within 30 days to expiry reduced by 25–40%.'
+    - 'Retailer compliance: MRSL adherence >99%, OTIF fines reduced 20–40%.'
+    - >-
+      Financial: incremental gross margin from recaptured sales vs baseline;
+      target 5–10x annual ROI within 12 months.
+    - 'Time saved: planner hours reduced by 30–50% on VMI accounts.'
+storyBrand:
+  character: >-
+    VMI planners and customer supply chain leaders at Other Snack Food
+    Manufacturers managing retailer/DC accounts. Goal: keep shelves fresh, hit
+    service levels, reduce waste, and avoid firefighting.
+  problem: |-
+    External:
+    - Perishable shelf-life/date-code constraints
+    - Volatile demand, promos, seasonality
+    - Variable lead times and DC/store limits
+    - Retailer penalties for OOS and waste
+    - Manual, error-prone spreadsheets
+
+    Internal:
+    - Stress over over/under-ordering
+    - Low confidence in forecasts and overrides
+    - Constant firefighting
+
+    Philosophical:
+    - Fresh snacks shouldn’t be wasted
+    - The right case should arrive at the right time, every time
+  guide: >-
+    Empathy: We understand the daily pressure of VMI decisions under shelf-life
+    limits and retailer scorecards.
+
+    Authority: Our shelf-life–aware AI for snack VMI models service levels, lead
+    times, and expiry; built by CPG data scientists; secure integrations to
+    POS/inventory/retailer portals; transparent recommendations and KPIs.
+  plan: >-
+    Process plan:
+
+    1) Connect data: POS, on-hand/on-order, lead times, case packs, shelf-life,
+    service targets
+
+    2) Calibrate policy: demand learning, promo uplift, safety stock, min/max,
+    freshness constraints
+
+    3) Go live: daily order recommendations per account/location/SKU with
+    exceptions and approvals
+
+
+    Agreement plan:
+
+    - 6–8 week pilot on a priority category
+
+    - Data & security agreement and SLA
+
+    - Clear success metrics: service level, waste %, turns, forecast bias/MAE
+  callToAction: |-
+    Direct:
+    - Schedule a demo
+    - Start a pilot
+    - Enable data connection
+
+    Transitional:
+    - Download the one-pager
+    - Get the ROI calculator
+    - See a sample daily rec report
+  success: |-
+    Outcomes:
+    - Daily right-sized orders that hit service targets
+    - Lower waste and fewer markdowns
+    - Improved turns and freshness
+    - Fewer chargebacks and better retailer scorecards
+    - Hours back for planners; less firefighting
+    - Stronger margins and trusted retail partnerships
+  failure: |-
+    If nothing changes:
+    - Out-of-stocks and lost sales
+    - Spoilage, write-offs, and aged inventory
+    - Missed promo execution
+    - Chargebacks and strained retailer relationships
+    - Planner burnout and eroding shelf space
+landingPage:
+  hero:
+    title: Shelf‑Life Aware VMI Order Recommender
+    subtitle: >-
+      Daily order quantities for retailer accounts that hit service levels
+      without stale inventory. Built for Other Snack Food Manufacturing.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - Stockouts on promoted SKUs while slow movers expire
+    - 'Planners juggle service targets, lead times, and freshness manually'
+    - Over-ordering to protect service drives write‑offs and returns
+    - 'Fragmented data across retailer portals, EDI, and ERP'
+    - Inconsistent rules by account/store lead to uneven performance
+    - Limited explainability undermines retailer trust and approvals
+    - No clear view of arrival freshness vs. shelf‑life constraints
+  solution:
+    - AI‑generated daily order recommendations by store/DC and SKU
+    - 'Optimizes to service level, lead time variability, and shelf‑life'
+    - Models arrival freshness (FEFO) to prevent stales and chargebacks
+    - Promotion‑ and seasonality‑aware demand forecasting
+    - One‑click approval and push to retailer portals/EDI
+    - 'Transparent rationale, risks, and expected KPIs for every line'
+  features:
+    - >-
+      Shelf‑life optimization: ensures minimum days‑fresh at arrival and
+      respects FEFO
+    - >-
+      Probabilistic demand sensing from POS, inventory, orders, promos, and
+      events
+    - Multi‑echelon logic (plant → DC → retailer DC/store) for VMI workflows
+    - Service‑level targets with lead‑time variability and safety coverage
+    - 'Promotion lift, cannibalization, and new item ramp modeling'
+    - >-
+      Operational constraints: case packs, display units, MOQs, truck/build
+      rules, ship windows
+    - Store/DC recommendations auto‑aggregated into POs or loads
+    - >-
+      Policy engine with account/SKU exceptions (days of supply, freshness
+      thresholds)
+    - 'Explainable AI: drivers, constraints, confidence, and what‑if impact'
+    - >-
+      Integrations: EDI (e.g., 852/855/856), retailer APIs, SFTP; ERP (SAP,
+      Oracle, Microsoft)
+    - 'Compliance & security: SOC 2, SSO, RBAC, full audit trails'
+    - >-
+      Alerts & KPIs: stockout risk, overstocks, expiring lots, service level,
+      waste
+  steps:
+    - >-
+      Connect data: POS/852, on‑hand, orders, lead times, item master,
+      shelf‑life rules
+    - >-
+      Set policies: service levels, freshness mins, pack/MOQ/truck rules, by
+      account/SKU
+    - 'Review daily recommendations with rationale, risk, and arrival freshness'
+    - Approve or auto‑release and send to retailer/DC via EDI/API
+    - Monitor KPIs and exceptions; receive proactive alerts
+    - 'Run what‑if scenarios for promos, new items, and lead‑time changes'
+---
+# CrunchLogic VMI AI
+
+Industry: Other Snack Food Manufacturing
+Service: Retailer VMI Order Recommender (Shelf-life Aware)

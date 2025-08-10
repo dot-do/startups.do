@@ -1,0 +1,288 @@
+---
+name: MaltWISE Energy Optimizer
+slug: maltwise
+service:
+  title: Kiln/Germination Energy Cost Optimizer
+  description: >-
+    Optimizes batch start times and phase timings to minimize energy cost while
+    protecting quality and due dates.
+  targetUsers:
+    - Plant Manager
+    - Energy Manager
+    - Production Planner
+  triggers:
+    - New batch schedule uploaded
+    - Tariff/time-of-use update detected
+    - Price spike alert from utility
+  inputs:
+    - Upcoming batch list with malt type and due dates
+    - Stage durations and constraints (steep/germinate/kiln)
+    - 'Quality rules (max temp ramps, moisture targets)'
+    - Historical kWh/therm per stage per product
+    - Energy tariffs (TOU/real-time)
+  steps:
+    - 'Ingest schedule, constraints, and tariffs'
+    - Calibrate stage energy-intensity models by product
+    - Formulate MILP/CP model (lateness + energy cost)
+    - Optimize start times and optional dwell windows
+    - Simulate cost and quality rule adherence
+    - Publish recommended schedule and what-if scenarios
+    - Send change log to planners for approval
+  tools:
+    - OR-Tools CP-SAT/Pyomo
+    - Python/pandas
+    - ENTSO-E/EIA/utility tariff APIs (or CSV)
+    - Grafana Cloud for visualization
+    - Teams/Slack webhooks
+  outputs:
+    - Optimized Gantt (CSV/ICS) with start/stop times
+    - Estimated energy cost vs baseline
+    - Constraint violations list (if any)
+    - Scenario comparison report
+  pricingModel:
+    - Setup fee (modeling + constraint capture)
+    - Monthly subscription per site
+    - Savings-share option for verified reductions
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Inaccurate energy-intensity models may hurt quality
+    - Operator overrides reduce realized savings
+    - Tariff API changes/data gaps
+  dependencies:
+    - Access to historical energy by stage
+    - Up-to-date tariffs
+    - Agreed quality and scheduling constraints
+leanCanvas:
+  problem:
+    - >-
+      Volatile and complex energy tariffs (time-of-use, day-ahead spot, peak
+      demand charges) drive unpredictable and rising energy costs for kiln and
+      germination operations.
+    - >-
+      Static or rule-based batch scheduling cannot reliably exploit low-tariff
+      windows while meeting due dates and quality specifications (moisture,
+      color/EBC, friability).
+    - >-
+      Manual planning (spreadsheets, whiteboards) creates bottlenecks, overtime,
+      and conflict between production planners and energy managers, especially
+      across multiple kilns/germination vessels and CIP windows.
+    - >-
+      Lack of predictive visibility into energy consumption by phase and ambient
+      conditions (temperature/humidity) leads to suboptimal setpoints and
+      unnecessary reheats/airflow energy.
+    - >-
+      Decarbonization pressure (Scope 1/2) requires measurable CO2 intensity
+      reduction per tonne; current systems lack optimization against carbon
+      signal or PPA availability.
+  solution:
+    - >-
+      AI-driven batch start-time and phase-duration optimization across
+      germination and kiln assets, constrained by due dates, capacity, CIP
+      windows, and quality guardrails.
+    - >-
+      Forecast-driven engine that ingests day-ahead tariffs/DR signals and
+      ambient conditions to plan and re-plan schedules every 15–60 minutes.
+    - >-
+      Plant-specific digital twin of energy and quality: predictive models for
+      moisture, color (EBC/SRM), friability, and energy use per phase
+      (steep/germination/rest/kiln) to ensure quality preservation.
+    - >-
+      Closed-loop implementation via SCADA/MES: push setpoint schedules and
+      interlocks; enable operator approval workflow with override tracking.
+    - >-
+      Peak demand and carbon-aware modes: actively shape load to avoid demand
+      charges and reduce CO2 intensity when carbon prices or PPAs/RECs apply.
+    - >-
+      Scenario planning (“what if”): simulate tariff curves, outages, or rush
+      orders and quantify cost/quality impact pre-execution.
+  uniqueValueProp: >-
+    Cut malt kiln/germination energy cost per tonne by 5–12% within 90 days,
+    guaranteed to maintain quality specs and due dates—verified with auditable
+    M&V. Typical payback: 3–6 months.
+  unfairAdvantage: >-
+    A malting-specific optimization and digital twin stack pre-trained across
+    multiple plants, enabling sub-90-day time-to-value with auditable M&V and
+    quality guardrails; plus deep OT integrations and domain expertise not
+    matched by generic EMS/MES vendors.
+  customerSegments:
+    - >-
+      Large global maltsters (multi-site, 300k–3M t/y capacity) with multiple
+      kilns and germination vessels.
+    - >-
+      Mid-size regional maltsters (30k–300k t/y) in deregulated energy markets
+      (EU/UK/US/CA/AU/NZ/JP).
+    - >-
+      Craft malt houses (3k–30k t/y) seeking cost savings with simple
+      integrations.
+    - >-
+      Roles: Plant Managers, Energy/Sustainability Managers, Production
+      Planners, Process Engineers, OT/IT Leaders, Finance/Procurement (energy).
+  channels:
+    - >-
+      Direct enterprise sales to top 30 malt companies; land-and-expand model
+      via lighthouse sites.
+    - >-
+      12-week paid pilot program: 2–3 vessels + 1 kiln; success criteria
+      pre-agreed (≥5% energy cost/tonne reduction, 0 quality deviations, 0 due
+      date misses).
+    - >-
+      Partnerships with energy retailers/aggregators (Enel X, CPower,
+      Flexitricity) to bundle DR/optimization value and co-sell to industrial
+      portfolios.
+    - >-
+      Alliances with system integrators in food & beverage (Rockwell, Siemens,
+      Ignition integrators) for integration delivery at scale.
+    - >-
+      Industry events and associations: EBC/IBD conferences, BrauBeviale, Craft
+      Brewers Conference (malt track), Maltsters Association networks; present
+      case studies with quantified results.
+    - >-
+      Account-based marketing to roles: targeted LinkedIn and trade media, white
+      papers, ROI calculators specific to malting.
+    - >-
+      Customer success playbook: operator training, play-by-play commissioning,
+      monthly value reviews, and expansion offers across sister plants.
+  revenueStreams:
+    - >-
+      Annual SaaS subscription per site, scaled by installed capacity (e.g.,
+      $0.30–$0.70 per tonne of annual capacity; min $35k/site/year).
+    - >-
+      One-time implementation/integration fee per site ($40k–$150k depending on
+      systems and scope).
+    - >-
+      Gainshare option for year 1 (e.g., 15–25% of verified net energy cost
+      savings), tapering in year 2.
+    - >-
+      Optional modules: demand-response enablement and revenue share (10–20% of
+      DR proceeds), multi-site portfolio optimizer (+$25k/year), advanced
+      quality soft-sensors (+$10k/year/site).
+    - >-
+      Enterprise contracts (3-year) with volume discounts (multi-site) and
+      premium SLAs (24/7 support).
+  costStructure:
+    - >-
+      Implementation labor (OT/IT integration, data engineering, commissioning):
+      $60k–$200k/site COGS depending on complexity.
+    - >-
+      R&D and model development (optimization engine, soft sensors, UI/UX): core
+      fixed cost; ongoing model improvement ~15% of revenue.
+    - >-
+      Cloud infrastructure and data services (compute for optimization, storage,
+      monitoring): $1k–$4k/site/month.
+    - >-
+      Sales and marketing (enterprise field sales, events, ABM): CAC target
+      $80k–$150k per enterprise; 12–18 month payback.
+    - >-
+      Customer success and support (training, M&V, continuous tuning):
+      $3k–$8k/site/month labor.
+    - >-
+      Security, compliance, and insurance (SOC 2, cyber insurance, pen tests):
+      $150k–$300k/year overhead.
+    - 'Partnership commissions to SIs/energy partners: 10–20% of first-year ARR.'
+  keyMetrics:
+    - >-
+      Primary: Energy cost per tonne of malt ($/t), Energy intensity (kWh/t
+      Gas+Electric), and % reduction vs normalized baseline.
+    - >-
+      Quality protection: % batches within moisture/color/friability specs;
+      quality deviation rate ≤0.5% with no negative trend.
+    - >-
+      Schedule performance: On-time-in-full (OTIF) for batch due dates ≥98%;
+      average lateness (hours) ≤ target.
+    - >-
+      Peak demand control: Monthly peak kW vs threshold; demand charge savings
+      ($/month).
+    - 'Carbon: kg CO2e per tonne; % reduction vs baseline; total tCO2e avoided.'
+    - >-
+      Adoption: Recommendation acceptance rate ≥70%; operator override rate ≤30%
+      with decreasing trend; time-to-approve recommendations (median).
+    - >-
+      Model accuracy: Energy forecast MAPE ≤8–12%; quality soft-sensor error
+      within lab tolerance (e.g., moisture ±0.2–0.4%).
+    - >-
+      System reliability: Data pipeline uptime ≥99.5%; optimization job success
+      ≥99%; mean time to resolve incidents <8 hours.
+    - >-
+      Financial: Verified savings ($/site/month); payback period (months); net
+      revenue retention (NRR) >120% with expansions.
+storyBrand:
+  character: >-
+    Malt house operations leaders who must hit malt quality specs and delivery
+    dates while lowering energy spend.
+  problem: >-
+    External: volatile energy prices and rigid kiln/germination phase windows;
+    Internal: constant schedule firefighting and trade-offs; Philosophical: you
+    shouldn’t have to choose between quality and energy cost.
+  guide: >-
+    We understand malting and energy markets, and we’ve built AI schedulers for
+    industrial plants. The Kiln/Germination Energy Cost Optimizer shifts batch
+    starts and phase timings within SOP spec bands to avoid peaks, cut cost, and
+    protect due dates.
+  plan: >-
+    1) Connect tariffs, orders, equipment capacities, and SOP spec bands; 2)
+    Configure constraints and quality limits; 3) Run a 4-week pilot to
+    calibrate; 4) Go live with daily optimized start times and phase setpoints,
+    operator override, and savings reports.
+  callToAction: Book a 30-minute ROI consult and launch a pilot on one kiln.
+  success: >-
+    Double-digit energy cost reduction, protected quality and on-time delivery,
+    calmer shifts, and a scalable, data-driven schedule across kilns and
+    germination.
+  failure: >-
+    Keep overpaying during peak hours, risking late lots or spec drift, and
+    burning out teams with last-minute schedule changes.
+landingPage:
+  hero:
+    title: Cut Energy Costs in Malting—Automatically
+    subtitle: >-
+      AI schedules kiln and germination phases to hit specs and due dates at the
+      lowest possible energy cost.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - Volatile power prices make batch costs unpredictable.
+    - Static schedules ignore time-of-use tariffs and plant constraints.
+    - Manual planning struggles across multiple drums/kilns and deadlines.
+    - 'Rushing or overdrying risks color, DP, friability, and moisture specs.'
+    - Peak-hour usage drives up cost and carbon.
+  solution:
+    - >-
+      Optimizes batch start times and phase timings across germination and
+      kilning for minimum energy cost.
+    - >-
+      Protects quality with guardrails for moisture, bed temperature, airflow,
+      DP, and color.
+    - 'Honors due dates, capacity, and maintenance windows across all vessels.'
+    - >-
+      Uses live tariff feeds, ambient conditions, and equipment limits for
+      hour-by-hour plans.
+    - >-
+      Outputs executable schedules and setpoints for operators and control
+      systems.
+  features:
+    - Dynamic price–aware scheduling (TOU/real-time tariffs).
+    - 'Quality-first constraints: moisture, bed temp, airflow, DP, color.'
+    - 'Multi-vessel orchestration: drums, floors, kilns, heat recovery units.'
+    - What‑if scenarios with savings and carbon impact estimates.
+    - >-
+      Auto-generated setpoints and phase ramps for fans, temps, and
+      recirculation.
+    - Rapid re-optimization on price spikes or downtime.
+    - 'Integrations: OPC UA/Modbus, MES/ERP, tariff and weather APIs.'
+    - Audit-friendly cost and CO2 reporting.
+  steps:
+    - 'Connect data: tariff feed, equipment tags, MES/ERP, batch specs.'
+    - 'Define constraints: capacities, shift calendar, maintenance windows.'
+    - Calibrate quality guardrails from recent batches.
+    - Run optimization and review the proposed schedule and savings.
+    - Publish setpoints/schedules to the floor and monitor in real time.
+    - Re-optimize automatically when prices or conditions change.
+---
+# MaltWISE Energy Optimizer
+
+Industry: Malt Manufacturing
+Service: Kiln/Germination Energy Cost Optimizer

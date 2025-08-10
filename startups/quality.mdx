@@ -1,0 +1,338 @@
+---
+name: Quality Early Warning & Root Cause Assistant — AI service for Paper Mills
+slug: quality
+service:
+  title: Quality Early Warning & Root Cause Assistant
+  description: >-
+    Multivariate monitoring of basis weight, moisture, caliper, formation and
+    lab tests to flag drift early and suggest corrections.
+  targetUsers:
+    - Quality Manager
+    - Process Engineer
+    - Machine Tenders
+  triggers:
+    - Every 5 minutes
+    - On new lab result
+    - On grade change
+  inputs:
+    - Online scanner data
+    - 'Lab LIMS results (tensile, burst, Cobb)'
+    - 'Key process tags (headbox, press, dryer, steam box)'
+    - Grade/spec limits
+  steps:
+    - Ingest high-frequency tags and lab data
+    - Train PCA/PLS and gradient models per grade
+    - Detect drift/out-of-spec risk with lead time
+    - Explain drivers (SHAP) and propose setpoint nudges
+    - Auto-generate RCA when specs missed
+  tools:
+    - 'OSIsoft PI/AF,Event Frames'
+    - 'scikit-learn (PCA/PLS, XGBoost)'
+    - SHAP
+    - Power BI/Grafana
+    - OpenAI API for RCA narrative
+  outputs:
+    - Real-time alerts with top drivers
+    - Recommended adjustments and guardrails
+    - RCA PDF and timeline
+  pricingModel:
+    - Setup/calibration per machine
+    - Monthly subscription
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 4
+    overall: 4.5
+  risks:
+    - Scanner calibration drift
+    - Confounding effects during transitions
+    - Delayed lab feedback
+  dependencies:
+    - High-frequency historian access
+    - Spec library by grade
+    - SME validation loop
+leanCanvas:
+  problem:
+    - >-
+      Late detection of quality drift (basis weight, moisture, caliper,
+      formation) causes off-grade rolls and customer claims; mills often
+      discover issues hours after they start due to slow lab cycles and noisy
+      SPC charts.
+    - >-
+      Root cause analysis is manual, slow, and inconsistent; engineers sift
+      through hundreds of tags and lab results with limited multivariate tools,
+      leading to extended troubleshooting and production losses.
+    - >-
+      Alarm floods and single-variable SPC miss multivariate interactions (e.g.,
+      steam box, headbox consistency, dryer section interactions), resulting in
+      false negatives and operator fatigue.
+    - >-
+      Grade changes and furnish/recipe adjustments create transient instability;
+      mills lack playbooks with predictive guardrails to shorten stabilization
+      time.
+    - >-
+      Siloed data (QCS, DCS, PI historian, LIMS) and missing context (grade,
+      basis weight targets, setpoint changes, maintenance events) slow analysis
+      and learning.
+    - >-
+      Yield loss of 0.5–2.0% and energy/chemical overuse are common; at
+      $600–1,000/ton and 300–600 t/day machines, this is $200k–$1.2M/year per
+      machine in avoidable cost.
+    - >-
+      Quality claims and rework (0.1–0.5% of sales) damage customer
+      relationships and tie up cash.
+    - >-
+      Mills lack in-house data science bandwidth to build, validate, and
+      maintain robust multivariate models tailored to papermaking processes.
+  solution:
+    - >-
+      Multivariate early warning models across basis weight, moisture, caliper,
+      formation, and key lab tests with context features (grade, speed, furnish,
+      setpoints).
+    - >-
+      Real-time drift detection (Hotelling’s T2/SPE, EWMA/CUSUM, concept drift
+      tests) tuned per grade and machine centerline.
+    - >-
+      Explainable root cause analysis using SHAP/feature attribution and causal
+      graphs to rank likely contributors (e.g., headbox consistency variance,
+      steam box zone imbalance).
+    - >-
+      Prescriptive recommendations translating insights into actionable setpoint
+      adjustments, maintenance checks, or grade-change guardrails, with expected
+      impact and risk score.
+    - >-
+      Grade-change playbooks that predict stability windows and suggest ramp
+      profiles to minimize transient defects.
+    - >-
+      Closed-loop A/B holdout and “guardrail mode” to validate improvements and
+      prevent unsafe moves; operator approval workflow and audit trail.
+    - >-
+      Seamless connectors to DCS/QCS (OPC UA/DA, Modbus), PI/AVEVA, Aspen IP.21,
+      Ignition, and LIMS; on-prem edge processing with optional cloud analytics.
+    - >-
+      Role-based dashboards (operator, engineer, manager), alerting (DCS alarms,
+      email/SMS, Teams/Slack), and mobile views.
+    - >-
+      Automated model lifecycle: drift re-training, backtesting, version
+      control, and health monitoring.
+    - >-
+      Cybersecurity and reliability: IEC 62443-aligned deployment, read-only
+      historian interfaces, offline buffering, and site-level data residency.
+  uniqueValueProp: >-
+    Detect and correct quality drift hours earlier than current SPC and QCS
+    alarms, with explainable, prescriptive guidance that cuts off-grade by
+    15–30%, reduces claims by 20–40%, and shortens grade-change stabilization by
+    5–15%—deployed in weeks and integrated with your existing PI/QCS/DCS stack.
+  unfairAdvantage: >-
+    A papermaking-specific model and prescription library trained on diverse
+    machine configurations and grades, translating multivariate insights into
+    safe, operator-trusted setpoint guidance with documented ROI—combined with
+    deep OEM/historian integrations and rapid, repeatable deployment templates.
+  customerSegments:
+    - >-
+      Mid- to large-size paper and paperboard mills (containerboard,
+      cartonboard, fine paper, tissue) with modern QCS/DCS and plant historians.
+    - >-
+      Mill roles: production managers, process/quality engineers, shift
+      supervisors, quality managers, continuous improvement leaders, corporate
+      OpEx/technical centers.
+    - >-
+      OEMs and system integrators serving pulp & paper seeking embedded
+      analytics to augment their QCS/DCS/APC offerings.
+    - >-
+      Geographies: North America, Europe, Latin America, and APAC tier-1
+      producers; initial focus on mills with >250 t/day machines.
+  channels:
+    - >-
+      Direct enterprise sales to top 150 pulp & paper producers; land at
+      corporate technical centers and expand to mills.
+    - >-
+      Partnerships with QCS/DCS/OEMs (Valmet, ABB, Honeywell, Voith) and system
+      integrators for co-selling and embedded deployments.
+    - >-
+      Alliances with historian vendors and SI partners (AVEVA/PI, AspenTech,
+      Inductive Automation) and listings on Azure/AWS marketplaces.
+    - >-
+      Industry events and associations (TAPPI, PaperCon, Zellcheming) for case
+      studies and technical workshops.
+    - >-
+      Content-led growth: technical whitepapers, ROI calculators, webinars on
+      multivariate control in papermaking, operator training videos.
+    - >-
+      Account-based marketing on LinkedIn targeting mill roles; referral program
+      for engineers (bonuses, recognition).
+    - >-
+      Pilot-first motion: 8–12 week paid pilots with clear success criteria and
+      executive sponsor; expand to additional machines after ROI validated.
+  revenueStreams:
+    - >-
+      Annual subscription per paper machine with tiered plans: Monitor
+      ($4k–$6k/machine/month), Optimize ($8k–$12k), Enterprise ($12k–$18k).
+    - >-
+      Implementation/onboarding fee: $50k–$150k per mill (data integration,
+      model tuning, operator training).
+    - Optional edge hardware/appliance rental or sale ($5k–$12k per unit).
+    - >-
+      Professional services: advanced model customization, integration to APC,
+      grade-change optimization projects ($200–$400/hour or fixed-scope).
+    - 'Premium support and training packages (24/7, onsite workshops).'
+    - >-
+      Multi-year contracts (3–5 years) with volume discounts; optional
+      outcome-based bonuses tied to verified savings.
+  costStructure:
+    - >-
+      COGS: cloud compute/storage ($150–$500/machine/month), edge hardware,
+      monitoring, and software licenses.
+    - >-
+      Engineering and data science salaries for model development, deployment,
+      and support.
+    - >-
+      Sales and marketing: enterprise AEs, SEs, partner enablement, events,
+      content; partner commissions 10–20%.
+    - >-
+      Customer success: onboarding, training, ROI verification, documentation,
+      L2/L3 support coverage.
+    - >-
+      R&D: model library expansion, connectors, cybersecurity certifications
+      (IEC 62443), and QA.
+    - >-
+      G&A: compliance, insurance, legal (MSAs, DPAs), office/tools, travel to
+      mill sites.
+  keyMetrics:
+    - >-
+      Time-to-detect (TTD) improvement: average hours of earlier detection vs.
+      baseline SPC (target: >3 hours).
+    - >-
+      False alarm rate: actionable alerts with <0.5/day/machine; precision >70%
+      within 24 hours of alert issuance.
+    - >-
+      Off-grade reduction: percent decrease in reels outside spec (target:
+      15–30% within 3–6 months).
+    - >-
+      Grade-change stabilization: reduction in time to stable quality window
+      (target: 5–15%).
+    - >-
+      Claims rate: reduction in customer returns/credits (target: 20–40% over
+      6–12 months).
+    - >-
+      Energy and chemical intensity: kWh/ton and chemical $/ton reductions
+      (target: 2–5%).
+    - >-
+      Operator adoption: percentage of prescriptions acknowledged/executed
+      (target: >70%) and action lead time <15 minutes.
+    - >-
+      Model coverage: percentage of grades and machines with validated models
+      (target: >80% within 90 days).
+    - >-
+      Implementation speed: time from kickoff to first validated alert (target:
+      <4 weeks).
+    - >-
+      Commercial KPIs: gross margin (>70% on software), logo retention (>95%),
+      expansion revenue (>20% net revenue retention), CAC payback (<12 months).
+storyBrand:
+  character: >-
+    Paper mill production and process leaders who need to keep machines on-spec,
+    stable, and profitable without constant firefighting.
+  problem: >-
+    External: Variability across basis weight, moisture, caliper, formation, and
+    delayed lab results causes drift and off-grade. Internal: Teams are
+    overwhelmed by noisy alarms and slow root-cause hunts. Philosophical: It
+    shouldn’t take heroics to run a steady, high-quality machine.
+  guide: >-
+    Quality Early Warning & Root Cause Assistant understands papermaking
+    variability. We combine multivariate monitoring across basis weight,
+    moisture, caliper, formation, and lab tests with domain expertise to surface
+    early drift and actionable fixes—proven to cut waste and tighten specs.
+  plan: >-
+    1) Connect DCS/QCS and LIMS data. 2) Calibrate models with your historical
+    runs, grades, and specs. 3) Go live with early-warning alerts and ranked
+    correction suggestions, plus weekly performance reviews.
+  callToAction: Book a 30-minute demo and launch a 30-day pilot on one machine.
+  success: >-
+    Tighter specs, fewer breaks, faster startups, higher OEE and yield, lower
+    fiber and energy use, institutionalized know-how, and confident crews who
+    prevent defects before they happen.
+  failure: >-
+    Continued off-grade rolls, wasted fiber and steam, customer claims, overtime
+    firefighting, and lost margin from undetected drift.
+landingPage:
+  hero:
+    title: Quality Early Warning & Root Cause Assistant for Paper Mills
+    subtitle: >-
+      Catch quality drift early. Pinpoint why. Act with confidence—before waste
+      and claims.
+    ctaText: Book a Demo
+    ctaHref: /demo
+  problem:
+    - >-
+      Quality drift in basis weight, moisture, caliper, and formation is
+      detected late—after broke or customer complaints.
+    - >-
+      Operators juggle hundreds of tags; subtle multivariate shifts go
+      unnoticed.
+    - >-
+      Lab results arrive after the fact; linking them to process conditions is
+      slow.
+    - >-
+      Root causes are unclear during grade changes, speed ramps, or furnish
+      changes.
+    - 'Existing alarms are univariate, noisy, and reactive.'
+    - 'Data is siloed across DCS, QCS, MES, and LIMS—analysis is time-consuming.'
+  solution:
+    - >-
+      Always-on multivariate monitoring of basis weight, moisture, caliper,
+      formation, and lab tests.
+    - >-
+      Learns normal patterns by grade and machine state; flags drift at the
+      earliest sign.
+    - Explains drivers with ranked contributors and probable root causes.
+    - Recommends actionable corrections with confidence estimates.
+    - Integrates with DCS/QCS/MES/LIMS; deploy on-prem or secure cloud.
+    - >-
+      Reduces broke, energy, and chemical waste; improves grade change
+      stability.
+    - >-
+      Alerts operators in control room and mobile; full audit trail for quality
+      decisions.
+  features:
+    - 'Grade-aware models that adapt to furnish, speed, and machine state.'
+    - >-
+      Early warning scores and change-point detection at reel, shift, and grade
+      levels.
+    - >-
+      Root-cause explorer: contribution ranking, correlation maps, and
+      lab-to-process alignment.
+    - >-
+      Action playbooks: guidance for stock consistency, refining,
+      steam/moisture, calender load, and dosing.
+    - >-
+      Impact estimates on basis weight, moisture, caliper, and variability
+      before you act.
+    - Formation and sheet stability monitoring with runnability risk index.
+    - 'Connectors for OPC UA, MQTT, and historians; APIs for QCS and LIMS.'
+    - >-
+      Role-based alerts via HMI, email, Teams/Slack, with noise suppression and
+      escalation.
+    - >-
+      Dashboards for operators, quality, and management—reel-to-reel and
+      grade-change views.
+    - >-
+      Model governance: versioning, drift monitoring, scheduled and one-click
+      retraining.
+    - Low-latency edge option for data-sensitive mills.
+    - 'Security by design: SSO, RBAC, and end-to-end encryption.'
+  steps:
+    - 'Connect data: DCS/QCS tags, lab results, machine states.'
+    - Define target KPIs and limits by grade; import historical runs.
+    - Train baseline models and validate against recent reels and lab checks.
+    - >-
+      Go live: dashboards and alerts in the control room; tune thresholds in
+      week one.
+    - >-
+      Review root-cause reports weekly and update playbooks for continuous
+      improvement.
+---
+# Quality Early Warning & Root Cause Assistant — AI service for Paper Mills
+
+Industry: Paper Mills
+Service: Quality Early Warning & Root Cause Assistant

@@ -1,0 +1,329 @@
+---
+name: SetPointIQ — AI Recommender for EPS Pre-Expanders & Molders
+slug: setpointiq
+service:
+  title: Process Setpoint Recommender (Pre-Expander/Molder)
+  description: >-
+    Learns relationships between setpoints and quality/scrap to suggest safe
+    parameter tweaks that reduce density variance and cycle time.
+  targetUsers:
+    - Process Engineer
+    - Quality Manager
+    - Shift Lead
+  triggers:
+    - End of shift/day analysis
+    - Quality KPI deviation
+    - Material lot change
+  inputs:
+    - >-
+      Historian data (steam pressure/temp, bed level, fill weight, vacuum, cycle
+      times)
+    - Ambient humidity/temp
+    - 'Lab results (density, cell size, compressive strength)'
+    - Material lots and bead specs
+  steps:
+    - Ingest historian/LIMS data and align by lot/timestamp
+    - 'Engineer features and label outcomes (scrap, variance, cycle)'
+    - Train/validate gradient boosting models with SHAP for interpretability
+    - Generate bounded recommendations with safety guardrails
+    - Simulate expected impact and confidence intervals
+    - Issue setpoint suggestions and log operator acceptance/feedback
+  tools:
+    - scikit-learn/LightGBM
+    - OPC-UA/MQTT connectors or CSV exports
+    - Statsmodels (SPC)
+    - Streamlit UI with approval workflow
+  outputs:
+    - Ranked setpoint change proposals with expected impact
+    - Contribution analysis (which variables matter)
+    - A/B trial plan and post-change report
+  pricingModel:
+    - Setup/model training fee
+    - Per-line monthly subscription
+    - Savings-based fee optional
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 3.8
+    modelCapability: 4.3
+    overall: 4
+  risks:
+    - Unsafe recommendations without proper bounds
+    - Data drift with seasonal humidity
+    - Historian access/network/security hurdles
+  dependencies:
+    - Read-only historian/LIMS access
+    - Safety limits approved by engineering/EHS
+    - Operator review/approval workflow
+leanCanvas:
+  problem:
+    - >-
+      High density variability (CV often 5–8%) drives off-spec blocks, rework,
+      and scrap (2–6% typical)
+    - >-
+      Cycle times are set conservatively to avoid defects, inflating steam and
+      cooling costs and constraining throughput
+    - >-
+      Operator- and shift-dependent know-how causes recipe drift across lots,
+      shifts, ambient conditions, and bead grades
+    - >-
+      Bead variability (supplier-to-supplier, lot-to-lot, moisture, pentane
+      content) changes behavior of standard recipes
+    - >-
+      Limited safe experimentation: trying new setpoints risks bead collapse,
+      poor fusion, or dimensional instability
+    - >-
+      Data sits in silos (PLC/SCADA, historian, QC lab, MES), making root-cause
+      analysis and continuous optimization slow
+    - >-
+      Energy costs (steam, compressed air, vacuum) are significant and growing;
+      no simple way to co-optimize quality and energy
+    - >-
+      Existing OEM recipes/controls don’t learn over time or adapt to raw
+      material and environment changes
+  solution:
+    - >-
+      Data integration: non-intrusive edge connector streams PLC/SCADA tags
+      (steam pressure/time, vacuum/cooling time, mold temp, fill time, air
+      flow), historian, and QC lab data (density, fusion score, compressive
+      strength)
+    - >-
+      Multivariate learning: models map setpoints + context (bead grade/lot,
+      moisture, ambient temp/humidity, mold/tool, shift) to quality, scrap risk,
+      and cycle time
+    - >-
+      Setpoint recommender: suggests incremental, safe tweaks (e.g., -2 s steam,
+      +3 s vacuum, -0.1 bar steam pressure) with expected impact on density CV,
+      scrap probability, and cycle time
+    - >-
+      Guardrails and safety: hard constraints on OEM limits, steam
+      pressure/temperature, vacuum, and de-mold windows; product-spec
+      constraints ensure no recommendations that risk fusion or dimensional
+      stability
+    - >-
+      What-if sandbox/digital twin: simulate predicted outcomes before applying;
+      run A/B or time-boxed experiments with automatic post-run analysis
+    - >-
+      Closed-loop readiness: start in advisory mode with operator approval;
+      optional API to write back to PLC via existing change-management workflow
+    - >-
+      Continuous learning: automatic re-training by bead lot and seasonality;
+      drift detection alerts when models need attention
+    - >-
+      Operator UI: shift-level guidance, recipe comparisons, and one-click
+      acceptance; audit trail of applied changes for compliance
+    - >-
+      KPI tracking: real-time density distribution, CV, scrap, energy/part,
+      cycle time; weekly savings report vs. baseline
+    - >-
+      Deployment: on-prem/edge-first with secure cloud for fleet learning; works
+      with Siemens/Rockwell/Beckhoff and common historians
+  uniqueValueProp: >-
+    Reduce density variance 30–50%, scrap 15–30%, and cycle time 5–10% within 90
+    days—via safe, operator-approved setpoint recommendations that learn from
+    your lines, your bead grades, and your environment. No major capex; deploy
+    at the edge with guardrails that respect OEM and safety limits.
+  unfairAdvantage: >-
+    EPS-specialized models and guardrails pre-trained on diverse equipment and
+    bead grades; a growing library of OEM-specific safety constraints and
+    validated micro-experiments. Proprietary density/fusion prediction features
+    and a deployment playbook that achieves measurable improvements in under 90
+    days with human-in-the-loop approvals and full auditability.
+  customerSegments:
+    - >-
+      EPS block molding plants (construction blocks, insulation) with 1–5
+      pre-expanders and 3–20 molding machines
+    - >-
+      EPS shape molding plants (packaging, automotive, appliances) with 5–50
+      molding machines
+    - >-
+      Operations leaders (Plant Managers, Production Managers) accountable for
+      OEE and cost/ton
+    - >-
+      Process and quality engineers responsible for density control, fusion
+      quality, and scrap reduction
+    - >-
+      Corporate CI/Lean/Six Sigma teams standardizing best practices across
+      multi-plant networks
+    - >-
+      EPS equipment OEMs and systems integrators seeking value-added digital
+      offerings for installed base
+    - >-
+      Raw bead producers (e.g., BASF, Synthos, Sunpor, JSP) wanting
+      grade-specific parameters for customer success
+  channels:
+    - >-
+      Direct sales to plant and operations leaders; land with 8–12 week paid
+      pilot on 2–4 priority molds/blocks
+    - >-
+      OEM partnerships (e.g., Hirsch, Kurtz, EGE/Kurtz Ersa, Jingye) to bundle
+      with new equipment and retrofit installed base
+    - >-
+      Systems integrators for PLC/SCADA/MES integration (Rockwell,
+      Siemens-certified SIs)
+    - >-
+      Bead supplier programs (BASF, Synthos, Sunpor, JSP) to co-pilot
+      grade-specific playbooks with joint customers
+    - >-
+      Industry events and associations (EPS-IA, Foam Expo) with live demos and
+      ROI case studies
+    - >-
+      Targeted content (density CV playbook, cycle-time/energy calculator) and
+      webinars for CI leaders
+    - >-
+      Customer referrals and multi-plant expansions post-pilot with standardized
+      rollout kit
+  revenueStreams:
+    - >-
+      Annual subscription per line/machine: $15k–$30k per molding machine;
+      $25k–$50k per pre-expander (volume discounts)
+    - >-
+      Implementation/onboarding fee: $40k–$120k per plant (scope-dependent;
+      includes connectors, modeling, and training)
+    - >-
+      Premium support and SLAs (24/7, on-site quarterly optimization): +15–25%
+      uplift
+    - Enterprise license for multi-plant fleets with centralized benchmarking
+    - >-
+      OEM revenue-share on co-sold deployments; SI margin on integration
+      services
+  costStructure:
+    - 'R&D: data science, MLOps, and process engineering staff'
+    - >-
+      Implementation services: solution architects, SI partners, on-site
+      commissioning
+    - >-
+      Edge hardware and networking (industrial PC, OPC UA server licenses where
+      required)
+    - 'Cloud/compute for model training, logging, and fleet analytics'
+    - 'Customer success and support, including on-site visits and training'
+    - 'Sales and marketing (industry events, demos, pilot support)'
+    - 'Compliance and security (SOC 2, vulnerability testing)'
+    - Partner commissions (OEM/SI)
+  keyMetrics:
+    - >-
+      Quality impact: density CV reduction vs. 8-week baseline (target: -30% to
+      -50%); fusion defect rate (target: -20% to -40%)
+    - >-
+      Throughput/time: average cycle time per product (target: -5% to -10%
+      within 90 days)
+    - >-
+      Waste and cost: scrap rate (target: -15% to -30%); steam/vacuum energy per
+      part (target: -3% to -8%)
+    - >-
+      Financial: verified annualized savings per line (target:
+      $150k–$400k/line); payback < 6 months post go-live
+    - >-
+      Adoption: operator acceptance rate of recommendations (target: >70% after
+      60 days); active users per shift (target: >80% of shifts)
+    - >-
+      Model performance: MAE for density prediction (target: <0.8 kg/m³), scrap
+      probability AUC (target: >0.80), constraint violations (target: 0)
+    - >-
+      Time-to-value: time from install to first accepted recommendation (target:
+      <14 days); to target KPI attainment (target: <90 days)
+    - >-
+      Reliability: data uptime (target: >99.5%); mean time to investigate (MTTI)
+      on data drift (target: <1 business day)
+    - >-
+      Customer success: NPS (target: >40), expansion to additional lines within
+      6 months (target: >50%)
+storyBrand:
+  character: >-
+    Process engineers and production leaders at EPS foam plants who want
+    consistent density and fusion, faster cycles, and less scrap without risking
+    a bad run.
+  problem: >-
+    - Villain - guesswork and drift in pre-expander and molder setpoints
+
+    - External - density variance, fusion defects, long cycles, energy waste,
+    scrap
+
+    - Internal - fear of tweaks, constant firefighting, pressure to hit specs
+    and schedule
+
+    - Philosophical - data should drive safe decisions, not tribal knowledge or
+    luck
+  guide: >-
+    - Empathy - we know the steam, vacuum, fill, aging, and cooling tradeoffs
+    are real-time and unforgiving
+
+    - Authority - AI learns relationships from your historical runs, uses
+    guardrails and constraints, explains predicted impact, and keeps an audit
+    trail
+  plan: >-
+    - 1 Connect - integrate PLC/MES/CSV data and define specs, limits, and
+    constraints
+
+    - 2 Learn - model setpoint-to-quality relationships and simulate safe
+    what-if scenarios
+
+    - 3 Recommend - serve in-shift setpoint adjustments with predicted outcomes,
+    monitor SPC, refine
+
+    - Agreement - you approve every change, no uncontrolled PLC writes, data
+    stays in your environment
+  callToAction: |-
+    - Direct - schedule a 30-minute discovery and sample data import
+    - Transitional - get the one-pager and dashboard walkthrough
+  success: |-
+    - Tighter density control and fewer fusion defects
+    - Shorter cycle times with maintained quality
+    - Lower scrap and steam use, higher OEE
+    - Confident operators with clear, safe next steps
+    - Predictable runs and on-time shipments
+  failure: |-
+    - Ongoing variance and scrap
+    - Cautious slow cycles that waste capacity
+    - Energy overruns and missed schedules
+    - Quality complaints and eroded margins
+    - Reliance on tribal knowledge and luck
+landingPage:
+  hero:
+    title: AI Setpoint Recommender for EPS Pre-Expanders & Molders
+    subtitle: >-
+      Cut density variance and cycle time with safe, data-driven parameter
+      tweaks. Reduce scrap without risking fusion or warpage.
+    ctaText: Request a demo
+    ctaHref: /request-demo
+  problem:
+    - 'Density varies across lots, shifts, and seasons'
+    - Conservative recipes inflate cycle time and steam usage
+    - Trial-and-error tuning eats hours with inconsistent results
+    - 'Off-target density, fusion defects, and voids drive scrap and rework'
+    - Know-how lives in experts’ heads; quality slips when they’re off shift
+    - Data sits in PLC/SCADA with no closed-loop learning back to setpoints
+  solution:
+    - >-
+      Learns relationships between setpoints (steam, expansion time, fill,
+      vacuum, cooling) and quality/scrap from your history
+    - 'Recommends safe, small parameter adjustments per machine, mold, and SKU'
+    - Always respects constraints and machine limits with built-in guardrails
+    - 'Shows predicted impact on density variance, cycle time, steam/water use'
+    - 'Continuously adapts to bead lot, humidity, and seasonal changes'
+    - >-
+      Works alongside operators—suggestions to accept/skip, not black-box
+      autonomy
+    - 'Typical outcomes: 10–30% lower density variance and 3–8% shorter cycles'
+  features:
+    - SafeSetpoint AI with uncertainty-aware recommendations
+    - What-if simulator with predicted KPI deltas before you commit
+    - 'Per-SKU, per-mold, per-machine recipes with versioning and rollback'
+    - Shadow mode and A/B testing to de-risk rollout
+    - 'Constraint modeling: min/max, ramp rates, warm-up, interlocks'
+    - Operator UI for HMI/tablet; alerts when improvement opportunities appear
+    - Drift detection and automatic model refresh
+    - 'Connectors: OPC UA/DA, Modbus/TCP, SQL, CSV, MES/ERP APIs'
+    - Digital audit trail of changes and outcomes
+    - Deploy on-prem or in your VPC; SSO and role-based access
+  steps:
+    - Connect PLC/SCADA and quality data (OPC UA or historian)
+    - 'Define goals (density target, variance, cycle time) and hard constraints'
+    - Train on 3–12 months of historical runs
+    - Validate in shadow mode; compare predicted vs actual results
+    - Go live—operators receive run-specific recommendations to accept/skip
+    - 'Track savings across variance, cycle time, scrap, and utilities'
+---
+# SetPointIQ — AI Recommender for EPS Pre-Expanders & Molders
+
+Industry: Polystyrene Foam Product Manufacturing
+Service: Process Setpoint Recommender (Pre-Expander/Molder)

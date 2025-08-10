@@ -1,0 +1,319 @@
+---
+name: CoreSight AI
+slug: coresight
+service:
+  title: 'Core Image Auto-Logging (RQD, Fractures, Lithology Assist)'
+  description: >-
+    Process core tray photos to extract RQD, fracture density/orientation, and
+    suggest lithology intervals; integrates with logging systems.
+  targetUsers:
+    - Mine/Project Geologists
+    - Core Shed Technicians
+    - Database Administrators
+  triggers:
+    - New core photos uploaded
+    - Backlog of manual logging
+    - Need to standardize RQD/fracture logging
+  inputs:
+    - High-res core tray images (with scale)
+    - Run intervals and depth marks
+    - Optional few-shot labeled lithology examples
+    - 'Tray metadata (hole ID, box numbers)'
+  steps:
+    - Rectify trays; detect core pieces and breaks
+    - Compute RQD and fracture density per interval
+    - Few-shot model trains on client lithology labels; predict suggestions
+    - Generate thumbnails and uncertainty flags
+    - Human QC workflow; finalize and export
+  tools:
+    - OpenCV/Detectron/SAM
+    - PyTorch
+    - acQuire/Geobank CSV schema templates
+    - MinIO/S3 for upload
+  outputs:
+    - CSV for RQD/fractures/lithology suggestions
+    - QC report with confidence metrics
+    - Image overlays for audit
+  pricingModel:
+    - Per-meter processed
+    - Volume discounts
+    - Setup fee for lithology schema tuning
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 7.5
+    overall: 8
+  risks:
+    - Variable lighting/scale causing errors
+    - Lithology generalization across deposits
+    - Data governance for imagery
+  dependencies:
+    - Consistent photography SOP
+    - Access to logging schema and exports
+leanCanvas:
+  problem:
+    - >-
+      Manual core logging is slow (2–6 minutes/m) and inconsistent across
+      geologists and shifts, delaying decisions on drilling, geotech design, and
+      metallurgical test work.
+    - >-
+      RQD and fracture logging from tray photos is error-prone; distinguishing
+      natural vs mechanical breaks and consistent stick length measurement is
+      difficult without standardized image processing.
+    - >-
+      Fracture orientation is underutilized because calculating alpha/beta from
+      oriented core marks is tedious and requires specialized tools and
+      training.
+    - >-
+      Lithology intervals logged from photos alone lack repeatability;
+      integrating pXRF, hyperspectral, and historic logs is rare due to siloed
+      systems.
+    - >-
+      Existing core photo systems store images but do not extract structured
+      geotech and lithology attributes at scale, creating a data bottleneck.
+    - >-
+      Remote sites have poor bandwidth; cloud-only solutions cannot process
+      images in near-real time at rigs or core sheds.
+    - >-
+      Integration friction with acQuire, MX Deposit, Seequent, Datamine, and
+      Micromine leads to duplicated entry, delayed QA/QC, and schema mismatches.
+  solution:
+    - >-
+      Computer vision pipeline that detects core sticks, tray geometry, and
+      scale objects, converts pixels to millimeters, segments natural vs
+      mechanical breaks, and computes RQD to ISRM A/B/C standards.
+    - >-
+      Fracture detection and density calculation with confidence scoring;
+      optional calculation of orientation (alpha/beta) from visible orientation
+      marks and reference lines on oriented core.
+    - >-
+      Lithology interval suggestions using texture, color, veining, alteration
+      features; optional fusion with pXRF/hyperspectral metadata to raise
+      confidence and propose interval boundaries.
+    - >-
+      Human-in-the-loop review UI: geologists accept/edit AI suggestions; system
+      learns from corrections via active learning; per-tray QA heatmaps and
+      audit logs.
+    - >-
+      Edge/on-prem processing appliance for low-bandwidth sites with nightly
+      sync to cloud and offline cache; typical throughput 20–30 trays/hour
+      on-site.
+    - >-
+      Connectors to acQuire GIM Suite, MX Deposit, Seequent Central/Imago,
+      Datamine Fusion, Micromine Geobank; schema mapping and validation rules to
+      prevent bad loads.
+    - >-
+      Automated QC and compliance: versioned models, acceptance thresholds,
+      exception routing, and change history for investor and regulatory audits.
+  uniqueValueProp: >-
+    Accurate, audited RQD, fracture metrics, and lithology suggestions from core
+    tray photos in minutes, integrated directly into your logging
+    database—cutting logging time by 40–60% while improving consistency and
+    decision speed.
+  unfairAdvantage: >-
+    A growing, cross-commodity labeled dataset and feedback loop from multiple
+    majors enables models that generalize across geologies; validated QA/QC
+    workflows produce audit-grade outputs trusted by regulators and investors;
+    and an edge-first architecture delivers near-real-time results at remote
+    sites without reliable internet.
+  customerSegments:
+    - >-
+      Mid-tier and major non-ferrous miners (Cu, Ni, Zn-Pb, Au as other metals
+      in multi-commodity programs) with >50k m/year of core logging.
+    - >-
+      Junior explorers with 10k–50k m/year seeking faster turnaround and
+      investor-grade QA/QC.
+    - >-
+      Owner-operated and contractor core facilities using Imago/Seequent,
+      acQuire GIM Suite, Datamine Fusion, Micromine Geobank.
+    - >-
+      Geotechnical teams requiring RQD, fracture density/orientation for
+      pit/underground stability models.
+    - >-
+      Exploration managers needing near-real-time lithology/structure to guide
+      drilling and budget allocation.
+    - >-
+      Drilling contractors offering value-added logging/photo services to mining
+      clients.
+  channels:
+    - >-
+      Direct enterprise sales to mid-tier/majors in Australia, Canada, Chile,
+      Peru, South Africa.
+    - >-
+      Partnerships/integrations with Seequent/Imago, acQuire, Datamine,
+      Micromine, IMDEX for marketplace listings and co-selling.
+    - >-
+      Pilots with drilling contractors to bundle AI logging with photo capture
+      as a value-added service.
+    - >-
+      Thought leadership and case studies: PDAC, AME Roundup, Diggers & Dealers,
+      Mining Indaba, EXPOMIN; webinars with partner platforms.
+    - >-
+      Targeted LinkedIn and industry newsletter campaigns aimed at Exploration
+      Managers, Chief Geologists, and Data Managers.
+    - >-
+      Land-and-expand: start with geotech (RQD/fractures) where ROI is
+      immediate; upsell lithology fusion and enterprise integrations.
+    - >-
+      Reseller/implementation partners (geo-consultancies) for configuration and
+      on-site change management.
+  revenueStreams:
+    - >-
+      Usage-based per-meter processing: Starter $0.80/m (cloud, basic outputs),
+      Pro $1.50/m (integrations, QA/QC dashboard, SSO), Enterprise $2.50/m
+      (edge/on-prem, priority SLA, custom models).
+    - Minimum monthly commitment tiers ($3k/$8k/$20k) to smooth seasonality.
+    - >-
+      Professional services: historical archive processing ($0.20–0.50/m),
+      schema mapping, and model calibration packages ($15–50k).
+    - >-
+      Edge appliance rental/lease ($1.5–3k/month/device) including on-site
+      support.
+    - Enterprise support/SLA (99.5–99.9%) add-ons and dedicated CSM.
+    - >-
+      Data fusion modules (pXRF/hyperspectral/televiewer) as premium add-ons
+      ($0.30–0.80/m).
+  costStructure:
+    - >-
+      Cloud GPU compute and storage (NVIDIA L4/A10 class), data egress; target
+      COGS ≤20% of revenue at scale.
+    - 'Edge hardware (ruggedized NUC + small GPU), logistics, and maintenance.'
+    - >-
+      Data labeling and expert geology QA; budget $0.05–0.15/m equivalent for
+      continuous model improvement.
+    - >-
+      R&D salaries (ML engineers, geoscientists, MLOps), integrations team, and
+      security/compliance.
+    - >-
+      Field deployment and customer success travel for site onboarding and
+      pilots.
+    - >-
+      Partnership and marketplace fees/revenue share (5–20% depending on
+      partner).
+    - >-
+      Sales/marketing (events, ads, collateral) and insurance (cyber,
+      professional liability).
+  keyMetrics:
+    - >-
+      Technical accuracy: RQD mean absolute error ≤6% vs manual; fracture count
+      F1≥0.80; orientation MAE ≤12° when marks present; lithology top-1 ≥80%
+      after 4-week calibration.
+    - >-
+      Throughput: trays/hour processed (target 25 on edge, 60 in cloud batch);
+      time from photo upload to results (P50 ≤5 min, P95 ≤15 min).
+    - >-
+      Operational efficiency: % of meters auto-accepted without edits (target
+      ≥65% by month 6), average human correction time per tray (≤2 min).
+    - >-
+      Adoption: active sites, meters processed/month, % of total core captured
+      via system (>70% after 90 days at a site).
+    - >-
+      Business: gross margin (≥65% by month 12), LTV/CAC ≥3.0, expansion revenue
+      >20% YoY per account, churn <8% annually.
+    - >-
+      Quality/compliance: exception rate <5%, time-to-resolution <24 hours;
+      audit completeness (100% of changes attributable).
+storyBrand:
+  character: >-
+    Exploration and mine geology teams in other metal ore mining who need fast,
+    consistent core logging to keep drilling, modeling, and investment decisions
+    on track.
+  problem: >-
+    Manual photo-based core logging is slow and subjective, creating backlogs
+    that delay decisions and undermine QA/QC. Teams feel pressure to deliver
+    defensible, auditable logs with fewer people. Logging should be objective,
+    repeatable, and immediate.
+  guide: >-
+    We understand the realities of wet trays, variable lighting, and tight
+    turnarounds. Core Image Auto-Logging is built with geologists, benchmarked
+    against labeled datasets, and integrates cleanly with your existing logging
+    systems and governance.
+  plan: >-
+    1) Connect your image source or upload historical tray photos. 2) AI
+    extracts RQD, fracture density/orientation, and suggests lithology
+    intervals; you review exceptions. 3) Approve and sync to your logging
+    database via API/CSV with QC rules and dashboards.
+  callToAction: >-
+    Book a 30‑minute demo and run a pilot on your own tray images to receive
+    results, accuracy metrics, and an integration plan.
+  success: >-
+    Turn hours of logging into minutes, with consistent, auditable metrics.
+    Enable earlier drilling, sampling, and modeling decisions, reduce cost per
+    meter, and improve safety by reducing handling time.
+  failure: >-
+    Continue facing backlogs, inconsistent logs, and rework—leading to delayed
+    decisions, higher costs, and missed structural insights.
+landingPage:
+  hero:
+    title: Core Image Auto-Logging
+    subtitle: >-
+      AI that turns core tray photos into RQD, fracture metrics, and lithology
+      suggestions—fast, consistent, and ready for your logging system.
+    ctaText: Request a demo
+    ctaHref: '#demo'
+  problem:
+    - >-
+      Manual core logging is slow, subjective, and hard to standardize across
+      shifts and crews.
+    - >-
+      Fracture density/orientation is tedious to capture accurately from photos
+      and trays.
+    - >-
+      RQD calculations are error‑prone and time‑consuming under backlog
+      pressure.
+    - >-
+      Lithology intervals require expert attention, leaving routine intervals
+      underutilized.
+    - Inconsistent photo quality leads to data gaps and frequent re‑logging.
+    - >-
+      Data lives in silos—moving images and measurements into logging systems
+      takes effort.
+  solution:
+    - >-
+      Process core tray photos to auto‑extract RQD following standard
+      conventions (>10 cm pieces).
+    - >-
+      Detect, count, and characterize fractures (density, spacing, orientation)
+      straight from images.
+    - >-
+      Suggest lithology intervals with confidence scores for rapid review and
+      approval.
+    - >-
+      Provide human‑in‑the‑loop controls, audit trails, and QA/QC flags for
+      defensible logs.
+    - >-
+      One‑click sync to your logging platform via API; export CSV/Excel/PDF as
+      needed.
+    - >-
+      Deploy on cloud or on‑prem for secure, scalable throughput across
+      projects.
+  features:
+    - Automatic tray and run detection with row segmentation and depth mapping
+    - RQD calculation with piece length detection and adjustable thresholds
+    - 'Fracture identification with density, spacing, and orientation estimation'
+    - Lithology interval suggestions with confidence and example imagery
+    - 'Scale, ruler, and orientation line recognition for accurate measurements'
+    - 'Image quality checks (blur, glare, occlusion) with retake prompts'
+    - Batch processing for historical photo archives and new drilling campaigns
+    - 'Reviewer UI with highlights, measurements, and quick accept/edit tools'
+    - 'QA/QC rules, audit logs, and versioning for compliance and traceability'
+    - Exports to CSV/Excel/Geo formats and PDFs with annotated images
+    - API integrations with major logging systems; webhook and S3/Blob support
+    - Site‑specific model tuning for your lithologies and alteration styles
+    - 'Role‑based access control, encryption at rest/in transit, on‑prem option'
+    - Offline capture and queued upload for remote core sheds
+  steps:
+    - Upload core tray photos or point to a folder/bucket.
+    - >-
+      System auto‑detects trays, scale, and orientation lines; extracts RQD and
+      fractures.
+    - 'Review lithology suggestions, adjust intervals if needed, and approve.'
+    - Sync results to your logging system or export files for import.
+    - >-
+      Track QA/QC metrics and model performance; refine with site‑specific
+      feedback.
+---
+# CoreSight AI
+
+Industry: Other Metal Ore Mining
+Service: Core Image Auto-Logging (RQD, Fractures, Lithology Assist)

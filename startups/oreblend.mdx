@@ -1,0 +1,297 @@
+---
+name: OreBlend Optimizer (Quality & Penalty Control)
+slug: oreblend
+service:
+  title: Ore Blending Optimizer (Quality and Penalty Control)
+  description: >-
+    Optimizes stockpile/mine source blends to hit target grade ranges and
+    minimize penalty elements and costs.
+  targetUsers:
+    - Plant Managers
+    - Metallurgists
+    - Short-term Planners
+  triggers:
+    - Daily/shift blend planning
+    - New penalty schedule from smelter
+    - Stockpile updates
+  inputs:
+    - Stockpile/source tonnage and assays with uncertainty
+    - Plant throughput constraints
+    - Target range and penalty schedule
+    - Haul and reclaim constraints
+  steps:
+    - Clean and bound quality inputs with uncertainty
+    - 'Formulate LP/QP with objectives (targets, penalties, haul)'
+    - Solve and generate blend recipe and reclaim sequence
+    - Stress-test via Monte Carlo on assay uncertainty
+    - Export schedule and notify
+  tools:
+    - Google OR-Tools/PuLP
+    - NumPy/Pandas
+    - APScheduler for runs
+    - CSV/S3 connectors
+  outputs:
+    - Blend plan (CSV) per shift/day
+    - Penalty exposure forecast
+    - Sensitivity report
+  pricingModel:
+    - Monthly subscription
+    - Optional success fee on penalty savings
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8.5
+  risks:
+    - Inaccurate or stale stockpile grades
+    - Operational constraints not captured
+    - Overfitting to historical penalties
+  dependencies:
+    - Reliable stockpile inventory and assays
+    - Access to penalty contracts
+leanCanvas:
+  problem:
+    - >-
+      Grade variability and deleterious elements (e.g., As, Sb, Hg, F, Cl, MgO,
+      S, P) cause off-spec feed and smelter/refinery penalties that can swing
+      monthly revenue by 5–20%.
+    - >-
+      Blending is often done in spreadsheets or generic planning tools not tuned
+      to penalty thresholds, leading to reactive decisions and manual iteration.
+    - >-
+      Limited visibility of stockpile composition due to sparse sampling and
+      lagging assays causes inaccurate blend predictions.
+    - >-
+      Mine-to-mill constraints (haulage, rehandle, reclaim, crusher limits,
+      hardness/abrasion indices) are not jointly optimized with quality,
+      creating hidden bottlenecks and cost overruns.
+    - >-
+      Contracts specify tight grade ranges and max impurity thresholds;
+      breaching incurs penalties or rejection but safety margins reduce realized
+      value.
+    - >-
+      Existing optimizers rarely account for uncertainty in grade/penalty
+      forecasts, forcing conservative blends that lower NPV.
+    - >-
+      Short-term and weekly plans diverge from monthly/quarterly targets due to
+      poor handoff between planning, plant, and marketing functions.
+    - >-
+      Rehandle and rework (double-handling stockpiles) add 5–15% to
+      mining/processing costs and are not explicitly minimized.
+    - >-
+      Geometallurgical relationships (recovery vs. mineralogy/grade/deleterious
+      elements) are poorly captured, leaving money on the table.
+    - >-
+      Lack of explainability reduces trust and adoption; planners need
+      transparent trade-offs between penalties, recovery, throughput, and costs.
+  solution:
+    - >-
+      Ingest geological, stockpile, LIMS, and plant data to build live
+      probabilistic models of grades, deleterious elements, hardness, and
+      recovery.
+    - >-
+      Predict penalties and recovery for candidate blends using ML models
+      calibrated to each site’s geometallurgy and offtake contracts.
+    - >-
+      Run a stochastic multi-objective optimizer that balances value, risk
+      (probability of spec breach), penalties, rehandle, and logistics
+      constraints across horizons (shift, day, week, month).
+    - >-
+      Provide explainable recommendations and what-if scenarios for planners and
+      metallurgists; show trade-offs and sensitivity to uncertainty.
+    - >-
+      Close the loop with execution: generate reclaim/haulage instructions,
+      monitor compliance via fleet systems, and continuously recalibrate with
+      new assays and reconciliations.
+  uniqueValueProp: >-
+    AI-driven, uncertainty-aware blending that consistently hits spec and
+    minimizes penalties while respecting operational constraints—reducing
+    penalty costs 10–30%, grade variability 25–50%, and rehandle 5–15%, with
+    full auditability and rapid payback (<6 months).
+  unfairAdvantage: >-
+    A calibrated, uncertainty-aware penalty and recovery prediction stack
+    integrated with a stochastic optimizer and real-time stockpile tracking—plus
+    a growing library of prebuilt connectors and anonymized cross-site geomet
+    patterns that reduce time-to-value to weeks and deliver explainable
+    decisions trusted by planners and metallurgists.
+  customerSegments:
+    - >-
+      Mid-tier and major miners operating polymetallic and base-metal assets
+      (nickel, zinc-lead, cobalt, manganese, molybdenum, tin, lithium hard-rock,
+      rare earths, PGMs).
+    - >-
+      Roles: planning engineers, plant metallurgists, stockpile/ROM supervisors,
+      mine schedulers, marketing/offtake, and value chain optimization teams.
+    - >-
+      Regions with high blending complexity and tight specs: Australia, Canada,
+      Chile/Peru (non-Cu polymetallic), Southern Africa, Brazil,
+      Indonesia/Philippines (Ni laterites), Nordics.
+    - >-
+      Engineering and mining consultancies that deliver planning/optimization
+      services to these miners.
+  channels:
+    - >-
+      Direct enterprise sales to mining COOs/processing VPs and site GMs;
+      ROI-led pilots (8–12 weeks).
+    - >-
+      Alliances with mine planning vendors (Deswik, Hexagon, RPMGlobal) and
+      systems integrators (SRK, AMC Consultants, Snowden, WSP).
+    - >-
+      Partnerships with labs (ALS, SGS) and LIMS vendors for data onboarding and
+      co-marketing.
+    - >-
+      Industry events and associations: SME, MINEXPO, PDAC, Diggers & Dealers,
+      IMPC; technical papers and case studies.
+    - >-
+      Targeted outbound to assets with known penalty issues (public filings),
+      and ABM campaigns focusing on Ni laterite, Zn-Pb, and REE operations.
+    - >-
+      Cloud marketplaces/private offers (Azure/AWS) for procurement ease;
+      regional resellers in LATAM and Africa.
+  revenueStreams:
+    - >-
+      Annual per-site SaaS subscription: USD 150k–400k depending on modules
+      (planner seats, stochastic optimization, real-time execution,
+      integrations).
+    - >-
+      One-time implementation/integration fee: USD 80k–250k per site (data
+      pipelines, model calibration, change management).
+    - >-
+      Optional usage-based component for API/optimization runs or per-tonne
+      processed (e.g., USD 0.005–0.03/t) where procurement favors OPEX
+      alignment.
+    - Premium support/SLA tiers and training/certification.
+    - >-
+      Optional value-sharing contracts for verified penalty savings or recovery
+      uplift (e.g., 10–20% of documented savings above baseline).
+  costStructure:
+    - >-
+      R&D and payroll: optimization engineers, ML scientists, metallurgists,
+      software engineers, data engineers, solution architects (core cost).
+    - >-
+      Cloud and on-prem infrastructure: compute for training/optimization (3–10k
+      USD/site/month when active), storage, VPC networking, observability.
+    - >-
+      Third-party licenses: optimization solvers, monitoring/security tools,
+      connectors.
+    - >-
+      Professional services: data onboarding, model calibration, travel (3–6
+      person-weeks per site for initial deployment).
+    - >-
+      Sales and marketing: enterprise sales cycles, conferences, pilots (P&L to
+      be offset by pilot fees).
+    - 'Security and compliance: SOC 2/ISO 27001 audits, pen testing, secure SDLC.'
+    - Partner commissions and channel margins (10–25% depending on role).
+  keyMetrics:
+    - >-
+      Customer ROI metrics during pilot: penalty cost reduction (target 10–30%),
+      reduction in feed grade standard deviation (25–50%), rehandle reduction
+      (5–15%), recovery uplift (1–3% absolute), throughput stability (+1–3%).
+    - >-
+      Financial impact: increase in monthly payable metal value (USD/t ore),
+      reduction in penalties (USD/t conc or ore), NPV uplift estimated over LOM
+      schedule.
+    - >-
+      Plan quality: probability of spec compliance per plan (>95% target),
+      number of spec breaches per quarter (aim <1), forecast bias and MAPE for
+      grade/impurities (<10% MAPE for deleterious elements within sampling
+      limits).
+    - >-
+      Operational efficiency: plan cycle time reduction (from days to hours),
+      on-time execution of reclaim/haul instructions (>90%), rehandle events per
+      100 kt.
+    - >-
+      Adoption/engagement: active planner/metallurgist users, scenario runs per
+      week, % of plans generated by the optimizer vs. manual.
+    - >-
+      Sales metrics: pilot conversion rate (>60%), sales cycle length (<6
+      months), ARR per site, gross margin on services (>30%).
+storyBrand:
+  character: >-
+    Mine planners, metallurgists, and plant managers who must deliver on-spec
+    mill feed at the lowest total cost.
+  problem: >-
+    Ore variability and penalty elements make manual blending slow and
+    guesswork-driven, leading to off-spec feed, smelter penalties, higher
+    treatment charges, and lost margin.
+  guide: >-
+    Ore Blending Optimizer pairs mining-process know‑how with optimization‑grade
+    AI. We understand assay delays, haulage limits, and shift realities, and
+    we’ve implemented data‑driven blending in complex multi-source operations.
+  plan: >-
+    1) Connect assays, stockpile inventories, haulage and plant limits, and
+    penalty/contract schedules. 2) Set target grade windows, constraints, and
+    economic objectives. 3) Run optimization to produce shift/day blends, deploy
+    to dispatch, and monitor results for continuous improvement.
+  callToAction: >-
+    Schedule a demo and pilot on your historical data; get a tailored ROI
+    estimate and sample blend report.
+  success: >-
+    Consistent on‑spec head grades; minimized penalties and treatment charges;
+    higher recoveries; fewer rehandles; transparent, auditable blend plans;
+    improved throughput and revenue stability.
+  failure: >-
+    Persistent off‑spec feed, penalty surcharges, emergency reblends, stockpile
+    buildup, missed production targets, and eroded stakeholder confidence.
+landingPage:
+  hero:
+    title: Ore Blending Optimizer
+    subtitle: >-
+      Quality & penalty control for other metal ore mining. Hit target grades,
+      cut deleterious elements, and reduce shipped penalties—automatically.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - Off-spec shipments from variable ROM and stockpile sources
+    - 'Smelter penalties from As, S, P, Sb, Hg, etc. erode margins'
+    - >-
+      Spreadsheets can’t juggle grades, tonnage, moisture, hardness, and
+      contracts fast enough
+    - Over-conservative blends waste high-grade material and recovery potential
+    - 'Late assay updates cause rehandles, schedule slips, and demurrage'
+    - 'Limited visibility across mine, stockpiles, plant, and shipping windows'
+  solution:
+    - >-
+      AI optimizes blends to hit target grade ranges while minimizing penalty
+      elements and total cost per tonne
+    - 'Real-time plans that update as assays, inventories, and production change'
+    - >-
+      Enforces constraints: inventory, reclaim limits, haulage, plant capacity,
+      moisture, geometallurgy
+    - >-
+      Economic objectives: maximize NSR/EBIT while meeting product specs and
+      contracts
+    - Scenario and risk analysis for assay uncertainty and variability
+    - >-
+      Integrates with LIMS, online analyzers (PGNAA/XRF), mine planning, ERP,
+      and historians
+    - 'Transparent, auditable recommendations with explainable trade-offs'
+  features:
+    - 'Configure target bands, penalties, and contract terms per product/shipment'
+    - >-
+      Multi-source blend optimizer for benches, pits, stockpiles, and reclaim
+      streams
+    - Penalty element control with hard/soft limits and cost curves
+    - >-
+      Geomet constraints (hardness, grindability, deleterious mineralogy)
+      included
+    - Live grade tracking with drift alerts and forecast compliance
+    - 'What-if scenarios: price changes, spec shifts, outages, shipping windows'
+    - Auto-generated loader/reclaim instructions and shift plans
+    - >-
+      KPI dashboards: grade conformance, penalty savings, $/t uplift,
+      variability reduction
+    - 'APIs, SSO, role-based approvals, and full audit trail'
+    - Deploy cloud or on-prem; offline mode with later sync
+  steps:
+    - 'Connect data: assays, stockpiles, mine plans, contracts, plant limits'
+    - 'Define targets: grade ranges, penalty cost curves, shipment/spec rules'
+    - 'Calibrate models: source qualities, variability, geomet constraints'
+    - Run optimizer and compare scenarios; select the best economic plan
+    - Dispatch blend instructions to mine/plant; sync with ERP/LIMS
+    - Monitor execution; auto-adjust as data updates; report savings
+---
+# OreBlend Optimizer (Quality & Penalty Control)
+
+Industry: Other Metal Ore Mining
+Service: Ore Blending Optimizer (Quality and Penalty Control)

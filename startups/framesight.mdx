@@ -1,0 +1,341 @@
+---
+name: FrameSight QC
+slug: framesight
+service:
+  title: Photo-Based QC and Nonconformance Reporter
+  description: >-
+    Uses images from stations to detect common defects (welds, coating,
+    assembly), checklists, and creates NCRs with evidence.
+  targetUsers:
+    - Quality Technicians
+    - Production Supervisors
+    - Coating Line Leads
+  triggers:
+    - Operator submits photo set via mobile form
+    - End-of-station checklist due
+    - Random audit schedule
+  inputs:
+    - Photos/videos of parts/assemblies
+    - QC checklists and tolerances
+    - Defect taxonomy and samples
+  steps:
+    - Guide operator to capture required angles via checklist
+    - >-
+      Run CV models to flag defects (scratches, pits, weld porosity, color
+      mismatch)
+    - Prompt user for measurements/notes when uncertain
+    - Generate pass/fail and severity; create NCR if failed
+    - Tag job/serial and store to QMS/Drive; alert supervisor
+    - Aggregate stats for Pareto and trend analysis
+  tools:
+    - 'Mobile form (Fulcrum, Forms, Power Apps)'
+    - Custom CV models (Roboflow/AWS Rekognition/Supervisely)
+    - LLM for narrative NCR summaries
+    - SharePoint/Google Drive API
+    - Power BI dashboard
+  outputs:
+    - QC pass/fail with annotated images
+    - NCR with root-cause field and containment actions
+    - Pareto dashboards by defect type/work center
+  pricingModel:
+    - Per-inspection or per-station monthly
+    - Model training fee for new defect types
+    - Optional managed QA review add-on
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 6
+    overall: 6.5
+  risks:
+    - False positives/negatives lead to rework or escapes
+    - Lighting/angle variability in photos
+    - Union/compliance concerns on AI in QC
+  dependencies:
+    - Sample image dataset and labels
+    - QC criteria and tolerances
+    - QMS/document storage access
+leanCanvas:
+  problem:
+    - >-
+      Manual inspection variability (20–40% miss rates on subtle defects like
+      coating thin spots, weld undercut, or missing fasteners) creates escapes
+      and rework.
+    - >-
+      NCRs are slow and inconsistent; evidence gathering, tagging, and routing
+      typically costs 10–20 minutes per case and delays containment.
+    - >-
+      Late-stage discovery (final assembly/shipping) inflates cost of poor
+      quality by 3–10x vs. in‑process detection.
+    - >-
+      Limited traceability; photos/evidence are not consistently linked to work
+      orders, serials, or operator/station IDs for ISO 9001/FGIA audits.
+    - >-
+      Training new inspectors is time-consuming; tribal knowledge about what
+      “good” looks like isn’t standardized or searchable.
+    - >-
+      No reliable, structured data on defect Pareto by line, shift, or supplier,
+      hindering CAPA and process optimization.
+    - >-
+      Traditional rule-based vision struggles with variable finishes (gloss,
+      anodized, powder), complex profiles, and lighting changes common in
+      fenestration plants.
+  solution:
+    - >-
+      Camera-enabled stations at weld, coating exit, assembly, and final
+      inspection automatically capture images tied to barcode/QR work orders and
+      serials.
+    - >-
+      Fine-tuned AI models detect fenestration-specific defects: weld
+      porosity/undercut/spatter; coating runs, pinholes, fisheyes, orange peel,
+      thin coverage; scratches/dents; assembly issues like missing screws,
+      misaligned corners, gasket continuity, hardware presence/orientation.
+    - >-
+      Configurable digital checklists with pass/fail and tolerance thresholds;
+      auto-attach annotated images and metadata (operator, line, timestamp, lot)
+      to each step.
+    - >-
+      Automatic NCR generation with prefilled defect class, suspected root
+      cause, containment actions, and evidence; routing to QMS/MES with SLA
+      timers and notifications.
+    - >-
+      Dashboards and Pareto analysis by line/shift/supplier/material with SPC
+      alerts; overlay guidance to operators for faster corrections.
+    - >-
+      Edge inference (Jetson/Intel) with local buffering and offline mode;
+      secure sync to cloud for fleet analytics and model updates.
+    - >-
+      Human-in-the-loop feedback for rapid model improvement; weekly active
+      learning batches and A/B validation to maintain target precision/recall.
+    - >-
+      Prebuilt connectors to common MES/ERP/QMS; REST/OPC UA interfaces for work
+      orders, part IDs, and NCR workflows.
+  uniqueValueProp: >-
+    Reduce rework, escapes, and warranty costs by 25–50% within 90 days through
+    photo-based, AI-driven defect detection and one-click NCRs with evidence,
+    integrated to your MES/QMS. Deploy in under 2 weeks per line, run on-edge
+    with <200 ms inference, and achieve audit-ready traceability with minimal
+    operator friction.
+  unfairAdvantage: >-
+    A growing proprietary image corpus and defect taxonomy specific to metal
+    window and door manufacturing, prevalidated capture/lighting SOPs for
+    reflective/anodized surfaces, and drop-in connectors to common MES/QMS give
+    faster time-to-value and more robust performance than generic vision vendors
+    or internal projects.
+  customerSegments:
+    - >-
+      Mid-to-large metal window, curtain wall, storefront, and commercial door
+      manufacturers (multi-plant operations).
+    - >-
+      Coating operations attached to fenestration plants (powder, anodizing) and
+      outsourced coaters serving those plants.
+    - >-
+      Fabricators integrating glazing, hardware, and gasketing on assembly
+      cells.
+    - >-
+      Tier suppliers providing extrusions, hardware kits, and subassemblies who
+      must meet OEM QC and traceability requirements.
+    - >-
+      Quality, Manufacturing Engineering, and Plant Management teams seeking
+      measurable FPY and warranty improvements.
+  channels:
+    - >-
+      Direct sales to Directors of Quality, Plant Managers, and Manufacturing
+      Engineering at fenestration manufacturers; ABM targeting NAICS 332321
+      accounts.
+    - >-
+      System integrator partnerships specializing in fenestration/automation for
+      turnkey deployment and hardware install.
+    - >-
+      OEM partnerships with coating line and welding equipment providers to
+      bundle QC at purchase/retrofit.
+    - >-
+      Alliances with MES/QMS vendors (Epicor, Plex/DelmiaWorks, ETQ) for
+      marketplace listings and co-selling.
+    - >-
+      Industry events and associations: GlassBuild, FABTECH, FGIA events; live
+      demos with before/after metrics.
+    - >-
+      Content-led demand: defect detection benchmarks, ROI calculators, case
+      studies (FPY + warranty reduction), webinars with customer plants.
+    - >-
+      Pilot-led GTM: 6-week proof-of-value at 1–2 stations with predefined
+      success criteria (e.g., >90% recall on target defects, >70% reduction in
+      NCR creation time, payback <6 months).
+  revenueStreams:
+    - >-
+      SaaS subscription per inspected station: $250–$500 per station per month
+      (median $350), tiered by volume and features.
+    - >-
+      Edge appliance subscription or license: $100–$200 per device per month, or
+      included in enterprise tier.
+    - >-
+      Professional services: deployment, integration, and model customization
+      packages ($15k–$75k per site depending on scope).
+    - >-
+      Hardware pass-through or lease (cameras, lighting, mounts, edge compute)
+      with 10–20% margin or vendor referral fees.
+    - 'Premium support/SLA (24/7, <1-hour response) at 10–15% of ARR.'
+    - >-
+      Enterprise plans: site license with unlimited stations per plant and
+      centralized analytics.
+    - Training and certification for quality engineers and operators.
+  costStructure:
+    - >-
+      COGS: edge compute ($600–$1,200 per device), industrial cameras
+      ($700–$1,500 each), lighting/mounts ($200–$800 per station).
+    - >-
+      Cloud/infra: storage and analytics $15–$40 per active station per month;
+      CI/CD for models; logging; VPN gateways.
+    - >-
+      Data operations: labeling/QA at $0.04–$0.12 per image; annotation tools;
+      dataset curation.
+    - >-
+      R&D: CV/ML engineers, MLOps, QA; model retraining cycles; domain experts
+      for fenestration defects.
+    - >-
+      Deployment/professional services: field engineers, travel, system
+      integration partners’ margins.
+    - >-
+      Sales and marketing: AE/SE teams, channel partner rebates, events, content
+      production.
+    - >-
+      Compliance, security, and insurance; ISO 27001/SOC 2 readiness and audits;
+      liability coverage.
+  keyMetrics:
+    - >-
+      Defect detection performance by class: target ≥92% recall and ≥95%
+      precision for critical defects; ≥88%/≥92% for cosmetic.
+    - >-
+      False negative rate for critical defects ≤8%; false positive rate ≤5% at
+      steady state.
+    - >-
+      NCR creation time reduced from baseline (10–20 minutes) to ≤2 minutes;
+      auto-filled fields ≥80% accuracy.
+    - >-
+      First Pass Yield improvement ≥10 percentage points within 90 days at
+      instrumented stations.
+    - >-
+      Reduction in rework/warranty costs ≥25% in first 6–9 months; quantify $
+      saved per line/month.
+    - >-
+      Mean Time to Detect (MTTD) defects at in-process stations ≤30 seconds from
+      capture; containment within 1 hour for critical NCRs.
+    - >-
+      Operator adoption: ≥85% daily active usage at instrumented stations by
+      week 4; checklist completion rate ≥95%.
+    - >-
+      System uptime ≥99.5%; edge-to-cloud sync backlog cleared within 15 minutes
+      after connectivity restoration.
+    - >-
+      Model iteration cadence: at least monthly updates; performance drift ≤3
+      percentage points between validations.
+    - Net Revenue Retention ≥115%; Gross Margin ≥70% after year 1.
+storyBrand:
+  character: >-
+    Quality and operations leaders at metal window and door manufacturers who
+    need consistent, objective inspections and audit-ready proof while keeping
+    throughput high.
+  problem: >-
+    - External: Defects in welds, coating, and assembly slip past visual checks;
+    paper checklists and NCRs lack evidence and traceability.
+
+    - Internal: Teams are frustrated by rework, finger-pointing, and audit
+    stress; confidence in inspections varies by shift.
+
+    - Philosophical: Catching defects shouldn’t depend on who’s looking—proof
+    should be automatic.
+  guide: >-
+    - Empathy: We understand fabrication, finishing, and assembly lines where
+    corner welds, powder coat coverage, and hardware fit are hard to verify in
+    real time.
+
+    - Authority: Our AI is trained on industry-specific defects and produces
+    clear, traceable annotations tied to part, lot, and station.
+  plan: >-
+    - 1) Connect station cameras or use existing images; map to part/serial from
+    your MES.
+
+    - 2) Auto-check against digital checklists; flag defects with bounding boxes
+    and severity; prompt operator actions.
+
+    - 3) Generate NCRs with annotated evidence and metadata; route to CAPA/ERP
+    and track closure.
+
+    - Assurances: Pilot a single cell in weeks; no major line changes; on-prem
+    or secure cloud; you retain data ownership.
+  callToAction: >-
+    - Direct: Book a 30-minute demo with your line images.
+
+    - Transitional: Get a sample NCR with annotated evidence and a QC checklist
+    template.
+  success: |-
+    - Higher first-pass yield and fewer escapes.
+    - Consistent inspections across shifts.
+    - Faster, evidence-backed NCRs and audits.
+    - Lower rework, scrap, and warranty costs.
+    - Clear defect trends to drive CAPA and training.
+  failure: |-
+    - More escapes, rework, and warranty hits.
+    - Ongoing audit findings and slow NCRs without proof.
+    - Throughput losses and continued reliance on subjective checks.
+landingPage:
+  hero:
+    title: Photo-Based QC & NCRs for Metal Windows & Doors
+    subtitle: >-
+      Detect weld, coating, and assembly defects from station photos.
+      Auto-generate nonconformance reports with evidence—within seconds.
+    ctaText: Book a Demo
+    ctaHref: '#demo'
+  problem:
+    - Defects escape to shipping due to subjective visual checks
+    - Paper checklists and NCRs slow response and pile up
+    - Inconsistent training leads to missed weld and coating flaws
+    - No photo evidence—hard to prove quality to customers
+    - Late discovery drives costly rework and scrap
+    - 'Weak traceability across jobs, lots, and stations'
+    - Quality data is scattered—no clear trends or root cause
+  solution:
+    - >-
+      AI vision inspects photos at each station for weld, coating, and assembly
+      issues
+    - Standardized photo checklists per SKU and station
+    - Instant pass/fail with annotated overlays for operators
+    - 'Automatic NCRs with images, defect codes, and lot/serial linkage'
+    - 'Real-time alerts to hold, rework, or stop the line'
+    - 'Dashboards and Pareto to spot trends by supplier, shift, or station'
+    - Fast rollout using existing cameras or mobile devices
+  features:
+    - >-
+      Pretrained models for weld porosity, undercut, spatter, pinholes, runs,
+      orange peel, thin/thick coat, scratches, dents, misassembly
+    - >-
+      Assembly verification: hardware presence, hinge/handle alignment, gasket
+      fit, label/part mix, frame squareness
+    - Checklist builder tied to SKU/BOM and routing
+    - Annotated pass/fail overlays; confidence and severity scoring
+    - >-
+      Auto-generated NCRs with photos, defect code, 5-Why/8D fields, and
+      e-signatures
+    - 'Barcode/OCR to capture job, lot, and serial; operator ID and timestamp'
+    - 'Integrations: MES/ERP (SAP, Epicor, Infor), QMS; CSV/API webhooks'
+    - 'Real-time alerts to Andon, email, Slack/Teams'
+    - Edge or on-prem deployment; works offline with sync
+    - 'Camera-agnostic: industrial, USB, or mobile; lighting guidance'
+    - 'Role-based access, audit trail, ISO 9001 support'
+    - 'Dashboards, Pareto, and heatmaps to drive corrective actions'
+    - Multi-language operator UIs
+    - Secure data retention and privacy controls
+  steps:
+    - 'Connect cameras at weld, coating, assembly, and final stations'
+    - >-
+      Configure checklists by SKU; train on 50–100 images or use pretrained
+      models
+    - Operators capture or auto-trigger photos; AI inspects in under 1 second
+    - Pass/fail displayed with overlays; guidance for rework if needed
+    - NCR auto-created with evidence and routed to owners; hold tags printed
+    - Monitor trends and close the loop via ERP/QMS exports
+---
+# FrameSight QC
+
+Industry: Metal Window and Door Manufacturing
+Service: Photo-Based QC and Nonconformance Reporter

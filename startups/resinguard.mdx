@@ -1,0 +1,313 @@
+---
+name: ResinGuard SPC & Anomaly Alerts
+slug: resinguard
+service:
+  title: QC SPC Monitor and Anomaly Alerting
+  description: >-
+    Monitors lab and process data (MFI, tensile, Izod, DSC, color) to detect
+    trends, out-of-control points, and auto-generate CAPA templates.
+  targetUsers:
+    - Quality Managers
+    - Lab Supervisors
+    - Process Engineers
+  triggers:
+    - New batch QC results posted
+    - Hourly process data upload
+    - Customer complaint
+  inputs:
+    - LIMS results with specs/control limits
+    - 'Process logs (melt temp/pressure, amps, throughput)'
+    - Batch/lot metadata
+  steps:
+    - Ingest and align batch/process data
+    - 'Compute control charts and capability (Xbar-R, p, Cpk)'
+    - Detect anomalies and probable root-causes via correlations
+    - Notify owners in Teams/Email and draft CAPA/8D template
+  tools:
+    - LIMS API (LabVantage/LabWare) or CSV
+    - Time-series DB (TimescaleDB)
+    - Stat libraries (SciPy)
+    - Messaging (Teams/Slack)
+    - OpenAI for narrative summaries
+  outputs:
+    - SPC dashboard and PDF reports
+    - Anomaly alerts with suspected drivers
+    - Auto-filled CAPA/8D draft
+  pricingModel:
+    - Monthly subscription per site or per test volume
+    - Setup fee for LIMS integration
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Poor data quality leading to false alerts
+    - Resistance to automated CAPA drafting
+    - Regulated customers may need validated tools
+  dependencies:
+    - Reliable LIMS/process data export
+    - Defined specs and control limits
+leanCanvas:
+  problem:
+    - >-
+      Compounders buying base resins face high variability from suppliers and
+      additives; manual SPC in spreadsheets misses slow drifts (e.g., MFI creep
+      from moisture, color ΔE drift from masterbatch variability).
+    - >-
+      Lab and process data are siloed across instruments and systems (MFI
+      extruders, UTM/Izod testers, DSC, spectrophotometers, LIMS, MES), causing
+      delayed detection (hours to days) of out-of-control or out-of-spec events.
+    - >-
+      Existing SPC modules are generic; they don’t encode plastics-specific
+      behaviors (e.g., MFI vs. drying temp/time, DSC Tg/Tm signatures linked to
+      over-shearing) or provide actionable CAPA starting points.
+    - >-
+      Quality teams spend excessive time building charts, transcribing results,
+      and writing CAPAs for audits (ISO 9001, IATF 16949, ISO 17025) rather than
+      preventing issues.
+    - >-
+      Late detections lead to scrap, rework, line downtime, and customer
+      returns/chargebacks; typical scrap 1–3% with 0.3–1.0 pp attributable to
+      late anomaly detection.
+    - >-
+      Audits and customer PPAPs demand traceable quality histories with
+      e-signatures; gaps in audit trails and CAPA evidence risk nonconformances.
+  solution:
+    - >-
+      Edge gateway ingests instrument data (MFI, tensile/Izod, DSC, color
+      ΔE/L*a*b*, moisture, melt temp/pressure) and process signals
+      (OPC-UA/Modbus) into a secure cloud data lake.
+    - >-
+      AI+SPC engine: I-MR, X̄-R, EWMA charts with Western Electric rules;
+      change-point detection; isolation forest for multivariate anomalies; trend
+      forecasting for drift (e.g., MFI vs. dryer conditions).
+    - >-
+      Plastics-specific models and rules library (e.g., color drift due to
+      masterbatch lot changes, DSC crystallinity deviations linked to cooling
+      profiles).
+    - >-
+      Auto-generated CAPA templates aligned to 8D with pre-filled defect
+      descriptions, suspected causes, containment actions, and data-backed
+      verification steps.
+    - >-
+      Supplier lot traceability and scorecards linking incoming COA/COQ to lab
+      results and downstream quality outcomes.
+    - >-
+      Compliance and audit readiness: complete e-signature/audit trail, version
+      control, sampling plans, PPAP-ready reports.
+    - >-
+      Real-time alerting to email/SMS/MS Teams/Slack with severity, probable
+      root cause, and recommended actions.
+    - >-
+      Dashboards for Quality/Operations: Cp/Cpk, OOS/OOC rates, first-pass
+      yield, MTBF/MTTR, instrument status, and audit KPIs.
+    - >-
+      MSA (Gage R&R), calibration reminders, and instrument health monitoring to
+      reduce measurement variation.
+    - >-
+      APIs and connectors to LIMS/MES/ERP (LabVantage/LabWare/STARLIMS,
+      Rockwell, Siemens, SAP).
+  uniqueValueProp: >-
+    Plastics-specific AI SPC that unifies lab and process data, detects drifts
+    and out-of-control points in minutes, and auto-generates audit-ready
+    8D/5-Why CAPAs—reducing scrap and rework by 0.3–1.0 percentage points per
+    plant and cutting CAPA closure time by 30–50%.
+  unfairAdvantage: >-
+    Deep plastics-compounding domain library (MFI/color/DSC-specific rules),
+    prebuilt instrument connectors, and automated 8D CAPA generation tied to
+    real-time SPC—enabling faster time-to-value and audit-ready evidence that
+    generic SPC/LIMS tools lack.
+  customerSegments:
+    - >-
+      Mid- to large-size custom compounders of purchased resins supplying
+      automotive, medical, consumer goods, and packaging (50–500 employees, 1–6
+      plants).
+    - >-
+      Masterbatch producers with stringent color and additive uniformity
+      requirements.
+    - >-
+      Technical polymer compounders (PA, PBT, PC, PP, ABS, TPU, TPE) where MFI,
+      tensile, Izod, DSC, and color drive release decisions.
+    - >-
+      Quality-driven toll compounders serving Tier 1 automotive and regulated
+      segments (IATF 16949, ISO 13485 adjacency).
+    - >-
+      Operations and Quality leaders: Directors of Quality, Lab Managers,
+      Process Engineers, Plant Managers; CIO/IT for integration.
+  channels:
+    - >-
+      Direct enterprise sales to Quality/Operations leaders at compounders;
+      pilot-led motion (8–12 weeks).
+    - >-
+      Partnerships with instrument OEMs (Instron, ZwickRoell, TA, Mettler
+      Toledo, Dynisco, X-Rite/BYK) for co-selling and referrals.
+    - >-
+      Alliances with LIMS/MES vendors and system integrators for bundled
+      deployments.
+    - >-
+      Industry events and associations: NPE, PLASTICS, SPE conferences; targeted
+      workshops/webinars on AI SPC for compounding.
+    - >-
+      Content-led growth: case studies, ROI calculators, SPC maturity
+      assessments, whitepapers on MFI/color drift analytics.
+    - >-
+      Resin supplier referrals and joint programs to reduce lot variability;
+      quality consultants as resellers.
+    - >-
+      Account-based marketing for Tier 1 automotive/medical supply chains;
+      LinkedIn outreach to Lab Managers and Directors of Quality.
+  revenueStreams:
+    - >-
+      SaaS subscription per plant: $5,000–$15,000 per month depending on
+      instrument count, data volume, and modules.
+    - >-
+      Add-on modules: Supplier Scorecards, e-sign/21 CFR Part 11, advanced
+      multivariate modeling, benchmarking analytics ($1,000–$4,000 per
+      month/module).
+    - >-
+      Per-instrument/line connectors beyond base bundle ($100–$300 per
+      instrument per month).
+    - >-
+      One-time implementation and validation: $25,000–$80,000 per plant (data
+      mapping, connector setup, IQ/OQ/PQ, user training).
+    - >-
+      Professional services: MSA studies, SPC coaching, CAPA optimization,
+      custom reports ($200–$300/hour).
+    - 'Premium support/SLA tiers (24/7, <1-hour response).'
+  costStructure:
+    - >-
+      R&D: data science, polymer/process domain experts, software engineers for
+      connectors and platform.
+    - >-
+      Cloud infrastructure: ingestion, storage, compute (streaming analytics),
+      observability (~15–25% of ARR).
+    - Implementation and customer success labor; on-site commissioning travel.
+    - >-
+      Sales and marketing: enterprise reps, partner enablement, events, content
+      (~20–30% of ARR during growth).
+    - Partner commissions/revenue share with OEMs/SIs (10–20%).
+    - >-
+      Security and compliance: SOC 2/ISO 27001 audits, pen testing,
+      vulnerability management.
+    - Edge gateway hardware kits and logistics for pilots.
+    - 'Legal, insurance, and certifications for regulated segments.'
+  keyMetrics:
+    - >-
+      Quality impact: reduce OOS/OOC events by 30–60%; scrap/rework reduction
+      0.3–1.0 pp; increase first-pass yield by 2–5%.
+    - >-
+      Detection performance: mean time to detect (MTTD) < 5 minutes from data
+      arrival; anomaly precision > 0.85 and false alert rate < 10% per 1,000
+      datapoints; drift detection lead time > 24 hours before spec breach.
+    - >-
+      Operational efficiency: CAPA closure time reduced by 30–50%;
+      auto-ingestion of ≥90% lab results; reduce manual data prep time by
+      50–70%.
+    - >-
+      Compliance: zero major audit findings linked to data integrity;
+      e-signature adoption > 80% of releases; MSA coverage > 90% of critical
+      tests.
+    - >-
+      Adoption: instruments integrated per plant ≥ 8; weekly active quality
+      users ≥ 15; alert acknowledgment median < 10 minutes; dashboard weekly
+      active usage > 70% of quality team.
+    - >-
+      Business: pilot-to-subscription conversion ≥ 60%; ACV $60k–$180k; gross
+      margin ≥ 75%; net revenue retention ≥ 110%; LTV:CAC ≥ 3:1; annual logo
+      churn ≤ 5%.
+    - >-
+      Reliability/SecOps: uptime ≥ 99.9%; P1 incident MTTR < 2 hours; security
+      incidents = 0 reportable.
+storyBrand:
+  character: >-
+    Quality, lab, and process leaders at custom resin compounders who must keep
+    every lot in spec despite supplier variability and tight customer
+    tolerances.
+  problem: >-
+    External: variable incoming resin and process drift push MFI, tensile, Izod,
+    DSC, and color out of control. Internal: manual SPC, siloed data, and late
+    lab reads create blind spots and stress. Philosophical: quality data should
+    prevent defects, not just document them. Villain: spreadsheet charts that
+    miss subtle trends.
+  guide: >-
+    Empathy: we have managed compounding labs and audits and know the pressure
+    to catch issues early. Authority: built by QA/process engineers and data
+    scientists; proven SPC rules (Western Electric/Nelson) plus anomaly
+    detection; secure LIMS/ERP/historian integrations; production-hardened.
+  plan: >-
+    Simple plan: 1) Connect lab and process data sources. 2) Auto-baseline and
+    configure control charts, limits, and alert policies for MFI, tensile, Izod,
+    DSC, color. 3) Pilot on one line, then go live with dashboards and
+    auto-generated CAPA templates. Risk reversal: no rip-and-replace,
+    month-to-month pilot, SOC 2 and RBAC, you own your data.
+  callToAction: >-
+    Direct: book a 30-minute demo and data assessment; start a 30-day pilot.
+    Transitional: download a sample SPC/CAPA pack, alert policy checklist, and
+    ROI model.
+  success: >-
+    Proactive detection of drift and out-of-control points; faster CAPAs with
+    pre-filled 8D templates; lower scrap and rework; higher Cpk and first-pass
+    yield; fewer customer complaints and chargebacks; audit-ready traceability
+    and confident teams.
+  failure: >-
+    Staying with manual charts and delayed feedback means missed trends,
+    quarantined lots, firefighting, wasted resin, failed audits, and lost
+    business.
+landingPage:
+  hero:
+    title: QC SPC Monitor & Anomaly Alerts for Custom Resin Compounding
+    subtitle: >-
+      Real-time SPC across MFI, tensile, Izod, DSC, and color. Catch drift
+      early, prevent out-of-spec lots, and auto-generate CAPA.
+    ctaText: Book a Demo
+    ctaHref: /demo
+  problem:
+    - Lot-to-lot variation in purchased resins drives unstable properties.
+    - Manual SPC in spreadsheets misses early drift and rule violations.
+    - Delayed lab results stall batch release and increase WIP.
+    - 'Quality escapes lead to returns, complaints, and brand risk.'
+    - 'CAPA documentation is slow, inconsistent, and hard to audit.'
+    - 'Teams chase data across LIMS, SCADA, ERP, and COA PDFs.'
+    - No clear signal on which suppliers or grades are degrading.
+  solution:
+    - Unified monitoring of lab and process signals for every batch and grade.
+    - AI-based SPC with multivariate anomaly detection and adaptive limits.
+    - 'Instant alerts to Slack, Teams, or SMS when trends or OOC points emerge.'
+    - >-
+      Auto-generated, prefilled CAPA templates (8D/5-Why) with evidence
+      attached.
+    - 'Live Cp/Cpk, Ppk, and capability dashboards by resin, supplier, and line.'
+    - Golden-batch baselines and drift detection across shifts and seasons.
+    - Audit-ready traceability from incoming COA to final COA.
+  features:
+    - 'Connectors to LIMS, SCADA/PLC, historians, COA PDFs, and ERP.'
+    - >-
+      Monitors MFI, tensile, Izod, DSC, color, moisture, and viscosity in one
+      view.
+    - 'Control charts: Xbar-R, X-MR, EWMA, and CUSUM with rule packs.'
+    - Automatic detection of out-of-control and out-of-trend conditions.
+    - 'Adaptive limits by resin grade, supplier, machine, and lot size.'
+    - 'Real-time notifications with suppression, deduping, and escalation.'
+    - Batch release gates with spec checks and COA verification.
+    - Supplier scorecards with capability and drift trends.
+    - Lot genealogy linking incoming resin to compound batches and test results.
+    - Root-cause hints via correlation and change-point analysis.
+    - 'Role-based dashboards for QC, process, and operations.'
+    - Self-service reports and export to PDF/CSV for audits.
+    - On-premise or secure cloud deployment; SSO and audit logs.
+    - APIs and webhooks for MES and ERP workflows.
+    - Supports ISO 9001 and IATF 16949 quality workflows.
+  steps:
+    - Connect data sources and ingest 12–24 months of history.
+    - 'Define grades, specs, and control plans; map tests to processes.'
+    - 'Train baselines, set adaptive limits, and validate on backtests.'
+    - 'Go live with alerts to Slack, Teams, or SMS and set escalation rules.'
+    - Use dashboards to release batches and track capability in real time.
+    - Investigate anomalies; auto-generate CAPA and assign owners.
+    - Continuously refine limits and templates based on outcomes.
+---
+# ResinGuard SPC & Anomaly Alerts
+
+Industry: Custom Compounding of Purchased Resins
+Service: QC SPC Monitor and Anomaly Alerting

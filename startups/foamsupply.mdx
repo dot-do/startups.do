@@ -1,0 +1,281 @@
+---
+name: FoamSupply AI
+slug: foamsupply
+service:
+  title: Resin and Blowing Agent Demand Forecast + PO Optimizer
+  description: >-
+    AI forecasts EPS/XPS resin and pentane usage by SKU and generates optimal
+    POs by lead time, MOQ, and price risk.
+  targetUsers:
+    - Supply Chain Manager
+    - Buyer
+    - Plant Manager
+  triggers:
+    - Weekly planning cycle
+    - Inventory threshold breach
+    - Large order booked
+  inputs:
+    - ERP sales orders/forecast
+    - On-hand and in-transit inventory
+    - Supplier lead times/MOQs
+    - Historical usage and scrap rates
+    - Commodity price index CSV (resin/blowing agent)
+  steps:
+    - Ingest ERP and inventory data via API/upload
+    - 'Clean and align SKUs, map BOM usage factors'
+    - Forecast demand at SKU-week level (hierarchical model)
+    - Compute net requirements and simulate safety stock impacts
+    - Optimize PO timing/quantities under MOQ/lead-time constraints
+    - Run price-sensitivity and risk scenarios
+    - Publish recommended PO plan and exceptions
+  tools:
+    - 'Python (pandas, scikit-learn/Prophet)'
+    - OR-Tools (inventory optimization)
+    - 'ERP API (SAP, NetSuite, Microsoft Dynamics)'
+    - Streamlit lightweight UI
+    - Email/Slack webhooks
+  outputs:
+    - 13-week SKU demand forecast (CSV/Excel)
+    - PO recommendations with dates/quantities
+    - Supplier risk/shortage alerts
+    - Scenario comparison report
+  pricingModel:
+    - One-time setup per site
+    - Monthly subscription per site
+    - Optional performance fee on realized savings
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 4.5
+    overall: 4.7
+  risks:
+    - Poor master data/BOM accuracy
+    - Volatile lead times
+    - Supplier constraints not reflected in ERP
+  dependencies:
+    - Read access to ERP and inventory data
+    - Supplier calendars and MOQ/lead-time data
+    - VPN/API credentials
+leanCanvas:
+  problem:
+    - >-
+      Resin (EPS/XPS-grade PS) and pentane demand is volatile and SKU-mix
+      driven; most plants plan with spreadsheets, leading to 8–20% forecast
+      error at SKU-level and frequent stockouts or overstock.
+    - >-
+      Lead times and MOQs from multiple suppliers vary widely (2–10 weeks);
+      without probabilistic planning, plants either carry excess safety stock
+      (tying up working capital) or pay rush freight/premium spot prices.
+    - >-
+      Price volatility in styrene/benzene and pentane creates 1–5% purchase
+      price variance; buyers lack tools to time buys or allocate volume to
+      contracts vs spot with quantified risk.
+    - >-
+      Tank farm and silo constraints, hazmat storage limits, and recipe-level
+      pentane/resin ratios are not modeled by generic MRP/ERP, causing
+      infeasible POs and compliance risk.
+    - >-
+      Cross-functional data (production schedules, scrap, density, bead type,
+      run rates) is siloed; planners spend 6–10 hours/week consolidating data
+      rather than optimizing POs.
+    - >-
+      Existing tools don’t simulate supplier disruptions or weather/seasonality
+      tied to construction cycles, leading to preventable line stoppages.
+  solution:
+    - >-
+      SKU-level probabilistic demand forecasts for EPS/XPS resin and pentane
+      using production schedules, recipes, density, scrap, seasonality, and
+      external indicators (housing starts, weather).
+    - >-
+      Optimization engine that proposes multi-period POs meeting service-level
+      targets while respecting MOQs, lead-time distributions, tank/silo
+      capacity, supplier mix, and regulatory constraints.
+    - >-
+      Price-risk module that blends contracts vs spot, evaluates timing windows,
+      and recommends allocation to minimize expected cost within risk tolerance.
+    - >-
+      What-if scenarios: demand surges, supplier delay, recipe changes,
+      maintenance downtime, or new SKU launches.
+    - >-
+      Auto-generated, ERP-ready PO recommendations with approvals workflow and
+      audit trail.
+    - >-
+      Dashboards: forecast accuracy, inventory coverage by SKU, stockout risk
+      heatmap, expected savings, and purchase price variance vs index.
+  uniqueValueProp: >-
+    Purpose-built AI for EPS/XPS that forecasts resin and pentane by SKU and
+    generates compliant, cost-optimal POs under real-world constraints (lead
+    time, MOQ, tank/silo capacity, hazmat rules, price risk)—reducing stockouts,
+    working capital, and purchase price variance in 4–8 weeks.
+  unfairAdvantage: >-
+    A domain-tuned optimization engine that jointly models SKU-level foam
+    recipes, pentane/resin co-consumption, tank/silo and hazmat constraints, and
+    price-risk—plus prebuilt integrations and benchmark datasets from
+    pilots—delivering measurable savings in weeks rather than generic tools’
+    months-long customizations.
+  customerSegments:
+    - >-
+      Primary: EPS and XPS foam manufacturers (plant directors, supply chain
+      managers, procurement leads, planners).
+    - >-
+      Mid-market: Single-plant or 2–4 plant operators (annual resin spend
+      $10–80M).
+    - 'Enterprise: Multi-plant/global groups (>5 plants, resin spend $100M+).'
+    - >-
+      Secondary influencers: Resin/pentane suppliers and distributors offering
+      VMI or supply programs; 3PLs; ERP/MES system integrators.
+  channels:
+    - >-
+      Direct sales to plant and procurement leadership via account-based
+      outreach in North America and Europe.
+    - >-
+      Industry partnerships with resin/pentane suppliers and chemical
+      distributors to embed as a value-add planning tool or co-sell.
+    - >-
+      ERP/MES system integrators (SAP, Infor, AVEVA partners) for implementation
+      and referral agreements.
+    - >-
+      Trade shows and associations: Foam Expo North America/Europe, SPE FOAMS,
+      EPS-Industry Alliance; targeted technical webinars with case studies.
+    - >-
+      Pilot-led GTM: 6–12 week paid pilots with ROI guarantees and executive
+      readouts.
+    - >-
+      Thought leadership: monthly market notes correlating housing starts and
+      resin demand; procurement playbooks for foam producers.
+  revenueStreams:
+    - >-
+      Annual SaaS subscription per plant (tiered by sites/SKUs):
+      $50k–$150k/plant/year.
+    - >-
+      Enterprise license for multi-plant with volume discount (bundled analytics
+      and admin).
+    - >-
+      Implementation/onboarding fee: $25k–$100k per client depending on
+      integrations.
+    - 'Premium data add-ons: commodity index connectors, weather/permit feeds.'
+    - >-
+      Managed procurement advisory or savings-share option (e.g., 10–20% of
+      realized, capped).
+    - Training and certification for planners and buyers.
+  costStructure:
+    - >-
+      R&D: data science, operations research, chemical/process engineering, and
+      software engineering salaries.
+    - >-
+      Cloud infrastructure: compute for training/optimization, storage, VPC
+      networking, monitoring.
+    - >-
+      Data licensing: commodity price benchmarks (ICIS/S&P), macro/permit feeds,
+      weather data.
+    - 'Integrations/Implementation: SI partner fees, API maintenance.'
+    - 'Sales & marketing: ABM tools, conferences, demos, collateral.'
+    - 'Compliance & insurance: SOC 2 audits, cyber and professional liability.'
+    - 'Customer success and support, onboarding, and training content.'
+  keyMetrics:
+    - >-
+      Forecast accuracy: SKU-level MAPE ≤10–15% at 4-week horizon; bias within
+      ±3%.
+    - 'Service level: ≥97–99% material availability for resin/pentane by SKU.'
+    - >-
+      Inventory efficiency: 10–20% reduction in average on-hand (DIO), 15–30%
+      reduction in safety stock while maintaining service levels.
+    - >-
+      Cost savings: 1–3% reduction in purchase price variance vs index; 20–40%
+      reduction in expedite/rush freight; 5–10% reduction in line downtime due
+      to material shortages.
+    - >-
+      Working capital impact: $250k–$1.5M cash freed per mid-size plant in year
+      1.
+    - >-
+      Adoption: >80% of recommended POs approved or edited-and-accepted; planner
+      time saved 4–6 hours/week.
+    - >-
+      Operational: Integration uptime ≥99.5%, optimization runtime <15 minutes
+      for weekly plan, <2 minutes for daily refresh.
+    - >-
+      Customer outcomes: Net revenue retention >115%, payback <6 months, NPS
+      >40.
+storyBrand:
+  character: Ops and procurement leaders at EPS/XPS foam plants.
+  problem: >-
+    Volatile resin/pentane prices, long lead times and MOQs, and noisy SKU
+    demand make spreadsheets guesswork—causing stockouts, overbuys, rush
+    freight, and margin erosion.
+  guide: >-
+    We understand how costly a line stoppage is. Our EPS/XPS‑specific AI
+    forecasts resin and pentane by SKU and optimizes POs within lead time, MOQ,
+    and price risk; integrates with ERP/MES.
+  plan: >-
+    1) Connect ERP/MES and historical runs. 2) Calibrate SKU/plant forecasts and
+    constraints. 3) Approve weekly buy plan and one‑click POs; get alerts and
+    continuous learning.
+  callToAction: Schedule a 30‑minute demo or start a 30‑day pilot.
+  success: >-
+    Right‑sized resin and pentane inventory by SKU, reliable supply, smoother
+    production, lower carrying and expedite costs, and predictable margins.
+  failure: >-
+    Continued firefighting—stockouts, idle lines, excess inventory, rush buys,
+    price spikes, and missed orders.
+landingPage:
+  hero:
+    title: AI Forecast + PO Optimizer for EPS/XPS Resin and Pentane
+    subtitle: >-
+      SKU-level demand forecasts and optimal purchase orders by lead time, MOQ,
+      and price risk—built for polystyrene foam manufacturers
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - Volatile styrene and pentane prices make timing buys hard
+    - Manual spreadsheets miss SKU-level swings and plant constraints
+    - Stockouts halt extrusion; overbuys tie up cash and storage
+    - 'MOQs, price breaks, and vendor calendars complicate orders'
+    - Multi-plant allocation and transfers lack visibility
+    - 'No fast what-if for delays, price spikes, or demand surges'
+    - 'Hard to align POs with safety stock, tank limits, and hazmat rules'
+  solution:
+    - 'AI forecasts resin and blowing agent usage by SKU, plant, and week'
+    - Optimizes POs to hit service targets with least cost and risk
+    - 'Accounts for lead times, MOQs, price breaks, and storage limits'
+    - Scenario planner for supplier delays and price volatility
+    - Exception-driven workflow with clear buy-now vs wait signals
+    - 'Seamless sync with SAP, Oracle, and Microsoft ERPs'
+    - Audit-ready history and KPIs for planners and procurement
+  features:
+    - >-
+      SKU, plant, and line-level forecasts using BOM, density, run rates, scrap,
+      and seasonality
+    - >-
+      Dynamic safety stock and reorder points tuned to variability and service
+      goals
+    - >-
+      Pentane ratio tracking and loss modeling for accurate usage and VOC
+      control
+    - >-
+      PO optimizer with constraints: lead time, MOQ, price tiers, vendor
+      calendars, incoterms
+    - >-
+      Capacity-aware planning: silo and tank limits, unloading slots, warehouse
+      space
+    - 'Price-risk engine using forward curves, hedging windows, and FX exposure'
+    - 'Multi-plant allocation, interplant transfers, and freight cost trade-offs'
+    - 'What-if simulations for demand shocks, supplier slips, and capex changes'
+    - >-
+      Alerts for stockout risk, excess, expediting threats, and contract burn
+      rates
+    - One-click PO proposals with approvals and reason codes
+    - 'Connectors for SAP, D365, Oracle, Odoo, and custom ERPs via API'
+    - 'Security and compliance: SSO, role-based access, audit trails'
+  steps:
+    - 'Connect ERP, MES, and inventory data; import BOMs and vendor terms'
+    - 'Set service targets, safety stock policies, and storage constraints'
+    - Review weekly SKU forecasts and usage curves by plant
+    - Run scenarios for price moves and supplier delays
+    - Approve optimized PO bundle by vendor and ship window
+    - Sync POs back to ERP and notify suppliers
+    - 'Track KPIs: service, working capital, expedite cost, and forecast accuracy'
+---
+# FoamSupply AI
+
+Industry: Polystyrene Foam Product Manufacturing
+Service: Resin and Blowing Agent Demand Forecast + PO Optimizer

@@ -1,0 +1,380 @@
+---
+name: HarvestPath Assistant
+slug: harvestpath
+service:
+  title: Harvest Unit & Access Planning Assistant
+  description: >-
+    AI proposes harvest unit boundaries, skid trails, and access routes under
+    slope, stream buffer, and operational constraints.
+  targetUsers:
+    - Timber sale admins
+    - Logging contractors
+    - Consulting foresters
+  triggers:
+    - Pre-harvest planning request
+    - New tract added
+  inputs:
+    - AOI/stand polygons
+    - Slope/stream buffer rules (BMPs)
+    - Equipment constraints (max slope)
+    - Landing/road entry candidates
+  steps:
+    - Ingest DEM to derive slope and aspect
+    - Buffer streams/SMZ and exclude sensitive areas
+    - Generate candidate units by stand and slope constraints
+    - Suggest skid trail networks to landings
+    - Score access routes by length/grade/crossings
+    - Produce editable plan and quantities
+  tools:
+    - SRTM/3DEP DEM
+    - NHD/NWI layers
+    - QGIS/GRASS
+    - Shapely/GeoPandas
+    - OR-Tools (routing)
+  outputs:
+    - GeoPackage of units/trails/roads
+    - Mapbook (PDF) with profiles
+    - CSV of estimated lengths/volumes by unit
+  pricingModel:
+    - 'Per-tract: $5–$12/acre (min $800)'
+    - 'Revisions: $300 per iteration'
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 7
+    overall: 8
+  risks:
+    - Local BMP nuances missed without field input
+    - DEM resolution limits small features
+    - Liability if used as final engineered design
+  dependencies:
+    - DEM coverage
+    - Hydro/wetlands layers
+    - Client constraints/landing locations
+leanCanvas:
+  problem:
+    - >-
+      Harvest layout is slow and iterative: delineating unit boundaries, landing
+      sites, skid trails, and access under slope, soils, and buffer regulations
+      often takes 4–16 hours per unit and multiple field visits.
+    - >-
+      Compliance risk is high: stream buffers, steep-slope limits, and
+      road-crossing rules vary by jurisdiction; manual checks lead to buffer
+      encroachments, excess crossings, or soil disturbance that trigger fines or
+      rework.
+    - >-
+      Skid network inefficiency: suboptimal landings and trail layout increase
+      average skidding distance and machine cycle time, inflating cost per
+      ton/m3 and fuel burn by 10–25%.
+    - >-
+      Data fragmentation: planners juggle DEM/LiDAR, hydro, soils, ownership,
+      machine specs, and operational constraints across ArcGIS/QGIS, CAD, OEM
+      apps, and paper maps.
+    - >-
+      Limited field connectivity: many tools break down offline; foresters and
+      operators can’t easily adjust plans in the woods or capture “as-built”
+      data to improve future plans.
+    - >-
+      Talent bandwidth: experienced layout foresters are scarce; smaller
+      contractors and consultants can’t scale capacity or standardize quality
+      across crews and geographies.
+  solution:
+    - >-
+      Automated unit boundary proposal: Given objectives (target acreage/volume,
+      stand/compartment polygons), the assistant generates boundaries that
+      respect adjacency, steep slope limits, riparian buffers, and ownership
+      lines.
+    - >-
+      Landing site optimizer: Identifies feasible landing locations based on
+      slope (<10–12%), aspect, proximity to existing roads, turning radius, and
+      soil bearing strength; scores and ranks options.
+    - >-
+      Skid trail network planner: Generates a least-cost network from landings
+      to cut areas with tunable penalties for slope, soils, stream crossings,
+      and maximum spacing; constrained by machine capabilities (tracked vs
+      wheeled, cable settings).
+    - >-
+      Access route planning: Proposes new spur roads or use of existing roads
+      with grade constraints (e.g., <12%), minimal earthwork, and crossing
+      minimization; provides estimated build/maintenance cost.
+    - >-
+      Regulatory template engine: Jurisdiction-specific BMPs and riparian rules
+      (e.g., buffer widths by stream class, slope-triggered buffers) applied
+      automatically; emits compliance checklists and maps.
+    - >-
+      Scenario comparison: Side-by-side plans comparing cost-to-deliver, average
+      skid distance, crossings count, soil disturbance risk index, and
+      schedule—choose and publish the best scenario.
+    - >-
+      Field-ready outputs: Offline mobile maps (GeoPDF, MBTiles) and
+      shapefiles/GeoJSON for Avenza, TimberMatic Maps, Trimble Forestry, and
+      Esri; QR-coded paper maps as fallback.
+    - >-
+      As-built capture and learning loop: Ingest machine GNSS tracks and
+      operator notes to compare planned vs actual; autotunes cost parameters and
+      continuously improves recommendations.
+    - >-
+      Time and cost estimator: Estimates cycle times, fuel consumption, and
+      $/ton or $/m3 impacts from plan variants; supports budgeting and mill
+      negotiations.
+  uniqueValueProp: >-
+    AI-assisted harvest unit and access planning that produces compliant,
+    machine-aware unit boundaries, landings, and skid networks in minutes,
+    reducing planning time by up to 80%, skidding cost by 10–15%, and buffer
+    violations to near zero—export-ready to field devices and GIS.
+  unfairAdvantage: >-
+    Closed-loop optimization leveraging anonymized as-built machine tracks and
+    outcomes to continuously tune cost surfaces and machine-specific parameters,
+    combined with a maintained, jurisdiction-specific BMP rules engine and deep
+    integrations with both GIS (Esri) and OEM field ecosystems—hard for general
+    GIS tools or OEM-only apps to replicate end-to-end.
+  customerSegments:
+    - >-
+      Timberland owners and managers (REITs/TIMOs/industrial landowners) with
+      in-house operations planning.
+    - >-
+      Forestry consultants handling harvest planning/layout for private
+      landowners and small to mid-sized operators.
+    - >-
+      Logging contractors who plan their own units, skid trail networks, and
+      landings.
+    - >-
+      Public agencies (state, provincial, federal, tribal) needing compliant
+      unit layout and access planning on managed forests.
+    - >-
+      Forest products companies (mills) seeking to reduce delivered wood cost
+      via better pre-harvest planning.
+    - >-
+      OEMs and dealers (e.g., John Deere, Komatsu, Ponsse, Tigercat) that offer
+      digital tools and seek planning integrations for their customers.
+  channels:
+    - >-
+      Direct sales to timberland owners, consultants, and contractors in the US
+      South and Pacific Northwest as beachhead markets.
+    - >-
+      Partnerships with OEM dealers and digital platforms (e.g., Deere dealers,
+      Trimble Forestry) to bundle trials and co-market.
+    - >-
+      Esri Partner Network presence and ArcGIS Marketplace listing for
+      distribution to GIS-heavy organizations.
+    - >-
+      Conferences and field demos: Society of American Foresters, Oregon Logging
+      Conference, COFE, DEMO International, state forestry association meetings.
+    - >-
+      Content marketing: Before/after case studies showing reduced crossings and
+      skidding distances; technical webinars on slope/buffer optimization using
+      LiDAR.
+    - >-
+      Regulatory and academic outreach: Pilot projects with state forestry
+      agencies and forestry schools to validate compliance and publish results.
+    - >-
+      Referrals and VARs: Regional consultants/resellers who provide planning
+      services and training.
+  revenueStreams:
+    - >-
+      SaaS subscriptions per seat: Starter ($149/seat/month), Pro
+      ($399/seat/month with advanced optimization and regulatory templates),
+      Enterprise (custom; minimum $25k/year).
+    - >-
+      Usage-based AI planning credits: $0.75–$1.50 per planned acre (volume
+      discounts), charged when generating or regenerating an AI plan.
+    - >-
+      Enterprise licensing: Site or acreage-based annual licenses for large
+      landowners/agencies.
+    - >-
+      Professional services: Data onboarding, custom BMP templates,
+      integrations, and training ($150–$250/hr or fixed packages).
+    - >-
+      OEM/channel revenue share: Co-sold bundles with dealers and software
+      partners (10–20% revenue share).
+  costStructure:
+    - >-
+      R&D: Geospatial/ML engineers, optimization specialists, and forestry SMEs
+      ($1.8–$2.5M/year in early stage team).
+    - >-
+      Cloud compute and storage: DEM tiling, raster analytics, vector services,
+      and model training/inference ($25k–$60k/month at 100 active orgs).
+    - >-
+      Data acquisition/licensing: High-resolution DEM, soils, and road datasets
+      where public data is insufficient ($100k–$300k/year depending on
+      coverage).
+    - >-
+      Sales and marketing: Field demos, conferences, partner enablement, and
+      content production ($300k–$700k/year).
+    - >-
+      Support and success: Onboarding, training, and field support
+      ($150k–$300k/year).
+    - >-
+      Insurance, compliance, and legal: Professional liability (planning
+      recommendations), contracts, and data agreements ($75k–$150k/year).
+  keyMetrics:
+    - >-
+      Time-to-plan per unit: Target median <60 minutes for 100–200 acre units;
+      baseline 4–8 hours. Track distribution by terrain class.
+    - >-
+      Average skidding distance: Reduce by 10–20% vs baseline; report mean and
+      95th percentile per plan.
+    - >-
+      Stream crossings count and buffer compliance: Crossings reduced by 20–40%;
+      buffer violations detected before fieldwork: target 0 in production plans.
+    - >-
+      Cost-to-deliver model delta: $/ton or $/m3 reduction of 5–15% vs
+      historical; validated by customer-reported delivered wood costs.
+    - >-
+      Plan adoption rate: >70% of generated plans used with minimal edits;
+      measure edit distance (m) vs original trails and boundaries.
+    - >-
+      Cycle-time accuracy: Predicted vs observed machine cycle times within ±15%
+      in 80% of cases using as-built telemetry.
+    - >-
+      User productivity: Acres planned per planner per day; target 500–1,000
+      acres/day with batch planning.
+    - >-
+      Retention and expansion: Logo retention >90%; net revenue retention >120%
+      at 24 months.
+    - >-
+      Sales KPIs: CAC payback <12 months; win rate >25% on qualified pilots;
+      average contract value (ACV) $12k–$50k.
+    - >-
+      System reliability: >99.5% uptime; average plan generation latency <3
+      minutes for 250-acre jobs.
+storyBrand:
+  character: >-
+    Foresters, timberland managers, and logging planners who need safe,
+    compliant, and profitable harvest layouts—fast.
+  problem: >-
+    - External: Complex terrain, SMZ/stream buffers, machine limits, and tight
+    timelines make layout tedious and risky.
+
+    - Internal: Uncertainty about grades, soil impact, permits, and truck access
+    undermines confidence.
+
+    - Philosophical: Good forestry shouldn’t hinge on guesswork—it should be
+    data‑driven stewardship.
+  guide: >-
+    Empathy: We’ve flagged units, walked slopes, and negotiated BMPs—we know the
+    pressure.
+
+    Authority: Built by foresters and GIS/AI engineers; field‑tested with
+    DEM/LiDAR; aligns with BMPs and common regulatory constraints. The Harvest
+    Unit & Access Planning Assistant integrates with your GIS to turn
+    constraints into clear, workable plans.
+  plan: >-
+    Process:
+
+    1) Upload tract boundary, DEM/LiDAR, streams/roads, and rules (slope limits,
+    SMZ widths, equipment, landings).
+
+    2) AI proposes unit boundaries, landings, skid trails, and access routes;
+    scores options for grade, cost, and impact.
+
+    3) Review/edit on map; lock choices; export Shapefile/GeoPackage/PDF maps
+    and turn‑by‑turn directions.
+
+    Agreement:
+
+    - Transparent assumptions and editable constraints.
+
+    - You own the data; no changes without approval.
+  callToAction: >-
+    Direct: Start a pilot on your next tract.
+
+    Transitional: Book a 20‑minute demo or download a sample plan and savings
+    estimate.
+  success: |-
+    - Hours to plans, not weeks.
+    - Safer grades and stable trails; fewer crossings and soil disturbance.
+    - BMP‑compliant layouts that satisfy regulators and landowners.
+    - Lower layout/hauling costs and improved yield.
+    - Clear, audit‑ready documentation for crews and stakeholders.
+  failure: |-
+    - Fines, rework, and delays from noncompliant or incomplete layouts.
+    - Unsafe grades, stuck equipment, and blocked truck access.
+    - Erosion, excessive crossings, and damaged landowner trust.
+    - Budget overruns from inefficient trail and road choices.
+landingPage:
+  hero:
+    title: Harvest Unit & Access Planning Assistant
+    subtitle: >-
+      AI layouts for harvest units, skid trails, landings, and access
+      routes—built to your slope limits, stream buffers, soils, and operational
+      rules.
+    ctaText: Plan a tract now
+    ctaHref: /start
+  problem:
+    - Unit and access layout takes days of GIS work and field revisions.
+    - >-
+      Balancing volume, haul distance, soil risk, and cost is complex and
+      error‑prone.
+    - >-
+      Stream buffers and steep-slope exclusions are hard to enforce
+      consistently.
+    - 'Ad hoc plans lead to more crossings, disturbed area, and compliance risk.'
+    - 'Stakeholders lack clear maps, alternatives, and traceable decisions.'
+  solution:
+    - >-
+      AI proposes unit boundaries, skid trails, landings, and access routes
+      under your constraints.
+    - >-
+      Terrain-, hydrology-, and road-aware routing minimizes build cost and
+      disturbance.
+    - >-
+      Equipment- and season-specific layouts align with your operational
+      capabilities.
+    - >-
+      Scenario comparison quantifies tradeoffs: delivered cost, disturbed area,
+      crossings.
+    - >-
+      One-click exports for maps, shapefiles/GeoJSON, reports, and field
+      navigation.
+  features:
+    - >-
+      Constraint-smart layouts: slope caps, riparian buffers/SMZs, wetlands,
+      unstable soils.
+    - >-
+      Skid trail optimizer: max grade, spacing, breakline avoidance; automated
+      landing placement.
+    - >-
+      Access planning: use existing roads, rate new spurs, and minimize haul +
+      build cost.
+    - >-
+      Stream crossing intelligence: candidate locations ranked by span,
+      approach, and impact.
+    - >-
+      Equipment profiles: ground-based, shovel, cable—layouts adapt to chosen
+      system.
+    - >-
+      Seasonality & soils: operability windows (dry/frozen), soil sensitivity,
+      road class limits.
+    - >-
+      Scenario explorer: compare alternatives by cost, area disturbed,
+      crossings, and volume reach.
+    - >-
+      Instant compliance checks: buffer encroachment, steep ground, BMP flags,
+      permit-ready maps.
+    - >-
+      Editable AI results: sketch adjustments with live constraint feedback and
+      re-score.
+    - >-
+      Field mode: offline maps, GPS tracks, photo/flag capture, and two-way
+      sync.
+    - >-
+      Seamless GIS: import/export DEM/LiDAR, roads, hydro, stands;
+      Shapefile/GeoJSON/Feature Service.
+    - 'Collaboration & audit: comments, approvals, and versioned change history.'
+  steps:
+    - 'Upload or connect your layers (DEM/LiDAR, streams, roads, stands, soils).'
+    - >-
+      Set objectives and rules: volume target, slope threshold, buffers,
+      equipment, season.
+    - 'Run the planner to generate units, trails, landings, and access routes.'
+    - Review and edit with simple sketch tools; see real-time constraint checks.
+    - Compare scenarios and select the preferred layout with clear scorecards.
+    - >-
+      Export maps, data, and reports; sync to the field for execution and
+      feedback.
+---
+# HarvestPath Assistant
+
+Industry: Support Activities for Forestry
+Service: Harvest Unit & Access Planning Assistant

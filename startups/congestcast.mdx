@@ -1,0 +1,320 @@
+---
+name: CongestCast AI
+slug: congestcast
+service:
+  title: Day-Ahead/Intra-Day Congestion and LMP Forecasting
+  description: >-
+    Predict transmission congestion hotspots, shadow prices/LMPs, and constraint
+    binding probabilities using public market feeds plus weather and outage
+    intel.
+  targetUsers:
+    - Market operations
+    - Congestion management teams
+    - Merchant trading at TO/affiliate
+  triggers:
+    - New DAM/RTM market runs
+    - Planned outage postings
+    - High renewable/wind forecast
+  inputs:
+    - 'ISO/RTO OASIS data (topology/constraint, LMPs)'
+    - Historical congestion events
+    - Weather/NWP and load forecasts
+    - Planned outages/derates (public postings)
+  steps:
+    - Ingest public market and outage feeds
+    - Engineer network/graph and weather features
+    - Train classification/regression models for binding and LMP impact
+    - 'Generate scenario forecasts (base, high-wind, outage)'
+    - Publish hotspot list and confidence scores
+    - Backtest and recalibrate weekly
+  tools:
+    - 'Python (LightGBM, CatBoost)'
+    - NetworkX/graph features
+    - CAISO/PJM/MISO SOAP/REST OASIS APIs
+    - Dash/Streamlit dashboard
+  outputs:
+    - Top binding constraints with probabilities
+    - Node/zone LMP forecast ranges
+    - Explainability plots (SHAP)
+    - CSV/API for downstream use
+  pricingModel:
+    - Fixed monthly subscription per ISO
+    - One-time configuration for each market
+    - Optional per-scenario/on-demand runs
+  humanInLoop: false
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 8
+    overall: 9
+  risks:
+    - Topology changes not fully reflected in public data
+    - Regime shifts during extreme weather
+    - Market rule changes require retooling
+  dependencies:
+    - Access to OASIS/public feeds
+    - Agreement on evaluation metrics
+leanCanvas:
+  problem:
+    - >-
+      Day-ahead and intra-day LMPs are highly volatile and spatially
+      heterogeneous; traders and asset operators struggle to anticipate
+      congestion-driven price spikes at the node/constraint level.
+    - >-
+      Public ISO/RTO feeds are fragmented, differently formatted, and
+      time-lagged; integrating weather, load, outages, and topology changes into
+      a coherent, timely signal is non-trivial.
+    - >-
+      Existing tools often provide deterministic hub/zone forecasts; few offer
+      calibrated probabilistic forecasts of constraint binding at the
+      flowgate/element level needed for actionable bidding, CRR/FTR positioning,
+      and battery dispatch.
+    - >-
+      Outage normalization and real-time topology awareness are hard; most teams
+      lack automated parsing of transmission outage postings and contingency
+      models, leading to model drift and blind spots.
+    - >-
+      In-house models are expensive to build and maintain (specialized talent,
+      MLOps, 24/7 reliability) and often underperform during atypical weather or
+      rare grid states.
+    - >-
+      Operators of storage and renewables need high-frequency, localized LMP
+      forecasts to optimize charge/discharge and bids; without granular
+      probabilistic signals they leave PnL on the table and face higher
+      imbalance risk.
+  solution:
+    - >-
+      Data fusion layer that ingests and normalizes ISO/RTO public feeds (DA/RT
+      LMPs, SCED/SCUC artifacts, constraints, outages), high-resolution weather
+      (HRRR, NAM, GFS/ECMWF), load forecasts, renewable generation, and topology
+      updates.
+    - >-
+      Hybrid modeling: physics-informed DC-OPF approximations and contingency
+      modeling combined with graph neural networks and gradient-boosted trees to
+      map from state variables to nodal LMPs and flowgate binding probabilities.
+    - >-
+      Probabilistic outputs: full predictive distributions for LMPs (per
+      node/hub/zone) and calibrated probabilities for individual constraints
+      binding by interval (e.g., 5-min RT, hourly DA).
+    - >-
+      Scenario engine: user-defined what-ifs for outages, load/wind/solar
+      deviations, and intertie flows; returns LMP and binding probability deltas
+      in seconds to minutes.
+    - >-
+      Delivery: low-latency REST/WS APIs, Python SDK, and web dashboard with
+      alerting and portfolio views; optional Excel plugin for quick adoption by
+      traders.
+    - >-
+      Backtesting and explainability: historical performance reports with
+      MAE/RMSE, Brier score, coverage; feature importance and topology drivers
+      to support model trust and risk review.
+  uniqueValueProp: >-
+    ISO-grade, probabilistic congestion and LMP forecasting at nodal and
+    constraint granularity, updated day-ahead and intra-day within minutes of
+    new data, with calibrated binding probabilities, scenario tools, and
+    plug-and-play APIs that measurably improve trading PnL and operational
+    decisions.
+  unfairAdvantage: >-
+    A proprietary, outage-normalized topology graph and constraint library
+    combined with a calibrated physics + ML stack purpose-built for nodal and
+    constraint-level probabilistic forecasts, delivering faster adaptation to
+    grid changes and rare-event regimes than generic ML or deterministic tools;
+    plus normalized multi-ISO coverage and backtested economic impact libraries
+    that reduce time-to-value for traders and asset operators.
+  customerSegments:
+    - >-
+      Primary: Power marketers and trading desks active in DA/RT markets across
+      PJM, MISO, ERCOT, CAISO, SPP, NYISO, ISO-NE (merchant generators, hedge
+      funds, commodity trading firms, utilities’ trading arms).
+    - >-
+      Primary: Grid-scale battery and hybrid plant operators participating in
+      DA/RT energy and ancillary markets (co-optimization using LMP and
+      congestion signals).
+    - >-
+      Primary: CRR/FTR/CR auctions and secondary market participants seeking
+      constraint-level probabilities for path valuation and risk management.
+    - >-
+      Secondary: Renewable asset owners and offtakers (PPAs/virtual PPAs)
+      optimizing offers and hedges with nodal price risk analytics.
+    - >-
+      Secondary: Retail energy providers and large C&I load with flexible demand
+      or index exposure seeking congestion-aware procurement and DR scheduling.
+    - >-
+      Secondary: DER/VPP aggregators participating in wholesale markets where
+      permissible, needing localized probabilistic LMPs for dispatch.
+  channels:
+    - >-
+      Direct enterprise sales to top 200 North American power trading
+      organizations; land-and-expand with 90-day pilots focused on 1–2 ISOs and
+      priority nodes/constraints.
+    - >-
+      Partnerships with market data platforms and integrators (e.g., Yes Energy,
+      Snowflake data marketplace, major ETRM vendors) to co-sell and embed APIs.
+    - >-
+      Targeted content marketing: monthly accuracy scorecards by ISO, constraint
+      case studies, and open-source notebooks for model evaluation; webinars
+      with customer PnL uplift case studies.
+    - >-
+      Industry conferences and communities: NAEMA, EUCI, ACPA, IEEE PES, S&P
+      Global Platts events; sponsor trader roundtables focused on congestion.
+    - >-
+      Founder-led outreach to storage developers/IPP commercial teams; offer
+      dispatch uplift assessments (free quick scan) to demonstrate value.
+    - >-
+      Account-based marketing for CRR/FTR participants around auction calendars
+      with pre-auction constraint probability packs.
+  revenueStreams:
+    - >-
+      Subscription tiers (per ISO, per organization; unlimited read users, API
+      rate limits apply): Starter $5k–$8k/month (hub/zone LMP distributions,
+      baseline constraints); Pro $12k–$20k/month (nodal coverage, full
+      constraint library, scenario engine); Enterprise $25k–$45k/month (custom
+      models, white-glove support, dedicated SLAs, on-prem/VPC options).
+    - >-
+      Multi-ISO bundle discounts (15–30%) and enterprise-wide licenses for 3+
+      ISOs.
+    - >-
+      API usage overage pricing beyond contracted calls or low-latency compute
+      pool: $0.001–$0.005 per API call or $0.50–$1.50 per 1,000 predictions.
+    - >-
+      Professional services: custom calibrations, data integration, trading
+      workflow automation ($200–$300/hour or fixed-scope $25k–$150k).
+    - >-
+      Historical datasets and backtest packs: cleaned constraint histories,
+      labeled outage/topology events, and forecast archives ($10k–$50k per ISO).
+    - >-
+      Premium weather add-ons (higher-resolution or private keys) passed through
+      at cost plus margin.
+  costStructure:
+    - >-
+      Cloud compute and storage (training + inference): $35k–$120k/month at
+      early scale; variable with coverage, refresh frequency, and latency SLAs.
+    - >-
+      Third-party data and weather licensing: $8k–$40k/month depending on
+      ECMWF/private vendors and seat counts; public NOAA/NREL free but requires
+      processing.
+    - >-
+      Personnel: data engineers, ML researchers, power systems engineers, SRE,
+      and customer success; 8–15 FTE in year 1–2 ($2.5M–$4.5M/year).
+    - 'Sales and marketing: events, content, pilot support ($300k–$800k/year).'
+    - >-
+      MLOps and observability tooling (W&B/MLflow, logging, alerting):
+      $3k–$15k/month.
+    - 'Security/compliance, legal, and insurance (SOC 2, E&O): $100k–$300k/year.'
+    - >-
+      Contingency and R&D for new ISO expansions and feature development (10–15%
+      of OPEX).
+  keyMetrics:
+    - >-
+      Forecast accuracy: DA hub MAE ≤ $3.00/MWh and nodal MAE ≤ $6.50/MWh in
+      PJM/ISO-NE over rolling 90 days; RT 1-hr ahead nodal MAE ≤ $5.00/MWh.
+    - >-
+      Constraint prediction quality: ROC-AUC ≥ 0.85; Brier score ≤ 0.15;
+      precision ≥ 0.60 at recall 0.50 for next-interval binding; calibration
+      slope 0.9–1.1.
+    - >-
+      Uptime/latency: ≥99.5% API uptime; DA forecasts published ≤10 minutes
+      after gate close; RT updates delivered ≤2 minutes after new inputs.
+    - >-
+      Economic impact: documented customer PnL uplift ≥ $0.20–$0.60/MWh on
+      targeted strategies or ≥3–8% improvement in battery dispatch gross margins
+      within 3 months of adoption.
+    - >-
+      Adoption: 80% of pilot users integrate API into live workflow within 45
+      days; 50% of pilot accounts convert to paid within 90 days.
+    - 'Retention/expansion: Net revenue retention ≥115% annually; churn ≤8%.'
+    - >-
+      Model stability: drift alerts <2/month per ISO; retrain success rate ≥98%
+      with no SLA breach.
+    - >-
+      Sales efficiency: CAC payback ≤12 months; average sales cycle 3–6 months;
+      pilot-to-paid conversion ≥40%.
+    - 'Support: time-to-first-response ≤1 business hour in-market; CSAT ≥4.5/5.'
+storyBrand:
+  character: >-
+    Power-market traders, schedulers, and asset operators in RTO/ISO markets who
+    need confident day-ahead and intra-day LMP and congestion visibility to
+    price, hedge, and dispatch.
+  problem: >-
+    Congestion and LMPs swing on weather, outages, and binding constraints;
+    public alerts come late and data is siloed—creating basis risk, missed
+    opportunities, and compliance stress.
+  guide: >-
+    An independent AI forecasting service built by power-system and ML experts
+    that fuses ISO/RTO feeds with weather and outage intelligence, delivering
+    explainable forecasts and transparent backtests you can audit.
+  plan: >-
+    1) Select ISO nodes/constraints/paths and connect via API or UI; 2) Receive
+    probabilistic day-ahead and intra-day LMP, shadow-price, and binding-risk
+    forecasts with alerts; 3) Integrate into bids, CRR/FTR strategies, and
+    dispatch policies.
+  callToAction: >-
+    Book a 30-minute demo and start a risk-free pilot; get live forecasts in
+    your environment within days.
+  success: >-
+    Operate with foresight: capture congestion alpha, improve hedge performance,
+    reduce imbalance costs, and justify actions with clear drivers and
+    probability curves.
+  failure: >-
+    Keep guessing and reacting late—over/under-hedging, paying uplift and
+    penalties, missing CRR/FTR value, and exposing PnL to avoidable congestion
+    shocks.
+landingPage:
+  hero:
+    title: Day‑Ahead & Intra‑Day Congestion and LMP Forecasting
+    subtitle: >-
+      Predict transmission hotspots, shadow prices, and binding probabilities
+      using market, weather, and outage intelligence.
+    ctaText: Request a Demo
+    ctaHref: /demo
+  problem:
+    - 'Unplanned congestion drives uplift, curtailments, and missed spreads.'
+    - Limited visibility into which constraints will bind and for how long.
+    - 'Fragmented market, weather, and outage data slows decisions.'
+    - Reactive operations increase imbalance and penalty risk.
+    - Traders lack confidence intervals to size positions and hedges.
+  solution:
+    - >-
+      Probabilistic forecasts of congestion and LMPs from day‑ahead to
+      intra‑day.
+    - 'Binding probability by constraint, flowgate, and interface over time.'
+    - >-
+      Node/zone LMP and constraint shadow price distributions with confidence
+      bands.
+    - 'Scenario sensitivity to outages, load, renewables, and weather shifts.'
+    - 'Fast API, web maps, and alerts that plug into existing workflows.'
+  features:
+    - 'Coverage: PJM, ERCOT, MISO, SPP, CAISO, NYISO, ISO‑NE (expandable).'
+    - >-
+      Data fusion: ISO/RTO market feeds, weather, outages, generation mix, and
+      topology intel.
+    - Grid‑aware models using shift factors/PTDF and DC‑OPF‑inspired learning.
+    - 'Horizon: 5‑minute to hourly; rolling updates for day‑ahead and intra‑day.'
+    - >-
+      Explainability: driver attributions by node/constraint and feature
+      importance.
+    - >-
+      Accuracy you can audit: backtests, Brier/CRPS/MAE metrics, versioned
+      models.
+    - >-
+      Visuals: congestion heatmaps, constraint timelines, LMP curves, confidence
+      bands.
+    - 'Alerts: pre‑bind risk, price spikes, and violation likelihood thresholds.'
+    - 'Integrations: REST/JSON API, S3, Kafka, Python/R SDKs, CSV exports.'
+    - >-
+      Security & scale: SSO, RBAC, audit logs, SOC 2‑aligned controls, 99.9%
+      SLA.
+    - 'Deployment: SaaS or private VPC; optional data residency control.'
+  steps:
+    - 'Select ISO(s), nodes/zones, and constraints of interest.'
+    - Connect public feeds or use ours; set forecast cadence.
+    - 'Calibrate with your historical load, outages, and positions (optional).'
+    - Review maps and probability dashboards; subscribe to alerts.
+    - 'Integrate forecasts via API into bids, hedges, and dispatch tools.'
+    - >-
+      Monitor accuracy, backtest scenarios, and iterate with continuous
+      retraining.
+---
+# CongestCast AI
+
+Industry: Electric Bulk Power Transmission and Control
+Service: Day-Ahead/Intra-Day Congestion and LMP Forecasting

@@ -1,0 +1,297 @@
+---
+name: HarvestSync — Timing & Drying Cost Optimizer
+slug: harvestsync
+service:
+  title: Harvest Timing & Drying Cost Optimizer
+  description: >-
+    Schedules field harvest order and elevator vs. bin routing to minimize
+    drying cost, dockage, and field loss under weather and capacity constraints.
+  targetUsers:
+    - Producers with on-farm storage/dryers
+    - Harvest managers
+  triggers:
+    - Pre-harvest planning
+    - Daily forecast update
+    - Elevator hours/basis changes
+  inputs:
+    - Field list with acres and expected moisture
+    - Dryer specs and energy prices (propane/natural gas)
+    - Combine throughput and crew availability
+    - 'Elevator hours, bids, and wait times (if available)'
+  steps:
+    - Model grain moisture drydown using weather and hybrid traits
+    - Estimate field loss vs. delay and drying cost vs. moisture
+    - Optimize daily harvest sequence and routing
+    - Publish plan and update with new data
+  tools:
+    - NOAA/NWS forecast
+    - ASABE/empirical drydown models
+    - Python optimization (MILP/heuristics)
+    - Google Maps distance matrix
+  outputs:
+    - Daily harvest plan with timestamps
+    - Cost and loss projections
+    - Dynamic updates/alerts
+  pricingModel:
+    - 'Per harvest season per farm ($500–$3,000)'
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Drydown model error for minor grains
+    - Unplanned downtime not modeled
+    - Elevator queues uncertain
+  dependencies:
+    - Weather data
+    - Energy prices
+    - Basic machine/field parameters
+leanCanvas:
+  problem:
+    - >-
+      Producers face volatile moisture at harvest; each point of moisture above
+      base triggers drying fees and dockage (often $0.02–$0.06 per point per
+      bushel) or grade loss, yet waiting for field dry-down increases shatter,
+      lodging, and pre-harvest sprout risk.
+    - >-
+      Routing grain between on-farm bins/dryers versus elevators is decided ad
+      hoc without quantifying fuel cost, dryer capacity, elevator fees, line
+      time, or forecasted weather risk.
+    - >-
+      Limited daily capacity across combines, trucks, and dryers creates
+      bottlenecks; misallocating equipment increases wait time and late-season
+      field loss.
+    - >-
+      Elevator hours, lines, and fee schedules change frequently; farmers lack
+      reliable, real-time data to plan loads and avoid queues.
+    - >-
+      Existing tools (spreadsheets, weather apps, generic farm management
+      software) don’t optimize under constraints or simulate moisture, dockage,
+      and loss trade-offs.
+  solution:
+    - >-
+      Moisture and quality forecaster: Field-level dry-down models for sorghum,
+      barley, oats, rye, etc., calibrated with historic combine moisture maps
+      and station/canopy weather, projecting moisture, test weight, and sprout
+      risk by day.
+    - >-
+      Cost and constraint optimizer: Mixed-integer optimizer balances drying
+      fees, fuel, grade/dockage schedules, elevator hours/lines, combine
+      throughput, truck availability, dryer throughput (bu/hr/point), and bin
+      capacity to produce a daily harvest and routing plan.
+    - >-
+      Elevator intelligence: Aggregates live/near-real-time elevator hours, line
+      estimates, moisture/grade discount schedules, and delivery policies;
+      alerts when queues or fees change.
+    - >-
+      On-farm dryer model: Estimates energy cost by moisture point removed by
+      crop and dryer type (e.g., continuous flow vs. batch), accounting for
+      ambient conditions.
+    - >-
+      Dispatch and visibility: Mobile app and radio-friendly summaries for
+      crew—field order, truck destinations, expected cycle time, and contingency
+      plans as weather or queues shift.
+    - >-
+      Scenario planning: What-if simulations (e.g., storm in 48 hours, propane
+      price spike, extra truck hired) with clear $/acre impact.
+    - >-
+      Integrations: Ingests equipment telematics, yield/moisture maps, and work
+      orders from John Deere Operations Center, Case IH AFS, Climate/FieldView,
+      Trimble; weather from NOAA/ECMWF; optional moisture probe/handheld inputs.
+    - >-
+      Post-season analytics: Quantifies realized savings vs. baseline; guides
+      hybrid/variety and storage investments for next season.
+  uniqueValueProp: >-
+    AI that schedules harvest order and routes loads to elevator vs. on-farm
+    bins to minimize total cost (drying + dockage + field loss + wait time)
+    under real equipment, storage, and weather constraints—saving $4–$12 per
+    acre and finishing harvest 2–4 days earlier on average for mid-to-large
+    operations.
+  unfairAdvantage: >-
+    First-party, real-time elevator fee/line dataset plus calibrated dry-down
+    and field-loss models for non-corn grains, combined with a harvest-specific
+    optimizer and tight OEM/elevator integrations—creating switching costs and
+    network effects as more elevators and farms participate.
+  customerSegments:
+    - >-
+      Primary: US farms in NAICS 111199 (All Other Grain Farming) with ≥1,000
+      acres of sorghum, barley, oats, rye, millet, triticale; operations with
+      on-farm storage/dryers and/or frequent elevator deliveries.
+    - >-
+      Secondary: Grain elevators/co-ops in Plains and Upper Midwest seeking
+      smoother intake, reduced peak queues, and better member service.
+    - >-
+      Tertiary: Custom harvesters and farm managers serving multi-farm clients;
+      agronomy/retail networks offering digital services bundles.
+  channels:
+    - >-
+      Pilot programs with 5–10 regional co-ops/elevators in KS/OK/TX (sorghum)
+      and ND/MT/ID/MN (barley/oats/rye) to access fee/line data and sell to
+      member farms.
+    - >-
+      OEM and platform integrations marketplace (John Deere, CNH, Climate
+      FieldView, Trimble) to acquire tech-forward farms; co-marketing webinars
+      before harvest.
+    - >-
+      Ag retailers and propane suppliers as referral partners; bundle with dryer
+      tune-ups and preseason service visits.
+    - >-
+      Extension and grower association workshops (e.g., sorghum, barley growers)
+      featuring ROI calculators and regional case studies.
+    - >-
+      Targeted outbound to 1,000–10,000 acre farms using land records and
+      satellite-identified crop maps; offer 14-day in-season trial tied to one
+      field cluster.
+    - >-
+      Content marketing: interactive drying cost calculator and queue map;
+      harvest playbook PDFs by crop/region.
+    - >-
+      Enterprise sales to elevator groups and custom harvest firms; offer
+      data-sharing benefits (queue smoothing, member dashboards).
+  revenueStreams:
+    - >-
+      Farmer SaaS: tiered per-acre pricing (Base $1.50/acre; Pro $3.00/acre with
+      integrations and dispatch), $2,000 annual minimum; includes 2 crops and up
+      to 3 elevators.
+    - >-
+      Usage add-on: $0.005 per bushel optimized beyond included thresholds for
+      operations >500,000 bu.
+    - >-
+      Elevator/Co-op license: $10,000–$50,000 per site per year for queue API,
+      member analytics, and intake smoothing tools.
+    - >-
+      Professional services: preseason onboarding/model calibration
+      ($2,500–$7,500), custom integrations, and in-season premium support.
+    - >-
+      Data/API access for partners (with farmer consent): anonymized regional
+      intake forecasts and moisture trends, $0.01–$0.03 per tracked bushel
+      equivalent.
+  costStructure:
+    - >-
+      R&D: data scientists, optimization engineers, agronomy modelers
+      ($1.5–$2.5M/year at scale).
+    - >-
+      Cloud infrastructure: model training/inference, geospatial storage,
+      telemetry ingestion ($15k–$50k/month seasonally spiking).
+    - >-
+      Third-party data: premium weather/forecast ensembles, satellite and road
+      network APIs ($100k–$300k/year).
+    - >-
+      Sales and customer success: field agronomists/AMs, travel, demos
+      ($400k–$1M/year early).
+    - >-
+      BD and integrations: OEM/platform partnerships, certification fees
+      ($100k/year).
+    - >-
+      Liability/E&O insurance and compliance (privacy, data security)
+      ($50k–$150k/year).
+    - 'Marketing: events, content, calculators, case studies ($150k–$400k/year).'
+  keyMetrics:
+    - '$/acre realized savings vs. historical baseline (target: $4–$12/acre).'
+    - >-
+      Reduction in average delivered moisture above base (target: -0.5 to -1.5
+      percentage points) and moisture variance (target: -15% to -30%).
+    - 'Drying and dockage cost per bushel (target: -10% to -25%).'
+    - >-
+      Field loss avoided (bu/acre) relative to weather events (target: 0.5–2.0
+      bu/acre saved in risky windows).
+    - 'Elevator wait time reduction (target: -20% to -40%).'
+    - >-
+      Harvest duration vs. plan (target: complete 2–4 days sooner on 3k–8k acre
+      ops).
+    - >-
+      User adoption: weekly active planners/dispatchers per operation (>3 per
+      1,000 acres) and schedule adherence (>70%).
+    - Customer ROI payback within first season (>120% of subscription fees).
+    - >-
+      Gross margin (>75% SaaS), Net revenue retention (>110%), CAC payback (<9
+      months).
+storyBrand:
+  character: >-
+    Grain growers and harvest managers who want to harvest in the optimal order
+    and route loads to bins or elevators to protect margin and grain quality.
+  problem: >-
+    - External: Moisture swings, storm windows, elevator wait times, and limited
+    dryer/bin capacity make harvest sequencing risky.
+
+    - Internal: Constant second-guessing, late-night re-planning, and
+    uncertainty about where to send the next load.
+
+    - Philosophical: You shouldn’t have to burn profit on drying and dockage
+    because timing decisions rely on guesswork.
+  guide: >-
+    We understand the harvest squeeze. Our team blends agronomy, logistics, and
+    AI to schedule field order and bin vs. elevator routing under real weather
+    and capacity constraints. The system is transparent—showing assumptions,
+    costs, and what-if scenarios you can trust.
+  plan: >-
+    1) Connect: Import fields/acres, crops/hybrids, moisture data, dryer/bin
+    capacity, elevator hours/prices, fleet limits; enable local forecast.
+
+    2) Review: Get a daily ranked harvest order and routing plan with expected
+    drying, dockage, and loss costs.
+
+    3) Execute: Follow clear cut/haul targets; receive alerts as queues,
+    weather, or moisture change.
+
+    4) Improve: Start with a pilot block; roll out farm-wide in days with
+    ongoing adjustments.
+  callToAction: |-
+    Direct: Book a 20‑minute demo to build your harvest plan.
+    Transitional: Run a free pre‑harvest scenario and download a sample plan.
+  success: >-
+    Lower drying and dockage costs, fewer wet loads, minimized field loss,
+    smoother dryer/elevator utilization, shorter queues, higher net per acre,
+    and a calmer, data-backed harvest.
+  failure: >-
+    Without this, you risk paying for unnecessary drying, surprise dockage,
+    weather-related field loss, jammed dryers and trucks, missed elevator
+    windows, and a reactive, stressful harvest.
+landingPage:
+  hero:
+    title: Harvest Timing & Drying Cost Optimizer
+    subtitle: >-
+      AI plans your field order and elevator vs. bin routing to cut drying cost,
+      dockage, and field loss—using live weather and your capacity limits.
+    ctaText: Start free trial
+    ctaHref: /get-started
+  problem:
+    - Moisture and storms flip the harvest plan daily.
+    - High drying fees and shrink from wet or over‑dried grain.
+    - Elevator lines and limited hours idle crews and machines.
+    - Bins and dryer bottleneck; trucks wait or run empty.
+    - 'Guesswork increases dockage, field loss, and missed contracts.'
+    - 'Data lives in silos: weather, monitors, scales, and tickets.'
+  solution:
+    - AI ranks fields by profit impact and ideal harvest timing.
+    - 'Load-by-load routing: elevator vs. bin to minimize cost and dockage.'
+    - Schedules dryer loads and bin assignments under real capacity limits.
+    - 'Simulates dry‑down, weather delays, and field loss risk.'
+    - 'Live re‑optimization as samples, queues, and hours change.'
+    - 'Run what‑if scenarios for trucks, overtime, or rented capacity.'
+  features:
+    - Multi‑crop moisture and dry‑down modeling by field and variety.
+    - 'Capacity‑aware dispatch for combines, carts, trucks, dryer, and bins.'
+    - 'Elevator intelligence: hours, queue time, grades, and contract targets.'
+    - 'Cost engine for drying tables, shrink, energy, basis, and dockage.'
+    - 'Bin strategy: air‑only vs. heat‑dry, target moisture, fan runtime.'
+    - 'Weather‑aware alerts for rain, frost, wind, and lodging risk.'
+    - 'Mobile crew app with field order, routing, and live updates.'
+    - Offline and low‑bandwidth friendly for remote fields.
+    - 'Integrations with common monitors, scales, telematics, and FMS.'
+    - 'Audit trail and season reports: cost saved, loss avoided, grades hit.'
+    - 'Role‑based access for growers, custom harvesters, and drivers.'
+    - Secure cloud with farm‑owned data and easy export.
+  steps:
+    - 'Import fields, crops, and contracts; set costs and moisture targets.'
+    - 'Add equipment capacity, bin specs, dryer curve, and working hours.'
+    - Sync weather and calibrate with quick field moisture samples.
+    - Receive a daily ranked harvest plan with per‑load routing.
+    - Run the plan; update moisture and queue times; AI re‑optimizes in minutes.
+    - Review season summary to fine‑tune next year’s plan.
+---
+# HarvestSync — Timing & Drying Cost Optimizer
+
+Industry: All Other Grain Farming
+Service: Harvest Timing & Drying Cost Optimizer

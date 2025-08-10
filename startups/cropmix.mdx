@@ -1,0 +1,327 @@
+---
+name: CropMix IQ
+slug: cropmix
+service:
+  title: 'Rotation, Variety, and Market-Driven Planning'
+  description: >-
+    Optimize crop mix, varieties, and acreage allocation using local basis,
+    historical yield risk, insurance rules, and rotation constraints to maximize
+    expected gross margin.
+  targetUsers:
+    - Farm owners/managers
+    - Crop planners
+  triggers:
+    - Pre-season planning window
+    - Market price moves (+/- threshold)
+    - Input price updates
+  inputs:
+    - Field list with constraints
+    - Historical yield distributions by crop
+    - Local elevator bids/basis and CME futures
+    - Input costs and availability
+    - Crop insurance coverage rules
+    - Rotation/weed resistance constraints
+  steps:
+    - Pull price/basis and input cost data; estimate gross margins
+    - Fit yield risk models; simulate P50/P90 outcomes
+    - Solve acreage/variety mix with rotation constraints (MILP)
+    - Stress test plan under price/yield scenarios
+    - 'Deliver plan, budgets, and sensitivity dashboard'
+  tools:
+    - 'Python, OR-Tools (MILP)'
+    - 'USDA Quick Stats, CME/Barchart APIs'
+    - Local elevator bid feeds (if available)
+    - Jupyter dashboards
+  outputs:
+    - Acreage/variety plan by field
+    - Budget and breakeven sheet
+    - Scenario and sensitivity report
+  pricingModel:
+    - 'Per farm per year ($1,000–$5,000)'
+    - Optional success fee tied to realized margin improvement
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Price volatility and basis shocks
+    - Data latency for local bids
+    - Assumptions may not match on-farm realities
+  dependencies:
+    - Access to price feeds or manual quotes
+    - Historical yield records
+    - Insurance rule inputs
+leanCanvas:
+  problem:
+    - >-
+      Growers leave $10–$35/acre on the table by allocating acres across crops
+      and varieties using static budgets that ignore local basis, insurance
+      interactions, and rotation constraints.
+    - >-
+      Field-level variability and historical yield risk aren’t incorporated into
+      planning; most farms use county budgets or spreadsheets that can’t model
+      stochastic outcomes or correlations.
+    - >-
+      Selecting crop insurance products (RP/YP, unit structure, SCO/ECO, TA-APH,
+      YE) is complex; coverage choices materially change optimal crop mix but
+      are evaluated separately from agronomic/market planning.
+    - >-
+      Local cash bids and basis are volatile and location-specific; few tools
+      quantify delivery-point basis, storage, trucking, and drying costs in
+      acreage planning.
+    - >-
+      Rotation rules (e.g., wheat–fallow, canola frequency, disease/pest breaks)
+      and landlord or grower constraints are hard to encode and enforce at scale
+      across 2,000–25,000 acres.
+    - >-
+      Planning is time-constrained (Nov–Mar); advisors juggle many clients,
+      leading to rushed, suboptimal decisions and low scenario coverage.
+    - >-
+      Existing digital tools focus on recording and prescription maps, not on
+      maximizing expected gross margin under risk.
+  solution:
+    - >-
+      Ingest field boundaries, past yields (APH/monitor), soil/zone layers, and
+      constraints; auto-build a stochastic planning baseline within 48 hours.
+    - >-
+      Integrate futures, local cash bids, and basis curves by delivery point;
+      include storage, trucking, drying, and elevation fees to net back to the
+      field.
+    - >-
+      Model historical yield distributions and correlations at field/zone level;
+      run Monte Carlo to estimate expected gross margin and downside risk
+      (P5/P10).
+    - >-
+      Encode rotation rules, landlord restrictions, fallow requirements, and
+      agronomic constraints to filter feasible plans.
+    - >-
+      Optimize crop mix, varieties, and insurance combinations (RP/YP, unit
+      structure, SCO/ECO, TA-APH, YE) to maximize expected gross margin subject
+      to risk limits (e.g., CV or P10 thresholds).
+    - >-
+      Provide side-by-side scenarios (e.g., bullish/bearish basis, late
+      planting, moisture stress) and sensitivity analysis (price, yield, basis,
+      input costs).
+    - >-
+      Export planting intentions, product/variety lists, insurance selections,
+      and delivery plans; generate advisor/client-ready PDF and API outputs.
+    - >-
+      Optional advisory workflow: collaborate with grower, agronomist,
+      merchandiser, and insurance agent; track approvals and changes.
+  uniqueValueProp: >-
+    Field-level, market-driven acreage and variety planning that integrates
+    local basis, insurance, and rotation constraints to maximize expected gross
+    margin—delivering a measurable $12–$25/acre uplift with transparent
+    scenarios and compliance-ready plans.
+  unfairAdvantage: >-
+    An integrated, field-level optimizer that simultaneously considers local
+    basis, insurance choices, and agronomic rotation constraints—paired with
+    delivery-point logistics and validated ROI audits. Proprietary localized
+    basis-yield datasets and agency/co-op distribution create defensible network
+    effects and switching costs.
+  customerSegments:
+    - >-
+      Primary: US grain farms 2,000–25,000 acres in the Plains and
+      Northern/Central Midwest growing wheat, sorghum, barley, oats, rye,
+      canola, sunflowers (often mixed with corn/soy).
+    - >-
+      Secondary: Farm management companies and large landlords overseeing
+      10,000–250,000 acres across multiple tenants.
+    - >-
+      Channel customers: Crop insurance agencies, ag retailers/co-ops, grain
+      merchandisers/elevators seeking value-added planning for grower retention.
+    - >-
+      Financial stakeholders: Ag lenders (Farm Credit, CoBank) who want
+      risk-aware plans to underwrite operating loans.
+  channels:
+    - >-
+      Crop insurance agencies as co-sellers; 15–25% commission, co-branded
+      planning reports during renewal season (Nov–Mar).
+    - >-
+      Ag retailers/co-ops and independent agronomists; bundle with
+      seed/fertilizer planning and VRT services.
+    - >-
+      Grain merchandisers/elevators; offer planning as a retention tool;
+      integrate cash bids and delivery contracts.
+    - >-
+      Direct sales to progressive growers via webinars, winter meetings, and
+      targeted digital campaigns (geo-targeted to Plains/Midwest).
+    - >-
+      Partnerships with farm management firms and lenders; integrate into loan
+      underwriting and annual plan reviews.
+    - >-
+      Presence at commodity conferences (Wheat Growers, Sorghum Checkoff,
+      Sunflower Association) and state extension meetings; offer free plan
+      clinics.
+    - >-
+      Integrations marketplace listings (John Deere Ops Center, Climate
+      FieldView, Bushel) to acquire users in-app.
+  revenueStreams:
+    - >-
+      Per-acre annual subscription: $1.50–$4.00/acre depending on features and
+      acres; minimum $3,000/farm/year.
+    - >-
+      Advisor/enterprise licenses for agencies/co-ops/elevators:
+      $25,000–$150,000/year based on seats and grower acres.
+    - >-
+      Onboarding and data services: $0.25–$0.50/acre for historical data
+      curation, optional field zoning setup.
+    - >-
+      Premium analytics add-ons: weather-influenced in-season re-optimization
+      and weekly basis outlooks ($0.50/acre).
+    - >-
+      Optional performance-aligned pricing: share-of-uplift (e.g., 10% of
+      verified margin uplift) for pilot cohorts.
+    - >-
+      White-labeled insights for lenders (portfolio risk summaries) via API:
+      $50k–$200k/year, privacy-preserving aggregates.
+  costStructure:
+    - >-
+      Data licensing: basis/cash bids (DTN/Barchart/Bushel) $50k–$200k/year;
+      weather/seasonal outlooks $30k–$100k/year; trial data curation $25k/year.
+    - >-
+      Cloud compute/storage: $12k–$25k/month at 5M acres planned annually;
+      variable compute ≈ $0.03–$0.07/acre per full simulation suite.
+    - >-
+      Team: data science/ML (3–6 FTE), agronomy/economics (2–4 FTE), engineering
+      (4–8 FTE), sales/CS (3–6 FTE). Annual payroll $3–6M at growth stage.
+    - 'Sales commissions/partner fees: 15–25% of ACV for agency/co-op channels.'
+    - 'Customer success and onboarding: $0.10–$0.30/acre.'
+    - >-
+      G&A, compliance, E&O insurance (especially if providing decision support
+      around insurance): $250k–$600k/year.
+  keyMetrics:
+    - >-
+      Acres under management (AUM): target 0.5M year 1; 2.0M year 2; 5.0M year
+      3.
+    - >-
+      Average gross margin uplift vs baseline plan, validated post-harvest:
+      target +$15/acre median, 70% of acres ≥+$10/acre.
+    - >-
+      Plan adoption rate: percentage of recommended acres actually planted per
+      plan; target ≥75%.
+    - 'Retention (logo and acre): ≥85% logo, ≥90% acre retention annually.'
+    - >-
+      Model calibration: basis forecast MAE ≤ $0.06/bu by delivery point; yield
+      distribution calibration (CRPS or P10/P90 coverage within ±5%).
+    - >-
+      Insurance selection impact: average premium efficiency gain (expected
+      indemnity/premium ratio at chosen coverage) +10–20%.
+    - 'Sales efficiency: CAC payback <12 months; LTV/CAC ≥4.0.'
+    - >-
+      Time-to-plan: ≤2 business days from data receipt to first scenario;
+      advisor time saved ≥8 hours/farm/season.
+    - 'Net promoter score (NPS): ≥45 after first season.'
+    - >-
+      Churn reasons resolved: resolve 70% of top-3 churn causes within 2 release
+      cycles.
+storyBrand:
+  character: >-
+    Diversified grain growers and farm managers (All Other Grain Farming:
+    sorghum, barley, oats, rye, millet, triticale) who want confident rotation,
+    variety, and acreage decisions that maximize expected gross margin.
+  problem: >-
+    Markets, weather, and insurance rules change faster than spreadsheets;
+    ignoring local basis, yield risk, and rotation constraints turns planning
+    into guesswork, compliance risk, and missed margin.
+  guide: >-
+    Rotation, Variety, and Market-Driven Planning is an AI co-pilot from ag
+    economists and data scientists that ingests local basis, historical yields,
+    insurance and rotation rules to recommend profitable, compliant crop mixes.
+  plan: >-
+    1) Connect fields, yield history, and local market/insurance data; 2) Set
+    constraints and goals; 3) Get an optimized crop/variety/acreage plan with
+    scenarios, then implement and monitor.
+  callToAction: >-
+    Schedule a 20-minute demo or start a no-obligation pilot on a subset of
+    fields.
+  success: >-
+    Make timely, evidence-based plans that maximize expected gross margin,
+    improve risk-adjusted returns, maintain rotation and insurance compliance,
+    and turn market signals into field-level action.
+  failure: >-
+    Keep over/under-planting, risk insurance or rotation violations, misread
+    local basis, absorb avoidable yield risk, and leave profit on the table.
+landingPage:
+  hero:
+    title: >-
+      Rotation, Variety, and Market‑Driven Planning — AI for All Other Grain
+      Farming
+    subtitle: >-
+      Optimize crop mix, varieties, and acreage allocation using local basis,
+      historical yield risk, insurance rules, and rotation constraints to
+      maximize expected gross margin.
+    ctaText: Build My Plan
+    ctaHref: /get-started
+  problem:
+    - Volatile futures and local basis make margins hard to lock in.
+    - >-
+      Spreadsheets can’t balance rotation, insurance, and variety choices at
+      once.
+    - >-
+      Field-to-field yield risk varies; one blanket plan leaves money on the
+      table.
+    - Insurance unit rules and coverage levels change the best acreage mix.
+    - >-
+      Herbicide carryover, maturity windows, and double-crop options are
+      complex.
+    - 'Time lost reconciling bids, costs, and agronomy constraints across fields.'
+  solution:
+    - AI allocates acres by crop and variety to maximize expected gross margin.
+    - 'Uses your local basis, forward bids, and cost curves—updated daily.'
+    - Models field-level yield distributions to balance risk and return.
+    - 'Respects insurance program rules, unit structures, and coverage levels.'
+    - 'Enforces rotation, carryover, and maturity constraints by field.'
+    - 'Delivers a lender-ready, field-by-field plan with contracting guidance.'
+  features:
+    - Local basis and forward bid ingestion from your preferred buyers.
+    - Field-level yield risk modeling from historical data and your records.
+    - 'Expected gross margin optimizer: crop, variety, and acreage by field.'
+    - >-
+      Insurance-aware planning: unit structures, coverage levels, premiums, and
+      rules.
+    - >-
+      Rotation logic: previous crop restrictions, herbicide carryover, nitrogen
+      credits, and double-crop windows.
+    - >-
+      Variety selector by maturity, disease tolerance, trait packages, and
+      stability under local risk.
+    - >-
+      Cost engine: seed, fertilizer, chemistry, fuel, drying, hauling, storage,
+      land, and insurance.
+    - 'Scenario tests: drought/wet spring, harvest price moves, and basis shocks.'
+    - >-
+      Risk controls: enterprise-level volatility targets and downside protection
+      thresholds.
+    - >-
+      Contracting alignment: production vs. hedged bushels, delivery months, and
+      storage capacity.
+    - >-
+      Integrations: import fields, boundaries, and historical yields via
+      shapefiles or farm platforms.
+    - 'Reports: lender pack, insurer documentation, and field task exports.'
+    - >-
+      Built for “all other grains”: sorghum, barley, oats, rye, millet,
+      triticale, and regional rotations.
+  steps:
+    - >-
+      Connect your fields, costs, and local bids; set rotation and insurance
+      settings.
+    - >-
+      Choose goals and risk tolerance; define constraints and preferred
+      crops/varieties.
+    - >-
+      Run the optimizer to generate acreage, crop, and variety allocations per
+      field.
+    - >-
+      Compare scenarios, lock your plan, and export planting and contracting
+      actions.
+    - >-
+      Monitor markets and weather; receive alerts and one-click plan
+      adjustments.
+---
+# CropMix IQ
+
+Industry: All Other Grain Farming
+Service: Rotation, Variety, and Market-Driven Planning

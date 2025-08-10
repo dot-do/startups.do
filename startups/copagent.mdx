@@ -1,0 +1,293 @@
+---
+name: COP Agent — AI Cut Order Planning for Apparel Manufacturers
+slug: copagent
+service:
+  title: Cut Order Planning (COP) Agent
+  description: >-
+    Creates cut plans by splitting POs into lays and lots, allocating rolls by
+    shade and minimizing remnants.
+  targetUsers:
+    - Cutting Room Manager
+    - Production Planner
+  triggers:
+    - New PO received
+    - Roll inventory updated
+  inputs:
+    - PO by style/color/size curve
+    - 'Fabric roll list with shade groups, lengths, defects'
+    - 'Lay constraints (max ply, lay length, table limits)'
+    - Bundle size policy
+  steps:
+    - Validate inputs and compute size mix per lay
+    - Optimize lot splitting and roll assignment with shade rules
+    - Minimize waste and changeovers via constraint solver
+    - 'Generate lay sheets, bundle maps, and roll pull list'
+    - Export to cutting floor dashboard and print tickets
+  tools:
+    - OR-Tools/Gurobi (optional)
+    - Pandas
+    - Google Sheets/Excel API
+  outputs:
+    - COP plan (CSV/Excel)
+    - Lay sheets & bundle maps (PDF)
+    - Roll pull list by table (CSV)
+  pricingModel:
+    - 'Per PO (e.g., $50–$200)'
+    - Monthly subscription for unlimited POs
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Inaccurate roll data or shade tags
+    - Unmodeled table constraints
+    - Operator deviation from plan
+  dependencies:
+    - Accurate roll inventory/shade logs
+    - Access to PO data
+leanCanvas:
+  problem:
+    - >-
+      Manual cut order planning takes 1–6 hours per PO and depends on a few
+      experts using spreadsheets, causing bottlenecks and variability.
+    - >-
+      Suboptimal roll allocation and marker-to-lay translation typically waste
+      0.5–2.0% of fabric and create large remnants that are hard to reuse.
+    - >-
+      Shade management is error-prone; mixing shades leads to quality defects or
+      rework, while over-conservative grouping reduces utilization.
+    - >-
+      Frequent re-plans are needed when fabric rolls arrive late, are short, or
+      fail QC/shrinkage tests; re-planning is slow and disrupts cutting
+      schedules.
+    - >-
+      Disconnected systems (ERP/PLM, fabric inventory, CAD/marker libraries,
+      cutting/spreading equipment) cause data errors and delays.
+    - >-
+      Cut rooms struggle to align lays/lots with sewing line size ratios and
+      delivery dates, causing WIP imbalances and late orders.
+    - >-
+      KPIs (fabric utilization, remnant ratio, plan adherence) are not measured
+      consistently, making continuous improvement difficult.
+  solution:
+    - >-
+      Data ingest: Pull POs, style-size-color ratios, markers, fabric roll
+      inventory (length, width, shade, shrinkage), capacity (tables, cutters,
+      spreaders), due dates.
+    - >-
+      Optimization engine: Multi-objective solver that 1) allocates rolls by
+      shade and width, 2) builds lays/lots honoring table lengths, ply limits,
+      shrinkage, and size ratios, 3) minimizes remnants and changeovers, 4)
+      aligns with delivery priorities.
+    - >-
+      Executable outputs: Lay plans, lot/bundle tickets with barcodes/RFID,
+      roll-pull lists by shade/width, spread/cut instructions compatible with
+      CAD/CAM systems.
+    - >-
+      Dynamic re-planning: Auto-replans when rolls arrive/are short, QC results
+      update, or priorities shift; proposes minimal-disruption changes.
+    - >-
+      What-if simulator: Compare plans across objectives (max utilization vs.
+      due-date risk) with clear KPIs before committing.
+    - >-
+      Closed-loop KPIs: Tracks fabric utilization, remnant profile, plan
+      adherence, re-cut rate, and planner time saved; exports to BI dashboards.
+  uniqueValueProp: >-
+    Generate shade-correct, capacity-feasible cut plans in minutes—not
+    hours—optimizing roll allocation to maximize fabric utilization and minimize
+    remnants, with measurable 0.5–1.5% fabric savings and faster, more reliable
+    cutting room execution. Integrates with existing ERP, CAD/marker, and
+    cutting equipment to deliver ROI in 4–8 weeks.
+  unfairAdvantage: >-
+    A domain-tuned optimization engine that jointly optimizes shade-correct roll
+    allocation, lay planning, and remnant reuse with proven savings benchmarks;
+    a growing dataset of real cut outcomes that improves recommendations; and a
+    pre-built integration library to major ERP/CAD/CAM systems that shortens
+    time-to-value. Early design-partner case studies and optional gain-share
+    pricing lower buyer risk and create defensible references.
+  customerSegments:
+    - >-
+      Vertically integrated apparel manufacturers (brands/labels with in-house
+      cutting and sewing) producing >150k pieces/month.
+    - >-
+      OEM/ODM manufacturers supplying global brands with in-house cutting rooms
+      and CAD/CAM (Gerber, Lectra, Tukatech, Optitex, Gemini).
+    - >-
+      Regional focus: Bangladesh, Vietnam, India, China, Sri Lanka, Indonesia,
+      Turkey, Mexico, Central America (Tier-1 and Tier-2 cities).
+    - >-
+      Primary buyers/influencers: Cutting Room Managers, Industrial
+      Engineering/IE heads, Production Planners, Operations Directors, CIO/IT
+      for integration sign-off.
+  channels:
+    - >-
+      Direct sales to Operations/IE heads at Tier-1 factories in Bangladesh,
+      Vietnam, India, Turkey, Mexico; target lists from industry directories and
+      trade associations.
+    - >-
+      Channel partnerships with regional CAD/CAM resellers, MES/ERP implementers
+      (e.g., WFX, Infor partners), and label/RFID providers for bundled
+      deployments.
+    - >-
+      Proof-of-Value (PoV) program: 4-week pilot on 2–3 styles, success criteria
+      pre-agreed (≥0.7% fabric savings vs. baseline and ≤2h/PO planning time).
+    - >-
+      Industry events and demo booths at Texprocess, Garment Tech Expo, PI
+      Apparel, DTG, IAF; conference workshops on shade and remnant optimization.
+    - >-
+      ROI calculator and case studies: interactive web tool to quantify savings
+      by fabric cost, units/month, and utilization uplift.
+    - >-
+      Localized GTM: bilingual pre-sales engineers; in-country implementation
+      partners; pricing in local currency where feasible.
+    - >-
+      Content and ABM: webinars, technical whitepapers on shade grouping and
+      remnant banks; targeted LinkedIn outreach to cutting room leaders.
+  revenueStreams:
+    - >-
+      SaaS subscription per site: Starter $1,250/month (up to 300k
+      pieces/month), Pro $2,500/month (up to 1M pieces/month), Enterprise custom
+      (>1M pieces/month, multi-site).
+    - >-
+      Volume add-on: $0.002–$0.004 per planned piece above tier cap or
+      $0.30–$0.60 per PO, whichever is preferred by customer.
+    - >-
+      Implementation/integration: one-time $8k–$40k per site depending on
+      connectors and on-prem/VPC needs.
+    - >-
+      Training and premium support: $3k/year per site for on-site refreshers and
+      priority SLAs.
+    - >-
+      Optional gain-share: 10–20% of verified fabric savings for first 6–12
+      months in lieu of or in addition to flat SaaS (used for PoV deals).
+  costStructure:
+    - >-
+      R&D: optimization/solver engineers, domain SMEs, QA; ~$120k–$180k per
+      FTE/year in blended cost.
+    - >-
+      Cloud/compute: solver workloads and data pipelines; $400–$2,000/month per
+      active site depending on data volume and on-prem offload.
+    - >-
+      Integrations/implementations: partner commissions (10–20%) and internal
+      solution engineers.
+    - >-
+      Sales and marketing: events, demos, PoV support; CAC target $18k–$30k per
+      enterprise site.
+    - 'Customer success: on-site visits, training content, bilingual support.'
+    - 'Compliance/security: VPC support, audits, data protection, backups.'
+    - General and administrative.
+  keyMetrics:
+    - >-
+      Fabric utilization improvement vs. baseline (%): target +0.7 to +1.5
+      points within 8 weeks; audited per style and fabric type.
+    - >-
+      Remnant ratio >10m (or >8m as defined) as % of total fabric issued: target
+      ≤1.5% within 3 months.
+    - >-
+      Planner productivity: median planning time per PO reduced to ≤20 minutes;
+      target ≥70% plans auto-approved without manual edits.
+    - >-
+      Plan adherence: ≥90% of lays executed as planned; ≤5% of lays require
+      replan due to exceptions.
+    - >-
+      Shade-related quality issues: ≤0.1% bundles flagged for shade mixing; zero
+      shade-related rejects per AQL audits.
+    - >-
+      On-time cut readiness: ≥95% of POs reach cutting on or before planned
+      start date.
+    - >-
+      System uptime ≥99.5%; plan generation time p95 ≤5 minutes per PO; plan
+      acceptance rate ≥80% by month 3.
+    - 'Commercial KPIs: payback period ≤3 months; LTV/CAC ≥4; Gross margin ≥75%.'
+storyBrand:
+  character: >-
+    Cutting room managers and production planners at in-house apparel
+    manufacturers (non-contractors) who need fast accurate cut order plans and
+    maximum fabric yield
+  problem: >-
+    Manual COP is slow and error prone. Matching shades and allocating variable
+    roll lengths across sizes and lays creates excess remnants re-cuts and late
+    POs
+  guide: >-
+    COP Agent is an AI planner built for cut and sew apparel. It splits POs into
+    optimal lays and lots, allocates rolls by shade group, and minimizes
+    remnants with proven optimization
+  plan: >-
+    1 Connect POs BOMs size runs and roll inventory. 2 Auto-generate cut plans
+    with shade groups lays lots and roll pull lists. 3 Review fine-tune approve
+    and release to cutting and ERP
+  callToAction: Book a demo or start a two-week pilot with your live POs and roll data
+  success: >-
+    Plan in minutes not hours, boost fabric yield 1-3%, cut remnants up to 50%,
+    eliminate shade mismatches, stabilize lead times, and gain traceability from
+    roll to bundle
+  failure: >-
+    Without COP Agent you keep wasting fabric and labor, fighting shade issues,
+    missing ship dates, and eroding margins with manual spreadsheets and
+    guesswork
+landingPage:
+  hero:
+    title: Cut Order Planning (COP) Agent
+    subtitle: >-
+      Auto-splits POs into lays and lots, allocates rolls by shade, and
+      minimizes remnants—end to end.
+    ctaText: Get a demo
+    ctaHref: /demo
+  problem:
+    - Manual spreadsheets slow planning and cause errors
+    - Shade/roll mixing issues lead to rework and claims
+    - High remnants and fabric waste inflate cost
+    - Poor cut-table utilization and missed ship dates
+    - Planner bottlenecks when POs or inventory change
+    - Limited visibility into fabric utilization and KPIs
+  solution:
+    - AI generates optimal lays and lots from your POs in minutes
+    - 'Roll allocation by shade group, width/length, shrinkage, and QC flags'
+    - Remnant-minimizing optimization with configurable policies
+    - 'Respects table length, max plies, end loss, and marker constraints'
+    - Capacity-aware sequencing by table and shift calendars
+    - 'One-click exports: lay plans, roll plans, bundle maps, and cut tickets'
+  features:
+    - >-
+      PO-to-Plan: import styles, colors, size ratios; auto-generate cut numbers
+      and lay charts
+    - >-
+      Roll-aware allocation: shade groups, width variance, length, end loss,
+      shrinkage, and fabric inspection data
+    - >-
+      Marker pairing and lay building: link marker library, n-up options, max
+      plies, table length
+    - >-
+      Remnant control: target remnant lengths, reuse rules, and consolidation
+      across POs
+    - >-
+      Capacity scheduling: table availability, shifts, due dates, and
+      priority-based sequencing
+    - >-
+      What-if scenarios: compare policies (shade strictness, ply limits, remnant
+      targets) with KPI deltas
+    - >-
+      Outputs ready for floor: Lay Plan, Roll Plan, Spreading Sheet, Bundle Map,
+      Cut Tickets, and barcodes
+    - >-
+      Integrations: ERP/PLM/MES/WMS; export to Gerber/Lectra/Optitex, Excel,
+      PDF, and API
+    - >-
+      Live KPIs: fabric utilization %, remnants (m), number of lays, hours by
+      table, on-time risk
+    - 'Governance: approvals, versioning, audit log, and role-based access'
+  steps:
+    - Connect ERP and fabric roll inventory (API or SFTP)
+    - >-
+      Set planning rules: shade policy, remnant targets, table constraints, max
+      plies
+    - Select or upload POs and markers
+    - Generate plan and review KPIs and exceptions
+    - 'Approve and release lay plans, roll plans, and tickets to cutting'
+    - Track execution and continuously improve with feedback and analytics
+---
+# COP Agent — AI Cut Order Planning for Apparel Manufacturers
+
+Industry: Cut and Sew Apparel Manufacturing (except Contractors)
+Service: Cut Order Planning (COP) Agent

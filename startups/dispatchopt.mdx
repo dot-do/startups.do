@@ -1,0 +1,310 @@
+---
+name: DispatchOpt AI
+slug: dispatchopt
+service:
+  title: Daily Dispatch and Route–Load Assignment Optimizer
+  description: >-
+    Optimizes same-day local specialized loads to trucks/equipment with time
+    windows, certs, and constraints; live re-optimizes on disruptions.
+  targetUsers:
+    - Dispatchers
+    - Operations managers
+    - Small–mid specialized local fleets
+  triggers:
+    - New orders drop from TMS/EDI/email
+    - Driver/equipment availability change
+    - Hotshot request
+    - Road closure/traffic spike
+  inputs:
+    - 'Orders (pickup/delivery, time windows, commodity, weight/dimensions)'
+    - >-
+      Fleet roster (equipment: flatbed, reefer, tanker, hazmat classes,
+      liftgate/boom)
+    - Driver HOS and certifications
+    - Customer service times and priorities
+    - Traffic/weather
+  steps:
+    - Ingest orders from TMS/EDI/email; geocode and validate addresses
+    - 'Pull truck/driver availability, HOS, equipment and cert constraints'
+    - 'Build VRP with time windows, capacity, compatibility (hazmat/reefer/heavy)'
+    - Run optimizer and present plan with KPIs and alternatives
+    - Publish assignments and ETAs to drivers; push to TMS
+    - Monitor GPS; detect exceptions; re-optimize and notify stakeholders
+  tools:
+    - 'Google Maps Platform/Mapbox (matrix, traffic)'
+    - OR-Tools/OptaPlanner
+    - Samsara/Geotab/Verizon Connect (ELD/GPS/HOS)
+    - AscendTMS/McLeod/Truckbase (APIs)
+    - Twilio/WhatsApp/Email
+    - OpenWeather
+  outputs:
+    - Driver assignments and stop sequences
+    - Shareable turn-by-turn links and ETAs
+    - Exception list and re-plan suggestions
+    - Utilization and empty miles report
+  pricingModel:
+    - 'Setup: $1,000–$3,000 (integrations)'
+    - 'Subscription: $15–$40 per active truck/month'
+    - 'Alt: $1–$3 per routed load'
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 4
+    overall: 4.5
+  risks:
+    - Bad/late order data hurts plans
+    - 'Missing constraint (e.g., hazmat cert) could cause service failure'
+    - Driver adoption/communication gaps
+  dependencies:
+    - TMS and telematics API access
+    - Driver contact channel (SMS/app)
+    - Accurate equipment/cert data
+leanCanvas:
+  problem:
+    - >-
+      Manual daily dispatch for local specialized freight (hazmat, heavy haul,
+      tankers, cranes, concrete pumps, roll-off) takes 1–3 hours and is
+      error-prone, causing 5–12% missed/slipped time windows and 10–20% empty or
+      out-of-route miles.
+    - >-
+      Incorrect skill/cert/equipment assignment (e.g., hazmat, TWIC, crane
+      certification, escort-car, axle/weight limits) leads to trip aborts and
+      rework on 1–3% of loads, with average $350–$1,200 per incident.
+    - >-
+      Real-time disruptions (job cancellations, site delays, traffic, weather,
+      driver sick calls, equipment breakdown) are handled by phone/text, not
+      systems, causing 30–60 minutes of latency before replan and 8–15% overtime
+      overages.
+    - >-
+      Most TMS/telematics tools lack advanced constraint-based optimization.
+      Fleets resort to whiteboards/spreadsheets, producing 10–15% utilization
+      gaps (loads per truck/day) and dispatchers maxed at 25–40 trucks/person.
+    - >-
+      Compliance risks: improper placarding/routes, restricted roads, and
+      union/shift rule violations expose fleets to fines and safety incidents;
+      rules aren’t codified into planning tools.
+    - >-
+      Customers increasingly demand narrow delivery windows and live ETAs;
+      current systems can’t maintain 95%+ on-time performance without costly
+      buffer padding.
+  solution:
+    - >-
+      Constraint-based route–load assignment optimizer (VRP with time windows,
+      capacities, skills/certs, union/shift rules, axle/weight and road
+      restrictions).
+    - >-
+      Live re-optimization engine that consumes telematics/ELD pings, job
+      status, traffic, weather, cancellations, and equipment availability to
+      replan in under 2 minutes.
+    - >-
+      Cert/skill and equipment-matching rules engine: hazmat, TWIC,
+      RFI/restricted sites, crane class, pump length, escort requirements,
+      placarding, spill kits, PPE.
+    - >-
+      What-if simulation sandbox to test tomorrow’s jobs, weather scenarios, and
+      equipment outages; ROI reporting on miles, dwell, overtime, and service
+      level.
+    - >-
+      Driver app/portal integration: turn-by-turn compliant routing, stop
+      sequence, required docs, site notes, checklists; customer ETA links and
+      geofenced arrival/departure.
+    - >-
+      Plug-in connectors for major TMS/ELD/telematics and permitting systems;
+      API-first for custom data flows and automated job import.
+  uniqueValueProp: >-
+    Increase loads per truck per day and on-time performance with an AI
+    optimizer built for specialized local freight constraints (skills/certs,
+    permits, axle weights, escorts, union rules) that re-optimizes live within
+    minutes of disruptions—reducing miles, overtime, and compliance risk.
+  unfairAdvantage: >-
+    A domain-trained, compliance-aware optimizer with a prebuilt library of
+    specialized freight constraints (hazmat routing, axle/weight, escorts,
+    union/shift rules, multi-crew, tank compartments) and sub-2-minute live
+    re-optimization—plus native integrations to top telematics/TMS platforms and
+    proprietary heavy-vehicle ETA/dwell models built from local specialized
+    operations data.
+  customerSegments:
+    - >-
+      Mid-market local specialized carriers (10–300 trucks) in NAICS 484220:
+      tank trucks (fuel, chemicals), heavy haul/flatbed with permits/escorts,
+      crane & rigging, roll-off/waste, construction materials, industrial gases.
+    - >-
+      Private/dedicated fleets for utilities, petroleum marketers, building
+      materials, and industrial distributors operating within a metro radius
+      (≤150 miles).
+    - >-
+      Operations personas: dispatchers, planners, terminal managers,
+      DOT/compliance officers, fleet owners/COOs, customer service leads.
+  channels:
+    - >-
+      Direct sales to mid-market fleets via targeted outbound to NAICS 484220
+      lists; account-based marketing focused on 25–300 truck carriers in top 50
+      MSAs.
+    - >-
+      Partner co-sell through telematics marketplaces (Samsara, Geotab, Motive)
+      and TMS partners (McLeod, Rose Rocket, Axon).
+    - >-
+      Industry associations and events: NTTC (tank trucks), SC&RA (heavy
+      haul/rigging), NPTC (private fleets), state petroleum marketer
+      associations; speaking + demos + sponsored case studies.
+    - >-
+      Digital demand gen: ROI calculator, case studies, and dispatcher workflow
+      content; LinkedIn ads targeting operations titles; webinars with partners
+      on “Reducing Overtime and Missed Windows.”
+    - >-
+      Pilot-led GTM: 6–12 week paid pilots with ROI guarantees; lighthouse logos
+      in fuel, industrial gases, crane/rigging, and roll-off.
+    - >-
+      Referral incentives for consultants and compliance advisors; integration
+      listing pages and joint PR on customer wins.
+  revenueStreams:
+    - >-
+      SaaS subscription per active truck: Starter $99/truck/month (min $499),
+      Pro $199/truck/month (min $1,499), Enterprise custom; annual contracts
+      preferred with volume discounts.
+    - >-
+      Add-on modules: compliance-aware routing +$25/truck/month; what-if
+      simulation +$10/user/month; premium SLA/alerts +$10/truck/month.
+    - >-
+      Implementation/onboarding: $3,000–$20,000 depending on integrations and
+      data migration; optional process redesign package.
+    - >-
+      Overage/compute fees for high-frequency optimization beyond plan (e.g.,
+      >12 re-optimizations/vehicle/day) to align with power users.
+    - >-
+      Professional services: data cleanup, custom constraints, KPI benchmarking
+      audits.
+    - White-label/embedded licensing for TMS/telematics partners (rev share).
+  costStructure:
+    - >-
+      R&D and product: routing/optimization engineers, data scientists,
+      backend/frontend engineers, UX; 10–18 FTEs year 1–2.
+    - >-
+      Cloud infrastructure and data: compute for optimization, event streaming,
+      managed DBs; $0.30–$1.20 per active truck/day depending on re-optimization
+      frequency.
+    - >-
+      Data licensing: road restrictions, low clearances, hazmat routes, traffic;
+      $50k–$250k annually by territory/volume.
+    - >-
+      Sales & marketing: SDRs/AEs, partner marketing, events, digital ads,
+      collateral; CAC target $8k–$20k per mid-market account.
+    - >-
+      Customer success & support: onboarding specialists, solutions architects,
+      24/7 ops for high-SLA customers.
+    - >-
+      Compliance/legal and insurance: product liability, cyber, contracts with
+      enterprise customers.
+  keyMetrics:
+    - >-
+      Deployment metrics: time-to-first-plan (<10 days), time-to-full adoption
+      (<45 days), active dispatcher seats, DAU/WAU of planner UI (>70% weekly).
+    - >-
+      Planning efficiency: dispatcher planning time per day (target reduction
+      60–80%), optimization run time (<2 minutes incremental).
+    - >-
+      Operational KPIs: on-time % (target ≥95%), empty miles % (reduce 7–12%),
+      miles/stop (reduce 5–10%), loads/truck/day (+0.2–0.5), average dwell
+      (reduce 5–15%).
+    - >-
+      Labor cost: overtime % (reduce 8–15%), routes violating union/shift rules
+      (near-zero), dispatcher-to-truck ratio (improve 20–40%).
+    - >-
+      Compliance/safety: missed-cert incidents per 1,000 loads (reduce 60–90%),
+      restricted-road violations (near-zero).
+    - >-
+      Financial: gross margin (≥75% SaaS), ARPA (>$2,500/month mid-market), logo
+      churn (<8% annually), net revenue retention (≥120%), LTV/CAC (≥3.5x) and
+      payback (<12 months).
+    - >-
+      Reliability: uptime (≥99.9%), data latency from telematics (<60 seconds),
+      re-optimization success rate (>98%).
+storyBrand:
+  character: >-
+    Local specialized-freight dispatchers and ops leaders who must match
+    certified drivers and equipment to same-day loads and hit every time window.
+  problem: >-
+    Constant last-minute changes, tight windows, and strict certifications and
+    equipment constraints make manual dispatch slow and error-prone—leading to
+    missed appointments, idle assets, and stressed teams.
+  guide: >-
+    We understand same-day specialized freight chaos. Our AI co-pilot
+    continuously assigns and re-optimizes loads to certified drivers and
+    equipment in real time, honoring windows, compliance, and business
+    rules—even when loads change, trucks break, or traffic hits.
+  plan: >-
+    1) Connect TMS/ELD, load feeds, and maps; 2) Configure windows, certs,
+    equipment, service times, and rules; 3) Go live with dispatcher-in-the-loop
+    or auto-assign and live re-optimization; 4) Review KPIs and fine-tune
+    weekly.
+  callToAction: Schedule a 30-minute dispatch assessment and start a 14-day live pilot.
+  success: >-
+    On-time pickups and deliveries, higher utilization, less deadhead and
+    overtime, auditable compliance, calmer dispatch, and happier customers.
+  failure: >-
+    Ongoing firefighting, missed windows, compliance risk, rush fees and
+    overtime, lost customers, and dispatcher burnout.
+landingPage:
+  hero:
+    title: Daily Dispatch & Route–Load Optimizer for Local Specialized Freight
+    subtitle: >-
+      Auto-assign same-day specialized loads to the right truck, certified
+      driver, and equipment—within time windows. Live re-optimization for
+      Specialized Freight (except Used Goods), Local.
+    ctaText: Get a Demo
+    ctaHref: /demo
+  problem:
+    - Manual dispatching can’t keep up with same-day changes
+    - 'Conflicting time windows, dock hours, and city restrictions cause misses'
+    - Driver/equipment certifications and permits are easy to overlook
+    - Empty miles and idle time waste capacity and fuel
+    - 'Last-minute adds, cancellations, and delays derail plans'
+    - Limited visibility into ETAs and customer-impacting risks
+    - 'Compliance risks around HOS, hazmat, temp control, and axle weights'
+    - Dispatchers spend hours reshuffling instead of serving customers
+  solution:
+    - >-
+      AI assigns loads to eligible drivers, tractors, and trailers with
+      time-window compliance
+    - Optimizes multi-stop routes and sequences to cut miles and dwell
+    - 'Enforces certifications, permits, equipment, and commodity rules by design'
+    - 'Continuously re-optimizes when traffic, delays, or breakdowns hit'
+    - Keeps dispatchers in control with transparent scores and manual overrides
+    - Shares live ETAs and exceptions with customers and ops
+    - 'Integrates with TMS, ELD/telematics, maps, and appointment systems'
+    - 'Improves on-time performance, utilization, and dispatcher productivity'
+  features:
+    - >-
+      Eligibility engine for certs, permits, endorsements, and equipment
+      capabilities
+    - 'Time windows, dock hours, service times, and SLA priorities'
+    - 'Capacity, axle weight, volume, and temperature constraints'
+    - Multi-stop routing and load consolidation with optimal sequencing
+    - Local HOS/short-haul and break compliance checks
+    - Live ETAs with traffic-aware updates (via integrations)
+    - 'Real-time re-optimization on adds, cancels, delays, and breakdowns'
+    - Manual drag-and-drop with rule guardrails and instant impact scores
+    - What-if scenarios and side-by-side plan comparison
+    - Hot load prioritization and exception workflows
+    - Appointment scheduling alignment and gate/queue constraints
+    - 'Geo-fencing, arrival detection, and dwell tracking'
+    - 'Driver mobile app for stops, messages, POD, and docs'
+    - One-click dispatch and status sync to your TMS
+    - 'APIs, webhooks, and flat-file imports for rapid connectivity'
+    - Audit trail with reason codes for every change
+    - 'KPI dashboards: on-time %, utilization, empty miles, dwell, rework'
+    - Customer ETA links and notifications branded to your fleet
+    - 'Hazmat, oversize/overweight, liftgate, and specialty handling rules'
+    - 'Configurable zones, service areas, and city restriction rules'
+  steps:
+    - 'Connect loads, drivers, equipment, and constraints via API or file'
+    - 'Set rules: time windows, certifications, priorities, and service times'
+    - Generate the daily plan and auto-assign routes in minutes
+    - Dispatch to drivers and share ETAs with customers
+    - Monitor execution; system re-optimizes as conditions change
+    - 'Review KPIs, adjust rules, and continuously improve'
+---
+# DispatchOpt AI
+
+Industry: Specialized Freight (except Used Goods) Trucking, Local
+Service: Daily Dispatch and Route–Load Assignment Optimizer

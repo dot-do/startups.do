@@ -1,0 +1,333 @@
+---
+name: FloatOpt Advisory
+slug: floatopt
+service:
+  title: Float Furnace + Lehr Energy/Throughput Optimizer (Advisory)
+  description: >-
+    Detects energy-intensity drift and suggests safe, incremental setpoint
+    adjustments for pull/temperature/lehr zones to reduce kWh/ton while
+    maintaining quality.
+  targetUsers:
+    - Process engineers
+    - Ops managers
+    - Energy managers
+  triggers:
+    - Hourly schedule
+    - Energy price change detected
+    - Pull-rate change > X%
+    - Weekly review
+  inputs:
+    - >-
+      Historian tags: furnace temps by zone, electric boost, gas flow, tin-bath
+      temps, lehr zones, pull rate
+    - Batch/cullet ratio and batch chemistry
+    - Ambient conditions
+    - Energy prices/tariffs
+    - Production grade/width
+  steps:
+    - Securely pull time-series from historian/SCADA via API
+    - Clean/align tags; compute energy intensity and derived features
+    - Forecast baseline energy/throughput with ML model
+    - Flag anomalies and quantify contribution (SHAP)
+    - Run what-if simulation within guardrails to propose setpoint deltas
+    - Generate advisory with predicted savings/risks; route to approver
+    - Log actions and realized savings for model retraining
+  tools:
+    - OSIsoft PI Web API or Aveva Insight
+    - OPC UA via Ignition/Kepware (read-only)
+    - 'Python (pandas, scikit-learn/XGBoost, Prophet)'
+    - SHAP for explainability
+    - Power BI/Grafana for dashboards
+    - Email/Slack/Teams webhooks
+  outputs:
+    - Real-time anomaly alerts with root-cause drivers
+    - Advisory setpoint deltas with expected kWh/ton change
+    - Weekly savings and stability report (PDF/BI)
+    - API/CSV of recommendations and KPIs
+  pricingModel:
+    - One-time setup + per-line monthly subscription
+    - Optional performance fee based on verified energy savings
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 7
+    modelCapability: 7
+    overall: 7
+  risks:
+    - Unsafe or non-compliant recommendations if guardrails are weak
+    - Historian data gaps or bad tags
+    - IT/OT access restrictions
+    - Operator adoption/change management
+  dependencies:
+    - Read-only historian access (VPN/DMZ)
+    - Energy price data source
+    - Documented SOP limits for guardrails
+    - SME review process
+leanCanvas:
+  problem:
+    - >-
+      Energy-intensity drift across furnace, tin bath, and lehr zones goes
+      undetected for weeks as refractory ages, cullet ratio fluctuates, and
+      ambient conditions change, leading to 3–10% higher kWh/ton than necessary.
+    - >-
+      Operators rely on static recipes and rules-of-thumb; incremental setpoint
+      optimization is slow and inconsistent across shifts, risking quality if
+      pushed too aggressively.
+    - >-
+      Existing APC/controls focus on stability, not continuous energy-throughput
+      optimization under explicit quality constraints (optical defects,
+      thickness variation, stress/anisotropy).
+    - >-
+      Lehr settings (zone temperatures/speed) are typically conservative to
+      avoid breakage, leaving throughput gains on the table and increasing
+      annealing energy per ton.
+    - >-
+      Lack of unified, trustworthy M&V makes it hard to quantify savings, secure
+      budget, or replicate wins across lines and plants.
+    - >-
+      Data is siloed across DCS/PLC, historian, QA systems; no operator-facing
+      decision support that explains why a change is safe and what impact to
+      expect.
+  solution:
+    - >-
+      Secure data connectors to DCS/PLC/historians (OPC UA, PI, Aspen
+      InfoPlus.21) for real-time pull, zone temperatures, boost, O2/fuel, lehr
+      temps/speed, energy meters, QA and defect logs.
+    - >-
+      Multivariate drift detection models benchmark current operation vs.
+      line-specific baselines normalized for pull, cullet ratio, batch
+      chemistry, and ambient conditions.
+    - >-
+      Physics-informed ML recommender produces safe, incremental setpoint
+      advisories (e.g., ±2–5°C to specific zones, ±0.1–0.3% O2 trim, lehr
+      ramp/speed changes), with predicted deltas on kWh/ton, CO2e/ton, pull, and
+      risk to quality KPIs.
+    - >-
+      Operator co-pilot UI: ranked recommendations with confidence, guardrails
+      (ramp-rate limits, max deviation from qualified recipes), and one-click
+      implementation notes for the DCS.
+    - >-
+      Sandbox “what-if” simulator using surrogate furnace/lehr models to test
+      combined changes offline before live advisory.
+    - >-
+      Automated M&V using IPMVP Option C with CUSUM, normalizing for pull,
+      cullet %, and product mix; monthly verified savings reports suitable for
+      incentive programs/ETS.
+    - >-
+      Change management and audit trail: who accepted which suggestion,
+      time-to-implement, resulting KPI shifts; feedback loops improve models.
+  uniqueValueProp: >-
+    Reduce float furnace + lehr specific energy by 3–8% and increase safe pull
+    by 1–3% within 8–12 weeks, while maintaining first-quality yield, through an
+    AI advisory that detects drift and recommends guardrailed, incremental
+    setpoint changes with transparent impact forecasts and auditable savings.
+  unfairAdvantage: >-
+    A domain-specific, safety-guardrailed advisory engine for the combined
+    furnace–lehr system with transfer learning across float lines, OEM-aligned
+    constraints, and audited M&V proving savings—enabling fast, low-risk
+    adoption and repeatable ROI.
+  customerSegments:
+    - >-
+      Primary: Flat glass manufacturers operating float lines (corporate
+      operations, plant managers, furnace superintendents, lehr engineers,
+      energy managers).
+    - >-
+      Tier-1 producers with global footprints (10–60 lines) seeking standardized
+      energy optimization and decarbonization KPIs.
+    - >-
+      Mid-size regional producers (1–5 lines) with constrained
+      process-engineering bandwidth and high exposure to energy price
+      volatility.
+    - >-
+      Corporate sustainability/CFO teams pursuing Scope 1 CO2 reductions and
+      energy cost savings with auditable M&V.
+    - >-
+      OEMs and rebuilders (furnace/lehr) looking to differentiate with
+      data-driven performance advisory bundles.
+  channels:
+    - >-
+      Direct enterprise sales to top 20 global float producers with
+      land-and-expand pilots (1–2 lines) then rollouts across networks.
+    - >-
+      Partnerships with furnace/lehr OEMs and rebuilders to bundle advisory in
+      hot repairs and cold-overhauls.
+    - >-
+      Alliances with DCS/historian vendors and system integrators for rapid,
+      low-friction data integration.
+    - >-
+      Thought leadership and case studies at Glasstec, Glassman, GPD;
+      publications in Glass International/Glass Worldwide.
+    - >-
+      Targeted ABM campaigns to plant managers/energy leaders in Europe and MENA
+      (high energy/CO2 cost), followed by APAC/AMER.
+    - >-
+      Performance-based pilots co-funded by utilities/ESCOs and decarbonization
+      grants; third-party M&V (DNV/TÜV) to build credibility.
+  revenueStreams:
+    - >-
+      SaaS subscription per line: $12k–$30k/month depending on scope (furnace
+      only vs. furnace+lehr), number of tags, and deployment model.
+    - >-
+      One-time integration/onboarding fee per line: $50k–$150k (includes data
+      integration, model calibration, and operator training).
+    - >-
+      Shared-savings fee of 10–20% on verified energy savings for first 12–24
+      months, optionally replacing part of SaaS in pilot phase.
+    - >-
+      Enterprise license for fleets (10+ lines) with volume discounts and
+      centralized analytics add-on.
+    - >-
+      Professional services: advanced what-if studies, lehr recipe optimization
+      for new products, operator upskilling workshops.
+    - >-
+      Carbon reporting module (CO2e/ton, ETS readiness) as an add-on
+      subscription.
+  costStructure:
+    - >-
+      R&D team (process engineers, data scientists, software engineers) and
+      domain SMEs; ongoing model development and validation.
+    - >-
+      Implementation services: integration engineers, site visits, cybersecurity
+      hardening, operator training.
+    - >-
+      Cloud/edge compute, data storage, and observability; optional on-prem
+      appliances.
+    - >-
+      Third-party certifications and M&V audits; liability and product
+      insurance.
+    - >-
+      Sales and marketing (enterprise sales cycles, conferences, case study
+      production).
+    - Customer success and 24/7 support for multi-region operations.
+    - Partner commissions (OEM/SI) and continued connector maintenance.
+  keyMetrics:
+    - >-
+      Energy performance: SEC reduction (%) vs. normalized baseline; target 3–8%
+      in 90 days, stretch 10–12% with electric boost-heavy operations.
+    - >-
+      Throughput: sustained pull increase 1–3% without quality degradation;
+      measure average t/d and variance.
+    - >-
+      Quality: first-quality yield ≥98.5% (no degradation); thickness Cpk,
+      defect ppm, stress birefringence within control limits.
+    - >-
+      Adoption: operator suggestion acceptance rate ≥60% by month 2, ≥75% by
+      month 4; mean time to implement (MTTI) <2 hours on day shift, <6 hours
+      across all shifts.
+    - >-
+      Reliability: advisory service uptime ≥99.5%; false-positive advisory rate
+      <5% after month 3.
+    - >-
+      Financial: verified savings per line $250k–$1.2M/year depending on energy
+      prices and line capacity; payback <4 months on pilots.
+    - >-
+      Safety/compliance: zero process upsets attributable to advisories; all
+      changes within defined ramp-rate and recipe guardrails (100% compliance).
+storyBrand:
+  character: >-
+    Float glass plant managers and furnace/lehr engineers who want to cut
+    kWh/ton and stabilize throughput without risking optical quality or ribbon
+    stability.
+  problem: >-
+    Energy intensity drifts with batch/cullet mix, ambient swings, and aging
+    refractories while manual tuning can’t keep up. Teams feel pressure to save
+    energy but fear breakage or defects from aggressive moves. Wasting energy to
+    make world‑class glass shouldn’t be the industry norm.
+  guide: >-
+    We’ve run hot ends and lehrs—so we design AI that respects furnace reality.
+    Our process-first, physics-informed models and conservative constraints
+    provide safe, operator-trusted advice backed by transparent reasoning.
+  plan: >-
+    1) Connect read-only to historian/PLC to baseline energy and quality
+    envelopes. 2) Calibrate models and guardrails; issue small, auditable
+    setpoint recommendations (pull/temperature/lehr zones) with rationale and
+    ramp limits. 3) Operators review/accept; weekly optimization reviews;
+    continuous learning with quality-first constraints and human-in-the-loop
+    control.
+  callToAction: >-
+    Direct: Book a feasibility assessment and single-line pilot using your data.
+    Transitional: Request a live demo on historical runs and a savings/quality
+    guardrail briefing.
+  success: >-
+    Lower kWh/ton and CO2, steadier ribbon and defect rates, maintained spec,
+    incremental throughput gains within limits, fewer fire drills, and
+    institutionalized best-practice playbooks across shifts with audit-ready
+    results.
+  failure: >-
+    Energy and emissions continue creeping up, tuning remains tribal and
+    reactive, operator load and risk rise, quality excursions threaten orders,
+    and corporate targets slip.
+landingPage:
+  hero:
+    title: AI Energy & Throughput Optimizer for Float Furnaces and Lehrs
+    subtitle: >-
+      Detects energy-intensity drift and proposes safe, incremental setpoint
+      changes to cut kWh/ton while protecting glass quality.
+    ctaText: Request a demo
+    ctaHref: /request-demo
+  problem:
+    - 'Energy use drifts over time, raising kWh/ton without obvious alarms.'
+    - Conservative setpoints leave savings and capacity on the table.
+    - 'Manual tuning is slow, subjective, and risky for ribbon stability.'
+    - 'Lehr profiles are rarely updated, causing over-annealing or bottlenecks.'
+    - Plant data exists but isn’t converted into actionable setpoint guidance.
+    - Proving changes safely requires shadow mode and clear guardrails.
+  solution:
+    - >-
+      Continuously tracks energy-intensity against a live baseline to flag
+      drift.
+    - >-
+      Advises small, safe setpoint moves for pull, furnace zones, and lehr
+      zones.
+    - Optimizes for energy per ton while enforcing strict quality constraints.
+    - >-
+      Runs in shadow mode first; operators approve changes with full
+      explainability.
+    - >-
+      Learns line-by-line behavior to adapt to cullet, campaigns, and ambient
+      shifts.
+    - Delivers measurable reductions in kWh/ton and stable throughput gains.
+  features:
+    - Energy drift detection with dynamic baselines by product and pull rate.
+    - >-
+      Advisor for furnace temperature profiles, crown/port balance, and pull
+      setpoints.
+    - >-
+      Lehr annealing profile optimization to remove excess soak while
+      maintaining stress targets.
+    - >-
+      Quality guardrails: thickness, flatness, top/bottom deltas, edge curl,
+      optical defect risk.
+    - >-
+      Explainable recommendations with predicted impact on kWh/ton and
+      constraints.
+    - Shadow mode and what-if simulator before enabling advisory in production.
+    - >-
+      Operator workflow: approve, schedule, or revert recommendations with one
+      click.
+    - >-
+      Automatic rollback thresholds if quality KPIs or stability metrics
+      deviate.
+    - 'Vendor-agnostic: leverages existing historian, PLC/SCADA, and lab QA data.'
+    - >-
+      Edge + cloud architecture; secure, low-latency, offline-tolerant
+      operation.
+    - Multi-furnace benchmarking and campaign-aware models.
+    - >-
+      Automated reports: energy/ton, throughput, yield, CO2 per batch, and
+      savings attribution.
+    - 'Role-based access, audit trails, and change logs for compliance.'
+    - >-
+      Rapid deployment: connectors for OSIsoft PI, Wonderware, Ignition, and OPC
+      UA.
+  steps:
+    - Connect historian and QA data; map tags and define constraints and KPIs.
+    - Establish energy-intensity baselines by product mix and pull windows.
+    - Run in shadow mode to compare advice vs. actuals with zero process risk.
+    - Review and tune guardrails with process engineers and QA.
+    - Go live with incremental setpoint advisories and operator approvals.
+    - 'Track savings, throughput, and quality weekly; refine models continuously.'
+---
+# FloatOpt Advisory
+
+Industry: Flat Glass Manufacturing
+Service: Float Furnace + Lehr Energy/Throughput Optimizer (Advisory)

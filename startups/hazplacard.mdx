@@ -1,0 +1,335 @@
+---
+name: HazPlacard.ai
+slug: hazplacard
+service:
+  title: Hazmat Documentation Validator and Placard Planner
+  description: >-
+    Parses BOL/SDS, validates shipping descriptions, segregation, and suggests
+    required placards and emergency info for local hazmat moves.
+  targetUsers:
+    - Hazmat carriers
+    - Compliance officers
+    - Dispatchers
+  triggers:
+    - New hazmat load added
+    - BOL/SDS received/updated
+  inputs:
+    - BOL and SDS (PDF/email/photo)
+    - Container type and quantity
+    - Truck/equipment configuration
+    - Route jurisdictions
+  steps:
+    - 'Extract UN/NA, proper shipping name, class, PG, RQ from docs'
+    - Check 49 CFR Table 172.101 and segregation charts
+    - Determine placards/labels and quantity limits
+    - Flag routing restrictions/tunnels
+    - Generate shipping papers and emergency response info packet
+  tools:
+    - OCR (Veryfi/AWS Textract)
+    - PHMSA Hazmat Table datasets
+    - ERG reference
+    - Rule engine for segregation
+  outputs:
+    - Validated hazmat shipping papers
+    - Placarding checklist
+    - Emergency info sheet
+  pricingModel:
+    - 'Per load: $15–$40'
+    - 'Bundle: $199–$499/month up to N loads'
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 4
+    overall: 4.5
+  risks:
+    - OCR errors on poor scans
+    - Regulatory liability if misclassified
+    - Carrier-specific policies vary
+  dependencies:
+    - Access to BOL/SDS
+    - Carrier SOPs for hazmat
+    - Up-to-date regulation datasets
+leanCanvas:
+  problem:
+    - >-
+      Manual hazmat checks are slow and error-prone: dispatchers and drivers
+      spend 8–20 minutes per load validating shipping descriptions, segregation,
+      and placards.
+    - >-
+      Regulatory complexity is high: 49 CFR 172/173/177 rules, the segregation
+      table (177.848), and placard thresholds change; small mistakes lead to
+      costly violations.
+    - >-
+      Mixed and multi-stop local routes create dynamic placarding/segregation
+      issues that spreadsheets and static checklists don’t handle well.
+    - >-
+      Roadside inspection risk: HM BASIC and Out-of-Service violations (e.g.,
+      wrong/missing placards, missing emergency response info) drive insurance
+      costs and lost time.
+    - >-
+      SDS/BOL formats vary (PDF, photos, EDI); staff turnover leads to
+      inconsistent quality and re-training costs.
+    - >-
+      Existing tools require manual data entry; they don’t parse BOL/SDS or
+      generate auditable evidence for inspectors.
+    - >-
+      Carriers lack a system of record to prove due diligence during audits,
+      incident investigations, or customer scorecard reviews.
+  solution:
+    - >-
+      Ingest BOL/SDS via upload, email-in, camera, or API; OCR/parse line items
+      to extract UN/NA, proper shipping name, hazard classes, subsidiary risks,
+      packing group, quantities, and packaging types.
+    - >-
+      Validate 49 CFR-required shipping paper elements (172.202–.203), emergency
+      response info (172.600–.604), and special provisions; flag omissions and
+      suggest corrections.
+    - >-
+      Run automated segregation checks using 177.848 (including subsidiary
+      risks) and incompatibility rules; highlight violations by stop/position.
+    - >-
+      Placard planner computes required placards (172 Subpart F) considering
+      bulk vs. non-bulk, Table 1/2, aggregate quantities, limited/small quantity
+      exceptions, and multi-stop changes.
+    - >-
+      Generate an “Inspector Pack”: printable/emailable summary with citations,
+      placard list, ERG references, and emergency phone verification for
+      roadside inspections.
+    - >-
+      Multi-stop optimizer: simulate stop order changes and on-truck mixing to
+      maintain compliance while minimizing placard swaps.
+    - >-
+      Audit trail + versioning: store parsed docs, validation results, CFR
+      version used, user actions, and timestamps for defensibility.
+    - >-
+      Integrations: TMS/ELD connectors to pull loads and push validation
+      results/placard instructions to dispatch and driver apps.
+    - >-
+      Continuous rules updates with change logs when PHMSA/DOT updates HMR;
+      optional state/local routing restrictions advisories for tunnels/bridges.
+    - >-
+      Admin analytics: violations by lane/customer/terminal; coaching insights
+      and training needs.
+  uniqueValueProp: >-
+    Instant, auditable hazmat validation from BOL/SDS to road-ready: reduce
+    placarding/segregation errors and inspection risk by 30%+ while cutting
+    dispatch validation time to under 1 minute per load.
+  unfairAdvantage: >-
+    Closed-loop learning from real inspections and shipper-specific documents
+    builds a unique, validated dataset tied to outcomes. Combined with a
+    CFR-versioned rules engine and multi-stop logic, this produces higher
+    accuracy and defensible audit trails competitors relying on manual entry or
+    generic OCR can’t match.
+  customerSegments:
+    - >-
+      Primary: Local hazmat carriers (NAICS 484220) operating tank trucks and
+      package vans for fuels, industrial gases, chemicals, paints/adhesives,
+      pool chemicals, cylinder deliveries.
+    - >-
+      Primary: Chemical/fuel distributors with private fleets running local
+      routes and shuttle moves between plants/terminals.
+    - >-
+      Secondary: 3PLs/brokers coordinating local hazmat drayage or last-mile
+      hazmat deliveries.
+    - >-
+      Secondary: Hazardous waste transporters (with added RCRA needs) for
+      local/regional pickups.
+    - >-
+      Influencers: Insurance carriers and risk managers seeking to reduce HM
+      BASIC violations and claims.
+    - >-
+      Influencers: TMS/ELD providers wanting value-add compliance features for
+      customers.
+  channels:
+    - >-
+      Direct sales to fleet safety/compliance managers and terminal managers in
+      top hazmat metros.
+    - >-
+      Partnerships/integrations with TMS/ELD vendors; co-selling and marketplace
+      listings.
+    - >-
+      Industry associations sponsorships and talks: NTTC (tank truck), COSTHA,
+      NACD, state trucking associations.
+    - Insurance carrier/broker referral programs and premium credits pilots.
+    - >-
+      Content-led growth: regulatory update briefs, placarding calculators, SDS
+      parsing demos; SEO for “placard calculator,” “177.848 segregation.”
+    - >-
+      Targeted outbound to carriers with recent HM BASIC percentile >50, using
+      public CSA data to craft ROI outreach.
+    - >-
+      Pilot programs with chemical distributors and fuel jobbers; case studies
+      and ROI guarantees.
+  revenueStreams:
+    - >-
+      SaaS subscription per terminal: Starter $199/mo, Pro $399/mo, Enterprise
+      custom (SSO, advanced analytics).
+    - >-
+      Usage-based per validated shipment: $0.05–$0.20 depending on volume; first
+      1,000 per month included in Pro.
+    - >-
+      API access for TMS partners: $0.03–$0.08 per line item parsed; minimum
+      monthly commit.
+    - >-
+      Onboarding and validation tuning: $2,500–$15,000 per fleet depending on
+      complexity/integrations.
+    - 'Premium support/SLA (24/7, 99.95%): +15–25% of subscription.'
+    - >-
+      Compliance services add-ons: quarterly audit reports, custom rule packs
+      (e.g., haz waste overlays).
+  costStructure:
+    - Core engineering and ML team (6–12 FTE) and regulatory SMEs (2–4 FTE).
+    - >-
+      Cloud/OCR/AI inference costs: $0.002–$0.01 per page parsed; GPU/CPU mix
+      for peak windows.
+    - Data labeling/annotation for hazmat docs; human-in-the-loop QA pool.
+    - >-
+      Sales and field implementation (AEs/SEs/CSMs); CAC payback target <12
+      months.
+    - >-
+      Security/compliance: SOC 2, penetration testing, logging/monitoring;
+      ~$75k–$200k annually.
+    - >-
+      Liability/E&O and cyber insurance; legal counsel for regulatory change
+      tracking.
+    - Partner/channel fees and marketplace rev share (10–30%).
+    - Customer support and training content; LMS tools.
+    - 'General and administrative: finance, HR, office, tooling.'
+  keyMetrics:
+    - >-
+      Parsing accuracy: UN/NA extraction ≥99.5%, hazard class ≥99%, PG ≥98%,
+      quantity/unit ≥97%.
+    - >-
+      Validation latency: median <5s, p95 <12s per shipment; Inspector Pack
+      generation <2s.
+    - >-
+      Coverage: % of shipments validated per terminal ≥85% within 90 days of
+      go-live.
+    - >-
+      Violation impact: 30% reduction in HM-related roadside violations within 6
+      months; 20% drop in Out-of-Service rate for HM inspections.
+    - >-
+      Time savings: reduce dispatcher validation time from baseline by ≥70%
+      (e.g., 10 min to 3 min).
+    - >-
+      User adoption: weekly active compliance users/terminal ≥5; driver views of
+      placard instructions/stop ≥90%.
+    - 'Uptime: ≥99.9% monthly; incident MTTR <1 hour.'
+    - >-
+      Customer economics: Gross margin ≥75%; NRR ≥115%; LTV/CAC ≥3; monthly logo
+      churn <2%.
+    - >-
+      Quality: human review rate <5% after 90 days; false-positive critical
+      alerts <1% of shipments.
+    - 'Security: zero critical vulnerabilities SLA; audit log completeness 100%.'
+storyBrand:
+  character: >-
+    Local specialized-freight carriers, dispatchers, drivers, and safety
+    managers moving hazardous materials who need to load, placard, and roll
+    without second-guessing the paperwork.
+  problem: >-
+    - External: Hazmat shipping descriptions, segregation, and placarding rules
+    are complex and easy to misinterpret on tight local schedules.
+
+    - Internal: Teams worry they’ll miss a detail and get cited at roadside or
+    during an audit.
+
+    - Philosophical: Safe, compliant delivery shouldn’t require a PhD in 49 CFR.
+  guide: >-
+    - Empathy: We know hazmat paperwork is stressful when docks are busy and
+    time is tight.
+
+    - Authority: Our validator uses rule logic aligned with DOT HMR (49 CFR) for
+    shipping descriptions, segregation/compatibility, and placarding—reviewed by
+    hazmat compliance professionals—so you get clear, actionable guidance.
+  plan: >-
+    Process Plan:
+
+    1) Upload or paste BOL/SDS (PDF, image, or text).
+
+    2) The AI extracts UN/NA, proper shipping name, class/division, packing
+    group, quantities, bulk/non‑bulk, and special provisions.
+
+    3) It validates descriptions, checks segregation, and recommends required
+    placards, markings, and ERG/emergency info.
+
+    4) You approve and export: corrected shipping descriptions, placard list,
+    driver brief, and inspection‑ready packet.
+
+    Agreement Plan:
+
+    - You stay in control—nothing updates without your approval.
+
+    - Data secured; audit trail retained.
+
+    - No long-term contracts; simple monthly pricing.
+  callToAction: >-
+    Direct: Start your free trial and validate your next hazmat load now.
+
+    Transitional: Book a 15‑minute demo or download the local hazmat move
+    checklist.
+  success: |-
+    - Correct placards and paperwork every time
+    - Fewer roadside citations and OOS orders
+    - Faster dock turns and less rework with shippers
+    - Audit-ready documentation and confident teams
+    - Safer drivers and communities
+  failure: >-
+    - Misdescriptions or wrong placards lead to fines, delays, repacks, OOS
+    orders, rejected loads, and higher liability during incidents or audits.
+landingPage:
+  hero:
+    title: Hazmat Documentation Validator & Placard Planner
+    subtitle: >-
+      AI that reads your BOL/SDS, validates shipping descriptions and
+      segregation, and outputs exact placards and emergency info for local
+      hazmat moves.
+    ctaText: Start free trial
+    ctaHref: /get-started
+  problem:
+    - 'Paperwork errors cause roadside violations, fines, and delays.'
+    - >-
+      Mixed loads make segregation and placarding hard to get right under 49
+      CFR.
+    - Manual BOL/SDS checks slow dispatch and tie up safety staff.
+    - Drivers leave the yard without the correct placards or ERG info.
+    - 'Compliance knowledge varies by shift, lane, and site.'
+  solution:
+    - Instant AI parse/validate of BOLs and SDSs against 49 CFR rules.
+    - Auto-build compliant shipping descriptions and ERG guide info.
+    - Segregation and compatibility checks for mixed hazmat loads.
+    - 'Precise placard plan with 1,001‑lb and substitution rules (DANGEROUS).'
+    - 'One-click export to drivers, yard crews, and your TMS.'
+  features:
+    - 'Fast OCR from PDFs, photos, and scans; structured data output.'
+    - >-
+      Shipping description validator (PSN, UN/NA, Class/Div, PG, RQ,
+      inhalation).
+    - >-
+      Segregation matrix checks (49 CFR 177.848), including foodstuffs
+      protection.
+    - 'Quantity-based placard logic: Table 1/2, 1,001‑lb rule, bulk vs non‑bulk.'
+    - 'Smart substitution: DANGEROUS vs individual placards to minimize counts.'
+    - SDS cross-check to normalize UN/NA and proper shipping names.
+    - >-
+      ERG guide number, required emergency phone validation, and packet
+      generation.
+    - 'Mixed-load planner: flags incompatibilities before you load the trailer.'
+    - 'Overpack, limited/excepted quantity, and waste manifest recognition.'
+    - >-
+      Print-ready outputs: placard list and counts, trailer-side placement
+      diagram.
+    - 'Inspector-ready audit trail: timestamped checks and PDF report.'
+    - APIs and TMS integrations; send plans to driver apps in one click.
+    - 'Role-based access, encryption at rest/in transit, English/Spanish UI.'
+  steps:
+    - 'Upload BOL/SDS (file, photo, or API).'
+    - AI validates shipping descriptions and segregation; flags issues.
+    - Approve fixes or auto-apply recommendations.
+    - 'Get the placard plan and ERG packet, ready to print or push.'
+    - Send to driver/yard and roll—stay compliant at the scale house.
+---
+# HazPlacard.ai
+
+Industry: Specialized Freight (except Used Goods) Trucking, Local
+Service: Hazmat Documentation Validator and Placard Planner

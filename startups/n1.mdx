@@ -1,0 +1,312 @@
+---
+name: N-1 Contingency Screening Assistant (Offline Snapshot)
+slug: n1
+service:
+  title: N-1 Contingency Screening Assistant (Offline Snapshot)
+  description: >-
+    Rapid screening of N-1 violations on a provided network snapshot with
+    suggested remedial actions (redispatch, topology) using DC/AC analysis.
+  targetUsers:
+    - Transmission planning
+    - Day-ahead/next-day studies
+    - Reliability coordinators
+  triggers:
+    - New network base case/snapshot drop
+    - Planned outage request
+    - Pre-event stress-study before heat/cold events
+  inputs:
+    - Network model (CGMES/PSSE RAW/PowerWorld AUX)
+    - Bus injections and topology
+    - Ratings library (static/emergency)
+    - Contingency list (lines/xfmrs)
+  steps:
+    - Parse network model and validate data quality
+    - Run DC screening to shortlist contingencies
+    - Run AC power flow on shortlist
+    - Compute PTDF/LODF and rank violations by margin
+    - Propose redispatch/topology mitigations and estimate effectiveness
+    - Generate report and CSVs
+  tools:
+    - pandapower/MATPOWER/PyPSA
+    - cimpy for CGMES parsing
+    - NumPy/SciPy for PTDF/LODF
+    - Jupyter/Streamlit reporting
+  outputs:
+    - Ranked N-1 violations with overload/voltage metrics
+    - Candidate remedial actions with sensitivities
+    - Data-quality findings on the case
+    - Machine-readable outputs (CSV/JSON)
+  pricingModel:
+    - Per-case fee (tiered by network size)
+    - Setup for model format mapping
+    - Optional monthly retainer for recurring studies
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 7
+    modelCapability: 8
+    overall: 7.5
+  risks:
+    - Model fidelity vs EMS/planning tools
+    - Missing protection/stability constraints
+    - Liability if used operationally without review
+  dependencies:
+    - Secure transfer of network snapshots
+    - Agreement on rating sets and contingencies
+    - Internal SME review before operational use
+leanCanvas:
+  problem:
+    - >-
+      Transmission operators and planners must screen thousands to tens of
+      thousands of N-1 contingencies per study snapshot; traditional tools are
+      slow, require manual filtering, and often rely on DC screening with
+      limited AC validation.
+    - >-
+      Operator time is wasted on low-impact contingencies; high-impact ones may
+      be buried in reports without clear, costed remedial actions.
+    - >-
+      Existing EMS/Planning modules flag violations but don’t efficiently
+      recommend actionable redispatch/topology changes with cost/risk trade-offs
+      and operator-grade explainability.
+    - >-
+      Congestion costs and curtailments rise because redispatch and topology
+      options are not rapidly compared under AC constraints in offline study
+      windows.
+    - >-
+      Integration friction (CIM/CGMES/PSS®E/PSLF format mismatch) and
+      cybersecurity constraints make trying new analytics risky and costly.
+  solution:
+    - >-
+      Fast DC-based pre-screening using PTDF/LODF/OTDF to evaluate 5,000–50,000
+      contingencies within minutes, followed by prioritized AC power flow
+      validation.
+    - >-
+      Actionable remedial actions: (a) security-constrained redispatch with cost
+      curves and ramp limits; (b) topology optimization (line switching,
+      phase-shifter taps, transformer taps) under operational constraints.
+    - >-
+      AI-assisted ranking: learn from historical operator approvals and system
+      responses to surface the most viable actions first, with clear
+      explanations (sensitivities, binding constraints).
+    - >-
+      Full auditability: reproducible runs, versioned snapshots, and change logs
+      for regulatory traceability (NERC/ENTSO-E expectations).
+    - >-
+      Seamless model ingest/export: CGMES/CIM/XML, PSS®E RAW/SAV, PSLF,
+      PowerFactory, PowerWorld, MATPOWER; results exported to EMS/Outage
+      scheduling tools.
+    - >-
+      Secure deployment options: on-prem bare-metal or private cloud, supports
+      NERC CIP-aligned controls and offline operation.
+  uniqueValueProp: >-
+    Detect, rank, and resolve N-1 violations in minutes per snapshot with
+    operator-trustworthy AC validation and costed remedial actions (redispatch +
+    topology) that integrate cleanly with your existing EMS/planning
+    models—offline and air-gapped if required.
+  unfairAdvantage: >-
+    A validated, operator-trustworthy AC-backed action engine that combines fast
+    PTDF/LODF screening with AI-ranked, costed redispatch/topology
+    recommendations, delivered in a CIP-aligned offline deployment. Proprietary
+    heuristics for topology feasibility and AC convergence recovery, plus
+    pre-built adapters to major EMS/planning tools, shorten procurement and
+    integration timelines.
+  customerSegments:
+    - >-
+      Primary: Transmission System Operators (TSOs/ISOs/RTOs) and vertically
+      integrated utilities with transmission operations (North America, EU,
+      LATAM, APAC).
+    - >-
+      Secondary: Transmission planning departments, outage coordination teams,
+      and real-time studies groups inside utilities.
+    - >-
+      Tertiary: Grid consulting firms and independent engineering consultants
+      performing N-1 and congestion studies for utilities and regulators.
+  channels:
+    - >-
+      Direct enterprise sales to TSOs/ISOs and large utilities; engage via
+      RFI/RFP and proof-of-concept pilots on historical snapshots.
+    - >-
+      Co-sell/partner integrations with EMS/OTS/Planning vendors (GE XA/EMS,
+      Siemens Spectrum, Hitachi Energy Network Manager, OSI).
+    - >-
+      Systems integrators and grid consultancies for deployment and change
+      management.
+    - >-
+      Industry forums and pilots via ENTSO-E working groups, NERC committees,
+      CIGRE and IEEE PES conferences, and national labs/academia collaborations.
+    - >-
+      Thought leadership: validated benchmark results on IEEE/PEGASE/synthetic
+      grids; whitepapers on congestion savings and operator acceptance.
+    - Regulatory/stakeholder demos for ISO market monitors to de-risk adoption.
+  revenueStreams:
+    - >-
+      Enterprise annual subscription (on-prem or private cloud): $250k–$1.2M per
+      year depending on system size (#buses/branches), user seats, and modules
+      (redispatch/topology/SCOPF).
+    - >-
+      Implementation/integration fee: $150k–$500k one-time depending on data
+      adapters, cybersecurity, and change management.
+    - >-
+      Professional services and model tuning: $50k–$250k per engagement (e.g.,
+      topology candidate curation, custom constraints).
+    - 'Training and certification for operators/planners: $1,500–$3,000 per user.'
+    - >-
+      Consultant edition pay-per-snapshot: $2k–$10k per study (volume
+      discounts).
+    - 'Maintenance and support (if perpetual license applies): 18–22% annually.'
+  costStructure:
+    - >-
+      Personnel: power systems engineers, optimization scientists, software
+      engineers, QA—$4–7M/year for a 18–25 person team.
+    - >-
+      Sales & BD for long-cycle enterprise deals—$1–2M/year including travel,
+      pilots, and RFP responses.
+    - >-
+      Computing & tooling: on-prem test lab, GPUs/CPUs for benchmarking, CI/CD,
+      security tooling—$300k–$800k/year.
+    - >-
+      Compliance & security: audits, pen tests, NERC CIP-aligned policies, ISO
+      27001/SOC2—$150k–$400k/year.
+    - >-
+      Partner integrations and certifications with EMS/OTS
+      vendors—$200k–$600k/year.
+    - >-
+      Insurance (E&O, cyber), legal (IP, contracts), and
+      certifications—$200k–$400k/year.
+    - Customer success and SLAs (24/7 optional)—$300k–$700k/year.
+  keyMetrics:
+    - 'Technical KPIs:'
+    - >-
+      - N-1 detection recall (vs benchmark AC analysis): ≥99.5% on top 1,000
+      ranked contingencies.
+    - '- False positive rate after AC validation: ≤5%.'
+    - >-
+      - Average DC screening throughput: ≥2,000 contingencies/minute; AC
+      validation time per case: ≤5 seconds (GPU/CPU hybrid).
+    - >-
+      - AC convergence success rate: ≥98% on validated cases; fallback
+      resolution for remaining ≤2%.
+    - >-
+      - Average redispatch cost savings vs baseline (historical): 8–20% on
+      identified congestion events.
+    - >-
+      - Operator time saved: reduce study time from ~2–4 hours to ≤20 minutes
+      per snapshot for day-ahead analyses.
+    - >-
+      - Recommended action acceptance rate: ≥60% within 6 months of go-live;
+      ≥75% after 12 months with learning.
+    - '- Topology action feasibility success (operational checks passed): ≥95%.'
+    - 'Business KPIs:'
+    - '- Pilot-to-production conversion rate: ≥40%.'
+    - >-
+      - Sales cycle duration: ≤12 months average; target 2 lighthouse customers
+      in first 12 months.
+    - '- Net revenue retention (expansion via modules/seats): ≥120%.'
+    - '- Gross margin: ≥75% software, ≥35% services.'
+    - 'Security/Compliance KPIs:'
+    - '- Time-to-patch critical vulnerabilities: <7 days.'
+    - '- Audit non-conformities: 0 major findings per year.'
+storyBrand:
+  character: >-
+    Transmission operators, reliability coordinators, and planning engineers who
+    need to prove N-1 security on a network snapshot—fast, accurate,
+    auditable—while minimizing redispatch cost and operator workload.
+  problem: >-
+    External: Thousands of N-1 contingencies, time-constrained studies,
+    fragmented tools, and costly manual mitigation. Internal: Fear of missing a
+    violation and being unable to justify actions to peers, markets, and
+    regulators. Philosophical: Keeping the lights on shouldn’t depend on
+    guesswork or overnight runs.
+  guide: >-
+    Empathy: We’ve lived the stress of day-ahead analysis, outage coordination,
+    and audit prep. Authority: Built by grid-reliability experts; DC screening
+    with AC verification; explainable redispatch/topology remedies;
+    offline/air-gapped deployment with no data leaving your network; full audit
+    trail.
+  plan: >-
+    1) Import your snapshot (e.g., CGMES/CIM, PSS/E, PowerWorld, MATPOWER). 2)
+    Auto-run N-1 DC screen, rank violations, AC-validate top candidates, and
+    generate recommended redispatch/topology fixes with rationale. 3) Review,
+    approve, and export mitigations to EMS/planning tools with audit-ready
+    reports.
+  callToAction: >-
+    Direct: Request a demo and run your first snapshot. Transitional: Download
+    the sample report and security one-pager; schedule a 30-minute technical
+    assessment.
+  success: >-
+    Confident N-1 security in minutes, not days; lower congestion/redispatch
+    costs; fewer real-time alarms; auditable, explainable decisions; smoother
+    outage coordination and market operations; engineers regain focus time.
+  failure: >-
+    Missed or late N-1 violations leading to load shedding, last-minute
+    corrective actions, avoidable congestion costs, regulatory findings, and
+    loss of stakeholder trust.
+landingPage:
+  hero:
+    title: N-1 Contingency Screening Assistant (Offline Snapshot)
+    subtitle: >-
+      Rapidly screen a network snapshot for N-1 violations with ranked
+      contingencies and AI-suggested redispatch/topology fixes using DC and AC
+      analysis.
+    ctaText: Upload Snapshot
+    ctaHref: /upload
+  problem:
+    - Manual N-1 studies are slow and inconsistent across tools.
+    - High study volumes create backlogs and missed worst-case outages.
+    - 'Limited traceability of assumptions, limits, and actions.'
+    - Difficult to compare remedial options or quantify their impact.
+    - Exporting results into EMS/planning tools is tedious and error-prone.
+    - 'Compliance reporting (e.g., NERC/ENTSO-E) consumes engineering time.'
+  solution:
+    - Ingest a single network snapshot and auto-run N-1 screening at scale.
+    - Fast DC pre-screen with AC verification for flagged cases.
+    - 'Rank violations by severity and impact (thermal, voltage).'
+    - >-
+      AI-suggested remedial actions: least-cost redispatch, topology switching,
+      tap adjustments.
+    - Operator-in-the-loop review with clear rationale and sensitivity data.
+    - One-click reports and exports to common planning/EMS formats.
+  features:
+    - 'Offline, snapshot-based studies for secure, air-gapped environments.'
+    - >-
+      DC screening with PTDF/LODF; AC power flow verification with limits and
+      contingencies.
+    - Ranked outage list with overload/voltage metrics and constraint drivers.
+    - >-
+      Action recommendations with costed redispatch, switching candidates, and
+      tap setpoints.
+    - 'What-if sandbox: apply actions, re-run AC, compare deltas.'
+    - >-
+      Explainability: show binding constraints, shift factors, and impacted
+      elements.
+    - >-
+      Templates for limits (seasonal ratings, voltage), contingencies, and
+      criteria.
+    - Batch processing for multiple snapshots and scenarios.
+    - >-
+      Standards-aligned workflows (e.g., NERC TPL, ENTSO-E Operational
+      Security).
+    - >-
+      Data privacy by design: on-prem or VPC deployment; no external data
+      transfer.
+    - 'Role-based access, audit logs, and versioned study artifacts.'
+    - >-
+      Integrations: PSSE (RAW/SAV), PowerWorld (AUX/PWB), CGMES/CIM, MATPOWER;
+      CSV APIs.
+    - 'Exports of actions: redispatch setpoints, switching lists, tap changes.'
+    - REST API and CLI for automation and CI pipelines.
+    - Optional N-1-1 sequence evaluation and remedial viability checks.
+  steps:
+    - Upload your network snapshot (PSSE/PowerWorld/CGMES/MATPOWER).
+    - >-
+      Import or auto-generate the contingency list (lines, transformers,
+      generators).
+    - 'Set limits and criteria (ratings, voltage bounds, remedial cost caps).'
+    - Run DC screening; auto-trigger AC re-check for flagged contingencies.
+    - Review the ranked violations dashboard with root-cause insights.
+    - Apply suggested redispatch/topology fixes and re-run what-if AC.
+    - Export actions and the compliance-ready report to your tools.
+---
+# N-1 Contingency Screening Assistant (Offline Snapshot)
+
+Industry: Electric Bulk Power Transmission and Control
+Service: N-1 Contingency Screening Assistant (Offline Snapshot)

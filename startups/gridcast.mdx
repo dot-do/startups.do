@@ -1,0 +1,335 @@
+---
+name: GridCast Ops
+slug: gridcast
+service:
+  title: Short-term Load and Renewable Forecasts for Transmission Operations
+  description: >-
+    High-frequency (5-min to day-ahead) load and renewable generation forecasts
+    with uncertainty bands to support ACE control, congestion management, and
+    outage planning.
+  targetUsers:
+    - ISO/RTO market ops
+    - TSO planning and control room
+    - Transmission scheduling
+    - Reliability coordinators
+  triggers:
+    - Daily/rolling forecast window opens
+    - 'Weather event alerts (heat wave, cold snap, wind ramp)'
+    - New generator outage/derate notice
+  inputs:
+    - Historical SCADA load/generation
+    - ISO/RTO market data (if applicable)
+    - 'Weather forecasts (temperature, wind, irradiance)'
+    - Calendar/holiday/features
+    - Generator availability/maintenance
+  steps:
+    - Ingest historical SCADA and weather data
+    - 'Clean/align time series, impute outliers'
+    - 'Train/retrain ensemble models (e.g., GBDT + LSTM)'
+    - Calibrate probabilistic forecasts (Pinball/CRPS)
+    - Generate rolling forecasts with P10/P50/P90 bands
+    - Publish to dashboard/API and send alerts on large forecast errors
+    - Weekly drift check and model refresh
+  tools:
+    - 'Python (pandas, scikit-learn, XGBoost/Darts)'
+    - MLflow for versioning
+    - NOAA/ECMWF/Open-Meteo APIs
+    - Grafana or Streamlit dashboard
+    - Airflow/Prefect for scheduling
+  outputs:
+    - 5-min to day-ahead forecasts with uncertainty
+    - Feature attributions (drivers)
+    - Error tracking dashboard and weekly report
+    - API/CSV drops for EMS/market import
+  pricingModel:
+    - One-time setup + data integration
+    - Monthly subscription per region/control area
+    - Optional performance bonus/penalty based on MAPE/CRPS
+  humanInLoop: false
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 9
+    overall: 9
+  risks:
+    - Data quality gaps in SCADA
+    - NWP bias during extreme events
+    - Concept drift; need periodic recalibration
+  dependencies:
+    - Secure data access (VPN/SFTP/API)
+    - Weather API keys
+    - Data retention policy approval
+leanCanvas:
+  problem:
+    - >-
+      Transmission operators and balancing authorities struggle to maintain ACE
+      within limits during fast renewable ramps due to imperfect short-term
+      forecasts and lack of calibrated uncertainty.
+    - >-
+      Existing EMS forecast modules are often deterministic, not probabilistic,
+      and not updated at a 5-minute cadence aligned with RTSCED/AGC cycles.
+    - >-
+      Congestion and overloads frequently occur with limited lead time;
+      operators lack probabilistic forward views of flows and
+      renewable/load-driven ramp risks to pre-position redispatch/reserves.
+    - >-
+      Outage planning and topology changes are scheduled with limited
+      scenario-based foresight, leading to conservative margins and avoidable
+      congestion or curtailments.
+    - >-
+      Forecast accuracy varies significantly by weather regime and season; most
+      tools do not adapt models online to regime shifts or calibrate uncertainty
+      by node/zone and horizon.
+    - >-
+      Integration friction: forecast services often do not natively integrate
+      with EMS/SCADA via ICCP/TASE.2 and do not meet NERC CIP and utility
+      cybersecurity requirements.
+    - >-
+      Performance is rarely measured end-to-end (forecast to ACE/congestion
+      impact), making it hard to justify ROI and align incentives with
+      operators.
+  solution:
+    - >-
+      5-minute to 36-hour hierarchical forecasts for load (zonal/substation) and
+      renewables (plant/aggregation), using physics-informed spatiotemporal ML
+      and weather ensemble fusion.
+    - >-
+      Calibrated uncertainty via quantile regression and conformal methods
+      delivering P10/P50/P90, full predictive PDFs, and 100–500 scenario
+      ensembles aligned to RTCA/SCED needs.
+    - >-
+      Topology-aware congestion risk engine that maps forecasted ramps to
+      line/transformer loading risk using PTDF/OTDF sensitivities and recent
+      topology snapshots.
+    - >-
+      Operator dashboard and EMS widgets: ramp alerts, probabilistic congestion
+      heatmaps, outage planning scenario explorer, and explainability (drivers,
+      weather regimes).
+    - >-
+      High-availability delivery: redundant on-prem edge nodes and cloud,
+      sub-15s end-to-end latency per 5-minute cycle; push via ICCP/TASE.2, REST,
+      and message bus (Kafka/MQTT in DMZ).
+    - >-
+      Model governance and M&V: continuous calibration, bias correction, drift
+      monitoring, and monthly impact reports linking forecast improvements to
+      ACE, congestion, and curtailment KPIs.
+    - >-
+      Security and compliance posture aligned to NERC CIP (segmented
+      architecture, MFA, logging, SBOM, supply-chain controls) and SOC 2 Type II
+      roadmap.
+  uniqueValueProp: >-
+    Operations-grade, probabilistic load and renewable forecasts updated every 5
+    minutes with calibrated uncertainty and scenario ensembles, natively
+    integrated into EMS/AGC/RTCA workflows to reduce ACE excursions, congestion
+    hours, and curtailments—measured and guaranteed via outcome-based SLAs.
+  unfairAdvantage: >-
+    Topology-aware, probabilistic forecasting stack purpose-built for
+    transmission operations (not trading or asset O&M) with native EMS
+    integrations and outcome-based SLAs, plus a proprietary fused dataset
+    combining SCADA/PMU signals, weather ensembles, and topology changes to
+    improve ramp and congestion risk prediction.
+  customerSegments:
+    - >-
+      RTOs/ISOs (e.g., PJM, MISO, ERCOT, CAISO, SPP, NYISO, ISO-NE) for market
+      and system operations.
+    - >-
+      TSOs/Transmission Operators and Reliability Coordinators (North America,
+      ENTSO-E members in EU, National Grid-type entities globally).
+    - >-
+      Vertically integrated utilities with BA responsibilities and significant
+      renewable penetration.
+    - >-
+      Independent Balancing Authorities and coordinated functional entities in
+      regions without ISOs.
+    - >-
+      EMS vendors and grid software integrators seeking embedded probabilistic
+      forecasting modules.
+  channels:
+    - >-
+      Direct enterprise sales to RTOs/ISOs and TSOs via RFPs and innovation
+      pilots with clearly defined success criteria.
+    - >-
+      Partnerships with EMS vendors (GE Grid Solutions, Siemens, OSI) to embed
+      probabilistic modules and reduce integration risk.
+    - >-
+      System integrators and consultants (EPRI collaborations, Accenture, PSC,
+      Guidehouse) for delivery assurance and change management.
+    - >-
+      Industry engagement: white papers and demos at IEEE PES, CIGRE, NASPI,
+      EUCI; technical webinars with case studies and open datasets.
+    - >-
+      Regulatory and reliability forums: NERC working groups, regional
+      reliability organizations, to align with standards and secure pilot sites.
+    - >-
+      Bottom-up pilots with mid-size BAs/utilities (3–6 months) converting to
+      multi-year contracts; reference deployments to win larger RTO tenders.
+    - >-
+      Content marketing targeting operations leaders: ROI calculators for
+      ACE/congestion, operator training videos, and open benchmark challenges.
+  revenueStreams:
+    - >-
+      Annual subscription license per control area/BA, tiered by system size and
+      scope: Small (≤5 GW): $150k–$300k; Medium (5–20 GW): $300k–$700k; Large
+      (>20 GW/RTO): $0.8M–$2.0M.
+    - >-
+      One-time onboarding and integration fee: $75k–$250k depending on EMS/SCADA
+      integration complexity and data onboarding.
+    - >-
+      Professional services: custom model development (e.g., PMU-informed
+      ramps), topology adapters, training—$150–$250/hr or fixed-scope packages.
+    - >-
+      Premium SLA add-on (99.99% delivery, enhanced support): +10–20% of
+      license.
+    - >-
+      Analytics add-ons: outage planning simulator, congestion attribution,
+      seasonal studies: $50k–$200k/year per module.
+  costStructure:
+    - >-
+      Personnel (55–65% of costs): ML engineers, power systems SMEs, site
+      reliability engineers, security/compliance, integrations, customer
+      success.
+    - >-
+      Cloud and compute (10–18%): GPU/CPU for training/inference,
+      high-availability clusters, storage, resilience testing.
+    - >-
+      Data acquisition (5–10%): commercial weather ensembles, satellite data,
+      lightning/irradiance feeds; NOAA/ECMWF access/processing.
+    - >-
+      Security/compliance (4–8%): SOC 2 audits, pen tests, SBOM management,
+      incident response tabletop exercises, logging/SIEM.
+    - >-
+      Integration and support (5–10%): EMS adapters, on-prem edge nodes, 24/7
+      on-call operations.
+    - >-
+      Sales/marketing (5–8%): conferences, RFP responses, pilots, case study
+      development.
+    - >-
+      Insurance and legal (2–4%): E&O, cyber liability, contract counsel, export
+      controls.
+    - >-
+      Hardware (1–3%): on-prem gateways/edge servers for customers requiring
+      local inference.
+  keyMetrics:
+    - >-
+      Forecast accuracy: zonal load MAPE—targets: 0.8–1.2% (0–2h), 1.2–2.0%
+      (2–6h), 1.5–2.5% (day-ahead); renewable MAE as % of capacity—targets: 3–5%
+      (0–2h), 5–8% (2–6h), 8–12% (DA).
+    - >-
+      Probabilistic quality: CRPS improvement ≥15% vs baseline; P90 coverage
+      within 88–92%; P50 bias |<0.5%| across horizons.
+    - >-
+      Ramp detection: probability of detection ≥85% for ramps >X MW/5-min with
+      false alarm rate ≤15%; lead time ≥30 min for 80% of detected ramps.
+    - >-
+      Operations impact: reduction in ACE excursions beyond threshold (e.g.,
+      ±ACE_L10) by 10–20%; CPS1 monthly score improvement where applicable;
+      regulation mileage reduction 5–10%.
+    - >-
+      Congestion impact: 5–10% reduction in congestion hours or penalty costs on
+      monitored constraints during pilot corridors.
+    - >-
+      Curtailment reduction: 5–15% reduction in renewable curtailments
+      attributable to forecast-informed actions (measured via counterfactual
+      analysis).
+    - >-
+      Latency and reliability: <15s delivery from data cutoff; 99.95% data
+      availability; <0.5% missing intervals/day; MTTR <30 min for critical
+      incidents.
+    - >-
+      Adoption: ≥80% operator utilization during events; survey-based operator
+      trust score ≥4/5 after 90 days.
+    - >-
+      Time-to-value: integration completed within 8–12 weeks; first impact
+      report within 60 days post go-live.
+storyBrand:
+  character: >-
+    Transmission operations leaders (BA/RC/TO at ISO/RTOs and utilities) who
+    must keep the bulk power system reliable and economical in real time.
+  problem: >-
+    - External: Volatile load and renewable output make ACE control, congestion
+    management, and outage planning risky; legacy forecasts lack 5‑min
+    resolution and uncertainty.
+
+    - Internal: Operators over-commit reserves and firefight congestion with
+    limited, opaque tools and little time.
+
+    - Philosophical: Grid operators should have precise, transparent forecasts
+    they can trust and defend.
+  guide: >-
+    We understand control-room pressure and NERC scrutiny. Our AI service
+    delivers 5‑min to day‑ahead load and renewable forecasts with calibrated
+    uncertainty bands—backtested on your system, securely integrated
+    (CIP-aware), and supported 24/7.
+  plan: >-
+    1) Connect: Integrate EMS/SCADA, weather, topology, and market data via
+    secure API. 2) Calibrate: Shadow-run, tune horizons/assets, and validate
+    accuracy and reliability metrics. 3) Operate: Stream forecasts and bands
+    into EMS/dispatch tools with alerts, dashboards, and SLAs; periodic
+    recalibration.
+  callToAction: >-
+    Direct: Book a 30‑minute demo and start a 90‑day pilot. Transitional:
+    Request the accuracy benchmark and outage‑planning playbook.
+  success: >-
+    Tighter ACE, fewer congestion hours and redispatch costs, improved outage
+    coordination, right‑sized reserves, reduced curtailments, audit‑ready
+    provenance, and calmer shifts.
+  failure: >-
+    Persistent ACE excursions, costly redispatch/uplift, avoidable curtailments,
+    delayed outages, regulatory/audit risk, and operator fatigue.
+landingPage:
+  hero:
+    title: Short‑term Load & Renewable Forecasts for Transmission Operations
+    subtitle: >-
+      High‑frequency, probabilistic forecasts (5‑min to day‑ahead) to support
+      ACE control, congestion management, and outage planning.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - >-
+      Rapid load and renewable volatility drives ACE excursions and uplift
+      costs.
+    - >-
+      Operators lack probabilistic forecasts at the cadence of real‑time
+      decisions.
+    - 'Weather‑driven ramps are missed, causing congestion and curtailment.'
+    - Outage planning needs risk‑aware forecasts to schedule safely.
+    - Siloed tools and spreadsheets slow coordination across operations.
+    - Limited sub‑zonal visibility hampers interface and constraint management.
+    - Inaccurate short‑term forecasts inflate reserve needs and emissions.
+  solution:
+    - 'Rolling load, solar, and wind forecasts with uncertainty bands.'
+    - Aligns with EMS and AGC cadence to stabilize ACE.
+    - Zonal and constraint‑aware forecasts for congestion risk management.
+    - 'Scenario tools for outages, derates, and redispatch planning.'
+    - Proactive ramp and exceedance alerts for control rooms.
+    - Seamless integrations via secure APIs and file drops.
+    - Audit‑ready performance tracking and continuous model improvement.
+  features:
+    - 5‑min to day‑ahead horizons with rolling updates.
+    - 'Probabilistic outputs: configurable quantiles and uncertainty bands.'
+    - 'Nowcasting using radar, satellite, and local sensors.'
+    - Weather ensemble assimilation blended with machine learning.
+    - Granularity from plant and bus to zone and tie‑line.
+    - Interface and constraint sensitivity tagging for targeted insights.
+    - 'Ramp analytics: magnitude, rate, duration, and likelihood.'
+    - 'ACE support metrics: expected net load error and risk index.'
+    - Congestion risk indicators aligned to key interfaces and cutplanes.
+    - Outage planning mode with scenario overlays and stress tests.
+    - 'Explainability: key drivers, feature attributions, and confidence.'
+    - 'Secure deployment: on‑prem or private cloud with RBAC.'
+    - Low‑latency APIs and message bus; optional flat‑file drops.
+    - 'Connectors for EMS/SCADA, historian, market, and weather data.'
+    - 'SLA‑backed monitoring, alerting, and operator support.'
+  steps:
+    - >-
+      Connect data sources: SCADA/historian, plant telemetry, market, and
+      weather.
+    - 'Define zones, interfaces, and required forecast outputs.'
+    - Backtest and shadow run to validate operational performance.
+    - 'Calibrate thresholds, alerts, and visualization with operators.'
+    - 'Go live: integrate with EMS/AGC and control room displays.'
+    - Review monthly M&V; retrain models and refine thresholds.
+---
+# GridCast Ops
+
+Industry: Electric Bulk Power Transmission and Control
+Service: Short-term Load and Renewable Forecasts for Transmission Operations

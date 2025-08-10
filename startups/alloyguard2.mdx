@@ -1,0 +1,379 @@
+---
+name: AlloyGuard AI
+slug: alloyguard2
+service:
+  title: Near-Line Quality Anomaly Detection (SPC + ML)
+  description: >-
+    Combines lab results and process tags to flag out-of-family batches/coils
+    and suggest likely causes.
+  targetUsers:
+    - Quality Manager
+    - Process Engineer
+    - Line Supervisors
+  triggers:
+    - Lab results posted
+    - Batch/coil complete
+    - SPC rule violation
+  inputs:
+    - 'Process tags (temps, pressures, speeds) during run'
+    - 'Lab results (tensile, hardness, grain size)'
+    - Defect codes and rework data
+    - Alloy/spec requirements
+  steps:
+    - Align process windows to lots/coils
+    - Run SPC and multivariate anomaly detection
+    - Rank likely contributors via SHAP/feature attribution
+    - Recommend hold/release and checks
+    - Log dispositions to train models
+  tools:
+    - Python
+    - scikit-learn
+    - OpenCV (if images provided)
+    - QMS/LIMS integration
+    - Power BI/Tableau
+  outputs:
+    - Anomaly flags with severity
+    - Probable cause ranking
+    - Auto-updated control charts
+    - Hold/release recommendations
+  pricingModel:
+    - Per-line subscription
+    - One-time setup for data alignment
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 7
+    modelCapability: 8
+    overall: 7.5
+  risks:
+    - False positives/negatives
+    - Label quality for defects
+    - Operator adoption
+  dependencies:
+    - Historian/MES and LIMS/QMS access
+    - Spec libraries by alloy/customer
+leanCanvas:
+  problem:
+    - >-
+      Specialty nonferrous mills suffer 1–5% scrap/rework rates; each 0.5% FPY
+      loss can cost $0.5–$2M per plant per year in lost margin and expedited
+      rework.
+    - >-
+      Lab confirmation of mechanical/chemical properties (e.g., tensile,
+      hardness, composition) lags production by 2–12 hours, causing continued
+      production of out-of-family coils before issues are discovered.
+    - >-
+      Manual SPC on a handful of tags misses multivariate interactions among
+      >200 process variables (speed, reduction, temp, lube chemistry, die wear,
+      coil temps), leading to undetected drift.
+    - >-
+      Root cause analysis is slow and tribal-knowledge driven; engineers spend
+      6–12 hours per significant deviation stitching LIMS results with historian
+      trends.
+    - >-
+      Frequent grade/size changeovers create transient conditions; static
+      control limits generate excessive false alarms, lowering operator trust.
+    - >-
+      Missed early warnings lead to unplanned downgrades or certification
+      failures (e.g., NADCAP/aerospace), risking late deliveries and
+      chargebacks.
+    - >-
+      Inconsistent data (tag naming, historian gaps, LIMS delays) prevents
+      scalable analytics across lines and plants.
+    - >-
+      APC/controls optimize targets but lack near-line quality outcome
+      prediction and do not integrate lab results for closed-loop quality
+      learning.
+  solution:
+    - >-
+      Data connectors unify process tags (PI, OPC UA, MQTT) and LIMS records
+      (mechanical/chemical tests) into a time-aligned, unit-of-production view
+      (heat/coil/batch/press run).
+    - >-
+      Multivariate SPC (e.g., dynamic PCA/Hotelling T2, EWMA) layered with
+      unsupervised ML (isolation forest/autoencoder) and supervised quality
+      predictors trained on past lab results to detect out-of-family behavior.
+    - >-
+      Concept drift handling: rolling-window model updates and
+      grade/size/route-aware segmentation; automatic recalculation of control
+      limits per product family and changeover state.
+    - >-
+      Causal hinting: event correlation and SHAP-based feature attribution tie
+      anomalies to likely drivers (e.g., emulsion pH drop, die run-length,
+      furnace soak variance, speed/reduction combo).
+    - >-
+      Early-warning estimator: predicts probability of lab failure/out-of-spec
+      before results are back; targets 1–6 hours lead time depending on test
+      lag.
+    - >-
+      Operator and engineer UX: one-screen coil timeline with badges for
+      anomalies, recommended checks, and guided 5-why; alarm suppression and
+      “explain why normal” views to build trust.
+    - >-
+      Action library: configurable playbooks (adjust coolant concentration,
+      inspect roll chatter, swap die) with estimated impact and closure
+      tracking.
+    - >-
+      MLOps and governance: versioned models per line/product, audit trails for
+      ISO/NADCAP, and sandbox A/B to compare new limits/models vs. baseline.
+    - >-
+      Deployment options: on-prem (containers/k8s) with air-gapped support or
+      hybrid cloud; no PLC changes required.
+    - >-
+      Security and reliability: role-based access, PI AF/asset model alignment,
+      <200 ms historian query latency, 99.5% service uptime SLO.
+    - >-
+      Change management: operator training modules, digital champions, and
+      adoption KPIs with weekly improvement huddles.
+  uniqueValueProp: >-
+    Near-line, interpretable quality anomaly detection that fuses lab outcomes
+    with process tags to flag out-of-family coils/batches hours earlier than lab
+    confirmation and suggests likely causes, reducing scrap/rework by 20–40% and
+    improving FPY by 1–3%, with zero-rip-and-replace integration to your
+    historian, LIMS, and MES.
+  unfairAdvantage: >-
+    Domain-tuned, interpretable multivariate quality models and causal templates
+    for specialty nonferrous processes, plus a proven playbook that merges lab
+    outcomes and historian tags into near-line decisions with audited evidence
+    packs—backed by prebuilt connectors and AF templates that cut integration
+    time by 50–70% and reduce false alarms during changeovers.
+  customerSegments:
+    - >-
+      Primary: Directors/Managers of Quality and Process Engineering at
+      nonferrous mills producing nickel-, titanium-, zirconium-, magnesium-,
+      refractory- and precious-metal products (rolled strip, wire, bar, tube,
+      extrusions).
+    - >-
+      Plant Managers/COOs responsible for FPY, OTIF, and cost of quality at
+      multi-line facilities (rolling mills, drawing benches, extrusion presses).
+    - >-
+      Ops IT/OT leaders and digital transformation teams standardizing
+      historians (OSIsoft/AVEVA PI, Aspen IP.21) and LIMS across plants.
+    - >-
+      Regulated/aerospace-grade producers requiring tight certification
+      (AS9100/NADCAP) and auditability.
+    - >-
+      Job shops and specialty alloy producers with high-mix/low-volume runs
+      where SPC limits need frequent adaptation.
+  channels:
+    - >-
+      Direct enterprise sales to mid-size and large mills (>$150M revenue); 6–9
+      month cycle; lead with quantified pilot offer and ROI model.
+    - >-
+      System integrator partners (e.g., ATS Global, Brock Solutions, TQS,
+      Maverick, Wood) for integration and scale-out; 15–25% referral/resell
+      margin.
+    - >-
+      Historian/LIMS vendor ecosystems and marketplaces (AVEVA, AspenTech) with
+      validated connectors and co-marketing webinars.
+    - >-
+      Industry associations and events: TMS Annual Meeting, International
+      Titanium Association Conference, International Magnesium Association
+      events; technical papers and case studies.
+    - >-
+      Targeted ABM campaigns to Directors of Quality/Process Engineering with
+      problem calculators and 30-minute data-readiness assessments.
+    - >-
+      Customer-led references: lighthouse wins in titanium and nickel; publish
+      before/after FPY and scrap-reduction case studies.
+    - >-
+      Pilot program: 12-week paid pilot on one line; success criteria
+      contractually defined (e.g., ≥20% reduction in anomaly-related scrap or
+      ≥1% FPY lift); apply pilot fees to first-year subscription.
+    - >-
+      After initial land, expand by adding lines, products, and plants;
+      enterprise pricing tiers and multi-plant governance roadmap.
+  revenueStreams:
+    - >-
+      Annual subscription per production line: $60k–$120k ARR depending on tag
+      count, product complexity, and support SLA.
+    - >-
+      One-time onboarding/integration fee: $40k–$120k per line (connectors, data
+      modeling, validation).
+    - >-
+      Professional services: change management, custom dashboards, model
+      customization ($200–$250/hour or fixed-scope packs).
+    - >-
+      Premium support and compliance package (audit packs, validation protocols,
+      SLA 24/7): +15–25% of ARR.
+    - >-
+      Optional edge appliance (if required): $8k–$20k per node (CapEx) or
+      $400–$700/month (OpEx).
+    - >-
+      Enterprise license for multi-plant rollout with volume discounts (10–25%
+      for 5+ lines).
+    - >-
+      Value-share addendum (optional): bonus fee tied to documented scrap/rework
+      savings beyond threshold.
+  costStructure:
+    - >-
+      R&D: data science, metallurgical domain experts, and platform engineering
+      ($2–4M annually at seed/Series A scale).
+    - >-
+      COGS per line: onboarding 120–240 engineer hours; cloud/infra
+      $300–$1,000/month/line (hybrid dependent).
+    - >-
+      Sales and marketing: $60k–$120k CAC per enterprise with 6–9 month cycles;
+      events, demos, and PoC support.
+    - >-
+      Partner enablement and certifications for historian/LIMS connectors
+      (~$150k–$300k annually).
+    - >-
+      Customer success and model maintenance: 2–6 hours/month/line; annual model
+      revalidation for regulated customers.
+    - >-
+      Security/compliance: SOC 2 Type II and ISO 27001 ($150k–$350k initial,
+      $100k–$200k annual).
+    - >-
+      Liability and cyber insurance; travel for onsite workshops; hardware for
+      lab/test rigs.
+    - >-
+      Contingency for data wrangling/cleanup in brownfield plants (10–20% of
+      project budget).
+  keyMetrics:
+    - >-
+      Business impact: FPY improvement (+1–3%), scrap/rework reduction
+      (−20–40%), cost of quality reduction (−10–20%).
+    - >-
+      Early warning lead time: median hours before lab confirmation (target ≥2h
+      within 90 days).
+    - >-
+      Model performance: precision ≥0.75, recall ≥0.70 for out-of-family
+      detection; AUROC ≥0.80 for lab-failure prediction.
+    - >-
+      False alarm rate: <1 spurious anomaly per 8-hour shift per line after
+      tuning; alarm acceptance rate ≥70%.
+    - >-
+      Anomalies per 100 coils and % addressed with closure notes within 48 hours
+      (target ≥85%).
+    - >-
+      Mean time to detect (MTTD) and mean time to recommendation (MTTRx) <10
+      minutes after anomaly onset.
+    - 'Golden run minutes per shift (stable production): +15–25% after 6 months.'
+    - >-
+      Operator adoption: weekly active users/line (target ≥10), playbook usage
+      rate ≥60%.
+    - >-
+      Data reliability: historian connector uptime ≥99.5%, LIMS linkage ≥98% of
+      lots, model retrain cadence monthly/quarterly.
+    - >-
+      Commercial: pilot conversion rate ≥60%, logo retention ≥95%, NRR ≥115% via
+      line/plant expansions.
+storyBrand:
+  character: >-
+    Quality, process, and operations leaders at nonferrous (except copper and
+    aluminum) rolling, drawing, and extruding mills who want stable,
+    spec-compliant output, fewer surprises, and clear causes when drift happens.
+  problem: >-
+    - External: Late lab confirmations, noisy process tags, alloy variability,
+    and frequent changeovers let out-of-family coils/batches slip to finishing
+    and customers.
+
+    - Internal: Teams are stuck firefighting, unsure which levers matter, and
+    blind to cross-shift variability.
+
+    - Philosophical: Quality should not be a surprise; plant data should prevent
+    defects, not just record them.
+  guide: >-
+    - Empathy: We understand complex metallurgy, short runs, and tight specs
+    make SPC alone hard in nonferrous mills.
+
+    - Authority: Our SPC+ML service fuses lab results with process tags to model
+    normal, flag anomalies near-line, and suggest likely causes. Built for
+    industrial environments; integrates with PI/Ignition/MES/LIMS; deployable
+    on-prem or in a private cloud with strong security.
+  plan: >-
+    - Process plan: 1) Connect and align historian tags, MES/LIMS lab results,
+    and coil/batch genealogy. 2) Baseline and deploy SPC limits and ML models;
+    validate with your experts; enable near-line scoring and alerts. 3) Improve
+    and scale with operator guidance, cause suggestions, dashboards, and
+    periodic model refresh.
+
+    - Agreement plan: Pilot 4–8 weeks on a critical line with clear success
+    metrics; fixed-fee pilot; your data stays under your control; security
+    review included; rollout and training on success.
+  callToAction: >-
+    - Direct: Schedule a discovery call and data readiness check; launch a pilot
+    on your highest-impact product family.
+
+    - Transitional: Get the playbook and sample dashboards; request an ROI
+    estimate using your scrap and rework data.
+  success: |-
+    - Fewer out-of-family coils and customer returns.
+    - Earlier detection (minutes, not weeks) and faster release decisions.
+    - Clear likely causes and best-known process windows per alloy and product.
+    - Higher yield and OEE with less rework and inspection burden.
+    - Stronger audit readiness with traceability from tag to certificate.
+  failure: |-
+    - Ongoing firefighting, late surprises, and expensive rework or recalls.
+    - Lost margin and capacity from hidden variability and over-control.
+    - Eroding customer trust and tougher audits.
+landingPage:
+  hero:
+    title: >-
+      Near‑Line Quality Anomaly Detection for Nonferrous Rolling, Drawing &
+      Extruding
+    subtitle: >-
+      SPC + ML on lab results and process tags to flag out‑of‑family
+      coils/batches and surface likely causes—fast enough to act. Focused on
+      nonferrous metals (excluding copper and aluminum).
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - 'Defects discovered late—after anneal, slitting, or shipment.'
+    - >-
+      SPC alone misses multivariate interactions across passes, furnaces, and
+      lubricants.
+    - >-
+      Lab results and process tags live in separate systems with no feedback
+      loop.
+    - Alarm fatigue and false positives bury the real issues.
+    - Root‑cause hunts drain engineer time; actions vary by shift.
+    - Grade/heat changes drive untracked drift and yield loss.
+  solution:
+    - >-
+      Detect out‑of‑family coils/batches by grade, heat, and pass
+      schedule—near‑line.
+    - >-
+      Blend lab data (chem/mech/surface) with process tags (temp, reduction,
+      roll gap, speed, lube, furnace) for multivariate SPC.
+    - >-
+      Rank likely causes with contribution scores and the specific passes/dies
+      involved.
+    - >-
+      Autogenerate focused actions (e.g., check emulsion, adjust roll gap, slow
+      stand 3, swap die, extend soak).
+    - Alert the right roles via MES/Teams/SMS with SPC traces and context.
+    - >-
+      Continuously learn from dispositions and prevent drift with campaign
+      monitoring.
+  features:
+    - 'Grade‑aware, campaign‑aware anomaly models per line, alloy, and schedule.'
+    - 'Explainable ML: contribution charts show which tags drove the alert.'
+    - 'Hybrid SPC: X‑bar/R and EWMA enriched with multivariate models.'
+    - >-
+      Near‑line latency: results within minutes of lab post or proxy
+      measurement.
+    - >-
+      Probable‑cause library for rolling, drawing, extruding equipment and
+      lubricants.
+    - 'Drift and change‑point detection across heats, dies, rolls, and emulsions.'
+    - What‑if simulation to test setpoint changes before running.
+    - 'Connectors to PLC/SCADA, MES, LIMS, historians (OPC UA, MQTT, SQL).'
+    - 'Role‑based dashboards for operators, process engineers, and QA.'
+    - 'Deployment options: on‑prem/edge or secure cloud; offline tolerant.'
+    - Audit trail with lot/coil genealogy and model versioning.
+    - APIs and webhooks for closed‑loop advisories.
+  steps:
+    - 'Connect data: historians, LIMS, MES, coil genealogy.'
+    - 'Calibrate: select grades/lines, map tags, define CTQs and specs.'
+    - 'Backtest: validate detection vs. past defects and tune thresholds.'
+    - Pilot near‑line on one line; train operators on alerts and actions.
+    - 'Go live: integrate alerts into daily management and MES workflows.'
+    - >-
+      Continuously improve: retrain with dispositions; expand to more
+      grades/lines.
+---
+# AlloyGuard AI
+
+Industry: Nonferrous Metal (except Copper and Aluminum) Rolling, Drawing, and Extruding
+Service: Near-Line Quality Anomaly Detection (SPC + ML)

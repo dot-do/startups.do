@@ -1,0 +1,313 @@
+---
+name: PlateFlow — AI Production Schedule Optimizer for Plate Work
+slug: plateflow
+service:
+  title: Production Schedule Optimizer (Job-Shop for Plate Work)
+  description: >-
+    Auto-generate feasible daily/weekly machine and weld-bay schedules with
+    changeover and due-date constraints.
+  targetUsers:
+    - Planners/Schedulers
+    - Operations Managers
+    - Cell Leads
+  triggers:
+    - Daily run at set time
+    - Manual what-if scenario request
+    - New high-priority job released
+  inputs:
+    - Open jobs and due dates
+    - Routings with step times and constraints
+    - Machine calendars and capacities
+    - 'Setup/changeover rules, batching, and hot lists'
+  steps:
+    - Pull jobs/routings/calendars via ERP CSV/API
+    - Clean/validate times; fill missing defaults
+    - >-
+      Optimize sequence with job-shop solver respecting setups, due dates, and
+      skills
+    - Generate Gantt and dispatch lists per resource
+    - 'Simulate what-if scenarios (overtime, expedite)'
+    - Publish to dashboard; notify stakeholders
+  tools:
+    - Google OR-Tools (CP-SAT)
+    - Pandas/Python
+    - ERP connectors (Epicor/JobBOSS/SAP B1)
+    - Plotly or Grafana for Gantt
+    - Slack/Teams webhook for alerts
+  outputs:
+    - Resource Gantt chart (HTML/PDF)
+    - Dispatch list by machine/weld booth
+    - 'KPIs (lateness, utilization, WIP)'
+    - Scenario comparisons
+  pricingModel:
+    - Monthly subscription (tiered by resource count)
+    - Onboarding for data mapping
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 5
+    overall: 5
+  risks:
+    - Inaccurate/buckets-of-time routings
+    - Shop-floor disruptions not fed back
+    - Planner adoption/change management
+  dependencies:
+    - ERP access for jobs/routings/calendars
+    - List of constraints and shop rules
+    - Feedback loop from floor (actuals)
+leanCanvas:
+  problem:
+    - >-
+      Schedulers in plate-work fabrication juggle cutting, forming, machining,
+      fit-up, weld bays, cranes, inspectors, and paint/heat-treat with
+      sequence-dependent changeovers—manual spreadsheets/ERPs can’t model these
+      constraints, creating infeasible plans.
+    - >-
+      Due-date performance is volatile: frequent hot jobs, rework, and
+      material/heat-number delays cause fire-fighting and overtime, increasing
+      costs and eroding customer trust.
+    - >-
+      Weld bays are chronic bottlenecks; balancing operator qualifications,
+      WPS/PQR requirements, and weld/fit-up times is difficult, underutilizing
+      expensive bays and skilled labor.
+    - >-
+      Cutting and forming nests are optimized locally (CAM/nesting) but not
+      globally across the job-shop; suboptimal cross-department sequencing
+      amplifies WIP, crane conflicts, and queue time.
+    - >-
+      Existing APS/ERP schedulers are either generic (heavy to configure for
+      plate-work) or cutting-centric (weak on weld/fit-up/inspection), leading
+      to long implementations and low adoption.
+    - >-
+      Schedulers lack decision support for changeovers and batching;
+      sequence-dependent setup times, tool/fixture availability, and bay
+      readiness are not automatically optimized, leading to 5–15% wasted
+      capacity.
+  solution:
+    - >-
+      A plate-work specific finite-capacity scheduling engine combining
+      constraint programming (CP-SAT), metaheuristics, and dispatching rules
+      tuned to weld-bay and crane constraints.
+    - >-
+      Digital twin of resources (machines, bays, cranes, inspectors,
+      operators/skills), calendars, setup matrices, and WPS/PQR/Welder
+      qualification rules.
+    - >-
+      Daily/weekly auto-generation of feasible schedules; continuous
+      re-optimization on disruptions (rush orders, breakdowns, absenteeism,
+      material delays).
+    - >-
+      Scenario planning to compare trade-offs: expedite vs. overtime vs.
+      subgrouping for changeover reduction; forward/backward scheduling with
+      due-date risk scoring.
+    - >-
+      Tight integrations with ERPs/MES and nesting/CAM (e.g., SigmaNEST,
+      ProNest, Lantek) to align cut lists/nests with downstream capacity and
+      material availability (heat numbers).
+    - >-
+      Shop-floor execution support: prioritized dispatch lists, bay/machine
+      visual boards, and feedback capture (start/complete/actuals) to improve
+      model accuracy over time.
+  uniqueValueProp: >-
+    Out-of-the-box AI scheduling for plate-work that simultaneously optimizes
+    cutting, forming, machining, and weld-bay flow with sequence-dependent
+    changeovers and due-date constraints—delivering target +10–20% throughput,
+    -20–40% late jobs, and -10–25% overtime within 8–12 weeks of deployment.
+  unfairAdvantage: >-
+    Prebuilt constraint libraries and connectors for plate-work (weld-bay,
+    WPS/PQR, crane/inspection) enabling 8–12 week time-to-value, plus a feedback
+    loop that learns actual durations and changeover impacts from shop-floor
+    events to continuously improve scheduling quality.
+  customerSegments:
+    - >-
+      Mid-market plate-work fabricators (50–500 employees) with 2–10 cutting
+      machines (plasma/laser/oxy/waterjet), 5–30 weld bays, and in-house
+      forming/machining.
+    - >-
+      Heavy fabrication serving oil & gas, mining, construction equipment, wind
+      towers, pressure vessels/tanks, ships/offshore, and structural plate
+      assemblies.
+    - >-
+      Job-shops and make-to-order plants with high-mix, low-volume parts,
+      frequent engineering changes, and due-date variability.
+    - >-
+      Multi-plant organizations consolidating schedules across shared resources
+      (paint/HT, NDT, inspectors, test bays).
+    - >-
+      Directors of Operations/Plant Managers, Master Schedulers/Planners,
+      Continuous Improvement leaders, and ERP/MES owners (Epicor, JobBOSS,
+      Infor, IFS, SAP).
+  channels:
+    - >-
+      Direct sales to mid-market fabricators via targeted outbound (Ops/Plant
+      leaders) and inbound content (case studies, ROI calculator, weld-bay
+      scheduling guides).
+    - >-
+      Partnerships with ERP/MES resellers/integrators (Epicor, JobBOSS, Infor,
+      IFS) and nesting/CAM vendors (SigmaNEST, Hypertherm/ProNest, Lantek) for
+      co-selling and marketplace listings.
+    - >-
+      Industry associations and events: FABTECH, EuroBLECH, AWS (American
+      Welding Society), FMA; speakerships and workshops on constraint-aware
+      weld-bay scheduling.
+    - >-
+      Pilot-led land-and-expand: 8–12 week paid pilots with 2–3 departments;
+      expand to full plant and multi-site after KPI attainment.
+    - >-
+      Referral program for consultants/CI practitioners; incentives for
+      case-study participation.
+    - >-
+      Digital campaigns: LinkedIn and trade publications; retargeting; webinar
+      series on reducing changeovers and stabilizing weld-bay bottlenecks.
+  revenueStreams:
+    - >-
+      SaaS subscription tiered by active resources (machines + weld bays +
+      cranes): Basic $1.5k/month (≤20 resources), Pro $4k/month (≤60),
+      Enterprise $8k+/month (custom/multi-site).
+    - >-
+      One-time onboarding and modeling fee: $10k–$60k depending on plant
+      complexity and integrations.
+    - >-
+      Premium support/SLA and dedicated CSM: +15–25% of ARR for 24/7 and
+      priority response.
+    - >-
+      Professional services: integration, custom analytics, change-management
+      training, and advanced constraint modeling ($150–$250/hour or
+      fixed-scope).
+    - >-
+      Optional add-ons: CT/ATP module, heat-treatment scheduling, advanced
+      nesting alignment, IoT data ingestion for arc-on/crane usage telemetry.
+  costStructure:
+    - >-
+      R&D labor for optimization/ML/industrial engineering (core product team
+      6–12 FTEs).
+    - >-
+      Cloud infrastructure and solver licensing (e.g., Gurobi/CPLEX) plus data
+      storage/backup; estimated $3k–$10k/month per 50 customers at scale, plus
+      per-customer compute for large re-plans.
+    - >-
+      Integrations engineering and customer onboarding (professional
+      services/CSM).
+    - >-
+      Sales and marketing: partner channel commissions (10–25%), events
+      (FABTECH/EuroBLECH), content production, ads.
+    - >-
+      Security/compliance (SOC 2, ISO 27001), pen tests, and legal/insurance
+      (E&O).
+    - >-
+      Customer support and training, documentation/academy; product analytics
+      and observability.
+  keyMetrics:
+    - >-
+      On-time-in-full (OTIF) %: baseline vs post-implementation (+5–15 pp
+      target).
+    - 'Late jobs per month: target -20–40%.'
+    - 'Weld-bay utilization: target +8–15% without increasing overtime.'
+    - 'Average changeover hours per week: target -10–25%.'
+    - 'Planner time spent scheduling per week: target -40–60%.'
+    - >-
+      Schedule stability index: % of operations not moved within frozen horizon;
+      target >85%.
+    - >-
+      Average solver runtime for weekly plan at 1,500–3,000 ops: <10 minutes
+      P95; feasibility rate >99%.
+    - 'Queue time/WIP days reduction: -10–20% within 3 months.'
+    - 'Overtime hours: -10–25% while maintaining throughput.'
+    - >-
+      Sales KPIs: pilot win rate >35%; pilot-to-subscription conversion >70%;
+      payback period <6 months; Net Revenue Retention >110%; Gross Margin >75%.
+    - >-
+      Adoption metrics: daily active planners/supervisors >90% after week 4;
+      operator feedback compliance >80% for start/complete events.
+storyBrand:
+  character: >-
+    Plate-fabrication operations leaders (planners, schedulers, production
+    managers) who need reliable daily/weekly machine and weld-bay schedules that
+    hit due dates with less chaos.
+  problem: >-
+    External: Rush orders, long changeovers, shared cranes/fixtures, welder
+    qualifications, and capacity limits make manual scheduling fragile.
+
+    Internal: Teams juggle spreadsheets and whiteboards, firefight daily, and
+    can’t promise realistic dates.
+
+    Philosophical: The schedule should serve the shop—not the other way around.
+  guide: >-
+    Empathy: We understand plate work realities—nests, setups, weld sequencing,
+    and rework risk.
+
+    Authority: An AI optimizer built for job-shops, integrating with ERP/MES,
+    modeling changeovers, skills, shifts, and due-date rules; with references
+    and measurable KPIs.
+  plan: >-
+    1) Connect: Sync work orders, routings, calendars, and WIP from ERP/MES/CSV.
+
+    2) Configure: Machines, weld bays, changeover matrices,
+    skills/qualifications, shifts, constraints (cranes, fixtures), and priority
+    rules.
+
+    3) Optimize & Publish: Auto-generate feasible daily/weekly schedules, run
+    what-if scenarios, approve, and publish to floor/ERP.
+  callToAction: |-
+    Direct: Book a demo or start a 14-day pilot with your data.
+    Transitional: Download the ROI calculator and sample schedule playbook.
+  success: |-
+    - Confident promise dates and higher OTIF
+    - Fewer changeovers and overtime hours
+    - Clear, shift-level priorities across machines and weld bays
+    - Lower WIP and faster throughput
+    - Rapid what-if planning for rush orders and outages
+  failure: |-
+    - Missed due dates, expediting, and margin erosion
+    - Idle bays waiting on upstream steps; machines starved by poor sequencing
+    - Burned-out schedulers and finger-pointing
+    - Lost bids and unhappy customers
+landingPage:
+  hero:
+    title: AI Production Schedule Optimizer for Plate Work
+    subtitle: >-
+      Auto-generate feasible daily/weekly machine and weld-bay schedules with
+      changeover and due-date constraints.
+    ctaText: Book a Demo
+    ctaHref: /demo
+  problem:
+    - 'Late jobs from manual, error-prone spreadsheets'
+    - 'Excess changeovers from poor sequencing (thickness, grade, bevel)'
+    - Weld-bay bottlenecks while upstream machines sit idle
+    - No fast way to replan after breakdowns or rush orders
+    - Dispatch lists out of sync with the floor
+    - Unclear delivery promises and missed due dates
+  solution:
+    - >-
+      Generate feasible, finite-capacity schedules across cutting, forming,
+      machining, and weld-bays
+    - Sequence jobs to minimize changeovers while protecting due dates
+    - 'Balance weld-bay load by skill, fixtures, and crane constraints'
+    - Replan in minutes when priorities or resources change
+    - Publish clean dispatch lists and Gantt views to every cell
+    - Integrate with ERP/MES so routings and due dates stay aligned
+  features:
+    - >-
+      Job-shop optimization with sequence-dependent setup times (thickness,
+      grade, bevel, wire/gas)
+    - 'Finite capacity across machines, weld-bays, shifts, and calendars'
+    - Alternate routings and parallel machines; batch by thickness/material
+    - 'Weld-bay balancing with skill matrix, fixture and crane conflict checks'
+    - 'Due-date, priority, and promise-date aware scheduling'
+    - 'One-click replans for breakdowns, absenteeism, and rush jobs'
+    - Drag-and-drop adjustments with locks and what-if scenarios
+    - 'KPIs: on-time completion, utilization, WIP, and changeover counts'
+    - ERP/MES connectors and CSV/API import-export
+    - Publishable Gantt charts and station dispatch lists (screen/print)
+  steps:
+    - 'Connect jobs, routings, and due dates from ERP/CSV'
+    - 'Define machines, weld-bays, shifts, and changeover rules'
+    - Click Optimize to generate a feasible daily/weekly schedule
+    - 'Review Gantt, drag to adjust, lock critical operations'
+    - Publish dispatch lists to cells and crews
+    - Track progress and replan instantly as things change
+---
+# PlateFlow — AI Production Schedule Optimizer for Plate Work
+
+Industry: Plate Work Manufacturing
+Service: Production Schedule Optimizer (Job-Shop for Plate Work)

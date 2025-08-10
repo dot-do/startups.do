@@ -1,0 +1,299 @@
+---
+name: MaltCast AI
+slug: maltcast
+service:
+  title: SKU-Customer Demand Forecasting and S&OP Alignment
+  description: >-
+    Generates weekly SKU/customer forecasts with uncertainty bands and safety
+    stocks to drive malt production and procurement.
+  targetUsers:
+    - Demand Planner
+    - Sales Operations
+    - Supply Chain Manager
+  triggers:
+    - Weekly S&OP cycle
+    - New customer POs imported
+    - Forecast error (MAPE) exceeds threshold
+  inputs:
+    - 24+ months shipments by SKU and customer
+    - Open orders/backlog
+    - Customer-provided forecasts (optional)
+    - Holiday/seasonality calendar
+    - Product and customer master data
+  steps:
+    - Ingest ERP exports via SFTP/API or Sheets
+    - 'Clean/align SKUs, customers, units; handle outliers'
+    - Train hierarchical time-series models (SKU→customer→aggregate)
+    - Generate 12–26 week forecasts with confidence intervals
+    - Derive safety stock by service target and variability
+    - Publish to dashboard and ERP/MRP planning tables
+    - Track accuracy; auto-retrain on drift
+  tools:
+    - Python/pandas
+    - scikit-learn/LightGBM
+    - Prophet/NeuralProphet
+    - Airflow/cron
+    - Google Sheets/Excel API
+    - Metabase/Looker Studio
+  outputs:
+    - 12–26 week forecast CSV/JSON by SKU-customer
+    - Safety stock recommendations
+    - Exception list (low fit/cold starts)
+    - Forecast accuracy dashboard
+  pricingModel:
+    - One-time setup fee
+    - Monthly subscription per site
+    - Optional success fee tied to MAPE improvement
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 9
+    overall: 9
+  risks:
+    - Poor or inconsistent customer-level history
+    - Cold-start for new SKUs/customers
+    - Demand shocks not captured in history
+  dependencies:
+    - Read-only ERP access or CSV/SFTP exports
+    - Product/customer mapping table
+    - S&OP cadence owner
+leanCanvas:
+  problem:
+    - >-
+      Weekly customer demand is volatile (promotions, seasonality, product mix
+      shifts) causing frequent stockouts of critical SKUs and overstock in slow
+      movers.
+    - >-
+      Barley procurement and quality are seasonal and variable; misaligned
+      demand signals lead to over-contracting or spot buys at premium prices.
+    - >-
+      Existing forecasting is in spreadsheets or generic tools; lacks
+      SKU-by-customer granularity, uncertainty bands, and bias control,
+      resulting in poor service (OTIF < 95%) and high working capital.
+    - >-
+      S&OP is monthly while execution issues are weekly; planners cannot
+      translate consensus plans into actionable weekly schedules and safety
+      stocks per site/SKU/customer.
+    - >-
+      Production constraints (kiln/germination capacity, silo availability,
+      packaging line changeovers) are not embedded in demand planning, leading
+      to plan churn and overtime.
+    - >-
+      Energy-intensive kilning peaks when plans are unstable, increasing energy
+      cost/ton and CO2 per ton of malt.
+    - >-
+      Lack of early-warning for large account mix changes (macro brewers,
+      distillers) and new product introductions leads to reactive firefighting
+      and expedites.
+  solution:
+    - >-
+      Data integration from ERP/MES/WMS (orders, shipments, open POs,
+      capacities) plus external signals (beer/distilling demand indices,
+      holidays, promotions where available).
+    - >-
+      Hierarchical forecasting at Customer x SKU x Ship-from with probabilistic
+      outputs (e.g., P10/P50/P90) and calibrated bias control.
+    - >-
+      Automated safety stock and reorder point recommendations by
+      site/SKU/customer, factoring lead times, demand variability, and service
+      targets per customer tier.
+    - >-
+      S&OP-to-S&OE alignment: Convert monthly consensus demand to weekly
+      buckets, reconcile to plant capacities, and surface exceptions for
+      planners.
+    - >-
+      Scenario planning: Simulate major account changes, promo spikes,
+      crop/quality constraints, lead-time shifts, and energy price scenarios.
+    - >-
+      Procurement alignment: Translate demand ranges into barley contracting
+      curves and call-off calendars; track coverage and exposure by
+      spec/variety.
+    - >-
+      Early warning and exception management: Alerts for forecast error spikes,
+      service risk, capacity bottlenecks, and aging inventory risk.
+    - >-
+      Closed-loop MLOps: Continuous model monitoring (WAPE/bias/FVA), A/B
+      testing of model variants, and override governance with audit trails.
+  uniqueValueProp: >-
+    Probabilistic SKU-by-customer weekly forecasts and safety stock
+    recommendations purpose-built for malt, aligning demand, production, and
+    barley procurement to lift OTIF to 98%, cut finished-goods inventory 10–20%,
+    and reduce expedites 20–40% within 6 months.
+  unfairAdvantage: >-
+    Verticalized malt ontology and feature library (spec equivalence,
+    kiln/germination constraints, barley quality-to-yield models), prebuilt
+    ERP/MES connectors, and reference results from leading maltsters
+    demonstrating measurable OTIF and inventory gains—with governance that
+    quantifies override bias and FVA at SKU-customer level.
+  customerSegments:
+    - >-
+      Primary: Enterprise malt manufacturers (global/regional) with 3–30 plants,
+      300+ SKUs, selling to macro brewers, craft breweries, and distilleries.
+    - >-
+      Secondary: Specialty maltsters (1–3 plants) with high SKU variety and
+      bagged product mix.
+    - >-
+      Buyer personas: Head of Supply Chain, S&OP Director, Demand Planning
+      Manager, Plant Supply Planning Manager, Procurement (barley contracting).
+    - >-
+      Geographies: Europe, North America first; then LATAM and APAC where malt
+      capacity is growing.
+  channels:
+    - Direct sales to supply chain and S&OP leaders at malt manufacturers.
+    - >-
+      Industry partnerships with ERP/MES SIs serving food & bev (SAP partners,
+      Microsoft D365 integrators).
+    - >-
+      Thought leadership with Brewers Association, European Brewery Convention
+      (EBC), Institute of Brewing & Distilling; white papers on probabilistic
+      planning in malt.
+    - >-
+      Events: BrauBeviale, Drinktec, Craft Brewers Conference, World Brewing
+      Congress; workshops with case studies.
+    - >-
+      Founder-led pilots with 3–5 design partners; referenceable case studies
+      and joint webinars.
+    - >-
+      Account-based marketing targeting top 30 malt producers; targeted LinkedIn
+      outreach, newsletters geared to planners.
+    - >-
+      Customer community and quarterly value reviews driving expansion from
+      forecasting to procurement and capacity modules.
+  revenueStreams:
+    - >-
+      Annual subscription priced by number of plants and active SKU-customer
+      combinations; tiers: $80k–$300k ARR per company (enterprise tier higher).
+    - >-
+      One-time implementation/onboarding: $50k–$200k depending on data
+      integration complexity and plants.
+    - >-
+      Add-ons: Procurement optimization, energy/CO2 smoothing analytics,
+      advanced substitution optimization ($20k–$80k ARR each).
+    - >-
+      Optional performance-based component (e.g., 5–10% fee on verified expedite
+      cost reduction or working-capital savings) for large enterprises.
+    - Training and premium support packages ($10k–$40k annually).
+  costStructure:
+    - 'R&D: Data science, product engineering, domain experts (~40–55% of opex).'
+    - >-
+      Cloud infrastructure: Compute/storage/networking and MLOps tooling
+      (~10–15% of opex; COGS scales with data volume/users).
+    - Implementation and customer success teams (~15–25% of opex).
+    - 'Sales and marketing: Field sales, events, content (~15–25% of opex).'
+    - >-
+      Data licensing (market demand indices, weather/crop datasets) (~2–5% of
+      opex).
+    - 'Security/compliance, audits, and insurance (~2–4% of opex).'
+  keyMetrics:
+    - >-
+      Forecast accuracy: weekly SKU-customer WAPE ≤ 18% for top 80% revenue
+      SKUs; bias within ±3%.
+    - 'Service level: OTIF ≥ 98% for top-tier accounts; ≥ 96% overall.'
+    - >-
+      Inventory: 10–20% reduction in finished-goods days of supply within 2–3
+      cycles; 15% improvement in turns.
+    - >-
+      Expedites/overtime: 20–40% reduction in expedite freight and unplanned
+      overtime within 6 months.
+    - >-
+      Forecast Value Add (FVA): +10–25% versus naive and current baseline per
+      hierarchy level.
+    - >-
+      S&OE excellence: ≤ 15% week-to-week plan churn on constrained lines; ≥ 90%
+      schedule adherence.
+    - >-
+      Procurement: ≥ 90% of barley call-offs within plan bands; ≤ 5%
+      spot-premium purchases.
+    - >-
+      User adoption: ≥ 80% active planners weekly; override rate ≤ 20% with
+      improving trend.
+    - >-
+      Time-to-value: First model to production in ≤ 8 weeks; full site go-live
+      in ≤ 16 weeks.
+storyBrand:
+  character: >-
+    S&OP leads and demand planners at malt manufacturers who need trustworthy
+    weekly SKU–customer forecasts to align production and barley contracting
+    while protecting OTIF.
+  problem: >-
+    Brewer/distiller orders swing with seasonality and promotions; the
+    SKU–customer mix is complex; long barley lead times and constrained
+    germination/kilning capacity create stockouts or bloated inventory;
+    spreadsheet forecasts lack uncertainty, forcing firefighting.
+  guide: >-
+    We’re an AI forecasting partner with malt-domain expertise. We fuse your
+    orders, shipments, and promotions with external signals to deliver
+    probabilistic weekly forecasts and safety stocks planners can trust—built
+    for S&OP alignment.
+  plan: >-
+    1) Connect ERP/WMS data and map SKU–customer demand; baseline accuracy audit
+    in 2 weeks. 2) Calibrate service levels; generate weekly probabilistic
+    forecasts with uncertainty bands and safety-stock targets; validate with
+    planners. 3) Automate weekly drops and S&OP packs for production, packaging,
+    and barley procurement, with alerts for risk and upside.
+  callToAction: >-
+    Book a 30‑minute assessment to see sample forecasts on your history, then
+    run a 6–8 week pilot on priority SKUs/customers.
+  success: >-
+    15–30% SKU–customer accuracy lift; 5–12% inventory reduction with maintained
+    service; fewer expedites; higher plan adherence; smarter barley contracting;
+    confident, data-driven S&OP.
+  failure: >-
+    Keep guessing demand, over/under‑contract barley, carry dead stock, pay rush
+    freight, miss OTIF, and burn out planners with last‑minute changes.
+landingPage:
+  hero:
+    title: SKU-Customer Demand Forecasting & S&OP Alignment for Malt Manufacturers
+    subtitle: >-
+      Generate weekly SKU/customer forecasts with uncertainty bands and safety
+      stock targets to align malt production and barley procurement.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - Volatile brewery and distillery demand at SKU-customer level
+    - 'Manual, error-prone Excel planning and biased forecasts'
+    - Barley procurement misaligned with kiln and germination capacity
+    - Stockouts on key specs while excess builds elsewhere
+    - 'Slow S&OP cycles and weak consensus across sales, ops, and procurement'
+    - High working capital and missed service levels
+  solution:
+    - Weekly machine learning forecasts at SKU-customer granularity
+    - Uncertainty bands and service-level driven safety stocks
+    - Capacity- and lead-time aware production and procurement signals
+    - 'Scenario planning for promotions, new SKUs, and harvest outcomes'
+    - 'Real-time alerts for demand shifts, bias, and exceptions'
+    - One-click publish to ERP/MRP with collaborative S&OP workflows
+  features:
+    - 'Fast data ingestion from ERP/MES: orders, shipments, inventory, lead times'
+    - >-
+      External drivers: seasonality, brew schedules, promotions, holidays,
+      weather
+    - >-
+      Hierarchical forecasting by customer, SKU, plant, and region with
+      reconciliation
+    - >-
+      Cold-start forecasts for new SKUs/customers via analogs and attribute
+      models
+    - ABC-XYZ classification with policy assignment per SKU-customer
+    - Service-level based safety stock using variable lead times and uncertainty
+    - 'Capacity-aware planning across steeping, germination, and kiln constraints'
+    - Barley procurement recommendations by grade/spec aligned to forecast mix
+    - >-
+      Transparent explainability: drivers, feature importance, and exception
+      reasons
+    - 'Accuracy tracking (MAPE, bias) and Forecast Value Add reporting'
+    - 'Collaborative review with comments, overrides, and audit trail'
+    - 'API and ERP connectors, SSO, role-based access, SOC 2 ready'
+  steps:
+    - Connect ERP/MES and historical demand data via secure connector
+    - 'Cleanse and map SKUs, customers, and units; set policies and targets'
+    - Generate baseline weekly forecasts with uncertainty bands
+    - Review exceptions and agree a consensus plan in S&OP
+    - 'Publish to MRP: production, procurement, and safety stocks'
+    - Monitor accuracy and service levels; auto-refresh models monthly
+    - 'Run scenarios for promotions, capacity changes, and harvest shifts'
+---
+# MaltCast AI
+
+Industry: Malt Manufacturing
+Service: SKU-Customer Demand Forecasting and S&OP Alignment

@@ -1,0 +1,370 @@
+---
+name: >-
+  Preflight Briefing Copilot (Wx/NOTAM/Performance/Risk) — AI service for Flight
+  Training
+slug: preflight
+service:
+  title: Preflight Briefing Copilot (Wx/NOTAM/Performance/Risk)
+  description: >-
+    Generates a dispatch-quality preflight package with weather, NOTAMs, route,
+    performance, W&B, and risk assessment.
+  targetUsers:
+    - Student pilots
+    - CFIs
+    - Part 61/141 schools
+  triggers:
+    - Planned flight entry
+    - Morning daily brief
+    - Instructor request
+  inputs:
+    - Departure/destination/route/altitude
+    - Aircraft profile (POH/perf/W&B)
+    - Pilot/crew and cargo weights
+    - Time of departure
+    - Fuel policy and reserves
+  steps:
+    - Pull METAR/TAF/winds aloft/PIREPs/airmets/sigmets
+    - Fetch NOTAMs/TFRs/Runway status
+    - Compute performance and W&B for conditions
+    - Propose route/alt altitudes with explanations
+    - Run PAVE/5P risk checklist with mitigations
+    - Produce printable briefing and send reminders
+  tools:
+    - NOAA/ADDS API
+    - FAA NOTAM/TFR feeds
+    - Airport/runway databases
+    - Internal E6B/performance calculator
+    - SkyVector link generation
+    - Email/SMS (Twilio)
+  outputs:
+    - Briefing PDF/HTML
+    - W&B/performance sheet
+    - Risk assessment checklist
+    - .FPL/GPX route file and SkyVector link
+  pricingModel:
+    - Per flight brief ($2–$5)
+    - Monthly subscription (unlimited)
+    - School site license
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 9
+    overall: 9
+  risks:
+    - Performance miscalculation liability
+    - Stale weather/NOTAM data
+    - Overreliance vs CFI oversight
+  dependencies:
+    - Accurate aircraft performance data
+    - API availability and rate limits
+    - School SOPs for dispatch formatting
+leanCanvas:
+  problem:
+    - >-
+      Preflight for training flights is fragmented across multiple systems
+      (weather, NOTAMs, routes, W&B, FRAT, dispatch), leading to 20–40 minutes
+      per sortie and inconsistent quality.
+    - >-
+      Risk assessments (PAVE/IMSAFE/FRAT) are inconsistently applied and rarely
+      data-driven; schools struggle to enforce SOPs and risk gates at scale.
+    - >-
+      W&B and performance calculations are error-prone, often using screenshots
+      or spreadsheets with no audit trail; dispatchers spend time re-checking
+      and sending students back for corrections.
+    - >-
+      NOTAMs and TFRs are hard for new pilots to interpret; critical items
+      (e.g., runway closures, GPS outages) get overlooked.
+    - >-
+      Dispatch-quality packages and recordkeeping are labor-intensive; many
+      schools lack a consistent, signed, and archived preflight record for
+      audits and standardization.
+    - >-
+      Instructors spend billable time teaching preflight mechanics vs
+      aeronautical decision-making; schools want to reduce time-to-solo and
+      standardize training outcomes.
+    - >-
+      Existing tools are pilot-centric EFBs, not training/ops-centric: weak
+      workflow, limited FRAT enforcement, minimal school SOP integration,
+      limited multi-aircraft fleet templates.
+    - >-
+      No easy way to pre-generate briefings from the schedule so students arrive
+      prepared; last-minute go/no-go decisions are rushed.
+  solution:
+    - >-
+      AI-driven preflight generator that ingests schedule, aircraft profile,
+      student stage, and local SOPs to produce a standardized briefing
+      (Wx/NOTAMs/route/performance/W&B/FRAT) for approval and e-signature.
+    - >-
+      Adaptive risk engine combining PAVE/IMSAFE, real-time conditions (winds,
+      DA, ceilings), student currency, and school-specific FRAT to trigger gates
+      (e.g., crosswind limits by stage) and escalation workflows to
+      instructors/chief pilots.
+    - >-
+      Integrated W&B + performance calculators with POH-based interpolation,
+      tail-specific W&B profiles, runway analysis (head/crosswind component,
+      takeoff/landing distance factors), plus density altitude and obstacle
+      notes.
+    - >-
+      NOTAM/TFR comprehension layer that classifies and highlights operationally
+      critical items (runway closures, GPS RAIM, lighting outages) and presents
+      plain-English summaries to students.
+    - >-
+      Automated route suggestions (VFR and IFR student training routes) that
+      avoid SUA/TFRs, incorporate preferred routes, winds aloft, and school
+      training areas; export to popular EFBs.
+    - >-
+      Dispatch workflow: pre-generate briefs from schedule; notify student/CFI;
+      edits tracked; approvals and digital signatures captured; immutable
+      PDF/JSON archived.
+    - >-
+      Training-first content: scenario prompts aligned with ACS tasks,
+      instructor notes, stage-check templates, and “teach-back” questions to
+      improve ADM.
+    - >-
+      Compliance hooks: optional Leidos 1800WXBRIEF linkage to record an
+      official briefing, audit logs with timestamps and conditions snapshot for
+      each sortie.
+  uniqueValueProp: >-
+    Generate a dispatch-quality, school-standardized preflight package in under
+    60 seconds that reduces briefing time by 50–70%, enforces SOP-based risk
+    gates, and creates an auditable record for every training flight.
+  unfairAdvantage: >-
+    Training-first risk and dispatch workflow that encodes each school’s SOPs
+    and stage gates into the preflight process, combined with a growing
+    proprietary dataset of school-specific FRAT calibrations, tail-specific
+    performance/W&B profiles, and annotated NOTAM semantics—creating switching
+    costs and superior standardization that general-purpose EFBs don’t offer.
+  customerSegments:
+    - >-
+      Part 141 flight schools and collegiate aviation programs (Chief/Assistant
+      Chief Instructor, Dispatch/Ops)
+    - Mid/large Part 61 schools and clubs with dispatch processes
+    - University aviation departments and aviation academies
+    - Independent CFIs and student pilots (self-serve)
+    - Flight school dispatchers and operations coordinators
+    - Insurance partners and safety officers seeking documented FRAT compliance
+  channels:
+    - >-
+      Design-partner program with 5–10 flight schools (mix of Part 141,
+      university, and large Part 61) for co-development and case studies.
+    - >-
+      Direct sales to Chief/Assistant Chief Instructors and Ops Managers via
+      demos, webinars, and on-site trials; land-and-expand by fleet/aircraft
+      type.
+    - >-
+      Partnerships/integrations with scheduling platforms (Flight Schedule Pro,
+      Flight Circle) and training analytics tools (CloudAhoy) to access embedded
+      distribution.
+    - >-
+      Influencer and community marketing to CFIs/students via AOPA/EAA webinars,
+      university aviation clubs, and CFI-focused content (YouTube, podcasts,
+      Discord).
+    - >-
+      Industry events and booths: SUN ’n FUN, EAA AirVenture Oshkosh, NBAA
+      training tracks, University Aviation Association events.
+    - >-
+      Self-serve freemium for independent CFIs/students with upgrade paths to
+      school plans; EDU pricing for universities.
+    - >-
+      Insurance/safety partner pilots (e.g., Avemco/Starr) offering premium
+      credits or recognition for documented FRAT usage.
+  revenueStreams:
+    - >-
+      School subscription (recommended): $99 per aircraft per month (includes
+      unlimited briefings, archival, dispatch workflow).
+    - >-
+      Seat-based plan for small schools/clubs: $12–25 per active user per month
+      (students/CFIs).
+    - >-
+      Enterprise plan for universities/large 141: custom pricing; SSO, SOC 2
+      reports, custom FRAT, data retention >5 years, premium support.
+    - >-
+      Usage-based API for EFB/scheduler partners: $0.05–$0.15 per generated
+      briefing or per route/performance call.
+    - >-
+      Professional services: aircraft profile onboarding, custom SOP/FRAT
+      configuration, on-site training ($2k–$10k per engagement).
+    - >-
+      Add-ons: extended data retention (+$0.50/briefing-year), advanced
+      analytics dashboard ($199/month/school), incident reconstruction export
+      pack ($499/year).
+  costStructure:
+    - >-
+      Data and compute: cloud hosting, LLM inference/summarization, vector
+      database, monitoring/logging (~$0.01–$0.05 per briefing at scale).
+    - >-
+      Engineering and data science (route engine, NOTAM classifier,
+      performance/W&B modules) and aviation SME staff (CFII, dispatch).
+    - >-
+      Licensing/compliance: weather and NOTAM feeds (FAA/NOAA are free;
+      budgeting for commercial redundancy), legal review, E&O and cyber
+      insurance, SOC 2 Type II (~$60–120k/year).
+    - >-
+      Sales and marketing: events, demos, content, partner rev share (10–20% for
+      channel partners).
+    - >-
+      Customer success and support: onboarding, aircraft data validation,
+      SOP/FRAT workshops.
+    - >-
+      Storage costs for archival PDFs/JSON and analytics (e.g., S3 + Glacier;
+      $0.0004–$0.002/briefing-month).
+  keyMetrics:
+    - 'Briefing generation time: P50 < 20s, P95 < 60s.'
+    - >-
+      Briefing acceptance rate (first-pass approval by instructor/dispatch):
+      >85% within first 3 months; >92% by month 6.
+    - >-
+      Average time saved per briefing vs baseline: 12–20 minutes; target
+      aggregate time saved per aircraft per month >20 hours.
+    - >-
+      Risk gate effectiveness: % of attempted out-of-limits briefings blocked or
+      escalated; target 100% block on hard gates; reduce unauthorized
+      exceedances to near zero.
+    - >-
+      NOTAM classifier performance: precision/recall >95% on critical
+      categories; false-negative rate for closures/outages <1%.
+    - >-
+      W&B/performance accuracy: 100% consistency with configured POH tables;
+      error rate in CG/out-of-envelope detection = 0; audit discrepancy rate
+      <0.5% of briefs.
+    - >-
+      Adoption/usage: MAU, daily briefings per active aircraft (target 2.5–3.5),
+      school-level activation (>80% instructors active within 30 days).
+    - >-
+      Revenue metrics: ARPA (per aircraft) ~$99/month; Gross margin >70% by
+      month 12; Net revenue retention >110%; CAC payback <6 months.
+    - >-
+      Churn: school logo churn <2% quarterly; seat churn <4% monthly for small
+      teams.
+    - >-
+      Reliability: system uptime >99.9%; data pipeline latency P95 < 30s for
+      Wx/NOTAM updates.
+    - >-
+      Compliance: % of briefs with signed archival and timestamped sources >99%;
+      % of flights with official Leidos brief linked (when required by SOP)
+      >70%.
+storyBrand:
+  character: >-
+    Flight schools, CFIs, and student pilots who need fast, reliable,
+    standardized preflight briefs for every lesson.
+  problem: >-
+    - External: Fragmented tools and manual workflows to gather Wx, NOTAMs,
+    route, performance, W&B, and risk—easy to miss details.
+
+    - Internal: Anxiety and cognitive load from assembling briefs under time
+    pressure.
+
+    - Philosophical: Every training flight deserves dispatch-quality rigor
+    without adding paperwork or guesswork.
+  guide: >-
+    Empathy: We’ve felt the scramble before a lesson and the uncertainty of “Did
+    we catch everything?”
+
+    Authority: Built by ex-dispatchers and CFIs; aligns with FAA/ICAO briefing
+    standards; integrates authoritative data sources for verifiable, audit-ready
+    packages.
+  plan: >-
+    Process Plan:
+
+    1) Create aircraft profiles and preferred training routes.
+
+    2) Select lesson/time; Copilot auto-builds a dispatch-quality package (Wx,
+    NOTAMs, route, performance, W&B, risk).
+
+    3) Review, annotate, approve, and release to the student; archive for
+    audits.
+
+    Agreement Plan:
+
+    - Secure, role-based access with instructor-in-the-loop approvals.
+
+    - Uses authoritative FAA/NOAA/ICAO data; sources cited in every package.
+
+    - API/LMS/dispatch integrations to fit existing SOPs.
+  callToAction: >-
+    Primary: Start a free trial or book a 15-minute demo today.
+
+    Transitional: Download a sample preflight package; get the risk assessment
+    checklist; view API docs.
+  success: >-
+    - Faster briefs and more time for instruction and flying.
+
+    - Consistent, dispatch-quality packages across the school.
+
+    - Improved readiness and safety culture; fewer day-of surprises and scrubbed
+    lessons.
+
+    - Audit-ready records and clear instructor oversight.
+  failure: >-
+    - Missed NOTAMs or weather hazards leading to delays or incidents.
+
+    - Performance/W&B errors and inconsistent SOPs across instructors.
+
+    - Wasted training time, overwhelmed students, and avoidable checkride
+    setbacks.
+landingPage:
+  hero:
+    title: Preflight Briefing Copilot for Flight Training
+    subtitle: >-
+      Dispatch-quality Wx, NOTAMs, route, performance, W&B, and risk—in minutes.
+      Standardize preflight. Teach better. Fly safer.
+    ctaText: Start free trial
+    ctaHref: /start
+  problem:
+    - Preflights are slow and inconsistent across students and CFIs.
+    - Critical Wx/NOTAM details are buried and easy to miss.
+    - Manual W&B and performance math invites errors.
+    - Risk assessments vary; mitigations aren’t tracked.
+    - Briefings live in screenshots—poor review and audit trails.
+    - Last-minute changes force complete rework.
+  solution:
+    - 'One-click, dispatch-quality briefing tailored to your aircraft and lesson.'
+    - Prioritized Wx/NOTAMs with plain-language impacts and training tips.
+    - POH-based performance and W&B with automatic runway and DA checks.
+    - Structured PAVE/5P scoring with suggested mitigations and notes.
+    - 'Smart routing with winds, alternates, and fuel planning.'
+    - 'Shareable, time-stamped PDF and link for student/CFI sign-off.'
+  features:
+    - >-
+      Live METAR/TAF, MOS, winds aloft, radar/sat, and prog charts—auto
+      summarized by phase of flight.
+    - >-
+      NOTAM triage: runway closures, TFRs, GPS RAIM/RAIM outages highlighted
+      with impact statements.
+    - >-
+      Route builder: VFR waypoints, preferred routes, terrain/MEFs, altitudes,
+      alternates, fuel stops.
+    - >-
+      Aircraft profiles: POH tables, performance curves, school limits, density
+      altitude adjustments.
+    - >-
+      Weight & Balance: seat/bag/fuel sliders, envelope validation, presets for
+      common trainers.
+    - >-
+      TOLD: takeoff/landing distances with slope, surface, headwind/crosswind,
+      and runway length checks.
+    - >-
+      Risk engine: PAVE/5P + IMSAFE, customizable school thresholds, auto flags
+      for experience/currency.
+    - >-
+      Mitigation library and instructor comments; required acknowledgements
+      before release.
+    - 'Exports: print-ready PDF, secure share link, and CSV for school records.'
+    - >-
+      Lesson templates: pattern work, cross-country, short/soft-field, checkride
+      prep.
+    - Version history with change tracking and “update for latest Wx/NOTAMs.”
+    - >-
+      Role-based access for students, CFIs, and dispatch; API-ready for
+      integrations.
+  steps:
+    - 'Select aircraft, route, time, and lesson template.'
+    - Copilot pulls Wx/NOTAMs and computes W&B and performance.
+    - Review risks; apply mitigations or adjust route/payload.
+    - Generate the briefing and share for instructor review/sign-off.
+    - Fly with confidence; refresh briefing if conditions change.
+---
+# Preflight Briefing Copilot (Wx/NOTAM/Performance/Risk) — AI service for Flight Training
+
+Industry: Flight Training
+Service: Preflight Briefing Copilot (Wx/NOTAM/Performance/Risk)

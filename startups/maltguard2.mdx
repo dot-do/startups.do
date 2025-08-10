@@ -1,0 +1,327 @@
+---
+name: MaltGuard AI
+slug: maltguard2
+service:
+  title: Real-Time Anomaly Detection for Steep/Germ/Kiln
+  description: >-
+    Monitors process tags to detect deviations that risk quality, with ranked
+    alerts and suggested checks.
+  targetUsers:
+    - Head Maltster
+    - Process Engineer
+    - Shift Supervisor
+  triggers:
+    - Batch start
+    - Deviation from learned profiles
+    - Sensor fault patterns detected
+  inputs:
+    - 'Historian tags (bed/grain temperature, humidity, airflow, CO2, fan speeds)'
+    - Setpoints/recipes by product
+    - Operator event logs
+    - Batch outcomes for backtesting
+  steps:
+    - Batch or stream ingest from historian (CSV/MQTT/API)
+    - Learn normal profiles per phase/product (unsupervised)
+    - Score live trajectories; rank anomalies by impact
+    - Map anomalies to SOP-based corrective actions
+    - Notify via Teams/Slack with sparkline and context
+    - Daily summary; label outcomes to improve models
+  tools:
+    - alibi-detect/merlion/kats (time-series AD)
+    - Python/pandas
+    - Grafana Cloud for dashboards
+    - Teams/Slack webhooks
+    - SFTP/MQTT connectors
+  outputs:
+    - Real-time alerts with probable causes and checks
+    - Daily stability report by vessel
+    - Sensor health list (drift/stuck)
+    - Model performance backtests
+  pricingModel:
+    - Setup fee (tag mapping + baselines)
+    - Per-line monthly subscription
+    - Optional 24/7 alert monitoring add-on
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 8
+    overall: 8
+  risks:
+    - False positives/alert fatigue
+    - Sparse labeled incidents limit precision
+    - Connectivity or historian export interruptions
+  dependencies:
+    - Read-only historian/SCADA access
+    - Recipe/setpoint library
+    - SOP library for suggested actions
+leanCanvas:
+  problem:
+    - >-
+      Unplanned process drifts in steeping, germination, and kilning cause COA
+      deviations (e.g., moisture, friability, color, beta-glucan), leading to
+      downgrades or rework in 3–8% of batches at many sites.
+    - >-
+      Operators face alarm fatigue from generic SCADA thresholds (>300
+      alarms/shift at large plants), missing subtle multivariate drifts that
+      precede hot spots, uneven germination, airflow blockage, or
+      over/under-steep events.
+    - >-
+      Root cause analysis is slow and tribal-knowledge based; mean time to
+      detect (MTTD) early-stage anomalies is often >2 hours, and mean time to
+      resolve (MTTR) exceeds 6–12 hours, increasing energy use and risk to
+      quality.
+    - >-
+      Existing historian/SPC tools require manual tagging and expert
+      configuration; they underperform on non-linear interactions among
+      temperature, airflow, CO2, moisture, and bed depth across vessels.
+    - >-
+      Cost impact per medium/large plant: $250k–$1.2M/year from yield loss,
+      quality downgrades, overtime, and energy waste (1–3% extra energy per ton
+      on off-nominal kilning).
+    - >-
+      Compliance and audit gaps: HACCP/FSMA and customer audits require
+      traceable actions tied to deviations; current logs are fragmented across
+      SCADA, email, and shift notes.
+    - >-
+      Data is underutilized: plants collect thousands of tags via OSIsoft
+      PI/AVEVA, Ignition, and PLCs, but lack real-time, process-aware anomaly
+      ranking and actionable checks.
+  solution:
+    - >-
+      Edge-connected AI monitors key tags (e.g., bed temp profiles, grain
+      moisture, CO2, airflow static pressure, fan speed, wet/dry steep timing,
+      water temp, pH) and learns normal patterns per vessel and malt type.
+    - >-
+      Ranks anomalies by risk to COA attributes (friability, color, DP,
+      beta-glucan) using a process knowledge graph and historical incident
+      library.
+    - >-
+      Pushes actionable checks for operators (e.g., inspect fan VFD and filters,
+      confirm air plenum differential pressure, verify moisture probe
+      calibration, adjust steep water temp) with one-click acknowledgment and
+      audit trail.
+    - >-
+      Integrates with OSIsoft PI/AF, Ignition, OPC UA, SAP QM/LIMS; exports
+      deviations to shift handover and quality non-conformance workflows.
+    - >-
+      Hybrid deployment: on-prem edge for inference (<250 ms latency) with
+      cloud/single-tenant or on-prem server for model training, governance, and
+      fleet benchmarking.
+    - >-
+      8–12 week implementation: data audit and tag mapping (2 weeks), baseline
+      modeling on 90 days of data (3–4 weeks), validation with SMEs (2 weeks),
+      pilot run on 1–2 vessels and a kiln (4 weeks) with agreed success criteria
+      (precision/recall, MTTA/MTTR, COA deviations).
+  uniqueValueProp: >-
+    Prevent COA deviations and energy waste by detecting and ranking
+    multivariate drifts in steep/germ/kiln in real time—paired with actionable,
+    process-specific checks—integrated to your historian and deployable in
+    weeks.
+  unfairAdvantage: >-
+    A growing, cross-site incident and resolution dataset for malting operations
+    plus a malting-specific knowledge graph that ties multivariate tag patterns
+    to COA risk and prescriptive checks. This domain asset yields superior alert
+    ranking and low false positives versus generic anomaly tools. Partnerships
+    with OEMs and SI networks further reduce time-to-value and switching
+    likelihood.
+  customerSegments:
+    - >-
+      Large integrated maltsters (200k–1M t/year sites) with box/drum
+      germination and multi-floor kilns.
+    - >-
+      Mid-size regional malt plants (50k–200k t/year) with modern
+      SCADA/historian (OSIsoft PI, AVEVA, Ignition).
+    - >-
+      Craft maltsters (2k–30k t/year) seeking quality consistency and
+      auditability with limited data science resources.
+    - >-
+      Roles: Plant Manager, Quality/COA Manager, Process Engineer, Shift
+      Supervisor, Maintenance Lead, Corporate Operational Excellence/Continuous
+      Improvement.
+    - >-
+      Geographies: EU/UK, North America, Australia/NZ, LATAM; initial focus on
+      markets with high automation maturity.
+  channels:
+    - >-
+      Direct enterprise sales to top 50 global malt groups; initial focus EU/NA
+      where automation maturity is high.
+    - >-
+      Alliances with equipment OEMs (e.g., Bühler malting solutions, Künzel) to
+      bundle with upgrades/retrofits; revenue-share on referrals.
+    - >-
+      System integrators/OT partners (PI System integrators, Ignition Gold
+      partners) for deployment and support.
+    - >-
+      Cloud marketplaces (Azure/AWS) for procurement and IT approval
+      acceleration.
+    - >-
+      Industry associations and events: IBD, EBC, BrauBeviale, Craft Malt
+      Conference; publish case studies and present ROI outcomes.
+    - >-
+      Account-based marketing targeting Plant Managers and Quality Directors;
+      proof-of-value pilots with predefined success metrics.
+    - >-
+      Customer expansion motion: land on 1–2 vessels and kiln, expand sitewide,
+      then roll out across the group.
+  revenueStreams:
+    - >-
+      Annual SaaS subscription per site: $60k–$180k based on number of
+      vessels/kilns and tag count (typical: 6–12 germ boxes/drums + 1–2 kilns ≈
+      $120k ACV).
+    - >-
+      Per-vessel add-on for craft/small sites: $6k–$12k/vessel/year; kiln module
+      $15k–$30k/year.
+    - >-
+      One-time onboarding/integration fee: $25k–$80k/site depending on
+      historian/connectors and SOP mapping.
+    - >-
+      Premium support/SLA (24/7, <15 min response) + validation packages for
+      audit-heavy customers: $10k–$30k/year.
+    - >-
+      Professional services: model customization, SOP codification, energy
+      optimization studies ($150–$250/hr or fixed-scope packages).
+    - >-
+      OEM/partner referral revenue-share (10–15%) and marketplace private
+      offers.
+  costStructure:
+    - >-
+      R&D: ML engineers, data scientists, process specialists (malting),
+      software engineers; $2.5M–$5M/year in early growth phase.
+    - >-
+      Deployment and customer success (OT engineers, SI partners):
+      $200–$350k/year/person; travel and on-site commissioning costs per site
+      $5k–$15k.
+    - >-
+      Cloud/compute and MLOps: $1k–$3k/site/month depending on data volume and
+      retraining cadence; edge hardware $2k–$6k/gateway (CapEx or pass-through).
+    - >-
+      Security/compliance: ISO 27001/SOC 2, ISA/IEC 62443 hardening, penetration
+      testing: $150k–$300k/year.
+    - >-
+      Sales and marketing: $500k–$1.5M/year; event sponsorships and case study
+      production $50k–$150k/year.
+    - >-
+      Licensing/connectors (if applicable): PI SDK/AF, OPC stacks, message
+      broker support $50k–$120k/year.
+    - >-
+      Insurance, legal, and audit support for FSMA/HACCP-aligned documentation:
+      $50k–$120k/year.
+  keyMetrics:
+    - >-
+      Model performance: precision ≥ 85%, recall ≥ 80% on validated incidents;
+      F1 ≥ 0.82 per asset.
+    - >-
+      Alert quality: false positives <0.2 per vessel per day; operator ‘useful’
+      rating ≥ 4/5 on >70% of alerts.
+    - >-
+      Operational impact: reduce MTTA (time to acknowledge) to <5 minutes (p95)
+      and MTTR by 30–50% within 90 days.
+    - >-
+      Quality outcomes: reduce COA deviations (friability, color, beta-glucan
+      out-of-spec) by 30–60% within 6 months; batch downgrade rate <2%.
+    - >-
+      Energy: 3–7% reduction in kiln energy/ton under stable operation and
+      optimized anomaly suppression; burner cycling events reduced by 25–40%.
+    - >-
+      Adoption: weekly active operator users/shift ≥ 80%; alert acknowledgment
+      rate ≥ 90%; playbook adherence ≥ 85%.
+    - >-
+      Financial: site-level ROI >3x within 12 months; payback <6 months; net
+      revenue retention >120%.
+    - >-
+      Reliability: system uptime ≥ 99.5%; data latency <5 seconds from historian
+      to edge inference; model drift interventions <1/month/asset.
+    - >-
+      Safety/compliance: 100% audit trails for anomalies with timestamped
+      actions; HACCP CCP deviations auto-logged within 1 minute.
+    - >-
+      Sales funnel: pilot-to-subscription conversion ≥ 60%; land-to-expand
+      revenue multiplier ≥ 2.0 within 12 months.
+storyBrand:
+  character: >-
+    Ops leaders, head maltsters, and process engineers in malt houses who want
+    predictable, audit-ready quality without constant firefighting.
+  problem: >-
+    External: Process drifts in steep/germ/kiln hide in thousands of tags;
+    alarms are noisy and late, risking color, modification, friability, and DMS
+    precursors. Internal: Teams feel blind and reactive, worried they’ll miss a
+    drift on nights/weekends. Philosophical: You shouldn’t need a data scientist
+    to know when your malt is going off-track.
+  guide: >-
+    We specialize in malt manufacturing analytics. Our AI learns normal behavior
+    per vessel and campaign, ranks anomalies by quality risk, and suggests
+    targeted checks (e.g., probe calibration, damper/fan/VFD positions, airflow
+    paths, spray rate, CO₂ scrubber, bed turning). Built by process engineers +
+    data scientists; secure, historian-integrated, and production-proven.
+  plan: >-
+    1) Connect: Read tags from PI/Ignition/OPC; map to steep/germ/kiln assets.
+    2) Calibrate: Learn from good runs and SOP limits; align alerts to CQAs. 3)
+    Run: Real-time scoring with ranked alerts, suggested checks, and weekly
+    tuning. Optional 30-day pilot on one line.
+  callToAction: >-
+    Primary: Book a 30-minute process review. Secondary: Start a 30-day pilot on
+    one line.
+  success: >-
+    Minutes-to-detection instead of hours; 30–60% fewer quality excursions;
+    steadier moisture/temperature profiles; less rework and energy waste;
+    audit-ready traceability; calmer shifts and higher throughput.
+  failure: >-
+    Without it, hidden drifts become off-spec malt, rework, wasted energy,
+    missed delivery windows, alarm fatigue, and eroded customer trust.
+landingPage:
+  hero:
+    title: Real-Time Anomaly Detection for Steep • Germination • Kiln
+    subtitle: >-
+      AI that watches every tag, ranks true quality risks, and tells operators
+      what to check—before malt goes off spec.
+    ctaText: Start a Pilot
+    ctaHref: /pilot
+  problem:
+    - >-
+      Quality drift hides in small changes to temp, airflow, spray flow, and bed
+      DP.
+    - >-
+      Static alarm limits miss multivariable interactions and shift with
+      barley/lots.
+    - Alarm floods create fatigue—critical issues get buried.
+    - Root-cause hunts slow response and increase rework risk.
+    - Batch-to-batch variability makes thresholds hard to tune.
+    - Deviations inflate energy use and threaten yield and color targets.
+  solution:
+    - >-
+      Continuously models steep, germ, and kiln tags to spot abnormal patterns
+      in real time.
+    - >-
+      Ranks alerts by likely impact on moisture, color, extract, DP, and
+      friability.
+    - >-
+      Provides stage-specific suggested checks (what to inspect, verify,
+      adjust).
+    - >-
+      Learns normal by malt type, barley lot, and batch context—fewer false
+      alarms.
+    - 'Links related tags to surface probable causes, not just symptoms.'
+    - Feeds actions and outcomes back into the model to improve over time.
+  features:
+    - 'Stage-aware models for Steep, Germ, and Kiln with batch context.'
+    - Impact-ranked anomalies tied to key malt quality KPIs.
+    - >-
+      Suggested checks library (e.g., verify spray flowmeters, fan VFDs, air
+      dampers, bed depth).
+    - 'Root-cause graph across tags, loops, and equipment.'
+    - 'Plug-and-play with OPC UA, MQTT, and historians (e.g., PI).'
+    - 'Alert routing to DCS, email, SMS, and Teams/Slack with throttling.'
+    - Explainable ML with clear reasons and confidence for each alert.
+    - On-prem or private cloud; full audit trail and role-based access.
+  steps:
+    - Connect process tags and historian data (secure OPC UA/MQTT).
+    - Auto-learn baselines from recent good batches per malt type/lot.
+    - Run real-time detection; receive ranked alerts with likely impacts.
+    - Follow suggested checks and corrective actions right in the alert.
+    - Log outcomes; the system adapts to reduce noise and speed detection.
+    - Review weekly quality-risk report and tune guardrails with one click.
+---
+# MaltGuard AI
+
+Industry: Malt Manufacturing
+Service: Real-Time Anomaly Detection for Steep/Germ/Kiln

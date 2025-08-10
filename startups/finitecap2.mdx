@@ -1,0 +1,309 @@
+---
+name: 'FiniteCap Scheduler for EPS (Pre-Expander, Aging Silos, Molding/Cutting)'
+slug: finitecap2
+service:
+  title: 'Finite-Capacity Production Scheduler (Pre-Expansion, Aging, Molding/Cutting)'
+  description: >-
+    Generates line-level schedules minimizing changeovers and honoring bead
+    aging times, silo and press constraints.
+  targetUsers:
+    - Planner
+    - Production Manager
+    - Shift Supervisor
+  triggers:
+    - Daily schedule generation
+    - Rush order
+    - Machine downtime event
+  inputs:
+    - Routings and cycle times
+    - Machine calendars and labor shifts
+    - 'Changeover matrices (density, color, grade)'
+    - Bead pre-expansion/aging rules and silo capacities
+    - Order due dates and priorities
+  steps:
+    - 'Pull orders, routings, constraints from ERP/MES'
+    - Build finite-capacity model with changeover penalties
+    - Optimize sequence with bead aging and silo constraints
+    - Simulate WIP/throughput and highlight bottlenecks
+    - Publish schedule and changeover playbook
+    - Track execution deviations and re-optimize as needed
+  tools:
+    - OR-Tools CP-SAT
+    - 'Python (networkx, pandas)'
+    - MES/ERP APIs (Ignition/Tulip/SAP)
+    - Streamlit or web dashboard
+  outputs:
+    - Daily/weekly line schedule (CSV/JSON)
+    - Changeover plan and aging/silo plan
+    - 'What-if scenarios (add shift, outsource)'
+  pricingModel:
+    - Setup and modeling fee
+    - Per-site monthly subscription
+    - Optional on-call re-optimization credits
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 4.5
+    modelCapability: 4.2
+    overall: 4.3
+  risks:
+    - Incomplete constraint modeling
+    - Real-time events not captured fast enough
+    - Operator adoption/change management
+  dependencies:
+    - Accurate routings and changeover data
+    - Access to machine calendars and WIP status
+    - Stable VPN/API access to MES/ERP
+leanCanvas:
+  problem:
+    - >-
+      Plants struggle to create feasible, line-level schedules that honor EPS
+      bead aging windows (min/max hours) and silo capacities while meeting due
+      dates.
+    - >-
+      Frequent press and mold changeovers drive downtime (10–30% of press
+      hours), scrap, and energy spikes, especially with short runs and high SKU
+      mix.
+    - >-
+      Manual or spreadsheet scheduling cannot model finite capacity across
+      pre-expansion, silos, molding, and cutting, causing bottlenecks,
+      starvation/overflows, and aging violations.
+    - >-
+      Lack of real-time re-planning when orders change leads to late jobs,
+      expedited freight, and premium labor shifts.
+    - >-
+      Limited visibility into energy/steam demand, leading to avoidable peak
+      loads and higher cost per m3 of foam.
+    - >-
+      Generic APS tools lack EPS-specific constraints (bead grades, silo aging
+      windows, steam/air, mold warm-up) and take months to parameterize.
+  solution:
+    - >-
+      Create a digital twin of the plant: pre-expanders, silo capacities by bead
+      grade, min/max aging windows, press/mold catalog, cutting lines, shift
+      calendars, maintenance, QC holds.
+    - >-
+      Use a hybrid optimizer (constraint programming + MILP + domain heuristics)
+      to generate day/shift schedules with finite capacity from ERP orders and
+      inventory.
+    - >-
+      Optimize for objectives: minimize changeovers and steam peaks, maximize
+      OTIF and press utilization, respect aging/silo constraints, and reduce WIP
+      and scrap.
+    - >-
+      Real-time re-planning on events: rush orders, machine downtime, quality
+      holds, bead lot delays; produce updated sequence with minimal disruption.
+    - >-
+      Provide what-if scenarios: add shift, swap mold, defer order, change bead
+      grade; quantify OTIF, changeover hours, and energy impact before
+      committing.
+    - >-
+      Closed-loop integration with MES/PLC: dispatch to operators, capture
+      actuals, compute schedule adherence, and auto-learn better parameters
+      (true changeover times, cycle rates).
+  uniqueValueProp: >-
+    EPS-specialized AI scheduler that generates feasible, finite-capacity plans
+    across pre-expansion, silos, molding, and cutting—minimizing changeovers,
+    honoring bead aging windows, and leveling energy—delivering 20–40% fewer
+    changeover hours, 5–10 pp higher press utilization, 95–98% OTIF, and
+    <5-minute re-plans when anything changes.
+  unfairAdvantage: >-
+    Pre-built EPS domain constraint library and silo/aging scheduler tuned with
+    real plant data, plus OEM/MES connectors that enable go-live in weeks—not
+    months—delivering quantifiable reductions in changeovers and energy peaks
+    out of the box.
+  customerSegments:
+    - >-
+      EPS block molders (construction blocks, insulation, geofoam) with 1–10
+      presses and 1–4 pre-expanders.
+    - >-
+      EPS shape molders (packaging, appliances, fish boxes) with 5–50 presses
+      and color/material variants.
+    - >-
+      Hybrid EPS plants with both block and shape molding needing coordinated
+      scheduling across cutting and finishing.
+    - >-
+      Operations leaders: Plant managers, Production planners, Scheduling
+      supervisors, Maintenance planners, Supply chain directors.
+    - >-
+      Regions: North America, EU, Turkey, MENA, LATAM, ASEAN—mid-market plants
+      with 50–400 employees and 1–3 sites.
+  channels:
+    - >-
+      Direct sales to plant and operations leaders; land with 8–12 week paid
+      pilot in one site.
+    - >-
+      OEM partnerships with EPS equipment vendors (e.g., pre-expanders, block
+      and shape molders) to co-sell and embed connectors.
+    - >-
+      System integrator alliances for ERP/MES integration and on-site change
+      management.
+    - >-
+      Industry events and associations: Foam Expo, K-Show, Plastics/Packaging
+      shows; technical talks with case studies.
+    - >-
+      Content-led marketing: ROI calculators, whitepapers on aging-window
+      compliance and energy leveling, demo videos.
+    - >-
+      Outbound to target accounts (100–500 employees, 5–25 presses) and ABM
+      campaigns; reference selling by region.
+  revenueStreams:
+    - >-
+      SaaS subscription per site: Starter $5k/month (up to 3 presses, 1
+      pre-expander); Pro $12k/month (up to 10 presses); Enterprise custom
+      (multi-site, >10 presses).
+    - >-
+      One-time implementation and integration: $35k–$120k per site depending on
+      connectors and data readiness.
+    - >-
+      Premium support/SLA (24/7, <15 min response) + validation environment:
+      +15–25% of ARR.
+    - >-
+      Professional services: changeover reduction workshops, mold family
+      rationalization, energy-leveling consulting ($200–$300/hr).
+    - >-
+      Training and certification for schedulers and supervisors ($1.5k per
+      learner).
+  costStructure:
+    - >-
+      R&D: optimization engine, connectors, UI/UX, security; 8–12 engineers and
+      1–2 OR scientists.
+    - >-
+      Cloud compute: scheduling engine and telemetry ($500–$3k per plant per
+      month depending on workload).
+    - Customer success and integration engineers for pilots and go-lives.
+    - >-
+      Sales and marketing: events, demos, account-based marketing, partner
+      enablement.
+    - >-
+      Data and security compliance: SOC2/ISO27001, pen tests, logging, and
+      backups.
+    - Support and DevOps for 99.9% uptime and regional data residency.
+  keyMetrics:
+    - >-
+      Product/Value KPIs per site: changeover hours/shift (target -20–40%),
+      press utilization (target +5–10 pp), OTIF (target 95–98%), mean tardiness
+      (<4 hours), schedule adherence (>85%), bead aging violations (0 hard, <2%
+      soft), energy per m3 (-3–8%).
+    - >-
+      Financial: payback period (<6 months), ARR/site ($60k–$250k), gross margin
+      (>70%), NRR (>115%), CAC payback (<12 months).
+    - >-
+      Adoption: weekly schedules generated (>5/week), schedule acceptance rate
+      (>80%), planner time reduction (>50%), operator compliance (>90% tasks
+      signed off).
+    - >-
+      Reliability: median solve time (<2 min for ≤10 presses; <5 min for 30
+      presses), schedule publish success (>99%), uptime (≥99.9%).
+storyBrand:
+  character: >-
+    Foam plant production planners and operations leaders at polystyrene
+    manufacturers who need reliable, constraint-aware schedules across
+    pre-expansion, bead aging, molding, and cutting.
+  problem: >-
+    Spreadsheets and generic APS ignore bead aging windows, silo capacity,
+    press/cutter calendars, and mold/tooling changeovers—plans unravel daily;
+    planners firefight; customers wait. Scheduling foam shouldn’t be guesswork.
+  guide: >-
+    Finite-Capacity Production Scheduler is an AI service built for polystyrene
+    foam. We understand pre-expansion and aging physics and the realities of
+    silos, presses, and cutters, and we’ve implemented line-level optimizers in
+    foam plants.
+  plan: >-
+    1) Connect ERP/MES data (orders, routings, silos, molds, shifts). 2)
+    Configure constraints and objectives (aging times, silo/press/cutter
+    capacities, changeover matrix, tooling, maintenance). 3) Auto-generate and
+    simulate a finite-capacity schedule. 4) Review, approve, and dispatch to the
+    floor; re-optimize in minutes as conditions change.
+  callToAction: Book a 30-minute demo or start a 2-week pilot on your data.
+  success: >-
+    A stable, hour-by-hour plan from pre-expansion through cutting; fewer
+    changeovers; balanced silos; higher throughput and on-time delivery; less
+    overtime and WIP; lower steam/energy use; confident planners and happier
+    customers.
+  failure: >-
+    Without it: over/under-aged beads, silo jams, idle or starved presses,
+    excessive changeovers, overtime and expediting, missed due dates, and
+    eroding customer trust.
+landingPage:
+  hero:
+    title: AI Finite-Capacity Scheduler for EPS Foam Plants
+    subtitle: >-
+      Line-level plans across Pre-Expansion, Aging, Molding, and Cutting.
+      Minimize changeovers, honor bead aging, and never overbook a silo or
+      press.
+    ctaText: Request a Demo
+    ctaHref: /demo
+  problem:
+    - >-
+      Spreadsheets can’t juggle bead aging, silo capacity, press calendars, and
+      mold changes.
+    - Changeovers (density/color/mold) burn hours and drive missed ship dates.
+    - 'Beads not fully aged cause stops, scrap, and customer complaints.'
+    - >-
+      Silos get blocked with the wrong bead; pre-expansion runs out of sync with
+      molding.
+    - Rush orders and downtime force constant firefighting.
+    - 'Plans don’t flow across stages, creating excess WIP and idle presses.'
+    - Poor visibility of true capacity leads to overpromising and overtime.
+  solution:
+    - >-
+      Generate a finite-capacity schedule that synchronizes Pre-Expansion →
+      Aging → Molding/Cutting.
+    - Sequence by density/color/mold to minimize changeovers and cleaning.
+    - Enforce product-specific bead aging windows with smart silo assignment.
+    - >-
+      Balance loads across presses, molds, and cutting lines while honoring
+      shifts and maintenance.
+    - Re-plan in seconds when orders change or equipment goes down.
+    - >-
+      Run what-if scenarios to commit realistic dates and optimize
+      cost-to-serve.
+  features:
+    - >-
+      Stage-to-stage orchestration: pre-expander, aging silos, block molding
+      presses, cutting lines.
+    - >-
+      Bead aging intelligence: product-specific times, earliest-use enforcement,
+      lot tracking.
+    - >-
+      Silo allocation: capacity limits, contamination rules, color/density
+      segregation.
+    - >-
+      Sequence-dependent setups: matrix-driven times for density, color, mold,
+      and tooling.
+    - >-
+      Press and mold calendars: availability, warm-up, maintenance, and crew
+      constraints.
+    - >-
+      Cutting capacity: block dimensions, cycle times, knife availability,
+      nesting rules.
+    - >-
+      Due-date optimizer: minimize weighted tardiness while respecting finite
+      capacity.
+    - 'Campaigning: auto-build runs to reduce steam/cleaning losses and setups.'
+    - Live Gantt with drag-and-drop overrides and lock/priority controls.
+    - 'Instant re-plan after downtime, rush orders, or material delays.'
+    - >-
+      Alerts for bead not aged, silo conflicts, overloads, and infeasible
+      demands.
+    - 'KPIs: utilization, changeover hours, throughput, late hours, WIP, OTIF.'
+    - >-
+      API/CSV integration with ERP/MES for orders, routings, molds, and
+      inventory.
+    - >-
+      Role-based access for planners, production, and sales with shareable
+      views.
+  steps:
+    - 'Connect orders, routings, molds, silos, and resource calendars (API/CSV).'
+    - >-
+      Set product rules: aging times, setup matrices, batch sizes, segregation
+      rules.
+    - Import demand and constraints; define priorities and due dates.
+    - Click Generate Schedule; review Gantt and KPI impacts.
+    - Adjust with drag-and-drop or locks; approve and publish to the floor.
+    - Monitor execution; re-plan in seconds when reality changes.
+---
+# FiniteCap Scheduler for EPS (Pre-Expander, Aging Silos, Molding/Cutting)
+
+Industry: Polystyrene Foam Product Manufacturing
+Service: Finite-Capacity Production Scheduler (Pre-Expansion, Aging, Molding/Cutting)
