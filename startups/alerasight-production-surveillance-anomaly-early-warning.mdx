@@ -298,3 +298,373 @@ landingPage:
 
 Generated for NAICS 211120 — Crude Petroleum Extraction.
 Service: Production Surveillance & Anomaly Early Warning
+
+## Business Process Functions
+
+```typescript
+// Core Types
+interface Lead {
+  company: string;
+  contactName: string;
+  email: string;
+  phone: string;
+  wellCount: number;
+  liftTypes: ('ESP' | 'rod_pump' | 'gas_lift')[];
+  basin: string;
+  currentSCADA: string;
+  painPoints: string[];
+  budget: number;
+}
+
+interface QualifiedLead extends Lead {
+  decisionMakers: string[];
+  timeline: string;
+  technicalRequirements: string[];
+  complianceNeeds: string[];
+}
+
+interface Customer {
+  id: string;
+  company: string;
+  contractValue: number;
+  wellsMonitored: number;
+  goLiveDate: Date;
+  successMetrics: {
+    targetMTTR: number;
+    targetFalsePositiveReduction: number;
+    targetDowntimeReduction: number;
+  };
+}
+
+interface AnomalyEvent {
+  id: string;
+  wellId: string;
+  timestamp: Date;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  anomalyType: string;
+  confidence: number;
+  rootCauses: { cause: string; probability: number }[];
+  recommendedActions: string[];
+  impactEstimate: {
+    barrelsDeferredRisk: number;
+    downtimeRisk: number;
+    flareRisk: boolean;
+  };
+}
+
+interface WellData {
+  wellId: string;
+  tags: Record<string, number>;
+  timestamp: Date;
+  liftType: 'ESP' | 'rod_pump' | 'gas_lift';
+  operatingRegime: string;
+}
+
+// Customer Acquisition Workflow
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const technicalDemo = await conductTechnicalDemo(qualifiedLead);
+  const proposal = await generatePilotProposal(technicalDemo);
+  const contract = await negotiateContract(proposal);
+  return await onboardCustomer(contract);
+}
+
+async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  // Validate lead meets minimum criteria
+  if (lead.wellCount < 100) {
+    throw new Error('Minimum 100 wells required for pilot');
+  }
+  
+  // Score lead based on pain points and technical fit
+  const painPointScore = calculatePainPointScore(lead.painPoints);
+  const technicalFitScore = assessTechnicalFit(lead.currentSCADA, lead.liftTypes);
+  
+  if (painPointScore < 0.6 || technicalFitScore < 0.7) {
+    throw new Error('Lead does not meet qualification criteria');
+  }
+  
+  // Identify decision makers and technical requirements
+  const decisionMakers = await identifyDecisionMakers(lead);
+  const technicalRequirements = await assessTechnicalRequirements(lead);
+  const complianceNeeds = await evaluateComplianceRequirements(lead);
+  
+  return {
+    ...lead,
+    decisionMakers,
+    technicalRequirements,
+    complianceNeeds
+  };
+}
+
+async function conductTechnicalDemo(lead: QualifiedLead): Promise<QualifiedLead> {
+  // Prepare demo environment with lead's data patterns
+  await setupDemoEnvironment(lead.liftTypes, lead.basin);
+  
+  // Conduct live demo showing anomaly detection on similar wells
+  await demonstrateAnomalyDetection(lead.technicalRequirements);
+  await showRootCauseAnalysis();
+  await presentROICalculations(lead.wellCount, lead.budget);
+  
+  return lead;
+}
+
+async function generatePilotProposal(lead: QualifiedLead): Promise<any> {
+  const pilotScope = {
+    wellCount: Math.min(lead.wellCount, 200),
+    duration: 60, // days
+    successCriteria: {
+      falsePositiveReduction: 50,
+      mttrReduction: 40,
+      downtimeReduction: 25
+    }
+  };
+  
+  const pricing = calculatePilotPricing(pilotScope.wellCount, lead.liftTypes);
+  
+  return {
+    scope: pilotScope,
+    pricing,
+    timeline: generateImplementationTimeline(),
+    successMetrics: pilotScope.successCriteria
+  };
+}
+
+// Product Development Processes
+export async function developAnomalyModel(
+  wellData: WellData[],
+  liftType: string,
+  basin: string
+): Promise<any> {
+  const trainingData = await prepareTrainingData(wellData);
+  const features = await engineerFeatures(trainingData, liftType);
+  const model = await trainAnomalyModel(features, liftType, basin);
+  const validatedModel = await validateModel(model, trainingData);
+  return await deployModelToEdge(validatedModel);
+}
+
+async function prepareTrainingData(wellData: WellData[]): Promise<any> {
+  // Clean and resample data
+  const cleanedData = await cleanSensorData(wellData);
+  const resampledData = await resampleToUniformIntervals(cleanedData);
+  
+  // Handle sensor dropouts and missing data
+  const imputedData = await handleMissingData(resampledData);
+  
+  // Label historical anomalies from maintenance records
+  return await labelHistoricalAnomalies(imputedData);
+}
+
+async function createPrescriptivePlaybook(
+  anomalyType: string,
+  liftType: string,
+  basin: string
+): Promise<any> {
+  const historicalCases = await queryHistoricalCases(anomalyType, liftType, basin);
+  const successfulActions = await analyzeSuccessfulInterventions(historicalCases);
+  const playbook = await generateActionSequence(successfulActions);
+  return await validatePlaybookWithSMEs(playbook);
+}
+
+// Revenue Generation Flows
+export async function processSubscriptionRevenue(customer: Customer): Promise<number> {
+  const monthlyRevenue = await calculateMonthlySubscription(customer);
+  const professionalServices = await billProfessionalServices(customer);
+  const outcomeBonus = await calculateOutcomeBonus(customer);
+  
+  return monthlyRevenue + professionalServices + outcomeBonus;
+}
+
+async function calculateMonthlySubscription(customer: Customer): Promise<number> {
+  const wellRevenue = customer.wellsMonitored * getWellPricing(customer.liftTypes);
+  const facilityRevenue = await calculateFacilityRevenue(customer);
+  const addOnRevenue = await calculateAddOnModules(customer);
+  
+  return wellRevenue + facilityRevenue + addOnRevenue;
+}
+
+async function calculateOutcomeBonus(customer: Customer): Promise<number> {
+  const measuredUplift = await measureProductionUplift(customer);
+  const validatedSavings = await validateDowntimeReduction(customer);
+  
+  if (measuredUplift.confidence > 0.8) {
+    return measuredUplift.barrelsSaved * 0.05; // 5% of validated uplift
+  }
+  
+  return 0;
+}
+
+// Operational Procedures
+export async function processRealTimeMonitoring(wellData: WellData): Promise<AnomalyEvent[]> {
+  const preprocessedData = await preprocessStreamingData(wellData);
+  const anomalies = await detectAnomalies(preprocessedData);
+  const classifiedAnomalies = await classifyAnomalyTypes(anomalies);
+  const rankedAnomalies = await rankByRootCause(classifiedAnomalies);
+  
+  return await generateAnomalyEvents(rankedAnomalies);
+}
+
+async function detectAnomalies(data: any): Promise<any[]> {
+  // Run multivariate anomaly detection
+  const multivariateAnomalies = await runMultivariateDetection(data);
+  
+  // Apply regime-aware baselines
+  const regimeAwareAnomalies = await applyRegimeBaselines(multivariateAnomalies, data);
+  
+  // Filter by confidence threshold
+  return regimeAwareAnomalies.filter(anomaly => anomaly.confidence > 0.7);
+}
+
+async function processAlertWorkflow(anomaly: AnomalyEvent): Promise<void> {
+  // Apply alarm rationalization
+  const shouldAlert = await rationalizeAlarm(anomaly);
+  
+  if (shouldAlert) {
+    // Generate prescriptive actions
+    const actions = await generatePrescriptiveActions(anomaly);
+    
+    // Route to appropriate personnel
+    await routeAlert(anomaly, actions);
+    
+    // Create CMMS ticket if critical
+    if (anomaly.severity === 'critical') {
+      await createCMMSTicket(anomaly, actions);
+    }
+    
+    // Track for impact measurement
+    await trackAlertForMeasurement(anomaly);
+  }
+}
+
+// Decision-Making Workflows
+export async function classifyAnomalyAndRecommendAction(
+  anomaly: AnomalyEvent
+): Promise<{ classification: string; actions: string[]; urgency: number }> {
+  const classification = await classifyAnomalyType(anomaly);
+  const rootCauses = await analyzeRootCauses(anomaly, classification);
+  const actions = await recommendActions(classification, rootCauses);
+  const urgency = await calculateUrgency(anomaly, classification);
+  
+  return {
+    classification: classification.type,
+    actions: actions.map(action => action.description),
+    urgency
+  };
+}
+
+async function escalateIfRequired(
+  anomaly: AnomalyEvent,
+  initialResponse: any
+): Promise<void> {
+  const escalationCriteria = {
+    severity: anomaly.severity === 'critical',
+    impactThreshold: anomaly.impactEstimate.barrelsDeferredRisk > 1000,
+    responseTime: Date.now() - anomaly.timestamp.getTime() > 300000, // 5 minutes
+    flareRisk: anomaly.impactEstimate.flareRisk
+  };
+  
+  if (Object.values(escalationCriteria).some(Boolean)) {
+    await escalateToControlRoom(anomaly);
+    await notifyFieldSupervisor(anomaly);
+    
+    if (escalationCriteria.flareRisk) {
+      await alertEnvironmentalCompliance(anomaly);
+    }
+  }
+}
+
+// Emissions Monitoring Workflow
+export async function monitorEmissionsAnomalies(
+  facilityData: any
+): Promise<{ events: any[]; reportingRequired: boolean }> {
+  const emissionsAnomalies = await detectEmissionsAnomalies(facilityData);
+  const quantifiedEvents = await quantifyEmissionsEvents(emissionsAnomalies);
+  const reportingRequired = await assessReportingRequirements(quantifiedEvents);
+  
+  if (reportingRequired) {
+    await generateRegulatoryReport(quantifiedEvents);
+  }
+  
+  return {
+    events: quantifiedEvents,
+    reportingRequired
+  };
+}
+
+// Integration and Deployment Workflows
+export async function deployEdgeSystem(
+  customer: Customer,
+  siteConfig: any
+): Promise<{ status: string; edgeNodes: any[] }> {
+  const edgeNodes = await provisionEdgeGateways(siteConfig);
+  const connectors = await deployDataConnectors(customer.scadaSystems);
+  const models = await deployModelsToEdge(edgeNodes, customer.liftTypes);
+  
+  await configureAlertRouting(customer.alertPreferences);
+  await setupSecurityPolicies(customer.securityRequirements);
+  
+  const healthCheck = await performSystemHealthCheck(edgeNodes);
+  
+  return {
+    status: healthCheck.allHealthy ? 'deployed' : 'partial',
+    edgeNodes
+  };
+}
+
+// Helper functions (implementation details would be filled in)
+function calculatePainPointScore(painPoints: string[]): number { return 0.8; }
+function assessTechnicalFit(scada: string, liftTypes: string[]): number { return 0.9; }
+async function identifyDecisionMakers(lead: Lead): Promise<string[]> { return []; }
+async function assessTechnicalRequirements(lead: Lead): Promise<string[]> { return []; }
+async function evaluateComplianceRequirements(lead: Lead): Promise<string[]> { return []; }
+async function setupDemoEnvironment(liftTypes: string[], basin: string): Promise<void> {}
+async function demonstrateAnomalyDetection(requirements: string[]): Promise<void> {}
+async function showRootCauseAnalysis(): Promise<void> {}
+async function presentROICalculations(wellCount: number, budget: number): Promise<void> {}
+function calculatePilotPricing(wellCount: number, liftTypes: string[]): number { return 50000; }
+function generateImplementationTimeline(): string[] { return []; }
+async function cleanSensorData(data: WellData[]): Promise<any> { return data; }
+async function resampleToUniformIntervals(data: any): Promise<any> { return data; }
+async function handleMissingData(data: any): Promise<any> { return data; }
+async function labelHistoricalAnomalies(data: any): Promise<any> { return data; }
+async function engineerFeatures(data: any, liftType: string): Promise<any> { return data; }
+async function trainAnomalyModel(features: any, liftType: string, basin: string): Promise<any> { return {}; }
+async function validateModel(model: any, data: any): Promise<any> { return model; }
+async function deployModelToEdge(model: any): Promise<any> { return model; }
+async function queryHistoricalCases(anomalyType: string, liftType: string, basin: string): Promise<any[]> { return []; }
+async function analyzeSuccessfulInterventions(cases: any[]): Promise<any[]> { return []; }
+async function generateActionSequence(actions: any[]): Promise<any> { return {}; }
+async function validatePlaybookWithSMEs(playbook: any): Promise<any> { return playbook; }
+function getWellPricing(liftTypes: string[]): number { return 275; }
+async function calculateFacilityRevenue(customer: Customer): Promise<number> { return 0; }
+async function calculateAddOnModules(customer: Customer): Promise<number> { return 0; }
+async function measureProductionUplift(customer: Customer): Promise<any> { return { confidence: 0.9, barrelsSaved: 1000 }; }
+async function validateDowntimeReduction(customer: Customer): Promise<any> { return {}; }
+async function preprocessStreamingData(data: WellData): Promise<any> { return data; }
+async function runMultivariateDetection(data: any): Promise<any[]> { return []; }
+async function applyRegimeBaselines(anomalies: any[], data: any): Promise<any[]> { return anomalies; }
+async function classifyAnomalyTypes(anomalies: any[]): Promise<any[]> { return anomalies; }
+async function rankByRootCause(anomalies: any[]): Promise<any[]> { return anomalies; }
+async function generateAnomalyEvents(anomalies: any[]): Promise<AnomalyEvent[]> { return []; }
+async function rationalizeAlarm(anomaly: AnomalyEvent): Promise<boolean> { return true; }
+async function generatePrescriptiveActions(anomaly: AnomalyEvent): Promise<any[]> { return []; }
+async function routeAlert(anomaly: AnomalyEvent, actions: any[]): Promise<void> {}
+async function createCMMSTicket(anomaly: AnomalyEvent, actions: any[]): Promise<void> {}
+async function trackAlertForMeasurement(anomaly: AnomalyEvent): Promise<void> {}
+async function classifyAnomalyType(anomaly: AnomalyEvent): Promise<any> { return { type: 'gas_interference' }; }
+async function analyzeRootCauses(anomaly: AnomalyEvent, classification: any): Promise<any[]> { return []; }
+async function recommendActions(classification: any, rootCauses: any[]): Promise<any[]> { return []; }
+async function calculateUrgency(anomaly: AnomalyEvent, classification: any): Promise<number> { return 0.8; }
+async function escalateToControlRoom(anomaly: AnomalyEvent): Promise<void> {}
+async function notifyFieldSupervisor(anomaly: AnomalyEvent): Promise<void> {}
+async function alertEnvironmentalCompliance(anomaly: AnomalyEvent): Promise<void> {}
+async function detectEmissionsAnomalies(data: any): Promise<any[]> { return []; }
+async function quantifyEmissionsEvents(anomalies: any[]): Promise<any[]> { return []; }
+async function assessReportingRequirements(events: any[]): Promise<boolean> { return false; }
+async function generateRegulatoryReport(events: any[]): Promise<void> {}
+async function provisionEdgeGateways(config: any): Promise<any[]> { return []; }
+async function deployDataConnectors(scadaSystems: any): Promise<any[]> { return []; }
+async function deployModelsToEdge(nodes: any[], liftTypes: string[]): Promise<any[]> { return []; }
+async function configureAlertRouting(preferences: any): Promise<void> {}
+async function setupSecurityPolicies(requirements: any): Promise<void> {}
+async function performSystemHealthCheck(nodes: any[]): Promise<any> { return { allHealthy: true }; }
+```
