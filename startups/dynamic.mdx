@@ -1,0 +1,308 @@
+---
+name: Dynamic Incentive & Surge Watcher (NAICS 485310)
+slug: dynamic
+naics:
+  primary: '485310'
+  occupations: []
+service:
+  title: Dynamic Incentive & Surge Watcher
+  description: >-
+    Monitors live demand/supply and auto-issues targeted driver incentives or
+    alerts to balance coverage.
+  targetUsers:
+    - Fleet ops
+    - Marketplace ops for smaller apps
+  triggers:
+    - Queue length or ETA threshold breached
+    - High-value booking waiting
+    - Airport flight dumps/closing time surges
+  inputs:
+    - Live unassigned jobs/requests
+    - Active driver count by zone
+    - Budget and incentive rules
+    - Compliance rules for communications
+  steps:
+    - Detect imbalance in zones
+    - Estimate marginal driver needed and ROI
+    - 'Craft incentive or alert (e.g., extra bonus, priority queue)'
+    - Push to eligible drivers and track uptake
+    - Auto-adjust or end campaign when target met
+  tools:
+    - Webhooks from dispatch
+    - Realtime store (Redis)
+    - WhatsApp/Telegram/Twilio SMS
+    - Driver app push (Firebase)
+    - Simple rules engine + bandit optimization
+  outputs:
+    - Incentive campaign records
+    - Driver notifications and acceptances
+    - Fill-rate improvement report
+  pricingModel:
+    - Performance fee (% of incremental GMV or filled jobs)
+    - Or per alert + monthly fee
+  humanInLoop: false
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 7
+    overall: 7.5
+  risks:
+    - Incentive overspend if measurement is weak
+    - Driver messaging fatigue
+    - Labor/regulatory restrictions on incentives
+  dependencies:
+    - Dispatch/live supply data
+    - Messaging channels to drivers
+    - Budget caps and governance
+leanCanvas:
+  problem:
+    - >-
+      Supply–demand gaps at microzone level (airports, venues, suburbs) create
+      high ETAs, surge volatility, and 10–25% higher cancellation rates;
+      existing tools react late and use blanket boosts.
+    - >-
+      Incentive inefficiency: 25–50% of bonus spend pays drivers who would have
+      driven anyway (“non-incremental spend”); operators lack causal measurement
+      of lift and per-dollar ROI.
+    - >-
+      Slow response to exogenous shocks (events, weather, transit outages) with
+      10–30 minute lag from detection to action, causing missed rides and
+      customer churn.
+    - >-
+      Budget and compliance risk: fragmented rules across cities (wage floors,
+      union/coop rules, airport concessions) lead to overspend, unfairness
+      claims, or regulatory exposure.
+    - >-
+      Driver communications are noisy; low engagement with generic messages
+      causes incentive fatigue and poor repositioning compliance.
+    - >-
+      Limited engineering bandwidth at regional TNCs/taxi fleets to build
+      real-time forecasting, experimentation, and payout integrations
+      end-to-end.
+  solution:
+    - >-
+      Ingest real-time orders, driver locations/status, ETAs, and historical
+      data; fuse with events, weather, traffic, and transit signals.
+    - >-
+      Forecast demand and supply at 5-minute intervals on a 250–500m grid;
+      compute risk-of-undercoverage and expected rider wait times per cell.
+    - >-
+      Estimate incentive elasticity by driver cohort/zone/time using causal
+      inference and multi-armed bandits; learn which micro-offers move supply
+      efficiently.
+    - >-
+      Auto-issue micro-incentives (e.g., “+$3 for next 2 trips in Zone A, valid
+      20 min”) and targeted alerts to nearby drivers most likely to respond;
+      throttle by budget/ROI.
+    - >-
+      Early-warning “surge watcher” triggers for upcoming spikes (10–30 min
+      lead) tied to event start/exit patterns and weather shifts.
+    - >-
+      Budget optimizer with hard guardrails (per-market caps, fairness rotation,
+      airport rules) and autopause/escalation when spend efficiency drops.
+    - >-
+      Embedded experimentation (A/B, geo holdouts, ghost offers) and causal lift
+      measurement; report incremental trips per dollar and cost per incremental
+      online minute.
+    - >-
+      APIs/SDKs for dispatch/driver apps to deliver offers, capture
+      accept/reject, and settle payouts to driver wallets; audit logs and
+      compliance center.
+  uniqueValueProp: >-
+    Autopilot for driver incentives and surge: micro-targeted offers and alerts
+    that rebalance coverage in minutes, cut incentive waste by 20–40%, and
+    improve ETAs 10–25%—with budget guardrails, explainability, and
+    plug-and-play dispatch integration.
+  unfairAdvantage: >-
+    Closed-loop dataset of incentive-response across fleets and cities enabling
+    superior elasticity estimates; prebuilt dispatch/payout connectors that
+    reduce time-to-value to weeks; explainable RL policies with
+    budget/compliance guardrails; digital-twin simulation for safe policy
+    testing; enterprise security posture and regulatory rule packs per market.
+  customerSegments:
+    - >-
+      Tier-2/Tier-3 ride-hailing platforms (regional/national) with
+      5,000–100,000 active drivers and >50k monthly trips per city (economic
+      buyer: COO/Head of Supply/Marketplace).
+    - >-
+      Taxi fleets/co-ops using modern dispatch (200–5,000 drivers) seeking lower
+      ETAs and higher trip fill rates (economic buyer: Fleet GM/Operations
+      Director).
+    - >-
+      Hybrid mobility marketplaces (taxi + PHV aggregation) operating in
+      multiple cities (buyer: VP Marketplace/Revenue).
+    - >-
+      Influencers/channels: Airports and municipal regulators focused on
+      coverage SLAs and queue balancing; dispatch software vendors; systems
+      integrators.
+  channels:
+    - >-
+      Direct sales to Heads of Marketplace/Operations at regional TNCs and taxi
+      fleets; land-and-expand via 8–12 week ROI pilots.
+    - >-
+      Co-sell/marketplace listings with dispatch vendors (iCabbi, Curb,
+      Autocab); revenue-share partnerships and prebuilt connectors.
+    - >-
+      Industry associations and conferences (The Transportation Alliance, CTAA,
+      APTA, airport operator forums) with case-study talks and workshops.
+    - >-
+      Targeted content (benchmarks, whitepapers on incentive ROI, webinar
+      series) and outbound to city GMs on LinkedIn and email.
+    - >-
+      Regulatory/airport pilots to meet coverage SLAs; leverage as lighthouse
+      references for nearby fleets.
+    - >-
+      Systems integrators and regional IT resellers for deployment and local
+      support.
+  revenueStreams:
+    - >-
+      SaaS subscription: $2–$6 per active driver/month (tiered by volume) with
+      $2,500/month/city minimum.
+    - >-
+      Usage-based: $0.02–$0.05 per driver notification beyond bundle; $0.01 per
+      API call beyond included quota.
+    - >-
+      Performance fee (optional): 10–20% of verified incentive spend savings or
+      0.5–1.0% of incremental GMV attributable to the system.
+    - >-
+      One-time setup/integration: $20,000–$100,000 depending on fleet size and
+      connector complexity.
+    - >-
+      Premium data add-ons (events, weather, traffic): $300–$1,000 per
+      city/month.
+    - >-
+      Enterprise support/SLA upgrade (24/7, dedicated TAM): $3,000–$10,000 per
+      month.
+  costStructure:
+    - >-
+      Cloud compute & streaming analytics (hot path + storage): $30k–$120k/month
+      at scale; CDN and push/SMS delivery costs $0.002–$0.01 per message.
+    - >-
+      Data licensing (events, traffic, weather): $5k–$25k/month depending on
+      city coverage and call volume.
+    - >-
+      Engineering/data science/product team salaries; integrations/solutions
+      engineering for enterprise deployments.
+    - 'Sales & marketing (BD, events, content), partner revenue-share.'
+    - >-
+      Compliance, privacy, and security (SOC 2 Type II audit, penetration
+      tests): $30k–$80k year one; $20k–$50k ongoing.
+    - >-
+      MLOps/tooling (feature store, experiment tracking, observability) and 24/7
+      on-call for major fleets.
+    - >-
+      Customer success and professional services for configuration, KPI reviews,
+      and training.
+  keyMetrics:
+    - >-
+      ETA improvement (P50/P95): target -10% to -25% in pilot zones within 8
+      weeks.
+    - 'Cancellation rate: -10% to -20% in affected geofences.'
+    - >-
+      Incentive efficiency: >1.5 incremental trips per $100 bonus;
+      non-incremental spend share <35%.
+    - >-
+      Cost per incremental online minute (CPIOM): <$0.08; cost per incremental
+      trip: <$3 (market-dependent).
+    - >-
+      Driver engagement: offer view rate >60%, accept rate >15%, reposition
+      compliance >40% within 10 minutes.
+    - >-
+      Forecast accuracy: 10-min horizon MAE <12%; alert precision >0.75, recall
+      >0.60 for undercoverage events.
+    - 'Coverage ratio in red zones: +15–30% during spikes; fill rate +5–12%.'
+    - >-
+      Budget adherence: <2% variance to monthly cap; overspend incidents = 0;
+      SLA breaches <1 per quarter.
+    - 'A/B significance: ≥80% powered tests with p<0.05 for key KPIs.'
+    - >-
+      Time-to-first-value: <14 days from contract to first live offer; <4 hours
+      to onboard a new city after baseline integration.
+    - >-
+      Net revenue impact: +2–5% per city from recovered rides and reduced
+      refunds.
+storyBrand:
+  character: >-
+    Ops and marketplace managers at taxi and ridesharing services (NAICS 485310)
+    who want balanced driver coverage, predictable ETAs, and efficient incentive
+    spend.
+  problem: >-
+    - External: Demand spikes and gaps shift block-by-block; manual incentive
+    blasts arrive late; drivers miss surge windows; riders face long waits and
+    cancellations.
+
+    - Internal: Constant firefighting, guesswork budgets, and fragmented tools.
+
+    - Philosophical: Keeping a city moving shouldn’t require a war room.
+  guide: >-
+    Empathy: We’ve sat in the ops seat and know the chaos of live surges.
+
+    Authority: Dynamic Incentive & Surge Watcher is built by marketplace
+    veterans; API-first; integrates with dispatch and driver apps; provides
+    transparent controls, auditability, and enterprise-grade security.
+  plan: >-
+    - Connect data: live trips, driver availability, pricing, events.
+
+    - Set guardrails: zones, budgets, max payouts, fairness rules.
+
+    - Go live: AI triggers targeted micro-incentives or alerts to balance
+    coverage in real time.
+
+    - Review & tune: clear dashboards, weekly optimizations.
+
+    Risk-free: Start with a single city/zone pilot; pause/override anytime.
+  callToAction: |-
+    Direct: Book a 30‑minute demo or launch a 14‑day pilot.
+    Transitional: Get a free coverage‑gap baseline for one zone.
+  success: >-
+    Balanced coverage, shorter ETAs, fewer cancellations, incentives spent where
+    they matter, happier drivers and riders, and calm, data‑driven operations.
+  failure: >-
+    Without it: persistent surge volatility, overspend on blanket promos, driver
+    churn, rider dissatisfaction, and ongoing ops burnout.
+landingPage:
+  hero:
+    title: Dynamic Incentive & Surge Watcher
+    subtitle: >-
+      AI that balances driver supply in real time with targeted incentives and
+      smart surge alerts.
+    ctaText: Request Demo
+    ctaHref: /demo
+  problem:
+    - Surges spike ETAs while nearby zones sit idle.
+    - Blanket bonuses burn budget and still miss hot spots.
+    - Ops teams can’t monitor every zone 24/7.
+    - 'Drivers chase heatmaps, leaving coverage gaps behind.'
+    - Inconsistent SLAs and rider cancellations during peaks.
+    - Incentive abuse and overpayment slip through.
+  solution:
+    - Auto-detect micro-surges and coverage gaps by zone and minute.
+    - Trigger hyper-targeted incentives only where and when needed.
+    - Push timely driver alerts with recommended repositioning.
+    - 'Optimize to ETA, acceptance, and budget goals automatically.'
+    - Guardrails prevent overspend and incentive stacking.
+    - 'Plug-and-play APIs for dispatch, pricing, and driver apps.'
+  features:
+    - Real-time demand/supply index per geo-tile.
+    - Short-horizon surge forecasting and anomaly detection.
+    - 'Incentive engine with bids, caps, cool-downs, and expiries.'
+    - 'Driver segmentation by proximity, reliability, shift, and vehicle type.'
+    - 'Smart notifications: multilingual, throttled, and actionable.'
+    - A/B testing and holdouts to prove true lift.
+    - 'ROI dashboard: spend, ETAs, fulfillment, cancellations.'
+    - What-if simulations and budget planners.
+    - 'Fraud checks: geo-fence validation and duplicate detection.'
+    - Compliance-friendly audit logs and explainability.
+    - High-availability SLA and privacy-first data handling.
+    - 'Flexible deployment: cloud or private VPC.'
+  steps:
+    - 'Connect trip, driver status, and zone data (API or batch).'
+    - 'Set goals: target ETAs, fill rates, and budget limits.'
+    - Define zones/tiles and driver segments.
+    - Configure incentive rules or start with recommended presets.
+    - Go live; auto-optimizations run continuously.
+    - Monitor ROI and iterate with experiments.
+---
+# Dynamic Incentive & Surge Watcher (NAICS 485310)
+
+Generated for NAICS 485310 — Taxi and Ridesharing Services.
+Service: Dynamic Incentive & Surge Watcher

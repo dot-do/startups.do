@@ -1,0 +1,358 @@
+---
+name: 'FabFix AI: Field Service Ticket Summarizer & Fix Recommender'
+slug: fabfix
+naics:
+  primary: '333242'
+  occupations: []
+service:
+  title: Field Service Ticket Summarizer & Fix Recommender
+  description: >-
+    Auto-summarizes tickets, classifies symptoms, retrieves similar past fixes,
+    and drafts resolution steps and parts list.
+  targetUsers:
+    - Customer support
+    - Field service engineers
+    - CS escalation teams
+  triggers:
+    - New ServiceNow/Jira ticket creation
+    - Ticket updated with attachments/logs
+  inputs:
+    - 'Ticket text, attachments (logs, photos)'
+    - Past resolved cases and KBs
+    - Tool manuals and service bulletins
+  steps:
+    - 'Ingest ticket and attachments; extract key entities (tool, module, codes)'
+    - Retrieve similar cases/KB via vector search
+    - Draft fix steps with references; include parts and time estimate
+    - Summarize for customer and internal notes
+    - Collect FE feedback to improve retrieval
+  tools:
+    - ServiceNow/Jira API
+    - LangChain/LlamaIndex + embeddings (FAISS/Pinecone)
+    - GPT-4o/Claude 3.5 for drafting
+    - Slack/Teams bot for approvals
+  outputs:
+    - Ticket summary and priority
+    - Top similar cases and success rates
+    - Drafted resolution steps and parts picklist
+  pricingModel:
+    - Per-ticket processed
+    - Team license/month
+    - Optional setup for KB indexing
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 8
+    overall: 9
+  risks:
+    - Hallucinated steps if retrieval is weak
+    - Confidential data handling
+    - Overreliance may reduce troubleshooting rigor
+  dependencies:
+    - Access to ticketing system
+    - KB/case archive
+    - Manuals and SBs in indexable format
+leanCanvas:
+  problem:
+    - >-
+      Field engineers spend 15–30 minutes per ticket writing notes and
+      summarizing multi-source logs, leading to ~2–3 hours/day of administrative
+      load per engineer.
+    - >-
+      Critical tool-down events suffer from long mean time to resolution (MTTR)
+      due to scattered knowledge across wikis, PDFs, email threads, and legacy
+      CMMS/EAM records.
+    - >-
+      First-time fix rate (FTFR) is constrained by inconsistent symptom
+      classification and limited visibility into similar past fixes and correct
+      parts combinations.
+    - >-
+      Onboarding new engineers takes 6–12 months to reach proficiency due to
+      complex equipment and tribal knowledge trapped in text notes and senior
+      experts’ heads.
+    - >-
+      Mis-ordered or incomplete parts lists cause re-visits and extended
+      downtime; parts recommendation logic is rarely encoded or tested.
+    - >-
+      Global operations face documentation inconsistency and language barriers
+      across US, EU, JP, KR, TW, and CN sites, slowing collaboration and
+      increasing error rates.
+    - >-
+      Semiconductor OEMs and fabs require strict data privacy, security, and
+      auditability (air-gapped or VPC, full traceability), which generic SaaS
+      tools don’t support well.
+  solution:
+    - >-
+      AI-assisted ticket summarization that ingests multi-modal inputs
+      (technician notes, tool logs, alarms, photos) and produces concise,
+      standardized summaries.
+    - >-
+      Symptom classification using a semiconductor-specific taxonomy mapped to
+      tool families and SEMI E10/E116 equipment states; confidence scores with
+      explainability.
+    - >-
+      RAG-driven retrieval of similar past incidents and validated fixes from
+      CMMS/EAM, PLM service bulletins, and knowledge bases.
+    - >-
+      Drafted resolution steps and checklists aligned to SOPs, including
+      required parts and quantities; highlights hazardous steps and
+      lockout/tagout requirements.
+    - >-
+      Parts list recommender using co-occurrence graphs and BOM/PLM data to
+      reduce mis-picks; flags obsolete or superseded part numbers.
+    - >-
+      Human-in-the-loop review: engineers accept/edit summaries and
+      recommendations; feedback is captured to continuously improve models.
+    - >-
+      Seamless integrations with ServiceNow FSM, Salesforce Field Service, IBM
+      Maximo, SAP PM, IFS, and Oracle EAM; connectors to PLM (Siemens
+      Teamcenter, PTC Windchill) and document repositories.
+    - >-
+      Deployment options: VPC single-tenant or on-prem/air‑gapped with hardware
+      acceleration; SSO, SCIM, RBAC, and audit trails.
+    - >-
+      Multilingual support for EN/JP/KR/ZH with consistent taxonomy;
+      auto-translation preserving technical terms via custom glossary.
+    - >-
+      Model governance and evaluation harness: offline/online A/B tests,
+      acceptance rates, safety filters, and data governance dashboards.
+  uniqueValueProp: >-
+    Reduce MTTR by 15–30% and increase FTFR by 5–12 points by turning every
+    service ticket into structured, searchable knowledge and recommending proven
+    fixes and parts—securely deployed in fab/OEM environments with
+    human-in-the-loop control and full auditability.
+  unfairAdvantage: >-
+    Semiconductor-specific symptom/failure-mode ontology and parts co-occurrence
+    graph built from curated, labeled historical tickets; hardened on-prem/VPC
+    deployment patterns for air-gapped fabs; and continuous learning loops tied
+    to CMMS/EAM outcomes (closed-loop ground truth) that generalist service AI
+    vendors lack.
+  customerSegments:
+    - >-
+      Primary: Semiconductor equipment OEMs (NAICS 333242) field service and
+      customer support organizations (e.g., deposition, lithography, etch,
+      metrology, inspection tool vendors).
+    - >-
+      Primary: Wafer fabs and foundries’ internal maintenance and reliability
+      engineering teams (front-end and advanced packaging/OSAT).
+    - >-
+      Secondary: Third-party service providers and system integrators servicing
+      legacy tools and sub-systems.
+    - >-
+      Economic Buyers: VP/Head of Global Service, VP Operations at fabs, CIO/CTO
+      for digital transformation, Directors of Field Service/Customer Support.
+    - >-
+      End Users: Field service engineers (L1–L3), technical support engineers,
+      reliability/maintenance engineers, regional service managers, parts
+      planners.
+  channels:
+    - >-
+      Direct enterprise sales targeting OEMs’ VP of Global Service and large
+      fabs’ VP Operations/IT; focus on top 50 accounts covering >70% of global
+      installed base.
+    - >-
+      Partnerships and co-sell with CMMS/EAM vendors (ServiceNow, IBM, SAP, IFS,
+      Oracle) and PLM vendors (Siemens, PTC).
+    - >-
+      System integrators (Accenture, Capgemini, Wipro) for large rollouts and
+      data migration; revenue-sharing for joint deals.
+    - >-
+      Industry presence via SEMI membership; demos and workshops at SEMICON
+      West/East, SEMICON Taiwan/Korea/Europa; technical whitepapers.
+    - >-
+      Land-and-expand pilots: 6-week POCs on a single tool family at 1–2 sites,
+      followed by 12-week pilots for multi-site rollout.
+    - >-
+      Content-led growth: public ROI calculators, case studies, webinars
+      featuring reliability engineering best practices, and benchmark reports.
+    - >-
+      Customer advisory board (OEMs and fabs) to shape taxonomy and evaluation
+      datasets; early access programs.
+    - >-
+      Localization/distributor partners in JP/KR/TW for on-site support and
+      compliance with local data regs.
+  revenueStreams:
+    - >-
+      Enterprise subscription per named user: $99/user/month (Summarizer) and
+      $199/user/month (Summarizer + Recommender).
+    - >-
+      Per-ticket inference fee for high-volume API use: $0.10–$0.35/ticket
+      beyond plan quotas.
+    - >-
+      Site or regional license for on-prem/air-gapped deployment: $250k–$750k
+      ARR per site (includes support and updates).
+    - >-
+      Implementation and integration services: $50k–$250k per deployment
+      depending on systems and data quality.
+    - >-
+      Premium add-ons: multilingual pack (+$30/user/month), advanced
+      analytics/BI (+$50/user/month), 24/7 premium support (+15% of ARR).
+    - >-
+      Professional services: taxonomy customization, historical ticket
+      cleansing, and data labeling ($150–$250/hr).
+  costStructure:
+    - >-
+      R&D: ML/engineering salaries (10–15 FTE in year 1), domain SMEs (2–3 FTE),
+      and data annotation budget ($150k–$300k/yr).
+    - >-
+      Cloud and inference: GPU inference (A10/A100 or L4) for RAG+LLM; est.
+      $0.002–$0.01 per 1k tokens; vector DB (managed or self-hosted); storage
+      for documents/logs.
+    - >-
+      On-prem distribution: certified server builds (Dell/HPE), deployment
+      automation, and field support; hardware evaluation lab.
+    - >-
+      Security/compliance: SOC 2 Type II, ISO 27001 audits ($80k–$200k/yr), pen
+      tests, logging/monitoring (SIEM).
+    - >-
+      Integrations: connectors to CMMS/EAM/PLM, SSO/SCIM, translation services;
+      maintenance of APIs and versioning.
+    - >-
+      GTM: enterprise sales (2–4 AEs), solutions architects, marketing (SEMI
+      events, content), partner MDF spend.
+    - >-
+      Customer success and support: onboarding, training, model tuning, and
+      quarterly business reviews.
+    - >-
+      Legal/insurance: data processing addenda, IP indemnification, E&O/cyber
+      insurance.
+  keyMetrics:
+    - >-
+      MTTR reduction vs. baseline: target 15–30% within 6 months on covered tool
+      families.
+    - 'FTFR improvement: +5–12 percentage points within 2 quarters.'
+    - >-
+      Technician note time: reduce from 15–30 minutes to 3–7 minutes per ticket;
+      target ≥70% summary acceptance rate.
+    - >-
+      Recommendation adoption: ≥50% of tickets where a recommended fix is
+      presented result in partial or full use; measure override reasons.
+    - >-
+      Retrieval quality: precision@3 ≥ 0.75 and recall@5 ≥ 0.70 after 90 days of
+      feedback for top 5 tool families.
+    - >-
+      Parts list accuracy: top-5 precision ≥ 0.8 and wrong-part rate reduced by
+      ≥30%.
+    - 'Latency SLO: p95 summarization <5s; p95 retrieval <2s; uptime ≥99.9%.'
+    - >-
+      Safety/compliance: 100% inference auditability; zero P0 security
+      incidents; data residency compliance where required.
+    - >-
+      Adoption: weekly active users/eligible users ≥70%; DAU/MAU ≥0.5; seat
+      expansion rate ≥20% in first 12 months.
+    - >-
+      Commercial: POC→pilot conversion ≥60%; pilot→enterprise conversion ≥50%;
+      net revenue retention ≥120%; CAC payback <12 months.
+storyBrand:
+  character: >-
+    Service managers and field service engineers at semiconductor equipment OEMs
+    and service partners (NAICS 333242) who must restore high-value tools to
+    uptime fast.
+  problem: >-
+    - External: Fragmented, verbose tickets; inconsistent symptom labels; prior
+    fixes buried in silos; slow parts identification.
+
+    - Internal: Frustration from context switching and repeat truck rolls;
+    pressure to hit MTTR and first-time-fix targets.
+
+    - Philosophical: Million-dollar tools shouldn’t depend on tribal knowledge
+    to get back online.
+  guide: >-
+    We understand that every hour of fab downtime is costly. Our team builds
+    industrial-grade AI that learns from your tickets, manuals, and parts
+    catalogs to deliver trustworthy, explainable recommendations—securely and
+    within your workflow.
+  plan: >-
+    Process:
+
+    1) Connect: Securely ingest historical tickets, parts lists, and service
+    manuals.
+
+    2) Configure: Map symptom taxonomy; tune summarization and retrieval to your
+    assets.
+
+    3) Deploy: Surface summaries, similar fixes, steps, and parts in your
+    service tools (web/mobile).
+
+    Agreement:
+
+    - Human-in-the-loop approvals; role-based access; clear audit trail.
+  callToAction: >-
+    Direct: Schedule a 30-minute demo and pilot on a sample ticket set.
+
+    Transitional: Download the MTTR improvement checklist and sample
+    AI-generated summaries.
+  success: >-
+    - Faster MTTR and higher first-time-fix rate; fewer escalations and repeat
+    visits.
+
+    - Standardized resolutions with auto-generated steps and parts lists.
+
+    - Rapid retrieval of proven fixes; growing, searchable service knowledge
+    base.
+
+    - Smoother parts planning and inventory accuracy; audit-ready history.
+  failure: >-
+    Without this: prolonged tool downtime, missed SLAs, unnecessary parts
+    orders, repeat site visits, and the loss of critical know-how when experts
+    leave—eroding customer trust and margins.
+landingPage:
+  hero:
+    title: Field Service Ticket Summarizer & Fix Recommender
+    subtitle: >-
+      Cut MTTR and boost first‑time fix rates for semiconductor tools with AI
+      summaries, symptom classification, and proven fix playbooks.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - 'Technicians wade through long, unstructured field notes and logs.'
+    - >-
+      Tribal knowledge is buried in past tickets; similar fixes are hard to
+      find.
+    - Inconsistent symptom tagging blocks root‑cause analytics.
+    - Slow parts identification leads to wrong picks and repeat visits.
+    - New hires ramp slowly; experts are overloaded.
+    - Fragmented systems (ServiceNow/SAP/Maximo) make context retrieval painful.
+    - Global teams write in multiple languages; context is lost.
+    - SLAs and uptime targets are at risk.
+  solution:
+    - 'Auto‑summarize tickets and logs into clear, standardized briefs.'
+    - >-
+      Classify symptoms by tool family, module, and alarm codes using your
+      taxonomy.
+    - Retrieve similar past cases with verified fixes and confidence scores.
+    - >-
+      Draft step‑by‑step resolution plans and a precise parts list (with
+      alternates).
+    - 'Push summaries, tags, and plans to your CMMS/CRM with full audit trail.'
+    - Continuously learns from feedback to improve recommendations.
+    - Deploy on‑prem or in your VPC to keep IP and customer data secure.
+  features:
+    - 'One‑click ticket summarize (notes, images, SECS/GEM logs).'
+    - Custom symptom and module classifier tuned for semiconductor equipment.
+    - Similarity search across years of service history and manuals.
+    - 'Fix recommender with steps, specs/torques, and safety checks.'
+    - Parts recommender tied to BOMs and approved alternates; stock via API.
+    - >-
+      Citations and confidence on every recommendation for trust and
+      auditability.
+    - Human‑in‑the‑loop approvals with edit history and rollbacks.
+    - Multilingual support (EN/JA/KR/ZH) for global field teams.
+    - >-
+      Integrations: ServiceNow, Salesforce Field Service, Maximo, SAP PM, Oracle
+      EBS.
+    - 'Secure by design: VPC/on‑prem, SSO, RBAC, encryption in transit/at rest.'
+    - 'Analytics on failure modes, MTTR, and first‑time fix rate.'
+    - SDK and APIs for custom workflows and UI embedding.
+  steps:
+    - Create or open a ticket and attach logs/photos.
+    - AI summarizes and classifies symptoms; links similar past cases.
+    - Review suggested fix steps and parts list; edit as needed.
+    - Approve and push to work order; notify logistics for parts.
+    - Execute in the field with guided steps; capture results fast.
+    - Close the loop—feedback trains the model and updates playbooks.
+---
+# FabFix AI: Field Service Ticket Summarizer & Fix Recommender
+
+Generated for NAICS 333242 — Semiconductor Machinery Manufacturing.
+Service: Field Service Ticket Summarizer & Fix Recommender

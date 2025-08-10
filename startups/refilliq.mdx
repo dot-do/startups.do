@@ -1,0 +1,331 @@
+---
+name: RefillIQ — Demand Forecasting & Restock Scheduler for Vending Operators
+slug: refilliq
+naics:
+  primary: '445132'
+  occupations: []
+service:
+  title: Demand Forecasting and Restock Scheduler
+  description: >-
+    Predict depletion by machine/slot and generate service dates and pick-lists
+    to avoid stockouts while minimizing visits.
+  targetUsers:
+    - Operations Manager
+    - Route Supervisor
+    - Warehouse Lead
+  triggers:
+    - Nightly batch
+    - Low-stock/stockout telemetry event
+    - New machine added
+  inputs:
+    - Slot-level sales history
+    - Current inventory/DEX counts
+    - Machine constraints (slots/spirals/capacity)
+    - Driver schedules and service windows
+    - Warehouse inventory and supplier lead times
+    - Machine location and access constraints
+  steps:
+    - Ingest sales/telemetry from VMS
+    - Forecast per-slot demand and depletion dates
+    - Prioritize machines by risk of stockout and sales impact
+    - Build service calendar and combine stops by route/day
+    - Generate pick-lists and truck loads; account for capacity
+    - Push schedule and picks to VMS/driver app; alert exceptions in Slack/Email
+  tools:
+    - 'VMS APIs (e.g., Cantaloupe Seed, Nayax, ParLevel, Televend)'
+    - Forecasting libs (Prophet/LightGBM/statsmodels)
+    - DB/ETL (BigQuery/Snowflake/Airbyte/dbt)
+    - Google Maps Distance Matrix or Mapbox
+    - Slack/Email webhooks
+  outputs:
+    - Service calendar per route/day
+    - Per-machine order quantities and pick-lists (CSV/JSON)
+    - 'Exception list (e.g., high-risk stockouts)'
+    - Forecast accuracy dashboard
+  pricingModel:
+    - Per machine per month
+    - One-time data/connector setup fee
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 8
+    overall: 9
+  risks:
+    - Bad/missing slot mappings causing wrong picks
+    - Sudden demand spikes (events) reduce forecast accuracy
+    - API downtime/rate limits
+  dependencies:
+    - API access to VMS/telemetry and inventory
+    - Driver constraints and calendar
+    - Product catalog and slot constraints
+leanCanvas:
+  problem:
+    - >-
+      Frequent stockouts (snacks, beverages) at high-traffic machines cause lost
+      sales and hurt contract retention; operators often estimate demand using
+      last-visit sales, leading to 10–25% out-of-stock hours on key SKUs.
+    - >-
+      Over-servicing routes (fixed schedules) wastes labor and fuel; many
+      machines are visited with >50% capacity remaining while true hotspots are
+      missed.
+    - >-
+      Manual pick-list creation is time-consuming and error-prone; drivers often
+      overstock slow movers and understock fast movers, increasing spoilage and
+      shrink.
+    - >-
+      Existing VMS tools show sales history but lack accurate slot-level
+      forecasts and automated service-date recommendations, forcing planners to
+      rely on rules of thumb.
+    - >-
+      Seasonality, day-of-week effects, school/work calendars, and weather
+      shocks are hard to model manually, causing frequent mis-allocations of
+      inventory.
+    - >-
+      Limited telemetry penetration and messy DEX/UCS data create data-quality
+      challenges that most operators lack time and skills to address.
+    - >-
+      Fleet constraints (driver hours, truck capacity, product availability) are
+      not integrated into restock planning, creating recurring bottlenecks at
+      warehouses and on routes.
+  solution:
+    - >-
+      Slot-level demand forecasts by machine/SKU using sales, capacity, event
+      calendars, weather, and location type; updated daily.
+    - >-
+      Automated service-date recommendations by machine that minimize stockouts
+      subject to truck/driver capacity, service windows, and warehouse cutoffs.
+    - >-
+      Smart pick-lists for each machine/route-day with target quantities by
+      SKU/slot, factoring planogram capacity, case sizes, and expiration risk.
+    - >-
+      Dynamic route scheduling: consolidate or skip low-need machines; flag
+      emergencies for high-velocity nodes.
+    - >-
+      What-if simulator: adjust service days, add/remove machines, change
+      product mixes, and see predicted stockout hours, visits, labor, and fuel
+      impacts.
+    - >-
+      Integration layer for DEX/UCS and leading VMS/telemetry (Parlevel,
+      Nayax/Televend, Cantaloupe, VendSoft) and route planning tools
+      (OptimoRoute, Route4Me, Routific).
+    - >-
+      Mobile driver mode: simple, offline-capable pick/scan and delivery
+      confirmation; capture exceptions to improve models.
+    - >-
+      Automated KPI dashboard: forecast accuracy, stockout hours, service
+      interval adherence, route miles per $ sold, and truck utilization.
+  uniqueValueProp: >-
+    Cut stockouts and route miles with slot-level AI forecasting that
+    auto-generates service dates and SKU-level pick-lists, all integrated with
+    your VMS/telemetry and route planner. Typical pilots show 20–40% fewer
+    stockout hours and 10–20% fewer truck rolls within 60–90 days.
+  unfairAdvantage: >-
+    Cross-operator slot-level dataset and normalization layer enabling superior
+    forecasts by location type and SKU; constraint-aware scheduler tuned to
+    vending-specific realities (DEX quirks, planogram capacities, perishables).
+    Deep integrations with leading VMS/telemetry create switching costs and
+    deliver faster TTV than generic route planners or in-house spreadsheets.
+  customerSegments:
+    - >-
+      Independent operators with 50–500 machines seeking better service
+      schedules and lower fuel/labor costs (owner-operator led, cost-sensitive,
+      pragmatic buyers).
+    - >-
+      Regional operators with 500–5,000 machines who use telemetry and VMS
+      (Parlevel, Nayax/Televend, VendSoft, Cantaloupe Seed) and want measurable
+      route/stockout improvements.
+    - >-
+      Enterprise/national operators with 5,000+ machines requiring integrations,
+      SSO, SLAs, and multi-region rollouts; focus on KPI governance and contract
+      compliance.
+    - >-
+      Specialized verticals: education, healthcare, manufacturing plants,
+      transportation hubs, government buildings where service windows and
+      compliance matter.
+    - >-
+      Micro markets/kiosks (adjacent) using similar data feeds; can adopt
+      forecasting and pick-lists with minor adaptations.
+  channels:
+    - >-
+      Direct sales to operators with 200–5,000 machines via targeted outbound
+      and industry lists; offer a 60–90 day pilot on 200–500 machines with
+      success-fee option.
+    - >-
+      Partnerships with VMS/telemetry providers (Parlevel, Nayax/Televend,
+      Cantaloupe, VendSoft): marketplace listing, co-selling, and embedded
+      integration bundles.
+    - >-
+      Distributor/channel partners (Vistar, regional wholesalers): referral
+      incentives tied to case volume growth and stockout reduction for shared
+      accounts.
+    - >-
+      Industry events and associations: NAMA Show, regional NAMA chapters;
+      workshops on “Slot-level forecasting” with real operator case studies.
+    - >-
+      Content and PLG: ROI calculator, playbooks for dynamic routing, template
+      pick-lists, and forecast accuracy tracker; self-serve trial with 50
+      machines free for 30 days.
+    - >-
+      Field marketing to verticals (schools, healthcare) through facility
+      services contractors; pilot with their top two routes per site.
+    - >-
+      Customer advocacy: publish 3–5 operator case studies (before/after KPIs),
+      peer webinars, and site visits for late-stage prospects.
+  revenueStreams:
+    - >-
+      SaaS subscription per active machine: $4/machine/month base (Forecast +
+      Service Dates + Pick-lists); volume tiers to $2.50 at >10k machines;
+      $99/month minimum.
+    - >-
+      Optimizer add-on: $1/machine/month for constraint-aware route scheduling,
+      expiry management, and exogenous data boosts.
+    - >-
+      Professional services: onboarding/integration package $2,000–$15,000
+      depending on data complexity; planogram digitization at $1.50 per slot
+      (optional).
+    - 'Enterprise: SSO/SOC2, custom SLA, and private data tenancy uplift 15–25%.'
+    - >-
+      Partner revenue share for embedded listings in VMS marketplaces (10–20% of
+      ARR) and distributor referrals (one-time bounty).
+  costStructure:
+    - >-
+      Cloud infrastructure (compute for training/inference, storage,
+      networking): scales with machines and forecast frequency.
+    - >-
+      Data acquisition: weather, calendar/foot-traffic datasets; telemetry/VMS
+      connector maintenance.
+    - >-
+      Engineering/ML team: model R&D, connectors, mobile app, and reliability
+      (on-call).
+    - >-
+      Sales and marketing: SDRs, events (NAMA), content, case studies, partner
+      MDF.
+    - >-
+      Customer success/onboarding: planogram digitization, data cleanup,
+      training, and QBRs.
+    - >-
+      General and administrative: finance, legal (data processing agreements),
+      insurance; compliance (SOC 2).
+  keyMetrics:
+    - >-
+      Forecast accuracy (MAPE) per SKU/machine: target ≤20% for top 20% velocity
+      SKUs; ≤30% overall within 90 days.
+    - >-
+      Stockout hours per machine per week: baseline vs. post-pilot; target
+      20–40% reduction.
+    - >-
+      Fill rate at visit (units requested vs. delivered): target ≥95% for top
+      SKUs; track pick-list adherence.
+    - >-
+      Visit efficiency: truck rolls per machine per month; target 10–20%
+      reduction without revenue loss.
+    - >-
+      Revenue per visit and per mile: target ≥10% increase via dynamic
+      scheduling and better allocation.
+    - >-
+      Inventory turns by SKU category: +10–15% within 3 months; shrink/spoilage
+      rate: −20%.
+    - >-
+      Route utilization: stops per route-day and labor hours per $1k sales;
+      target +10% improvement.
+    - 'On-time service adherence to recommended dates: ≥85% within 60 days.'
+    - >-
+      Time-to-value (TTV): onboarding to first optimized route <21 days; payback
+      period <3 months.
+storyBrand:
+  character: >-
+    Vending machine operators and route managers (NAICS 445132) who want full
+    machines, fewer truck rolls, and happier locations.
+  problem: >-
+    External: Unpredictable sell-through leads to stockouts, stale product, and
+    inefficient routes. Internal: Teams juggle guesswork, spreadsheets, and
+    last-minute calls. Philosophical: You shouldn’t lose sales or burn fuel
+    because the data is hard to use.
+  guide: >-
+    We understand vending operations—missed sales and wasted stops hurt. Our
+    team blends vending expertise with applied AI, integrating with common
+    telemetry/POS feeds to turn raw sales data into reliable, actionable plans.
+  plan: >-
+    Process: 1) Connect telemetry/sales and product catalog, 2) Train on
+    historical sell-through by machine/slot, 3) Receive weekly service dates,
+    route priorities, and pick-lists, 4) Review/override in the dashboard, 5)
+    Launch and monitor KPIs. Agreement: simple pricing, pilot first, cancel
+    anytime.
+  callToAction: >-
+    Direct: Book a demo and schedule your pilot. Transitional: Get a free
+    forecast snapshot for your top routes.
+  success: >-
+    Right-time visits, accurate picks, fewer stockouts, higher sales per stop,
+    lower fuel and labor costs, happier locations, and predictable operations
+    you can scale.
+  failure: >-
+    Empty spirals, missed revenue, wasted truck rolls, frustrated clients, stale
+    inventory, and lost contracts to better-run competitors.
+landingPage:
+  hero:
+    title: Demand Forecasting & Restock Scheduler for Vending Fleets
+    subtitle: >-
+      Predict slot-level depletion. Auto-build service routes and pick-lists.
+      Fewer stockouts, fewer truck rolls.
+    ctaText: Start Free Pilot
+    ctaHref: /get-started
+  problem:
+    - Stockouts drain sales and erode account trust.
+    - 'Blind restocking wastes routes, fuel, and labor.'
+    - >-
+      Manual schedules can’t keep up with location, daypart, and event-driven
+      demand.
+    - Overfilling ties up cash; underfilling triggers repeat visits.
+    - 'Drivers lack accurate pick-lists, causing misses and dead miles.'
+    - 'Data is siloed across telemetry, warehouse, and ERP systems.'
+  solution:
+    - 'Predict depletion by machine and slot, with next-best service date.'
+    - Auto-generate schedules that minimize visits while meeting fill-rate SLAs.
+    - 'Create precise pick-lists by machine, route, and warehouse—no guesswork.'
+    - Prioritize at-risk machines/items with clear alerts and ETAs to stockout.
+    - 'What-if scenarios for seasonality, price or planogram changes, and events.'
+    - >-
+      Integrate with vending telemetry and back-office systems for a single
+      view.
+    - Driver-friendly mobile workflow with offline mode and scanning.
+  features:
+    - >-
+      Slot-level ML forecasts capturing seasonality, daypart, weather, and local
+      events.
+    - Dynamic par-level recommendations by location and time.
+    - >-
+      Restock scheduler with constraints: service windows, route capacity, labor
+      hours, SLAs.
+    - Multi-day route optimization to cut miles and truck rolls.
+    - Auto pick-lists aggregated by warehouse and vehicle load plan.
+    - >-
+      Replenishment guidance: reorder points by supplier lead time and
+      break-case logic.
+    - 'Real-time alerts: impending stockouts, mis-vends, coin/bill issues.'
+    - Planogram management with compliance tracking and photo audits.
+    - Inventory balancing suggestions across machines and micro-warehouses.
+    - >-
+      Driver app: stop list, pick confirmation, cycle counts, barcode scan,
+      notes, photos.
+    - >-
+      Dashboards: fill rate, stockout minutes prevented, visit frequency, sales
+      lift.
+    - 'APIs for DEX/UCS, telemetry providers, ERP/WMS, and accounting.'
+    - >-
+      Security: SSO, role-based access, audit trail; cloud or private
+      deployment.
+    - Fast onboarding via API or CSV import.
+  steps:
+    - 'Connect telemetry, sales, and inventory data (DEX/UCS, ERP/WMS, CSV).'
+    - 'Import machines, locations, routes, and planograms.'
+    - >-
+      Set goals and constraints: fill-rate targets, service windows, vehicle
+      capacity.
+    - Review forecasted depletion and suggested service dates.
+    - Approve auto-generated routes and pick-lists; dispatch to drivers.
+    - Monitor KPIs and refine par levels/planograms with one click.
+---
+# RefillIQ — Demand Forecasting & Restock Scheduler for Vending Operators
+
+Generated for NAICS 445132 — Vending Machine Operators.
+Service: Demand Forecasting and Restock Scheduler

@@ -1,0 +1,308 @@
+---
+name: MetaForge Audio
+slug: metaforge
+naics:
+  primary: '512290'
+  occupations: []
+service:
+  title: 'Metadata Enrichment, Tagging, and DDEX Packaging'
+  description: >-
+    Auto-generate rich metadata (BPM/key/mood/genre), fingerprinting, and
+    DDEX/ID3 tagging.
+  targetUsers:
+    - labels
+    - music libraries
+    - distributors
+  triggers:
+    - new catalog ingest
+    - metadata audit
+  inputs:
+    - audio files
+    - existing CSV/metadata (if any)
+    - label codes (ISRC/UPC) if assigned
+  steps:
+    - audio fingerprint and de-dup
+    - 'feature extraction (BPM, key, energy, mood)'
+    - genre/mood classification and keywords
+    - write ID3/RIFF tags
+    - validate/export DDEX ERN or CSV/XML
+  tools:
+    - MusicBrainz/AcoustID
+    - Essentia
+    - librosa
+    - Spotify Web API (for matches)
+    - mutagen
+  outputs:
+    - enriched metadata CSV/XML/JSON
+    - tagged audio files
+    - validation report
+  pricingModel:
+    - per track
+    - per catalog batch
+    - setup + per-1k tracks pricing
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 8
+    overall: 9
+  risks:
+    - incorrect tags or genre
+    - API rate limits/changes
+    - ISRC/UPC misalignment
+  dependencies:
+    - API keys where required
+    - ground-truth mappings for critical fields
+leanCanvas:
+  problem:
+    - >-
+      Inconsistent and incomplete metadata (BPM, key, mood, genre,
+      instrumentation) causes poor searchability and lower sync/streaming
+      performance.
+    - >-
+      Manual tagging is slow (3–6 minutes/track) and expensive
+      ($0.40–$1.50/track) with high inter-annotator variance.
+    - >-
+      High DSP rejection rates due to DDEX schema errors, invalid identifiers
+      (ISRC/UPC/ISNI/IPI), and poor QC increase time-to-market by days or weeks.
+    - >-
+      Catalog owners lack fingerprinting and audio ID linkage across platforms
+      (YouTube, TikTok, UGC, broadcasters), leading to missed claims and
+      royalties.
+    - >-
+      Fragmented tooling across ID3 tags, DDEX ERN/MEAD, and internal schemas
+      creates duplication and data drift.
+    - >-
+      Back-catalog clean-up and ongoing metadata governance are under-resourced,
+      leading to conflicting versions and vendor lock-in.
+    - >-
+      Small and mid-size libraries/labels lack in-house engineering to integrate
+      DDEX, ID mapping, and feature extraction pipelines.
+  solution:
+    - >-
+      AI-driven feature extraction for BPM (±1), musical key, mood, genre,
+      energy/valence, instruments, explicitness, language detection, stems
+      presence.
+    - >-
+      Audio fingerprint generation and matching; connectors to third-party
+      registries (e.g., ACRCloud/BMAT/Pex) for cross-platform ID linking.
+    - >-
+      Schema-aware DDEX packaging: ERN 4.x deliveries, MEAD 1.x descriptive
+      metadata, RIN import-to-MEAD mapping, plus ID3 v2.4 tagging at file level.
+    - >-
+      Automated validations: identifier checks (ISRC/UPC/ISNI/IPI),
+      rights-holdership sanity checks, territory/rights windowing, and DDEX
+      schema conformance.
+    - >-
+      Batch back-catalog clean-up toolkit: dedupe detection, conflict
+      resolution, and confidence scoring for metadata merges.
+    - >-
+      Human-in-the-loop review UI for exceptions; active learning loop improves
+      models on customer data over time.
+    - >-
+      APIs/SDKs and no-code dashboard; S3/GCS/Azure Blob watchers for hands-free
+      ingestion and export to DSPs/partners.
+  uniqueValueProp: >-
+    One API to auto-enrich audio metadata and deliver error-free DDEX/ID3
+    packages—cut tagging cost by 60–80%, slash DSP rejections to <1%, and reduce
+    time-to-release from days to minutes.
+  unfairAdvantage: >-
+    Closed-loop learning from real DSP rejection feedback and retailer rule
+    changes, combined with proprietary labeled catalogs from integration
+    partners—enabling higher DDEX pass rates and more accurate tagging than
+    competitors who lack continuous ground-truth signals.
+  customerSegments:
+    - Production music libraries and sync houses (10k–5M tracks/catalog).
+    - >-
+      Independent labels and label services using DDEX to deliver to DSPs
+      (50k–10M tracks).
+    - >-
+      Music distributors/aggregators serving long-tail creators (white-label
+      API).
+    - >-
+      SFX libraries and audio post houses requiring rich tagging for search and
+      edit workflows.
+    - >-
+      Archival/heritage institutions digitizing catalogs needing compliant
+      metadata for distribution and discovery.
+    - >-
+      Podcast networks and audiobook producers needing ID3/DDEX-like packaging
+      and mood tagging for discoverability.
+    - >-
+      Rights administrators and music publishers needing descriptive MEAD
+      enrichment to complement works data.
+  channels:
+    - >-
+      Direct sales to production music libraries and mid-market labels; 90-day
+      pilots with rejection-rate and TAT SLAs.
+    - >-
+      Partnerships with distributors/label services (white-label API, revenue
+      share per processed track).
+    - >-
+      Integrations with DAM/MAM vendors (Iconik, Bynder, CatDV, Dalet) and
+      library platforms (SourceAudio, Harvest Media, Disco).
+    - >-
+      Developer-led growth: public API docs, Postman collections, SDKs
+      (Python/JS), sample repos, and sandbox with 1k free tracks.
+    - >-
+      Marketplaces: AWS/Azure/GCP marketplaces for metered billing and security
+      procurement accelerators.
+    - >-
+      Industry events and associations: Music Biz, NAMM, AES, IBC, NAB, DDEX
+      Knowledge Exchange; sponsor workshops on DDEX/MEAD best practices.
+    - >-
+      Content marketing: “State of Music Metadata” reports, DDEX validator
+      open-source tool, webinars with PROs/aggregators.
+    - >-
+      Outbound to catalogs with ≥100k assets; offer free rejection audit and
+      10k-track back-catalog pilot.
+  revenueStreams:
+    - >-
+      SaaS subscriptions by volume: Starter $49/mo (1,000 tracks), Growth
+      $499/mo (15,000), Scale $2,000/mo (100,000), Enterprise custom; overage
+      $0.03–$0.08/track.
+    - >-
+      Add-ons: Fingerprinting $0.02/track; third-party registry submissions
+      pass-through +10–20% margin.
+    - >-
+      DDEX packaging and delivery: $0.01/release for standard profiles;
+      enterprise included with minimums.
+    - >-
+      Back-catalog clean-up projects: $0.02–$0.08/track depending on quality,
+      with minimum $5,000.
+    - >-
+      Professional services: custom schema mapping, retailer profile
+      maintenance, data migration—$150–$220/hour or fixed-scope packages.
+    - >-
+      Private cloud/on-prem license: annual platform fee $50k–$250k plus
+      support.
+    - >-
+      Analytics module (search performance, claim coverage, rejection
+      analytics): $300–$1,500/mo depending on catalog size.
+  costStructure:
+    - >-
+      Cloud compute for feature extraction and inference (GPU/CPU mix):
+      $0.002–$0.007 per 3-min track average.
+    - >-
+      Storage and database (features, fingerprints, metadata, logs): $0.02–$0.06
+      per 10k tracks/month; cold storage for audit trails.
+    - >-
+      Egress and delivery to DSPs/partners: $0.01–$0.03 per GB depending on
+      region; typical DDEX XML is small, audio transfers optional.
+    - >-
+      Engineering and ML staffing (core team 8–15 FTE year 1–2); annotation and
+      QA budget for gold-standard datasets.
+    - >-
+      Sales/marketing: 8–15% of revenue in early growth; event sponsorships and
+      marketplace listing fees.
+    - 'Compliance and security: SOC 2 Type II over 12–18 months ($80k–$200k).'
+    - >-
+      DDEX membership and participation (optional but credibility-enhancing):
+      $5k–$20k/year depending on tier.
+    - Legal/data licensing for training sets; indemnification insurance.
+    - 'Support and success team for SLAs (24/5 standard, 24/7 enterprise).'
+  keyMetrics:
+    - >-
+      Technical KPIs: tagging accuracy vs. gold standard (BPM, key, mood,
+      genre), fingerprint match recall ≥95% at FAR ≤1%, DDEX validation pass
+      rate ≥99.5%.
+    - >-
+      Operational KPIs: median processing time ≤5s/track; p95 ≤12s;
+      auto-resolution rate of validation errors ≥90%; uptime ≥99.9%.
+    - >-
+      Business KPIs: MRR growth ≥12% MoM in first 12 months, Net Revenue
+      Retention ≥115%, logo churn ≤2%/qtr, gross margin ≥70%.
+    - >-
+      Quality-of-delivery KPIs: DSP rejection rate <1% per release;
+      time-to-release cut from 3–5 days to <1 hour for standard drops.
+    - >-
+      Adoption KPIs: API-to-paid conversion ≥15%, pilot-to-contract conversion
+      ≥40%, average tracks processed per account ≥50k/qtr in mid-market.
+    - >-
+      Efficiency KPIs: cost/track ≤$0.01 at scale (excluding third-party fees);
+      human review hours reduced ≥70% vs baseline.
+    - >-
+      Compliance KPIs: % releases with validated identifiers (ISRC/UPC/ISNI/IPI)
+      ≥98%; audit log completeness 100%.
+storyBrand:
+  character: >-
+    Music labels, production libraries, and post‑audio teams (NAICS 512290) who
+    need delivery‑ready masters and truly searchable catalogs.
+  problem: >-
+    External: Manual tagging, messy metadata, and changing DDEX/ingestion specs
+    cause rejections and delays. Internal: Teams feel buried in admin work and
+    worry revenue leaks through bad data. Philosophical: Creators shouldn’t lose
+    time or money because metadata is hard.
+  guide: >-
+    Empathy: We’ve delivered to major DSPs and know the pain of failed
+    ingestions. Authority: Built by music‑tech veterans; trained on industry
+    datasets; validates against DDEX ERN/MEAD and partner profiles; secure,
+    privacy‑first architecture.
+  plan: >-
+    Process: 1) Connect your catalog via S3/FTP/API and select partner profiles,
+    2) AI enriches (BPM/key/mood/genre), fingerprints, and auto‑builds DDEX/ID3,
+    3) Review, approve, and export delivery‑ready packages. Agreement: No‑code
+    dashboard + API, human‑in‑the‑loop QC, audit trail & versioning, zero‑commit
+    pilot, no model training on your audio without opt‑in.
+  callToAction: >-
+    Direct: Book a 20‑minute demo to start your pilot. Transitional: Upload up
+    to 50 tracks for a free enrichment report and DDEX sample pack.
+  success: >-
+    Clean, rich metadata; one‑click DDEX/ID3 packages; faster deliveries; fewer
+    rejections; accurate credits and splits; better search and placements;
+    reliable royalty reporting; scalable ops.
+  failure: >-
+    Stalled releases, failed ingestions, rights conflicts, takedowns,
+    duplicates, missed deadlines, lost licensing revenue, and burned team time.
+landingPage:
+  hero:
+    title: AI Metadata & DDEX Packaging for Sound Recording Teams
+    subtitle: >-
+      Auto-generate BPM, key, mood, genre; fingerprint tracks; export DDEX/ID3
+      in minutes. Built for labels, libraries, and post houses (NAICS 512290).
+    ctaText: Start Free Trial
+    ctaHref: /start
+  problem:
+    - Manual tagging slows releases and invites errors
+    - 'Inconsistent metadata hurts search, sync, and licensing'
+    - DSP rejections from invalid or incomplete DDEX packages
+    - Duplicate masters and versions clutter catalogs
+    - 'Rights, splits, and credits are hard to keep consistent at scale'
+    - Scattered storage makes bulk updates painful
+    - QC takes longer than production
+  solution:
+    - 'AI extracts rich, consistent metadata from audio automatically'
+    - One-click DDEX packages and fully tagged audio files
+    - Fingerprinting to de-dupe and link versions/alternates
+    - Bulk workflows and API for high-volume catalogs
+    - Preflight validation to catch errors before delivery
+    - 'Simple review and edit, then export to your stack'
+    - Audit trail and versioning for compliance
+  features:
+    - Auto BPM and musical key with confidence scores
+    - 'Mood, energy, genre and subgenre tagging'
+    - 'Vocal presence, instrumentation, and tempo descriptors'
+    - Language detection and explicit-content flagging
+    - Acoustic fingerprinting and duplicate detection
+    - 'Import/validate UPC, ISRC, and catalog IDs'
+    - 'Contributors, roles, rights, territories, and splits capture'
+    - DDEX ERN package generation with deals and resources
+    - Optional MEAD export for enhanced descriptive metadata
+    - 'ID3 v2.3/v2.4, WAV BWF/iXML, FLAC Vorbis Comments'
+    - 'Artwork checks: dimensions, color profile, format'
+    - QC rules and preflight before delivery to DSPs/distributors
+    - Batch processing and REST API
+    - 'Connect S3, GCS, Azure Blob, or local uploads'
+    - 'Change history, approvals, and user permissions'
+  steps:
+    - Upload or connect your storage (S3/GCS/Azure/local)
+    - AI analyzes audio and generates metadata and fingerprints
+    - 'Review suggestions, make quick edits, set rights and splits'
+    - 'Validate: run QC and fix any issues flagged'
+    - 'Export: DDEX package zip + fully tagged audio files'
+    - Deliver via API/SFTP or share to your distributor/DSP
+    - Track versions and updates with an audit trail
+---
+# MetaForge Audio
+
+Generated for NAICS 512290 — Other Sound Recording Industries.
+Service: Metadata Enrichment, Tagging, and DDEX Packaging

@@ -1,0 +1,347 @@
+---
+name: SeedSense AI Prescriptions
+slug: seedsense
+naics:
+  primary: '111150'
+  occupations: []
+service:
+  title: Variable-Rate Seeding and Hybrid Placement Prescriptions
+  description: >-
+    Data-driven seeding rates and hybrid zones to optimize emergence and yield
+    across spatial variability.
+  targetUsers:
+    - Corn growers
+    - Independent agronomists
+    - Seed dealers
+  triggers:
+    - 4–6 weeks before planting
+    - After hybrids selected
+    - When historical yield/maps are available
+  inputs:
+    - Field boundaries (shapefile/GeoJSON)
+    - Historical yield maps (years >2 preferred)
+    - 'Soil data (SSURGO/SoilGrids, EC if available)'
+    - Elevation/DEM
+    - Multi-year satellite vigor (NDVI/EVI)
+    - 'Equipment constraints (min/max rate, file format)'
+    - Chosen hybrids and relative maturity
+  steps:
+    - Ingest boundaries and normalize datasets
+    - Cluster management zones from multi-year yield/vegetation/soil/elevation
+    - Estimate zone-specific seeding response curves and population ranges
+    - Assign hybrids to zones (optional) based on stress tolerance and GDU fit
+    - Generate variable-rate seeding Rx within equipment constraints
+    - QA with grower; export ISOXML/Shapefile; optional push to Ops Center
+  tools:
+    - Google Earth Engine or Sentinel Hub API (Sentinel-2/Landsat)
+    - USDA SSURGO API / SoilGrids
+    - GDAL/QGIS
+    - scikit-learn (clustering/response curves)
+    - John Deere Operations Center API (read/export)
+    - AgLeader/ISOXML exporters
+  outputs:
+    - Management zone map (GeoTIFF/GeoJSON)
+    - VRS prescription (ISOXML/Shapefile)
+    - 1–2 page summary with assumptions and recommended checks
+  pricingModel:
+    - $1.50–$3.00 per acre; $250 farm minimum
+    - 'Optional review call: +$100/session'
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8.5
+  risks:
+    - Poor or miscalibrated yield data degrades zones
+    - Equipment file-format mismatches
+    - Hybrid recommendations may be constrained by availability
+    - Liability if prescriptions not field-validated
+  dependencies:
+    - 'Grower shares boundaries, yield/as-applied data'
+    - Access to satellite archives
+    - Equipment compatibility for Rx files
+leanCanvas:
+  problem:
+    - >-
+      Large within-field variability (often 30–60 bu/ac swing) makes flat
+      seeding rates and generic hybrid choices leave profit on the table.
+    - >-
+      Many growers have VRS-capable planters but underuse them due to data
+      wrangling, confusing tools, and lack of trusted agronomic logic.
+    - >-
+      Current scripts often ignore hybrid x environment response-to-population
+      (RTP) and micro-topography; growers see inconsistent results and stop
+      using VRS.
+    - >-
+      Hybrid placement is usually based on county-level trial data, not the
+      specific environment types within each field.
+    - >-
+      Data integration is painful: yield maps, soil, elevation, and weather
+      rarely align cleanly; file formats (ISOXML, shapefile, Deere .rx) cause
+      last-minute planting issues.
+    - >-
+      Hard to prove ROI: few tools automate check-strips and post-harvest
+      analysis tied to prescriptions; agronomists lack time to validate at
+      scale.
+    - >-
+      Time burden: 4–8 hours per field to clean data and build an Rx is common,
+      preventing agronomists from scaling services.
+  solution:
+    - >-
+      Ingest multi-year field data (yield, as-planted, soil EC/texture,
+      elevation/slope, drainage, historic imagery) via connectors to John Deere
+      Operations Center, Climate FieldView, CNH AFS, and shapefile/ISOXML
+      uploads.
+    - >-
+      Environment typing: cluster each field into stable zones using
+      topography-derived wetness indices, texture/EC, organic matter, and
+      water-holding capacity; quantify zone stability across seasons.
+    - >-
+      Hybrid x environment modeling: use brand-agnostic RTP curves and GxE
+      performance surfaces to recommend hybrids matched to each zone class.
+    - >-
+      Population optimization: for each zone-hybrid pair, optimize seeding rate
+      for expected planting window weather and stand establishment risk; enforce
+      planter and hybrid constraints (min/max population, rate change limits).
+    - >-
+      Prescription generation: create variable-rate and hybrid-zone maps with
+      smooth transitions respecting machine capabilities; export ISOXML,
+      shapefile, Deere .rx, CNH .cn1; verify file integrity.
+    - >-
+      On-planter delivery: push maps to Ops Center/FieldView and provide a
+      USB-ready package with a step-by-step planter setup checklist.
+    - >-
+      In-season update option: if planting is delayed or weather shifts, recalc
+      RTP and issue a rapid replan map in <2 hours.
+    - >-
+      Automated check-strips: embed randomized flat-rate and alternate-hybrid
+      strips for unbiased ROI measurement; flag strip locations to operators.
+    - >-
+      Post-harvest analytics: auto-ingest yield, run statistical analysis on
+      strips and zones, deliver ROI heatmaps, hybrid performance by environment,
+      and next-year recs.
+    - >-
+      Collaborative QA: agronomist co-pilot mode to adjust business rules,
+      approve maps, and track changes.
+  uniqueValueProp: >-
+    Increase corn profit by $10–20 per acre through genetics-aware,
+    field-specific seeding rates and hybrid placement delivered to your planter
+    in under 24 hours, with automated check-strips and ROI reporting.
+  unfairAdvantage: >-
+    A continuously growing, brand-agnostic hybrid x environment and RTP dataset
+    linked to verified check-strips, combined with a planter-aware optimization
+    and delivery engine that minimizes operator friction. Partner integrations
+    with JD/Climate and seed/retail networks create distribution lock-in, while
+    our post-harvest ROI reporting drives trust and renewal.
+  customerSegments:
+    - >-
+      Primary: US and Canadian corn growers operating 1,000–20,000 acres (target
+      decision-makers who control planter settings and hybrid selection).
+    - >-
+      Agronomy retailers and independent consultants serving 50k–500k acres
+      (Nutrien, Helena, WinField United, independents).
+    - >-
+      Seed dealers and district managers (Bayer/DEKALB, Corteva/Pioneer,
+      Syngenta/NK, regional brands) seeking environment-aware placement and RTP.
+    - >-
+      Custom planting services and farm management companies that must deliver
+      measurable ROI to clients.
+    - >-
+      High-variability geographies first: IA, IL, NE, IN, MN, OH, MO, KS;
+      Canada: ON, MB.
+  channels:
+    - >-
+      Direct sales to large progressive growers via territory agronomists
+      (Midwest/Plains focus in Y1).
+    - >-
+      Reseller partnerships with agronomy retailers (Nutrien, Helena, WinField
+      United) on per-acre rev share and white-label portals.
+    - >-
+      Seed dealer channel: co-selling hybrid placement services bundled with
+      seed orders; joint field days and side-by-side plots.
+    - >-
+      Equipment dealers (John Deere, Case IH) program to preload demos and offer
+      planting-season support packages.
+    - >-
+      Digital marketplaces/integrations: John Deere Operations Center Partner,
+      Climate FieldView Partner, CNH AFS Connect, and Ag Leader SMS ecosystem.
+    - >-
+      Content and proof-based marketing: on-farm trials with check-strip
+      results, university extension demos, and influencer growers; case studies
+      showing bu/ac gains and payback.
+    - >-
+      Events: Farm Progress Show, Commodity Classic, regional grower meetings;
+      offer on-site prescription builds and planter file health checks.
+    - >-
+      Referral program for agronomists and seed dealers ($0.50/acre credit for
+      referred acres in first year).
+  revenueStreams:
+    - >-
+      Per-acre subscription (grower): Seeding-only $4–6/ac; Seeding + Hybrid
+      Placement $7–10/ac; includes check-strips and post-harvest report.
+    - >-
+      Retailer enterprise pricing: $3–5/ac with annual minimum (e.g., $100k) and
+      co-branded portal; volume tiers at 100k/250k/500k acres.
+    - >-
+      Seed dealer bundle: $2–3/ac add-on baked into seed invoice; dealer
+      receives 20–30% margin.
+    - 'Rush service surcharge: +$1/ac for <6-hour turnaround during planting.'
+    - >-
+      Professional services: data cleanup and historical yield alignment $1/ac;
+      field boundary normalization $0.10/ac; agronomy consulting $75–125/hr.
+    - >-
+      API/data licensing to seed/OEM partners for GxE environment typing and RTP
+      curves (annual license $50–300k).
+    - >-
+      Pilot program: first 1,000 acres per grower at $0.50/ac for year 1 with
+      performance reporting; money-back if no measured ROI vs check strips.
+  costStructure:
+    - >-
+      COGS variable per acre: cloud compute $0.10–0.20; data sources (premium
+      weather/satellite/soils) $0.05–0.15; support/agronomy QA $0.40–0.80; map
+      delivery/integration $0.05–0.10. Target COGS $0.60–1.25/ac.
+    - >-
+      Fixed costs: engineering/ML team (6–10 FTE), agronomy science (3–5 FTE),
+      territory agronomists (initially 4–6), sales/CS (3–5), partnerships (1–2);
+      total payroll Y1 $3–5M.
+    - >-
+      Data partnerships: Planet/Maxar imagery, DTN/EMMI weather, soil lab
+      integrations (Waypoint, A&L), EC mapping vendor relationships (Veris) —
+      $200–600k/yr.
+    - 'Go-to-market: events, trials, content, dealer enablement — $300–700k/yr.'
+    - >-
+      Liability/Errors & Omissions insurance for agronomic recommendations —
+      $100–250k/yr.
+    - >-
+      R&D budget for hybrid RTP and environment typing validation —
+      $300–700k/yr.
+    - >-
+      Target gross margin: 70%+ at scale (>500k acres), breakeven near 200k–300k
+      paid acres depending on mix.
+  keyMetrics:
+    - >-
+      Acres onboarded (paid and total) — target 150k in Y1, 600k in Y2, 1.5M in
+      Y3.
+    - >-
+      Prescription adoption rate per customer (acres Rx / eligible planter
+      acres) — target 70%+.
+    - >-
+      Measured yield uplift vs flat rate from check-strips — median +2–5 bu/ac;
+      80th percentile +6–10 bu/ac.
+    - >-
+      Net ROI per acre (added revenue minus seed delta and service fee) — median
+      +$10–20/ac at $4.50/bu corn; distribution tracked by environment type.
+    - >-
+      Seed cost efficiency — change in average seeds/ac vs baseline and ROI per
+      1k seeds; aim to reduce seed where marginal return < cost.
+    - >-
+      Emergence and stand accuracy — stand count error CV <10% relative to model
+      expectations in validated fields.
+    - Prescription turnaround time — 95% <24h; rush <6h.
+    - >-
+      Map delivery success rate — 98%+ files load and run without edits; planter
+      compatibility coverage >90% of monitored models/firmware.
+    - >-
+      Customer retention (logos and acres) — 90%+ logos, 110–130% net revenue
+      retention for retailer accounts.
+    - CAC payback <12 months; LTV/CAC >4.
+    - Support efficiency — <1.5 support tickets per 10k acres during planting.
+    - >-
+      Model accuracy — MAPE of zone-level yield response to population <8% on
+      cross-validated fields.
+storyBrand:
+  character: >-
+    Corn growers, farm managers, and agronomists who want to match seeding rates
+    and hybrids to each acre’s variability to boost emergence, yield, and input
+    efficiency.
+  problem: >-
+    External—Fields vary in soil, drainage, elevation, and residue; flat-rate
+    seeding wastes seed and leaves yield on the table. Internal—You’re tired of
+    guessing, juggling data layers and monitors, and risking uneven stands.
+    Philosophical—Every acre deserves the right hybrid at the right rate.
+  guide: >-
+    We understand the pressure to hit yield targets while controlling seed
+    costs. Our agronomy and data science team brings precision-ag experience and
+    on-farm validation, with privacy-first pipelines and integrations for major
+    monitors and OEMs.
+  plan: >-
+    1) Connect boundaries, soil layers, imagery, yield history, and hybrid
+    options; 2) AI generates variable-rate seeding and hybrid-zone prescriptions
+    aligned to your goals and equipment; 3) Load, plant, and ground-truth; 4)
+    Post-harvest analysis to refine next season.
+  callToAction: >-
+    Direct—Book a field assessment and pilot on one or two fields this season.
+    Transitional—Download a sample prescription and ROI worksheet.
+  success: >-
+    Uniform emergence, stronger stands, and higher yield potential; seed dollars
+    targeted where they pay; confident, data-backed hybrid placement; continuous
+    improvement each harvest; ROI you can show your lender and landlord.
+  failure: >-
+    Flat-rate across variability; over- or under-seeding; wrong hybrid on
+    stressed acres; wasted seed and time; missed yield; analysis paralysis and
+    guesswork.
+landingPage:
+  hero:
+    title: AI Seeding & Hybrid Placement for Corn
+    subtitle: >-
+      Variable-rate prescriptions that match seed and hybrid to each
+      zone—improving emergence, stand uniformity, and ROI.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - >-
+      Uniform seeding wastes seed in poor zones and starves high-potential
+      areas.
+    - >-
+      Guesswork hybrid placement risks yield drag when stress tolerance doesn’t
+      fit the zone.
+    - 'Manual zone drawing is slow, subjective, and hard to repeat.'
+    - Data is scattered across monitors and platforms; exports are messy.
+    - Prescriptions fail at the monitor due to format and equipment mismatches.
+    - Hard to prove impact and refine decisions year over year.
+  solution:
+    - >-
+      AI builds stable management zones from multi-year yield, soils, elevation,
+      EC, and imagery.
+    - Optimized seeding rates per zone aligned to your hybrids and goals.
+    - >-
+      Hybrid placement by environment (high/low productivity, drought-prone,
+      wet-natured).
+    - 'Machine-ready files for common monitors (ISOXML, Shapefile, and more).'
+    - In-season tweaks based on weather and soil conditions before planting.
+    - Post-harvest analysis to quantify ROI and improve prescriptions.
+  features:
+    - >-
+      Data connectors: import from leading platforms and monitor files (yield,
+      boundaries, soil, imagery).
+    - 'Automatic data QA: clean passes, remove outliers, normalize across years.'
+    - >-
+      Zone modeling: yield stability, terrain, water flow, and soil layers
+      inform zones.
+    - >-
+      Hybrid response: variety-by-environment rate curves and stress tolerance
+      tagging.
+    - 'Scenario planning: seed cost, budget, and target population constraints.'
+    - >-
+      Equipment-aware prescriptions: planter capabilities, row/section limits,
+      singulation tolerance.
+    - >-
+      Operator-friendly maps: offline mobile access and share links for
+      agronomists and crews.
+    - >-
+      Data control: your data stays yours with granular permissions and audit
+      logs.
+    - 'Security-first: encryption in transit and at rest, role-based access.'
+    - 'Expert support: agronomist-led onboarding and planting-day assistance.'
+  steps:
+    - 'Connect fields and historical data (yield, soil, imagery, boundaries).'
+    - Set goals and seed portfolio; map planter capabilities.
+    - 'Review AI-generated zones, variable rates, and hybrid placement.'
+    - Approve and export prescriptions to your monitor (ISOXML/Shapefile).
+    - Plant with confidence; adjust if conditions change.
+    - 'After harvest, measure results and refine for next season.'
+---
+# SeedSense AI Prescriptions
+
+Generated for NAICS 111150 — Corn Farming.
+Service: Variable-Rate Seeding and Hybrid Placement Prescriptions
