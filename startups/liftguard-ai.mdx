@@ -319,7 +319,390 @@ landingPage:
       Improve: Track outcomes and ROI; models retrain continuously as conditions
       change.
 ---
+
 # LiftGuard AI
 
 Generated for NAICS 211120 — Crude Petroleum Extraction.
 Service: ESP/Rod Lift Failure Prediction & Advisory
+
+## Business Process Functions
+
+```typescript
+// Core data types for LiftGuard AI business processes
+interface Lead {
+  id: string
+  company: string
+  contactInfo: ContactInfo
+  wellCount: number
+  liftTypes: ('ESP' | 'rod-lift')[]
+  basin: string
+  currentDowntimeEvents: number
+  estimatedAnnualLoss: number
+  dataAvailability: DataSource[]
+}
+
+interface Customer {
+  id: string
+  company: string
+  contractValue: number
+  wellsConnected: number
+  integrationStatus: 'pending' | 'active' | 'complete'
+  paymentModel: 'saas' | 'success-fee' | 'hybrid'
+}
+
+interface WellData {
+  wellId: string
+  liftType: 'ESP' | 'rod-lift'
+  telemetryStreams: TelemetryData[]
+  historicalFailures: FailureEvent[]
+  currentRiskScore: number
+  predictedFailureMode?: FailureMode
+  daysToFailure?: number
+}
+
+interface FailurePrediction {
+  wellId: string
+  riskScore: number
+  failureMode: FailureMode
+  confidence: number
+  daysToFailure: number
+  recommendedActions: Action[]
+  potentialSavings: number
+}
+
+interface WorkOrder {
+  id: string
+  wellId: string
+  priority: 'low' | 'medium' | 'high' | 'critical'
+  actionType: string
+  estimatedCost: number
+  scheduledDate: Date
+  assignedCrew?: string
+  status: 'draft' | 'approved' | 'scheduled' | 'in-progress' | 'completed'
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead)
+  const proposal = await generateProposal(qualifiedLead)
+  const pilot = await conductPilot(proposal)
+  const contract = await negotiateContract(pilot)
+  return await onboardCustomer(contract)
+}
+
+export async function qualifyLead(lead: Lead): Promise<Lead> {
+  // Validate lead meets minimum criteria
+  if (lead.wellCount < 50) {
+    throw new Error('Minimum 50 wells required for pilot')
+  }
+  
+  // Calculate potential value
+  const potentialSavings = calculatePotentialSavings(lead)
+  if (potentialSavings < 500000) { // $500k minimum annual opportunity
+    throw new Error('Insufficient ROI potential')
+  }
+  
+  // Verify data availability
+  const dataQuality = await assessDataAvailability(lead.dataAvailability)
+  if (dataQuality.score < 0.7) {
+    throw new Error('Insufficient data quality for effective modeling')
+  }
+  
+  return { ...lead, estimatedAnnualLoss: potentialSavings }
+}
+
+export async function generateProposal(lead: Lead): Promise<Proposal> {
+  const wellAnalysis = await analyzeWellPortfolio(lead)
+  const pricingModel = determinePricingModel(lead, wellAnalysis)
+  const implementation = planImplementation(lead, wellAnalysis)
+  
+  return {
+    customerId: lead.id,
+    estimatedSavings: wellAnalysis.totalSavingsPotential,
+    pricing: pricingModel,
+    implementation,
+    roi: calculateROI(wellAnalysis.totalSavingsPotential, pricingModel.totalCost),
+    timeline: implementation.totalWeeks
+  }
+}
+
+export async function conductPilot(proposal: Proposal): Promise<PilotResults> {
+  const pilotWells = await selectPilotWells(proposal.customerId, 50)
+  const dataIngestion = await setupDataIngestion(pilotWells)
+  const models = await trainInitialModels(pilotWells, dataIngestion)
+  const predictions = await generatePredictions(models, pilotWells)
+  const validation = await validatePredictions(predictions, 90) // 90-day validation period
+  
+  return {
+    wellsMonitored: pilotWells.length,
+    predictionsGenerated: predictions.length,
+    accuracy: validation.accuracy,
+    falsePositiveRate: validation.falsePositiveRate,
+    downtimePrevented: validation.downtimePrevented,
+    costSavings: validation.costSavings,
+    customerSatisfaction: validation.customerSatisfaction
+  }
+}
+
+// Product Development Processes
+export async function developPredictiveModel(wellData: WellData[]): Promise<PredictiveModel> {
+  const features = await engineerFeatures(wellData)
+  const labeledData = await labelFailureEvents(wellData)
+  const model = await trainHybridModel(features, labeledData)
+  const validation = await validateModel(model, wellData)
+  
+  if (validation.recall < 0.7 || validation.precision < 0.6) {
+    throw new Error('Model performance below acceptable thresholds')
+  }
+  
+  return await deployModel(model, validation)
+}
+
+export async function engineerFeatures(wellData: WellData[]): Promise<FeatureSet> {
+  const physicsFeatures = await extractPhysicsFeatures(wellData)
+  const statisticalFeatures = await extractStatisticalFeatures(wellData)
+  const temporalFeatures = await extractTemporalFeatures(wellData)
+  
+  return {
+    physics: physicsFeatures, // pump efficiency, intake pressure, etc.
+    statistical: statisticalFeatures, // anomaly scores, trend analysis
+    temporal: temporalFeatures // time-series patterns, seasonality
+  }
+}
+
+export async function generatePrescriptiveActions(prediction: FailurePrediction): Promise<Action[]> {
+  const playbook = await getFailureModePlaybook(prediction.failureMode)
+  const wellContext = await getWellContext(prediction.wellId)
+  const actions = await customizeActions(playbook, wellContext, prediction)
+  
+  return actions.map(action => ({
+    ...action,
+    expectedImpact: calculateExpectedImpact(action, prediction),
+    cost: estimateActionCost(action, wellContext),
+    urgency: calculateUrgency(prediction.daysToFailure, action.leadTime)
+  }))
+}
+
+// Revenue Generation Flows
+export async function processSubscriptionRevenue(customer: Customer): Promise<RevenueEvent> {
+  const usage = await calculateMonthlyUsage(customer)
+  const billing = await generateBilling(customer, usage)
+  const payment = await processPayment(billing)
+  
+  return {
+    customerId: customer.id,
+    amount: billing.amount,
+    period: billing.period,
+    paymentStatus: payment.status,
+    wellsActive: usage.wellsActive,
+    revenueType: 'subscription'
+  }
+}
+
+export async function processSuccessFeeRevenue(customer: Customer): Promise<RevenueEvent> {
+  const outcomes = await measureCustomerOutcomes(customer)
+  const verifiedSavings = await verifyDowntimeReduction(outcomes)
+  const feeAmount = calculateSuccessFee(verifiedSavings, customer.contractTerms.feePercentage)
+  
+  if (verifiedSavings.totalSavings < customer.contractTerms.minimumSavings) {
+    return { customerId: customer.id, amount: 0, revenueType: 'success-fee-waived' }
+  }
+  
+  const payment = await invoiceSuccessFee(customer, feeAmount, verifiedSavings)
+  return {
+    customerId: customer.id,
+    amount: feeAmount,
+    verifiedSavings: verifiedSavings.totalSavings,
+    revenueType: 'success-fee',
+    paymentStatus: payment.status
+  }
+}
+
+// Operational Procedures
+export async function monitorWellHealth(wellIds: string[]): Promise<HealthReport[]> {
+  const reports = await Promise.all(wellIds.map(async (wellId) => {
+    const currentData = await fetchLatestTelemetry(wellId)
+    const prediction = await generateRiskAssessment(wellId, currentData)
+    const actions = prediction.riskScore > 0.7 ? 
+      await generatePrescriptiveActions(prediction) : []
+    
+    return {
+      wellId,
+      timestamp: new Date(),
+      riskScore: prediction.riskScore,
+      failureMode: prediction.failureMode,
+      daysToFailure: prediction.daysToFailure,
+      recommendedActions: actions,
+      alertLevel: determineAlertLevel(prediction.riskScore)
+    }
+  }))
+  
+  // Trigger alerts for high-risk wells
+  const highRiskWells = reports.filter(r => r.alertLevel === 'high' || r.alertLevel === 'critical')
+  if (highRiskWells.length > 0) {
+    await sendAlerts(highRiskWells)
+  }
+  
+  return reports
+}
+
+export async function orchestrateWorkOrders(predictions: FailurePrediction[]): Promise<WorkOrder[]> {
+  const prioritizedPredictions = prioritizeByRisk(predictions)
+  const workOrders = await Promise.all(prioritizedPredictions.map(async (prediction) => {
+    const actions = await generatePrescriptiveActions(prediction)
+    const workOrder = await createWorkOrder(prediction, actions)
+    
+    if (workOrder.priority === 'critical') {
+      await scheduleEmergencyResponse(workOrder)
+    } else {
+      await scheduleRoutineMaintenance(workOrder)
+    }
+    
+    return workOrder
+  }))
+  
+  // Optimize crew scheduling and parts inventory
+  await optimizeResourceAllocation(workOrders)
+  
+  return workOrders
+}
+
+export async function updateModelsWithOutcomes(completedWorkOrders: WorkOrder[]): Promise<void> {
+  for (const workOrder of completedWorkOrders) {
+    const outcome = await getWorkOrderOutcome(workOrder)
+    const originalPrediction = await getPredictionForWorkOrder(workOrder)
+    
+    // Label the prediction outcome for model retraining
+    await labelPredictionOutcome(originalPrediction, outcome)
+    
+    // Update failure mode playbooks based on action effectiveness
+    if (outcome.successful) {
+      await reinforcePlaybookAction(workOrder.actionType, outcome.impact)
+    } else {
+      await adjustPlaybookAction(workOrder.actionType, outcome.issues)
+    }
+  }
+  
+  // Trigger model retraining if sufficient new labels accumulated
+  const newLabels = await countNewLabels()
+  if (newLabels > 100) {
+    await scheduleModelRetraining()
+  }
+}
+
+// Decision-Making Workflows
+export async function evaluateExpansionOpportunity(customer: Customer): Promise<ExpansionDecision> {
+  const currentPerformance = await assessCustomerPerformance(customer)
+  const additionalWells = await identifyAdditionalWells(customer)
+  const expansionValue = await calculateExpansionValue(additionalWells)
+  
+  const decision = {
+    customerId: customer.id,
+    recommendExpansion: expansionValue.roi > 3.0 && currentPerformance.satisfaction > 0.8,
+    additionalWells: additionalWells.length,
+    projectedRevenue: expansionValue.annualRevenue,
+    implementationCost: expansionValue.implementationCost,
+    roi: expansionValue.roi,
+    timeline: expansionValue.timelineWeeks
+  }
+  
+  if (decision.recommendExpansion) {
+    await initiateExpansionProposal(decision)
+  }
+  
+  return decision
+}
+
+export async function prioritizeProductDevelopment(): Promise<DevelopmentPriority[]> {
+  const customerFeedback = await aggregateCustomerFeedback()
+  const marketTrends = await analyzeMarketTrends()
+  const technicalFeasibility = await assessTechnicalFeasibility()
+  const competitiveAnalysis = await analyzeCompetitiveLandscape()
+  
+  const features = await identifyPotentialFeatures()
+  const priorities = features.map(feature => ({
+    feature,
+    customerDemand: calculateCustomerDemand(feature, customerFeedback),
+    marketOpportunity: calculateMarketOpportunity(feature, marketTrends),
+    technicalComplexity: assessComplexity(feature, technicalFeasibility),
+    competitiveAdvantage: assessAdvantage(feature, competitiveAnalysis),
+    estimatedRevenue: estimateFeatureRevenue(feature),
+    developmentCost: estimateDevelopmentCost(feature)
+  }))
+  
+  return priorities.sort((a, b) => b.score - a.score)
+}
+
+// Event-driven workflows using the platform's event system
+export const on = (eventType: string, handler: Function) => {
+  // Platform integration for event-driven workflows
+}
+
+export const every = (interval: string, handler: Function) => {
+  // Platform integration for scheduled workflows
+}
+
+// Schedule daily well monitoring
+every('day', async ({ ai, db }) => {
+  const activeCustomers = await db.customers.findMany({ status: 'active' })
+  
+  for (const customer of activeCustomers) {
+    const wells = await db.wells.findMany({ customerId: customer.id })
+    const healthReports = await monitorWellHealth(wells.map(w => w.id))
+    
+    // Store health reports
+    await db.healthReports.createMany(healthReports)
+    
+    // Generate work orders for high-risk wells
+    const highRiskReports = healthReports.filter(r => r.riskScore > 0.7)
+    if (highRiskReports.length > 0) {
+      const predictions = highRiskReports.map(r => ({
+        wellId: r.wellId,
+        riskScore: r.riskScore,
+        failureMode: r.failureMode,
+        daysToFailure: r.daysToFailure,
+        recommendedActions: r.recommendedActions
+      }))
+      
+      await orchestrateWorkOrders(predictions)
+    }
+  }
+})
+
+// Handle new customer onboarding events
+on('Customer.Created', async (event, { ai, db }) => {
+  const customer = event.data
+  
+  // Initialize data ingestion
+  await setupDataIngestion(customer.wellIds)
+  
+  // Train initial models
+  const wellData = await fetchWellData(customer.wellIds)
+  await developPredictiveModel(wellData)
+  
+  // Schedule first health assessment
+  await scheduleInitialHealthAssessment(customer.id)
+  
+  // Send welcome communication
+  await sendOnboardingCommunication(customer)
+})
+
+// Handle work order completion events
+on('WorkOrder.Completed', async (event, { ai, db }) => {
+  const workOrder = event.data
+  
+  // Update models with outcome data
+  await updateModelsWithOutcomes([workOrder])
+  
+  // Measure impact on well performance
+  const impact = await measureWorkOrderImpact(workOrder)
+  
+  // Update customer success metrics
+  await updateCustomerMetrics(workOrder.customerId, impact)
+  
+  // Generate success story if significant impact
+  if (impact.downtimePrevented > 2) { // 2+ days prevented
+    await generateSuccessStory(workOrder, impact)
+  }
+})
+```
