@@ -36,13 +36,10 @@ interface MenuItem {
   items?: MenuItem[];
 }
 
-interface Navbar2Props {
+interface NavbarProps {
   logo?: {
-    url: string;
-    src: string;
-    srcDark?: string;
-    alt: string;
-    title: string;
+    url?: string;
+    title?: string;
   };
   menu?: MenuItem[];
   auth?: {
@@ -57,12 +54,9 @@ interface Navbar2Props {
   };
 }
 
-const Navbar2 = ({
+const Navbar = ({
   logo = {
     url: "#",
-    src: "/mdxuiLogo.svg",
-    srcDark: "/mdxuiLogo_light.svg",
-    alt: "MDXUI Logo",
     title: "",
   },
   menu = [
@@ -74,29 +68,69 @@ const Navbar2 = ({
     login: { title: "Login", url: "#" },
     signup: { title: "Sign up", url: "#" },
   },
-}: Navbar2Props) => {
+}: NavbarProps) => {
+  const [startupName, setStartupName] = React.useState(
+    logo.title || "Startups.do",
+  );
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const seg = window.location.pathname.split("/").filter(Boolean)[0];
+      if (seg) {
+        try {
+          setStartupName(decodeURIComponent(seg));
+        } catch {
+          setStartupName(seg);
+        }
+      } else if (logo.title) {
+        setStartupName(logo.title);
+      }
+    }
+  }, [logo.title]);
   return (
     <section className="py-4 relative">
       <div className="container relative">
         {/* Desktop Menu */}
         <nav className="hidden justify-between lg:flex">
           {/* Logo */}
-          <a href={logo.url} className="flex items-center gap-2">
-            <img 
-              src={logo.src} 
-              className="max-h-6 block dark:hidden" 
-              alt={logo.alt} 
-            />
-            {logo.srcDark && (
-              <img 
-                src={logo.srcDark} 
-                className="max-h-6 hidden dark:block" 
-                alt={logo.alt} 
-              />
-            )}
-            <span className="text-lg font-semibold tracking-tighter">
-              {logo.title}
-            </span>
+          <a href={logo.url ?? "#"} className="group group/item flex items-center gap-2">
+            <div
+              className='
+                uppercase font-normal tracking-[0.2em] text-[1.1em]
+
+                group-[:nth-child(3n+2)]/item:normal-case
+                group-[:nth-child(3n+2)]/item:font-thin
+                group-[:nth-child(3n+2)]/item:tracking-[0]
+                group-[:nth-child(3n+2)]/item:text-[1.9em]
+
+                group-[:nth-child(7n+3)]/item:normal-case
+                group-[:nth-child(7n+3)]/item:font-bold
+                group-[:nth-child(7n+3)]/item:tracking-[-0.05em]
+                group-[:nth-child(7n+3)]/item:text-[1.7em]
+
+                group-[:nth-child(4n+1)]/item:font-mono
+                group-[:nth-child(4n+1)]/item:uppercase
+                group-[:nth-child(4n+1)]/item:tracking-[0.3em]
+                group-[:nth-child(4n+1)]/item:text-[1.15em]
+
+                group-[:nth-child(6n+4)]/item:normal-case
+                group-[:nth-child(6n+4)]/item:italic
+                group-[:nth-child(6n+4)]/item:underline-offset-4
+                group-[:nth-child(6n+4)]/item:tracking-[0.05em]
+                group-[:nth-child(6n+4)]/item:text-[1.4em]
+
+                group-[:nth-child(9n)]/item:bg-gradient-to-r
+                group-[:nth-child(9n)]/item:from-primary
+                group-[:nth-child(9n)]/item:to-primary/40
+                group-[:nth-child(9n)]/item:text-transparent
+                group-[:nth-child(9n)]/item:bg-clip-text
+                group-[:nth-child(9n)]/item:font-extrabold
+                group-[:nth-child(9n)]/item:tracking-tight
+                group-[:nth-child(9n)]/item:text-[1.6em]
+              '
+            >
+              {startupName}
+            </div>
           </a>
           <div className="flex items-center gap-6">
             <div className="flex items-center">
@@ -120,19 +154,44 @@ const Navbar2 = ({
         {/* Mobile Menu */}
         <div className="block lg:hidden">
           <div className="flex items-center justify-between">
-            <a href={logo.url} className="flex items-center gap-2">
-              <img 
-                src={logo.src} 
-                className="max-h-8 block dark:hidden" 
-                alt={logo.alt} 
-              />
-              {logo.srcDark && (
-                <img 
-                  src={logo.srcDark} 
-                  className="max-h-8 hidden dark:block" 
-                  alt={logo.alt} 
-                />
-              )}
+            <a href={logo.url ?? "#"} className="group group/item flex items-center gap-2">
+              <div
+                className='
+                  uppercase font-normal tracking-[0.2em] text-[1.1em]
+
+                  group-[:nth-child(3n+2)]/item:normal-case
+                  group-[:nth-child(3n+2)]/item:font-thin
+                  group-[:nth-child(3n+2)]/item:tracking-[0]
+                  group-[:nth-child(3n+2)]/item:text-[1.9em]
+
+                  group-[:nth-child(7n+3)]/item:normal-case
+                  group-[:nth-child(7n+3)]/item:font-bold
+                  group-[:nth-child(7n+3)]/item:tracking-[-0.05em]
+                  group-[:nth-child(7n+3)]/item:text-[1.7em]
+
+                  group-[:nth-child(4n+1)]/item:font-mono
+                  group-[:nth-child(4n+1)]/item:uppercase
+                  group-[:nth-child(4n+1)]/item:tracking-[0.3em]
+                  group-[:nth-child(4n+1)]/item:text-[1.15em]
+
+                  group-[:nth-child(6n+4)]/item:normal-case
+                  group-[:nth-child(6n+4)]/item:italic
+                  group-[:nth-child(6n+4)]/item:underline-offset-4
+                  group-[:nth-child(6n+4)]/item:tracking-[0.05em]
+                  group-[:nth-child(6n+4)]/item:text-[1.4em]
+
+                  group-[:nth-child(9n)]/item:bg-gradient-to-r
+                  group-[:nth-child(9n)]/item:from-primary
+                  group-[:nth-child(9n)]/item:to-primary/40
+                  group-[:nth-child(9n)]/item:text-transparent
+                  group-[:nth-child(9n)]/item:bg-clip-text
+                  group-[:nth-child(9n)]/item:font-extrabold
+                  group-[:nth-child(9n)]/item:tracking-tight
+                  group-[:nth-child(9n)]/item:text-[1.6em]
+                '
+              >
+                {startupName}
+              </div>
             </a>
             <Sheet>
               <SheetTrigger asChild>
@@ -143,19 +202,44 @@ const Navbar2 = ({
               <SheetContent className="overflow-y-auto">
                 <SheetHeader>
                   <SheetTitle>
-                    <a href={logo.url} className="flex items-center gap-2">
-                      <img 
-                        src={logo.src} 
-                        className="max-h-8 block dark:hidden" 
-                        alt={logo.alt} 
-                      />
-                      {logo.srcDark && (
-                        <img 
-                          src={logo.srcDark} 
-                          className="max-h-8 hidden dark:block" 
-                          alt={logo.alt} 
-                        />
-                      )}
+                    <a href={logo.url ?? "#"} className="group group/item flex items-center gap-2">
+                      <div
+                        className='
+                          uppercase font-normal tracking-[0.2em] text-[1.1em]
+
+                          group-[:nth-child(3n+2)]/item:normal-case
+                          group-[:nth-child(3n+2)]/item:font-thin
+                          group-[:nth-child(3n+2)]/item:tracking-[0]
+                          group-[:nth-child(3n+2)]/item:text-[1.9em]
+
+                          group-[:nth-child(7n+3)]/item:normal-case
+                          group-[:nth-child(7n+3)]/item:font-bold
+                          group-[:nth-child(7n+3)]/item:tracking-[-0.05em]
+                          group-[:nth-child(7n+3)]/item:text-[1.7em]
+
+                          group-[:nth-child(4n+1)]/item:font-mono
+                          group-[:nth-child(4n+1)]/item:uppercase
+                          group-[:nth-child(4n+1)]/item:tracking-[0.3em]
+                          group-[:nth-child(4n+1)]/item:text-[1.15em]
+
+                          group-[:nth-child(6n+4)]/item:normal-case
+                          group-[:nth-child(6n+4)]/item:italic
+                          group-[:nth-child(6n+4)]/item:underline-offset-4
+                          group-[:nth-child(6n+4)]/item:tracking-[0.05em]
+                          group-[:nth-child(6n+4)]/item:text-[1.4em]
+
+                          group-[:nth-child(9n)]/item:bg-gradient-to-r
+                          group-[:nth-child(9n)]/item:from-primary
+                          group-[:nth-child(9n)]/item:to-primary/40
+                          group-[:nth-child(9n)]/item:text-transparent
+                          group-[:nth-child(9n)]/item:bg-clip-text
+                          group-[:nth-child(9n)]/item:font-extrabold
+                          group-[:nth-child(9n)]/item:tracking-tight
+                          group-[:nth-child(9n)]/item:text-[1.6em]
+                        '
+                      >
+                        {startupName}
+                      </div>
                     </a>
                   </SheetTitle>
                 </SheetHeader>
@@ -281,4 +365,4 @@ const NavigationMenuWithoutViewport = ({
   );
 };
 
-export { Navbar2 };
+export { Navbar };
