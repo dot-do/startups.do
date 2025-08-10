@@ -348,7 +348,548 @@ landingPage:
     - Score compounds with uncertainty and applicability‑domain tags
     - Prioritize and export ranked pick lists with cutoffs and rationale
 ---
+
 # HTS Hit Triage & QSAR Prioritizer
 
+```typescript
+// Core business workflow types
+interface Lead {
+  id: string;
+  company: string;
+  contactName: string;
+  email: string;
+  htsVolume: number;
+  assayTypes: string[];
+  currentTriageMethod: 'manual' | 'basic-qsar' | 'none';
+  painPoints: string[];
+  budget: number;
+  timeline: string;
+}
+
+interface Customer {
+  id: string;
+  company: string;
+  tier: 'starter' | 'pro' | 'enterprise';
+  contractValue: number;
+  onboardingStatus: 'pending' | 'in-progress' | 'complete';
+  integrations: string[];
+}
+
+interface HTSCampaign {
+  id: string;
+  customerId: string;
+  compounds: number;
+  assayType: string;
+  plateCount: number;
+  status: 'uploaded' | 'processing' | 'triaged' | 'delivered';
+  confidenceThreshold: number;
+}
+
+interface TriageResults {
+  campaignId: string;
+  rankedCompounds: CompoundScore[];
+  modelMetrics: ModelMetrics;
+  applicabilityDomain: ADMetrics;
+  reportUrl: string;
+}
+
+interface CompoundScore {
+  compoundId: string;
+  smiles: string;
+  predictedActivity: number;
+  confidence: number;
+  inDomain: boolean;
+  painsFlags: string[];
+  rank: number;
+}
+
+interface ModelMetrics {
+  auroc: number;
+  precision: number;
+  recall: number;
+  calibrationError: number;
+  domainCoverage: number;
+}
+
+interface ADMetrics {
+  totalCompounds: number;
+  inDomainCount: number;
+  coverage: number;
+  leverageThreshold: number;
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const pilot = await proposePilot(qualifiedLead);
+  const contract = await negotiateContract(pilot);
+  return await onboardCustomer(contract);
+}
+
+export async function qualifyLead(lead: Lead): Promise<Lead> {
+  // Qualify based on HTS volume, budget, and technical fit
+  if (lead.htsVolume < 10000) {
+    throw new Error('Lead does not meet minimum HTS volume threshold');
+  }
+  
+  if (lead.budget < 50000) {
+    throw new Error('Lead budget insufficient for pilot engagement');
+  }
+  
+  // Score lead based on pain points and current methods
+  const qualificationScore = calculateLeadScore(lead);
+  if (qualificationScore < 0.7) {
+    throw new Error('Lead qualification score too low');
+  }
+  
+  return { ...lead, qualified: true };
+}
+
+export async function proposePilot(lead: Lead): Promise<PilotProposal> {
+  const pilotScope = await definePilotScope(lead);
+  const successCriteria = await defineSuccessCriteria(lead);
+  const pricing = await calculatePilotPricing(pilotScope);
+  
+  return {
+    leadId: lead.id,
+    scope: pilotScope,
+    successCriteria,
+    pricing,
+    duration: '6-8 weeks',
+    deliverables: [
+      'Triaged hit list with confidence scores',
+      'Model performance report',
+      'Applicability domain analysis',
+      'Integration assessment'
+    ]
+  };
+}
+
+export async function negotiateContract(pilot: PilotProposal): Promise<Contract> {
+  const terms = await generateContractTerms(pilot);
+  const msa = await prepareMSA(pilot.leadId);
+  const dpa = await prepareDataProcessingAgreement(pilot.leadId);
+  
+  return {
+    pilotId: pilot.id,
+    terms,
+    msa,
+    dpa,
+    conversionCredits: pilot.pricing * 0.8, // 80% pilot cost credited to subscription
+    status: 'pending-signature'
+  };
+}
+
+export async function onboardCustomer(contract: Contract): Promise<Customer> {
+  const customer = await createCustomerAccount(contract);
+  await setupSecureEnvironment(customer);
+  await configureIntegrations(customer);
+  await scheduleKickoffMeeting(customer);
+  
+  return {
+    ...customer,
+    onboardingStatus: 'in-progress',
+    expectedGoLive: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) // 2 weeks
+  };
+}
+
+// Product Development Processes
+export async function developTriageModel(campaign: HTSCampaign): Promise<TriageModel> {
+  const cleanedData = await preprocessHTSData(campaign);
+  const features = await engineerFeatures(cleanedData);
+  const model = await trainQSARModel(features);
+  const calibratedModel = await calibrateModel(model);
+  const validatedModel = await validateModel(calibratedModel);
+  
+  return validatedModel;
+}
+
+export async function preprocessHTSData(campaign: HTSCampaign): Promise<CleanedData> {
+  // Plate normalization and artifact removal
+  const plateNormalized = await normalizePlateEffects(campaign);
+  const artifactsRemoved = await flagArtifacts(plateNormalized);
+  const duplicatesRemoved = await removeDuplicates(artifactsRemoved);
+  const standardizedStructures = await standardizeStructures(duplicatesRemoved);
+  
+  return standardizedStructures;
+}
+
+export async function engineerFeatures(data: CleanedData): Promise<FeatureMatrix> {
+  const molecularDescriptors = await computeMolecularDescriptors(data);
+  const fingerprints = await computeFingerprints(data);
+  const plateFeatures = await extractPlateFeatures(data);
+  const assayFeatures = await extractAssayFeatures(data);
+  
+  return combineFeatures([
+    molecularDescriptors,
+    fingerprints,
+    plateFeatures,
+    assayFeatures
+  ]);
+}
+
+export async function trainQSARModel(features: FeatureMatrix): Promise<QSARModel> {
+  const splitData = await performTrainTestSplit(features);
+  const hyperparameters = await optimizeHyperparameters(splitData.train);
+  const model = await trainEnsembleModel(splitData.train, hyperparameters);
+  const crossValidated = await performCrossValidation(model, splitData.train);
+  
+  return crossValidated;
+}
+
+// Revenue Generation Flows
+export async function processSubscriptionRevenue(customer: Customer): Promise<RevenueEvent> {
+  const usage = await calculateMonthlyUsage(customer);
+  const baseSubscription = await calculateBaseSubscription(customer.tier);
+  const overageCharges = await calculateOverageCharges(usage);
+  const invoice = await generateInvoice(customer, baseSubscription, overageCharges);
+  
+  return {
+    customerId: customer.id,
+    type: 'subscription',
+    amount: invoice.total,
+    period: invoice.period,
+    status: 'billed'
+  };
+}
+
+export async function processPilotRevenue(pilot: PilotProposal): Promise<RevenueEvent> {
+  const milestones = await definePilotMilestones(pilot);
+  const completedMilestones = await trackMilestoneCompletion(milestones);
+  const billingAmount = await calculateMilestoneBilling(completedMilestones);
+  
+  return {
+    pilotId: pilot.id,
+    type: 'pilot',
+    amount: billingAmount,
+    milestones: completedMilestones,
+    status: 'earned'
+  };
+}
+
+export async function expandCustomerRevenue(customer: Customer): Promise<ExpansionOpportunity> {
+  const usageAnalysis = await analyzeCustomerUsage(customer);
+  const additionalAssays = await identifyAdditionalAssays(customer);
+  const additionalTeams = await identifyAdditionalTeams(customer);
+  const tierUpgrade = await assessTierUpgrade(customer, usageAnalysis);
+  
+  return {
+    customerId: customer.id,
+    opportunities: [
+      ...additionalAssays,
+      ...additionalTeams,
+      ...(tierUpgrade ? [tierUpgrade] : [])
+    ],
+    potentialARR: calculateExpansionARR(additionalAssays, additionalTeams, tierUpgrade)
+  };
+}
+
+// Operational Procedures
+export async function executeTriageCampaign(campaign: HTSCampaign): Promise<TriageResults> {
+  try {
+    await validateCampaignData(campaign);
+    const model = await selectOrTrainModel(campaign);
+    const predictions = await generatePredictions(model, campaign);
+    const rankedResults = await rankAndFilterResults(predictions, campaign.confidenceThreshold);
+    const report = await generateTriageReport(rankedResults, model);
+    
+    await notifyCustomerCompletion(campaign.customerId, report);
+    
+    return {
+      campaignId: campaign.id,
+      rankedCompounds: rankedResults.compounds,
+      modelMetrics: rankedResults.metrics,
+      applicabilityDomain: rankedResults.adMetrics,
+      reportUrl: report.url
+    };
+  } catch (error) {
+    await handleTriageError(campaign, error);
+    throw error;
+  }
+}
+
+export async function monitorModelPerformance(): Promise<ModelHealthReport> {
+  const activeModels = await getActiveModels();
+  const performanceMetrics = await Promise.all(
+    activeModels.map(model => evaluateModelPerformance(model))
+  );
+  
+  const driftDetection = await detectModelDrift(activeModels);
+  const retrainingNeeded = identifyRetrainingCandidates(performanceMetrics, driftDetection);
+  
+  if (retrainingNeeded.length > 0) {
+    await scheduleModelRetraining(retrainingNeeded);
+  }
+  
+  return {
+    totalModels: activeModels.length,
+    healthyModels: performanceMetrics.filter(m => m.healthy).length,
+    driftingModels: driftDetection.filter(d => d.isDrifting).length,
+    retrainingScheduled: retrainingNeeded.length
+  };
+}
+
+export async function maintainDataQuality(): Promise<QualityReport> {
+  const dataSources = await getActiveDataSources();
+  const qualityChecks = await Promise.all(
+    dataSources.map(source => performQualityChecks(source))
+  );
+  
+  const issues = qualityChecks.flatMap(check => check.issues);
+  if (issues.length > 0) {
+    await alertDataQualityIssues(issues);
+    await initiateDataCleaning(issues);
+  }
+  
+  return {
+    sourcesChecked: dataSources.length,
+    issuesFound: issues.length,
+    cleaningInitiated: issues.filter(i => i.severity === 'high').length
+  };
+}
+
+// Decision-Making Workflows
+export async function decideModelRetrain(model: QSARModel, performanceMetrics: ModelMetrics): Promise<RetrainDecision> {
+  const currentPerformance = performanceMetrics.auroc;
+  const historicalPerformance = await getHistoricalPerformance(model.id);
+  const performanceDrop = historicalPerformance.baseline - currentPerformance;
+  
+  const dataVolume = await getNewDataVolume(model.lastTrainDate);
+  const domainShift = await detectDomainShift(model);
+  
+  const shouldRetrain = 
+    performanceDrop > 0.05 || // 5% AUROC drop
+    dataVolume > model.trainingSize * 0.2 || // 20% more data
+    domainShift.severity === 'high';
+  
+  if (shouldRetrain) {
+    const retrainPlan = await createRetrainingPlan(model, {
+      performanceDrop,
+      dataVolume,
+      domainShift
+    });
+    
+    return {
+      decision: 'retrain',
+      reasoning: `Performance drop: ${performanceDrop.toFixed(3)}, New data: ${dataVolume} compounds, Domain shift: ${domainShift.severity}`,
+      plan: retrainPlan,
+      priority: calculateRetrainPriority(performanceDrop, domainShift)
+    };
+  }
+  
+  return {
+    decision: 'maintain',
+    reasoning: 'Model performance within acceptable thresholds',
+    nextReview: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
+  };
+}
+
+export async function decideCustomerTierUpgrade(customer: Customer, usage: UsageMetrics): Promise<UpgradeDecision> {
+  const currentLimits = getTierLimits(customer.tier);
+  const utilizationRate = usage.monthlyCompounds / currentLimits.monthlyCompounds;
+  const overageFrequency = usage.overageMonths / 12; // Last 12 months
+  
+  const shouldUpgrade = 
+    utilizationRate > 0.8 || // 80% utilization
+    overageFrequency > 0.25; // Overage in >25% of months
+  
+  if (shouldUpgrade) {
+    const nextTier = getNextTier(customer.tier);
+    const savings = await calculateUpgradeSavings(customer, usage, nextTier);
+    
+    return {
+      decision: 'recommend-upgrade',
+      fromTier: customer.tier,
+      toTier: nextTier,
+      reasoning: `Utilization: ${(utilizationRate * 100).toFixed(1)}%, Overage frequency: ${(overageFrequency * 100).toFixed(1)}%`,
+      projectedSavings: savings,
+      urgency: utilizationRate > 0.95 ? 'high' : 'medium'
+    };
+  }
+  
+  return {
+    decision: 'maintain-tier',
+    reasoning: 'Usage within current tier limits',
+    nextReview: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000) // 90 days
+  };
+}
+
+export async function decidePilotSuccess(pilot: PilotExecution, results: TriageResults): Promise<PilotDecision> {
+  const successCriteria = pilot.successCriteria;
+  const actualMetrics = results.modelMetrics;
+  
+  const criteriaResults = await Promise.all([
+    evaluateCriterion('auroc', actualMetrics.auroc, successCriteria.minAUROC),
+    evaluateCriterion('precision', actualMetrics.precision, successCriteria.minPrecision),
+    evaluateCriterion('domain_coverage', results.applicabilityDomain.coverage, successCriteria.minDomainCoverage),
+    evaluateCriterion('enrichment', await calculateEnrichment(results), successCriteria.minEnrichment)
+  ]);
+  
+  const passedCriteria = criteriaResults.filter(r => r.passed).length;
+  const totalCriteria = criteriaResults.length;
+  const successRate = passedCriteria / totalCriteria;
+  
+  if (successRate >= 0.75) { // 75% of criteria met
+    const conversionProposal = await generateConversionProposal(pilot, results);
+    
+    return {
+      decision: 'success',
+      successRate,
+      criteriaResults,
+      conversionProposal,
+      nextSteps: ['Present results', 'Propose subscription', 'Begin onboarding']
+    };
+  }
+  
+  return {
+    decision: 'extend-or-modify',
+    successRate,
+    criteriaResults,
+    recommendations: await generateImprovementRecommendations(criteriaResults),
+    nextSteps: ['Review with customer', 'Modify approach', 'Extend pilot if needed']
+  };
+}
+
+// Event-driven workflows using .on() pattern
+export const onHTSDataUploaded = async (event: HTSUploadEvent, { ai, db }) => {
+  const campaign = await db.campaigns.findById(event.campaignId);
+  await validateHTSData(event.data);
+  await queueTriageJob(campaign);
+  await notifyCustomer(campaign.customerId, 'Data uploaded successfully, triage initiated');
+};
+
+export const onTriageCompleted = async (event: TriageCompletedEvent, { ai, db }) => {
+  const results = event.results;
+  await storeTriageResults(results);
+  await generateCustomerReport(results);
+  await updateCampaignStatus(event.campaignId, 'completed');
+  await trackSuccessMetrics(results);
+};
+
+export const onCustomerOnboarded = async (event: CustomerOnboardedEvent, { ai, db }) => {
+  const customer = event.customer;
+  await setupMonitoring(customer);
+  await scheduleHealthChecks(customer);
+  await assignCustomerSuccessManager(customer);
+  await sendWelcomeSequence(customer);
+};
+
+export const onModelDriftDetected = async (event: ModelDriftEvent, { ai, db }) => {
+  const model = event.model;
+  const severity = event.severity;
+  
+  if (severity === 'high') {
+    await pauseModelInference(model.id);
+    await alertModelTeam(model, event);
+    await scheduleEmergencyRetrain(model);
+  } else {
+    await scheduleRoutineRetrain(model);
+  }
+};
+
+// Scheduled operations using .every() pattern
+export const every = {
+  // Daily operations
+  daily: {
+    monitorSystemHealth: async ({ ai, db }) => {
+      await checkInfrastructureHealth();
+      await validateDataPipelines();
+      await reviewActiveJobs();
+    },
+    
+    processUsageMetrics: async ({ ai, db }) => {
+      const customers = await db.customers.findActive();
+      for (const customer of customers) {
+        await updateUsageMetrics(customer);
+        await checkUsageLimits(customer);
+      }
+    }
+  },
+  
+  // Weekly operations
+  weekly: {
+    reviewModelPerformance: async ({ ai, db }) => {
+      const report = await monitorModelPerformance();
+      await sendPerformanceReport(report);
+    },
+    
+    analyzeCustomerHealth: async ({ ai, db }) => {
+      const customers = await db.customers.findAll();
+      for (const customer of customers) {
+        const health = await assessCustomerHealth(customer);
+        if (health.risk === 'high') {
+          await alertCustomerSuccess(customer, health);
+        }
+      }
+    }
+  },
+  
+  // Monthly operations
+  monthly: {
+    generateRevenueReport: async ({ ai, db }) => {
+      const revenue = await calculateMonthlyRevenue();
+      const forecast = await generateRevenueForecast();
+      await sendRevenueReport(revenue, forecast);
+    },
+    
+    reviewExpansionOpportunities: async ({ ai, db }) => {
+      const customers = await db.customers.findAll();
+      const opportunities = await Promise.all(
+        customers.map(customer => expandCustomerRevenue(customer))
+      );
+      await prioritizeExpansionOpportunities(opportunities);
+    }
+  }
+};
+```
+
 Generated for NAICS 541714 — Research and Development in Biotechnology (except Nanobiotechnology).
-Service: HTS Hit Triage & QSAR Prioritizer
+
+export default function Page() {
+  return (
+    <>
+      <Hero
+        title="HTS Hit Triage & QSAR Prioritizer"
+        subtitle="AI triage for high‑throughput screens. We engineer features, train calibrated QSARs, and rank hits with applicability‑domain awareness—no de novo design required."
+        ctaText="Book a demo"
+        ctaHref="#demo"
+      />
+      <Problem bullets={[
+        "HTS yields thousands of hits with unclear confirm-worthiness",
+        "Plate effects and artifacts inflate false positives", 
+        "QSARs break when chemistry drifts outside training space",
+        "No uncertainty estimates → costly follow‑ups",
+        "Manual feature engineering is slow and inconsistent",
+        "Fragmented data formats slow decision‑making"
+      ]} />
+      <Solution bullets={[
+        "End‑to‑end triage that turns raw HTS into ranked, actionable hit lists",
+        "Applicability‑domain aware QSAR with calibrated probabilities and abstain outside domain",
+        "Automated, assay‑aware feature engineering across fingerprints, descriptors, and GNN embeddings",
+        "Robust data QC: plate normalization, replicate handling, and artifact flagging",
+        "Transparent model cards and audit‑ready reports for every run",
+        "Fast export to CSV/SDF and seamless handoff to confirmatory assays"
+      ]} />
+      <Features items={[
+        "Automated featurization: physicochemical descriptors, circular fingerprints, learned graph embeddings",
+        "Data hygiene: control-based plate correction, replicate consensus, PAINS/aggregator flags",
+        "Model zoo: RF/XGBoost, elastic nets, GNNs with nested CV and hyperparameter search",
+        "Calibration and risk control via conformal prediction; uncertainty and abstention out of domain",
+        "Applicability domain via leverage, embedding distance, and ensemble disagreement",
+        "Multi‑objective ranking by activity, novelty, diversity, and simple ADMET proxies",
+        "Transfer learning across related assays to boost signal with minimal data",
+        "Interactive thresholds with expected confirmation rate and cost projections",
+        "Reproducible pipelines with versioned data, features, and seeds",
+        "Simple integration: SMILES/SDF/SD/CSV in; CSV/SDF out"
+      ]} />
+      <Steps steps={[
+        "Ingest HTS results and structures; define endpoints and assay metadata",
+        "QC and normalize: plate/control corrections, replicate reconciliation, artifact checks", 
+        "Engineer features and build featurization ensembles",
+        "Train, tune, and calibrate models with cross‑validation and holdouts",
+        "Score compounds with uncertainty and applicability‑domain tags",
+        "Prioritize and export ranked pick lists with cutoffs and rationale"
+      ]} />
+    </>
+  )
+}
