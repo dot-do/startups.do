@@ -42,7 +42,7 @@ const leanCanvasSchema = z.object({
   competitiveAnalysis: z.array(z.string())
 }) satisfies z.ZodType<LeanCanvasType>;
 
-export const generateLeanCanvas = async (businessIdea: string, additionalContext?: string) => {
+export const leanCanvas = async (businessIdea: string, additionalContext?: string) => {
   const prompt = `Generate a comprehensive lean canvas for the following business idea: "${businessIdea}"
   
   ${additionalContext ? `Additional context: ${additionalContext}` : ''}
