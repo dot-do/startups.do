@@ -1,0 +1,452 @@
+---
+name: SweetCast
+slug: sweetcast
+naics:
+  primary: "424450"
+  occupations: []
+leanCanvas:
+  problem:
+    - "Seasonal peaks (Halloween, Easter, Christmas, Valentine's) cause simultaneous stockouts and overstock; typical post-holiday write-offs run 8–20% of seasonal inventory."
+    - "Pre-book windows, long vendor lead times (12–24 weeks), MOQs, and display-pack constraints make ordering risky and manual."
+    - "SKU-by-customer forecasting at scale is spreadsheet-driven, time-consuming, and ignores promo/display lift and local seasonality."
+    - "Fragmented data (ERP, EDI, spreadsheets) slows decisions and impedes accurate, timely replenishment."
+    - "Temperature/melt risk and shelf-life constraints complicate summer shipping and freshness management, hurting service levels."
+    - "Labor spikes for kitting/display builds and DC capacity bottlenecks before holidays aren't planned alongside demand."
+    - "Limited visibility to sell-thru by account leads to poor end-of-season liquidation planning and margin erosion."
+  solution:
+    - "Train per-SKU, per-customer models with multi-holiday seasonality, promo/display lift, weather, and local events; reconcile to category/DC totals."
+    - "Auto-generate weekly purchase proposals by DC/vendor (PO-ready) that honor MOQs, case/pallet packs, display units, lead times, vendor allocations, and budget constraints."
+    - "Pre-season booking optimizer for seasonal lines (12–24 weeks out) to size orders and allocation plans by account; scenario planning for promo, price, and service-level tradeoffs."
+    - "Freshness-aware and melt-window routing logic to avoid spoilage and summer service failures."
+    - "Exception workflows for buyer overrides with explainable drivers, audit trail, and learning from overrides."
+    - "Rapid ERP/EDI connectors (P21, NetSuite, Dynamics, SAP B1; SPS Commerce/TrueCommerce) and data health diagnostics for fast onboarding."
+  uniqueValueProp: "Predict SKU-by-customer holiday demand and auto-generate purchase/replenishment proposals that respect vendor lead times, MOQs, pack sizes, display kits, and shelf-life—cutting stockouts 20–40% and seasonal leftovers 25–50% within one season, with go-live in under 8 weeks."
+  unfairAdvantage: "Purpose-built for confectionery's holiday cadence with pre-trained seasonal and display-kit constraints, melt/shelf-life logic, and a privacy-preserving cross-wholesaler learning network. Combined with ready-made ERP/EDI connectors, we deliver sub-8-week deployments and measurable results by the very next holiday."
+  customerSegments:
+    - "Primary ICP: US Confectionery Merchant Wholesalers (NAICS 424450), $50M–$1B revenue, 1–6 DCs, 5k–50k SKUs, ERP such as Epicor Prophet 21, NetSuite, Dynamics 365, SAP B1."
+    - "Secondary: Convenience store distributors and general-line wholesalers with heavy confectionery mix (DSD and warehouse)."
+    - "Tertiary: Importers/specialty candy wholesalers and regional brokers managing seasonal displays."
+  channels:
+    - "Direct sales motion to VP Purchasing/Supply Chain and Directors of Replenishment at NAICS 424450 firms; targeted outbound and ABM lists."
+    - "ERP/EDI VAR partnerships (Epicor P21 partners, NetSuite SIs, Dynamics VARs; SPS/TrueCommerce) with referral fees and co-marketing."
+    - "Industry events: Sweets & Snacks Expo and NACS Show—live demos with customer case studies geared to Halloween/Easter planning cycles."
+    - "Manufacturer/broker co-op pilots where brands co-fund access in exchange for data-sharing and improved seasonal execution."
+    - "Content-led inbound: holiday forecasting benchmark reports, ROI calculators, and webinar series 10–12 weeks ahead of each major holiday."
+    - "Customer referral program: 1 free month per signed referral (cap at 3 months) to catalyze word-of-mouth."
+  revenueStreams:
+    - "Core SaaS subscription: $1.50–$3.00 per active SKU-customer per month; $3,000/month per DC minimum."
+    - "Annual tiers: Growth (≤50k SKU-customer pairs) ≈ $60k ARR; Pro (≤200k pairs) ≈ $150k ARR; Enterprise (custom SLAs, volume pricing)."
+    - "Onboarding/integration fee: $15k–$75k depending on ERP/EDI scope and number of DCs."
+    - "Premium Managed Service (analyst-in-the-loop): +$5k–$20k/month for seasonal S&OP, override review, and executive reporting."
+    - "Data add-ons (enhanced weather, demographic, retailer calendars): +$0.10 per pair/month or $6k–$24k/year flat."
+    - "Manufacturer co-op discount (5–15%) for shared insights and seasonal collaboration."
+  costStructure:
+    - "Cloud compute/storage for training/inference and model ops: scales to ~$15k–$40k/month at 100 customers."
+    - "Third-party data (weather, holiday/school calendars) and tooling: $3k–$10k/month."
+    - "Engineering and data science team (modeling, optimization, platform)."
+    - "Integrations/solutions engineering and customer success (onboarding, QBRs)."
+    - "Sales and marketing: SDR/AE comp, event sponsorships, content production, ABM tools."
+    - "Partner commissions to ERP/EDI VARs (10–20% of first-year ACV)."
+    - "Security/compliance: SOC 2 audits, pen tests, SIEM/logging; cyber and E&O insurance."
+    - "General & administrative and customer support tooling. Targeted gross margin ≥ 75% at scale."
+  keyMetrics:
+    - "Forecast accuracy: WAPE < 20% across seasonal SKUs; holiday-week MAPE tracked per holiday; bias between -3% and +3%."
+    - "Service level: ≥ 95% line-fill during holiday weeks for A SKUs at top accounts."
+    - "Inventory efficiency: +1.0–1.5 turns within 6 months; 25–50% reduction in post-holiday leftover inventory (units and $)."
+    - "Stockouts: 20–40% reduction on A SKUs; OOS event duration down ≥ 30%."
+    - "Sell-thru: ≥ 90% sell-thru by T+7 days post-holiday for seasonal items; ≤ 5% aged inventory > 75% of shelf-life."
+    - "Automation: ≥ 70% of PO proposals accepted without edits by month 3; buyer time on ordering ↓ 50–70%."
+    - "Time-to-value: First proposals live < 30 days; full DC rollout < 60 days; payback < 6 months."
+    - "Commercial: Gross retention ≥ 95%; NRR ≥ 115%; CAC payback < 12 months; win rate ≥ 25% of qualified deals."
+    - "Adoption: Weekly active planners ≥ 80%; median alert resolution < 24 hours."
+    - "Reliability: 99.9% uptime; inference latency < 5 seconds per 1k proposal lines."
+---
+
+# SweetCast: Confectionery Wholesale Demand Forecasting
+
+## Business Process Functions
+
+```typescript
+// Core Types
+interface Lead {
+  company: string;
+  revenue: number;
+  dcCount: number;
+  skuCount: number;
+  erp: 'P21' | 'NetSuite' | 'Dynamics' | 'SAP B1';
+  contactInfo: ContactInfo;
+  painPoints: string[];
+}
+
+interface Customer {
+  id: string;
+  company: string;
+  tier: 'Growth' | 'Pro' | 'Enterprise';
+  dcLocations: DistributionCenter[];
+  skuCatalog: SKU[];
+  seasonalProfile: SeasonalProfile;
+  contractTerms: ContractTerms;
+}
+
+interface SKU {
+  id: string;
+  name: string;
+  category: 'chocolate' | 'candy' | 'gum' | 'seasonal';
+  shelfLife: number;
+  meltRisk: boolean;
+  displayPackSize?: number;
+  moq: number;
+  leadTime: number;
+}
+
+interface SeasonalDemand {
+  skuId: string;
+  customerId: string;
+  holiday: 'Halloween' | 'Christmas' | 'Easter' | 'Valentine';
+  forecastQuantity: number;
+  confidence: number;
+  weatherAdjustment: number;
+  promoLift?: number;
+}
+
+interface PurchaseProposal {
+  dcId: string;
+  vendorId: string;
+  items: ProposalItem[];
+  totalValue: number;
+  deliveryWindow: DateRange;
+  constraints: OrderConstraints;
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const demoResults = await conductSeasonalDemo(qualifiedLead);
+  const pilot = await proposePilotProgram(demoResults);
+  const contract = await negotiateContract(pilot);
+  return await onboardCustomer(contract);
+}
+
+async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  // Validate ICP criteria: $50M-$1B revenue, 1-6 DCs, 5k-50k SKUs
+  if (lead.revenue < 50_000_000 || lead.revenue > 1_000_000_000) {
+    throw new Error('Revenue outside target range');
+  }
+  
+  if (lead.dcCount < 1 || lead.dcCount > 6) {
+    throw new Error('DC count outside target range');
+  }
+
+  const seasonalityScore = await assessSeasonalityPotential(lead);
+  const integrationComplexity = await evaluateERPIntegration(lead.erp);
+  
+  return {
+    ...lead,
+    qualificationScore: calculateQualificationScore(lead, seasonalityScore),
+    integrationComplexity,
+    estimatedROI: await calculateEstimatedROI(lead)
+  };
+}
+
+async function conductSeasonalDemo(lead: QualifiedLead): Promise<DemoResults> {
+  const historicalData = await mockHistoricalData(lead);
+  const forecastResults = await generateDemoForecast(historicalData);
+  const roiProjection = await calculateDemoROI(forecastResults);
+  
+  return {
+    forecastAccuracy: forecastResults.accuracy,
+    stockoutReduction: forecastResults.stockoutReduction,
+    inventoryTurnImprovement: forecastResults.turnImprovement,
+    projectedROI: roiProjection,
+    timeToValue: estimateTimeToValue(lead.integrationComplexity)
+  };
+}
+
+// Product Development Processes
+export async function developSeasonalModel(customer: Customer): Promise<ForecastModel> {
+  const trainingData = await collectTrainingData(customer);
+  const model = await trainSeasonalModel(trainingData);
+  const validatedModel = await validateModelAccuracy(model, customer);
+  await deployModel(validatedModel, customer);
+  return validatedModel;
+}
+
+async function collectTrainingData(customer: Customer): Promise<TrainingDataset> {
+  const salesHistory = await extractSalesHistory(customer);
+  const weatherData = await enrichWithWeatherData(salesHistory);
+  const holidayCalendar = await addHolidayEvents(weatherData);
+  const promoData = await incorporatePromoHistory(holidayCalendar);
+  
+  return {
+    salesHistory: salesHistory,
+    externalFactors: {
+      weather: weatherData,
+      holidays: holidayCalendar,
+      promotions: promoData
+    },
+    skuAttributes: customer.skuCatalog,
+    seasonalPatterns: await identifySeasonalPatterns(salesHistory)
+  };
+}
+
+async function trainSeasonalModel(data: TrainingDataset): Promise<ForecastModel> {
+  // Train per-SKU, per-customer models with multi-holiday seasonality
+  const baseModel = await initializeTimeSeriesModel();
+  const seasonalComponents = await extractSeasonalComponents(data);
+  const promoEffects = await modelPromoLift(data);
+  const weatherEffects = await modelWeatherImpact(data);
+  
+  return await combineModelComponents({
+    base: baseModel,
+    seasonal: seasonalComponents,
+    promo: promoEffects,
+    weather: weatherEffects
+  });
+}
+
+// Revenue Generation Flows
+export async function generateRevenue(customer: Customer): Promise<RevenueResult> {
+  const subscription = await processSubscriptionBilling(customer);
+  const usage = await calculateUsageCharges(customer);
+  const addOns = await processAddOnServices(customer);
+  const expansion = await identifyExpansionOpportunities(customer);
+  
+  return {
+    subscriptionRevenue: subscription.amount,
+    usageRevenue: usage.amount,
+    addOnRevenue: addOns.amount,
+    expansionPotential: expansion.potential,
+    totalRevenue: subscription.amount + usage.amount + addOns.amount
+  };
+}
+
+async function processSubscriptionBilling(customer: Customer): Promise<BillingResult> {
+  const activeSkuPairs = await countActiveSkuCustomerPairs(customer);
+  const tierPricing = getTierPricing(customer.tier);
+  const monthlyAmount = Math.max(
+    activeSkuPairs * tierPricing.perPairRate,
+    tierPricing.minimumMonthly * customer.dcLocations.length
+  );
+  
+  return await processBilling({
+    customerId: customer.id,
+    amount: monthlyAmount,
+    billingCycle: 'monthly',
+    description: `SweetCast ${customer.tier} - ${activeSkuPairs} SKU pairs`
+  });
+}
+
+// Operational Procedures
+export async function executeSeasonalPlanning(customer: Customer, holiday: Holiday): Promise<PlanningResult> {
+  const demandForecast = await generateSeasonalForecast(customer, holiday);
+  const inventoryPlan = await optimizeInventoryLevels(demandForecast);
+  const purchaseProposals = await generatePurchaseProposals(inventoryPlan);
+  const capacityPlan = await planLaborAndCapacity(inventoryPlan);
+  
+  return {
+    forecast: demandForecast,
+    inventory: inventoryPlan,
+    purchases: purchaseProposals,
+    capacity: capacityPlan,
+    timeline: generatePlanningTimeline(holiday)
+  };
+}
+
+async function generateSeasonalForecast(customer: Customer, holiday: Holiday): Promise<SeasonalDemand[]> {
+  const model = await getCustomerModel(customer.id);
+  const forecasts: SeasonalDemand[] = [];
+  
+  for (const sku of customer.skuCatalog) {
+    if (isSeasonalSKU(sku, holiday)) {
+      const forecast = await model.predict({
+        skuId: sku.id,
+        customerId: customer.id,
+        holiday: holiday,
+        weatherForecast: await getWeatherForecast(customer.dcLocations),
+        promoPlans: await getPromoPlans(customer, sku, holiday)
+      });
+      
+      forecasts.push(forecast);
+    }
+  }
+  
+  return forecasts;
+}
+
+async function generatePurchaseProposals(inventoryPlan: InventoryPlan): Promise<PurchaseProposal[]> {
+  const proposals: PurchaseProposal[] = [];
+  
+  for (const dc of inventoryPlan.distributionCenters) {
+    const vendorGroups = groupByVendor(dc.requiredInventory);
+    
+    for (const [vendorId, items] of vendorGroups) {
+      const proposal = await createPurchaseProposal({
+        dcId: dc.id,
+        vendorId: vendorId,
+        items: items,
+        constraints: {
+          moqCompliance: true,
+          leadTimeBuffer: 2, // weeks
+          budgetLimit: dc.budgetRemaining,
+          shelfLifeMinimum: 0.75 // 75% of shelf life remaining
+        }
+      });
+      
+      proposals.push(proposal);
+    }
+  }
+  
+  return proposals;
+}
+
+// Decision-Making Workflows
+export async function makePurchasingDecision(proposal: PurchaseProposal): Promise<PurchaseDecision> {
+  const riskAssessment = await assessPurchaseRisk(proposal);
+  const roiAnalysis = await analyzeProposalROI(proposal);
+  const capacityCheck = await validateCapacityConstraints(proposal);
+  const freshnessPlan = await planFreshnessManagement(proposal);
+  
+  if (riskAssessment.score > 0.8 && roiAnalysis.roi > 1.5) {
+    return await approvePurchase(proposal, {
+      riskMitigation: riskAssessment.mitigationPlan,
+      freshnessStrategy: freshnessPlan
+    });
+  } else {
+    return await requestHumanReview(proposal, {
+      riskFactors: riskAssessment.factors,
+      roiConcerns: roiAnalysis.concerns
+    });
+  }
+}
+
+async function assessPurchaseRisk(proposal: PurchaseProposal): Promise<RiskAssessment> {
+  const shelfLifeRisk = await calculateShelfLifeRisk(proposal.items);
+  const demandVolatility = await assessDemandVolatility(proposal.items);
+  const supplierReliability = await checkSupplierHistory(proposal.vendorId);
+  const seasonalTiming = await validateSeasonalTiming(proposal);
+  
+  return {
+    score: calculateOverallRiskScore({
+      shelfLife: shelfLifeRisk,
+      demand: demandVolatility,
+      supplier: supplierReliability,
+      timing: seasonalTiming
+    }),
+    factors: [shelfLifeRisk, demandVolatility, supplierReliability, seasonalTiming],
+    mitigationPlan: await generateRiskMitigationPlan(proposal)
+  };
+}
+
+export async function optimizePostHolidayLiquidation(customer: Customer, holiday: Holiday): Promise<LiquidationPlan> {
+  const remainingInventory = await assessPostHolidayInventory(customer, holiday);
+  const sellThroughAnalysis = await analyzeSellThroughRates(remainingInventory);
+  const pricingStrategy = await optimizeLiquidationPricing(sellThroughAnalysis);
+  const channelStrategy = await selectLiquidationChannels(remainingInventory);
+  
+  return {
+    inventory: remainingInventory,
+    pricing: pricingStrategy,
+    channels: channelStrategy,
+    timeline: generateLiquidationTimeline(holiday),
+    expectedRecovery: calculateExpectedRecovery(pricingStrategy)
+  };
+}
+
+// Integration and Onboarding Workflows
+export async function integrateCustomerSystems(customer: Customer): Promise<IntegrationResult> {
+  const erpConnection = await establishERPConnection(customer);
+  const ediSetup = await configureEDIConnectors(customer);
+  const dataValidation = await validateDataQuality(customer);
+  const testRun = await executeIntegrationTest(customer);
+  
+  if (testRun.success) {
+    await enableProductionMode(customer);
+    return {
+      status: 'success',
+      timeToValue: testRun.completionTime,
+      dataQualityScore: dataValidation.score
+    };
+  } else {
+    throw new Error(`Integration failed: ${testRun.errors.join(', ')}`);
+  }
+}
+
+async function establishERPConnection(customer: Customer): Promise<ERPConnection> {
+  const connector = getERPConnector(customer.erp);
+  const credentials = await requestERPCredentials(customer);
+  const connection = await connector.connect(credentials);
+  
+  await validateERPConnection(connection);
+  return connection;
+}
+
+// Monitoring and Optimization
+export async function monitorForecastAccuracy(customer: Customer): Promise<AccuracyReport> {
+  const actualSales = await getActualSales(customer);
+  const forecasts = await getHistoricalForecasts(customer);
+  const accuracy = await calculateAccuracyMetrics(actualSales, forecasts);
+  
+  if (accuracy.wape > 0.20) {
+    await triggerModelRetraining(customer);
+  }
+  
+  return {
+    wape: accuracy.wape,
+    mape: accuracy.mape,
+    bias: accuracy.bias,
+    recommendations: await generateAccuracyRecommendations(accuracy)
+  };
+}
+
+export async function optimizeInventoryTurns(customer: Customer): Promise<OptimizationResult> {
+  const currentTurns = await calculateInventoryTurns(customer);
+  const targetTurns = currentTurns * 1.25; // 25% improvement target
+  const optimizationPlan = await generateTurnOptimizationPlan(customer, targetTurns);
+  
+  return await implementOptimizationPlan(optimizationPlan);
+}
+```
+
+## Customer Personas
+
+### Primary Segment: Confectionery Wholesale Decision Makers
+
+**Mike Thompson - VP of Purchasing**
+- Company: $200M confectionery wholesaler with 3 DCs serving 2,000+ convenience stores
+- Pain Points: Halloween stockouts cost $2M in lost sales; 15% post-Valentine's write-offs
+- Goals: Reduce seasonal inventory waste by 30%, improve holiday fill rates to 98%
+- Buying Criteria: ROI within 6 months, ERP integration, proven seasonal accuracy
+- Quote: "We need forecasting that understands candy seasonality, not generic demand planning"
+
+**Sarah Rodriguez - Director of Supply Chain**
+- Company: $500M regional distributor with Prophet 21 ERP and 5 distribution centers
+- Pain Points: Manual spreadsheet forecasting takes 40 hours per holiday planning cycle
+- Goals: Automate purchase proposals, reduce buyer workload, improve vendor relationships
+- Buying Criteria: P21 integration, MOQ optimization, shelf-life management
+- Quote: "Our buyers spend more time in Excel than talking to vendors about opportunities"
+
+**David Chen - Operations Manager**
+- Company: $75M specialty candy importer managing seasonal displays for 500 accounts
+- Pain Points: Display kit forecasting errors cause 25% overstock on promotional items
+- Goals: Optimize display allocations, reduce end-of-season liquidation losses
+- Buying Criteria: Display pack optimization, account-level forecasting, quick deployment
+- Quote: "Display forecasting is our biggest profit leak - we either run out or have too much"
+
+## Market Research Insights
+
+### Confectionery Wholesale Market
+- **Market Size**: $45B US confectionery wholesale market with 68% seasonal concentration
+- **Seasonal Impact**: Halloween represents 35% of annual candy sales, Christmas 28%, Easter 15%
+- **Inventory Challenges**: Average 12-18% post-holiday write-offs across the industry
+
+### Demand Forecasting Pain Points
+- **Manual Processes**: 78% of wholesalers use spreadsheets for seasonal forecasting
+- **Accuracy Issues**: Industry average WAPE of 35-45% for seasonal SKUs
+- **Integration Gaps**: 84% report data silos between ERP, EDI, and planning systems
+
+### Technology Adoption
+- **ERP Penetration**: 67% use Prophet 21, 18% NetSuite, 12% Dynamics, 3% other
+- **ROI Requirements**: Buyers expect 3x ROI within 12 months for supply chain technology
+- **Implementation Speed**: 73% prefer solutions with <60 day time-to-value
+
+Generated for NAICS 424450 — Confectionery Merchant Wholesalers.
