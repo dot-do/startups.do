@@ -311,7 +311,400 @@ landingPage:
     - Simulate next quarter and export the plan to your TPM/TPO.
     - Track actuals vs plan; the model learns and improves each cycle.
 ---
-# PromoLift AI — Trade Promotion ROI Analyzer for Confectionery Wholesalers (NAICS 424450)
 
-Generated for NAICS 424450 — Confectionery Merchant Wholesalers.
-Service: Trade Promotion ROI Analyzer
+# PromoLift AI — Trade Promotion ROI Analyzer for Confectionery Wholesalers
+
+## Business Process Functions
+
+### Core Types and Interfaces
+
+```typescript
+interface Lead {
+  id: string;
+  companyName: string;
+  revenue: number;
+  naicsCode: string;
+  contactInfo: ContactInfo;
+  currentChallenges: string[];
+  dataReadiness: DataReadinessScore;
+}
+
+interface Customer {
+  id: string;
+  companyProfile: CompanyProfile;
+  contractTerms: ContractTerms;
+  dataConnections: DataConnection[];
+  onboardingStatus: OnboardingStatus;
+}
+
+interface PromotionData {
+  accountId: string;
+  skuId: string;
+  promotionType: 'TPR' | 'BOGO' | 'display' | 'ad_feature';
+  discountDepth: number;
+  duration: number;
+  startDate: Date;
+  endDate: Date;
+  displayCompliance: boolean;
+  expectedUplift: number;
+  actualUplift?: number;
+  roi: number;
+}
+
+interface ROIAnalysis {
+  promotionId: string;
+  incrementalUnits: number;
+  incrementalRevenue: number;
+  totalCost: number;
+  roi: number;
+  confidence: number;
+  cannibalizationEffect: number;
+  seasonalityAdjustment: number;
+}
+```
+
+### Customer Acquisition Workflows
+
+```typescript
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const proposal = await generateProposal(qualifiedLead);
+  const contract = await negotiateContract(proposal);
+  return await onboardCustomer(contract);
+}
+
+export async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  // Validate revenue threshold ($50M-$3B+)
+  if (lead.revenue < 50_000_000) {
+    throw new Error('Revenue below minimum threshold');
+  }
+  
+  // Check NAICS code alignment (424450 - Confectionery Wholesalers)
+  if (!lead.naicsCode.startsWith('4244')) {
+    throw new Error('Outside target industry segment');
+  }
+  
+  // Assess data readiness for EDI 852/867 integration
+  const dataScore = await assessDataReadiness(lead);
+  
+  // Score seasonal concentration and display activity
+  const seasonalScore = await assessSeasonalConcentration(lead);
+  
+  return {
+    ...lead,
+    qualificationScore: calculateQualificationScore(dataScore, seasonalScore),
+    recommendedPilotScope: determinePilotScope(lead),
+    estimatedTimeToValue: calculateTimeToValue(dataScore)
+  };
+}
+
+export async function generateProposal(qualifiedLead: QualifiedLead): Promise<Proposal> {
+  const pilotScope = await definePilotScope(qualifiedLead);
+  const pricing = await calculatePricing(qualifiedLead);
+  const timeline = await createImplementationTimeline(qualifiedLead);
+  
+  return {
+    leadId: qualifiedLead.id,
+    pilotScope,
+    pricing,
+    timeline,
+    expectedOutcomes: await projectExpectedOutcomes(qualifiedLead),
+    riskMitigations: await identifyRiskMitigations(qualifiedLead)
+  };
+}
+```
+
+### Product Development Processes
+
+```typescript
+export async function developUpliftModel(customerData: CustomerData): Promise<UpliftModel> {
+  // Ingest and harmonize data sources
+  const unifiedData = await unifyDataSources(customerData);
+  
+  // Build baseline forecasting model
+  const baselineModel = await buildBaselineModel(unifiedData);
+  
+  // Implement causal inference for uplift measurement
+  const upliftModel = await buildCausalInferenceModel(unifiedData, baselineModel);
+  
+  // Validate model performance
+  const validation = await validateModelPerformance(upliftModel);
+  
+  if (validation.mape > 0.20) {
+    throw new Error('Model accuracy below threshold');
+  }
+  
+  return upliftModel;
+}
+
+export async function buildOptimizationEngine(
+  upliftModel: UpliftModel,
+  constraints: OptimizationConstraints
+): Promise<OptimizationEngine> {
+  // Implement constrained optimization for budget allocation
+  const optimizer = await createBudgetOptimizer(constraints);
+  
+  // Build next-best action recommendation engine
+  const recommendationEngine = await buildRecommendationEngine(upliftModel);
+  
+  // Create scenario simulation capabilities
+  const simulator = await buildScenarioSimulator(upliftModel, optimizer);
+  
+  return {
+    optimizer,
+    recommendationEngine,
+    simulator,
+    constraints
+  };
+}
+```
+
+### Revenue Generation Flows
+
+```typescript
+export async function processSubscriptionRevenue(customer: Customer): Promise<RevenueEvent> {
+  const usage = await calculateUsageMetrics(customer);
+  const tier = await determinePricingTier(customer, usage);
+  const invoice = await generateInvoice(customer, tier);
+  
+  return await processPayment(invoice);
+}
+
+export async function calculatePerformanceBonus(
+  customer: Customer,
+  period: TimePeriod
+): Promise<PerformanceBonusEvent> {
+  const baseline = await getAgreedBaseline(customer);
+  const actualResults = await measureIncrementalGrossProfit(customer, period);
+  
+  if (actualResults.incrementalGrossProfit > baseline.incrementalGrossProfit) {
+    const bonusAmount = (actualResults.incrementalGrossProfit - baseline.incrementalGrossProfit) * 0.035;
+    return await processBonusPayment(customer, bonusAmount);
+  }
+  
+  return null;
+}
+
+export async function expandCustomerAccount(customer: Customer): Promise<ExpansionOpportunity[]> {
+  const currentScope = await getCurrentScope(customer);
+  const fullPotential = await assessFullPotential(customer);
+  
+  const opportunities = [];
+  
+  // Expand to additional accounts
+  if (currentScope.accountCount < fullPotential.totalAccounts) {
+    opportunities.push(await createAccountExpansionOpportunity(customer));
+  }
+  
+  // Expand to additional SKUs
+  if (currentScope.skuCount < fullPotential.totalSkus) {
+    opportunities.push(await createSkuExpansionOpportunity(customer));
+  }
+  
+  // Add managed services
+  if (!currentScope.hasManagedServices) {
+    opportunities.push(await createManagedServicesOpportunity(customer));
+  }
+  
+  return opportunities;
+}
+```
+
+### Operational Procedures
+
+```typescript
+export async function processDataIngestion(customer: Customer): Promise<DataIngestionResult> {
+  try {
+    // Ingest ERP data (invoices/shipments)
+    const erpData = await ingestERPData(customer.dataConnections.erp);
+    
+    // Ingest EDI 852/867 data
+    const ediData = await ingestEDIData(customer.dataConnections.edi);
+    
+    // Ingest POS data where available
+    const posData = await ingestPOSData(customer.dataConnections.pos);
+    
+    // Validate data quality
+    const validation = await validateDataQuality([erpData, ediData, posData]);
+    
+    if (validation.upcMatchRate < 0.98) {
+      await alertDataQualityIssue(customer, validation);
+    }
+    
+    // Harmonize and store data
+    const harmonizedData = await harmonizeData([erpData, ediData, posData]);
+    await storeProcessedData(customer, harmonizedData);
+    
+    return {
+      status: 'success',
+      recordsProcessed: harmonizedData.length,
+      dataQuality: validation,
+      processingTime: Date.now()
+    };
+  } catch (error) {
+    await handleDataIngestionError(customer, error);
+    throw error;
+  }
+}
+
+export async function generateROIScorecard(
+  customer: Customer,
+  promotions: PromotionData[]
+): Promise<ROIScorecard> {
+  const analyses = await Promise.all(
+    promotions.map(promo => analyzePromotionROI(promo))
+  );
+  
+  const scorecard = {
+    customerId: customer.id,
+    period: getCurrentPeriod(),
+    totalPromotions: promotions.length,
+    averageROI: calculateAverageROI(analyses),
+    topPerformers: getTopPerformers(analyses, 5),
+    underperformers: getUnderperformers(analyses, 5),
+    recommendations: await generateRecommendations(analyses),
+    nextBestActions: await generateNextBestActions(customer, analyses)
+  };
+  
+  await deliverScorecard(customer, scorecard);
+  return scorecard;
+}
+```
+
+### Decision-Making Workflows
+
+```typescript
+export async function recommendNextBestPromotion(
+  accountId: string,
+  skuId: string,
+  constraints: PromotionConstraints
+): Promise<PromotionRecommendation> {
+  // Analyze historical performance
+  const historicalData = await getHistoricalPerformance(accountId, skuId);
+  
+  // Calculate price elasticity
+  const elasticity = await calculatePriceElasticity(historicalData);
+  
+  // Consider seasonal factors
+  const seasonalFactors = await getSeasonalFactors(skuId);
+  
+  // Check retailer calendar constraints
+  const retailerCalendar = await getRetailerCalendar(accountId);
+  
+  // Generate recommendation
+  const recommendation = await optimizePromotionParameters({
+    elasticity,
+    seasonalFactors,
+    retailerCalendar,
+    constraints,
+    historicalPerformance: historicalData
+  });
+  
+  // Validate recommendation feasibility
+  await validateRecommendationFeasibility(recommendation);
+  
+  return recommendation;
+}
+
+export async function allocateTradeSpendBudget(
+  customer: Customer,
+  totalBudget: number,
+  period: TimePeriod
+): Promise<BudgetAllocation> {
+  // Get all eligible promotion opportunities
+  const opportunities = await getPromotionOpportunities(customer, period);
+  
+  // Score opportunities by expected ROI
+  const scoredOpportunities = await scoreOpportunities(opportunities);
+  
+  // Apply constrained optimization
+  const allocation = await optimizeBudgetAllocation({
+    opportunities: scoredOpportunities,
+    totalBudget,
+    constraints: customer.budgetConstraints,
+    objectives: customer.objectives
+  });
+  
+  // Validate allocation meets minimum requirements
+  await validateBudgetAllocation(allocation);
+  
+  return allocation;
+}
+
+export async function handlePromotionPerformanceAlert(
+  promotionId: string,
+  alertType: AlertType
+): Promise<AlertResponse> {
+  const promotion = await getPromotionDetails(promotionId);
+  const currentPerformance = await getCurrentPerformance(promotionId);
+  
+  switch (alertType) {
+    case 'underperforming':
+      return await handleUnderperformingPromotion(promotion, currentPerformance);
+    
+    case 'stockout_risk':
+      return await handleStockoutRisk(promotion, currentPerformance);
+    
+    case 'compliance_issue':
+      return await handleComplianceIssue(promotion, currentPerformance);
+    
+    default:
+      throw new Error(`Unknown alert type: ${alertType}`);
+  }
+}
+```
+
+### Integration and Delivery Functions
+
+```typescript
+export async function deliverRetailerSellSheet(
+  promotion: PromotionRecommendation,
+  retailerId: string
+): Promise<SellSheet> {
+  const retailerProfile = await getRetailerProfile(retailerId);
+  const evidencePackage = await buildEvidencePackage(promotion);
+  
+  const sellSheet = await generateSellSheet({
+    promotion,
+    retailerProfile,
+    evidencePackage,
+    template: retailerProfile.preferredTemplate
+  });
+  
+  await deliverToSalesTeam(sellSheet);
+  return sellSheet;
+}
+
+export async function syncWithTPMSystem(
+  customer: Customer,
+  approvedPromotions: PromotionPlan[]
+): Promise<SyncResult> {
+  const tpmConnector = await getTPMConnector(customer.tpmSystem);
+  
+  const syncResults = await Promise.all(
+    approvedPromotions.map(plan => 
+      tpmConnector.createPromotionEvent(plan)
+    )
+  );
+  
+  await logSyncResults(customer, syncResults);
+  return {
+    successful: syncResults.filter(r => r.success).length,
+    failed: syncResults.filter(r => !r.success).length,
+    details: syncResults
+  };
+}
+```
+
+## Service Overview
+
+PromoLift AI transforms trade promotion management for confectionery wholesalers through advanced analytics and optimization. The platform measures true incremental impact and ROI of discounts and displays at the account/SKU level, enabling data-driven decisions that maximize profitability.
+
+### Key Capabilities
+
+- **Causal Uplift Measurement**: Separates true incremental volume from forward-buying, cannibalization, and seasonality
+- **ROI Attribution**: Ties uplift to gross-to-net waterfall for accurate cost per incremental unit calculation  
+- **Next-Best Promotion Engine**: Recommends optimal offer depth, duration, timing, and display type
+- **Budget Optimization**: Allocates trade spend across accounts/SKUs to maximize incremental gross profit
+- **Scenario Simulation**: What-if analysis with confidence intervals and risk alerts
+- **Execution Tracking**: Monitors display compliance and adjusts ROI expectations in real-time
