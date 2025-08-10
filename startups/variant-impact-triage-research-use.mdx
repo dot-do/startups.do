@@ -328,7 +328,475 @@ landingPage:
     - Export targets and share with your team or pipeline.
     - 'Iterate, compare versions, and track changes over time.'
 ---
+
 # Variant Impact Triage (Research Use)
 
 Generated for NAICS 541714 — Research and Development in Biotechnology (except Nanobiotechnology).
 Service: Variant Impact Triage (Research Use)
+
+## Business Process Functions
+
+```typescript
+// Core business types
+interface Lead {
+  id: string;
+  company: string;
+  contactName: string;
+  email: string;
+  role: string; // "Director of Bioinformatics", "Translational Lead", etc.
+  segment: 'biotech' | 'pharma' | 'academic' | 'cro' | 'platform';
+  sampleVolume: number; // estimated monthly samples
+  currentTools: string[];
+  painPoints: string[];
+  source: 'conference' | 'content' | 'referral' | 'outbound' | 'partnership';
+}
+
+interface Customer {
+  id: string;
+  lead: Lead;
+  tier: 'team' | 'pro' | 'enterprise';
+  contractValue: number;
+  startDate: Date;
+  seats: number;
+  deploymentType: 'saas' | 'vpc' | 'on-prem';
+  customRulesets?: string[];
+  integrations: string[];
+}
+
+interface VariantSample {
+  id: string;
+  customerId: string;
+  vcfPath: string;
+  referenceGenome: string;
+  phenotypeTerms: string[]; // HPO terms
+  metadata: Record<string, any>;
+  priority: 'standard' | 'rush';
+}
+
+interface TriageResult {
+  sampleId: string;
+  rankedVariants: RankedVariant[];
+  evidenceLinks: EvidenceLink[];
+  rulesetVersion: string;
+  processingTime: number; // minutes
+  confidence: number;
+  auditTrail: AuditEntry[];
+}
+
+interface RankedVariant {
+  variant: string; // chr:pos:ref:alt
+  gene: string;
+  consequence: string;
+  score: number;
+  confidence: number;
+  evidenceTypes: string[];
+  explanation: string;
+}
+
+interface EvidenceLink {
+  variantId: string;
+  source: string; // 'ClinVar', 'gnomAD', 'COSMIC', etc.
+  evidenceType: string;
+  url: string;
+  lastUpdated: Date;
+}
+
+interface AuditEntry {
+  timestamp: Date;
+  action: string;
+  version: string;
+  user?: string;
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const pilot = await conductPaidPilot(qualifiedLead);
+  const proposal = await generateProposal(pilot);
+  const contract = await negotiateContract(proposal);
+  return await onboardCustomer(contract);
+}
+
+export async function qualifyLead(lead: Lead): Promise<Lead> {
+  // Validate lead fits target segments
+  const targetSegments = ['biotech', 'pharma', 'academic', 'cro', 'platform'];
+  if (!targetSegments.includes(lead.segment)) {
+    throw new Error('Lead outside target segments');
+  }
+  
+  // Check minimum volume threshold
+  if (lead.sampleVolume < 100) {
+    throw new Error('Sample volume below minimum threshold');
+  }
+  
+  // Score lead based on pain points alignment
+  const painPointScore = await scorePainPoints(lead.painPoints);
+  if (painPointScore < 0.6) {
+    throw new Error('Insufficient pain point alignment');
+  }
+  
+  return { ...lead, qualified: true };
+}
+
+export async function conductPaidPilot(lead: Lead): Promise<PilotResult> {
+  const pilotConfig = await designPilot(lead);
+  const testData = await prepareTestData(lead.sampleVolume);
+  const results = await runTriagePipeline(testData, pilotConfig);
+  const benchmarks = await generateBenchmarks(results);
+  
+  return {
+    leadId: lead.id,
+    duration: 60, // days
+    samplesProcessed: Math.min(lead.sampleVolume, 3000),
+    timeReduction: benchmarks.timeReduction,
+    accuracyImprovement: benchmarks.accuracyImprovement,
+    cost: 50000, // $50k pilot fee
+    conversionProbability: benchmarks.timeReduction > 0.7 ? 0.8 : 0.3
+  };
+}
+
+export async function generateProposal(pilot: PilotResult): Promise<Proposal> {
+  const tier = await determineTier(pilot);
+  const pricing = await calculatePricing(tier, pilot.samplesProcessed);
+  const customizations = await identifyCustomizations(pilot);
+  
+  return {
+    tier,
+    annualValue: pricing.annualValue,
+    seats: pricing.seats,
+    sampleAllowance: pricing.sampleAllowance,
+    deploymentType: pilot.leadId.includes('enterprise') ? 'vpc' : 'saas',
+    customizations,
+    validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
+  };
+}
+
+// Product Development Processes
+export async function developVariantTriageCapability(): Promise<ProductCapability> {
+  const knowledgeGraph = await buildKnowledgeGraph();
+  const aiModels = await trainExplainableModels();
+  const ruleEngine = await buildConfigurableRuleEngine();
+  const pipeline = await integratePipeline(knowledgeGraph, aiModels, ruleEngine);
+  
+  return await validateCapability(pipeline);
+}
+
+export async function buildKnowledgeGraph(): Promise<KnowledgeGraph> {
+  const dataSources = await integrateDataSources([
+    'ClinVar', 'gnomAD', 'COSMIC', 'Ensembl', 'CIViC', 'DisGeNET'
+  ]);
+  const licensedData = await integrateLicensedSources(['HGMD', 'OMIM']);
+  const graph = await constructGraph(dataSources, licensedData);
+  
+  return await enableWeeklyUpdates(graph);
+}
+
+export async function trainExplainableModels(): Promise<AIModels> {
+  const trainingData = await curateTrainingData();
+  const nlpModel = await trainNLPModel(trainingData.literature);
+  const graphModel = await trainGraphModel(trainingData.pathways);
+  const ensembleModel = await combineModels(nlpModel, graphModel);
+  
+  return await addExplainabilityLayer(ensembleModel);
+}
+
+// Revenue Generation Flows
+export async function generateRevenue(customer: Customer): Promise<RevenueResult> {
+  const subscription = await processSubscription(customer);
+  const usage = await trackUsage(customer);
+  const upsells = await identifyUpsellOpportunities(customer, usage);
+  const renewals = await manageRenewal(customer);
+  
+  return {
+    subscriptionRevenue: subscription.amount,
+    usageRevenue: usage.overageCharges,
+    upsellRevenue: upsells.totalValue,
+    renewalRevenue: renewals.amount,
+    totalRevenue: subscription.amount + usage.overageCharges + upsells.totalValue
+  };
+}
+
+export async function processSubscription(customer: Customer): Promise<SubscriptionResult> {
+  const tier = customer.tier;
+  const pricing = {
+    team: { monthly: 1200, samples: 500 },
+    pro: { monthly: 4000, samples: 3000 },
+    enterprise: { annual: 150000, samples: 'unlimited' }
+  };
+  
+  if (tier === 'enterprise') {
+    return {
+      amount: pricing.enterprise.annual,
+      interval: 'annual',
+      sampleAllowance: Infinity
+    };
+  }
+  
+  return {
+    amount: pricing[tier].monthly * 12,
+    interval: 'annual',
+    sampleAllowance: pricing[tier].samples
+  };
+}
+
+// Operational Procedures
+export async function operateTriageWorkflow(sample: VariantSample): Promise<TriageResult> {
+  const startTime = Date.now();
+  
+  // Validate and preprocess
+  const validatedSample = await validateVCF(sample);
+  const harmonizedMetadata = await harmonizeSampleMetadata(validatedSample);
+  
+  // Annotation pipeline
+  const annotations = await annotateVariants(harmonizedMetadata);
+  const predictions = await aggregatePredictions(annotations);
+  const evidence = await linkEvidence(predictions);
+  
+  // Prioritization
+  const ruleset = await loadRuleset(sample.customerId);
+  const scores = await applyRules(evidence, ruleset);
+  const rankedVariants = await rankVariants(scores);
+  
+  // Generate results
+  const processingTime = (Date.now() - startTime) / (1000 * 60); // minutes
+  const auditTrail = await generateAuditTrail(sample, ruleset);
+  
+  return {
+    sampleId: sample.id,
+    rankedVariants,
+    evidenceLinks: evidence,
+    rulesetVersion: ruleset.version,
+    processingTime,
+    confidence: await calculateConfidence(rankedVariants),
+    auditTrail
+  };
+}
+
+export async function validateVCF(sample: VariantSample): Promise<VariantSample> {
+  const vcfStats = await analyzeVCF(sample.vcfPath);
+  
+  if (vcfStats.variantCount === 0) {
+    throw new Error('VCF contains no variants');
+  }
+  
+  if (vcfStats.malformedLines > 0) {
+    throw new Error(`VCF contains ${vcfStats.malformedLines} malformed lines`);
+  }
+  
+  if (!vcfStats.hasGenotypes) {
+    console.warn('VCF lacks genotype information, proceeding with variant-only analysis');
+  }
+  
+  return sample;
+}
+
+export async function annotateVariants(sample: VariantSample): Promise<AnnotatedVariant[]> {
+  // Use VEP/ANNOVAR for consequence annotation
+  const consequences = await runVEP(sample.vcfPath, sample.referenceGenome);
+  
+  // Add population frequencies
+  const frequencies = await addPopulationFrequencies(consequences);
+  
+  // Add in silico predictions
+  const predictions = await addInSilicoPredictions(frequencies);
+  
+  return predictions;
+}
+
+// Decision-Making Workflows
+export async function makeTriageDecision(
+  variants: RankedVariant[],
+  customer: Customer,
+  context: DecisionContext
+): Promise<TriageDecision> {
+  
+  const riskAssessment = await assessRisk(variants, context);
+  const costBenefit = await analyzeCostBenefit(variants, customer);
+  const confidence = await calculateDecisionConfidence(variants, riskAssessment);
+  
+  if (confidence < 0.7) {
+    return await escalateToHuman(variants, riskAssessment, 'Low confidence score');
+  }
+  
+  const topVariants = variants.slice(0, context.maxVariants || 20);
+  const explanation = await generateExplanation(topVariants, riskAssessment);
+  
+  return {
+    selectedVariants: topVariants,
+    confidence,
+    explanation,
+    riskLevel: riskAssessment.level,
+    recommendedActions: await generateRecommendations(topVariants),
+    auditTrail: await createDecisionAudit(variants, riskAssessment, confidence)
+  };
+}
+
+export async function escalateToHuman(
+  variants: RankedVariant[],
+  riskAssessment: RiskAssessment,
+  reason: string
+): Promise<TriageDecision> {
+  
+  const humanReview = await requestHumanReview({
+    variants: variants.slice(0, 50), // Top 50 for human review
+    riskAssessment,
+    escalationReason: reason,
+    priority: riskAssessment.level === 'high' ? 'urgent' : 'standard'
+  });
+  
+  return {
+    selectedVariants: humanReview.approvedVariants,
+    confidence: 1.0, // Human reviewed
+    explanation: humanReview.rationale,
+    riskLevel: riskAssessment.level,
+    recommendedActions: humanReview.nextSteps,
+    auditTrail: await createHumanReviewAudit(humanReview),
+    humanReviewed: true
+  };
+}
+
+// Monitoring and optimization workflows
+export async function monitorSystemHealth(): Promise<HealthStatus> {
+  const dataFreshness = await checkDataFreshness();
+  const modelPerformance = await evaluateModelPerformance();
+  const systemLatency = await measureLatency();
+  const errorRates = await calculateErrorRates();
+  
+  return {
+    overall: calculateOverallHealth([dataFreshness, modelPerformance, systemLatency, errorRates]),
+    dataFreshness,
+    modelPerformance,
+    systemLatency,
+    errorRates,
+    alerts: await generateAlerts([dataFreshness, modelPerformance, systemLatency, errorRates])
+  };
+}
+
+export async function optimizeForCustomer(customer: Customer): Promise<OptimizationResult> {
+  const usagePatterns = await analyzeUsagePatterns(customer);
+  const performanceMetrics = await gatherPerformanceMetrics(customer);
+  const feedbackData = await collectCustomerFeedback(customer);
+  
+  const optimizations = await identifyOptimizations(usagePatterns, performanceMetrics, feedbackData);
+  const implementedChanges = await implementOptimizations(optimizations, customer);
+  
+  return {
+    customerId: customer.id,
+    optimizations: implementedChanges,
+    expectedImpact: await predictImpact(implementedChanges),
+    rollbackPlan: await createRollbackPlan(implementedChanges)
+  };
+}
+
+// Helper type definitions
+interface PilotResult {
+  leadId: string;
+  duration: number;
+  samplesProcessed: number;
+  timeReduction: number;
+  accuracyImprovement: number;
+  cost: number;
+  conversionProbability: number;
+}
+
+interface Proposal {
+  tier: string;
+  annualValue: number;
+  seats: number;
+  sampleAllowance: number;
+  deploymentType: string;
+  customizations: string[];
+  validUntil: Date;
+}
+
+interface ProductCapability {
+  version: string;
+  features: string[];
+  performance: PerformanceMetrics;
+  validated: boolean;
+}
+
+interface KnowledgeGraph {
+  sources: string[];
+  lastUpdated: Date;
+  updateFrequency: string;
+  nodeCount: number;
+  edgeCount: number;
+}
+
+interface AIModels {
+  nlp: Model;
+  graph: Model;
+  ensemble: Model;
+  explainability: ExplainabilityLayer;
+}
+
+interface RevenueResult {
+  subscriptionRevenue: number;
+  usageRevenue: number;
+  upsellRevenue: number;
+  renewalRevenue: number;
+  totalRevenue: number;
+}
+
+interface SubscriptionResult {
+  amount: number;
+  interval: string;
+  sampleAllowance: number;
+}
+
+interface AnnotatedVariant {
+  variant: string;
+  gene: string;
+  consequence: string;
+  populationFrequency: number;
+  predictions: Record<string, number>;
+  evidence: EvidenceLink[];
+}
+
+interface DecisionContext {
+  maxVariants?: number;
+  confidenceThreshold?: number;
+  riskTolerance: 'low' | 'medium' | 'high';
+  timeConstraint?: number; // minutes
+}
+
+interface TriageDecision {
+  selectedVariants: RankedVariant[];
+  confidence: number;
+  explanation: string;
+  riskLevel: string;
+  recommendedActions: string[];
+  auditTrail: AuditEntry[];
+  humanReviewed?: boolean;
+}
+
+interface RiskAssessment {
+  level: 'low' | 'medium' | 'high';
+  factors: string[];
+  mitigation: string[];
+}
+
+interface HealthStatus {
+  overall: number;
+  dataFreshness: number;
+  modelPerformance: number;
+  systemLatency: number;
+  errorRates: number;
+  alerts: Alert[];
+}
+
+interface OptimizationResult {
+  customerId: string;
+  optimizations: string[];
+  expectedImpact: ImpactMetrics;
+  rollbackPlan: string[];
+}
+
+// Placeholder interfaces for completeness
+interface Model { version: string; accuracy: number; }
+interface ExplainabilityLayer { method: string; coverage: number; }
+interface PerformanceMetrics { latency: number; throughput: number; accuracy: number; }
+interface Alert { type: string; message: string; severity: string; }
+interface ImpactMetrics { timeReduction: number; accuracyImprovement: number; costSavings: number; }
+```
