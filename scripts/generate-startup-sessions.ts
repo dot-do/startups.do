@@ -12,40 +12,51 @@ function shuffleArray<T>(array: T[]): T[] {
   return shuffled
 }
 
-function generateVariationPrompts(startupName: string, data: Record<string, unknown>): string[] {
-  const basePrompts = [
-    `Expand the business model and add more detailed financial projections for ${startupName}`,
-    `Create a comprehensive go-to-market strategy and competitive analysis for ${startupName}`,
-    `Develop detailed product roadmap and technical architecture for ${startupName}`,
-    `Add customer personas, user stories, and market research insights for ${startupName}`,
-    `Create operational plans, team structure, and scaling strategies for ${startupName}`
-  ]
+function generateWorkflowPrompt(startupName: string, data: Record<string, unknown>): string {
+  const contextInfo: string[] = []
+  
+  if (data.leanCanvas) {
+    contextInfo.push(`Current lean canvas: ${JSON.stringify(data.leanCanvas, null, 2)}`)
+  }
+  
+  if (data.vmv) {
+    contextInfo.push(`Vision/Mission/Values: ${JSON.stringify(data.vmv, null, 2)}`)
+  }
+  
+  if (data.naics) {
+    contextInfo.push(`Industry (NAICS): ${JSON.stringify(data.naics, null, 2)}`)
+  }
 
-  return basePrompts.map(prompt => {
-    const contextInfo: string[] = []
-    
-    if (data.leanCanvas) {
-      contextInfo.push(`Current lean canvas: ${JSON.stringify(data.leanCanvas, null, 2)}`)
-    }
-    
-    if (data.vmv) {
-      contextInfo.push(`Vision/Mission/Values: ${JSON.stringify(data.vmv, null, 2)}`)
-    }
-    
-    if (data.naics) {
-      contextInfo.push(`Industry (NAICS): ${JSON.stringify(data.naics, null, 2)}`)
-    }
+  if (data.okrs) {
+    contextInfo.push(`Current OKRs: ${JSON.stringify(data.okrs, null, 2)}`)
+  }
 
-    if (data.okrs) {
-      contextInfo.push(`Current OKRs: ${JSON.stringify(data.okrs, null, 2)}`)
-    }
+  const context = contextInfo.length > 0 
+    ? `\n\nContext from existing startup data:\n${contextInfo.join('\n\n')}`
+    : ''
 
-    const context = contextInfo.length > 0 
-      ? `\n\nContext from existing startup data:\n${contextInfo.join('\n\n')}`
-      : ''
+  return `Create workflow and business process functions for ${startupName}. Export TypeScript functions that define the core business processes as code. The functions can be pseudocode and reference other functions that don't exist yet.
 
-    return `${prompt}${context}`
-  })
+Focus on creating functions that represent:
+- Customer acquisition workflows
+- Product development processes  
+- Revenue generation flows
+- Operational procedures
+- Decision-making workflows
+
+Each function should be well-typed and represent a specific business process or workflow step. Functions can call other functions, use async/await patterns, and include error handling.
+
+Example structure:
+\`\`\`typescript
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead)
+  const proposal = await generateProposal(qualifiedLead)
+  const contract = await negotiateContract(proposal)
+  return await onboardCustomer(contract)
+}
+\`\`\`
+
+The goal is to encode the business logic and workflows as executable code that represents how the startup operates.${context}`
 }
 
 async function main() {
@@ -60,13 +71,13 @@ async function main() {
     
     const results: Array<{
       startup: string
-      sessions?: Array<{
+      session?: {
         sessionId?: string
         url?: string
         isNew?: boolean
         prompt: string
         error?: string
-      }>
+      }
       error?: string
       success: number
       failed: number
@@ -79,47 +90,46 @@ async function main() {
         const startup = await getStartup(slug)
         console.log(`✅ Loaded data for ${slug}`)
         
-        const prompts = generateVariationPrompts(slug, startup.data)
-        console.log(`📝 Generated ${prompts.length} variation prompts`)
+        const prompt = generateWorkflowPrompt(slug, startup.data)
+        console.log(`📝 Generated workflow prompt for ${slug}`)
         
-        const sessions: Array<{
+        let session: {
           sessionId?: string
           url?: string
           isNew?: boolean
           prompt: string
           error?: string
-        }> = []
-        for (let i = 0; i < prompts.length; i++) {
-          console.log(`  🤖 Creating session ${i + 1}/5 for ${slug}...`)
+        }
+        
+        console.log(`  🤖 Creating workflow session for ${slug}...`)
+        
+        try {
+          const devinSession = await createStartupDevinSession(slug, prompt)
+          session = {
+            sessionId: devinSession.session_id,
+            url: devinSession.url,
+            isNew: devinSession.is_new_session,
+            prompt: prompt.substring(0, 100) + '...'
+          }
+          console.log(`    ✅ Session created: ${devinSession.session_id}`)
           
-          try {
-            const session = await createStartupDevinSession(slug, prompts[i])
-            sessions.push({
-              sessionId: session.session_id,
-              url: session.url,
-              isNew: session.is_new_session,
-              prompt: prompts[i].substring(0, 100) + '...' // Truncate for logging
-            })
-            console.log(`    ✅ Session created: ${session.session_id}`)
-            
-            await new Promise(resolve => setTimeout(resolve, 1000))
-          } catch (error) {
-            console.error(`    ❌ Failed to create session ${i + 1} for ${slug}:`, error)
-            sessions.push({
-              error: error instanceof Error ? error.message : String(error),
-              prompt: prompts[i].substring(0, 100) + '...'
-            })
+          await new Promise(resolve => setTimeout(resolve, 1000))
+        } catch (error) {
+          console.error(`    ❌ Failed to create session for ${slug}:`, error)
+          session = {
+            error: error instanceof Error ? error.message : String(error),
+            prompt: prompt.substring(0, 100) + '...'
           }
         }
         
         results.push({
           startup: slug,
-          sessions,
-          success: sessions.filter(s => !s.error).length,
-          failed: sessions.filter(s => s.error).length
+          session,
+          success: session.error ? 0 : 1,
+          failed: session.error ? 1 : 0
         })
         
-        console.log(`✅ Completed ${slug}: ${sessions.filter(s => !s.error).length}/5 sessions created`)
+        console.log(`✅ Completed ${slug}: ${session.error ? 0 : 1}/1 session created`)
         
       } catch (error) {
         console.error(`❌ Failed to process startup ${slug}:`, error)
@@ -127,7 +137,7 @@ async function main() {
           startup: slug,
           error: error instanceof Error ? error.message : String(error),
           success: 0,
-          failed: 5
+          failed: 1
         })
       }
     }
@@ -137,7 +147,7 @@ async function main() {
     
     const totalSuccess = results.reduce((sum, r) => sum + (r.success || 0), 0)
     const totalFailed = results.reduce((sum, r) => sum + (r.failed || 0), 0)
-    const totalExpected = startupSlugs.length * 5
+    const totalExpected = startupSlugs.length
     
     console.log(`Total startups processed: ${results.length}`)
     console.log(`Total sessions created: ${totalSuccess}/${totalExpected}`)
@@ -147,7 +157,7 @@ async function main() {
       if (result.error) {
         console.log(`❌ ${result.startup}: Failed to load startup data`)
       } else {
-        console.log(`${result.success === 5 ? '✅' : '⚠️'} ${result.startup}: ${result.success}/5 sessions created`)
+        console.log(`${result.success === 1 ? '✅' : '⚠️'} ${result.startup}: ${result.success}/1 session created`)
       }
     })
     
