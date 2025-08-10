@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest'
 
 describe('productRequirementsDocument integration', () => {
   it('creates a PRD with expected structure', async () => {
-    process.env.AI_GATEWAY_URL = 'https://gateway.ai.cloudflare.com/v1/b6641681fe423910342b9ffa1364c76d/functions-do'
     const { productRequirementsDocument } = await import('./productRequirementsDocument')
 
     const result = await productRequirementsDocument('A mobile app for micro-learning', 'Focus on MVP scope.')

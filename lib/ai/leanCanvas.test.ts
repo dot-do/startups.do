@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest'
 
 describe('leanCanvas integration', () => {
   it('generates a Lean Canvas with expected keys', async () => {
-    process.env.AI_GATEWAY_URL = 'https://gateway.ai.cloudflare.com/v1/b6641681fe423910342b9ffa1364c76d/functions-do'
     const { leanCanvas } = await import('./leanCanvas')
 
     const result = await leanCanvas('A B2B service for automated compliance audits', 'Keep outputs concise.')
