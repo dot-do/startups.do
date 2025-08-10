@@ -308,6 +308,333 @@ landingPage:
     - 'Spot gaps, novelty, and competitive clusters; prioritize.'
     - Export insights and share; keep monitoring automatically.
 ---
+
+```typescript
+import { Business, on, every } from 'workflows.do'
+import { Agent } from 'agents.do'
+import { Human } from 'humans.do'
+
+// Core business entity
+export const evidenceIPScout = Business({
+  name: 'Evidence & IP Landscape Scout',
+  url: 'https://evidence-ip-scout.com',
+  vision: 'Source-grounded, biology-aware AI that maps literature, preprints, and patents in minutes',
+  
+  goals: [
+    { objective: 'Reduce search time by 90%', keyResults: ['Time-to-landscape <15 minutes', 'Recall improvement 20-35%'] },
+    { objective: 'Scale customer acquisition', keyResults: ['Trial-to-paid ≥30%', 'Enterprise POC-to-paid ≥40%'] },
+    { objective: 'Achieve product-market fit', keyResults: ['NRR ≥120%', 'Weekly active users ≥50% of seats'] },
+  ],
+
+  ceo: Human({ name: 'CEO', email: 'ceo@evidence-ip-scout.com' }),
+  cto: Human({ name: 'CTO', email: 'cto@evidence-ip-scout.com' }),
+  cso: Agent({ name: 'Chief Science Officer', objective: 'Maintain biology-first AI accuracy' }),
+})
+
+// Customer acquisition workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead)
+  const demoLandscape = await generateDemoLandscape(qualifiedLead)
+  const proposal = await generateProposal(qualifiedLead, demoLandscape)
+  const contract = await negotiateContract(proposal)
+  return await onboardCustomer(contract)
+}
+
+export async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  const orgSize = await validateOrgSize(lead.company)
+  const useCase = await identifyUseCase(lead.inquiry)
+  const budget = await estimateBudget(lead.tier)
+  
+  if (orgSize >= 20 && useCase.priority === 'high' && budget >= 24000) {
+    return { ...lead, qualified: true, score: calculateLeadScore(orgSize, useCase, budget) }
+  }
+  
+  throw new Error('Lead does not meet qualification criteria')
+}
+
+export async function generateDemoLandscape(lead: QualifiedLead): Promise<DemoLandscape> {
+  const { target, modality, indication } = lead.useCase
+  
+  const searchQuery = await expandQueryWithOntologies(target, modality, indication)
+  const literatureResults = await queryLiteratureSources(searchQuery)
+  const patentResults = await queryPatentSources(searchQuery)
+  
+  const rankedResults = await rankByRelevance(literatureResults, patentResults)
+  const clusters = await clusterThemes(rankedResults)
+  const gapAnalysis = await identifyWhiteSpace(clusters, target, modality, indication)
+  
+  return {
+    summary: await generateExecutiveSummary(clusters, gapAnalysis),
+    evidenceMap: clusters,
+    whiteSpace: gapAnalysis,
+    citations: rankedResults.slice(0, 50)
+  }
+}
+
+// Product development processes
+export async function developLandscapeCapability(feature: FeatureRequest): Promise<Feature> {
+  const requirements = await analyzeRequirements(feature)
+  const technicalSpec = await createTechnicalSpec(requirements)
+  const implementation = await implementFeature(technicalSpec)
+  const validation = await validateWithBiologyExperts(implementation)
+  return await deployFeature(validation)
+}
+
+export async function improveBiologyNLP(feedback: UserFeedback[]): Promise<ModelUpdate> {
+  const patterns = await analyzeErrorPatterns(feedback)
+  const trainingData = await generateTrainingData(patterns)
+  const modelUpdate = await trainBiologySpecificModel(trainingData)
+  const validation = await validateModelAccuracy(modelUpdate)
+  
+  if (validation.precision >= 0.80 && validation.recall >= 0.70) {
+    return await deployModelUpdate(modelUpdate)
+  }
+  
+  throw new Error('Model update does not meet quality thresholds')
+}
+
+// Revenue generation flows
+export async function processSubscription(customer: Customer, plan: SubscriptionPlan): Promise<Subscription> {
+  const pricing = await calculatePricing(plan, customer.tier)
+  const payment = await processPayment(customer, pricing)
+  const subscription = await createSubscription(customer, plan, payment)
+  const onboarding = await scheduleOnboarding(subscription)
+  
+  return { ...subscription, onboarding }
+}
+
+export async function handleUsageOverage(usage: UsageEvent): Promise<BillingEvent> {
+  const overage = await calculateOverage(usage)
+  
+  if (overage.amount > 0) {
+    const billing = await createOverageBilling(overage)
+    await notifyCustomerOfOverage(usage.customerId, billing)
+    return billing
+  }
+  
+  return null
+}
+
+export async function expandToEnterpriseCustomer(customer: Customer): Promise<EnterpriseContract> {
+  const requirements = await assessEnterpriseNeeds(customer)
+  const customProposal = await createEnterpriseProposal(requirements)
+  const negotiation = await conductEnterpriseNegotiation(customProposal)
+  const contract = await finalizeEnterpriseContract(negotiation)
+  
+  return await setupEnterpriseInfrastructure(contract)
+}
+
+// Operational procedures
+export async function processLandscapeRequest(request: LandscapeRequest): Promise<LandscapeReport> {
+  const expandedQuery = await expandQueryWithOntologies(
+    request.target, 
+    request.modality, 
+    request.indication
+  )
+  
+  const [literature, patents, preprints] = await Promise.all([
+    queryLiteratureSources(expandedQuery),
+    queryPatentSources(expandedQuery),
+    queryPreprintSources(expandedQuery)
+  ])
+  
+  const unifiedResults = await unifyEvidenceGraph(literature, patents, preprints)
+  const rankedResults = await rankByRelevance(unifiedResults)
+  const clusters = await clusterThemes(rankedResults)
+  const gapAnalysis = await identifyWhiteSpace(clusters, request.target, request.modality, request.indication)
+  const ipAnalysis = await analyzePatentClaims(patents)
+  
+  return await generateLandscapeReport({
+    request,
+    evidenceMap: clusters,
+    whiteSpace: gapAnalysis,
+    ipLandscape: ipAnalysis,
+    citations: rankedResults
+  })
+}
+
+export async function setupAlertMonitoring(customer: Customer, queries: AlertQuery[]): Promise<AlertSubscription> {
+  const expandedQueries = await Promise.all(
+    queries.map(q => expandQueryWithOntologies(q.target, q.modality, q.indication))
+  )
+  
+  const subscription = await createAlertSubscription(customer, expandedQueries)
+  await schedulePeriodicChecks(subscription)
+  
+  return subscription
+}
+
+// Decision-making workflows
+export async function prioritizeRDEfforts(landscape: LandscapeReport): Promise<RDPriorities> {
+  const whiteSpaceOpportunities = await analyzeWhiteSpace(landscape.whiteSpace)
+  const competitiveDensity = await assessCompetitiveDensity(landscape.evidenceMap)
+  const patentRisks = await evaluatePatentRisks(landscape.ipLandscape)
+  const evidenceStrength = await assessEvidenceStrength(landscape.evidenceMap)
+  
+  const priorities = await rankOpportunities({
+    whiteSpace: whiteSpaceOpportunities,
+    competition: competitiveDensity,
+    ipRisk: patentRisks,
+    evidence: evidenceStrength
+  })
+  
+  return {
+    highPriority: priorities.filter(p => p.score >= 0.8),
+    mediumPriority: priorities.filter(p => p.score >= 0.6 && p.score < 0.8),
+    lowPriority: priorities.filter(p => p.score < 0.6),
+    recommendations: await generateRDRecommendations(priorities)
+  }
+}
+
+export async function assessFreedomToOperate(target: string, modality: string): Promise<FTOAssessment> {
+  const relevantPatents = await findRelevantPatents(target, modality)
+  const claimAnalysis = await analyzePatentClaims(relevantPatents)
+  const riskAssessment = await assessInfringementRisk(claimAnalysis)
+  const mitigationStrategies = await identifyMitigationStrategies(riskAssessment)
+  
+  return {
+    riskLevel: riskAssessment.level,
+    blockerPatents: riskAssessment.blockers,
+    mitigationOptions: mitigationStrategies,
+    recommendation: await generateFTORecommendation(riskAssessment)
+  }
+}
+
+// Event-driven workflows
+on('LandscapeRequest.Submitted', async (request, { ai, db, taskQueue }) => {
+  const landscape = await processLandscapeRequest(request)
+  await db.landscapes.create(landscape)
+  
+  if (request.alertsEnabled) {
+    await setupAlertMonitoring(request.customer, request.alertQueries)
+  }
+  
+  taskQueue.enqueue('DeliverLandscape', { 
+    customerId: request.customerId, 
+    landscapeId: landscape.id 
+  })
+})
+
+on('Patent.Filed', async (patent, { ai, db, taskQueue }) => {
+  const relevantCustomers = await findCustomersWithRelevantAlerts(patent)
+  
+  for (const customer of relevantCustomers) {
+    const alert = await generatePatentAlert(patent, customer.alertQueries)
+    taskQueue.enqueue('SendAlert', { customerId: customer.id, alert })
+  }
+})
+
+on('Customer.Onboarded', async (customer, { ai, db, taskQueue }) => {
+  const onboardingPlan = await createOnboardingPlan(customer)
+  
+  taskQueue.enqueue('ScheduleOnboardingCall', { 
+    customerId: customer.id, 
+    plan: onboardingPlan 
+  })
+  
+  taskQueue.enqueue('SetupInitialLandscape', { 
+    customerId: customer.id, 
+    demoRequest: customer.demoRequest 
+  })
+})
+
+// Scheduled workflows
+every('hour', async ({ ai, db, taskQueue }) => {
+  const newPreprints = await checkForNewPreprints()
+  const newPatents = await checkForNewPatents()
+  
+  if (newPreprints.length > 0 || newPatents.length > 0) {
+    taskQueue.enqueue('ProcessNewContent', { 
+      preprints: newPreprints, 
+      patents: newPatents 
+    })
+  }
+})
+
+every('day at 06:00', async ({ ai, db }) => {
+  const alertSubscriptions = await db.alerts.getActiveSubscriptions()
+  
+  for (const subscription of alertSubscriptions) {
+    const newMatches = await checkForNewMatches(subscription.queries)
+    
+    if (newMatches.length > 0) {
+      const digest = await generateAlertDigest(newMatches, subscription)
+      await sendAlertDigest(subscription.customerId, digest)
+    }
+  }
+})
+
+every('week on Mon at 09:00', async ({ ai, db, taskQueue }) => {
+  const weeklyMetrics = await db.metrics.getWeeklySnapshot()
+  const insights = await ai.call('generateWeeklyInsights', weeklyMetrics)
+  
+  taskQueue.enqueue('SendWeeklyReport', { 
+    to: evidenceIPScout.ceo.email, 
+    metrics: weeklyMetrics,
+    insights 
+  })
+})
+
+// Type definitions
+interface Lead {
+  company: string
+  email: string
+  inquiry: string
+  tier: 'startup' | 'growth' | 'enterprise'
+  useCase: {
+    target: string
+    modality: string
+    indication: string
+    priority: 'high' | 'medium' | 'low'
+  }
+}
+
+interface QualifiedLead extends Lead {
+  qualified: boolean
+  score: number
+}
+
+interface Customer {
+  id: string
+  company: string
+  tier: string
+  subscription: SubscriptionPlan
+  demoRequest?: LandscapeRequest
+}
+
+interface LandscapeRequest {
+  customerId: string
+  customer: Customer
+  target: string
+  modality: string
+  indication: string
+  alertsEnabled: boolean
+  alertQueries: AlertQuery[]
+}
+
+interface LandscapeReport {
+  id: string
+  request: LandscapeRequest
+  evidenceMap: ThemeCluster[]
+  whiteSpace: WhiteSpaceAnalysis
+  ipLandscape: PatentAnalysis
+  citations: Citation[]
+}
+
+interface AlertQuery {
+  target: string
+  modality: string
+  indication: string
+}
+
+interface SubscriptionPlan {
+  id: string
+  name: string
+  price: number
+  features: string[]
+}
+```
+
 # Evidence & IP Landscape Scout
 
 Generated for NAICS 541714 — Research and Development in Biotechnology (except Nanobiotechnology).
