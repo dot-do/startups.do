@@ -56,7 +56,24 @@ export const leanCanvas = async (businessIdea: string, additionalContext?: strin
 
   return generateObject({
     model: openai('gpt-4'),
-    schema: leanCanvasSchema,
+    schema: z.object({
+      businessName: z.string(),
+      problemStatement: z.array(z.string()),
+      customerSegments: z.array(z.string()),
+      uniqueValueProposition: z.string(),
+      solution: z.array(z.string()),
+      keyFeatures: z.array(z.string()),
+      channels: z.array(z.string()),
+      revenueStreams: z.array(z.string()),
+      costStructure: z.array(z.string()),
+      keyMetrics: z.array(z.string()),
+      keyPartners: z.array(z.string()),
+      keyActivities: z.array(z.string()),
+      keyResources: z.array(z.string()),
+      unfairAdvantage: z.string(),
+      marketSize: z.string(),
+      competitiveAnalysis: z.array(z.string())
+    }),
     prompt
   });
 };
