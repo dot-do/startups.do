@@ -1,0 +1,301 @@
+---
+name: SeamSight AI — Double Seam QA Analyzer
+slug: seamsight
+naics:
+  primary: '332431'
+  occupations: []
+service:
+  title: Double Seam QA Analyzer (Images + Measurements)
+  description: >-
+    Analyze seam micrometer/teardown data and cross-section images; recommend
+    specific roll/chuck adjustments.
+  targetUsers:
+    - Quality Manager
+    - Seamer Technicians
+    - Process Engineers
+  triggers:
+    - New seam sample uploaded
+    - SPC rule violation on seam height/overlap
+    - Changeover/first-off verification
+  inputs:
+    - 'Micrometer readings (seam height, countersink)'
+    - 'Seam teardown: BHL, CHL, overlap %, free space, tightness'
+    - Cross-section images from saw/polisher
+    - SKU-specific seam specs and tolerances
+  steps:
+    - 1) Parse measurements and perform spec checks
+    - 2) CV on cross-sections to estimate dimensions (if provided)
+    - '3) Map deviations to likely causes (e.g., 1st/2nd op roll, lifter)'
+    - 4) Output actionable setup sheet and push to SPC database
+  tools:
+    - OpenCV/Detectron2
+    - Custom rules engine
+    - SPC DB (SQL)
+    - Secure file storage (SharePoint/S3)
+  outputs:
+    - Pass/fail report with deviations
+    - 'Recommended adjustments (e.g., 1st op roll +0.02 mm)'
+    - Annotated cross-section images
+    - SPC update and audit trail
+  pricingModel:
+    - Setup (model calibration per plant)
+    - Per-station/month license
+    - Optional per-analysis fee
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8.5
+    overall: 8.8
+  risks:
+    - Image quality and calibration drift
+    - Spec/version control errors
+    - Liability for incorrect recommendations
+  dependencies:
+    - Reference samples for calibration
+    - Spec library by SKU
+    - Upload workflow from lab/technicians
+leanCanvas:
+  problem:
+    - >-
+      Manual/semi-automated double seam inspection is slow and skills-dependent;
+      interpreting micrometer/teardown data and cross-section images requires
+      scarce experts, leading to inconsistent decisions across shifts and sites.
+    - >-
+      Root-cause to adjustment mapping (e.g., which roll/chuck/lifter to tweak
+      and by how much) is tribal knowledge; new mechanics take months to reach
+      proficiency, increasing downtime during changeovers and after jams.
+    - >-
+      Existing systems report measurements and pass/fail but rarely give
+      precise, seamer-head–specific corrective actions; trend drift across
+      heads/material lots often goes unnoticed until defects spike.
+    - >-
+      High-speed lines magnify losses: a 2,000 CPM line wastes ~20,000 cans for
+      every 10 minutes of seam-related stoppage; leak/contamination risks create
+      costly complaints and audits.
+    - >-
+      Fragmented data (paper logs, spreadsheets, standalone gauges) undermines
+      SPC, audit readiness, and corporate rollups; plants struggle to compare
+      performance across seamers, heads, and materials.
+    - >-
+      Material and tooling variability (end curl, coatings, chuck wear, roll
+      geometry) requires continuous tuning; without predictive guidance,
+      preventive maintenance is time-based rather than condition-based.
+  solution:
+    - >-
+      Computer vision on cross-section images to auto-extract seam dimensions
+      (body hook, cover hook, overlap, tightness, wrinkle score, seam
+      thickness/length) with calibrated scale and lighting.
+    - >-
+      Sensor fusion: combine image-derived dimensions with micrometer/teardown
+      measurements and countersink readings to boost accuracy and confidence
+      scoring.
+    - >-
+      Actionable guidance engine: maps observed deviations to seamer-specific
+      adjustments (e.g., 1st-op roll axial +/- 0.02 mm, roll-to-chuck clearance
+      change, lifter pressure setting) per head and per product spec.
+    - >-
+      SPC and drift detection: real-time head-to-head and lot-to-lot trending
+      with alerts when process capability (Cpk) degrades or when measurement
+      variance indicates wear.
+    - >-
+      Playbooks and SOPs: guided checklists by model/material; changeover
+      wizards reduce setup time; embedded knowledge base for defect signatures.
+    - >-
+      Integration: APIs to gauge vendors, QA systems, CMMS/ERP; optional PLC
+      gateway for read/confirm adjustments; photo + measurement e-records with
+      audit trail.
+    - >-
+      Deployment options: on-prem edge device for low-latency/air-gapped plants,
+      cloud sync for fleet analytics; offline-first with batch upload.
+  uniqueValueProp: >-
+    Convert seam micrometer/teardown data and cross-section images into precise,
+    head-level adjustment recommendations in minutes—standardizing best-practice
+    seaming, reducing downtime, and cutting seam defects with audit-ready SPC
+    across plants.
+  unfairAdvantage: >-
+    A growing, multi-OEM dataset pairing images, measurements, and confirmed
+    adjustments—difficult to replicate—combined with a guidance engine that
+    translates QA findings into precise head-level actions. OEM/QA vendor
+    integrations and calibration hardware create a defensible end-to-end
+    workflow competitors lack.
+  customerSegments:
+    - >-
+      Primary: Metal Can Manufacturers (NAICS 332431) — beverage and food can
+      plants; corporate quality/process engineering; plant QA labs; seamer
+      mechanics; tooling teams.
+    - >-
+      Secondary/Expansion: Can end manufacturers and technical centers; OEMs
+      (Angelus, Ferrum) and QA equipment vendors; 3rd-party can testing labs.
+    - >-
+      Adjacent (Growth): Fillers/packers (beverage/food) operating seamers on
+      filling lines; contract packers; regional integrators.
+  channels:
+    - >-
+      Direct enterprise sales to top NA can manufacturers; land-and-expand via
+      corporate quality and seaming SMEs.
+    - >-
+      OEM partnerships: seamer (Angelus, Ferrum) and QA equipment vendors
+      (Industrial Physics/CMC-KUHNKE, Quality By Vision) for bundled offers and
+      referrals.
+    - >-
+      System integrators and regional distributors for installation/support,
+      especially LATAM/EU/APAC.
+    - >-
+      Industry events and publications: Cannex Fillex, Pack Expo, IMDA, CanTech
+      International; technical white papers with pilot results.
+    - >-
+      Targeted pilots: 6–8 week proof-of-value in one plant, 2–3 seamers, with
+      ROI metrics agreed upfront.
+    - >-
+      Customer education: webinars, seaming workshops, and train-the-trainer
+      programs; certification for mechanics.
+    - >-
+      Account-based marketing to corporate engineering at Ball, Crown, Ardagh,
+      CANPACK, Silgan; case studies and peer references.
+  revenueStreams:
+    - >-
+      SaaS license per seamer: Basic $6,000/year (up to 12 heads), Pro
+      $12,000/year (up to 24 heads), Enterprise custom (fleet analytics, SSO,
+      premium SLA).
+    - >-
+      Add-on usage: $0.20 per analyzed seam set beyond plan thresholds (e.g.,
+      >10,000 analyses/year/seamer).
+    - >-
+      Hardware imaging kit: $3,500 per station (lighting, mount, scale,
+      calibration target), optional edge gateway $1,200.
+    - >-
+      Professional services: onboarding and model calibration $5,000/plant;
+      integrations $150/hour; onsite training $2,500/day.
+    - >-
+      Premium support/SLA: 24/7 with 2-hour response + quarterly optimization
+      reviews at 15% of software ARR.
+    - >-
+      Enterprise analytics add-on: cross-plant benchmarking, custom KPIs
+      $2,000/plant/year.
+  costStructure:
+    - >-
+      R&D: CV/ML engineers, seaming SMEs, software engineers; ongoing model
+      development and validation.
+    - 'Hardware COGS: imaging kits, edge gateways, calibrations, shipping.'
+    - >-
+      Cloud/edge ops: compute, storage, CI/CD, monitoring; on-prem support
+      images; security tooling and audits.
+    - >-
+      Sales and marketing: enterprise sales reps, applications engineers,
+      events, pilot subsidies, content creation.
+    - 'Customer success: onboarding, training, support; field service partners.'
+    - >-
+      Compliance and quality: QMS, FMEA, risk assessments; documentation for
+      customer audits (GFSI/BRC/ISO).
+    - >-
+      Insurance, legal (OEM contracts, data processing agreements), and general
+      admin.
+  keyMetrics:
+    - >-
+      Recommendation accuracy vs expert consensus: target ≥95% correct
+      adjustment direction; mean absolute recommendation magnitude error ≤0.02
+      mm for roll axial settings.
+    - >-
+      Image measurement accuracy: MAPE ≤2% on seam dimensions; false
+      accept/false reject both <3%.
+    - >-
+      Time-to-diagnosis: reduce from typical 20–30 minutes to <8 minutes;
+      changeover setup time -30% within 90 days.
+    - >-
+      Seam-related downtime: -25–40% per seamer within 6 months; measure
+      minutes/1000 hours production.
+    - >-
+      Defect/leaker rate: -30% PPM within 6 months on targeted SKUs; SPC rule
+      violations per week -50%.
+    - >-
+      User adoption: ≥80% of seam events analyzed via the system within 60 days;
+      ≥2 trained champions per plant.
+    - >-
+      Financial: payback period <6 months per site; gross margin on software
+      >80%; net revenue retention >115%.
+    - >-
+      SLA: system uptime ≥99.5%; edge inference latency <3 seconds/image;
+      support first-response <4 hours (standard) or <2 hours (premium).
+storyBrand:
+  character: >-
+    QA managers, seaming supervisors, and plant engineers in metal can
+    manufacturing (NAICS 332431) who need in-spec seams with less scrap and
+    downtime.
+  problem: >-
+    Seam measurements and cross-section images are scattered and subjective;
+    out-of-spec seams cause leaks, rework, and audit risk; teams lack precise
+    roll/chuck adjustment guidance.
+  guide: >-
+    We understand the pressure of holds and audits. Double Seam QA Analyzer
+    blends seam expertise and vision AI to turn data and images into clear,
+    validated roll/chuck recommendations—backed by floor-ready support.
+  plan: >-
+    1) Connect/upload micrometer, teardown, and image data. 2) Get AI analysis
+    with exact roll/chuck moves and predicted impact. 3) Apply changes and
+    auto-verify with SPC dashboards.
+  callToAction: Schedule a 15-minute demo or start a 30-day pilot on one seamer line.
+  success: >-
+    Faster changeovers, fewer leaks and holds, lower scrap, consistent seams
+    across shifts and lines, audit-ready traceability, and measurable ROI.
+  failure: >-
+    Keep firefighting seam defects, wasting material and labor, risking customer
+    complaints, missed shipments, and costly recalls.
+landingPage:
+  hero:
+    title: Double Seam QA Analyzer
+    subtitle: >-
+      AI for Metal Can Manufacturing (NAICS 332431). Fuse seam micrometer and
+      teardown data with cross‑section images to auto-detect defects and output
+      specific roll and chuck adjustments. Cut scrap, stop leaks, speed audits.
+    ctaText: Start a Pilot
+    ctaHref: /start-pilot
+  problem:
+    - Manual checks miss early drift; defects surface after pallets are filled
+    - Operators see out-of-spec numbers but not the root cause or fix
+    - Image review is slow and subjective; training variability across shifts
+    - Data stuck in notebooks and CSVs; poor lot-level traceability
+    - 'Seamer setup is trial-and-error, wasting time and product'
+    - Inconsistent seams across lines drive claims and rework
+    - Audit prep is painful; SPC trending is manual
+  solution:
+    - Upload micrometer and teardown measurements plus cross-section images
+    - AI correlates numbers and pixels to classify defects and severity
+    - Get precise first-op and second-op roll and chuck recommendations
+    - >-
+      Auto-calculate seam height, thickness, overlap, body hook, end hook,
+      countersink, free space
+    - 'Trend by line, seamer, operator, and end type with drift alerts'
+    - One-click lot reports for customers and auditors
+    - API and MES connectors; deploy on-prem or secure cloud
+  features:
+    - >-
+      Computer vision flags false seam, cutover, droop, wrinkle, deadhead, spur,
+      and tightness issues
+    - 'Measurement import from CSV, XLSX, and common SPC exports'
+    - >-
+      Seamer model mapping for parameter names and ranges (e.g., Angelus,
+      Ferrum, others)
+    - >-
+      Adjustment engine outputs roll in or out, pressure, shim guidance, lifter
+      pressure, and speed suggestions
+    - Spec libraries by can and end; configurable tolerances and rules
+    - SPC charts with alarms and Cpk for each characteristic
+    - 'Digital traveler with images, measurements, and decisions per lot'
+    - >-
+      Edge inference for microscope stations; works offline and syncs when
+      online
+    - 'User roles, e-signatures, and full audit trail'
+    - Multi-line dashboard with scrap and downtime impact estimates
+    - PDF and data export for customer communication
+  steps:
+    - Connect your line and upload a sample run
+    - Import specs and tolerances or select from libraries
+    - Capture or stream cross-section images and attach measurements
+    - Review AI findings and recommended roll and chuck adjustments
+    - Apply changes and re-check; system confirms in-spec status
+    - Publish the lot report and enable real-time drift alerts
+---
+# SeamSight AI — Double Seam QA Analyzer
+
+Generated for NAICS 332431 — Metal Can Manufacturing.
+Service: Double Seam QA Analyzer (Images + Measurements)
