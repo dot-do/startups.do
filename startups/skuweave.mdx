@@ -1,0 +1,363 @@
+---
+name: SKUWeave AI — Catalog Enrichment & Normalization for Piece Goods and Notions
+slug: skuweave
+service:
+  title: SKU Catalog Enrichment & Normalization
+  description: >-
+    Extracts attributes from supplier PDFs/images, normalizes to GS1/your
+    schema, validates UPC/EANs, and generates sell sheets and web content.
+  targetUsers:
+    - Product Data/Catalog Manager
+    - Sales Ops
+    - Ecommerce Manager
+  triggers:
+    - New SKU onboarding
+    - Supplier price list/catalog update
+  inputs:
+    - Supplier catalogs (PDF/Excel) and images
+    - Existing item master
+    - Attribute schema and value dictionaries
+    - GS1 company prefix/UPC ranges
+  steps:
+    - OCR/parse supplier docs and images
+    - >-
+      Map attributes to canonical schema (composition, width, color, finish,
+      care)
+    - Standardize units and controlled vocab
+    - Validate UPC/EAN/GTIN; flag duplicates
+    - 'Create enriched content (bullets, SEO copy, sell sheet)'
+    - Write back to PIM/ERP or export CSV
+    - Optional human QA pass for edge cases
+  tools:
+    - AWS Textract/Tesseract OCR
+    - OpenAI for extraction/normalization
+    - GS1 check-digit validation
+    - 'PIM/ERP APIs (Cin7, Acumatica, NetSuite)'
+    - Image background cleanup API
+  outputs:
+    - Normalized item master CSV/JSON
+    - 'Validation report (errors, duplicates)'
+    - Sell sheets (PDF) and web copy
+    - Image variants (optimized sizes)
+  pricingModel:
+    - Per-SKU fee with volume breaks
+    - Setup fee for schema mapping
+    - Optional monthly for maintenance
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 9
+    overall: 9
+  risks:
+    - Attribute extraction errors on poor PDFs
+    - Misclassification causing wrong substitutions
+    - UPC duplication liability
+  dependencies:
+    - Access to item master/PIM
+    - Supplier catalog feeds
+    - GS1 prefix details
+leanCanvas:
+  problem:
+    - >-
+      Supplier catalogs arrive as PDFs/images with inconsistent schemas; manual
+      entry takes 8–15 minutes per SKU and introduces 2–6% error rates (typos,
+      wrong UoM, missing attributes).
+    - >-
+      UPC/EAN issues: 1–3% invalid check digits or wrong digit-length;
+      duplicates across suppliers cause order/inventory mismatches.
+    - >-
+      Attributes critical to textile/notions buyers (fiber content, width,
+      weight/oz/yd, put-up/bolt length, pattern repeat, colorway, dye lot
+      handling, HS code) are often missing or non-standardized; 20–40% data
+      completeness gaps on first import.
+    - >-
+      Retailer/ecommerce channels demand normalized and channel-ready content
+      (Shopify/BigCommerce/Amazon) yet wholesalers rely on static sell sheets;
+      delays slow onboarding by 2–6 weeks.
+    - >-
+      GS1/GPC/GTIN practices vary across suppliers; lack of schema mappings and
+      UoM conversions create inconsistent item masters in ERP/PIM.
+    - >-
+      Existing OCR/IDP tools aren’t tuned for piece goods/notions layouts
+      (swatch tables, variants, color grids), causing high post-OCR cleanup
+      costs.
+    - >-
+      Sales teams need up-to-date sell sheets; marketing needs SEO/web content;
+      generating these from ERP data is manual and error-prone.
+    - >-
+      Legacy ERP/PIM imports fail due to missing required fields, causing rework
+      and missed ship windows.
+  solution:
+    - >-
+      Ingest: Capture supplier PDFs, images, spreadsheets, portal exports, and
+      email attachments. Auto-detect layouts (swatch tables, color grids,
+      bolt/put-up specs).
+    - >-
+      Extract: Fine-tuned, layout-aware OCR + vision models for textile/notions
+      attributes (fiber, width, weight/oz-yd, GSM, put-up/bolt length, pattern
+      repeat, dye lot handling, care, HS code, country of origin, colorway,
+      collection).
+    - >-
+      Normalize: Map to GS1 trade item schema (GTIN, brand, net content, UoM) or
+      customer schema; UoM conversions (in/cm, oz/yd to GSM, yards to meters,
+      bolt to roll). De-duplicate brand/SKU aliases; variant generation
+      (color/size/put-up).
+    - >-
+      Validate: UPC/EAN length/check-digit validation; GTIN assignment guidance;
+      rules engine for required fields by channel; enrichment with controlled
+      vocabularies (GPC, color standards).
+    - >-
+      Generate: Channel-ready content (titles, bullets, SEO descriptions), spec
+      PDFs/sell sheets with swatches and barcodes, image alt text, and data
+      packs for ERP/PIM import.
+    - >-
+      Integrate: APIs/connectors for Prophet 21, NetSuite, Dynamics 365,
+      Salsify, Akeneo, and flat-file templates. Human-in-the-loop review UI with
+      batch approve/push to systems.
+    - >-
+      Govern: Data quality dashboards, audit trails, schema versioning, and
+      per-supplier scorecards to drive continuous improvement.
+  uniqueValueProp: >-
+    Turn messy supplier catalogs into GS1-compliant, channel-ready SKUs in
+    hours, not weeks — 70% faster onboarding, 90–95% attribute extraction
+    accuracy, 99.9% UPC/EAN validation, and auto-generated sell sheets/web
+    content purpose-built for piece goods and notions.
+  unfairAdvantage: >-
+    A niche-tuned extraction/normalization engine trained on thousands of
+    textile/notions-specific layouts and attributes, plus prebuilt GS1 mappings
+    and ERP/PIM connectors. Feedback loops via human-in-the-loop QA and supplier
+    scorecards create a proprietary improvement cycle that general IDP or PIM
+    vendors lack. Domain templates and UoM conversions (oz/yd↔GSM, bolt/roll,
+    pattern repeat) are hard to replicate quickly.
+  customerSegments:
+    - >-
+      Primary: Piece Goods, Notions, and Other Dry Goods Merchant Wholesalers
+      (NAICS 424310) — mid-market distributors (annual revenue $20M–$500M), SKU
+      counts 20k–250k.
+    - >-
+      Primary: Brands/importers selling through distributors and buying groups;
+      master distributors consolidating supplier catalogs.
+    - >-
+      Secondary: Craft/hobby wholesale distributors; textile trim/accessory
+      wholesalers (zippers, buttons, elastics, interfacing, tapes).
+    - >-
+      Buyer personas: VP/Director of Merchandising, Item Master/PIM Manager,
+      IT/ERP Director (Prophet 21, NetSuite, Microsoft Dynamics), VP
+      Sales/Marketing, Ecommerce Manager.
+    - >-
+      Influencers: ERP/PIM resellers/SIs, GS1 US advisors, buying groups, large
+      retail customers demanding standards.
+  channels:
+    - >-
+      Direct sales to mid-market wholesalers: 2 AEs + 2 SDRs targeting 500
+      priority accounts; 6–8 touch outbound sequences; goal: 12–15 discovery
+      calls/month, 3–4 pilots/month, 1–2 closes/month/AE.
+    - >-
+      Partnerships: ERP/PIM resellers/SIs (Epicor Prophet 21 partners, NetSuite
+      VARs, Dynamics 365 partners) with 10–15% revenue share; co-webinars and
+      marketplace listings.
+    - >-
+      Industry presence: Booth/sponsorship at h+h americas, Quilt Market,
+      Texworld USA, and NAW events; target 50 MQLs per event; post-event demo
+      days.
+    - >-
+      Content/SEO: Monthly benchmark reports on data quality in
+      textiles/notions; case studies showing time-to-catalog reduction; targeted
+      keywords (GS1 for fabric wholesalers, bolt vs put-up normalization,
+      Prophet 21 item import).
+    - >-
+      Pilot-led land-and-expand: 4–8 week paid pilot on 2–3 suppliers’ catalogs;
+      success criteria baked into SOW (accuracy ≥92%, processing time ≤3
+      min/SKU).
+    - >-
+      Referrals/Buying groups: Incentivize referrals with 1 month credit;
+      present at buying group meetings and distributor councils.
+  revenueStreams:
+    - >-
+      SaaS subscription (tiered by annual processed SKUs and features): Starter
+      $1,500/month (up to 5k SKUs/yr, 1 connector), Growth $3,500/month (up to
+      25k SKUs/yr, 3 connectors, sell sheet automation), Enterprise from
+      $7,500/month (50k+ SKUs/yr, SSO, advanced QA, premium SLAs).
+    - >-
+      Usage overages: $0.20–$0.60 per additional SKU processed or $0.02–$0.05
+      per OCR page beyond plan.
+    - >-
+      Onboarding/implementation: $5k–$30k one-time (schema mapping, connector
+      setup, initial supplier templates).
+    - >-
+      Professional services: Legacy back-catalog conversion, custom templates,
+      taxonomy projects ($150–$220/hour or fixed-scope).
+    - >-
+      Premium add-ons: GS1 advisory/GTIN assignment workflow, private LLM
+      fine-tuning, data pool publishing connectors.
+  costStructure:
+    - >-
+      COGS: OCR/compute $0.01–$0.03/page; model inference $0.005–$0.02/page;
+      storage/egress $0.002/GB; human-in-the-loop QA $0.08–$0.25/SKU
+      (as-needed). Target blended variable cost ≤$0.18/SKU.
+    - >-
+      R&D: ML engineers, data annotators, domain SMEs; initial model training
+      and continuous tuning (30–40% of opex in first 18 months).
+    - >-
+      Sales & Marketing: AEs/SDRs, event fees ($15k–$40k per show), content
+      production. Target CAC payback ≤12 months.
+    - >-
+      G&A and Compliance: SOC 2/ISO 27001 (audit and tooling), legal for data
+      processing agreements, cloud security tooling.
+    - >-
+      Partner commissions: 10–20% of first-year ACV for qualified leads, 5–10%
+      renewal.
+  keyMetrics:
+    - >-
+      Extraction accuracy (token-level and field-level): target 90–95% on
+      critical fields; alert if <88%.
+    - >-
+      Data completeness rate: percent of required attributes populated per SKU;
+      target ≥98% after normalization.
+    - >-
+      Time-to-catalog: average minutes from ingest to ERP/PIM import approval;
+      target ≤3 minutes/SKU (including QA).
+    - >-
+      SKU acceptance rate: % of SKUs imported without error into ERP/PIM; target
+      ≥99%.
+    - >-
+      UPC/GTIN validity: invalid rate ≤0.1%; duplicates detected/resolved per
+      month.
+    - >-
+      Cost per SKU processed: target ≤$0.35 all-in by month 12; drive to ≤$0.25
+      by month 24.
+    - >-
+      Pilot conversion rate: ≥40% of pilots to paid; expansion rate: ≥25%
+      seat/volume expansion by month 9.
+    - 'Gross margin: ≥70% by month 12, ≥78% by month 24.'
+    - 'Churn (logo): ≤8% annual; NRR: ≥115%.'
+    - 'Sales funnel: MQL→SQL 20–25%; SQL→Pilot 40–50%; Pilot→Close 40–50%.'
+    - 'Customer satisfaction: CSAT ≥4.5/5; NPS ≥40.'
+storyBrand:
+  character: >-
+    Ops/eCommerce/catalog managers at piece goods, notions, and dry goods
+    wholesalers who need clean, enriched SKUs ready for ERP/PIM and web.
+  problem: >-
+    External: Supplier data arrives as messy PDFs/images with missing attributes
+    (fiber content, width, put-up/spool, colorway, finish), unit conflicts
+    (yards vs meters), variant chaos, and bad/missing UPC/EANs. Internal: Teams
+    burn hours keying and cleaning, can’t scale onboarding, and fear chargebacks
+    and poor buyer experiences. Philosophical: Product data should be
+    standards-based, accurate, and sell-ready without manual drudgery.
+  guide: >-
+    We’ve lived wholesale data chaos. Our AI is trained on textile/dry goods
+    taxonomies and GS1, with human-in-the-loop QA, barcode validation, accuracy
+    reporting, and audit trails—so you can trust every SKU.
+  plan: >-
+    1) Upload supplier PDFs, images, and price lists. 2) We extract attributes,
+    normalize to GS1 or your schema, validate UPC/EANs, and auto-generate
+    variants, sell sheets, and web copy. 3) You review in the QA portal,
+    approve, and export to ERP/PIM/eCommerce via CSV/API. Agreement: No-risk
+    pilot, transparent per-SKU pricing, security-first, you own your data.
+  callToAction: >-
+    Direct: Book a 20‑minute demo and start a 1,000‑SKU pilot. Transitional: Get
+    a free 10‑SKU sample enrichment and our GS1 mapping checklist.
+  success: >-
+    A GS1-aligned, consistent catalog with verified barcodes; faster SKU launch
+    and supplier onboarding; rich content that lifts conversion; instant,
+    branded sell sheets; fewer errors and chargebacks; hours back to your team;
+    seamless feeds to ERP/PIM/eCommerce/marketplaces.
+  failure: >-
+    Launches stall under PDF cleanup; attributes stay inconsistent and confuse
+    buyers; barcode mistakes trigger fees; duplicate data entry multiplies
+    errors; lost revenue, slow web updates, and frustrated teams.
+landingPage:
+  hero:
+    title: AI SKU Catalog Enrichment & Normalization for Piece Goods and Notions
+    subtitle: >-
+      Turn supplier PDFs and images into clean, GS1-aligned, sales-ready product
+      data fast.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - >-
+      Supplier data arrives as mixed PDFs, scans, and spreadsheets with missing
+      or inconsistent fields.
+    - >-
+      Manual entry is slow, error-prone, and delays product listings and
+      replenishment.
+    - >-
+      Units, names, and pack sizes vary by vendor, causing duplicates and broken
+      filters.
+    - Invalid or missing UPC/EANs risk compliance issues and mislabeling.
+    - 'Variant chaos: colors, sizes, and put-ups are not grouped or searchable.'
+    - >-
+      Sales and marketing waste time building sell sheets and rewriting
+      descriptions.
+  solution:
+    - >-
+      Ingest any supplier file and auto-extract specs from line sheets, tables,
+      and labels.
+    - >-
+      Normalize attributes to GS1 or your custom schema with consistent units
+      and naming.
+    - Validate UPC/EANs with checksum logic and flag gaps with suggested fixes.
+    - >-
+      Auto-generate sell sheets, spec tables, and SEO-ready web content with
+      swatches.
+    - >-
+      Deduplicate and group variants into clean parent-child SKUs mapped to your
+      codes.
+    - >-
+      Deliver clean data to your PIM/ERP/ecommerce with APIs, webhooks, and
+      exports.
+  features:
+    - >-
+      OCR tuned for line sheets and scans, including skewed or low-res PDFs and
+      images.
+    - >-
+      Domain attributes for piece goods: width, put-up/bolt length, GSM/oz,
+      fiber content, finish, pattern, colorway, care, country of origin.
+    - >-
+      Notions attributes: thread weight/tex/denier, spool yards, needle
+      type/size, fastener sizes, card/box counts.
+    - >-
+      Unit normalization and conversion: inches/cm, yards/meters; pack, inner,
+      and master case modeling.
+    - >-
+      Barcode checks: UPC-A/E, EAN-13/8, GTIN-14 with check digit and prefix
+      validation.
+    - >-
+      Variant modeling: color, size, length; parent-child relationships with
+      image swatch mapping.
+    - >-
+      Fuzzy matching to dedupe by vendor style, brand, UPC, and dimensions with
+      merge suggestions.
+    - >-
+      Quality scoring and exception queues with confidence thresholds and full
+      audit trails.
+    - >-
+      Content generation: titles, bullets, long/short descriptions, keywords,
+      and brand-safe tone presets.
+    - >-
+      Sell sheet builder: branded PDFs with specs, barcodes, and pricing
+      placeholders.
+    - >-
+      Integrations: SFTP, email dropbox, Google Drive, S3, REST API; push to
+      Shopify, BigCommerce, NetSuite, Acumatica, and more.
+    - >-
+      Security-first: encryption in transit/at rest and enterprise access
+      controls.
+  steps:
+    - >-
+      Connect your sources (SFTP, email, cloud folders) and select GS1 or your
+      schema.
+    - Upload sample files; we auto-extract and map attributes to your fields.
+    - >-
+      Review validation results for UPC/EANs, units, dedupes, and variant
+      grouping.
+    - Approve or edit in the review UI and set mapping and naming rules.
+    - >-
+      Publish to your PIM/ERP/ecommerce and generate sell sheets and web
+      content.
+    - Schedule ongoing ingestions and monitor data quality dashboards.
+---
+# SKUWeave AI — Catalog Enrichment & Normalization for Piece Goods and Notions
+
+Industry: Piece Goods, Notions, and Other Dry Goods Merchant Wholesalers
+Service: SKU Catalog Enrichment & Normalization

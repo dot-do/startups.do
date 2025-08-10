@@ -1,0 +1,366 @@
+---
+name: SoleCast — Demand Forecasting & Buy Plan Recommendations
+slug: solecast
+naics:
+  primary: '424340'
+  occupations: []
+service:
+  title: Demand Forecasting & Buy Plan Recommendations
+  description: >-
+    Generates SKU-color-size forecasts by account/region and proposes purchase
+    orders and reorder points.
+  targetUsers:
+    - Demand Planner
+    - Supply Chain Manager
+    - Merchandising
+  triggers:
+    - Monthly/weekly S&OP cycle
+    - Low weeks-of-supply threshold breached
+    - New season/line release
+  inputs:
+    - Historical sales and ship data by SKU/account
+    - Retailer POS (EDI 852) where available
+    - 'Lead times, MOQs, pack sizes'
+    - Promo and launch calendars
+    - Discontinuations/new SKU links
+  steps:
+    - ETL and data cleansing
+    - Model selection and training with seasonality/holiday effects
+    - New SKU proxy modeling using attributes and analogs
+    - Forecast aggregation/disaggregation to size curves
+    - Safety stock and reorder point calculation
+    - PO proposals by vendor/lead time
+    - 'Scenario simulations (cost, service level)'
+    - Export approved plans to ERP
+  tools:
+    - Snowflake/BigQuery
+    - Python (Prophet/XGBoost/LightGBM) or Amazon Forecast
+    - dbt for modeling
+    - Google Sheets/Excel output
+    - ERP API for PO creation
+  outputs:
+    - 12–18 month forecasts at SKU/account
+    - Reorder points and target stock by DC
+    - PO proposals (CSV/API) with dates/qty
+    - Forecast accuracy and bias report
+  pricingModel:
+    - Setup fee (data modeling)
+    - Monthly subscription
+    - Per-SKU/month tiering
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 7.5
+    overall: 8
+  risks:
+    - Sparse/new SKU data causing volatility
+    - Sudden fashion trend shifts
+    - Inaccurate lead times or MOQs
+    - Retailer plan changes not reflected
+  dependencies:
+    - Historical data exports
+    - Lead time and vendor calendars
+    - Attribute master and size curves
+    - Access to POS feeds (optional)
+leanCanvas:
+  problem:
+    - >-
+      High stockouts and late deliveries to retailers due to weak account-level
+      forecasts; typical fill-rate shortfall of 3–10% vs target, causing lost
+      sales and chargebacks
+    - >-
+      Excess inventory and obsolete styles from overbuying at style/color/size
+      level; 10–25% of on-hand becomes slow-moving within a season
+    - >-
+      Forecasts are not granular enough (SKU–color–size by account/region) and
+      don’t reflect retailer calendars, promos, or order cutoffs
+    - >-
+      Limited use of sell-through (EDI 852) and inventory (EDI 846) data to
+      adjust open-to-buy and reorder points in-season
+    - >-
+      Human planners spend 30–60% of time on spreadsheet data wrangling; low
+      planner leverage reduces agility during demand shocks
+    - >-
+      Vendor constraints (MOQs, pack sizes, containers, lead-time variability)
+      aren’t baked into buy plans, resulting in misaligned POs
+    - >-
+      New style launches lack attribute-based analogs/size curves, leading to
+      poor initial buys and markdown risk
+    - >-
+      Disconnected systems (ERP, EDI, 3PL, WMS) delay visibility; decisions lag
+      by 1–2 weeks
+  solution:
+    - >-
+      Data foundation in 2–4 weeks: Connect to ERP, EDI (850/852/846/856),
+      WMS/3PL; normalize SKUs, colors, sizes, and map retailers/regions
+    - >-
+      Account- and region-specific ML forecasts at SKU–color–size weekly
+      buckets, integrating seasonality, sell-through, promo calendars, and price
+      effects
+    - >-
+      New-style cold-start using attribute analogs (category, construction,
+      material, brand line) and learned size curves; auto-adjusted by early POS
+    - >-
+      Buy plan generator: Converts demand to supply under constraints (vendor
+      MOQ, pack size, master carton, ports, lead times, supplier calendars,
+      currency)
+    - >-
+      Reorder policy engine: Service-level based reorder points and safety stock
+      per SKU–account/region with variable lead times; exception-based alerts
+    - >-
+      PO proposals and containerization: Recommend order quantities by
+      vendor/ship window; optimize to full containers where relevant
+    - >-
+      Scenario planning: What-if for promos, ship dates, lead time slips, price
+      changes, and substitutions/cross-color cannibalization
+    - >-
+      Closed-loop integration: Push POs and reorder points to ERP; pull
+      confirmations and receipts; measure forecast accuracy, bias, WOS, turns,
+      and GMROI
+  uniqueValueProp: >-
+    SoleCast delivers SKU–color–size forecasts by account/region and turns them
+    into vendor-ready buy plans and reorder points, improving fill rate by 3–8%,
+    cutting stockouts by 20–40%, and reducing excess inventory by 10–20% within
+    60 days of go-live.
+  unfairAdvantage: >-
+    Footwear-first forecasting and buy planning with proprietary size-curve
+    models, retailer calendar mappings, and vendor pack/MOQ/container
+    optimization baked in; prebuilt EDI 852/846/850 integrations; fast 30–60 day
+    time-to-value pilots with KPI-backed guarantees.
+  customerSegments:
+    - >-
+      Primary: Footwear merchant wholesalers (NAICS 424340) in North America
+      with $20M–$1B annual revenue
+    - >-
+      Roles: VP/Director of Merchandising, Demand Planning Manager,
+      Inventory/Allocation Manager, Sales Operations, Finance/CFO, IT/ERP Admin
+    - >-
+      Sub-segments: Athletic/sneaker wholesalers; fashion footwear; work/safety
+      footwear; outdoor; kids footwear
+    - >-
+      Buying context: Selling to major retailers (e.g., department stores,
+      specialty chains, eCom), independents, and regional chains with
+      account-specific assortments
+    - >-
+      Early adopters: Wholesalers already exchanging EDI 850/852/846/856, using
+      NetSuite, Microsoft Dynamics 365 BC/FO, SAP Business One, Sage X3, Epicor
+      P21, Acumatica
+  channels:
+    - >-
+      Account-based outbound to 300–500 target wholesalers using intent data;
+      sequence toward VP Merchandising and Inventory leaders
+    - >-
+      Partnerships with ERPs (NetSuite, Microsoft, SAP B1, Sage) and EDI
+      networks (SPS Commerce, TrueCommerce, CommerceHub) for co-sell and
+      marketplace listings
+    - >-
+      Industry associations and events: FDRA, The Atlanta Shoe Market,
+      MAGIC/PROJECT/Platform, FFANY; workshop sessions on SKU-size forecasting
+    - >-
+      Content-led growth: case studies, ROI calculators (fill-rate lift,
+      inventory reduction), and a free “size-curve health check” using 3 months
+      of anonymized POS
+    - >-
+      Pilot-first GTM: 8–12 week paid pilots with milestone-based pricing and
+      guaranteed KPI targets; convert to annual subscriptions
+    - >-
+      Referral program for 3PLs and fractional COOs/CFOs serving footwear
+      wholesalers
+    - >-
+      Targeted LinkedIn ads to planners/merchandisers; webinars with retailer
+      calendar insights and pre-season buy planning playbooks
+  revenueStreams:
+    - >-
+      SaaS subscription, tiered by number of managed series
+      (SKU–color–size–account/region): e.g., $0.03–$0.08 per series per month;
+      minimum $3k/month
+    - >-
+      Add-on modules: container optimization, promo elasticity, multi-DC
+      allocation, weather signals ($500–$3k/month each)
+    - >-
+      Onboarding/implementation fee based on complexity: $10k–$60k; includes
+      data setup, model tuning, and training
+    - 'Premium support/SLA (24x7, dedicated CSM): 15–20% of annual contract value'
+    - >-
+      Optional gainshare pricing for pilots: small base fee plus fee tied to
+      inventory reduction or fill-rate improvement (capped)
+  costStructure:
+    - 'R&D and engineering (data engineering, ML, MLOps) salaries and contractors'
+    - >-
+      Cloud compute/storage/ETL costs (e.g., $300–$800 per 100k forecasted
+      series per month depending on update frequency)
+    - >-
+      Data costs for enrichment (weather, holidays), and
+      monitoring/observability tools
+    - 'Implementation and customer success (solution architects, CSMs)'
+    - 'Sales and marketing (ABM tools, events, content production, partner MDF)'
+    - Partner referral fees/revenue share (10–20% typical)
+    - 'Security/compliance (SOC 2), legal, and liability insurance'
+    - 'General and administrative (finance, HR, facilities)'
+  keyMetrics:
+    - >-
+      Customer value KPIs: fill rate improvement (+3–8 pts), stockout reduction
+      (20–40%), excess inventory reduction (10–20%), forecast WAPE at
+      SKU–color–size–account (target 25–40% depending on volatility), bias
+      within ±5%
+    - >-
+      Operational KPIs: weeks-of-supply within target bands by account,
+      inventory turns (+10–25%), GMROI uplift (+5–15%), OTIF improvement,
+      chargeback reductions
+    - >-
+      Planning process KPIs: % PO lines auto-generated and approved without
+      edits (target 60–80% after 3 months), time-to-plan reduction (planner
+      hours saved 30–50%)
+    - >-
+      Adoption KPIs: weekly active planners, scenario runs per period, exception
+      closure rate within SLA
+    - >-
+      Implementation KPIs: time-to-first-PO proposal (<30 days),
+      time-to-forecast signoff (<21 days)
+    - >-
+      Business KPIs (for SoleCast): CAC payback (<12 months), gross margin on
+      subscriptions (>75%), logo retention (>90%), net revenue retention
+      (>115%), pilot conversion rate (>60%)
+storyBrand:
+  character: >-
+    Footwear wholesale merchandisers, planners, and sales ops leaders (NAICS
+    424340) who must buy the right style–color–size mix by account and region
+    without tying up cash.
+  problem: >-
+    External: Fragmented demand by account/region, long lead times and MOQs,
+    volatile reorders, spreadsheet chaos, chargebacks.
+
+    Internal: Constant pressure to guess, fear of stockouts or overbuys, no time
+    for strategic work.
+
+    Philosophical: Data should make buying obvious—retailers and consumers
+    deserve the right style–color–size available when promised.
+  guide: >-
+    Empathy: We know pre-books vs. at-once, size-curve risk, and the cost of
+    missing seasonal windows.
+
+    Authority: Category-trained AI for footwear; ingests EDI 852/POS, orders,
+    and inventory; SKU–color–size forecasts by account/region; integrations
+    (NetSuite, SAP, BlueCherry); security-first (SOC 2); proven accuracy lifts.
+  plan: >-
+    Process:
+
+    1) Connect data: POS/EDI 852, wholesale orders, inventory, catalogs,
+    doors/regions.
+
+    2) Configure: Service levels and constraints; SKU–color–size models by
+    account/region.
+
+    3) Operate: Weekly buy plans with PO proposals, reorder points, and
+    exception alerts; review/approve in workflow.
+
+    Assurances: Transparent logic and overrides, you own your data, low-risk 4–6
+    week pilot.
+  callToAction: >-
+    Direct: Schedule a demo; start a 60-day pilot with 1–2 categories.
+
+    Transitional: Get a free Forecast Accuracy Audit and sample buy plan;
+    download the ROI calculator and case study.
+  success: >-
+    - Higher fill rate and OTIF, fewer stockouts
+
+    - 10–20% forecast-accuracy lift; 15–30% less inventory with faster turns
+
+    - Improved GMROI and cash flow; fewer markdowns and chargebacks
+
+    - Confident buys by account/region/size; planners focus on strategy, not
+    spreadsheets
+
+    - Stronger retailer trust and repeat orders
+  failure: |-
+    - Missed sell-in windows and lost shelf space
+    - Stockouts followed by excess and markdowns
+    - Cash trapped in the wrong sizes and colors
+    - Chargebacks, warehouse overflow, and eroded margins
+    - Burned-out teams forced to guess instead of plan
+landingPage:
+  hero:
+    title: AI Demand Forecasting & Buy Plans for Footwear Wholesalers
+    subtitle: >-
+      SKU–color–size forecasts by account and region with auto-generated POs and
+      reorder points. Boost fill rates and inventory turns—fast.
+    ctaText: Book a Demo
+    ctaHref: /demo
+  problem:
+    - Guesswork on size/color demand by region drives stockouts and dead stock.
+    - >-
+      Key accounts expect high fill and OTIF, but planning lives in fragile
+      spreadsheets.
+    - 'Long lead times, MOQs, and pack sizes make buys risky and capital-heavy.'
+    - >-
+      Seasonal drops and new styles are hard to predict; cannibalization is
+      missed.
+    - >-
+      Data is scattered across ERP, EDI, and portals—decisions are slow and
+      inconsistent.
+    - 'Margins erode from rush freight, markdowns, and late replenishment.'
+  solution:
+    - >-
+      AI forecasts at SKU–color–size by account/region/week—built for footwear
+      wholesalers (NAICS 424340).
+    - >-
+      Generates buy plans and POs that honor lead times, MOQs, packs, and
+      containers.
+    - >-
+      Optimizes reorder points and safety stock by item-location to hit service
+      levels.
+    - >-
+      Runs what-if scenarios for promos, pricing, substitutions, and demand
+      shifts.
+    - >-
+      Exception alerts for stockout risk, surplus, late vendors, and budget
+      breaches.
+    - Plug into ERP/EDI; one-click approvals push POs and updates automatically.
+    - >-
+      Typical outcomes: +3–7 pts fill rate, −20–40% stockouts, −15–30% excess,
+      +1–2 turns.
+  features:
+    - >-
+      Multi-level forecasting: style/color/size with size-curve learning by
+      region and account.
+    - Key account forecasting and collaboration portal with override tracking.
+    - New-style and limited-release forecasts via attribute and analog models.
+    - >-
+      Constraint-aware buy planning: lead times, vendor calendars, MOQs, case
+      packs, containers.
+    - >-
+      Reorder point and safety stock optimization per DC/region with target
+      service levels.
+    - Auto-generated POs and change-order proposals with approval workflows.
+    - Open-to-buy guardrails and budget tracking across seasons and assortments.
+    - 'Promo and lifecycle modeling (launch, repeat, replenishment, closeout).'
+    - Exception-based workflow with priority scoring and root-cause insights.
+    - Scenario sandbox for what-ifs; compare plans and lock the winner.
+    - >-
+      Dashboards: fill rate, weeks of supply, inventory turns, forecast
+      accuracy.
+    - Multi-warehouse and dropship support; cross-dock and allocation-aware.
+    - >-
+      EDI ingestion (850/852/855/856) and ERP connectors; API + CSV
+      import/export.
+    - 'Audit trail, role-based access, and vendor performance analytics.'
+    - 'Fast start: 4–6 week onboarding with white-glove data setup.'
+  steps:
+    - 'Connect: sync ERP/EDI data (sales, inventory, POs, shipments, catalogs).'
+    - >-
+      Configure: lead times, MOQs/packs, vendor calendars, service levels,
+      budgets.
+    - 'Calibrate: validate size curves and apply key account overrides.'
+    - >-
+      Plan: review and approve the AI buy plan; auto-create POs and reorder
+      points.
+    - >-
+      Execute: transmit POs via EDI/email; track confirmations, ETAs, and
+      exceptions.
+    - 'Monitor: act on alerts; adjust to demand signals and promo plans.'
+    - 'Improve: monthly model refresh and post-mortem to tighten accuracy.'
+---
+# SoleCast — Demand Forecasting & Buy Plan Recommendations
+
+Generated for NAICS 424340 — Footwear Merchant Wholesalers.
+Service: Demand Forecasting & Buy Plan Recommendations

@@ -1,0 +1,312 @@
+---
+name: CWRight AI
+slug: cwright
+naics:
+  primary: '512230'
+  occupations: []
+service:
+  title: Metadata Enrichment & MLC/PRO Registration Prep
+  description: >-
+    Enriches work/recording metadata and outputs CWR/DDEX or portal-ready files
+    for registrations.
+  targetUsers:
+    - Publishers
+    - Catalog admins
+  triggers:
+    - New release ingestion
+    - Pre-MLC/PRO registration batch
+  inputs:
+    - 'Work and recording lists (titles, ISWC/ISRC if available)'
+    - Writer/publisher splits and identifiers
+    - 'Release info (dates, territories)'
+  steps:
+    - Normalize names and map aliases; validate identifiers
+    - Lookup ISRC/ISWC via public sources and heuristics
+    - 'Validate splits, rights shares, and roles'
+    - Generate CWR and DDEX files; PRO-specific CSVs
+    - Human QC of edge cases
+    - Upload via portal/SFTP or deliver to client
+  tools:
+    - MusicBrainz/Discogs APIs
+    - The MLC Public Search (web)
+    - OpenAI (entity normalization)
+    - DDEX/CWR libraries
+    - Playwright for portal upload
+    - Google Sheets
+  outputs:
+    - Validated metadata master
+    - CWR/DDEX packages
+    - Registration upload receipts
+  pricingModel:
+    - Per work/recording fee
+    - Batch pricing
+    - Monthly retainer for ongoing enrichment
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 8
+    overall: 8
+  risks:
+    - APIs rate-limited/incomplete
+    - Incorrect mappings impact royalties
+    - Portal terms on automation
+  dependencies:
+    - Access to catalog master
+    - 'Writer/Publisher IDs (IPI/CAE, ISNI)'
+    - SFTP/portal credentials
+leanCanvas:
+  problem:
+    - >-
+      High rejection/exception rates on CWR submissions to PROs due to
+      incomplete/incorrect fields (e.g., missing/invalid IPI/CAE, role codes,
+      share math, work title conflicts) delaying monetization by weeks or
+      months.
+    - >-
+      Incomplete mapping between compositions (ISWC) and recordings (ISRC)
+      prevents claiming at MLC and other mechanical/neighboring rights agencies.
+    - >-
+      Manual, spreadsheet-heavy workflows limit throughput (typical teams
+      process 100–500 works/day/FTE) and create version control errors for
+      catalogs >10k works.
+    - >-
+      Large volumes of unmatched royalties (“black box”) at MLC and DSPs persist
+      due to inconsistent metadata across sources (writers, labels,
+      distributors).
+    - >-
+      Lack of standardized, validated exports (CWR, DDEX MWN/RIN, portal CSVs)
+      causes duplicate registrations, conflicts, and rejections across
+      societies.
+    - >-
+      Poor visibility into validation rules per PRO/territory leads to avoidable
+      resubmissions and compliance risks.
+    - >-
+      Post-registration monitoring is fragmented; exceptions, conflicts, and new
+      usages aren’t looped back to fix root-cause metadata.
+  solution:
+    - >-
+      Ingest: Connect to catalogs (CSV/SFTP/API), CMS tools (e.g.,
+      Synchtank/Vistex), distributor exports, and PRO/MLC portals.
+    - >-
+      Normalize: Standardize writer/publisher entities, roles, IP names, and
+      territories; auto-clean titles and aliases; deduplicate works.
+    - >-
+      Enrich: AI entity resolution links ISWC⇄ISRC, fetches/validates IPIs,
+      assigns/validates role codes and shares; suggests missing data with
+      confidence scores.
+    - >-
+      Validate: Pre-flight rule engine runs society-specific validation (CWR
+      v3.x, DDEX MWN/RIN, MLC portal schemas) to catch rejections before
+      submission.
+    - >-
+      Export: Generate compliant CWR, DDEX (MWN/RIN), and MLC/PRO portal-ready
+      CSV/Excel; push via SFTP/API where supported.
+    - >-
+      Monitor: Track submission outcomes, exceptions, conflicts, and usage;
+      auto-create fix tickets; continuously improve via feedback loop.
+    - >-
+      Govern: Audit trails, versioning, and approval workflows; sandbox vs.
+      production environments; rights and territory controls.
+  uniqueValueProp: >-
+    Register faster with fewer rejections. CWRight AI enriches and validates
+    work/recording metadata, then outputs CWR/DDEX/portal-ready files that pass
+    society checks, recover unmatched royalties, and scale registrations 3–5x
+    per FTE.
+  unfairAdvantage: >-
+    A continuously learning validator trained on multi-society
+    rejection/exception outcomes plus a rights graph that links ISWC⇄ISRC across
+    disparate sources. This feedback loop and dataset (error codes, acceptance
+    heuristics, alias clusters, share/role norms by society) compound over time
+    and are difficult to replicate. Additionally, turnkey CWR/DDEX exporters
+    with pre-flight simulations reduce first-pass rejections to best-in-class
+    levels.
+  customerSegments:
+    - >-
+      Primary: Independent and mid-size music publishers (1k–250k works) in
+      US/EU handling their own registrations.
+    - >-
+      Primary: Admin publishers/rights administrators (e.g., white-label
+      services) managing multi-client catalogs.
+    - >-
+      Secondary: Production music libraries and sync agencies needing
+      high-volume registrations across many territories.
+    - >-
+      Secondary: Labels with publishing arms and distributors seeking to enrich
+      writer/publisher data for MLC/PRO claims.
+    - >-
+      Tertiary: Catalog aggregators/PE funds after acquisitions requiring rapid
+      metadata normalization and registrations.
+  channels:
+    - >-
+      Direct sales to indie/mid-size publishers and admin services; target lists
+      from AIMP/NMPA members and conference attendee rosters.
+    - >-
+      Partnerships/integrations with catalog/royalty platforms (e.g., Synchtank,
+      Vistex, Exactuals) to embed export/validation or co-sell.
+    - >-
+      Thought leadership: “CWR rejection rate benchmark” and “MLC unmatched
+      recovery” reports; webinars with PRO/MLC best practices.
+    - >-
+      Pilot-led GTM: 8–12 week pilots with 50k–250k works; pricing tied to
+      measurable rejection reduction and recovered amounts.
+    - >-
+      Events: Sponsor/present at Music Biz, AIMP LA/NY, NMPA forums; host
+      metadata clinics/office hours.
+    - >-
+      Outbound sequences to catalogs undergoing M&A (public deal lists); offer
+      2-week ‘metadata health check’ with quantified ROI.
+    - >-
+      Referral program with distributors/aggregators handling long-tail writers;
+      rev-share on recovered royalties.
+  revenueStreams:
+    - >-
+      SaaS subscription by catalog size + features: Starter (≤10k works)
+      $500/month; Growth (≤100k) $2,000/month; Scale (≤500k) $6,000/month;
+      Enterprise custom.
+    - >-
+      Usage-based processing: $0.02–$0.05 per work processed/enriched; $0.01 per
+      ISRC–ISWC linkage created/confirmed.
+    - >-
+      Success fee on recovered unmatched royalties: 10% for 12 months from
+      recovery (capped per client, negotiable).
+    - >-
+      Onboarding/professional services: data migration, custom mappings, and
+      backlog cleanup at $5k–$75k per engagement.
+    - >-
+      Premium support/SLA and compliance add-ons (e.g., dedicated SSO, audit
+      exports) $500–$2,000/month.
+  costStructure:
+    - 'R&D: 6–10 FTE engineers/data scientists; $1.5M–$2.5M/year.'
+    - 'Music rights ops/data stewardship: 2–6 FTE specialists; $200k–$700k/year.'
+    - >-
+      Cloud/compute: vector DB + batch inference; ~$0.002–$0.006 per work
+      processed; $5k–$15k/month baseline.
+    - >-
+      Third-party data/enrichment (e.g., credits/ID datasets): $2k–$10k/month
+      plus per-lookup fees.
+    - 'Security/compliance (SOC 2, pen tests, logging): $75k–$200k/year.'
+    - 'Sales/marketing: events, content, partnerships: $200k–$500k/year.'
+    - 'DDEX/CISAC/industry memberships, standards testing: $10k–$40k/year.'
+    - 'Customer success and onboarding tools: $3k–$8k/month.'
+  keyMetrics:
+    - >-
+      CWR acceptance rate (first-pass): target ≥95% within 90 days of go-live
+      (baseline typical 75–85%).
+    - 'DDEX/MWC schema validation pass rate: ≥99.5%.'
+    - >-
+      Registration throughput per FTE: 3–5x lift vs. baseline (e.g., from 300 to
+      1,200 works/day).
+    - 'Time-to-registration (ingest to export): P50 ≤2 days; P90 ≤7 days.'
+    - >-
+      Catalog completeness: % works with all mandatory fields (IPI, roles,
+      shares, ISRC/ISWC where applicable) ≥98%.
+    - 'Duplicate/near-duplicate reduction: ≥90% within first 60 days.'
+    - >-
+      Recovered royalties: $ recovered per 1k works/month; target $150–$600/1k
+      works in first 6 months (varies by catalog).
+    - 'Exception resolution SLA: 80% within 10 business days.'
+    - 'Churn (logo and revenue): ≤8% annually; Net Revenue Retention ≥115%.'
+    - 'CAC payback: ≤9 months; Gross margin ≥75%.'
+    - NPS ≥40; Support CSAT ≥90%.
+    - >-
+      Model precision/recall on entity resolution: ≥0.95/0.90 on holdout sets;
+      manual override rate ≤10% after 90 days.
+storyBrand:
+  character: >-
+    Music publishers and rights admins who need complete, accurate metadata to
+    register works/recordings with the MLC and PROs—without spreadsheet chaos.
+  problem: >-
+    External: Incomplete or inconsistent data triggers rejections, conflicts,
+    and unmatched works at MLC/PROs. Internal: Teams waste hours chasing splits,
+    identifiers, and versions. Philosophical: Creators deserve timely, accurate
+    royalties; bad data shouldn’t block payment.
+  guide: >-
+    We’re metadata ops specialists with deep music data standards expertise. Our
+    AI is trained on CWR/DDEX rules and industry identifiers (ISWC, ISRC,
+    IPI/CAE, ISNI). Secure, compliant, and audit-ready.
+  plan: >-
+    1) Connect your catalog (CSV/CWR/DDEX/DB/portals) or upload files. 2) AI
+    cleans, deduplicates, enriches, validates, and links works-to-recordings;
+    flags conflicts. 3) Export CWR or DDEX (e.g., MWL/RIN) and portal-ready
+    files for MLC/PRO submissions, or push via API; monitor and resolve
+    exceptions.
+  callToAction: Start a free catalog audit or book a 20-minute demo today.
+  success: >-
+    Clean, complete, compliant registrations; fewer rejections and holds; faster
+    matches at MLC/PROs; more captured royalties; less manual work; searchable
+    audit trail and ongoing health alerts.
+  failure: >-
+    Data gaps persist, causing rejections, conflicts, black-box holds, delayed
+    payments, and royalty leakage—while teams stay stuck in spreadsheets.
+landingPage:
+  hero:
+    title: Clean metadata in. Approved registrations out.
+    subtitle: >-
+      AI that enriches works and recordings, then generates CWR/DDEX or
+      portal-ready files for the MLC and global PROs.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - >-
+      Missing IPIs, ISWCs, and ISRCs stall registrations and leave money
+      uncollected.
+    - 'Manual CWR/DDEX prep is slow, error-prone, and gets rejected by portals.'
+    - >-
+      Splits, roles, and publisher chains are inconsistent across catalogs and
+      partners.
+    - >-
+      Duplicate works and ambiguous writer aliases create conflicts and
+      over-claims.
+    - Every PRO/MLC wants a slightly different template and validation rule.
+  solution:
+    - >-
+      Automated enrichment of works/recordings with IDs, roles, splits, and
+      territories.
+    - >-
+      Entity resolution for writers and publishers with IPI/CAE lookup and alias
+      matching.
+    - >-
+      One-click generation of CWR/DDEX or portal-ready CSVs tailored to each
+      society.
+    - Schema and business-rule validation to catch issues before submission.
+    - >-
+      Bulk workflows that turn messy spreadsheets into clean, compliant
+      registrations.
+  features:
+    - 'Catalog ingestion from CSV/XLSX, CWR, DDEX, and cloud drives or SFTP.'
+    - >-
+      Writer/publisher entity resolution with IPI/CAE mapping and alias
+      normalization.
+    - >-
+      Split management with role tagging (composer/author/arranger) and share
+      validation.
+    - Work–recording linking (ISWC ↔ ISRC) and DSP track ID matching.
+    - >-
+      Identifier enrichment (ISWC suggestions, proprietary IDs, external
+      references).
+    - >-
+      Sub-publisher and admin chain modeling with territory and right-type
+      flags.
+    - Deduplication and conflict detection for over-claims and near-duplicates.
+    - >-
+      CWR and DDEX file generation with rule-level validation and error
+      explanations.
+    - >-
+      Portal-ready exports for MLC and major PROs (ASCAP, BMI, SESAC, PRS,
+      SOCAN, etc.).
+    - Exception queue for quick review/approve of flagged fields and splits.
+    - Versioning and audit trail for every change and export package.
+    - API and SFTP delivery to partners and internal systems.
+    - 'Role-based access, encryption in transit/at rest, and activity logs.'
+    - Sandbox mode to test formats and validations before going live.
+  steps:
+    - Upload your catalog or connect data sources.
+    - 'Auto-enrich: IDs, splits, roles, territories, and links are suggested.'
+    - Resolve any flags in the exception queue and approve changes.
+    - Generate validated CWR/DDEX or portal-ready CSVs by destination.
+    - 'Deliver files via download, API, or SFTP to your submission workflows.'
+    - Archive with audit trail for compliance and future updates.
+---
+# CWRight AI
+
+Generated for NAICS 512230 — Music Publishers.
+Service: Metadata Enrichment & MLC/PRO Registration Prep

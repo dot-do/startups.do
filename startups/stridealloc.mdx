@@ -1,0 +1,329 @@
+---
+name: StrideAlloc 855 Agent
+slug: stridealloc
+naics:
+  primary: '424340'
+  occupations: []
+service:
+  title: Inventory Allocation & EDI 855 Acknowledgment Agent
+  description: >-
+    Allocates limited inventory across incoming POs based on business rules and
+    issues 855 confirms with backorder dates.
+  targetUsers:
+    - Customer Service
+    - Sales Ops
+    - Supply Chain Manager
+  triggers:
+    - New EDI 850 PO or change order
+    - Inventory receipt updates
+    - Priority account override request
+  inputs:
+    - Open POs and ATP
+    - Account priorities and service agreements
+    - Ship window and cancel dates
+    - Gross margin/penalty profiles
+  steps:
+    - Detect new orders/backlog changes
+    - 'Run allocation optimization per rules (priority, margin, penalties)'
+    - Calculate ETAs/backorder dates from supply plan
+    - Draft 855 with line-level statuses
+    - Route exceptions to sales/CS for approval
+    - Transmit 855 and notify stakeholders
+    - Log fill rate and projected chargeback exposure
+  tools:
+    - ERP API (ATP and order mgmt)
+    - SPS Commerce/TrueCommerce (EDI 855)
+    - OR-Tools/heuristics for allocation
+    - Slack/Email notifications
+  outputs:
+    - EDI 855 acknowledgments
+    - Allocation report by account/SKU
+    - Exception queue
+  pricingModel:
+    - Monthly platform fee
+    - Per-PO processed
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 7
+    overall: 8
+  risks:
+    - Misallocation harming key relationships
+    - Incorrect promised dates
+    - Mismatch with sales commitments
+  dependencies:
+    - Accurate ATP/supply plan
+    - EDI connectivity for 855
+    - Documented allocation rules
+leanCanvas:
+  problem:
+    - >-
+      Limited inventory must be split across overlapping retailer POs (by
+      style/color/size) leading to suboptimal manual allocation and margin
+      erosion.
+    - >-
+      Late or missing 855 acknowledgments trigger retailer chargebacks
+      ($100–$250 per PO plus potential compliance score hits) and PO
+      cancellations.
+    - >-
+      Inaccurate or generic backorder dates drive customer escalations, DC
+      congestion, and fill-rate penalties.
+    - >-
+      Size-curve complexity and pack/carton constraints (pre-packs vs. open
+      stock) are hard to balance vs. account priority, ship windows, and cancel
+      dates.
+    - >-
+      Allocation decisions don’t incorporate live inbound ETAs, production
+      slippage, or 3PL capacity, causing rework and 860 PO change loops.
+    - >-
+      Existing ERP/OMS ATP is SKU-level and timestamp-based, not constraint- or
+      retailer-rule-aware at the size level (IA/IB/IC/IR per line).
+    - >-
+      High EDI mapping variability across retailers (e.g., Nordstrom, DSW,
+      Amazon VC, Zappos, Foot Locker) makes automation brittle; internal EDI
+      teams are bandwidth-constrained.
+    - >-
+      Manual allocation and 855 work consumes 1–3 FTEs for mid-sized wholesalers
+      (100–1,000 POs/month), limiting scale during seasonal peaks.
+  solution:
+    - >-
+      Ingest 850 POs and ERP/WMS inventory and inbound POs
+      (production/containers) to compute ATP/ATS at style-color-size with
+      pack/carton constraints.
+    - >-
+      Apply configurable business rules and a learned allocation model to
+      prioritize accounts, margins, and ship/cancel windows while honoring min
+      packs, substitutions, and DC capacity.
+    - >-
+      Auto-generate 855 acknowledgments with per-line codes (IA accepted, IB
+      backordered with projected date, IC partially accepted, IR rejected) and
+      submit within retailer SLAs (typically <24–48 hours).
+    - >-
+      Predict backorder dates using supplier lead times, freight milestones
+      (ASI/ETD/ETA, port dwell), and 3PL throughput; update via 860/855 change
+      if conditions shift.
+    - >-
+      Exception workflow: human-in-the-loop approvals for strategic accounts,
+      guardrails for minimum fill by PO, and automated what-if simulation before
+      committing.
+    - >-
+      Compliance cockpit: SLA timers, 997/999 acceptance monitoring, chargeback
+      risk scoring, root-cause analytics, and retailer-specific rule packs.
+    - >-
+      APIs and connectors for common ERPs (NetSuite, SAP B1, BlueCherry, A2000,
+      ApparelMagic, Acctivate) and EDI networks (SPS, TrueCommerce, OpenText).
+  uniqueValueProp: >-
+    AI-driven, retailer-compliant allocation and 855 issuance that confirms POs
+    within hours, optimizes size-level fill across accounts, and predicts
+    credible backorder dates—cutting 855-related chargebacks by up to 50% and
+    boosting confirmed fill rates 3–8 points without increasing inventory.
+  unfairAdvantage: >-
+    Prebuilt retailer 855 packs and footwear-specific allocation heuristics
+    (size curves, pack conversions) combined with ETA-aware backorder
+    dating—plus partnerships with major EDI networks and ERP SIs—allow faster,
+    more accurate confirmations than generic ERP ATP or rules engines. A growing
+    dataset of retailer-specific acceptance patterns and chargeback triggers
+    further improves outcomes and is difficult to replicate.
+  customerSegments:
+    - >-
+      Primary: US footwear merchant wholesalers (NAICS 424340) selling to large
+      retailers via EDI (annual revenue $20M–$500M, 100–5,000 PO lines/month).
+    - >-
+      Secondary: Branded importers/distributors with 3PLs and EDI retail
+      channels (apparel-adjacent footwear/accessories).
+    - >-
+      Economic buyers: VP/Director of Operations, Head of EDI/Compliance, VP
+      Supply Chain, CIO/IT Director (for integration).
+    - >-
+      Daily users: Allocation planners, EDI analysts, customer service/AR for
+      compliance and chargeback prevention.
+    - >-
+      Early adopters: Companies onboarding new key accounts or experiencing
+      10–30% order line shortages during peak seasons.
+  channels:
+    - >-
+      Direct sales to VP Ops/EDI and Supply Chain leaders via targeted ABM
+      (LinkedIn + email) focusing on brands selling to DSW, Nordstrom, Foot
+      Locker, Amazon VC, Zappos.
+    - >-
+      Partnerships with EDI networks (SPS Commerce, TrueCommerce, OpenText) and
+      ERP SIs (NetSuite SuiteSuccess, SAP B1 partners, BlueCherry/A2000
+      integrators).
+    - >-
+      Listings/marketplaces: NetSuite SuiteApp, SPS Partner Program,
+      TrueCommerce ISV catalog.
+    - >-
+      Industry associations/events: FDRA, RVCF, FFANY/NY Shoe Expo; co-hosted
+      webinars on 855 compliance and chargeback reduction.
+    - >-
+      Customer references and ROI case studies quantifying chargeback reductions
+      and fill-rate improvements; offer pilot-based ROI guarantees.
+    - >-
+      Content-led SEO: guides on 855 best practices, retailer-specific
+      compliance checklists, backorder dating playbooks.
+  revenueStreams:
+    - >-
+      SaaS subscription tiered by monthly PO lines processed (counts lines
+      acknowledged in 855): Starter (up to 10k lines): $1,999/month; Growth (up
+      to 50k): $5,500/month; Scale (up to 200k): $11,500/month; Enterprise:
+      custom.
+    - >-
+      Per-document overage: $0.08–$0.20 per additional line after tier limit;
+      pass-through EDI/VAN fees at cost plus 10%.
+    - >-
+      One-time implementation and mapping: $25k–$75k depending on ERPs,
+      retailers, and 3PL integrations; includes rule configuration and testing.
+    - >-
+      Managed service add-on (BPO for approvals, season peaks): $3k–$15k/month
+      based on hours and SLAs.
+    - >-
+      Premium support/SLA (24x7, <1-hour response, named CSM): +15% of
+      subscription.
+    - >-
+      Professional services: rule optimization, retailer onboarding, chargeback
+      root-cause remediation workshops.
+  costStructure:
+    - >-
+      Engineering and product (allocation engine, connectors, dashboards): 8–12
+      FTEs initially; annual cost $1.8M–$3.0M.
+    - >-
+      EDI connectivity and VAN fees (dev/test/prod, 855/997/999, optional
+      850/860/846/856): $60k–$250k/year depending on volumes and partner terms.
+    - >-
+      Cloud infrastructure (compute for optimization, storage, log retention,
+      security tooling): $15k–$45k/month at steady state.
+    - >-
+      Implementation and support (solutions engineers, CSMs): $600k–$1.2M/year;
+      training and documentation.
+    - >-
+      Compliance and security (SOC 2 Type II, pen tests, audit):
+      $120k–$250k/year.
+    - 'Sales and marketing (ABM, events, partner MDF): $500k–$1.2M/year.'
+    - 'Liability/E&O insurance for EDI and SLA commitments: $50k–$120k/year.'
+    - >-
+      Data services (carrier milestone APIs, geolocation, port analytics) for
+      backorder ETA modeling: $30k–$120k/year.
+  keyMetrics:
+    - >-
+      855 on-time submission rate (% of POs acknowledged within retailer SLA):
+      target >98%.
+    - '997/999 acceptance rate on 855s: target >99.5%; <0.2% fatal rejects.'
+    - >-
+      Confirmed fill rate at line level at time of 855: baseline +3–8 pts
+      improvement within 90 days.
+    - >-
+      Chargeback savings per month: target $10k–$100k depending on account mix;
+      <0.3% of orders incurring 855-related fees.
+    - >-
+      Average time from 850 receipt to 855 submission: median <2 hours during
+      business hours; <6 hours off-hours.
+    - >-
+      Backorder date accuracy (within ±3 days vs. actual ship): target >80%
+      within 60 days; improve to >90% with feedback loops.
+    - >-
+      Reduction in manual touch per PO: >60% reduction (e.g., from 12 to 4
+      minutes/PO).
+    - PO change loop rate (860s triggered post-855) reduced by 25–40%.
+    - >-
+      Inventory allocation efficiency: reduction in stranded inventory by 10–20%
+      and improved margin mix (weighted margin +1–2 pts).
+    - >-
+      Time-to-value: first retailer live in 6–8 weeks; 3+ retailers within 12–16
+      weeks.
+storyBrand:
+  character: >-
+    Footwear wholesale ops/EDI leaders who must confirm orders fast, hit
+    retailer SLAs, and maximize scarce style-color-size inventory across
+    incoming 850 POs.
+  problem: >-
+    PO demand outstrips ATP; spreadsheets and rigid ERP allocators can’t juggle
+    size curves, cancel windows, and channel priorities. Late or inaccurate EDI
+    855s cause chargebacks, cancellations, and damaged retailer scorecards.
+  guide: >-
+    We’ve lived footwear calendars, size runs, and big-box penalties. Our AI
+    rules engine allocates in seconds and emits compliant EDI 855s with firm and
+    backorder dates, integrated to your ERP/EDI and 3PL.
+  plan: >-
+    1) Connect ERP/EDI and set business rules (retailer priority, cancel dates,
+    margin, size policies). 2) AI allocates limited inventory, runs scenarios,
+    and issues 855s with confirmations and dated backorders. 3) You review
+    exceptions, refine rules, and scale automation.
+  callToAction: >-
+    Book a 30-minute allocation audit, or run a free sandbox on last month’s
+    850s to see projected fill-rate lift and avoided chargebacks.
+  success: >-
+    Same-day 855 acknowledgments, higher fill rate and OTIF, fewer chargebacks,
+    happier retailers, and reclaimed planner time. Clear backorder ETAs reduce
+    cancellations and improve turns and revenue.
+  failure: >-
+    Without it, you keep firefighting spreadsheets, miss 855 windows, incur
+    penalties, misallocate inventory, and lose shelf space and margin to faster
+    competitors.
+landingPage:
+  hero:
+    title: Inventory Allocation & EDI 855 Agent for Footwear Wholesalers
+    subtitle: >-
+      Allocate scarce style/color/size inventory across POs and auto-send
+      compliant 855s with backorder dates. Built for Footwear Merchant
+      Wholesalers (NAICS 424340).
+    ctaText: Start a pilot
+    ctaHref: '#get-started'
+  problem:
+    - >-
+      Limited inventory must be split across style–color–size orders without
+      hurting key accounts
+    - Late or inaccurate 855s trigger chargebacks and PO cancellations
+    - Spreadsheet allocations can’t keep up with daily EDI volume
+    - Retailer-specific pack/size-curve rules are hard to enforce consistently
+    - Missed cancel windows and ship dates hurt scorecards
+    - No single view of on-hand plus future receipts (ATP) across warehouses
+    - Manual backorder date calculations are slow and error-prone
+    - 'Planners spend hours reconciling allocations, cartons, and rounding rules'
+  solution:
+    - >-
+      Always-on AI allocates incoming EDI 850 POs using your business rules and
+      priorities
+    - >-
+      Reads on-hand and future receipts (production POs, in-transit) to commit
+      realistic quantities
+    - 'Calculates compliant backorder dates by lead time, DC calendars, and ETAs'
+    - >-
+      Auto-generates retailer-specific EDI 855s (partial accept, backorder, or
+      reject)
+    - 'Honors size curves, prepacks, carton rounding, and min-fill thresholds'
+    - 'Prioritizes customers by tier, margin, channel, or strategic programs'
+    - Flags exceptions for human review; everything else flows touch-free
+    - Audit trail and simulations to test policy changes before go-live
+  features:
+    - Real-time allocation engine aware of style/color/size and prepacks
+    - >-
+      Rule builder for priorities, min/max fill, cancel windows, split-ship, and
+      DC routing
+    - 'Retailer compliance templates (e.g., DSW, Nordstrom, Foot Locker, Zappos)'
+    - 'Accurate backorder ETAs using receipts, lead times, and blackout dates'
+    - Multi-warehouse and multi-DC support with location-level ATP
+    - Carton rounding and pack-to-order logic to avoid nonconforming ships
+    - Auto 855 generation and change management; alerts for risky lines
+    - Exception queues with thresholds and approvals; human-in-the-loop controls
+    - Chargeback guardrails to avoid late/invalid acknowledgments
+    - Sandbox mode to simulate allocations before committing
+    - 'Dashboards for fill rate, promise accuracy, and retailer scorecards'
+    - >-
+      Secure APIs and webhooks; integrates with NetSuite, SAP B1, Microsoft
+      Dynamics, Infor, Acumatica
+    - >-
+      Works with SPS Commerce, TrueCommerce, Orderful, DiCentral, and SFTP/AS2
+      EDI flows
+    - 'Role-based access, audit logging, and SOC 2-ready architecture'
+  steps:
+    - 'Connect your EDI and ERP/OMS for POs, inventory, and receipts'
+    - 'Import items, size curves, prepacks, carton specs, and customer tiers'
+    - Define allocation policies and retailer compliance settings
+    - Run a shadow pilot to compare agent vs. planner allocations
+    - 'Go live: agent auto-issues 855s; planners handle only flagged exceptions'
+    - Monitor KPIs and fine-tune rules to maximize fill and minimize chargebacks
+---
+# StrideAlloc 855 Agent
+
+Generated for NAICS 424340 — Footwear Merchant Wholesalers.
+Service: Inventory Allocation & EDI 855 Acknowledgment Agent

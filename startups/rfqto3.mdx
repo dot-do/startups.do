@@ -1,0 +1,339 @@
+---
+name: 'RFQ-to-Quote Autoresponder for Piece Goods, Notions, and Dry Goods Wholesalers'
+slug: rfqto3
+service:
+  title: RFQ-to-Quote Autoresponder
+  description: >-
+    Parses inbound RFQs from email/portals, checks availability/costs, suggests
+    alternates, and returns a formatted quote with pricing and lead times.
+  targetUsers:
+    - Inside Sales
+    - Customer Service
+    - Account Managers
+  triggers:
+    - New RFQ email or portal submission
+    - Customer chat inquiry
+  inputs:
+    - RFQ email body/attachments
+    - Current inventory and inbound POs
+    - Price lists and customer tiers
+    - 'Cost data (landed, FX, freight)'
+    - Lead times/MOQs
+  steps:
+    - Parse RFQ lines and specs (attributes/SKUs)
+    - Match to available SKUs; score alternates by similarity
+    - Calculate price by tier and margin rules
+    - Estimate lead time and pack/ship costs
+    - Generate quote PDF/Excel and optional EDI 855
+    - Reply via email with quote and valid-until date
+    - Log opportunity in CRM
+  tools:
+    - Gmail/Outlook API
+    - OpenAI for parsing/matching
+    - ERP/WMS pricing/inventory APIs
+    - Templating (Docx/PDF)
+    - CRM (HubSpot/Salesforce)
+    - EDI (SPS/TrueCommerce)
+  outputs:
+    - Quote PDF/Excel
+    - EDI 855 (optional)
+    - Alternates list with trade-offs
+    - CRM opportunity record
+  pricingModel:
+    - Per-quote processed or monthly tier by volume
+    - Optional commission/success fee on won quotes
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Incorrect price or lead time commitments
+    - Alternate suggestions that don’t meet spec
+    - Email parsing edge cases
+  dependencies:
+    - ERP price/inventory access
+    - Email inbox access
+    - CRM credentials
+leanCanvas:
+  problem:
+    - >-
+      RFQs arrive via email/portals in mixed formats (PDF/Excel/CSV/text) and
+      require manual parsing, cross-referencing SKUs, pack sizes, colors, and
+      units of measure, causing 4–24 hour quote turnaround times.
+    - >-
+      Inventory and cost checks are fragmented across ERP, WMS, supplier
+      catalogs, and spreadsheets; alternates/substitutes are inconsistently
+      suggested, lowering fill rates and win rates.
+    - >-
+      Pricing policies (MOQ, breaks, contract/special pricing, freight,
+      currency, lead-time buffers) are applied manually, creating errors and
+      margin leakage.
+    - >-
+      Sales teams spend 30–50% of time on administrative quoting tasks, limiting
+      outbound selling and follow-ups.
+    - >-
+      Customers increasingly expect fast, accurate quotes; slow responses reduce
+      conversion and damage relationships.
+    - >-
+      Portals require repetitive data entry and navigation; lack of automation
+      creates throughput bottlenecks during peak demand.
+  solution:
+    - >-
+      Multi-channel RFQ intake: monitored mailboxes, API, SFTP, and portal
+      automation (headless browser/RPA) to capture requests and attachments.
+    - >-
+      Document/line-item extraction with domain-tuned models: SKUs,
+      descriptions, colorways, widths, fiber content, UOM conversions
+      (yard/roll/cone), pack sizes, requested dates, and delivery terms.
+    - >-
+      Availability and cost orchestration: live checks against ERP/WMS
+      inventory, supplier lead times, landed cost (including FX, duty, and
+      freight profiles).
+    - >-
+      Alternates/substitutions engine: attribute and MPN cross-referencing to
+      propose in-stock equivalents by color/width/brand/quality tier with
+      confidence scores.
+    - >-
+      Pricing policy engine: MOQs, price breaks, contract pricing,
+      customer-specific pricing, margin targets, and freight/lead-time rules;
+      guardrails prevent margin leakage.
+    - >-
+      Quote composer: returns branded quotes (PDF/Excel/email), portal form
+      fill, or EDI where applicable; includes pricing, lead times, validity, and
+      alternates.
+    - >-
+      Human-in-the-loop: confidence thresholds, exception queues, audit trail,
+      approvals, and versioning; easy accept/override and send.
+    - >-
+      Closed-loop CRM/ERP updates: write-back of quotes, probabilities, and line
+      items; track acceptance; create follow-up tasks and pipeline impact.
+    - >-
+      Observability and QA: extraction accuracy dashboards, turnaround times,
+      SLA, and automation rate; retraining loops from human corrections.
+  uniqueValueProp: >-
+    Turn emailed/portal RFQs into accurate, margin-optimized quotes in minutes
+    with human-in-the-loop controls, real-time availability/cost checks, and
+    smart substitutes tailored to piece goods and notions. Outcome: 70%+
+    automation in 90 days, median quote time under 10 minutes, +10–20% quote
+    win-rate uplift, and 1–2 pp margin improvement.
+  unfairAdvantage: >-
+    Accumulating domain data network effects (RFQ patterns, attribute
+    taxonomies, alternate/acceptance feedback) combined with certified ERP
+    connectors and substitution intelligence purpose-built for textiles/notions.
+    Over time, this yields higher extraction accuracy, smarter alternates, and
+    better margin/lead-time predictions than generic IDP/RPA or horizontal CPQ
+    tools.
+  customerSegments:
+    - >-
+      Primary: Mid-market wholesalers (20–500 employees) in NAICS 42431 (Piece
+      Goods, Notions, and Other Dry Goods), handling 50–5,000 RFQ lines/day.
+    - >-
+      Secondary: Large enterprise wholesalers/distributors with multi-warehouse
+      operations and EDI/portal-heavy customers.
+    - >-
+      Buyers: VP of Sales, Sales Operations Director, Customer Service/Inside
+      Sales Managers, COO/Operations Director, IT/Applications Manager.
+    - >-
+      System landscape: ERP (e.g., NetSuite, SAP Business One, Acumatica, Epicor
+      Prophet 21, Infor, MS Dynamics 365 BC), WMS, EDI providers (SPS Commerce,
+      TrueCommerce), CRM (Salesforce, HubSpot).
+  channels:
+    - >-
+      Direct sales: targeted outreach to NAICS 42431 via LinkedIn/email to VP
+      Sales/Ops and IT leads; offer rapid ROI pilots.
+    - >-
+      ERP VAR/ISV partnerships: NetSuite SuiteApp, SAP B1 partners, Acumatica
+      ISV, Microsoft AppSource listings; co-selling with implementation
+      partners.
+    - >-
+      Industry associations and events: NAW, SEAMS, Texworld, regional
+      distributor associations; sponsor webinars on quote automation.
+    - >-
+      Content/SEO: case studies (“24 hours to 10 minutes”), calculators (ROI on
+      RFQ automation), integration guides.
+    - >-
+      Customer referral program: incentives for wholesalers to refer peers and
+      for VARs to bundle in implementations.
+  revenueStreams:
+    - >-
+      SaaS subscription (tiered by monthly RFQ line items processed): Starter
+      $1,500/mo up to 5k lines; Growth $3,000/mo up to 20k lines; Enterprise
+      custom.
+    - 'Usage overage: $0.08–$0.15 per additional line, volume-discounted.'
+    - >-
+      One-time implementation/integration fees: $10k–$50k depending on
+      ERP/connectors and portal automations.
+    - >-
+      Premium add-ons: advanced alternates engine, additional portals, premium
+      SLA/support, dedicated environments.
+    - >-
+      Professional services: data normalization, SKU/attribute mapping, custom
+      pricing policies, onboarding and training.
+  costStructure:
+    - >-
+      COGS: OCR/LLM/API inference ($0.01–$0.05 per page/line), EDI/VAN fees,
+      headless browser infrastructure for portals, cloud compute and storage;
+      target COGS <20% of revenue.
+    - >-
+      R&D: ML engineers, integration engineers, domain experts for
+      taxonomy/attributes, product management and QA.
+    - >-
+      Implementation/Support: solutions engineers, customer success, onboarding
+      playbooks; partner enablement for VARs.
+    - >-
+      Security/Compliance: SOC 2 Type II audit and tooling ($60k–$120k/yr),
+      logging, monitoring, penetration testing.
+    - >-
+      Sales/Marketing: partner MDF, events, demo environments, collateral,
+      CRM/marketing tools.
+    - 'General/Admin: legal (DPAs), finance, HR, facilities/remote ops.'
+  keyMetrics:
+    - >-
+      Median time-to-quote and P90 time-to-quote (goal: <10 min median, <30 min
+      P90 after 90 days).
+    - >-
+      Automation rate (% of RFQ lines sent without human touch) (goal: 70% in 90
+      days, 85% in 12 months).
+    - >-
+      Extraction accuracy at line level (precision/recall) (goal: >98% after 60
+      days with feedback).
+    - 'Quote win rate uplift vs. baseline (goal: +10–20%).'
+    - >-
+      Gross margin delta per quote (goal: +1–2 percentage points through
+      guardrails).
+    - >-
+      Substitution acceptance rate (goal: 20–40% of suggested alternates
+      accepted when primary is OOS).
+    - >-
+      Fill rate and on-time promise accuracy (goal: <5% late promises vs. P90
+      lead-time).
+    - >-
+      Cost-to-serve per quote (goal: <$2/quote at scale) and FTE hours
+      saved/month.
+    - >-
+      Customer onboarding time (goal: first value <2 weeks, full rollout in 6–8
+      weeks).
+    - >-
+      Net revenue retention (goal: >115% with upsells), logo retention (>95%),
+      NPS (>40).
+storyBrand:
+  character: >-
+    Quoting teams at piece goods, notions, and dry goods wholesalers who need to
+    turn RFQs into accurate quotes in minutes without adding headcount.
+  problem: >-
+    - External — RFQs flood in via email and buyer portals while item data and
+    costs sit in ERP and vendor lists; manual lookups and spreadsheets are slow
+    and error‑prone.
+
+    - Internal — Teams feel overwhelmed, miss cutoffs, and worry about
+    inconsistent pricing and lead times.
+
+    - Philosophical — Buyers deserve fast, accurate, transparent quotes; no one
+    should lose business because admin gets in the way.
+  guide: >-
+    - Empathy — We know the wholesale quoting grind in textiles and dry goods:
+    sizes, colorways, MOQs, pack sizes, substitutions.
+
+    - Authority — AI + workflow experts with deployments in wholesale;
+    integrates with inbox/portals and ERP; audited quote accuracy and
+    enterprise‑grade controls.
+  plan: >-
+    1) Connect — Link RFQ inbox/portals and ERP/catalog feeds.
+
+    2) Configure — Pricing rules, alternates/substitutions, MOQs/packs,
+    lead‑time logic, and approval thresholds.
+
+    3) Go live — AI parses RFQs, checks stock/costs, suggests alternates, and
+    returns a formatted quote with pricing and lead times; your team reviews
+    exceptions.
+
+    Optional pilot — Start with one product line and expand.
+  callToAction: >-
+    - Direct — Schedule a 20‑minute demo or start a 14‑day pilot.
+
+    - Transitional — Free RFQ audit and sample quote simulation using anonymized
+    emails.
+  success: >-
+    - Quotes go out in minutes, 24/7, including after hours.
+
+    - Higher win rate and revenue from faster responses and intelligent
+    alternates.
+
+    - Fewer errors and chargebacks; standardized pricing and approvals.
+
+    - Reps spend time selling, not copy‑pasting; lower cost per quote.
+
+    - Full audit trail and analytics on hit rate, margins, and SLAs.
+  failure: |-
+    - Slow replies persist and buyers choose faster competitors.
+    - Quote backlog grows and staff burnout rises.
+    - Pricing mistakes erode margins and trust.
+    - Missed alternates leave money on the table.
+    - Little visibility into performance or compliance.
+landingPage:
+  hero:
+    title: RFQ-to-Quote Autoresponder for Piece Goods & Notions Wholesalers
+    subtitle: >-
+      Parse RFQs, check availability and costs, suggest alternates, and return a
+      polished quote with pricing and lead times—automatically.
+    ctaText: Book a 20‑min demo
+    ctaHref: /demo
+  problem:
+    - >-
+      RFQs arrive via email, PDFs, spreadsheets, and portals—manual rekeying
+      slows response time.
+    - >-
+      Pricing inconsistencies and UOM/pack errors cause margin leakage and
+      rework.
+    - >-
+      Inventory and vendor costs live in different systems; availability checks
+      are slow.
+    - 'Alternate suggestions depend on tribal knowledge, delaying responses.'
+    - Quotes go out late; win rate and customer experience suffer.
+    - 'Limited visibility into quote SLAs, bottlenecks, and hit rates.'
+  solution:
+    - 'Autoparse RFQs from inboxes and procurement portals (PDF, XLSX, CSV).'
+    - 'Normalize SKUs, UOMs (yd/m), and pack sizes; map to your catalog.'
+    - 'Check on‑hand, inbound, and vendor availability with current costs.'
+    - Recommend equivalents and alternates with brand/pack cross‑references.
+    - 'Generate branded quotes with pricing tiers, MOQs, and promised lead times.'
+    - >-
+      Auto‑reply via email or portal upload; log to ERP/CRM with a full audit
+      trail.
+    - >-
+      Guardrails for margin floors, approvals, and exceptions; human‑in‑the‑loop
+      where needed.
+    - Continuously learns from outcomes to improve pricing and alternate picks.
+  features:
+    - '24/7 autoresponder—quotes in minutes, not days'
+    - 'Inbox/portal connectors (IMAP/O365, Ariba, Coupa, SPS Commerce)'
+    - 'Advanced parsing for PDF, Excel, and CSV RFQs'
+    - >-
+      SKU, UOM, and pack-size normalization (yards/meters, cones/spools,
+      case/carton)
+    - Multi-vendor sourcing with dynamic lead times and landed-cost comparisons
+    - 'Pricing engine: contracts, customer tiers, promos, and volume breaks'
+    - Alternate/Equivalent library with brand and spec matching
+    - >-
+      Inventory/ERP integrations via API/EDI/FTP (NetSuite, Acumatica, Sage,
+      Epicor, custom)
+    - 'Freight, fuel, and surcharge calculators'
+    - 'Quote templates: branded PDF, Excel, and EDI 843'
+    - Human-in-the-loop review and approval workflows
+    - 'Analytics: turnaround time, win/loss, margin by customer/item'
+    - 'Role-based access, SSO, and audit logs'
+    - Sandbox and A/B testing for pricing and rule changes
+  steps:
+    - Connect your inbox/portals and ERP/inventory systems.
+    - 'Import catalog, price lists, customer contracts, and vendor files.'
+    - 'Define pricing rules, margin floors, alternates, and pack/UOM settings.'
+    - Configure quote templates and branding.
+    - 'Pilot with real RFQs; tune parsing, pricing, and approvals.'
+    - Go live—monitor dashboard KPIs and resolve exceptions.
+    - 'Scale to additional customers, vendors, and portals.'
+---
+# RFQ-to-Quote Autoresponder for Piece Goods, Notions, and Dry Goods Wholesalers
+
+Industry: Piece Goods, Notions, and Other Dry Goods Merchant Wholesalers
+Service: RFQ-to-Quote Autoresponder

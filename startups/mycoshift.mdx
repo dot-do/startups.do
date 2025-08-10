@@ -1,0 +1,308 @@
+---
+name: MycoShift AI
+slug: mycoshift
+naics:
+  primary: '111411'
+  occupations: []
+service:
+  title: Yield Forecasting & Harvest/Labor Scheduling Agent
+  description: Predicts room/flush yields and plans harvest and labor by shift.
+  targetUsers:
+    - Head Grower
+    - Harvest Lead
+    - Operations Manager
+  triggers:
+    - New batch inoculated
+    - 'Daily at 05:00 local'
+    - Harvest start logged
+  inputs:
+    - Historical yields by room/flush/species
+    - 'Batch metadata (spawn date, substrate, strain)'
+    - Climate summaries (per phase)
+    - Labor productivity rates
+  steps:
+    - Ingest/clean historicals
+    - Fit yield curves and flush timing per species/season
+    - Forecast room-level yields and windows
+    - Convert to labor hours and shift assignments
+    - Sync harvest calendar and task list
+    - Update with actuals; learn residuals
+  tools:
+    - pandas/Darts/Prophet
+    - Google Sheets/Airtable
+    - Google Calendar (ICS)
+    - Slack/Email
+  outputs:
+    - Next-14/28-day yield forecast by room/flush
+    - Harvest windows and pick lists
+    - Labor plan per shift
+  pricingModel:
+    - Setup (data cleaning/model)
+    - Monthly per site
+    - 'Optional: per room add-on'
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 8
+    overall: 9
+  risks:
+    - Data sparsity or bias
+    - Sudden contamination or climate events reduce accuracy
+    - Manual data entry errors
+  dependencies:
+    - Access to historical yields and batch logs
+    - Simple daily actuals capture
+    - Calendar/communications access
+leanCanvas:
+  problem:
+    - >-
+      Room- and flush-level yield is highly variable and difficult to predict
+      3–10 days ahead, causing either understaffed shifts (missed optimum
+      picking windows and quality downgrades) or overstaffed shifts (overtime
+      and idle labor).
+    - >-
+      Most farms rely on grower intuition and spreadsheets; forecasts are not
+      updated intra-day as climate, pin counts, disease pressure, and pick rates
+      change.
+    - >-
+      Labor is 30–50% of operating cost in mushroom production; poor forecast
+      accuracy drives 5–15% overtime and increases turnover due to chaotic
+      schedules.
+    - >-
+      Mismatch between harvest and sales orders leads to lower fill rates,
+      last-minute contract buys, and shrink (unsold or downgraded product),
+      typically 3–8% of weekly volume.
+    - >-
+      Data to improve forecasting exists (climate logs, flush history, pack-out
+      by grade, pick rates, substrate lots) but is siloed across controllers,
+      scales, ERP/WMS, and manual logs.
+    - >-
+      No easy way to simulate what-if scenarios (e.g., shift length, crew mix,
+      climate tweaks) to balance yield, quality, and labor capacity over the
+      next 7–14 days.
+  solution:
+    - >-
+      Data integration pipeline: ingest climate, substrate/batch info, pin/bed
+      observations (optionally via computer vision), historical pack-out by
+      grade, and pick-rate/crew data.
+    - >-
+      Probabilistic yield models per room and flush with confidence bands;
+      automatic detection of flush initiation and expected peak windows.
+    - >-
+      Shift-level harvest plan that translates forecasts into headcount by
+      crew/line, start/stop times, and targeted rooms/rows, with constraints for
+      labor laws and skill mix.
+    - >-
+      Demand alignment: reconcile forecasted yields with confirmed orders by
+      SKU/grade; prioritize picks to maximize margin and fill rate; suggest
+      trade-offs (e.g., pack mix shifts).
+    - >-
+      What-if simulation: test changes to setpoints, shift length, crew size, or
+      room sequencing and see yield/labor impact over 3–14 days.
+    - >-
+      Alerts and exceptions: flag rooms at risk of missing peak, disease/quality
+      risk indicators, and forecast drift; recommend corrective actions.
+    - >-
+      APIs and connectors to climate systems, scales/packhouse, WMS/ERP, and
+      workforce management tools; mobile interface for crew leaders to receive
+      pick plans and report progress.
+    - >-
+      Onboarding and calibration service: 4–8 weeks to baseline models; weekly
+      performance reviews and continuous improvement playbooks.
+  uniqueValueProp: >-
+    Flush- and room-level yield forecasts that update hourly and convert into
+    shift-by-shift harvest and labor plans. Achieve 3-day forecasts within 5–8%
+    MAPE and 7-day forecasts within 8–12% MAPE after 6–8 weeks of calibration;
+    reduce overtime 10–20%, improve yield capture 1–2%, and raise order fill
+    rate 3–5%.
+  unfairAdvantage: >-
+    A continuously growing, cross-producer flush-level dataset and feature
+    library specific to mushrooms, combined with an optimization engine tuned to
+    labor realities in mushroom houses. Feedback loops from pick-rate and mobile
+    plan adherence create site-specific learning curves that generic analytics
+    or spreadsheets cannot replicate.
+  customerSegments:
+    - >-
+      Primary: Mid-to-large North American mushroom farms (Agaricus and
+      specialty) with 50–500 grow rooms or tunnels, 5–50+ million lb/year.
+    - >-
+      Secondary: Integrated packers/distributors who coordinate harvesting
+      across multiple farms and need predictable supply by grade and SKU.
+    - >-
+      Tertiary: Equipment OEMs and climate control providers seeking value-added
+      analytics for customers (integration/white-label opportunities).
+    - >-
+      Early adopters profile: Operations already capturing digital data (climate
+      logs, pack-out weights), with dedicated planners, and >$10M annual
+      revenue.
+  channels:
+    - >-
+      Direct sales to growers via founder-led outreach and industry referrals;
+      target top 50 NA mushroom producers first.
+    - >-
+      Industry associations and events: American Mushroom Institute (AMI), IFPA
+      Global Produce & Floral Show, and Mushroom Days (NL).
+    - >-
+      Pilot-led GTM: 8–12 week paid pilots with 2–3 flagship farms; publish
+      quantified case studies (overtime reduction, forecast MAPE, shrink
+      reduction).
+    - >-
+      OEM/integrator partnerships with climate and equipment providers (e.g.,
+      Fancom, Christiaens Group) to co-market and embed connectors.
+    - >-
+      Content and enablement: ROI calculator, scheduling playbooks, webinar
+      series with growers and academics (e.g., Penn State Mushroom Research
+      Center).
+    - >-
+      Channel partners: produce distributors and packers who co-sponsor
+      deployments to stabilize supply for retail programs.
+    - >-
+      Land-and-expand motion: start with forecasting in a subset of rooms;
+      expand to full-site and multi-site scheduling and demand alignment.
+  revenueStreams:
+    - >-
+      SaaS subscription priced by scale: $0.003–$0.008 per lb annualized or
+      $50–$120 per active room per month, includes forecasting and planning for
+      up to two shifts/day.
+    - >-
+      Platform fee: $1,500–$4,000/month per site for integrations, MLOps, and
+      support SLAs.
+    - >-
+      One-time onboarding/integration: $10k–$50k per site depending on
+      connectors and data readiness.
+    - >-
+      Optional computer vision hardware/software: $150–$300 per room/month
+      (lease) or pass-through hardware with 15–25% margin.
+    - >-
+      Premium features: demand optimization and SKU-grade forecasting
+      (+$0.001/lb) and advanced simulation module (+$500/month/site).
+    - >-
+      Professional services: custom reports, training, and continuous
+      improvement workshops ($150–$250/hour).
+  costStructure:
+    - >-
+      R&D and MLOps: data science, mycology/agronomy domain experts, software
+      engineers ($150k–$220k fully loaded per FTE).
+    - >-
+      Cloud infrastructure: $2k–$8k/month per 50–100 rooms for data ingestion,
+      time-series storage, and inference; CV adds $10–$25/room/month compute.
+    - >-
+      Customer success and onboarding: $5k–$25k per site in labor during first
+      90 days.
+    - >-
+      Sales and marketing: events, travel/pilots, content ($50k–$200k/year early
+      stage).
+    - >-
+      Edge hardware (optional CV): cameras, NVR/edge compute, mounts, network;
+      depreciation or lease costs.
+    - 'Insurance, compliance, and security (SOC 2 over time): $25k–$100k/year.'
+    - >-
+      Partner commissions for OEM/channel deals: 10–20% of first-year
+      subscription.
+  keyMetrics:
+    - >-
+      Forecast accuracy: MAPE by horizon and flush (target: ≤5–8% at 0–3 days;
+      ≤8–12% at 4–7 days) and grade-level accuracy within ±10%.
+    - >-
+      Labor efficiency: overtime hours as % of total (target reduction 10–20%),
+      plan adherence ≥85%, and picker productivity variance reduced by ≥15%.
+    - >-
+      Yield capture and shrink: unharvested/late-harvested lbs reduced by 1–2%;
+      overall shrink reduced by 10–20%.
+    - >-
+      Service level: order fill rate +3–5 pp; on-time in-full (OTIF) +2–4 pp for
+      program SKUs.
+    - >-
+      Financial ROI: $/lb value uplift vs baseline; target payback <6 months and
+      5–10× annual ROI on subscription.
+    - >-
+      Adoption: % rooms scheduled via system (target ≥80% in 90 days), daily
+      active planners/crew leads, and closed-loop feedback events per shift.
+    - >-
+      Model health: data latency <5 minutes, integration uptime ≥99.5%, and
+      drift alerts resolved within 48 hours.
+storyBrand:
+  character: >-
+    Mushroom farm owners, operations managers, and harvest supervisors (NAICS
+    111411) who want predictable room/flush yields and reliable shift-level
+    labor plans to meet orders on time.
+  problem: >-
+    - External: Unpredictable room/flush yields and uneven harvest curves lead
+    to last-minute labor scrambling.
+
+    - Internal: Stress from missed orders, overtime, waste, and
+    spreadsheet-driven planning.
+
+    - Philosophical: Growers should focus on mushrooms—not manual
+    forecasting—and crews deserve dependable schedules.
+  guide: >-
+    - Empathy: We understand every flush behaves differently and you juggle
+    rooms, climates, orders, and crews daily.
+
+    - Authority: AI built with agronomy know-how; integrates with harvest logs
+    and room data; privacy-first and implementation-ready.
+  plan: >-
+    - Process plan: 1) Connect room, harvest, and climate data; 2) Get daily
+    yield forecasts by room/flush; 3) Auto-build shift-level harvest and labor
+    schedules; 4) Review and adjust with your team.
+
+    - Agreement plan: Start with a low-risk pilot, keep your data secure,
+    minimal workflow change, clear checkpoints for value.
+  callToAction: >-
+    - Direct: Book a 30-minute demo and start a 30-day pilot on 2–3 rooms.
+
+    - Transitional: Download the sample schedules, accuracy brief, and ROI
+    calculator.
+  success: |-
+    - Confident forecasts by room/flush/day to match orders
+    - Right-sized crews per shift with less overtime
+    - Higher pack-out, fewer surprises, and on-time fulfillment
+    - Less waste and better morale
+    - A repeatable, data-driven harvest plan
+  failure: |-
+    - Missed orders and lost revenue
+    - Over/understaffed shifts and overtime spikes
+    - Product left in rooms or downgraded quality
+    - Burned-out crews and reliance on guesswork
+landingPage:
+  hero:
+    title: Forecast Mushroom Yields. Schedule Harvest by Shift.
+    subtitle: >-
+      AI agent predicts room/flush output and builds labor plans to hit orders
+      with fewer hours.
+    ctaText: Get a Demo
+    ctaHref: /demo
+  problem:
+    - 'Yields swing by room, flush, and strain—planning is guesswork.'
+    - 'Manual schedules lead to overtime, idle crews, and missed picks.'
+    - 'Spreadsheets ignore climate, pinset, and substrate signals.'
+    - Late changes ripple into pack-out and delivery failures.
+    - No single view of capacity vs. customer orders.
+    - Hard to scale consistency across multiple grow rooms.
+  solution:
+    - Daily yield forecasts by room/shelf/flush for 1–3 weeks.
+    - Shift-level harvest plans with picker targets and routes.
+    - Auto staffing recommendations with overtime controls.
+    - Exception alerts when conditions or pinsets shift.
+    - Order-aware planning to meet SKU and PO commitments.
+    - Continuous learning from actuals to improve accuracy.
+  features:
+    - 'Data fusion: climate, CO2, RH, substrate lot, strain, spawn date, picks.'
+    - 'Optional vision: pinset counts boost near-term forecast accuracy.'
+    - 'What-if scenarios: shift windows, see labor and fill-rate impact.'
+    - 'Integrations: climate controllers, ERP/WMS, and timekeeping/payroll.'
+    - 'Mobile picker app: assignments, targets, QA checklists, language-friendly.'
+    - 'KPI dashboards: forecast accuracy, labor per kg, waste, service level.'
+    - Role-based access and full lot-to-shipment traceability.
+    - 'Fast setup: 8–12 weeks of history gets you started.'
+  steps:
+    - 'Connect rooms, historical yields, climate, orders, and shifts.'
+    - We calibrate models to your farm and strains.
+    - Review forecast and suggested shift plan in the dashboard.
+    - Publish picker assignments; sync with time clocks and ERP.
+    - Track actuals; the agent learns and refines weekly.
+---
+# MycoShift AI
+
+Generated for NAICS 111411 — Mushroom Production.
+Service: Yield Forecasting & Harvest/Labor Scheduling Agent

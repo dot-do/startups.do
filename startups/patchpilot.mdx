@@ -1,0 +1,302 @@
+---
+name: PatchPilot AI — Vulnerability Triage & Patch Suggestor
+slug: patchpilot
+naics:
+  primary: '513210'
+  occupations: []
+service:
+  title: Vulnerability Triage & Patch Suggestor
+  description: >-
+    Monitors security alerts, prioritizes by exploitability/impact, and drafts
+    fix PRs with tests and rollout plan.
+  targetUsers:
+    - Security
+    - Tech Leads
+    - SRE
+  triggers:
+    - New security alert from platform
+    - New CVE affecting dependency
+    - Weekly backlog triage
+  inputs:
+    - Security alerts (GitHub/Snyk/OSV)
+    - Codebase context and tests
+    - Service ownership map
+  steps:
+    - Ingest new alerts and de-duplicate
+    - 'Assess impact (reachable code, public exploit, service exposure)'
+    - Propose remediation (patch/upgrade/config change)
+    - Open PR with changes and smoke tests; link to alert
+    - Create rollout ticket with risk and rollback
+  tools:
+    - GitHub Security Alerts API
+    - Snyk/OSV
+    - CodeQL (optional)
+    - OpenAI API (code change drafting)
+    - CI system API
+  outputs:
+    - Prioritized risk queue
+    - Fix PRs with tests
+    - Rollout/communication tickets
+  pricingModel:
+    - Retainer + per-remediation fee
+    - Per-alert triage fee
+    - Monthly subscription
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 7.5
+    overall: 8.5
+  risks:
+    - Overconfident automated fixes
+    - Test coverage gaps hide regressions
+    - Alert fatigue if triage is noisy
+  dependencies:
+    - Security alert integrations
+    - Repo PR permissions
+    - CI access for validation
+leanCanvas:
+  problem:
+    - >-
+      Security alert overload from SCA/SAST/DAST/NVD/OSV feeds results in >1,000
+      alerts/month for mid-sized publishers; 70–90% are low-risk or duplicates.
+    - >-
+      Manual triage lacks exploitability context (EPSS/KEV/reachability),
+      leading to slow MTTR and misprioritization.
+    - >-
+      Engineering teams lose 10–20% of capacity to chasing and coordinating
+      fixes across repos/versions; patch drift and backporting are error-prone.
+    - >-
+      Auto-remediation from existing tools is narrow (dependency bumps) and
+      often breaks builds due to missing tests and rollout plans.
+    - >-
+      Audit/compliance pressure (SOC2/PCI/ISO/FedRAMP) requires evidence of
+      timely remediation and SLAs; collecting proof is manual and inconsistent.
+    - >-
+      Multi-language, polyrepo/monorepo codebases make consistent remediation
+      and version support (LTS) difficult.
+    - >-
+      Fear of regressions and lack of canary strategies cause teams to defer
+      patches, increasing exposure window.
+  solution:
+    - >-
+      Continuously ingest alerts and SBOMs from
+      NVD/OSV/Snyk/GHAS/Dependabot/Jira and normalize into a unified graph.
+    - >-
+      Prioritize with exploitability context: EPSS, CISA KEV, Exploit DB, social
+      signals, and repo-specific reachability (static call-graph + dynamic
+      traces) to produce a Patch Readiness Score per alert.
+    - >-
+      Generate human-reviewable fix PRs: code changes + dependency bumps +
+      config hardening + migration notes; include unit/integration tests and
+      build fixes where needed.
+    - >-
+      Propose rollout plans: feature flags, canary cohorts, staged rollouts, and
+      backports to supported versions; generate change logs and release notes.
+    - >-
+      Integrate with CI/CD (GitHub/GitLab/Azure DevOps/Bitbucket) to run tests
+      and policy checks; block/allow by risk and SLA policies.
+    - >-
+      Provide an executive and team dashboard: MTTR by severity, SLA adherence,
+      auto-fix rate, backlog burn-down, and audit-ready evidence (who approved,
+      when deployed).
+    - >-
+      Offer deployment options: secure SaaS with customer-managed keys or
+      private cloud/on-prem; full audit logs, data residency, and SSO/SCIM.
+    - >-
+      Human-in-the-loop workflow: reviewers see diffs, test plans, blast radius
+      analysis, and rollback steps; one-click accept/modify/decline.
+  uniqueValueProp: >-
+    Cut vulnerability MTTR by 50–80% by ranking alerts on true exploitability
+    and shipping safe, tested, auto-generated fix PRs with a rollout plan—so
+    your teams remediate faster with fewer regressions and better audit
+    evidence.
+  unfairAdvantage: >-
+    Exploitability-first remediation graph that fuses EPSS/KEV, static
+    reachability, dynamic traces, and business criticality—paired with a guarded
+    LLM+AST code-mod system trained on a growing corpus of successful, tested
+    vulnerability fixes and rollout outcomes across languages and versions. Deep
+    CI/CD and release orchestration plus audit-grade evidence make the solution
+    hard to replicate quickly.
+  customerSegments:
+    - >-
+      Primary: Software publishers (NAICS 513210) with 50–5,000+ developers
+      building commercial software (SaaS, desktop/mobile, gaming, devtools).
+    - >-
+      Security leadership: CISO, Director/Head of Product Security, AppSec
+      Managers.
+    - >-
+      Engineering leadership: VP Eng, Release/Build Engineering, Platform/DevEx
+      teams.
+    - >-
+      Compliance-heavy vendors (fintech, healthtech, govtech) with vulnerability
+      SLA obligations.
+    - >-
+      Organizations managing multiple supported versions/LTS lines that require
+      coordinated backports.
+    - >-
+      Secondary: Strategic OSS foundations/large maintainers (for brand/data
+      flywheel; typically non-paying or sponsored).
+  channels:
+    - >-
+      Direct enterprise sales to CISO/Product Security leaders with 4–8 week
+      proof-of-value focused on one product line.
+    - >-
+      Developer-first bottom-up distribution via GitHub/GitLab Marketplace with
+      a free tier for small repos and paid upgrades.
+    - >-
+      Cloud marketplaces (AWS/GCP/Azure) for streamlined procurement and private
+      offers.
+    - >-
+      Alliances with AppSec consultancies/MSSPs for co-selling and managed
+      remediation services.
+    - >-
+      Content-led growth: exploitability analytics reports (EPSS + KEV trends),
+      case studies showing MTTR reduction, OSS fix weeks.
+    - >-
+      Community/OSS program: free auto-fix for selected critical OSS to build
+      brand and patch corpus.
+    - >-
+      Security events and communities: OWASP chapters, AppSec conferences,
+      Security Champions programs.
+  revenueStreams:
+    - >-
+      Subscription tiers (annual contracts): Triage tier $20–30/developer/month;
+      Auto-Fix tier $60–90/developer/month; Enterprise site license
+      $100k–$500k/year depending on repo count and integrations.
+    - >-
+      Usage add-on: $5–$20 per merged auto-fix PR beyond tier allowance; volume
+      discounts.
+    - >-
+      On-prem/private cloud surcharge: +15–25% with premium support and
+      dedicated SLAs.
+    - >-
+      Professional services: onboarding, policy/SBOM setup, LTS backport
+      projects ($200–$300/hour or fixed packages).
+    - Managed remediation via partners/MSSPs (revenue share).
+    - >-
+      Compliance reporting module add-on $10–$20/developer/month for regulated
+      industries.
+  costStructure:
+    - 'COGS targets: 30–40% gross margin in year 1 improving to 70%+ by year 3.'
+    - >-
+      Inference and analysis: $0.75–$3.00 variable cost per candidate PR (LLM +
+      static analysis compute).
+    - >-
+      Baseline compute: code indexing, SBOM processing, and graph queries
+      (~$0.02–$0.05 per repo/day at scale).
+    - >-
+      Engineering team: 8–12 FTE year 1 (LLM/ML, security research,
+      compilers/AST, backend, integrations) ~$2.5–$4.0M/year.
+    - >-
+      Security/compliance: SOC2 Type II/ISO 27001 $120k–$250k initial +
+      $80k–$150k/year ongoing (audits, tooling).
+    - >-
+      Sales/marketing: 20–30% of revenue during growth (AE/SE headcount,
+      content, events, marketplace fees).
+    - 'Data licensing/feeds and bug bounty: $50k–$200k/year as needed.'
+    - 'Support/CS and on-call SRE for enterprise SLAs: $300k–$700k/year.'
+    - 'Legal and IP: $100k–$200k/year (contracts, data processing, patents).'
+  keyMetrics:
+    - >-
+      Security outcomes: MTTR reduction vs baseline (target 60% within 6
+      months), MTTD < 1 hour for KEV/EPSS>0.5 alerts.
+    - >-
+      Throughput: % of eligible vulnerabilities auto-fixed (target 40–60% in
+      supported languages).
+    - >-
+      Quality: PR acceptance rate (target >70%), regression rate from merged PRs
+      (target <1%), false positive rate in reachability (target <5%).
+    - 'SLA adherence: % critical/high vulns resolved within policy (target >95%).'
+    - 'Backlog: vulnerability backlog reduction (target 30% in 90 days).'
+    - >-
+      Coverage: repos/apps under management, languages covered, LTS branches
+      synchronized.
+    - >-
+      Business: ACV (target $75k mid-market, $250k enterprise), logo retention
+      (gross >90%), NRR >120%, sales cycle 60–90 days.
+    - >-
+      Adoption: WAUs among security engineers and reviewers, PRs reviewed per
+      week, time-on-task saved (hours/eng/month).
+storyBrand:
+  character: >-
+    Software publishers (NAICS 513210) — CTOs, engineering leaders, and
+    DevSecOps teams who must ship fast without compromising security.
+  problem: >-
+    Drowning in CVEs and noisy alerts; unclear exploitability and impact; manual
+    patching slows releases and risks regressions; missed SLAs threaten trust
+    and compliance — security should accelerate shipping, not block it.
+  guide: >-
+    We understand alert fatigue and release pressure; our AI prioritizes by real
+    exploitability/impact and drafts fix PRs with tests and a rollout plan,
+    integrating with your repos and ticketing to fit how you ship.
+  plan: >-
+    1) Connect repos, SBOM, and alert feeds; 2) Get a prioritized queue plus
+    ready-to-review PRs with tests and staged rollout guidance; 3) Review,
+    merge, and monitor canary rollout with automated checks.
+  callToAction: >-
+    Book a demo or start a pilot — connect GitHub/GitLab and your tracker to
+    activate triage and patch suggestions.
+  success: >-
+    Clear signal over noise, faster MTTR, fewer sev-1s, compliant patch SLAs,
+    quieter on-call, and confident, faster releases.
+  failure: >-
+    Breaches from known vulns, exploit-driven outages, SLA penalties, audit
+    findings, and lost customer trust and churn.
+landingPage:
+  hero:
+    title: Vulnerability Triage & Patch Suggestor for Software Publishers
+    subtitle: >-
+      AI that watches security alerts, ranks by real-world risk, and ships
+      ready-to-merge fixes with tests and a safe rollout plan.
+    ctaText: Start Free Trial
+    ctaHref: /get-started
+  problem:
+    - You’re flooded with CVEs and advisories; the real risks hide in the noise.
+    - Manual triage drags MTTR and delays releases.
+    - False positives and duplicate alerts waste engineering cycles.
+    - Writing patches and tests for each issue is slow and error-prone.
+    - Coordinating rollouts and rollback plans burns time and increases risk.
+    - Compliance expects evidence; your audit trail is thin.
+  solution:
+    - 'Consolidates alerts from CVE feeds and your tools, deduped in one queue.'
+    - >-
+      Prioritizes by exploitability, reachability in your code, and business
+      impact.
+    - 'Drafts minimal-change PRs with unit tests, changelog, and migration notes.'
+    - Proposes a canary and phased rollout plan with automatic guardrails.
+    - 'Integrates approvals with GitHub/GitLab, Jira, and ServiceNow.'
+    - Monitors post-deploy and produces audit-ready reports and MTTR metrics.
+  features:
+    - 'Real-time exploit intelligence (KEV, EPSS, active exploit signals).'
+    - >-
+      Code-aware reachability analysis across JVM, .NET, Node.js, Python, Go,
+      and Rust.
+    - 'SBOM ingestion and drift tracking (CycloneDX, SPDX).'
+    - Precise dependency upgrade suggestions with semantic versioning checks.
+    - 'Source-level patches for common vulns (XSS, SQLi, SSRF, deserialization).'
+    - Auto-generated tests and coverage diffs to validate the fix.
+    - Policy-driven SLAs and maintenance windows by product or tier.
+    - 'CI/CD integrations: GitHub Actions, GitLab CI, Jenkins, Azure DevOps.'
+    - 'Ticketing and approvals: Jira, ServiceNow, Linear.'
+    - 'Rollout blueprints: canary cohorts, feature flags, staged percentages.'
+    - Safe rollback plans and health-check gates.
+    - Risk burn-down dashboards and MTTR/MTTD analytics.
+    - 'Audit trail with evidence exports for SOC 2, ISO 27001, and SOX.'
+    - 'SSO, RBAC, SCIM; least-privilege Git permissions.'
+    - 'Deployment options: SaaS or private cloud/VPC.'
+    - REST API and webhooks for custom workflows.
+  steps:
+    - 'Connect your repos, CI, and ticketing; import SBOMs and security alerts.'
+    - >-
+      We dedupe and score each finding by exploitability, reachability, and
+      impact.
+    - 'We generate a ready-to-merge PR with patch, tests, and notes.'
+    - A rollout plan is attached with canary stages and rollback conditions.
+    - CI runs; reviewers are assigned; tickets are updated automatically.
+    - Deployment is monitored; verification checks confirm the fix.
+    - Reports and audit evidence are produced; MTTR and risk drop.
+---
+# PatchPilot AI — Vulnerability Triage & Patch Suggestor
+
+Generated for NAICS 513210 — Software Publishers.
+Service: Vulnerability Triage & Patch Suggestor

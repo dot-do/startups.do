@@ -1,0 +1,374 @@
+---
+name: Fairway AI — Sailing Risk & Route Advisor
+slug: fairway
+service:
+  title: Sailing Risk & Route Advisor
+  description: >-
+    AI agent that fuses marine weather, tides/currents, notices to mariners, and
+    AIS traffic to recommend go/no-go, departure windows, speed profiles, and
+    alternative routes for each sailing.
+  targetUsers:
+    - Dispatch/operations managers
+    - Masters/captains
+    - Harbor pilots (where applicable)
+  triggers:
+    - 'T-24h, T-6h, T-2h before each scheduled departure'
+    - New marine weather advisory/warning issued
+    - 'Vessel status change (mechanical limits, draft change)'
+  inputs:
+    - Route geometry/waypoints and terminals
+    - 'Vessel particulars (LOA, draft, maneuvering limits, min/max speed)'
+    - Schedule and required arrival time
+    - NOAA/NWS marine forecast and wave models
+    - NOAA CO-OPS tides and currents
+    - USCG Local Notices to Mariners (LNM) and temporary closures
+    - AIS traffic density and historical transit times
+    - 'Local rules (speed restrictions, whale zones, wake limits)'
+  steps:
+    - 'Pull latest metocean, tides/currents, LNM, and AIS feeds'
+    - >-
+      Score route segments for risk (wind, wave height/period, current
+      set/drift, visibility)
+    - Simulate speed profiles versus ETA and comfort constraints
+    - 'Recommend go/no-go, alternate departure windows, and route variants'
+    - Generate captain/dispatch briefing and push to channels
+    - Log decision and feedback for continuous learning
+  tools:
+    - NOAA NWS Marine API
+    - NOAA CO-OPS Tides & Currents API
+    - NOAA GLERL (Great Lakes) where relevant
+    - USCG LNM feeds
+    - AIS APIs (AISHub/MarineTraffic/VesselFinder) or local NMEA feed
+    - 'Geo libraries (GDAL/Geopandas), routing/opt (OR-Tools)'
+    - Mapbox/Leaflet for visualization
+    - Slack/Teams/Email notifications
+  outputs:
+    - Go/no-go recommendation with confidence
+    - Recommended departure window and route/waypoints
+    - Speed profile and ETA band
+    - Risk heatmap by route segment
+    - Captain briefing PDF and dispatch notes
+  pricingModel:
+    - Per-vessel per-month subscription
+    - Tiered by route count and data refresh rate
+    - One-time setup fee for data integrations
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 4.5
+    overall: 4.5
+  risks:
+    - Forecast or AIS gaps leading to wrong advice
+    - Liability if guidance is misused
+    - Local constraints not fully modeled
+    - Overreliance vs master’s judgment
+  dependencies:
+    - API keys for NOAA/third-party AIS
+    - Accurate route geometries and vessel particulars
+    - 'Operational policy limits (e.g., comfort thresholds)'
+leanCanvas:
+  problem:
+    - >-
+      Masters and dispatchers must synthesize marine weather, tides/currents,
+      Local/Notices to Mariners (LNM/NtM), ice bulletins, and AIS traffic
+      manually, consuming 20–60 minutes per sailing and leading to inconsistent
+      decisions.
+    - >-
+      Nearshore weather on coasts and Great Lakes changes rapidly; missing a
+      30–60 minute departure window can cascade into schedule delays, overtime,
+      and missed connections.
+    - >-
+      Fuel burn is sensitive to sea state, current, and speed profile; operators
+      lack an easy way to optimize for both punctuality and economy, leading to
+      3–10% avoidable fuel cost.
+    - >-
+      Existing tools are siloed (ECS/ENC, weather viewers, AIS screens); few
+      provide an integrated, route-specific risk score and auditable go/no-go
+      rationale aligned to Safety Management Systems (SMS) and USCG/Transport
+      Canada expectations.
+    - >-
+      Great Lakes and seasonal ice conditions, shoaling, dredging, and temporary
+      restrictions are dynamic; operators struggle to maintain up-to-date
+      constraints across crews and shifts.
+    - >-
+      Public agencies and insurers are increasing expectations for documented
+      risk assessments; many operators lack a consistent, data-backed process
+      and audit trail.
+    - >-
+      Unexpected congestion (bridge openings, harbor events, regattas) disrupts
+      ETAs; dispatch lacks predictive insight to re-sequence departures or
+      adjust speed proactively.
+  solution:
+    - >-
+      Data fusion engine that ingests NOAA/NWS, Environment and Climate Change
+      Canada (ECCC), NOAA CO-OPS tides/currents, Great Lakes ice forecasts (NOAA
+      GLERL, Canadian Ice Service), ENC/NTM/LNM, and terrestrial/satellite AIS.
+    - >-
+      Per-sailing risk score with contributing factors (wind/sea, visibility,
+      current set/drift, traffic density, ice, NtM hazards) and confidence
+      intervals; configurable to operator-specific risk thresholds and SMS.
+    - >-
+      Go/no-go and departure window recommendations for the next 0–72 hours,
+      with uncertainty-aware suggestions and what-if tools for departure
+      offsets.
+    - >-
+      Speed profile and route alternative optimization that meets time windows
+      while minimizing exposure to adverse conditions and fuel burn; outputs
+      per-leg recommended speeds and expected ETAs.
+    - >-
+      Real-time traffic-aware adjustments: AIS-based conflict prediction,
+      overtaking/crossing risk alerts on planned tracks, and harbor congestion
+      forecasts.
+    - >-
+      Compliance-ready audit trail: store advisory inputs, decisions, overrides,
+      and notes per voyage for 24+ months; exportable for USCG Subchapter T/K,
+      company SMS, and insurer reviews.
+    - >-
+      Crew- and dispatcher-facing interfaces: bridge tablet/PC and dispatch
+      dashboard; API for integration with ECS, dispatch/scheduling, and public
+      ETA feeds.
+    - >-
+      Alerting: SMS/email/push for window changes, new NtMs on route, ice
+      restrictions, and forecast threshold crossings.
+    - >-
+      Offline-aware onboard module caching forecasts, tides, and AIS snapshots
+      for last-mile resilience.
+  uniqueValueProp: >-
+    A route-specific, auditable decision-support co-pilot that fuses weather,
+    tides/currents, LNM/NtM, ice, and AIS to recommend go/no-go, departure
+    windows, speed profiles, and alternatives—cutting planning time by 50%,
+    improving on-time performance by 10–20%, and reducing fuel burn 3–8% while
+    strengthening SMS compliance.
+  unfairAdvantage: >-
+    A growing, labeled dataset of nearshore passenger sailings with decisions
+    and outcomes across diverse routes and seasons, enabling uniquely
+    calibrated, explainable risk and windowing models; deep integrations with
+    ECS/dispatch and an SMS-ready audit trail that insurers and regulators
+    accept, creating high switching costs and credibility.
+  customerSegments:
+    - >-
+      Primary: US and Canada coastal and Great Lakes passenger ferry operators
+      (public and private), 1–50 vessel fleets, scheduled service.
+    - >-
+      Primary: Coastal sightseeing/day-cruise operators and water taxis with
+      frequent daily sailings and fixed routes.
+    - >-
+      Secondary economic buyers/influencers: marine insurers and P&I Clubs
+      seeking risk reduction; state DOTs and transit agencies overseeing
+      contracted ferry services; port/harbor authorities.
+    - >-
+      Secondary: ECS/ECDIS and fleet management software vendors seeking
+      embedded decision-support modules.
+  channels:
+    - >-
+      Direct sales to operations, safety, and dispatch leaders at ferry/tour
+      operators; land-and-expand by route/fleet.
+    - >-
+      Partnerships with marine insurers and P&I Clubs to offer premium
+      credits/discounts tied to adoption and KPI improvement.
+    - >-
+      OEM/channel partnerships: ECS/ECDIS vendors (Rose Point, TZ
+      Professional/Furuno, Wärtsilä/Transas) and AIS data providers offering
+      embedded modules.
+    - >-
+      Industry associations and events: Passenger Vessel Association (PVA),
+      Interferry, International WorkBoat Show, MariTrends, Great Lakes/Maritime
+      conferences; sponsored workshops on SMS digitization.
+    - >-
+      Targeted content marketing: case studies on fuel savings and OTP
+      improvements; white papers on nearshore risk modeling; webinars with
+      NOAA/GLERL SMEs.
+    - >-
+      Regional pilots via state DOTs and port authorities for public ferry
+      contracts; RFP-friendly security and compliance documentation.
+    - >-
+      Referral program for captains/dispatchers; incentive credits for
+      multi-route deployments.
+  revenueStreams:
+    - >-
+      Per-vessel SaaS subscription: Starter $250/vessel/month (core advisory,
+      12h horizon); Pro $500/vessel/month (72h horizon, speed optimization,
+      API); Enterprise $750–$1,200/vessel/month (SLA, SSO, advanced
+      integrations).
+    - >-
+      Operator site licenses for fleets >20 vessels with volume discounts and
+      enterprise support.
+    - >-
+      Add-ons: satellite AIS uplift, high-resolution mesoscale weather models,
+      ice premium pack, and historical backtesting modules ($5k–$50k/year
+      depending on scope).
+    - >-
+      Professional services: onboarding of vessel performance curves, custom
+      SOP/risk templates, ECS integrations ($150–$250/hr or fixed-scope
+      packages).
+    - >-
+      Insurance partnerships: revenue share/bounty per fleet adopting with
+      verified KPI improvements.
+    - >-
+      Data/API access for dispatch/public ETA systems: usage-based pricing
+      beyond included quotas.
+  costStructure:
+    - >-
+      Data licensing: AIS terrestrial/satellite ($50k–$250k/year depending on
+      coverage and volume), premium weather/mesoscale models, map/ENC services.
+    - >-
+      Cloud infrastructure: ingestion, storage, model training/inference, stream
+      processing, monitoring ($15k–$40k/month at 200-vessel scale).
+    - >-
+      Engineering and data science salaries; maritime domain experts and pilot
+      program costs.
+    - >-
+      Sales/marketing: conferences, travel for on-site training, content
+      production, partner MDF.
+    - >-
+      Security/compliance: SOC 2 Type II audit, pen tests, incident response
+      tooling, cyber liability insurance.
+    - Liability and E&O insurance tailored for decision-support in maritime.
+    - Customer success and 24/7 support for enterprise fleets.
+  keyMetrics:
+    - >-
+      Operational KPIs: on-time performance improvement (+10–20% relative),
+      avoided cancellations due to better windowing (target +15%), planning time
+      per sailing reduced to <10 minutes (baseline 20–60).
+    - >-
+      Fuel and cost KPIs: 3–8% reduction in fuel per route; 5–15% reduction in
+      overtime linked to delays; $/nm saved.
+    - >-
+      Safety/risk KPIs: reduction in crossings with CPA <0.5 nm by 20%;
+      reduction in sailings launched above defined wind/sea thresholds by 50%;
+      near-miss trend decreased over rolling 90 days.
+    - >-
+      Model quality: forecast reliability (Brier score ≤0.18 for threshold
+      events), MAE for ETA ≤3 minutes on routes <90 minutes, tide/current timing
+      MAE ≤15 minutes.
+    - >-
+      Adoption/engagement: advisory acceptance rate ≥70%; weekly active
+      dispatcher/bridge users per vessel ≥1.5; retention >90% logo and >110% net
+      revenue retention.
+    - >-
+      Sales efficiency: CAC payback <12 months; LTV:CAC ≥4:1; pilot-to-contract
+      conversion ≥60%; average sales cycle 3–6 months.
+    - >-
+      Service SLOs: 99.9% uptime; median advisory recompute latency <2 seconds;
+      data freshness for AIS <30 seconds, weather <10 minutes from model
+      availability.
+storyBrand:
+  character: >-
+    Coastal and Great Lakes passenger vessel operators (ferries, water taxis,
+    sightseeing) who want safe, on-time sailings that protect crews, passengers,
+    schedules, and margins.
+  problem: >-
+    External: Marine conditions change fast; data is scattered across weather,
+    tides/currents, Notices to Mariners, and AIS; ports and channels get
+    congested.
+
+    Internal: Dispatchers and captains feel pressure and uncertainty about
+    go/no-go, ETAs, and route choices.
+
+    Philosophical: Moving people by water should be predictable and safe—without
+    guesswork.
+  guide: >-
+    Empathy: We’ve stood watch and dispatched fleets; we know every decision
+    carries safety, service, and revenue risk.
+
+    Authority: Sailing Risk & Route Advisor fuses authoritative sources
+    (NOAA/NWS, US/Canadian Coast Guard NTMs, AIS, tides/currents) into clear,
+    auditable voyage recommendations.
+  plan: >-
+    Process plan:
+
+    - Define vessel profiles, operating limits, and routes.
+
+    - Connect live weather, tides/currents, NTMs, and AIS for your region.
+
+    - Receive go/no-go calls, departure windows, speed profiles, and alternates
+    per sailing.
+
+    - Share the voyage plan, brief the crew, and keep an audit trail.
+
+    Agreement plan:
+
+    - Human-in-the-loop approval remains with you.
+
+    - Easy integration with dispatch and plotters (e.g., GPX/CSV outputs).
+
+    - Data privacy, reliability SLAs, and responsive support.
+
+    - Start risk-free.
+  callToAction: >-
+    Direct: Start a free trial • Book a 20-minute route-risk demo.
+
+    Transitional: Download a sample voyage risk report • Get the Route Risk
+    Checklist.
+  success: |-
+    - Fewer cancellations and diversions from surprise conditions.
+    - Higher on-time performance and schedule confidence.
+    - Safer transits with optimized speed and route choices.
+    - Lower fuel and overtime costs.
+    - Transparent, compliance-ready documentation of decisions.
+    - Crews and passengers who feel informed and confident.
+  failure: |-
+    - Reactive decisions that lead to delays, rough rides, or incidents.
+    - Costly cancellations, fines, or citations from missed notices.
+    - Eroded reputation from late sailings and poor communication.
+    - Crew fatigue and passenger complaints that drive revenue down.
+landingPage:
+  hero:
+    title: AI Sailing Risk & Route Advisor
+    subtitle: >-
+      For Coastal and Great Lakes passenger operations. Fuses marine weather,
+      tides/currents, Notices to Mariners, and AIS traffic to deliver go/no-go
+      calls, departure windows, speed profiles, and alternative routes.
+    ctaText: Request a demo
+    ctaHref: '#demo'
+  problem:
+    - Fragmented data makes voyage decisions slow and inconsistent.
+    - Last‑minute weather or NTM changes disrupt schedules and revenue.
+    - Manual planning increases crew workload and fatigue risk.
+    - Traffic and port congestion create avoidable delays and fuel burn.
+    - Lack of auditable rationale complicates incident reviews and insurance.
+    - Inconsistent risk practices across vessels and shifts.
+  solution:
+    - 'Single AI advisor that unifies weather, tides/currents, NTMs, and AIS.'
+    - Clear go/no-go decisions with time‑boxed departure windows.
+    - Optimized speed profiles to hit ETAs and reduce fuel burn.
+    - Safe alternative routes when primary plans degrade.
+    - Live risk scoring with explainable reasoning and evidence links.
+    - Continuous monitoring with alerts for new hazards or traffic conflicts.
+    - Auto-generated voyage briefs and post‑sail reports for compliance.
+  features:
+    - >-
+      Live data fusion: marine forecasts, tides/currents, Notices to Mariners
+      (NTMs), AIS traffic.
+    - >-
+      Per‑sailing risk score with factor breakdown (weather, sea state, traffic,
+      hazards).
+    - Departure window finder with confidence bands and slack time suggestions.
+    - Speed and power recommendations by leg to meet ETA within limits.
+    - >-
+      Alternative route generation respecting draft, air‑gap, and exclusion
+      zones.
+    - 'Dynamic re‑plan on change: weather updates, NTMs, closures, congestion.'
+    - What‑if scenarios for schedule recovery and missed connections.
+    - >-
+      Vessel profiles: dimensions, draft, maneuvering limits, fuel curves,
+      comfort thresholds.
+    - >-
+      Geofenced alerts: shoaling, construction, security zones, seasonal
+      restrictions.
+    - >-
+      Compliance pack: timestamped decisions, data sources, and rationale for
+      audits.
+    - Dispatcher console and bridge‑friendly views; offline briefs for handover.
+    - APIs and webhooks to integrate with ops dashboards and fleet systems.
+  steps:
+    - 'Connect vessels, routes, and operating limits.'
+    - Select today’s sailings or import schedule.
+    - 'Review AI go/no-go, departure windows, and route options.'
+    - Publish the plan to bridge and dispatch; set alert thresholds.
+    - Monitor execution and receive updates; export the post‑sail report.
+---
+# Fairway AI — Sailing Risk & Route Advisor
+
+Industry: Coastal and Great Lakes Passenger Transportation
+Service: Sailing Risk & Route Advisor

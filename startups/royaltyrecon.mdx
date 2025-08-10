@@ -1,0 +1,362 @@
+---
+name: RoyaltyRecon AI
+slug: royaltyrecon
+naics:
+  primary: '512230'
+  occupations: []
+service:
+  title: Royalty Statement Normalization & Reconciliation
+  description: >-
+    Ingests DSP/PRO/MLC statements, normalizes schemas, matches to catalog,
+    flags variances, and outputs accounting-ready files.
+  targetUsers:
+    - Royalty managers
+    - Operations leads
+    - Finance
+  triggers:
+    - Monthly/quarterly statement drop in SFTP/Drive
+    - Email with attachments
+    - Manual run from dashboard
+  inputs:
+    - DSP/PRO/MLC statements (CSV/XLS/PDF)
+    - Exchange rates
+    - 'Catalog master (works, recordings, splits, identifiers)'
+    - Rate cards/expected terms
+  steps:
+    - Detect new files in watched folders/SFTP
+    - OCR and parse PDFs; schema-map to internal model
+    - Match usages to works/recordings via ISRC/ISWC/fuzzy title/artist match
+    - Aggregate by DSP/territory/period; convert currency
+    - Compare to historical trends/expected rates; flag variances
+    - Generate exception list and reconciliation report
+    - Optional human review of exceptions in UI
+    - Export normalized tables to data warehouse/Sheets; push GL journal CSV
+  tools:
+    - AWS Textract or Google Document AI
+    - Python/pandas/dbt
+    - OpenAI (entity resolution/exceptions summaries)
+    - FuzzyWuzzy/RapidFuzz
+    - BigQuery/Snowflake
+    - Google Sheets/Excel
+    - Slack/Email alerts
+    - Zapier/Make for glue
+  outputs:
+    - Normalized usage and royalty tables (CSV/Parquet)
+    - Variance/exception report
+    - GL-ready journal CSV
+    - Dashboard link with drill-down
+  pricingModel:
+    - Per-statement processing fee
+    - Volume tiers by line-items
+    - Optional success fee for recovered variances
+    - Onboarding/setup fee
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8.5
+  risks:
+    - Messy PDFs lead to parsing errors
+    - False matches causing misallocations
+    - Portal export format changes
+    - Data security/compliance requirements
+  dependencies:
+    - SFTP/Drive access to statements
+    - Up-to-date catalog with identifiers
+    - Finance chart of accounts
+    - 'FX rate source (e.g., CurrencyLayer)'
+leanCanvas:
+  problem:
+    - >-
+      Royalty data fragmentation: Publishers receive 50–300+ monthly files
+      across DSPs/PROs/MLC in 30–80 different schemas (CSV, XLSX, CWR, DDEX ERN,
+      PDFs), causing manual normalization and delayed close.
+    - >-
+      High manual workload: Mid-size publishers (50k–500k works) spend 2–6 FTEs
+      on ingest, validation, and reconciliation; cycle times commonly 20–45 days
+      post-statement.
+    - >-
+      Metadata inconsistency: Incomplete/incorrect ISWC/ISRC, alternate titles,
+      abbreviations, and writer aliasing drive low match rates (70–85%) and
+      missed collections.
+    - >-
+      Missed/underpaid royalties: 1–4% of gross royalties go uncollected or
+      underpaid due to mapping errors, territorial splits, FX variances, and
+      rate application mistakes.
+    - >-
+      Reconciliation complexity: Cross-source reconciliation (DSP vs. MLC vs.
+      PRO) and monthly vs. quarterly timing creates blind spots; evidence packs
+      for disputes are time-consuming to assemble.
+    - >-
+      Accounting handoff friction: Outputs rarely align with accounting systems
+      (Vistex, Counterpoint, Music Maestro, Rightsline), creating rework and
+      audit risk.
+    - >-
+      Scaling pain during catalog M&A: Backlog ingestion and retro claims for
+      acquired catalogs can take 3–9 months without automation.
+    - >-
+      Limited line-of-business visibility: Leadership lacks near-real-time
+      dashboards for match rates, unclaimed balances, variances by
+      source/territory, and ROI on audits.
+  solution:
+    - >-
+      Universal ingestion layer for CSV/XLSX, CWR, DDEX ERN, XML, JSON, SFTP
+      feeds, and portal-scraped PDFs using layout-aware OCR with schema
+      inference.
+    - >-
+      Catalog matching using hybrid ML + rules: ISWC/ISRC/Title/Writer fuzzy
+      match, alias resolution, territory/split logic, and confidence scoring
+      with human-in-the-loop review queues.
+    - >-
+      Cross-source reconciliation: Compare DSP usage to MLC mechanicals and PRO
+      performances by period, territory, work, and source; auto-calc expected
+      vs. reported using rate cards and FX tables.
+    - >-
+      Variance detection and claims: Threshold- and rule-based variance flags;
+      generate evidence packs (ledgers, contracts, usage, timestamped diffs) for
+      disputes and audit workflows.
+    - >-
+      Accounting-ready outputs: Export to Vistex, Counterpoint, Music Maestro,
+      Rightsline, NetSuite/Intacct via API/SFTP with chart-of-account mappings
+      and dimensional tagging.
+    - >-
+      Backfile acceleration: High-throughput historical ingestion with
+      de-duplication and retro-claim identification.
+    - >-
+      Quality feedback loop: Editorial operations layer to resolve edge cases;
+      model retraining using publisher-confirmed decisions to continuously
+      improve precision/recall.
+    - >-
+      Governance & security: Role-based access, immutable audit logs, PII
+      minimization, SOC 2 roadmap, data residency options.
+  uniqueValueProp: >-
+    Single, AI-powered pipeline that ingests any DSP/PRO/MLC statement,
+    auto-normalizes schemas, maps to your catalog with high-confidence entity
+    resolution, reconciles cross-sources, flags variances with audit-grade
+    evidence, and exports accounting-ready files—cutting close time from weeks
+    to days and recovering 0.5–2% of gross royalties.
+  unfairAdvantage: >-
+    A continuously improving reference graph and labeled dataset built from
+    multi-publisher decisions and cross-source reconciliations, combined with
+    deep integrations to royalty/accounting platforms and a claims evidence
+    generator. Network effects improve match/recall and variance precision over
+    time, reducing unit costs and increasing recovery accuracy in ways that are
+    hard for new entrants to replicate.
+  customerSegments:
+    - >-
+      Enterprise publishers (majors and large independents) managing 1M+ works
+      and multi-territory reporting.
+    - >-
+      Mid-market publishers (50k–1M works) upgrading from spreadsheets/manual
+      processes.
+    - >-
+      Admin publishers and service providers (e.g., serving many indie
+      catalogs).
+    - >-
+      Production music libraries and sync-heavy catalogs with complex cue sheets
+      and PRO distributions.
+    - >-
+      Catalog aggregators/funds executing frequent catalog acquisitions and
+      needing fast ingest/recon of backfiles.
+    - >-
+      Songwriter services/indie collectives managing long-tail catalogs with
+      high statement diversity.
+  channels:
+    - >-
+      Direct sales to Heads of Royalties/Royalty Operations, CFO/COO, and CTO at
+      publishers; account-based outreach to top 500 publishers by catalog size.
+    - >-
+      Partnerships and integrations with royalty/accounting platforms (Vistex,
+      Counterpoint, Music Maestro, Rightsline) for co-selling and marketplace
+      listings.
+    - >-
+      Alliances with audit firms and royalty consultants (e.g., Moss Adams,
+      Citrin Cooperman, Ankura) to bundle variance discovery and audit
+      readiness.
+    - >-
+      Industry events and associations: AIMP, NMPA, MLC workshops, Music Biz,
+      Synchtank/Vistex user groups; targeted demos and case studies.
+    - >-
+      Content and proof: Benchmark report on “Match Rates & Variance Recovery by
+      Source,” webinars, and ROI calculator; before/after case studies with
+      measurable recovery.
+    - >-
+      Seed customers via design partner program (5–10 publishers) with
+      discounted pricing for case-study rights and reference calls.
+    - >-
+      Trigger-based outbound: target catalogs post-acquisition announcements and
+      during PRO/MLC onboarding transitions.
+  revenueStreams:
+    - >-
+      SaaS subscription tiers by active works and monthly line items. Example:
+      Starter $1,250/month (≤50k works, ≤5M lines/mo); Growth $4,500/month
+      (≤300k works, ≤30M lines/mo); Enterprise custom.
+    - >-
+      Usage overage: $0.002–$0.01 per 1,000 line items beyond plan threshold;
+      volume-discounted.
+    - >-
+      Implementation/onboarding: $10k–$75k one-time, based on connectors and
+      historical backfile size.
+    - >-
+      Backfile processing and cleanup projects: $0.50–$1.50 per 100k lines;
+      optional fixed-bid for large migrations.
+    - >-
+      Success fee on recovered variances/claims: 10–15% of realized collections
+      (optional program).
+    - >-
+      Premium support and SLO add-ons: 24/7 support, dedicated TAM, custom
+      reporting starting at $1,000/month.
+    - >-
+      API access for partners/resellers: $500–$2,000/month depending on
+      endpoints and call volume.
+  costStructure:
+    - >-
+      Cloud compute for ETL/ML/OCR: approx. $2.50–$4.00 per million line items
+      processed; scale with spot/GPUs as needed.
+    - >-
+      Storage and backups: $0.02–$0.03 per GB-month; cold storage for backfiles;
+      egress for partner exports.
+    - >-
+      LLM/embedding inference for schema/entity tasks: $0.30–$1.20 per million
+      tokens equivalent; caching to reduce costs 40–60%.
+    - >-
+      Data licensing/metadata enrichment: budgets for ISWC/ISRC reference,
+      writer identifiers, MusicBrainz, and commercial sources where applicable.
+    - >-
+      Security/compliance: SOC 2 Type II audit and tooling $75k–$150k annually;
+      pentesting $25k–$50k.
+    - >-
+      Engineering and data ops: 6–12 FTEs initially (ML, data platform,
+      connectors, QA); annual loaded cost $1.5M–$3M.
+    - >-
+      Customer success/editorial ops: 2–6 FTEs for HIL reviews and onboarding;
+      $300k–$900k annually.
+    - >-
+      Sales/marketing: $300k–$800k annually (events, content, partnerships, ABM
+      tools).
+    - 'Legal and licensing: $50k–$150k annually for DPAs, contracts, and IP.'
+    - >-
+      General overhead: G&A, office, insurance (E&O/cyber), $150k–$300k
+      annually.
+  keyMetrics:
+    - >-
+      Ingestion coverage: % of sources auto-processed without manual template
+      setup; target ≥90% after 6 months.
+    - >-
+      Normalization accuracy: % of fields correctly mapped; target ≥98% on known
+      schemas, ≥95% on unseen schemas after first pass.
+    - >-
+      Match precision/recall: precision ≥98%, recall ≥95% for ISWC/ISRC-linked
+      records; report by source and territory.
+    - >-
+      Manual touch rate: % of line items requiring human review; target ≤1%
+      steady-state.
+    - >-
+      Variance detection performance: precision ≥90%, recall ≥80%; measured
+      against auditor-verified ground truth.
+    - >-
+      Recovery rate: dollars recovered as % of gross; target median 0.8–1.5%,
+      upper quartile ≥2.0%.
+    - >-
+      Close time: hours from last file receipt to accounting export; target ≤72
+      hours; stretch ≤24 hours for steady-state.
+    - >-
+      Backlog burn-down: time to ingest historical files (e.g., 100M lines in
+      ≤10 days).
+    - >-
+      SLA adherence: uptime ≥99.9%, pipeline success rate ≥99.5%, mean time to
+      reprocess <2 hours.
+    - >-
+      Customer ROI: time savings (FTE hours/month) and payback period; target
+      payback ≤4 months, NRR ≥120%.
+    - >-
+      Churn and expansion: gross churn ≤5% annually; expansion via increased
+      volume and features ≥20% ARR uplift.
+    - >-
+      Data quality score: composite of completeness, dedupe, and error rate;
+      target ≥95/100 after 3 cycles.
+storyBrand:
+  character: >-
+    Music publishers (NAICS 512230) — royalty, rights, and finance teams who
+    need fast, accurate royalty reconciliation across DSP/PRO/MLC.
+  problem: >-
+    Villain: messy, inconsistent royalty statements from DSPs, PROs, and the
+    MLC. External: fragmented schemas, missing IDs, duplicates, late reports,
+    and mismatches. Internal: teams buried in spreadsheets, fearing
+    under/overpayments and audit risk. Philosophical: creators deserve accurate,
+    on-time royalties; publishers should grow catalogs, not clean data.
+  guide: >-
+    Empathy: we’ve lived royalty chaos and know the cost of leakage and delays.
+    Authority: AI-first reconciliation built on DDEX/CWR know-how, proven at
+    million-line scales, with strong controls and clear audit trails.
+  plan: >-
+    1) Connect DSP/PRO/MLC feeds and your catalog/GL. 2) AI normalizes schemas,
+    matches works/recordings, and flags variances with reasons. 3) Review
+    exceptions, approve fixes, and export accounting-ready files and audit logs.
+  callToAction: >-
+    Direct: book a demo or start a 30-day pilot. Transitional: download a sample
+    variance report and ROI calculator.
+  success: >-
+    Clean, reconciled statements; faster month-end close; recovered missed
+    revenue; 80%+ less manual work; fewer disputes; audit-ready transparency;
+    scalable operations across catalogs and territories.
+  failure: >-
+    Without this, revenue leaks persist, closes drag on, spreadsheets multiply,
+    audits get costly, creator trust erodes, and growth stalls.
+landingPage:
+  hero:
+    title: Royalty Statement Normalization & Reconciliation
+    subtitle: >-
+      AI service for Music Publishers (NAICS 512230). Ingest DSP/PRO/MLC
+      statements, normalize schemas, match to catalog, flag variances, and
+      export accounting‑ready files.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - 'Royalty data arrives in dozens of formats from DSPs, PROs, and the MLC.'
+    - Manual spreadsheet work slows closes and introduces errors.
+    - Unmatched lines hide revenue and inflate write‑offs.
+    - Variances vs. deal terms go unnoticed until audits.
+    - 'Multi‑territory taxes, fees, and FX are inconsistent.'
+    - 'No single audit trail across sources, periods, and teams.'
+  solution:
+    - Unify DSP/PRO/MLC statements into one clean schema in minutes.
+    - AI matches usage to your catalog using ISRC/ISWC/UPC/title/writer data.
+    - 'Automatic variance checks against splits, rates, territories, and periods.'
+    - 'Exception queue to review, comment, assign, and resolve discrepancies.'
+    - Exports that drop into your royalty system and general ledger.
+    - Realtime dashboards and alerts for anomalies and close status.
+  features:
+    - Connectors and SFTP/API ingestion for major DSPs and PROs.
+    - CSV/XLSX/flat‑file parsing with field mapping and schema normalization.
+    - >-
+      Fuzzy and rules‑based matching on ISRC, ISWC, UPC, titles, writers, and
+      aliases.
+    - Deduplication and conflict detection across sources and periods.
+    - 'Currency and FX normalization; fees, withholdings, and taxes by territory.'
+    - Deal/rate sheet ingestion to validate expected rates and splits.
+    - >-
+      Support for mechanical (MLC) and performance (ASCAP/BMI/PRS/SOCAN, etc.)
+      data.
+    - >-
+      Variance engine flags rate, volume, territory, timing, and split
+      discrepancies.
+    - 'Workflow with audit trail: approvals, comments, and assignments.'
+    - >-
+      One‑click exports (CSV/JSON/SFTP/API), templates for Counterpoint, Curve,
+      Vistex, NetSuite.
+    - 'Role‑based access, PII redaction, and SOC 2‑ready controls.'
+    - Processing SLAs with monitoring and alerting.
+  steps:
+    - Connect DSP/PRO/MLC sources or upload files.
+    - 'Import catalog, writer splits, and deal terms.'
+    - Map fields once—auto‑apply to future deliveries.
+    - Auto‑normalize and match statements to your catalog.
+    - Review and resolve flagged variances.
+    - Export accounting‑ready files to your royalty and GL systems.
+    - Track close progress with dashboards and alerts.
+---
+# RoyaltyRecon AI
+
+Generated for NAICS 512230 — Music Publishers.
+Service: Royalty Statement Normalization & Reconciliation

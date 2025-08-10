@@ -1,0 +1,353 @@
+---
+name: ClearFrame Compliance AI
+slug: clearframe
+naics:
+  primary: '512199'
+  occupations: []
+service:
+  title: Automated QC and Broadcast/OTT Compliance
+  description: >-
+    AI-driven QC for loudness, silence/black, peak levels, PSE heuristics,
+    profanity, and tech spec validation.
+  targetUsers:
+    - Post facilities
+    - Distributors
+    - OTT aggregators
+  triggers:
+    - Master file uploaded for delivery
+  inputs:
+    - Master file (mov/mxf)
+    - 'Delivery spec (loudness, frame rate, codec)'
+    - Profanity/glossary list
+  steps:
+    - Extract media metadata and verify specs
+    - Loudness analysis and optional normalization
+    - Black/silence/freeze detection with timecodes
+    - Heuristic PSE/flash pattern checks
+    - Transcript-based profanity/bleep flags
+    - Generate QC report and optional auto-fixes
+  tools:
+    - ffmpeg/ffprobe (EBU R128)
+    - bmxtranswrap/MediaInfo
+    - OpenCV flash pattern detection
+    - Whisper for transcript
+    - Auphonic API (optional)
+  outputs:
+    - QC PDF/JSON with timecoded findings
+    - Normalized master or sidecar fix list
+    - Delivery checklist
+  pricingModel:
+    - Per finished minute
+    - 'Add-on: auto-fix render'
+    - Rush turnaround tiers
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 4
+    overall: 4.3
+  risks:
+    - False negatives (esp. PSE)
+    - Spec edge cases (IMF/AS-11 nuances)
+    - Liability for missed issues
+  dependencies:
+    - Clear delivery spec
+    - Sufficient compute for full-res analysis
+leanCanvas:
+  problem:
+    - >-
+      Rising delivery complexity: Broadcasters/OTT platforms have divergent
+      specs (e.g., Netflix IMF App 2E, DPP AS-11, Amazon Prime Video, Disney+,
+      regional broadcasters), leading to frequent rejections and costly
+      re-deliveries.
+    - >-
+      Manual QC is slow and expensive: Human QC averages 1–3x realtime and
+      $75–$150 per program hour; rush turnarounds are even costlier.
+    - >-
+      False positives/negatives from rule-based QC: Legacy automated QC tools
+      struggle with edge cases (e.g., mixed program/advert segments, variable
+      loudness targets, background profanity) causing unnecessary manual review
+      or missed defects.
+    - >-
+      Regulatory risk: PSE (photosensitive epilepsy) compliance, profanity, and
+      loudness violations carry legal/contractual penalties and brand damage.
+    - >-
+      Fragmented workflows: Files move across S3, Aspera, Signiant, MAM/DAM
+      (Avid, Dalet, Iconik, Frame.io), and transcoders (Vantage, Elemental). QC
+      doesn’t follow the asset lifecycle seamlessly.
+    - >-
+      Low observability: Lack of audit-ready evidence and machine-readable QC
+      reports slows approvals and complicates dispute resolution with
+      distributors.
+    - >-
+      Scale constraints: Spikes around seasonal content, sports, and ad
+      campaigns exceed in-house QC capacity.
+    - >-
+      Globalization: Multi-language caption/audio tracks increase profanity,
+      timing, and mapping errors.
+  solution:
+    - >-
+      Automated file-based QC pipeline supporting IMF, AS-11, MXF, ProRes, and
+      common OTT mezzanines via watch folders, S3/SFTP, Aspera/Signiant, and
+      REST API.
+    - >-
+      Policy templates for major platforms (e.g., Netflix, Prime Video, DPP
+      AS-11, Hulu, Disney+, YouTube/Twitch loudness) with a low-code spec editor
+      to map custom broadcaster sheets to machine rules.
+    - >-
+      AI-driven checks: ITU-R BS.1770-4 loudness and true-peak; silence/black;
+      PSE heuristics aligned with Ofcom/DPP guidance; profanity (ASR + language
+      ID + context) across 30+ languages; tech spec validation (codec, frame
+      rate, bitrate, color space, HDR10/Dolby Vision metadata, audio channel
+      mapping); caption/subtitle timing/overlap/profanity; letterboxing/AFD and
+      pillarbox detection.
+    - >-
+      Human-in-the-loop review portal: triage false positives, annotate
+      timelines, one-click generate fix instructions; export EDL/markers for
+      Resolve, Avid, Premiere.
+    - >-
+      Fix-suggestions: loudness normalization recipes, slate/leader insertion
+      checks, rewrap/transcode presets for non-compliant parameters; optional
+      auto-fix for loudness/true-peak with re-verify.
+    - >-
+      Compliance evidence: versioned, cryptographically signed JSON/PDF QC
+      reports with frame/timecode references, thumbnails, and audio/loudness
+      plots.
+    - >-
+      Scalable, cost-aware compute with GPU/CPU auto-selection; priority/rush
+      queues with SLAs.
+    - >-
+      Webhooks and connectors to Vantage, Elemental, Dalet, Iconik, Avid
+      Interplay, Frame.io, Telestream, and common delivery endpoints.
+  uniqueValueProp: >-
+    AI-native, policy-driven QC that meets broadcast/OTT specs in minutes—not
+    hours—with measurable accuracy, low false positives, and audit-ready reports
+    that match delivery checklists. Plug into your existing storage, MAM, and
+    transcode pipelines with an API-first design.
+  unfairAdvantage: >-
+    SpecGraph engine that converts unstructured delivery specs (PDF/Docs) into
+    validated, reusable machine policies with test vectors; plus a proprietary
+    dataset of real-world rejects from aggregator and broadcaster partners that
+    continuously improves models and reduces false positives. Deep, native
+    connectors into MAM/transcode ecosystems shorten time-to-value and create
+    switching costs.
+  customerSegments:
+    - >-
+      Post-production houses and finishing suites (delivery coordinators, QC
+      supervisors)
+    - >-
+      OTT platforms and aggregators/distributors (content operations, onboarding
+      teams)
+    - Broadcast networks and regional stations (engineering/QC leads)
+    - Localization/dubbing/captioning vendors (language operations managers)
+    - Ad delivery networks and agencies (brand safety/compliance leads)
+    - Studios and indie distributors (delivery/technical operations)
+    - Cloud MAM/DAM providers seeking embedded QC (product partners/OEM)
+  channels:
+    - >-
+      Direct sales to mid-market and enterprise (post houses, broadcasters,
+      OTT): hire 2–3 AE/SE pairs; KPI: 12 qualified opportunities/AE/quarter;
+      20–30% POC-to-close rate.
+    - >-
+      Partner/OEM with MAM/DAM and transcode vendors (Dalet, Iconik, Avid,
+      Telestream Vantage, AWS Elemental): build native connectors and
+      marketplace listings (AWS/GCP/Azure). KPI: 5 tech partnerships in 12
+      months; OEM-influenced revenue >25% of ARR by month 18.
+    - >-
+      Industry events and standards bodies: NAB, IBC, HPA Tech Retreat, SMPTE.
+      KPI: 50+ demos/event; 10 POCs sourced/event.
+    - >-
+      Content marketing and compliance templates: publish free policy packs (DPP
+      AS-11 starter, Netflix IMF checklist, ad loudness pack), case studies, and
+      QC benchmark whitepapers. KPI: 1,000 downloads/quarter; MQL>SQL conversion
+      10–15%.
+    - >-
+      Strategic pilots with aggregators/localization vendors handling volume:
+      discounted 90-day pilots with signed success criteria (e.g., 40% manual QC
+      time reduction). KPI: 6 pilots/year; 70% conversion to annual contract.
+    - >-
+      Resellers/system integrators (Diversified, Qvest, Avid partners):
+      enablement kits, revenue share 10–20%. KPI: 10 reseller-led deals in year
+      2.
+  revenueStreams:
+    - >-
+      Usage-based SaaS: per processed minute with volume tiers (e.g.,
+      $0.20–$0.60/min; enterprise commits discounting to $0.12–$0.25/min).
+    - >-
+      Enterprise subscriptions: annual platform fee ($25k–$150k) for policy
+      packs, SSO, VPC deployment, premium support, and custom SLAs.
+    - >-
+      Add-ons: certified PSE analysis via third-party plugin (pass-through +
+      20–30% margin), Dolby Vision metadata validation, and auto-fix modules
+      (loudness normalization, rewrap).
+    - >-
+      Professional services: policy onboarding, workflow integration, and change
+      management ($150–$250/hr; fixed-scope packages $5k–$50k).
+    - >-
+      OEM/embedded licensing: per-node or revenue-share with MAM/DAM/transcode
+      vendors.
+  costStructure:
+    - >-
+      Cloud compute for inference and media processing: $0.04–$0.12 per media
+      minute (mix of CPU/GPU), target <25% of revenue at scale.
+    - >-
+      Object storage and egress: temporary storage $0.005–$0.01/GB-month; egress
+      minimization via in-cloud processing and same-region deployments.
+    - >-
+      Third-party services: optional ASR/PSE licenses when not using in-house
+      models ($0.01–$0.05/min ASR; PSE plugin per-hour fees).
+    - >-
+      R&D/ML engineering: 6–10 FTE year 1–2; $1.5M–$3M annually for model
+      development, MLOps, and evaluation frameworks.
+    - 'Product/Design/Frontend: 3–5 FTE; $600k–$1.2M annually.'
+    - >-
+      Sales/Marketing: AE/SE pairs, events, content; CAC target $35k–$60k
+      enterprise; payback <12 months.
+    - 'Support/Success: 2–4 FTE; enterprise onboarding and SLAs.'
+    - 'Security/compliance: SOC 2 Type II and pen tests $150k–$300k/year.'
+    - >-
+      Data acquisition/annotation: $200k–$500k/year to build ground-truth
+      labeled datasets (PSE/profanity/loudness/captions).
+    - >-
+      General/Admin and legal (including data processing agreements and
+      broadcaster vendor approvals).
+  keyMetrics:
+    - >-
+      Model precision/recall per check: loudness >99% accuracy on integrated
+      loudness; true-peak within ±0.2 dBTP; silence/black precision/recall
+      >0.97; PSE screening recall ≥0.98 with precision ≥0.90; profanity F1 ≥0.90
+      for top 10 languages at ≥85% ASR WER quality.
+    - >-
+      False positive rate: maintain <5% on overall pass/fail at portfolio level;
+      track per-rule FPR trend; customer-tunable thresholds reduce FPR by ≥30%.
+    - >-
+      Throughput and latency: average processing ≤0.6x realtime on CPU, ≤0.3x on
+      GPU; 95th percentile job start <2 minutes; rush queue completion SLA <1
+      hour for 30-minute program.
+    - >-
+      Manual QC reduction: target ≥40% reduction in human review minutes within
+      90 days of deployment; ≥60% for ad workflows.
+    - >-
+      Rejection rate and re-delivery costs: reduce platform/broadcaster
+      rejections by ≥50% within 6 months; track dollars saved (goal $50–$200 per
+      hour processed).
+    - >-
+      Adoption: number of active policies per tenant (goal ≥5 in 60 days);
+      connectors enabled per tenant (≥2).
+    - >-
+      Business KPIs: Gross margin ≥70% by month 18; Net revenue retention ≥115%;
+      Churn <6% annually; Average enterprise ACV $120k–$350k; POC-to-close cycle
+      ≤120 days.
+    - >-
+      Quality auditing: % of QC reports with signed evidence and reproducible
+      hashes (goal 100%).
+storyBrand:
+  character: >-
+    Post supervisors, delivery ops leads, and QC managers at studios, streamers,
+    distributors, and post houses who must deliver zero-defect, spec-compliant
+    masters on deadline.
+  problem: >-
+    External: Manual QC misses loudness, PSE, profanity, black/silence, peaks,
+    and spec mismatches—triggering rejections and fees. Internal: Teams burn
+    time on repetitive reviews and stressful re-delivery loops. Philosophical:
+    Quality and compliance shouldn’t depend on all-nighters or subjective
+    judgment.
+  guide: >-
+    Empathy: We understand delivery-day anxiety and shifting broadcaster/OTT
+    specs. Authority: Built by broadcast engineers; validates against EBU
+    R128/ITU BS.1770, CALM Act, PSE heuristics, and major OTT/broadcaster tech
+    specs; integrates with existing pipelines and produces audit-ready reports.
+  plan: >-
+    1) Connect: Point the service at your storage or pipeline. 2) Configure:
+    Choose a network/OTT template or define thresholds (loudness, peaks,
+    silence/black, PSE, profanity, tech specs). 3) Validate: Run automated QC to
+    get pass/fail, timecoded findings, fix guidance, and re-check on new
+    renders.
+  callToAction: >-
+    Start a trial or book a 20-minute demo; optionally upload one file for a
+    free sample QC report.
+  success: >-
+    Fewer rejections and resubmits, faster deliveries, unified compliance across
+    partners, hours saved per title, clear audit trail, happier clients, and
+    predictable margins.
+  failure: >-
+    Continued rejections, missed slots and late fees, overtime burnout,
+    reputational damage, and lost distribution windows.
+landingPage:
+  hero:
+    title: Automated QC and Broadcast/OTT Compliance
+    subtitle: >-
+      AI-driven QC for loudness, silence/black, peaks, PSE risk, profanity,
+      captions, and full tech-spec validation—built for Other Motion Picture and
+      Video Industries (NAICS 512199).
+    ctaText: Book a demo
+    ctaHref: '#demo'
+  problem:
+    - 'Manual QC is slow, inconsistent, and expensive.'
+    - Spec sprawl across broadcasters and OTTs drives rework and rejections.
+    - Spot-checks miss frame-accurate issues under tight deadlines.
+    - Multi-language profanity and caption checks don’t scale.
+    - 'Deliverables lack auditable, partner-ready compliance reports.'
+    - High-volume pipelines (FAST/SVOD/AVOD) need 24/7 QC at scale.
+  solution:
+    - 'One-click, AI-powered QC purpose-built for broadcast and OTT.'
+    - Prebuilt profiles for major partners; import your custom specs.
+    - 'Frame-accurate flags, suggested fixes, and pass/fail at a glance.'
+    - Delivery-ready reports and certificates with full audit trail.
+    - Runs in cloud or on-prem; integrates with your MAM/NLE and storage.
+    - Batch automation and APIs to eliminate manual handoffs.
+  features:
+    - 'Loudness compliance (EBU R128, ATSC A/85/CALM) with true-peak limiting.'
+    - 'Silence/black, dead-air, flash frames, and leader/trailer detection.'
+    - >-
+      PSE risk heuristics aligned to Ofcom/ITC guidance; optional certified PSE
+      integration.
+    - >-
+      Profanity and slur detection with language packs and customizable
+      dictionaries.
+    - >-
+      Audio QC: LKFS/LRA, peaks, channel mapping, phase/correlation, 2.0/5.1/7.1
+      checks.
+    - >-
+      Tech spec validation: frame rate, resolution, bitrate, codec, chroma
+      subsampling, color space, gamut and broadcast-safe levels.
+    - >-
+      Caption/subtitle QC (SCC, SRT, STL, IMSC): timing, reading speed, line
+      length, overlaps, profanity mismatch, missing captions.
+    - >-
+      Slate and metadata checks: title, episode, TX dates, IDs, timecode starts;
+      filename and slate consistency.
+    - >-
+      Container and track layout validation for IMF, MXF OP1a, ProRes,
+      H.264/HEVC, audio track orders.
+    - >-
+      Automatic fixes: loudness normalize, true-peak control, trim
+      black/silence, auto rewrap/transcode to delivery presets.
+    - >-
+      Timeline viewer with waveforms, vectorscope, and QC markers; jump-to-issue
+      playback.
+    - >-
+      Batch processing via watch folders and cloud buckets (S3/GCS/Azure);
+      priority queues.
+    - >-
+      Reports in PDF/JSON/XML with partner-specific schemas; cryptographic
+      hashes and chain-of-custody.
+    - >-
+      Integrations: Aspera/Signiant, S3, Azure, GCS, webhooks; Jira/Slack
+      notifications; REST API and CLI.
+    - >-
+      Security: SSO/SAML, RBAC, encryption at rest/in transit, audit logs,
+      private cloud/VPC or on-prem options.
+  steps:
+    - 'Ingest media via upload, watch folder, or API.'
+    - Select a target profile (broadcast/OTT) or import your custom spec.
+    - Run AI QC—monitor progress in real time.
+    - 'Review timeline markers; approve, auto-fix, or export EDL to your NLE.'
+    - >-
+      Export pass/fail reports and compliance certificates; auto-deliver to
+      partners.
+    - 'Track versions and audits across titles, seasons, and territories.'
+---
+# ClearFrame Compliance AI
+
+Generated for NAICS 512199 — Other Motion Picture and Video Industries.
+Service: Automated QC and Broadcast/OTT Compliance

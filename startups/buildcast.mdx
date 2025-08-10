@@ -1,0 +1,312 @@
+---
+name: BuildCast AI
+slug: buildcast
+naics:
+  primary: '444180'
+  occupations: []
+service:
+  title: Branch-SKU Demand Forecasting & Auto-Replenishment
+  description: >-
+    Forecast demand by branch/SKU and generate suggested orders with safety
+    stocks and seasonality.
+  targetUsers:
+    - Purchasing
+    - Inventory Planners
+    - Branch Managers
+  triggers:
+    - Nightly batch
+    - Supplier lead-time changes
+    - New item/location added
+  inputs:
+    - 24–36 months sales by branch/SKU
+    - 'Lead times, MOQs, vendor calendars'
+    - 'Stock levels, on-order POs'
+    - 'Promotions, seasonality, holidays'
+    - Local weather/permits (optional)
+  steps:
+    - Ingest/clean ERP history and lead-time data
+    - Train per-SKU models with seasonality and exogenous features
+    - 'Compute reorder points, order-up-to, and risk buffers'
+    - Propose POs by vendor considering MOQs and truckload brackets
+    - Route exceptions for human approval
+    - Post approved POs to ERP and track forecast accuracy
+  tools:
+    - AWS Forecast/Prophet/BigQuery ML
+    - Snowflake/BigQuery
+    - NOAA/Tomorrow.io weather APIs
+    - Local permits datasets (where available)
+    - ERP APIs (P21/Spruce/BisTrack/Agility)
+    - BI dashboards (Looker/Power BI)
+  outputs:
+    - Forecasts (SKU-branch weekly)
+    - Suggested PO files by vendor
+    - Exception list (new items/intermittent demand)
+    - Service level and forecast accuracy reports
+  pricingModel:
+    - Monthly subscription by SKU/branch tier
+    - One-time onboarding for data pipelines
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 8
+    overall: 9
+  risks:
+    - Data quality and unit-of-measure inconsistencies
+    - Supplier constraints invalidate suggestions
+    - Demand shocks (storms/projects) beyond model scope
+  dependencies:
+    - Read/write access to ERP purchasing/inventory
+    - Vendor calendars and MOQs
+    - Historical sales and returns data
+leanCanvas:
+  problem:
+    - >-
+      Branch/SKU demand is highly seasonal (weather- and project-driven),
+      causing 20–40% forecast error for many dealers using static min/max or
+      spreadsheets.
+    - >-
+      Stock-outs on high-velocity SKUs (cement, drywall, roofing, fasteners)
+      drive lost sales and costly expedites; fill rates often <92% vs target
+      97–98%.
+    - >-
+      Excess inventory ties up working capital; DIO commonly 80–120 days when
+      55–75 is achievable for comparable mix.
+    - >-
+      Lead times are volatile (imported millwork, siding, windows/doors), and
+      existing ERPs seldom recalculate safety stock dynamically based on
+      variability, causing either overstock or shortages.
+    - >-
+      Buyers/planners spend 8–15 hours/week per branch creating POs across
+      hundreds of vendors; manual work ignores constraints (MOQs, case packs,
+      truckload rounding, vendor calendars).
+    - >-
+      Limited signal usage: quotes, takeoffs, contractor project pipelines,
+      permits, and local weather are rarely fed into replenishment logic,
+      missing early demand cues.
+    - >-
+      Fragmented multi-branch visibility leads to misallocation between branches
+      and late transfers; DC logic is basic, wasting freight and time.
+  solution:
+    - >-
+      Ingest daily sales, on-hand/on-order, lead times, vendor constraints,
+      quotes, and lost-sales signals from ERP; enrich with weather and
+      building-permit data per branch.
+    - >-
+      Generate weekly/daily branch-SKU forecasts using hierarchical, seasonal,
+      and promotion-aware models tuned for building materials (long lead times,
+      lumpy project demand).
+    - >-
+      Compute dynamic reorder points and safety stocks to target service levels
+      (e.g., 97–99%) using actual lead-time variability and demand volatility.
+    - >-
+      Produce auto-suggested POs per vendor with rounding to
+      case/pallet/truckload, MOQ/MOV checks, vendor calendars, and split between
+      DC vs direct-to-branch.
+    - >-
+      Exception workflow: planners review only exceptions (forecast spikes,
+      supplier delays, stocking policy changes), not every SKU.
+    - >-
+      What-if sandbox: simulate service levels, inventory, and cash impact under
+      policy changes (e.g., tighter safety stock, new vendor lead times).
+    - >-
+      Cross-branch transfer recommendations before buying new stock to reduce
+      overstock and freight.
+    - >-
+      Closed-loop learning: incorporate accept/reject PO feedback, actual lead
+      times, and service results to retrain models monthly.
+  uniqueValueProp: >-
+    Increase fill rate to 97–98% while reducing DIO by 15–30 days through
+    branch-SKU AI forecasting that ingests weather, permits, and project
+    pipeline data, and auto-builds purchase orders that respect vendor and
+    freight constraints—implemented in weeks, not months.
+  unfairAdvantage: >-
+    Category-tuned forecasting and replenishment with prebuilt connectors to
+    common LBM ERPs, enriched by localized weather and building-permit signals
+    plus project/quote ingestion—delivering measurable gains in fill rate and
+    DIO within 90 days and requiring minimal IT lift. Feedback loops from PO
+    accept/reject and lead-time drift further improve outcomes branch-by-branch.
+  customerSegments:
+    - >-
+      Primary: Independent and regional Other Building Material Dealers (NAICS
+      444180), 3–50 branches, $20M–$1B revenue, pro-heavy mix
+      (roofing/drywall/masonry/millwork).
+    - >-
+      Secondary: Specialty dealers within 444180 (roofing supply, stone/masonry,
+      windows/doors, siding/insulation) with volatile lead times and
+      seasonality.
+    - >-
+      Tertiary: Distributors serving dealers who want branch-level forecasting
+      and auto-replenishment for their own DCs or VMI programs.
+  channels:
+    - >-
+      Direct outbound to regional and independent dealers (CRO-led, 1–3 AEs per
+      region).
+    - >-
+      Partnerships with ERP VARs/resellers (Epicor, DMSi, Kerridge) and
+      inventory consulting boutiques serving LBM/other building materials.
+    - >-
+      Industry associations and buying groups: NLBMDA, NRLA, WBMA, LMC, SBCA;
+      co-hosted webinars and member discounts.
+    - >-
+      Trade shows/events: LBM Strategies, NRLA LBM Expo, JLC Live, NAW events;
+      speaking slots and live ROI calculator demos.
+    - >-
+      Content-led inbound: SEO on “branch SKU forecasting,” “LBM replenishment,”
+      “reduce DIO building materials”; case studies and calculators.
+    - >-
+      Pilot-led land-and-expand: 90-day paid pilots for 3–5 branches; expansion
+      to remaining branches post-ROI.
+    - >-
+      Customer referrals and reference program with incentives tied to
+      expansion.
+    - Integration marketplace listings within ERP partner ecosystems.
+  revenueStreams:
+    - >-
+      SaaS subscription: per-branch + per-active-SKU pricing. Example:
+      $500/branch/month + $0.03 per active SKU/month (caps at
+      $2,500/branch/month).
+    - >-
+      Implementation/onboarding: $15k–$60k fixed, depending on ERP and data
+      complexity (includes connectors, historical load, model tuning).
+    - >-
+      Premium data add-ons: building-permit enrichment ($0.005–$0.02 per permit
+      in trade area) and hyperlocal weather ($0.002 per station per day).
+    - >-
+      Professional services: policy design, SKU rationalization, DC vs vendor
+      strategy ($200–$250/hr or fixed-scope packages).
+    - >-
+      Upcoming: VMI/Collaborative Planning module for key vendors (additional
+      $300/vendor/month).
+  costStructure:
+    - >-
+      Cloud infrastructure (compute, storage, orchestration): ~$0.04–$0.08 per
+      active SKU per year; scales with history depth and retraining cadence.
+    - >-
+      Data acquisition: weather and permits 10–20% of COGS for customers using
+      enrichment.
+    - >-
+      Integration and support: 20–30% of revenue in early years (declines with
+      connector reuse).
+    - >-
+      R&D (ML engineers, data scientists, product): 25–35% of operating expenses
+      to maintain forecast quality and new features.
+    - >-
+      Sales & marketing: 20–30% of revenue initially, targeting CAC payback <12
+      months.
+    - 'G&A and compliance (SOC 2, security tooling): 5–8% of operating expenses.'
+  keyMetrics:
+    - >-
+      Forecast accuracy: MAPE ≤18% on A/B/C items; WAPE ≤12% weighted by revenue
+      within 90 days of go-live.
+    - >-
+      Service level: 97–98.5% for target classes; stock-out incidence reduced
+      ≥30%.
+    - >-
+      Inventory efficiency: +15–25% improvement in turns; DIO reduction 15–30
+      days within 6 months.
+    - >-
+      Working capital impact: inventory dollar reduction 10–20% without
+      sacrificing service.
+    - >-
+      Expedite/freight: expedite spend reduced ≥25%; truckload utilization
+      +10–15% where applicable.
+    - >-
+      Adoption: ≥70% of suggested PO lines accepted without edits by month 3;
+      auto-PO rate ≥50% by month 6.
+    - >-
+      Planner productivity: time spent on ordering reduced 40–60%
+      (hours/week/branch).
+    - >-
+      Implementation velocity: time-to-first-PO ≤30 days; full branch rollout
+      ≤60 days.
+    - >-
+      Logo/Net revenue retention: >95% logo, 115–130% NRR via branch and module
+      expansion.
+    - 'Model freshness: retraining cadence monthly; lead-time model MAPE ≤10%.'
+storyBrand:
+  character: >-
+    Inventory and purchasing leaders at multi-branch Other Building Material
+    Dealers (NAICS 444180) who need the right stock by branch/SKU to meet
+    contractor demand without tying up cash.
+  problem: >-
+    External: Stockouts on fast movers and excess on slow movers from blunt
+    min/max and spreadsheets that ignore seasonality, projects, MOQs, and
+    variable lead times. Internal: Buyers are firefighting, unsure what to
+    order, and accountable for misses. Philosophical: Contractors should get
+    materials when promised; inventory should fuel growth—not sit in the yard.
+  guide: >-
+    We understand project-driven, seasonal demand in building materials and the
+    pressure to hit fill rates without bloating inventory. Our AI inventory
+    co-pilot is purpose-built for branch/SKU decisions, backed by supply-chain
+    veterans, reference dealers, and fast ROI.
+  plan: >-
+    1) Connect ERP/POS, vendor lead times, and history (1–2 weeks). 2) Train
+    branch-SKU models with seasonality, service levels, safety stocks, and
+    variability. 3) Generate suggested POs and exception reviews; sync to your
+    ERP. Agreement: 90-day, 2-branch pilot; fixed price; cancel anytime; your
+    data stays yours; SOC 2–ready.
+  callToAction: >-
+    Primary: Schedule a 30-minute demo. Transitional: Get a sample forecast and
+    reorder policy report for your top SKUs.
+  success: >-
+    95–98% fill rates, 10–20% lower inventory, 30–50% fewer expedites, less dead
+    stock, smoother cash flow, and buyers focused on supplier strategy—not
+    spreadsheets.
+  failure: >-
+    Keep guessing orders, miss jobs from stockouts, tie up cash in the yard, pay
+    rush freight, and lose contractors to competitors who have stock.
+landingPage:
+  hero:
+    title: Branch‑SKU Demand Forecasting & Auto‑Replenishment
+    subtitle: >-
+      Right stock, right branch. AI forecasts demand and builds suggested orders
+      with safety stock and seasonality for building material dealers.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - Demand swings by branch create stockouts and overstocks
+    - Capital and yard space locked in slow movers and dead stock
+    - 'Manual spreadsheets miss seasonality, lead times, and MOQs'
+    - Emergency buys and split freight erode margin
+    - Ad‑hoc transfers and unclear reorder points
+    - Hard to align orders with vendor case packs and calendars
+    - No quick way to see risk by SKU/branch or measure fill rate
+  solution:
+    - Forecasts at branch‑SKU granularity with seasonal patterns
+    - Dynamic safety stock by service level and lead‑time variability
+    - >-
+      Auto‑generated suggested POs that honor MOQs, case/pallet packs, and
+      vendor calendars
+    - Smart reorder points and EOQs per branch/SKU
+    - Cross‑branch transfer suggestions to rebalance inventory
+    - Promotion/project overrides with exception‑based review
+    - One‑click export to ERP/POS; API connectors available
+    - 'Built‑in KPIs: fill rate, turns, excess, stockout risk, forecast accuracy'
+  features:
+    - Seasonality‑aware models tuned for building material demand
+    - New‑item forecasts via analogs and attribute matching
+    - Service level targets by category and branch
+    - Lead time variability and holidays factored into safety stock
+    - 'Vendor constraints: MOQ, case/pallet, price breaks, order cycles'
+    - Suggested PO drafts with due dates and arrival windows
+    - Transfer recommendations between branches to cut excess and outages
+    - ABC/XYZ segmentation with policy templates
+    - 'Exception‑driven workflow, alerts, and approvals'
+    - 'Scenario planning for promos, project bids, and demand uplifts'
+    - Dead stock detection with exit strategies
+    - 'Dashboards for fill rate, turns, aging, and forecast error'
+    - 'ERP/POS integrations (e.g., Epicor, DMSI, NetSuite, Acumatica)'
+    - 'Secure, cloud‑based with audit trails and role permissions'
+  steps:
+    - 'Connect ERP/POS, inventory, and vendor masters'
+    - 'Map branches, SKUs, units, and calendars'
+    - 'Set service levels, lead times, and vendor constraints'
+    - Review forecasts and policies by category/branch
+    - Approve suggested orders; export or auto‑create POs in ERP
+    - Enable transfer recommendations and automate low‑risk items
+    - Monitor KPIs and resolve exceptions in a daily workflow
+---
+# BuildCast AI
+
+Generated for NAICS 444180 — Other Building Material Dealers.
+Service: Branch-SKU Demand Forecasting & Auto-Replenishment

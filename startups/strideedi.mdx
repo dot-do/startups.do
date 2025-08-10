@@ -1,0 +1,378 @@
+---
+name: StrideEDI — Order-to-Cash Automation Agent for Footwear Wholesalers
+slug: strideedi
+naics:
+  primary: '424340'
+  occupations: []
+service:
+  title: EDI Order-to-Cash Automation Agent (850→855→856→810)
+  description: >-
+    Automates retailer EDI order intake, validation, allocation, pick/pack prep,
+    ASN creation, invoicing, and exception handling.
+  targetUsers:
+    - Operations Manager
+    - EDI Coordinator
+    - Controller/CFO
+  triggers:
+    - New EDI 850 PO received via SPS/TrueCommerce
+    - Customer CSV order email detected
+    - Manual drop of PO file to SFTP
+  inputs:
+    - EDI 850 files
+    - Customer price lists and terms
+    - SKU/UPC master with dimensions/weights
+    - ATP inventory and open POs
+    - Routing guides and label specs
+    - Customer ship windows/appointment constraints
+  steps:
+    - Ingest and parse 850
+    - 'Validate SKUs, UPCs, pricing, ship-to, and dates'
+    - Check ATP and reserves; flag shortages
+    - Draft and send 855 confirmations/backorder dates
+    - Create sales order in ERP and allocate inventory
+    - Cartonize and generate packing plan and UCC-128 labels
+    - Build and transmit 856 ASN
+    - 'On ship confirm, generate 810 invoice and post to ERP'
+    - Push status notifications and file docs
+    - Log and route exceptions for human review
+  tools:
+    - SPS Commerce/TrueCommerce EDI
+    - NetSuite/SAP Business One/Cin7/DEAR API
+    - EasyPost/ShipEngine (rates/labels)
+    - OR-Tools (cartonization)
+    - SFTP/Email automation
+    - Google Drive/SharePoint (doc archive)
+  outputs:
+    - 855 acknowledgements
+    - 856 ASNs and UCC-128 labels
+    - 810 invoices posted
+    - Exception log and SLA dashboard
+  pricingModel:
+    - Setup fee (mapping/testing)
+    - Monthly subscription
+    - Per-order/EDI doc processed
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8.5
+  risks:
+    - Retailer EDI compliance and chargebacks for formatting/timing
+    - Frequent mapping changes
+    - Incorrect cartonization causing delivery refusals
+    - Data latency between ERP/WMS
+  dependencies:
+    - EDI network credentials and trading partner maps
+    - ERP and WMS/3PL API access
+    - Carrier accounts and label specs
+    - Routing guides and customer calendars
+leanCanvas:
+  problem:
+    - >-
+      Manual EDI order processing (850→855→856→810) causes delays, errors, and
+      chargebacks; teams re-key data between EDI portals, ERP, and WMS.
+    - >-
+      Retailer-specific routing guides and compliance rules (labels,
+      cartonization, pack slip content, ship windows, DC appointments) are
+      complex and change frequently, driving costly non-compliance.
+    - >-
+      Inventory allocation across channels is ad hoc, leading to poor fill
+      rate/backorders or overselling.
+    - >-
+      Poor exception handling (price mismatches, invalid SKUs/UPCs, pack size
+      errors, ship window conflicts) increases deductions and slows cash
+      collection.
+    - >-
+      Fragmented tech stack (ERP, WMS/3PL, EDI VAN, retailer portals) lacks
+      orchestration; no single source of truth for status or SLA compliance.
+    - >-
+      Peaks (back-to-school/holiday) overwhelm teams; onboarding a new retailer
+      can take 4–12 weeks with high mapping/testing burden.
+    - >-
+      Current solutions (VANs, EDI mapping tools, basic RPA) move documents but
+      don’t autonomously decide, allocate, or resolve exceptions.
+  solution:
+    - >-
+      Always-on EDI agent that ingests 850s, validates against item master/price
+      lists/inventory, and issues compliant 855s (accept/backorder/cancel) with
+      reasoning and audit trails.
+    - >-
+      Allocation engine applies configurable business rules (channel priority,
+      margin/SKU velocity, retailer penalties, min/max packs) and reserves
+      inventory in ERP/WMS/3PL.
+    - >-
+      Pick/pack prep: generates compliant cartonization, UCC-128/GS1-128 labels,
+      pack slips, BOL/VICS BOL, and pushes pick waves to WMS/3PL.
+    - >-
+      Automated 856 ASN creation (per retailer spec) with SSCC-18s, hierarchical
+      levels (shipment, order, pack, item), and ship window safeguards.
+    - >-
+      Automated 810 invoicing with tax/terms/freight logic; 997 handling;
+      864/870 status if applicable; auto-reconciliation against PO and ship data
+      to reduce invoice disputes.
+    - >-
+      Exception handler: detects price/SKU/UPC mismatches, item substitutions,
+      split shipments, cancel-after-date conflicts, over/short/duplicate events;
+      proposes resolution and executes per policy.
+    - >-
+      Retailer routing guide brain: continuously updated rulebook for major
+      footwear retailers/marketplaces; pre-shipment compliance checks to prevent
+      chargebacks.
+    - >-
+      Observability: real-time order-to-cash cockpit (touchless rate, fill rate,
+      SLA timers, chargeback risk alerts), with drill-down to document segments
+      and labels.
+    - >-
+      Onboarding accelerator: prebuilt maps/test packs for common retailers;
+      simulation sandbox; dual-run shadow mode; outcomes-based go-live criteria.
+    - >-
+      Security & compliance: SOC 2 roadmap, PII minimization, role-based
+      approvals; detailed logs for audit and retailer disputes.
+  uniqueValueProp: >-
+    Autonomous, retailer-compliant EDI agent that turns 850s into cash with
+    minimal human touch—validating, allocating, prepping pick/pack, creating
+    UCC-128/ASN, and invoicing—while proactively preventing chargebacks and
+    accelerating cash collection.
+  unfairAdvantage: >-
+    A continuously updated, retailer-specific compliance brain paired with an
+    autonomous exception-resolution engine, trained on domain-specific
+    EDI/chargeback data and integrated deeply with footwear workflows
+    (cartonization, UCC-128, VICS BOL). Dual-run safety and prebuilt
+    maps/testing packs enable fast, low-risk onboarding that general EDI tools
+    and RPA can’t match.
+  customerSegments:
+    - >-
+      Primary: US mid-market Footwear Merchant Wholesalers (NAICS 424340)
+      selling into big-box, department stores, specialty chains, and
+      marketplaces that mandate EDI.
+    - >-
+      Beachhead profiles: 1) $20M–$250M revenue, 10k–250k EDI orders/year, 2–10
+      ops/EDI FTEs, 3PL or in-house WMS; 2) Brands with wholesale divisions
+      supplying retailers (e.g., lifestyle/sneaker/dress shoe brands).
+    - >-
+      Secondary: Larger wholesalers with legacy EDI + custom ERP flows seeking
+      modernization and chargeback reduction; global expansion (Canada/EU) after
+      US foothold.
+    - >-
+      Economic buyers: VP Operations, Director of Supply Chain, VP IT/ERP, CFO
+      (for cash/chargeback impact).
+    - >-
+      Key influencers: EDI managers, Customer service/order management leads, DC
+      managers, 3PL partners.
+  channels:
+    - >-
+      Direct sales to VP Ops/IT via account-based outreach to NAICS 424340 lists
+      segmented by EDI retailer mix.
+    - >-
+      Partnerships with EDI networks (SPS Commerce, TrueCommerce, Cleo,
+      Orderful) to co-sell as the automation/orchestration layer on top of their
+      connectivity.
+    - >-
+      ERP/WMS/3PL VAR alliances and marketplaces (NetSuite SuiteApp, Acumatica,
+      Microsoft AppSource, Deposco, Extensiv) for referral/implementation.
+    - >-
+      Industry events and associations: FDRA (Footwear Distributors & Retailers
+      of America), The Atlanta Shoe Market (TASM), FN PLATFORM/MAGIC, NRF Supply
+      Chain; sponsor sessions on chargeback prevention.
+    - >-
+      Content-led growth: retailer-specific compliance playbooks, “EDI-to-cash”
+      benchmark reports, chargeback ROI calculator; webinars with a 3PL or EDI
+      VAN partner.
+    - >-
+      Customer reference loops: 90-day pilots turning into case studies focused
+      on chargeback reduction and DSO impact.
+    - >-
+      Targeted LinkedIn ads to job titles (Director of EDI, Supply Chain,
+      Operations) highlighting touchless rate and chargeback savings.
+    - >-
+      Freemium tools: free ASN validator and UCC-128 label tester to capture
+      leads.
+  revenueStreams:
+    - >-
+      Subscription (ARR) tiered by monthly order volume and number of connected
+      retailers; includes a baseline of documents and users.
+    - >-
+      Implementation/onboarding fee based on number of retailers, ERP/WMS
+      integrations, and label templates.
+    - >-
+      Per-document overage or per-order fee beyond plan thresholds; optional VAN
+      pass-through billing or bundle.
+    - >-
+      Premium support/SLA plans (e.g., 24x7 peak season coverage, dedicated CSM,
+      quarterly compliance audits).
+    - >-
+      Professional services: retailer onboarding, custom allocation rules, data
+      cleansing, chargeback remediation workshops.
+    - >-
+      Add-ons: advanced analytics (chargeback prediction), AP/AR extensions
+      (remittance matching), portal automation for non-EDI retailers.
+  costStructure:
+    - >-
+      R&D: engineering for EDI mapping, integrations, LLM orchestration, rule
+      engine, compliance knowledge base.
+    - >-
+      Cloud infrastructure: compute, storage, observability, print server
+      services; multi-region HA for peak season.
+    - >-
+      LLM/API usage and model hosting costs with guardrails; vector DB for
+      policy/guide retrieval; testing sandboxes.
+    - >-
+      EDI connectivity: partnerships and certification costs; optional VAN fees
+      (if bundled).
+    - >-
+      Implementation/CS: solution architects, onboarding specialists, customer
+      success managers, retailer compliance SMEs.
+    - >-
+      Sales & marketing: SDRs/AEs, events (FDRA, TASM, MAGIC), content
+      production, partner MDF.
+    - >-
+      Security & compliance: SOC 2 Type II audit, penetration testing,
+      logging/monitoring, insurance.
+    - >-
+      Ops/overhead: finance, legal (retailer guide licensing if needed),
+      office/remote tooling.
+  keyMetrics:
+    - 'Touchless order rate: target ≥80% by day 90, ≥90% by month 12.'
+    - >-
+      Chargebacks as % of wholesale revenue: reduce to ≤0.3% from typical
+      0.8–1.5%; track by retailer and root cause.
+    - >-
+      Fill rate: maintain ≥95% with policy-compliant substitutions and partials
+      within customer SLAs.
+    - >-
+      Time-to-acknowledge (850→855): ≤2 hours during business hours; ≤6 hours
+      off-hours peak season.
+    - 'ASN timeliness: ≥99% on-time 856s vs. ship windows; late ASN rate <0.5%.'
+    - >-
+      Invoice cycle time (shipment→810): median <2 hours; 95th percentile <8
+      hours.
+    - >-
+      DSO reduction: 3–7 days within 6 months (via faster 810s and fewer
+      disputes).
+    - >-
+      Exception SLA: 95% resolved within 1 business day; auto-resolved >60% by
+      month 6.
+    - >-
+      Implementation time: first retailer live ≤30 days; full retailer set
+      (5–10) within 60–90 days.
+    - 'Cost per order processed: decrease by ≥40% vs. baseline manual processing.'
+    - 'Net revenue retention: >115% (expansion via additional retailers/volume).'
+    - >-
+      Platform reliability: document processing success ≥99.9%; dual-run error
+      delta <0.1% at cutover.
+storyBrand:
+  character: >-
+    Operations and sales leaders at Footwear Merchant Wholesalers (NAICS 424340)
+    who must ship on time, stay retailer‑compliant, and get paid fast—without
+    drowning in EDI busywork and chargebacks.
+  problem: >-
+    External: Fragmented retailer EDI (850/855/856/810), strict routing guides,
+    labels, and appointments; manual keying across ERP/WMS/3PL causes errors and
+    delays. Internal: Anxiety about chargebacks, missed windows, and cash stuck
+    in disputes; growth stalls because adding retailers increases complexity.
+    Philosophical: Your team should focus on product and customers—not babysit
+    portals and PDFs.
+  guide: >-
+    We understand footwear complexity—style/color/size, prepack/breakpack, UPC
+    variants, seasonality, and DC vs. drop‑ship rules. Our AI EDI Order‑to‑Cash
+    Agent brings prebuilt maps, retailer compliance guardrails, and deep EDI
+    expertise, integrating with your ERP/WMS/3PL to automate the flow end‑to‑end
+    with human‑in‑the‑loop oversight when needed.
+  plan: >-
+    1) Connect: Plug into your EDI VAN/API and ERP/WMS/3PL; import items, UPCs,
+    packs, warehouses, and routing rules. 2) Configure: Set validation,
+    allocation, cartonization, UCC‑128/GS1 labels, ASN/Invoice templates, and
+    chargeback guardrails. 3) Go Live: Pilot with 1–2 retailers; monitor
+    exceptions and SLAs; expand footprint with continuous optimization.
+  callToAction: >-
+    Direct: Book a 30‑minute demo; Start a 14‑day pilot; Get pricing.
+    Transitional: Download the Footwear EDI Chargeback Checklist; Run the
+    Order‑to‑Cash ROI calculator; Access an integration readiness guide.
+  success: >-
+    Retailer‑compliant 855/856/810 sent on time; invoices issued same day.
+    Dramatically fewer manual touches and errors. Chargebacks reduced with
+    proactive validation and guardrails. Faster cash and improved
+    OTIF/scorecards. Clear visibility via exception queues and audit trails.
+    Scale new retailers and channels without adding headcount.
+  failure: >-
+    Manual keying and swivel‑chair ops persist. Missed ship windows, invalid
+    ASNs/invoices, and costly chargebacks erode margin. Payments delay, retailer
+    relationships strain, and growth is capped by operational bottlenecks.
+landingPage:
+  hero:
+    title: EDI Order-to-Cash Automation for Footwear Wholesalers
+    subtitle: >-
+      Hands-free 850→855→856→810. Cut chargebacks, ship on time, and get paid
+      faster—purpose-built for style-color-size and size runs.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - >-
+      Retailer EDI rules are complex and change often, leading to costly
+      chargebacks.
+    - Manual order entry and allocation slow down shipping windows.
+    - Size-run/prepack constraints create stockouts or mis-shipments.
+    - 'Portals, spreadsheets, and emails cause errors and rework.'
+    - ASNs and UCC-128 labels are tedious and easy to get wrong.
+    - 'Invoices go out late, stretching DSO and cash flow.'
+    - Exception handling steals time from high-value accounts.
+    - Onboarding new trading partners takes weeks.
+  solution:
+    - >-
+      An AI agent orchestrates the full EDI flow—intake, validation, allocation,
+      pick/pack prep, ASN, and invoicing.
+    - >-
+      Retailer-specific rule packs enforce routing guides, ship windows, and
+      label/pack compliance.
+    - >-
+      Size-run and prepack-aware allocation maximizes fill rate with smart
+      backorder and split-ship logic.
+    - >-
+      One-click pick waves and cartonization prep your WMS/3PL for fast,
+      accurate fulfillment.
+    - >-
+      Auto-generate 855s, UCC-128 labels, and 856s with SSCC
+      hierarchy—error-free.
+    - >-
+      Create and transmit 810 invoices immediately on ship confirm, synced to
+      your ERP.
+    - Exception workspace triages issues with root-cause and suggested fixes.
+    - Rapid partner onboarding with prebuilt maps for major footwear retailers.
+  features:
+    - 850 intake via AS2/SFTP/VAN with X12 validation and partner rule packs.
+    - >-
+      Auto 855 confirmations with fills, cancels, subs, and requested date
+      changes.
+    - >-
+      Allocation engine aware of style-color-size, UPC/EAN, size runs, and
+      prepacks.
+    - ATP/ATS checks across warehouses and 3PLs with reserve logic.
+    - Backorder and split-ship rules per retailer and ship window enforcement.
+    - 'Pick wave, packing slip, and cartonization suggestions for WMS/3PL.'
+    - UCC-128/GS1-128 label generation with SSCC tracking.
+    - 856 ASN creation with carton/pallet hierarchy and DC routing compliance.
+    - '810 invoice creation with terms, discounts, freight, and tax mapping.'
+    - Chargeback guardrails and retailer scorecard tracking.
+    - Exception queue with reason codes and one-click corrections.
+    - Audit trail and EDI message viewer for every transaction.
+    - 'Dashboards: fill rate, on-time ship, DSO, and chargeback trends.'
+    - 'Multi-warehouse and 3PL routing, carrier/service-level selection.'
+    - >-
+      Integrations: NetSuite, SAP Business One, Sage, Acumatica, QuickBooks
+      Enterprise; WMS/3PL tools; EDI networks and direct AS2.
+    - >-
+      Security by design: role-based access, least-privilege, encrypted at
+      rest/in transit.
+  steps:
+    - Connect your ERP/WMS/3PL and EDI transport (AS2/SFTP/VAN).
+    - Select trading partners and import routing guides and rule packs.
+    - Map and validate on recent 850s; simulate 855/856/810 end-to-end.
+    - 'Enable automation per doc type (start with 850→855, then 856, then 810).'
+    - Go live by retailer with controlled rollout and monitoring.
+    - Work exceptions from the queue; apply suggested fixes and rules.
+    - 'Expand to more partners, warehouses, and seasons with confidence.'
+---
+# StrideEDI — Order-to-Cash Automation Agent for Footwear Wholesalers
+
+Generated for NAICS 424340 — Footwear Merchant Wholesalers.
+Service: EDI Order-to-Cash Automation Agent (850→855→856→810)

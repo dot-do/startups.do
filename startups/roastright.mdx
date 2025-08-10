@@ -1,0 +1,394 @@
+---
+name: RoastRight AI
+slug: roastright
+service:
+  title: Demand Forecasting and Finite-Capacity Production Planning
+  description: >-
+    Generates 18-month SKU/channel forecasts and a weekly, allergen-aware
+    production schedule that respects roaster/grinder capacity, labor, and
+    changeovers.
+  targetUsers:
+    - VP/Director of Operations
+    - Demand Planner
+    - Plant Scheduler
+  triggers:
+    - Month-start S&OP cycle
+    - Large PO or promo added
+    - Service level drop
+  inputs:
+    - Historical sales by SKU/channel
+    - Open orders and backlog
+    - Promotions and price changes
+    - BOMs and routings
+    - Machine capacities and changeover matrix
+    - Holidays/shift calendars
+  steps:
+    - Ingest and clean sales/orders; reconcile SKU hierarchies
+    - Forecast by SKU/channel with hierarchical models and promo variables
+    - Run safety stock calculation per service target
+    - Optimize weekly schedule with capacity and allergen/changeover constraints
+    - Publish plan to Sheets/ERP; track exceptions and re-plan as needed
+  tools:
+    - Python/pandas
+    - Prophet/NeuralProphet + LightGBM/XGBoost
+    - Google Sheets/Excel
+    - OR-Tools
+    - Power BI/Tableau
+    - Zapier/Make for exports
+  outputs:
+    - 18-month forecast CSV/XLSX
+    - Weekly finite-capacity schedule (Gantt)
+    - Capacity/labor utilization dashboard
+    - Exception list (late or constrained SKUs)
+  pricingModel:
+    - One-time setup + data cleanup
+    - Monthly subscription per site
+    - Optional per-SKU model tuning add-on
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 9
+    overall: 9
+  risks:
+    - Dirty/incomplete data skews models
+    - Sudden demand spikes beyond historical patterns
+    - ERP integration permissions/time
+  dependencies:
+    - 'ERP/MRP exports (e.g., NetSuite, SAP B1)'
+    - Confirmed changeover matrix and run rates
+    - Promo/calendar feed
+leanCanvas:
+  problem:
+    - >-
+      Volatile, promo-driven demand causes frequent stockouts on top SKUs and
+      slow-moving inventory on long tails; current weekly MAPE at SKU/channel
+      often >25%.
+    - >-
+      Manual spreadsheets/ERP heuristics can’t create feasible weekly schedules
+      under finite capacity; planners spend 10–20 hours/week resolving overloads
+      and gaps.
+    - >-
+      Allergen cross-contact risk (peanut vs. tree nut families) forces
+      expensive cleanouts; lack of allergen-aware sequencing inflates changeover
+      hours by 20–40%.
+    - >-
+      Roasters/grinders are true bottlenecks (throughput in lb/hr,
+      warmup/cooldown, roast curves). Changeovers, sanitation, and crew
+      constraints aren’t modeled together, leading to low asset utilization and
+      overtime.
+    - >-
+      Promotions and seasonal spikes (Q4 gifting, back-to-school, sporting
+      events) aren’t modeled at SKU/channel granularity; lift and
+      cannibalization are misestimated.
+    - >-
+      S&OP lacks a single, trusted 18-month forecast tied to a feasible capacity
+      plan, resulting in misaligned procurement and excess nut/packaging
+      inventory.
+    - >-
+      Shelf-life and FEFO rules aren’t enforced in planning, risking write-offs
+      and customer chargebacks.
+    - >-
+      ERP APS modules are generic; food-specific constraints (oil separation
+      rest time for PB, allergen matrices, rework handling) are absent or
+      require costly customization.
+  solution:
+    - >-
+      18-month rolling SKU x channel forecasts (weekly buckets first 26 weeks,
+      monthly thereafter) using hierarchical, causal models with promo/event
+      lift and retailer calendar alignment.
+    - >-
+      Finite-capacity weekly scheduling using optimization (MIP/CP): respects
+      roaster/grinder rates, warmup/cooldown, labor/crews, packaging, allergen
+      family matrices, sanitation, rest times, and changeovers.
+    - >-
+      Allergen-aware sequence optimization: groups runs by allergen family and
+      flavor to minimize full cleanouts while meeting due dates and FEFO.
+    - >-
+      Scenario planning: simulate promo uplifts, new SKUs, capacity changes,
+      overtime vs. temp labor, and supplier constraints; compare service level,
+      cost, and utilization trade-offs.
+    - >-
+      Automated safety stock and inventory policies aligned to service targets
+      by ABC class; FEFO enforcement and near-expiry alerts.
+    - >-
+      S&OP workflow: a monthly consensus forecast tied to a feasible 13-week
+      operations plan and a constrained procurement plan for nuts, oils,
+      jars/lids/film.
+    - >-
+      Shop-floor feedback loop: schedule dispatch, progress capture, and near
+      real-time rescheduling on disruptions (machine downtime, labor call-offs).
+    - >-
+      Out-of-the-box integrations to common food ERPs (Aptean/JustFood/Deacom,
+      Microsoft D365/Business Central, SAP B1, NetSuite, SYSPRO) and distributor
+      EDI (UNFI, KeHE).
+    - >-
+      Implementation playbook: 6–8 weeks to go-live. Data cut: 24 months
+      order/ship history, BOMs/routings, rates, changeover matrix, allergen map,
+      calendars. KPI baseline and post-go-live validation.
+  uniqueValueProp: >-
+    Allergen-aware demand forecasting and finite-capacity production planning
+    tailored to roasted nuts and peanut butter—cut stockouts and changeovers
+    simultaneously. Achieve 10–20% inventory reduction at 96–98% case fill,
+    20–40% fewer allergen cleanover hours, and >90% schedule adherence within 8
+    weeks.
+  unfairAdvantage: >-
+    Deep, preconfigured allergen-aware planning templates and changeover
+    matrices specific to nuts and peanut butter, coupled with proprietary
+    sequencing heuristics and a growing anonymized benchmark dataset that
+    improves recommendations across customers—delivering faster time-to-value
+    (≤8 weeks) than generic APS/S&OP suites.
+  customerSegments:
+    - >-
+      Mid-market roasted nuts and peanut butter manufacturers (50–500 employees,
+      2–10 lines, 200–2,000 SKUs), single or multi-plant.
+    - >-
+      Co-packers/private-label nut/PB producers serving retailers and CPG
+      brands.
+    - >-
+      Enterprise multi-site snack manufacturers with nut/PB business units
+      needing plant-level and network-level planning.
+    - 'Retailers with captive nut/PB plants (e.g., private-label operations).'
+    - >-
+      Primary buyer roles: VP Operations, Director of Supply Chain, Plant
+      Manager, Master Scheduler/Planner, CFO/VP Finance (inventory/COGS),
+      Quality/FSMA lead.
+  channels:
+    - >-
+      Direct sales to mid-market producers: targeted outbound to PTNPA, SNAC
+      International, and American Peanut Council member lists; 1:1 outreach to
+      VP Ops/Plant Manager with KPI benchmark offer.
+    - >-
+      Partnerships with food ERP vendors/SIs (Aptean/JustFood, Deacom, SYSPRO,
+      NetSuite, Microsoft D365 partners): referral and co-sell agreements; joint
+      webinars and bundled implementation packages.
+    - >-
+      Industry events: sponsor/demo at SNAXPO, PTNPA Annual, Pack Expo; host
+      planner roundtables focused on allergen-aware scheduling.
+    - >-
+      Content-led inbound: case studies, ‘Allergen Changeover Cost Calculator,’
+      and a quarterly ‘Nuts & PB Operations Benchmark’ report; SEO around
+      “finite capacity scheduling food,” “allergen scheduling,” “nut roasting
+      planning.”
+    - >-
+      Pilot-led land-and-expand: 6-week paid pilot on one plant/line with
+      success criteria (MAPE, schedule adherence, changeover hours); expand to
+      additional lines/sites post-ROI.
+    - >-
+      Customer advisory board (5–8 plants) to co-develop features; publish
+      anonymized benchmarks to drive credibility.
+    - >-
+      Channel to co-packers/private label: offer white-label planning services
+      to their brand clients as a value-add.
+  revenueStreams:
+    - >-
+      SaaS subscription per plant, tiered by SKU count and lines: Starter
+      $3,000/month (≤300 SKUs, ≤3 lines), Growth $6,000/month (≤1,000 SKUs, ≤6
+      lines), Enterprise from $12,000/month (multi-site, API SLAs, sandbox).
+    - >-
+      One-time implementation fee: $25,000–$100,000 per plant (data integration,
+      master data cleanup, constraint modeling, training).
+    - >-
+      Paid pilot: $15,000 for 6 weeks, convertible to implementation credit upon
+      subscription.
+    - >-
+      Add-ons: syndicated demand data connectors ($1,000–$3,000/month), advanced
+      optimization solver tier (Gurobi premium), network planning module.
+    - >-
+      Professional services: S&OP facilitation, changeover reduction workshops,
+      planner certification ($200–$300/hour or fixed-scope packages).
+    - >-
+      Outcome-based bonus (optional): shared savings on inventory and
+      changeover-hour reduction after baseline verification (e.g., 10% of
+      verified first-year savings).
+  costStructure:
+    - >-
+      People: engineering (ML, OR), product, implementation, data integration,
+      customer success, food manufacturing SMEs (50–60% of costs).
+    - >-
+      Cloud infrastructure: compute for training/optimization, storage, VPCs,
+      monitoring, backups (10–15%).
+    - >-
+      Optimization/analytics licenses: solver (e.g., Gurobi), BI/ETL tools
+      (5–8%).
+    - 'Sales & marketing: events, content, partner commissions (12–18%).'
+    - >-
+      Compliance/security: SOC 2, pen tests, audit tooling, cyber insurance
+      (2–4%).
+    - Customer support and training (3–5%).
+    - >-
+      General & administrative: legal (FSMA/data processing), finance, HR,
+      office/travel (5–8%).
+  keyMetrics:
+    - >-
+      Customer outcome KPIs (target ranges within 3–6 months): weekly
+      SKU/channel MAPE ≤12–18% (top 80% volume), forecast bias within ±5%, case
+      fill 96–98%, inventory turns +20–35%, schedule adherence ≥90%, changeover
+      hours −20–40%, roaster/grinder utilization 80–85% without overtime,
+      allergen incidents 0, write-offs −15–30%.
+    - >-
+      Planning process KPIs: planner time on manual rescheduling −50–70%,
+      frozen-window stability (plan changes inside 1-week freeze) ≤10%, S&OP
+      cycle time ≤5 business days.
+    - >-
+      Adoption/usage: weekly active planners ≥90%, plan version approvals on
+      time ≥95%, exception backlog cleared weekly ≥95%.
+    - >-
+      Implementation KPIs: time-to-first-schedule ≤4 weeks, time-to-value (first
+      validated KPI improvement) ≤8 weeks, data quality score ≥95%.
+    - >-
+      Commercial metrics: CAC payback ≤12 months, Net revenue retention ≥115%,
+      gross margin ≥70%, LTV/CAC ≥4x, win rate vs. status quo ≥30%.
+storyBrand:
+  character: >-
+    Plant managers, schedulers, and supply chain leaders at roasted nuts and
+    peanut butter manufacturers who need reliable forecasts and allergen-safe,
+    finite-capacity production plans.
+  problem: >-
+    External: Volatile demand, retailer promos, constrained roaster/grinder
+    capacity, labor limits, and allergen changeovers drive cost and chaos.
+
+    Internal: Spreadsheets and basic MRP can’t keep up, leading to firefighting,
+    overtime, and missed service levels.
+
+    Philosophical: You shouldn’t have to guess—or risk cross-contact—to deliver
+    every order on time.
+  guide: >-
+    Empathy: We understand the realities of roasting, grinding, and allergen
+    segregation—and the cost of getting it wrong.
+
+    Authority: Purpose-built AI for nut/peanut processors, proven in pilots with
+    improved forecast accuracy and smoother schedules; secure (SOC 2-ready),
+    with industry references.
+  plan: >-
+    Process Plan:
+
+    1) Connect: Integrate ERP/OMS data (sales, BOMs/routings, allergens, labor,
+    roaster/grinder capacities).
+
+    2) Model: Generate 18-month SKU/channel forecasts and a weekly,
+    allergen-aware finite schedule in 2 weeks.
+
+    3) Operate: Review scenarios, finalize rules, go live with weekly refresh
+    and ongoing tuning.
+
+    Agreement Plan:
+
+    - 30–60 day pilot, minimal IT lift
+
+    - Clear accuracy and service KPIs
+
+    - You own your data; training and support included
+  callToAction: >-
+    Direct: Book a 30-minute fit call.
+
+    Transitional: Get a free forecast-accuracy benchmark and sample
+    allergen-aware schedule.
+  success: >-
+    - 18-month visibility by SKU/channel to plan promos and seasonal peaks
+
+    - Weekly, finite-capacity schedules that respect roaster/grinder, labor, and
+    changeovers
+
+    - Allergen-compliant runs that cut changeovers and risk
+
+    - Higher service/OTIF, lower inventory and overtime, fewer rushes and
+    write-offs
+
+    - Confident scenario planning (new SKUs, promos, capacity shifts)
+  failure: >-
+    Without this: stockouts, emergency changeovers, cross-contact risk, idle or
+    overbooked lines, retailer fines, stale inventory, overtime spikes, and
+    endless spreadsheet firefighting.
+landingPage:
+  hero:
+    title: >-
+      AI Demand Forecasting & Finite‑Capacity Planning for Roasted Nuts and
+      Peanut Butter
+    subtitle: >-
+      18‑month SKU/channel forecasts and a weekly, allergen‑aware production
+      schedule that respects roaster/grinder capacity, labor, and changeovers.
+    ctaText: Book a Demo
+    ctaHref: /demo
+  problem:
+    - >-
+      Volatile demand across retail, foodservice, and e‑commerce creates
+      stockouts or excess.
+    - >-
+      Spreadsheets can’t plan at SKU‑channel granularity or keep up with
+      promotions and seasonality.
+    - Allergen cross‑contact risk forces inefficient runs and long cleans.
+    - >-
+      Roasters, grinders, and pack lines bottleneck; changeovers burn capacity
+      and labor.
+    - Labor and shift limits make “feasible” schedules hard to sustain.
+    - Low fill rates trigger penalties and threaten shelf space.
+  solution:
+    - '18‑month probabilistic forecasts at SKU, customer, and channel levels.'
+    - >-
+      Weekly finite‑capacity schedule optimized for allergens, changeovers, and
+      cleaning windows.
+    - >-
+      Respects roaster/grinder/pack line capacity, labor by skill, and shift
+      calendars.
+    - Campaign sizing and intelligent sequencing to cut cleans and changeovers.
+    - >-
+      Time‑phased inventory and safety stock to hit service levels with less
+      working capital.
+    - 'What‑if scenarios for promos, price changes, and new SKUs with KPI impact.'
+    - One‑click publish to ERP/MES and continuous replanning as signals change.
+  features:
+    - >-
+      Hierarchical forecasting with seasonality, promo lifts, cannibalization,
+      and channel mix; new SKU analogs.
+    - >-
+      External signals: POS/EDI (852/867), distributor data, Amazon, Shopify,
+      holidays/weather.
+    - >-
+      Accuracy tracking: MAPE/WAPE by SKU/channel, bias alerts, forecast
+      decomposition.
+    - >-
+      Allergen‑aware scheduling: peanut vs tree‑nut families, dedicated days,
+      validated changeover matrices, cleaning durations.
+    - >-
+      Constraint‑based planning: roasters, grinders, pack lines, labor by
+      skill/shift, overtime caps, maintenance windows.
+    - >-
+      Sequence optimization by roast curve, grinder setting, oil content, and
+      pack format to minimize waste.
+    - Time‑phased capacity and rough‑cut resource planning over 18 months.
+    - >-
+      Inventory policies: safety stock recommendations, lot sizing, FEFO
+      shelf‑life compliance, expiry risk flags.
+    - >-
+      Available‑to‑Promise/Capable‑to‑Promise with order pegging to planned
+      batches.
+    - >-
+      Scenario sandbox with side‑by‑side KPIs: fill rate, OTIF, changeovers,
+      overtime, utilization, cost.
+    - >-
+      Integrations: NetSuite, SAP Business One, Microsoft Dynamics 365 BC,
+      QuickBooks, Fishbowl; MES; SSO.
+    - >-
+      Governance: audit trails, approvals, and electronic sign‑off for
+      schedules.
+  steps:
+    - 'Connect ERP, POS/EDI, and e‑commerce data sources.'
+    - 'Map SKUs, customers/channels, and allergen families.'
+    - >-
+      Define equipment, rates, changeovers, cleaning rules, labor skills, and
+      shift calendars.
+    - >-
+      Import history and generate the baseline forecast; review exceptions and
+      approve.
+    - >-
+      Set service levels and inventory policies; create the first finite
+      schedule.
+    - >-
+      Publish to shop floor/MES; monitor execution and adjust with continuous
+      replanning.
+    - 'Run what‑ifs, calibrate policies, and go live in 30–45 days.'
+---
+# RoastRight AI
+
+Industry: Roasted Nuts and Peanut Butter Manufacturing
+Service: Demand Forecasting and Finite-Capacity Production Planning

@@ -1,0 +1,352 @@
+---
+name: BoltIQ Demand & Replenishment
+slug: boltiq2
+service:
+  title: Demand Forecasting & Replenishment Planner
+  description: >-
+    AI forecasts demand by SKU/customer, computes reorder points and creates PO
+    proposals to hit service levels while minimizing inventory.
+  targetUsers:
+    - Demand Planner
+    - Operations Manager
+    - Inventory Manager
+  triggers:
+    - Weekly schedule
+    - Inventory below safety stock
+    - New major order booked
+  inputs:
+    - 'Historical sales by SKU, customer and channel (CSV/ERP)'
+    - On‑hand/on‑order inventory
+    - Supplier lead times and MOQs
+    - Seasonality/promotions calendar
+    - EDI 852/867 if available
+  steps:
+    - Ingest and normalize sales/inventory data
+    - 'Detect seasonality, promotions and outliers'
+    - Forecast at SKU x customer/store or roll-up where sparse
+    - Compute safety stock and reorder points vs service level
+    - Generate time-phased PO proposals and simulate costs
+    - Publish draft POs to ERP or Google Sheets for approval
+    - Notify stakeholders and track adoption/accuracy
+  tools:
+    - 'Python (darts/Prophet, statsmodels)'
+    - NetSuite/Acumatica/QuickBooks connectors
+    - SPS Commerce/TrueCommerce EDI APIs
+    - Google Sheets/Drive
+    - Zapier/Make for workflow
+  outputs:
+    - Forecast files (CSV) and dashboard
+    - SKU reorder report with buy quantities
+    - Draft POs (ERP draft or CSV)
+    - 'Exception list (stockout risk, forecast confidence)'
+  pricingModel:
+    - One-time setup + tiered monthly (by active SKUs)
+    - Optional success fee on inventory reduction or fill-rate lift
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 8
+    overall: 9
+  risks:
+    - Poor data hygiene causing bad buys
+    - Sudden demand shocks/promos not flagged
+    - Lead time variability underestimated
+  dependencies:
+    - Read-only ERP/WMS access
+    - Supplier lead time/MOQ table
+    - EDI access (optional)
+leanCanvas:
+  problem:
+    - >-
+      Volatile, intermittent demand at the SKU/customer level (color/length/trim
+      variations) causes either chronic stockouts or bloated inventory across
+      10,000–250,000 SKUs.
+    - >-
+      Long, variable import lead times (fabric dyeing, ocean freight, customs,
+      holidays) make classic reorder point methods inaccurate, driving high
+      safety stock and missed service levels.
+    - >-
+      Current planning is spreadsheet- or ERP-native and lacks attribute-level
+      modeling (style/color/size, roll/bolt lengths, dye lots, pack sizes),
+      resulting in poor new-item forecasts and substitution handling.
+    - >-
+      Promotions, seasonal collections, and event spikes (e.g., Quilt Market,
+      back-to-school, holiday) are not quantified, so planners either overbuy or
+      miss sales.
+    - >-
+      Suppliers have MOQs, case packs, and price breaks that aren’t optimized
+      against target fill rates and cash constraints, leading to suboptimal POs.
+    - >-
+      Fragmented data (ERP, WMS, EDI 850/855/856, eCommerce B2B portals) slows
+      planning cycles and hides true vendor performance.
+    - >-
+      Planners spend excessive time cleansing data, building manual POs, and
+      chasing exceptions; leadership lacks visibility into ROI of inventory
+      (DIO, turns, aging, obsolescence).
+  solution:
+    - >-
+      One-click data integration to ERP/WMS/EDI (historical
+      orders/shipments/returns, on-hand/on-order, lead times, supplier
+      constraints).
+    - >-
+      Probabilistic demand forecasting at SKU x customer/channel using
+      hierarchical and intermittent demand models; automatic transfer learning
+      for new items via attribute analogs (style/color/size/material).
+    - >-
+      Service-level–driven safety stock and reorder point optimization with
+      variable lead time distributions and calendar effects (CNY, port
+      congestion, holidays).
+    - >-
+      PO proposal engine that respects MOQs, case packs, price breaks,
+      dye-lot/bolt constraints, vendor calendars, and budget/cash caps;
+      generates ranked buy lists and multi-supplier options.
+    - >-
+      Exception-driven workflow (stockout risk, aging/slow movers, excess, late
+      POs, forecast bias, vendor underperformance) with auto-recommendations and
+      approvals.
+    - >-
+      Promotion and seasonality uplift modeling with scenario planning (what-if
+      lead time, target fill rate changes, event impact).
+    - >-
+      Vendor collaboration portal (optional) for confirming POs, sharing
+      forecasts, and improving ASN/lead time accuracy.
+    - >-
+      Analytics: forecast accuracy, service level, fill rate, DIO, turns,
+      backorders, expedite cost, planner productivity; ROI tracking dashboards.
+  uniqueValueProp: >-
+    AI that forecasts by SKU x customer and generates ready-to-issue PO
+    proposals that hit target fill rates with 20–35% less inventory—built
+    specifically for piece goods and notions (roll/bolt lengths, dye lots, pack
+    sizes, MOQs, seasonal collections). Time-to-value in 60–90 days with
+    ERP-native connectors.
+  unfairAdvantage: >-
+    Category-specialized planning engine for piece goods and notions (roll/bolt
+    lengths, dye lots, seasonal collections, MOQs/case packs) plus prebuilt
+    ERP/EDI connectors, vendor variability models, and anonymized benchmark
+    datasets—enabling faster time-to-value and higher accuracy than generic
+    planners.
+  customerSegments:
+    - >-
+      Primary: Mid-market Piece Goods, Notions, and Dry Goods merchant
+      wholesalers ($20M–$500M revenue, 10k–250k SKUs, 1–5 DCs, import-heavy).
+      Roles: VP/Director of Supply Chain, Inventory & Demand Planning Manager,
+      COO.
+    - >-
+      Secondary: Larger enterprises ($500M–$2B) seeking category-specific
+      engines for textile/trim complexity to complement/replace generic IBP
+      modules.
+    - >-
+      Early adopters profile: Wholesalers with long/variable import lead times
+      (Asia/LatAm), seasonal collections, dye-lot constraints, and service-level
+      SLAs with national craft/quilting chains and eCommerce resellers.
+  channels:
+    - >-
+      Direct outbound to 500 target wholesalers across US/Canada in year 1 (AEs
+      + SDRs); cadenced sequences to VP Supply Chain/COO; goal: 8% meeting rate,
+      25% pilot acceptance from meetings.
+    - >-
+      ERP/WMS/EDI partner referrals (NetSuite, Acumatica, SAP B1, Sage X3,
+      BlueCherry, SPS/TrueCommerce); reseller enablement with 15–20% rev-share;
+      target 12 active partners in 12 months.
+    - >-
+      Industry associations and events: National Association of
+      Wholesaler-Distributors, Craft Industry Alliance, SEAMS, Texworld, The
+      Fabric Show, Quilt Market (Wholesale); sponsor 4 events/year; collect 300
+      MQLs.
+    - >-
+      Content-led inbound: quarterly case studies, ROI calculators, “Lead-time
+      risk in textiles” report, and webinars with a partner each quarter; target
+      1,500 MQLs/year at <$120 CAC/MQL.
+    - >-
+      Pilot program: 90-day paid pilots ($15k–$40k) for 30–80k SKUs; success
+      defined by ≥3-point fill-rate lift or ≥15% inventory reduction
+      opportunity; convert ≥70% to annual subscriptions.
+    - >-
+      Consulting and fractional planning partners who implement demand planning
+      for wholesalers; train 20 consultants as certified implementers by month
+      18.
+  revenueStreams:
+    - >-
+      SaaS subscription (tiered by active SKUs, DCs, and modules): Small (up to
+      20k SKUs): $1,500–$3,000/month; Mid (20k–100k): $3,500–$7,500/month; Large
+      (100k–300k): $8,000–$12,000+/month.
+    - >-
+      Onboarding/implementation: $15k–$75k one-time depending on ERP complexity
+      and data quality; typical 6–12 weeks.
+    - >-
+      Premium support/SLA and vendor collaboration portal add-on:
+      $1,000–$3,000/month.
+    - >-
+      Professional services: data cleanup, process design, change management,
+      custom dashboards: $200–$250/hour or fixed-scope packages.
+    - 'Training and certification for partners/clients: $3,000 per cohort.'
+    - >-
+      Future usage-based component for heavy compute (large-scale scenario sims)
+      after year 2.
+  costStructure:
+    - >-
+      R&D: data science/engineering salaries, MLOps, QA (~35–45% of spend
+      initially).
+    - >-
+      Cloud infrastructure: data storage, training/inference, secure VPC,
+      monitoring ($8k–$25k/month scaling with clients).
+    - >-
+      Go-to-market: sales salaries/commissions, digital marketing, events,
+      partner MDF, content production.
+    - >-
+      Implementation/Customer Success: solution architects, support, training,
+      partner enablement.
+    - >-
+      Security/compliance: SOC 2 Type II, penetration testing, insurance
+      (cyber/E&O), DPA/legal.
+    - Partner commissions (10–20%) and referral fees.
+    - 'Overheads: G&A, finance, office, tools (analytics, product, support).'
+  keyMetrics:
+    - >-
+      Customer ROI KPIs: inventory reduction 20–35%, fill-rate lift +2–5 points,
+      expedite freight cost -30%, DIO -15–25%, backorder rate -30%.
+    - >-
+      Forecast performance: WAPE ≤ 25% (long-tail SKUs), bias between -5% and
+      +5%, promotion uplift error ≤ 20%, lead-time forecast MAE ≤ 15%.
+    - >-
+      Planning efficiency: planner productivity 3x (SKUs managed/planner), >70%
+      PO proposal acceptance, exceptions closed within 48 hours.
+    - >-
+      Commercial: pilot-to-subscription conversion ≥70%, logo retention ≥95%,
+      net revenue retention ≥115%, LTV:CAC ≥4:1, payback <12 months.
+    - >-
+      Adoption: weekly active planners ≥80%, % SKUs with approved policies >90%,
+      % POs generated by system >60% by month 6.
+    - >-
+      Data quality: automated health checks pass rate >98%, time-to-integration
+      ≤ 4 weeks for standard ERPs.
+storyBrand:
+  character: >-
+    Inventory and purchasing leaders at piece goods, notions, and dry goods
+    wholesalers who must hit service levels with less inventory and less manual
+    work.
+  problem: >-
+    - External: Volatile SKU/customer demand, seasonality and promos,
+    long/variable lead times, MOQs and case packs, scattered spreadsheets and
+    ERP data.
+
+    - Internal: Constant firefighting, fear of stockouts and bad buys, low
+    confidence in spreadsheets, time lost to manual planning.
+
+    - Philosophical: Buying shouldn’t be guesswork—planners deserve precise,
+    data-driven recommendations that honor customer commitments.
+  guide: >-
+    - Empathy: We know the pressure of keeping trims, colorways, and sizes in
+    stock while lead times slip and customers change orders.
+
+    - Authority: Domain-trained AI for wholesalers; proven accuracy lift, 10–30%
+    inventory reduction with 2–6 pt fill-rate improvement; secure integrations;
+    references and SOC 2–aligned practices.
+  plan: >-
+    - 1) Connect: Securely link ERP/EDI sales, on-hand, open POs, vendor lead
+    times.
+
+    - 2) Calibrate: Set service levels by class/customer, add constraints (MOQ,
+    case packs, min/max), validate ROPs via simulation.
+
+    - 3) Go live: Receive weekly PO proposals and exceptions; approve/export to
+    ERP; continuous learning and alerts.
+
+    - Simple agreement: 90-day pilot, clear ROI targets, no heavy IT lift.
+  callToAction: >-
+    - Direct: Book a demo; Start a 90-day pilot.
+
+    - Transitional: Get a sample forecast; Run an ROI estimate; Read a case
+    study.
+  success: |-
+    - Higher fill rates and on-time order fulfillment.
+    - 10–30% less inventory with faster turns and freed cash.
+    - Fewer stockouts and rush fees; smarter buys by SKU/customer.
+    - Hours saved weekly; planners focus on supplier strategy, not spreadsheets.
+  failure: |-
+    - Lost sales and unhappy accounts from stockouts.
+    - Cash trapped in overstock and write-offs on slow movers.
+    - Missed vendor discounts, overtime for expediting, eroded margins.
+landingPage:
+  hero:
+    title: >-
+      AI Demand Forecasting & Replenishment for Piece Goods & Notions
+      Wholesalers
+    subtitle: >-
+      Forecast by SKU and customer, set dynamic reorder points, and auto-build
+      PO proposals to hit service levels with less inventory.
+    ctaText: Book a Demo
+    ctaHref: /demo
+  problem:
+    - >-
+      Volatile demand by color/size/style creates frequent stockouts and
+      overstocks
+    - 'Long import lead times, MOQs, and pack sizes make buying decisions risky'
+    - >-
+      Manual spreadsheets can’t keep up with seasonality, promos, and
+      discontinuations
+    - Dye-lot and bolt/roll rounding complicate replenishment and substitutions
+    - Service-level targets aren’t tied to safety stock and reorder points
+    - Siloed ERP/EDI/WMS data delays decisions and inflates working capital
+  solution:
+    - >-
+      ML forecasts at SKU x customer capture seasonality, promotions, and
+      new-item analogs
+    - >-
+      Dynamic safety stock and reorder points tuned to target service levels by
+      class/account
+    - >-
+      PO proposals that respect MOQs, case/pack, bolt/roll rounding, lead times,
+      and vendor calendars
+    - >-
+      Policy optimization by ABC/XYZ to align investment with demand variability
+      and margin
+    - Exception-driven workflow to prevent stockouts and reduce dead stock
+    - >-
+      Fast integrations with your ERP/EDI; keep existing processes while
+      automating the math
+  features:
+    - >-
+      SKU x Customer forecasting with color/size/style attributes and lifecycle
+      curves
+    - >-
+      Promo lift, cannibalization, and phase-in/phase-out handling for
+      assortments
+    - Service-level optimization with cost/stock trade-off guidance
+    - >-
+      Replenishment policies: reorder point, min/max, review cycles, and target
+      coverage
+    - >-
+      PO builder: consolidates lines, honors pack sizes and bolts/rolls, and
+      aligns to vendor calendars
+    - >-
+      Vendor constraint modeling: MOQs, lead-time variability, case packs, and
+      holiday cut-offs
+    - >-
+      Substitution logic: color families, trim widths, and compatible
+      alternatives
+    - Allocation prioritization to protect key accounts and scheduled orders
+    - 'Exception alerts: expedite, defer, or rebalance based on risk and ROI'
+    - >-
+      Dashboards: fill rate, turns, aged inventory, backorders, and forecast
+      accuracy
+    - 'Integrations: ERP (e.g., NetSuite, P21, Sage), EDI, WMS via API/flat file'
+    - 'User roles, approvals, and audit trail for SOX-friendly buying'
+  steps:
+    - >-
+      Connect data: items, attributes, sales orders, inventory, vendors, lead
+      times, pack sizes
+    - >-
+      Set policies: service levels by ABC/XYZ and account tiers; define MOQs and
+      calendars
+    - Review forecasts and fine-tune with planner overrides where needed
+    - >-
+      Generate PO proposals; simulate scenarios and approve to release to
+      ERP/EDI
+    - Go live with exception-based buying and automated replenishment
+    - Track results and continuously improve with feedback learning
+---
+# BoltIQ Demand & Replenishment
+
+Industry: Piece Goods, Notions, and Other Dry Goods Merchant Wholesalers
+Service: Demand Forecasting & Replenishment Planner
