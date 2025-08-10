@@ -351,3 +351,356 @@ landingPage:
 
 Generated for NAICS 111110 — Soybean Farming.
 Service: Variable-Rate Seeding (VRS) Prescriptions for Soybean
+
+## Business Process Functions
+
+```typescript
+// Core data types for SoyRate business processes
+interface Lead {
+  id: string;
+  farmName: string;
+  contactInfo: ContactInfo;
+  soybeanAcres: number;
+  planterCapability: PlanterCapability;
+  location: GeoLocation;
+  source: 'direct' | 'retailer' | 'consultant' | 'referral';
+}
+
+interface Customer {
+  id: string;
+  lead: Lead;
+  contractDetails: ContractDetails;
+  onboardingStatus: OnboardingStatus;
+  subscriptionTier: 'basic' | 'pro' | 'enterprise';
+}
+
+interface FieldData {
+  boundaries: GeoJSON;
+  historicalYield: YieldMap[];
+  soilData: SoilLayer;
+  elevationData: DEMLayer;
+  satelliteIndices: SatelliteData;
+  planterSpecs: PlanterSpecification;
+}
+
+interface VRSPrescription {
+  fieldId: string;
+  zones: ManagementZone[];
+  seedingRates: SeedingRate[];
+  testStrips: TestStrip[];
+  roiProjection: ROIProjection;
+  exportFormats: PrescriptionFile[];
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  try {
+    const qualifiedLead = await qualifyLead(lead);
+    const proposal = await generateProposal(qualifiedLead);
+    const contract = await negotiateContract(proposal);
+    const customer = await onboardCustomer(contract);
+    
+    await trackAcquisitionMetrics(customer, lead.source);
+    return customer;
+  } catch (error) {
+    await logAcquisitionFailure(lead, error);
+    throw error;
+  }
+}
+
+export async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  // Validate minimum requirements: 500+ soybean acres, VRS-capable planter
+  if (lead.soybeanAcres < 500) {
+    throw new Error('Minimum 500 soybean acres required');
+  }
+  
+  if (!lead.planterCapability.variableRateCapable) {
+    throw new Error('Variable-rate capable planter required');
+  }
+  
+  const creditCheck = await performCreditCheck(lead.contactInfo);
+  const territoryCheck = await validateServiceTerritory(lead.location);
+  
+  return {
+    ...lead,
+    qualified: true,
+    creditScore: creditCheck.score,
+    serviceTerritory: territoryCheck.territory
+  };
+}
+
+export async function generateProposal(qualifiedLead: QualifiedLead): Promise<Proposal> {
+  const pricingTier = calculatePricingTier(qualifiedLead.soybeanAcres);
+  const estimatedROI = await estimateROI(qualifiedLead);
+  
+  return {
+    leadId: qualifiedLead.id,
+    pricingTier,
+    pricePerAcre: pricingTier.pricePerAcre,
+    totalAnnualValue: qualifiedLead.soybeanAcres * pricingTier.pricePerAcre,
+    estimatedROI,
+    contractTerms: generateContractTerms(pricingTier),
+    validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
+  };
+}
+
+// Product Development Processes
+export async function developVRSPrescription(fieldData: FieldData): Promise<VRSPrescription> {
+  try {
+    const cleanedData = await ingestAndCleanData(fieldData);
+    const managementZones = await createManagementZones(cleanedData);
+    const populationModel = await buildPopulationModel(managementZones, cleanedData);
+    const seedingRates = await optimizeSeedingRates(populationModel, fieldData.planterSpecs);
+    const testStrips = await generateTestStrips(managementZones, seedingRates);
+    const roiProjection = await calculateROIProjection(seedingRates, fieldData);
+    const prescriptionFiles = await exportPrescriptions(seedingRates, fieldData.planterSpecs);
+    
+    return {
+      fieldId: fieldData.fieldId,
+      zones: managementZones,
+      seedingRates,
+      testStrips,
+      roiProjection,
+      exportFormats: prescriptionFiles
+    };
+  } catch (error) {
+    await logPrescriptionError(fieldData.fieldId, error);
+    throw error;
+  }
+}
+
+export async function createManagementZones(fieldData: CleanedFieldData): Promise<ManagementZone[]> {
+  // Automated zone creation using multi-year yield stability and soil productivity
+  const yieldStability = await analyzeYieldStability(fieldData.historicalYield);
+  const soilProductivity = await calculateSoilProductivity(fieldData.soilData);
+  const terrainWetness = await deriveTerrainWetness(fieldData.elevationData);
+  
+  const zones = await clusterZones({
+    yieldStability,
+    soilProductivity,
+    terrainWetness,
+    satelliteVigor: fieldData.satelliteIndices
+  });
+  
+  return zones.map(zone => ({
+    ...zone,
+    explainability: generateZoneExplanation(zone),
+    editableByAgronomist: true
+  }));
+}
+
+export async function buildPopulationModel(zones: ManagementZone[], fieldData: CleanedFieldData): Promise<PopulationModel> {
+  // Soybean-specific ML model with risk adjustments
+  const baseModel = await trainSoybeanPopulationModel(zones, fieldData);
+  const riskAdjustments = await calculateRiskAdjustments({
+    seedTreatment: fieldData.seedTreatment,
+    rowSpacing: fieldData.planterSpecs.rowSpacing,
+    plantingDate: fieldData.plantingWindow,
+    emergenceRisk: await forecastEmergenceRisk(fieldData.location)
+  });
+  
+  return {
+    baseModel,
+    riskAdjustments,
+    confidenceIntervals: await calculateConfidenceIntervals(baseModel),
+    validationMetrics: await validateModel(baseModel, fieldData.historicalYield)
+  };
+}
+
+// Revenue Generation Flows
+export async function processSubscriptionPayment(customer: Customer, billingPeriod: BillingPeriod): Promise<PaymentResult> {
+  try {
+    const invoice = await generateInvoice(customer, billingPeriod);
+    const paymentResult = await processPayment(invoice);
+    
+    if (paymentResult.success) {
+      await updateSubscriptionStatus(customer.id, 'active');
+      await trackRevenue(paymentResult.amount, customer.subscriptionTier);
+    } else {
+      await handlePaymentFailure(customer, paymentResult);
+    }
+    
+    return paymentResult;
+  } catch (error) {
+    await logPaymentError(customer.id, error);
+    throw error;
+  }
+}
+
+export async function calculateOutcomeBasedPricing(customer: Customer, harvestResults: HarvestResults): Promise<OutcomePayment> {
+  // For customers on outcome-based pricing model
+  const verifiedResults = await verifyHarvestResults(harvestResults);
+  const incrementalProfit = await calculateIncrementalProfit(verifiedResults, customer.baseline);
+  
+  if (incrementalProfit > customer.contractDetails.profitThreshold) {
+    const sharePercentage = customer.contractDetails.outcomeSharePercentage;
+    const paymentDue = incrementalProfit * (sharePercentage / 100);
+    
+    return {
+      customerId: customer.id,
+      incrementalProfit,
+      sharePercentage,
+      paymentDue,
+      verificationData: verifiedResults
+    };
+  }
+  
+  return { customerId: customer.id, paymentDue: 0, reason: 'Below profit threshold' };
+}
+
+// Operational Procedures
+export async function onboardCustomer(contract: Contract): Promise<Customer> {
+  const customer = await createCustomerRecord(contract);
+  
+  // Parallel onboarding tasks
+  await Promise.all([
+    setupDataIntegrations(customer),
+    provideAgronomistTraining(customer),
+    configureNotificationPreferences(customer),
+    scheduleKickoffCall(customer)
+  ]);
+  
+  await sendWelcomePackage(customer);
+  return customer;
+}
+
+export async function setupDataIntegrations(customer: Customer): Promise<IntegrationStatus> {
+  const integrations = [];
+  
+  // Setup equipment integrations based on customer's planter
+  if (customer.equipment.includes('john-deere')) {
+    integrations.push(await setupJohnDeereIntegration(customer));
+  }
+  if (customer.equipment.includes('case-ih')) {
+    integrations.push(await setupCaseIHIntegration(customer));
+  }
+  if (customer.equipment.includes('ag-leader')) {
+    integrations.push(await setupAgLeaderIntegration(customer));
+  }
+  
+  // Setup data source integrations
+  integrations.push(await setupClimateFieldViewIntegration(customer));
+  integrations.push(await setupSoilDataIntegration(customer));
+  
+  return {
+    customerId: customer.id,
+    integrations,
+    status: integrations.every(i => i.success) ? 'complete' : 'partial'
+  };
+}
+
+export async function generateSeasonEndReport(customer: Customer, seasonData: SeasonData): Promise<SeasonReport> {
+  const performanceMetrics = await calculatePerformanceMetrics(seasonData);
+  const roiAnalysis = await analyzeActualROI(seasonData, customer.prescriptions);
+  const recommendations = await generateNextSeasonRecommendations(performanceMetrics);
+  
+  const report = {
+    customerId: customer.id,
+    season: seasonData.year,
+    performanceMetrics,
+    roiAnalysis,
+    recommendations,
+    generatedAt: new Date()
+  };
+  
+  await saveSeasonReport(report);
+  await emailReportToCustomer(customer, report);
+  
+  return report;
+}
+
+// Decision-Making Workflows
+export async function prioritizeCustomerSupport(supportRequests: SupportRequest[]): Promise<PrioritizedQueue> {
+  const prioritized = await Promise.all(
+    supportRequests.map(async (request) => {
+      const customerTier = await getCustomerTier(request.customerId);
+      const urgencyScore = calculateUrgencyScore(request);
+      const businessImpact = await assessBusinessImpact(request);
+      
+      return {
+        ...request,
+        priority: calculatePriority(customerTier, urgencyScore, businessImpact),
+        estimatedResolutionTime: await estimateResolutionTime(request)
+      };
+    })
+  );
+  
+  return prioritized.sort((a, b) => b.priority - a.priority);
+}
+
+export async function decideMarketExpansion(marketData: MarketData): Promise<ExpansionDecision> {
+  const marketAnalysis = await analyzeMarketOpportunity(marketData);
+  const competitiveAnalysis = await assessCompetitiveLandscape(marketData.region);
+  const resourceRequirements = await calculateResourceRequirements(marketData);
+  const riskAssessment = await assessExpansionRisks(marketData);
+  
+  const score = calculateExpansionScore({
+    marketAnalysis,
+    competitiveAnalysis,
+    resourceRequirements,
+    riskAssessment
+  });
+  
+  return {
+    region: marketData.region,
+    recommendation: score > 0.7 ? 'expand' : score > 0.4 ? 'pilot' : 'defer',
+    score,
+    reasoning: generateExpansionReasoning(marketAnalysis, competitiveAnalysis, riskAssessment),
+    timeline: score > 0.7 ? '6-12 months' : score > 0.4 ? '12-18 months' : 'TBD'
+  };
+}
+
+export async function optimizePricingStrategy(performanceData: PerformanceData[]): Promise<PricingStrategy> {
+  const customerSegments = await segmentCustomers(performanceData);
+  const priceElasticity = await analyzePriceElasticity(performanceData);
+  const competitorPricing = await benchmarkCompetitorPricing();
+  const valueDelivered = await quantifyValueDelivered(performanceData);
+  
+  const optimizedPricing = await optimizePricing({
+    customerSegments,
+    priceElasticity,
+    competitorPricing,
+    valueDelivered
+  });
+  
+  return {
+    segments: optimizedPricing.segments,
+    recommendations: optimizedPricing.recommendations,
+    expectedImpact: await projectPricingImpact(optimizedPricing),
+    implementationPlan: generatePricingImplementationPlan(optimizedPricing)
+  };
+}
+
+// Validation and Quality Assurance
+export async function validatePrescriptionQuality(prescription: VRSPrescription): Promise<QualityReport> {
+  const checks = await Promise.all([
+    validateZoneStability(prescription.zones),
+    validateSeedingRateConstraints(prescription.seedingRates),
+    validatePlanterCompatibility(prescription.exportFormats),
+    validateAgronomicSoundness(prescription),
+    validateROIProjections(prescription.roiProjection)
+  ]);
+  
+  const qualityScore = calculateQualityScore(checks);
+  
+  return {
+    prescriptionId: prescription.fieldId,
+    qualityScore,
+    checks,
+    passed: qualityScore > 0.85,
+    recommendations: generateQualityRecommendations(checks)
+  };
+}
+
+// Helper function declarations (implementation details would be in separate modules)
+declare function performCreditCheck(contactInfo: ContactInfo): Promise<CreditResult>;
+declare function validateServiceTerritory(location: GeoLocation): Promise<TerritoryResult>;
+declare function calculatePricingTier(acres: number): PricingTier;
+declare function estimateROI(lead: QualifiedLead): Promise<ROIEstimate>;
+declare function ingestAndCleanData(fieldData: FieldData): Promise<CleanedFieldData>;
+declare function analyzeYieldStability(yieldMaps: YieldMap[]): Promise<YieldStabilityAnalysis>;
+declare function trainSoybeanPopulationModel(zones: ManagementZone[], fieldData: CleanedFieldData): Promise<MLModel>;
+declare function forecastEmergenceRisk(location: GeoLocation): Promise<EmergenceRisk>;
+declare function verifyHarvestResults(results: HarvestResults): Promise<VerifiedResults>;
+declare function calculateIncrementalProfit(results: VerifiedResults, baseline: Baseline): Promise<number>;
+```
