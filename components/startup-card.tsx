@@ -41,12 +41,53 @@ export function StartupCard({ item, onReveal }: { item: StartupItem; onReveal?: 
     : { role: 'button', tabIndex: 0, 'aria-label': item.ariaLabel || item.name }
 
   return (
-    <Wrapper onClick={handleClick} onKeyDown={handleKeyDown} onMouseLeave={handleMouseLeave} className='group block cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md' {...wrapperProps}>
-      <Card className='relative min-h-[160px] rounded-md border bg-card/60 transition-colors hover:bg-card overflow-hidden motion-safe:group-hover:scale-[1.01] motion-reduce:transition-none'>    
-        
-        {/* add dynamic text effect */}
+    <Wrapper
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      onMouseLeave={handleMouseLeave}
+      className='group group/item block cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md'
+      {...wrapperProps}
+    >
+      <Card className='relative min-h-[260px] rounded-md border bg-card/60 transition-colors hover:bg-card overflow-hidden motion-safe:group-hover:scale-[1.01] motion-reduce:transition-none'>
+        {/* randomized text effect */}
         <div className='absolute inset-0 flex items-center justify-center p-4 text-center'>
-          <div className='text-sm font-medium'>{item.name}</div>
+          <div
+            className='
+              uppercase font-normal tracking-[0.2em] text-[1.1em]
+
+    group-[:nth-child(3n+2)]/item:normal-case
+    group-[:nth-child(3n+2)]/item:font-thin
+    group-[:nth-child(3n+2)]/item:tracking-[0]
+    group-[:nth-child(3n+2)]/item:text-[1.9em]
+
+    group-[:nth-child(7n+3)]/item:normal-case
+    group-[:nth-child(7n+3)]/item:font-bold
+    group-[:nth-child(7n+3)]/item:tracking-[-0.05em]
+    group-[:nth-child(7n+3)]/item:text-[1.7em]
+
+    group-[:nth-child(4n+1)]/item:font-mono
+    group-[:nth-child(4n+1)]/item:uppercase
+    group-[:nth-child(4n+1)]/item:tracking-[0.3em]
+    group-[:nth-child(4n+1)]/item:text-[1.15em]
+
+    group-[:nth-child(6n+4)]/item:normal-case
+    group-[:nth-child(6n+4)]/item:italic
+    group-[:nth-child(6n+4)]/item:underline-offset-4
+    group-[:nth-child(6n+4)]/item:tracking-[0.05em]
+    group-[:nth-child(6n+4)]/item:text-[1.4em]
+
+    group-[:nth-child(9n)]/item:bg-gradient-to-r
+    group-[:nth-child(9n)]/item:from-primary
+    group-[:nth-child(9n)]/item:to-primary/40
+    group-[:nth-child(9n)]/item:text-transparent
+    group-[:nth-child(9n)]/item:bg-clip-text
+    group-[:nth-child(9n)]/item:font-extrabold
+    group-[:nth-child(9n)]/item:tracking-tight
+    group-[:nth-child(9n)]/item:text-[1.6em]
+            '
+          >
+            {item.name}
+          </div>
         </div>
 
         <div
