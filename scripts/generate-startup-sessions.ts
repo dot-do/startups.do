@@ -24,9 +24,6 @@ function generateWorkflowPrompt(startupName: string, data: Record<string, unknow
     contextInfo.push(`Vision/Mission/Values: ${JSON.stringify(data.vmv, null, 2)}`)
   }
   
-  if (data.naics) {
-    contextInfo.push(`Industry (NAICS): ${JSON.stringify(data.naics, null, 2)}`)
-  }
 
   if (data.okrs) {
     contextInfo.push(`Current OKRs: ${JSON.stringify(data.okrs, null, 2)}`)

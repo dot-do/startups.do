@@ -159,7 +159,7 @@ export async function ideate(opts: IdeateOptions = {}): Promise<IdeatedIdea[]> {
       taskPromises.push(queue.add(async () => {
         const title = String((svc as any).title ?? 'AI Service')
         const description = String((svc as any).description ?? '')
-        const serviceIdea = `${title} — AI service for ${n.industry} (NAICS ${n.naics})`
+        const serviceIdea = `${title} — AI service for ${n.industry}`
         console.log(`  Processing service ${serviceIndex + 1}/${limitedServices.length}: ${title}`)
         const ctx = [
           additionalContext ? `Context: ${additionalContext}` : null,
@@ -184,7 +184,6 @@ export async function ideate(opts: IdeateOptions = {}): Promise<IdeatedIdea[]> {
           const frontmatter = {
             name: businessName,
             slug,
-            naics: { primary: n.naics, occupations: [] as string[] },
             service: svc,
             leanCanvas: {
               problem: canvas.object.problemStatement,
@@ -202,7 +201,7 @@ export async function ideate(opts: IdeateOptions = {}): Promise<IdeatedIdea[]> {
           }
           const content = `# ${businessName}
 
-Generated for NAICS ${n.naics} — ${n.industry}.
+Industry: ${n.industry}
 Service: ${title}
 `
           const doc: StartupDocInput<typeof frontmatter> = { data: frontmatter, content }
@@ -261,7 +260,6 @@ Service: ${title}
           const frontmatter = {
             name: businessName,
             slug,
-            naics: { primary: '', occupations: [o.name] },
             service: svc,
             leanCanvas: {
               problem: canvas.object.problemStatement,

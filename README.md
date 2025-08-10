@@ -77,9 +77,6 @@ Links:
 name: Acme Auto Claims AI
 slug: acme-claims
 domain: acmeclaims.ai
-naics:
-  primary: "524291"
-  occupations: ["Claims Adjuster"]
 score:
   remote_on_laptop: 0.9
   model_capability: 0.8
