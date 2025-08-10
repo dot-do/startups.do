@@ -72,29 +72,48 @@ const Navbar = ({
   const [startupName, setStartupName] = React.useState(
     logo.title || "Startups.do",
   );
+  const [styleKey, setStyleKey] = React.useState("")
+
+  const toSlug = (s: string) => s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "")
+  const slugToTitle = (s: string) => {
+    if (!s) return ""
+    const acronyms = new Set(["ai", "llm", "api", "sdk"])
+    return s
+      .split(/[-_ ]+/)
+      .filter(Boolean)
+      .map((w) => {
+        const lw = w.toLowerCase()
+        if (acronyms.has(lw)) return lw.toUpperCase()
+        return lw.charAt(0).toUpperCase() + lw.slice(1)
+      })
+      .join(" ")
+  }
 
   React.useEffect(() => {
     if (typeof window !== "undefined") {
       const seg = window.location.pathname.split("/").filter(Boolean)[0];
       if (seg) {
-        try {
-          setStartupName(decodeURIComponent(seg));
-        } catch {
-          setStartupName(seg);
-        }
+        let decoded = seg
+        try { decoded = decodeURIComponent(seg) } catch {}
+        setStartupName(slugToTitle(decoded))
+        setStyleKey(decoded)
       } else if (logo.title) {
-        setStartupName(logo.title);
+        setStartupName(logo.title)
+        setStyleKey(toSlug(logo.title))
+      } else {
+        setStartupName("Startups.do")
+        setStyleKey("startups-do")
       }
     }
   }, [logo.title]);
   // Compute a deterministic style variant for the startup name so a single element
   // still gets a "randomized" look based on its text content
   const logoVariantIndex = React.useMemo(() => {
-    const s = startupName || "";
+    const s = styleKey || "";
     let h = 0;
     for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
     return s ? h % 6 : 0;
-  }, [startupName]);
+  }, [styleKey]);
 
   const baseLogoClass =
     "uppercase font-normal tracking-[0.2em] text-[1.1em]";
