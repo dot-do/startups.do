@@ -312,7 +312,345 @@ landingPage:
     - Approve and export to prepress/pressroom systems.
     - Run production and track actuals and savings.
 ---
+
 # SheetWise Optimizer
 
 Generated for NAICS 322219 — Other Paperboard Container Manufacturing.
 Service: Sheet Utilization & Ganging Optimizer
+
+## Business Process Functions
+
+```typescript
+// Core data types for Sheetwise business processes
+interface Lead {
+  id: string;
+  company: string;
+  naicsCode: string;
+  pressCount: number;
+  annualRevenue: number;
+  contactInfo: ContactInfo;
+  painPoints: string[];
+  currentWastePercentage?: number;
+  makeReadyTime?: number;
+}
+
+interface Customer {
+  id: string;
+  company: string;
+  contractValue: number;
+  implementationStatus: 'pilot' | 'rollout' | 'live';
+  plants: Plant[];
+  subscriptionTier: 'basic' | 'premium' | 'enterprise';
+}
+
+interface Plant {
+  id: string;
+  location: string;
+  pressCount: number;
+  misSystem: string;
+  prepressSystem: string;
+  monthlyVolume: number;
+}
+
+interface OptimizationJob {
+  id: string;
+  plantId: string;
+  openOrders: Order[];
+  constraints: PlantConstraints;
+  targetMetrics: TargetMetrics;
+  status: 'queued' | 'running' | 'completed' | 'failed';
+}
+
+interface Order {
+  id: string;
+  sku: string;
+  quantity: number;
+  dueDate: Date;
+  stock: StockSpec;
+  dieline: string;
+  priority: 'low' | 'medium' | 'high' | 'critical';
+}
+
+interface GangingPlan {
+  id: string;
+  orders: Order[];
+  sheetUtilization: number;
+  estimatedWasteSavings: number;
+  makeReadyReduction: number;
+  layoutFile: string;
+  approvalStatus: 'pending' | 'approved' | 'rejected';
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  try {
+    const qualifiedLead = await qualifyLead(lead);
+    const proposal = await generateProposal(qualifiedLead);
+    const pilot = await conductPilot(proposal);
+    const contract = await negotiateContract(pilot);
+    return await onboardCustomer(contract);
+  } catch (error) {
+    throw new Error(`Customer acquisition failed: ${error.message}`);
+  }
+}
+
+export async function qualifyLead(lead: Lead): Promise<Lead> {
+  if (lead.naicsCode !== '322219') {
+    throw new Error('Lead not in target NAICS code 322219');
+  }
+  
+  if (lead.pressCount < 2 || lead.pressCount > 8) {
+    throw new Error('Press count outside target range (2-8 presses)');
+  }
+  
+  if (lead.annualRevenue < 10_000_000 || lead.annualRevenue > 200_000_000) {
+    throw new Error('Revenue outside target range ($10M-$200M)');
+  }
+  
+  const wasteAssessment = await assessCurrentWaste(lead);
+  const roiPotential = await calculateROIPotential(lead, wasteAssessment);
+  
+  if (roiPotential.paybackMonths > 12) {
+    throw new Error('ROI potential does not meet 12-month payback criteria');
+  }
+  
+  return {
+    ...lead,
+    currentWastePercentage: wasteAssessment.wastePercentage,
+    makeReadyTime: wasteAssessment.avgMakeReadyTime
+  };
+}
+
+export async function generateProposal(lead: Lead): Promise<Proposal> {
+  const baselineMetrics = await analyzeBaseline(lead);
+  const projectedSavings = await calculateProjectedSavings(baselineMetrics);
+  const pricingTier = await determinePricingTier(lead);
+  
+  return {
+    leadId: lead.id,
+    baselineWaste: baselineMetrics.wastePercentage,
+    projectedWasteReduction: projectedSavings.wasteReduction,
+    projectedMakeReadyReduction: projectedSavings.makeReadyReduction,
+    annualSavings: projectedSavings.annualSavings,
+    subscriptionCost: pricingTier.annualCost,
+    roi: projectedSavings.annualSavings / pricingTier.annualCost,
+    paybackMonths: (pricingTier.annualCost / projectedSavings.annualSavings) * 12,
+    implementationFee: pricingTier.implementationFee
+  };
+}
+
+export async function conductPilot(proposal: Proposal): Promise<PilotResults> {
+  const pilotPlan = await createPilotPlan(proposal);
+  const dataIntegration = await setupDataIntegration(pilotPlan);
+  const optimizationRuns = await runPilotOptimizations(pilotPlan, dataIntegration);
+  const results = await measurePilotResults(optimizationRuns);
+  
+  if (results.wasteReduction < 1.0 || results.makeReadyReduction < 10) {
+    throw new Error('Pilot results below minimum thresholds');
+  }
+  
+  return results;
+}
+
+// Product Development Processes
+export async function developOptimizationEngine(): Promise<void> {
+  await enhanceGangingAlgorithm();
+  await improveConstraintModeling();
+  await optimizePerformance();
+  await validateAccuracy();
+}
+
+export async function enhanceGangingAlgorithm(): Promise<void> {
+  const trainingData = await collectGangingData();
+  const model = await trainOptimizationModel(trainingData);
+  const validation = await validateModel(model);
+  
+  if (validation.accuracy < 0.85) {
+    throw new Error('Model accuracy below threshold');
+  }
+  
+  await deployModel(model);
+}
+
+export async function integrateWithMISSystem(customer: Customer, misType: string): Promise<Integration> {
+  const connector = await buildMISConnector(misType);
+  const dataMapping = await mapDataFields(customer, connector);
+  const testConnection = await testIntegration(connector, dataMapping);
+  
+  if (!testConnection.success) {
+    throw new Error(`MIS integration failed: ${testConnection.error}`);
+  }
+  
+  return await activateIntegration(connector, dataMapping);
+}
+
+// Revenue Generation Flows
+export async function generateRevenue(customer: Customer): Promise<RevenueMetrics> {
+  const subscriptionRevenue = await processSubscriptionBilling(customer);
+  const usageRevenue = await processUsageBilling(customer);
+  const servicesRevenue = await processServicesRevenue(customer);
+  
+  return {
+    subscriptionRevenue,
+    usageRevenue,
+    servicesRevenue,
+    totalRevenue: subscriptionRevenue + usageRevenue + servicesRevenue,
+    month: new Date().getMonth() + 1,
+    year: new Date().getFullYear()
+  };
+}
+
+export async function processSubscriptionBilling(customer: Customer): Promise<number> {
+  const tierPricing = await getTierPricing(customer.subscriptionTier);
+  const plantCount = customer.plants.length;
+  const monthlyAmount = tierPricing.basePrice + (tierPricing.perPlantPrice * plantCount);
+  
+  await generateInvoice(customer, monthlyAmount, 'subscription');
+  return monthlyAmount;
+}
+
+export async function expandCustomerAccount(customer: Customer): Promise<Customer> {
+  const expansionOpportunities = await identifyExpansionOpportunities(customer);
+  const proposal = await createExpansionProposal(expansionOpportunities);
+  const approval = await getExpansionApproval(customer, proposal);
+  
+  if (approval.approved) {
+    return await implementExpansion(customer, approval.expandedServices);
+  }
+  
+  return customer;
+}
+
+// Operational Procedures
+export async function executeOptimizationWorkflow(job: OptimizationJob): Promise<GangingPlan> {
+  try {
+    const validatedJob = await validateOptimizationJob(job);
+    const clusteredOrders = await clusterOrdersByCompatibility(validatedJob.openOrders);
+    const gangingOptions = await generateGangingOptions(clusteredOrders, validatedJob.constraints);
+    const optimizedPlan = await selectOptimalGanging(gangingOptions, validatedJob.targetMetrics);
+    const layoutFiles = await generateLayoutFiles(optimizedPlan);
+    
+    return {
+      ...optimizedPlan,
+      layoutFile: layoutFiles.impositionPDF,
+      approvalStatus: 'pending'
+    };
+  } catch (error) {
+    await logOptimizationError(job.id, error);
+    throw new Error(`Optimization workflow failed: ${error.message}`);
+  }
+}
+
+export async function clusterOrdersByCompatibility(orders: Order[]): Promise<OrderCluster[]> {
+  const clusters: OrderCluster[] = [];
+  
+  for (const order of orders) {
+    const compatibleCluster = clusters.find(cluster => 
+      isCompatible(order, cluster.stock, cluster.constraints)
+    );
+    
+    if (compatibleCluster) {
+      compatibleCluster.orders.push(order);
+    } else {
+      clusters.push({
+        id: generateClusterId(),
+        orders: [order],
+        stock: order.stock,
+        constraints: await deriveConstraints(order)
+      });
+    }
+  }
+  
+  return clusters;
+}
+
+export async function generateGangingOptions(clusters: OrderCluster[], constraints: PlantConstraints): Promise<GangingOption[]> {
+  const options: GangingOption[] = [];
+  
+  for (const cluster of clusters) {
+    if (cluster.orders.length > 1) {
+      const nestingResults = await runNestingAlgorithm(cluster.orders, constraints);
+      const utilizationMetrics = await calculateUtilization(nestingResults);
+      
+      options.push({
+        clusterId: cluster.id,
+        orders: cluster.orders,
+        layout: nestingResults.layout,
+        sheetUtilization: utilizationMetrics.utilization,
+        wasteReduction: utilizationMetrics.wasteReduction,
+        makeReadyReduction: utilizationMetrics.makeReadyReduction
+      });
+    }
+  }
+  
+  return options.sort((a, b) => b.wasteReduction - a.wasteReduction);
+}
+
+// Decision-Making Workflows
+export async function approveGangingPlan(plan: GangingPlan, approver: User): Promise<GangingPlan> {
+  const riskAssessment = await assessPlanRisk(plan);
+  const impactAnalysis = await analyzeDeliveryImpact(plan);
+  
+  if (riskAssessment.riskLevel === 'high' && !approver.canApproveHighRisk) {
+    throw new Error('High-risk plan requires senior approver');
+  }
+  
+  if (impactAnalysis.onTimeDeliveryRisk > 0.1) {
+    const confirmation = await requestRiskConfirmation(approver, impactAnalysis);
+    if (!confirmation.approved) {
+      return { ...plan, approvalStatus: 'rejected' };
+    }
+  }
+  
+  await logApprovalDecision(plan.id, approver.id, 'approved');
+  return { ...plan, approvalStatus: 'approved' };
+}
+
+export async function handleCustomerChurn(customer: Customer, churnReason: string): Promise<ChurnResult> {
+  const retentionStrategy = await determineRetentionStrategy(customer, churnReason);
+  const retentionOffer = await createRetentionOffer(retentionStrategy);
+  const customerResponse = await presentRetentionOffer(customer, retentionOffer);
+  
+  if (customerResponse.accepted) {
+    const updatedCustomer = await implementRetentionOffer(customer, retentionOffer);
+    return { retained: true, customer: updatedCustomer };
+  } else {
+    await processChurn(customer);
+    return { retained: false, churnDate: new Date() };
+  }
+}
+
+export async function optimizeResourceAllocation(): Promise<ResourcePlan> {
+  const customerDemand = await forecastCustomerDemand();
+  const currentCapacity = await assessCurrentCapacity();
+  const gaps = await identifyCapacityGaps(customerDemand, currentCapacity);
+  
+  return await createResourcePlan(gaps);
+}
+
+// Performance Monitoring and Continuous Improvement
+export async function monitorSystemPerformance(): Promise<PerformanceMetrics> {
+  const optimizationMetrics = await collectOptimizationMetrics();
+  const customerSatisfactionMetrics = await collectCustomerMetrics();
+  const systemHealthMetrics = await collectSystemHealthMetrics();
+  
+  return {
+    avgOptimizationTime: optimizationMetrics.avgTime,
+    avgWasteReduction: optimizationMetrics.avgWasteReduction,
+    customerNPS: customerSatisfactionMetrics.nps,
+    systemUptime: systemHealthMetrics.uptime,
+    errorRate: systemHealthMetrics.errorRate
+  };
+}
+
+export async function implementContinuousImprovement(): Promise<void> {
+  const performanceData = await monitorSystemPerformance();
+  const improvementOpportunities = await identifyImprovementOpportunities(performanceData);
+  
+  for (const opportunity of improvementOpportunities) {
+    if (opportunity.impact === 'high' && opportunity.effort === 'low') {
+      await implementImprovement(opportunity);
+    }
+  }
+}
+```
