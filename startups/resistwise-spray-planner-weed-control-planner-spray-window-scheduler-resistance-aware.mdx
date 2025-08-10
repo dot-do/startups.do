@@ -310,3 +310,404 @@ landingPage:
 
 Generated for NAICS 111110 — Soybean Farming.
 Service: Weed Control Planner & Spray Window Scheduler (Resistance-aware)
+
+## Business Workflow Functions
+
+The following TypeScript functions define the core business processes and workflows for ResistWise:
+
+```typescript
+// Types and Interfaces
+interface Lead {
+  id: string;
+  name: string;
+  organization: string;
+  acres: number;
+  location: string;
+  contactInfo: ContactInfo;
+  currentChallenges: string[];
+  traits: SoybeanTrait[];
+}
+
+interface Customer {
+  id: string;
+  lead: Lead;
+  subscription: Subscription;
+  fields: Field[];
+  onboardingStatus: OnboardingStatus;
+  paymentInfo: PaymentInfo;
+}
+
+interface Field {
+  id: string;
+  acres: number;
+  location: GeoLocation;
+  soilType: string;
+  weedHistory: WeedResistanceData;
+  trait: SoybeanTrait;
+  equipment: SprayerSpecs;
+}
+
+interface SprayProgram {
+  id: string;
+  fieldId: string;
+  preEmergenceProgram: HerbicideProgram;
+  postEmergenceProgram: HerbicideProgram;
+  riskScore: number;
+  estimatedCost: number;
+  expectedControlRate: number;
+}
+
+interface SprayWindow {
+  id: string;
+  programId: string;
+  startTime: Date;
+  endTime: Date;
+  weatherConditions: WeatherData;
+  riskLevel: 'LOW' | 'MEDIUM' | 'HIGH';
+  confidenceScore: number;
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  try {
+    const qualifiedLead = await qualifyLead(lead);
+    const pilot = await setupPilotProgram(qualifiedLead);
+    const pilotResults = await executePilot(pilot);
+    const proposal = await generateProposal(qualifiedLead, pilotResults);
+    const contract = await negotiateContract(proposal);
+    return await onboardCustomer(contract);
+  } catch (error) {
+    throw new Error(`Customer acquisition failed: ${error.message}`);
+  }
+}
+
+export async function qualifyLead(lead: Lead): Promise<Lead> {
+  // Qualify based on acres (1,000-25,000), location (Corn Belt), and resistance challenges
+  if (lead.acres < 1000 || lead.acres > 25000) {
+    throw new Error('Lead does not meet acreage requirements');
+  }
+  
+  const cornBeltStates = ['IL', 'IA', 'MN', 'IN', 'MO', 'NE', 'OH', 'SD', 'ND', 'KS', 'AR'];
+  if (!cornBeltStates.includes(lead.location)) {
+    throw new Error('Lead outside target geographic area');
+  }
+  
+  return {
+    ...lead,
+    qualified: true,
+    qualificationDate: new Date()
+  };
+}
+
+export async function setupPilotProgram(lead: Lead): Promise<PilotProgram> {
+  // 90-day pilot framework: 5-10 growers per retailer (50k-100k acres)
+  const pilotFields = await selectPilotFields(lead, 0.1); // 10% of acres
+  const baselineMetrics = await establishBaseline(pilotFields);
+  
+  return {
+    id: generateId(),
+    leadId: lead.id,
+    fields: pilotFields,
+    duration: 90,
+    successCriteria: {
+      onTimeSprayImprovement: 15, // +15 percentage points
+      resprayReduction: 15, // -15% resprays
+      conversionTarget: 70 // ≥70% conversion to paid
+    },
+    baseline: baselineMetrics
+  };
+}
+
+// Product Development Processes
+export async function designResistanceAwareProgram(field: Field): Promise<SprayProgram> {
+  try {
+    const resistanceData = await fetchLocalResistanceData(field.location);
+    const weedSpectrum = await analyzeWeedSpectrum(field.weedHistory);
+    const traitCompatibility = await checkTraitCompatibility(field.trait);
+    
+    const preEmergence = await designPreEmergenceProgram(
+      resistanceData,
+      weedSpectrum,
+      traitCompatibility
+    );
+    
+    const postEmergence = await designPostEmergenceProgram(
+      resistanceData,
+      weedSpectrum,
+      traitCompatibility,
+      preEmergence
+    );
+    
+    const riskAssessment = await assessProgramRisk(preEmergence, postEmergence);
+    
+    return {
+      id: generateId(),
+      fieldId: field.id,
+      preEmergenceProgram: preEmergence,
+      postEmergenceProgram: postEmergence,
+      riskScore: riskAssessment.score,
+      estimatedCost: calculateProgramCost(preEmergence, postEmergence),
+      expectedControlRate: riskAssessment.expectedControl
+    };
+  } catch (error) {
+    throw new Error(`Program design failed: ${error.message}`);
+  }
+}
+
+export async function optimizeSprayWindows(program: SprayProgram): Promise<SprayWindow[]> {
+  // 14-day rolling forecast with hyperlocal wind/inversion/temperature thresholds
+  const forecast = await getHyperlocalForecast(program.fieldId, 14);
+  const labelConstraints = await getLabelConstraints(program);
+  const weedGrowthStage = await predictWeedGrowthStage(program.fieldId);
+  
+  const candidateWindows = await identifySprayWindows(
+    forecast,
+    labelConstraints,
+    weedGrowthStage
+  );
+  
+  return candidateWindows.map(window => ({
+    ...window,
+    confidenceScore: calculateConfidenceScore(window, forecast),
+    riskLevel: assessWeatherRisk(window)
+  }));
+}
+
+// Revenue Generation Flows
+export async function processSubscription(customer: Customer, tier: SubscriptionTier): Promise<Subscription> {
+  try {
+    const pricing = await calculatePricing(customer.fields, tier);
+    const payment = await processPayment(customer.paymentInfo, pricing);
+    
+    return {
+      id: generateId(),
+      customerId: customer.id,
+      tier,
+      pricing,
+      startDate: new Date(),
+      endDate: addMonths(new Date(), 12),
+      status: 'ACTIVE',
+      features: getFeaturesByTier(tier)
+    };
+  } catch (error) {
+    throw new Error(`Subscription processing failed: ${error.message}`);
+  }
+}
+
+export async function generateEnterpriseProposal(
+  retailer: RetailerLead,
+  managedAcres: number
+): Promise<EnterpriseProposal> {
+  // Enterprise licenses: $15,000–$250,000/year based on managed acres and features
+  const basePrice = Math.min(250000, Math.max(15000, managedAcres * 0.15));
+  const features = await selectEnterpriseFeatures(retailer.requirements);
+  
+  return {
+    id: generateId(),
+    retailerId: retailer.id,
+    managedAcres,
+    annualPrice: basePrice,
+    features,
+    implementation: await planImplementation(retailer),
+    training: await planTraining(retailer.teamSize),
+    support: 'ENTERPRISE'
+  };
+}
+
+// Operational Procedures
+export async function executeSprayPlan(
+  program: SprayProgram,
+  window: SprayWindow
+): Promise<SprayExecution> {
+  try {
+    const workOrder = await generateWorkOrder(program, window);
+    const safetyChecks = await performSafetyChecks(workOrder);
+    const equipmentCheck = await verifyEquipment(workOrder.equipment);
+    
+    if (!safetyChecks.passed || !equipmentCheck.passed) {
+      throw new Error('Pre-spray safety checks failed');
+    }
+    
+    const execution = await dispatchSprayJob(workOrder);
+    const monitoring = await monitorExecution(execution);
+    
+    return {
+      id: generateId(),
+      programId: program.id,
+      windowId: window.id,
+      workOrder,
+      execution,
+      monitoring,
+      completedAt: new Date(),
+      status: 'COMPLETED'
+    };
+  } catch (error) {
+    throw new Error(`Spray execution failed: ${error.message}`);
+  }
+}
+
+export async function monitorCompliance(execution: SprayExecution): Promise<ComplianceReport> {
+  // Auto recordkeeping and audit trail
+  const labelCompliance = await verifyLabelCompliance(execution);
+  const weatherCompliance = await verifyWeatherCompliance(execution);
+  const bufferCompliance = await verifyBufferCompliance(execution);
+  
+  return {
+    id: generateId(),
+    executionId: execution.id,
+    labelCompliance,
+    weatherCompliance,
+    bufferCompliance,
+    overallStatus: determineComplianceStatus([
+      labelCompliance,
+      weatherCompliance,
+      bufferCompliance
+    ]),
+    auditTrail: generateAuditTrail(execution),
+    generatedAt: new Date()
+  };
+}
+
+// Decision-Making Workflows
+export async function assessResistanceRisk(field: Field): Promise<ResistanceRiskAssessment> {
+  const countyData = await getCountyResistanceData(field.location);
+  const fieldHistory = await analyzeFieldHistory(field.weedHistory);
+  const neighboringFields = await getNearbyResistanceReports(field.location, 5); // 5 mile radius
+  
+  const riskFactors = [
+    assessWaterhemp(countyData, fieldHistory),
+    assessPalmerAmaranth(countyData, fieldHistory),
+    assessMarestail(countyData, fieldHistory)
+  ];
+  
+  return {
+    fieldId: field.id,
+    overallRisk: calculateOverallRisk(riskFactors),
+    specificRisks: riskFactors,
+    recommendations: generateResistanceRecommendations(riskFactors),
+    confidence: calculateConfidence(countyData, fieldHistory, neighboringFields)
+  };
+}
+
+export async function optimizeROI(
+  programs: SprayProgram[],
+  budget: number
+): Promise<OptimizedProgramSelection> {
+  // ROI/risk comparisons: expected control probability, respray risk, and total program cost
+  const programAnalyses = await Promise.all(
+    programs.map(async program => ({
+      program,
+      roi: await calculateROI(program),
+      riskMetrics: await calculateRiskMetrics(program),
+      costBenefit: await analyzeCostBenefit(program)
+    }))
+  );
+  
+  const optimizedSelection = await selectOptimalPrograms(
+    programAnalyses,
+    budget
+  );
+  
+  return {
+    selectedPrograms: optimizedSelection.programs,
+    totalCost: optimizedSelection.cost,
+    expectedROI: optimizedSelection.roi,
+    riskProfile: optimizedSelection.risk,
+    alternatives: optimizedSelection.alternatives
+  };
+}
+
+export async function handleAlerts(field: Field): Promise<AlertResponse> {
+  // Alert effectiveness: ≥70% acknowledgment; ≥60% of jobs executed within recommended windows
+  const conditions = await getCurrentConditions(field);
+  const alerts = await generateAlerts(field, conditions);
+  
+  if (alerts.length === 0) {
+    return { fieldId: field.id, alerts: [], actions: [] };
+  }
+  
+  const prioritizedAlerts = await prioritizeAlerts(alerts);
+  const recommendedActions = await generateRecommendedActions(prioritizedAlerts);
+  
+  await sendAlerts(field.customerId, prioritizedAlerts);
+  
+  return {
+    fieldId: field.id,
+    alerts: prioritizedAlerts,
+    actions: recommendedActions,
+    sentAt: new Date()
+  };
+}
+
+// Integration and Export Functions
+export async function exportToJohnDeere(workOrder: WorkOrder): Promise<ExportResult> {
+  try {
+    const jdFormat = await convertToJDFormat(workOrder);
+    const result = await sendToJDOpsCenter(jdFormat);
+    
+    return {
+      success: true,
+      platform: 'JOHN_DEERE',
+      exportId: result.id,
+      exportedAt: new Date()
+    };
+  } catch (error) {
+    return {
+      success: false,
+      platform: 'JOHN_DEERE',
+      error: error.message,
+      exportedAt: new Date()
+    };
+  }
+}
+
+export async function generateComplianceReport(
+  executions: SprayExecution[],
+  timeframe: DateRange
+): Promise<RegulatoryReport> {
+  // Generates regulator-ready reports
+  const complianceData = await Promise.all(
+    executions.map(execution => monitorCompliance(execution))
+  );
+  
+  return {
+    id: generateId(),
+    timeframe,
+    executions: executions.length,
+    complianceRate: calculateComplianceRate(complianceData),
+    violations: identifyViolations(complianceData),
+    summary: generateExecutiveSummary(complianceData),
+    details: complianceData,
+    generatedAt: new Date(),
+    regulatoryReady: true
+  };
+}
+
+// Helper functions (referenced but not implemented)
+async function fetchLocalResistanceData(location: GeoLocation): Promise<ResistanceData> {
+  // Implementation would fetch from university resistance databases
+  throw new Error('Not implemented');
+}
+
+async function getHyperlocalForecast(fieldId: string, days: number): Promise<WeatherForecast> {
+  // Implementation would use OpenWeather/NOAA APIs
+  throw new Error('Not implemented');
+}
+
+async function sendToJDOpsCenter(data: any): Promise<any> {
+  // Implementation would use John Deere Operations Center APIs
+  throw new Error('Not implemented');
+}
+
+function generateId(): string {
+  return Math.random().toString(36).substring(2, 15);
+}
+
+function addMonths(date: Date, months: number): Date {
+  const result = new Date(date);
+  result.setMonth(result.getMonth() + months);
+  return result;
+}
+```
+
+These workflow functions encode the core business processes of ResistWise as executable TypeScript code, representing how the startup operates from customer acquisition through product delivery and compliance monitoring.
