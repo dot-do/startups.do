@@ -284,7 +284,352 @@ landingPage:
     - 'Scout: follow geo-tagged routes; capture notes and photos offline.'
     - 'Decide: review summaries, trigger follow-up tasks, export reports.'
 ---
-# SoySight AI
+
+# SoySight AI - Business-as-Code Workflows
 
 Generated for NAICS 111110 — Soybean Farming.
 Service: Satellite Crop Health Monitoring & Scouting Alerts
+
+## Core Business Process Functions
+
+```typescript
+// Customer Acquisition Workflows
+
+interface Lead {
+  id: string;
+  name: string;
+  farmSize: number;
+  location: string;
+  contactInfo: ContactInfo;
+  source: 'referral' | 'event' | 'digital' | 'partner';
+  crops: string[];
+  currentTools: string[];
+}
+
+interface Customer {
+  id: string;
+  lead: Lead;
+  subscription: Subscription;
+  fields: Field[];
+  onboardingStatus: 'pending' | 'active' | 'complete';
+}
+
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const demo = await scheduleDemoSession(qualifiedLead);
+  const trial = await setupFreeTrial(demo);
+  const proposal = await generateCustomProposal(trial);
+  const contract = await negotiateContract(proposal);
+  return await onboardCustomer(contract);
+}
+
+export async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  // Qualify based on farm size (>1000 acres), soybean focus, and budget
+  const scorecard = {
+    farmSize: lead.farmSize >= 1000 ? 25 : 0,
+    soybeanAcres: calculateSoybeanAcres(lead.crops),
+    techAdoption: assessTechReadiness(lead.currentTools),
+    budget: estimateBudgetCapacity(lead.farmSize)
+  };
+  
+  if (scorecard.farmSize + scorecard.soybeanAcres >= 40) {
+    return await enrichLeadData(lead, scorecard);
+  }
+  
+  throw new Error('Lead does not meet qualification criteria');
+}
+
+export async function scheduleDemoSession(lead: QualifiedLead): Promise<DemoSession> {
+  const availableSlots = await getAvailableDemoSlots();
+  const preferredTime = await requestPreferredTime(lead);
+  const demoKit = await prepareDemoKit(lead.farmLocation);
+  
+  return await createDemoSession({
+    lead,
+    scheduledTime: preferredTime,
+    demoKit,
+    customFields: lead.sampleFields
+  });
+}
+
+export async function setupFreeTrial(demo: DemoSession): Promise<TrialAccount> {
+  const trialFields = demo.lead.sampleFields.slice(0, 2); // First 100 acres free
+  const account = await createTrialAccount(demo.lead);
+  
+  await uploadFieldBoundaries(account, trialFields);
+  await initializeBaselines(account, trialFields);
+  await setupAlertPreferences(account, demo.preferences);
+  
+  return account;
+}
+
+// Product Development Processes
+
+interface SatelliteData {
+  source: 'sentinel-2' | 'landsat-8' | 'sentinel-1-sar';
+  timestamp: Date;
+  cloudCover: number;
+  resolution: number;
+  bands: SpectralBand[];
+}
+
+interface Anomaly {
+  fieldId: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  type: 'disease' | 'stress' | 'nutrient' | 'pest' | 'drainage';
+  confidence: number;
+  affectedAcres: number;
+  coordinates: GeoCoordinate[];
+  likelyCause: string;
+  recommendedAction: string;
+}
+
+export async function processSatelliteData(data: SatelliteData): Promise<ProcessedImagery> {
+  const cloudMasked = await applyCloudMask(data);
+  const indices = await computeVegetationIndices(cloudMasked);
+  const calibrated = await calibrateForPhenology(indices);
+  
+  return await generateComposite(calibrated);
+}
+
+export async function detectAnomalies(imagery: ProcessedImagery, field: Field): Promise<Anomaly[]> {
+  const baseline = await getFieldBaseline(field);
+  const phenologyStage = await determinePhenologyStage(field);
+  
+  const ndviAnomalies = await detectNDVIAnomalies(imagery, baseline, phenologyStage);
+  const stressSignals = await detectStressSignals(imagery, field.weatherData);
+  const diseaseRisk = await assessDiseaseRisk(imagery, field.microclimate);
+  
+  return await prioritizeAnomalies([...ndviAnomalies, ...stressSignals, ...diseaseRisk]);
+}
+
+export async function generateScoutingTasks(anomalies: Anomaly[]): Promise<ScoutingTask[]> {
+  const prioritized = await prioritizeByRisk(anomalies);
+  const routes = await optimizeScoutingRoutes(prioritized);
+  
+  return await createGeoTaggedTasks(routes);
+}
+
+// Revenue Generation Flows
+
+interface Subscription {
+  tier: 'base' | 'pro';
+  pricePerAcre: number;
+  totalAcres: number;
+  billingCycle: 'annual' | 'seasonal';
+  addOns: AddOn[];
+}
+
+export async function calculateSubscriptionRevenue(customer: Customer): Promise<RevenueProjection> {
+  const baseRevenue = customer.subscription.pricePerAcre * customer.subscription.totalAcres;
+  const addOnRevenue = customer.subscription.addOns.reduce((sum, addon) => 
+    sum + (addon.pricePerAcre * customer.subscription.totalAcres), 0);
+  
+  const seasonalMultiplier = customer.subscription.billingCycle === 'annual' ? 1 : 0.85;
+  
+  return {
+    annualRevenue: (baseRevenue + addOnRevenue) * seasonalMultiplier,
+    monthlyRecurring: (baseRevenue + addOnRevenue) / 12,
+    expansionOpportunities: await identifyUpsellOpportunities(customer)
+  };
+}
+
+export async function processSubscriptionUpgrade(customer: Customer, newTier: 'pro'): Promise<UpdatedSubscription> {
+  const currentRevenue = await calculateCurrentRevenue(customer);
+  const newPricing = await calculateNewPricing(customer.subscription.totalAcres, newTier);
+  const prorationAmount = await calculateProration(currentRevenue, newPricing);
+  
+  await updateBillingSystem(customer, newPricing, prorationAmount);
+  await enableProFeatures(customer);
+  
+  return await confirmSubscriptionUpdate(customer, newTier);
+}
+
+export async function trackROIMetrics(customer: Customer): Promise<ROIReport> {
+  const yieldImprovements = await measureYieldImprovements(customer.fields);
+  const inputSavings = await calculateInputSavings(customer.scoutingHistory);
+  const timeSavings = await calculateTimeSavings(customer.scoutingEfficiency);
+  
+  const totalBenefit = yieldImprovements.value + inputSavings.value + timeSavings.value;
+  const subscriptionCost = customer.subscription.pricePerAcre * customer.subscription.totalAcres;
+  
+  return {
+    roi: totalBenefit / subscriptionCost,
+    bushelsSaved: yieldImprovements.bushels,
+    costSavings: inputSavings.value,
+    timeReduction: timeSavings.hours,
+    confidence: calculateConfidenceScore([yieldImprovements, inputSavings, timeSavings])
+  };
+}
+
+// Operational Procedures
+
+export async function monitorFieldHealth(): Promise<void> {
+  const activeFields = await getActiveFields();
+  
+  for (const field of activeFields) {
+    const latestImagery = await fetchLatestImagery(field);
+    if (latestImagery.cloudCover < 30) {
+      const anomalies = await detectAnomalies(latestImagery, field);
+      if (anomalies.length > 0) {
+        await generateAlerts(field, anomalies);
+        await createScoutingTasks(field, anomalies);
+      }
+    }
+  }
+}
+
+export async function routeOptimization(agronomist: Agronomist): Promise<OptimizedRoute> {
+  const pendingTasks = await getPendingTasks(agronomist.territory);
+  const prioritizedTasks = await prioritizeByUrgency(pendingTasks);
+  const route = await calculateOptimalRoute(prioritizedTasks, agronomist.startLocation);
+  
+  await assignTasksToAgronomist(agronomist, route);
+  return route;
+}
+
+export async function processTaskCompletion(task: ScoutingTask, findings: FieldFindings): Promise<void> {
+  await updateTaskStatus(task, 'completed');
+  await recordFindings(task.fieldId, findings);
+  await updateModelFeedback(task.anomaly, findings.actualCause);
+  
+  if (findings.requiresFollowUp) {
+    await createFollowUpTask(task.fieldId, findings.recommendedAction);
+  }
+  
+  await notifyCustomer(task.customerId, findings);
+}
+
+// Decision-Making Workflows
+
+export async function calibrateAlertThresholds(field: Field, feedback: UserFeedback[]): Promise<UpdatedThresholds> {
+  const falsePositives = feedback.filter(f => f.type === 'false_positive');
+  const missedIssues = feedback.filter(f => f.type === 'missed_issue');
+  
+  const currentThresholds = await getCurrentThresholds(field);
+  const adjustments = await calculateThresholdAdjustments(falsePositives, missedIssues);
+  
+  const newThresholds = await applyAdjustments(currentThresholds, adjustments);
+  await validateThresholds(newThresholds, field.historicalData);
+  
+  return await updateFieldThresholds(field, newThresholds);
+}
+
+export async function prioritizeAlerts(alerts: Alert[]): Promise<PrioritizedAlert[]> {
+  const scored = await Promise.all(alerts.map(async alert => ({
+    ...alert,
+    riskScore: await calculateRiskScore(alert),
+    urgencyScore: await calculateUrgencyScore(alert),
+    impactScore: await calculateImpactScore(alert)
+  })));
+  
+  return scored.sort((a, b) => 
+    (b.riskScore + b.urgencyScore + b.impactScore) - 
+    (a.riskScore + a.urgencyScore + a.impactScore)
+  );
+}
+
+export async function decideTreatmentRecommendation(anomaly: Anomaly, field: Field): Promise<TreatmentPlan> {
+  const diseaseRisk = await assessDiseaseRisk(anomaly, field.microclimate);
+  const economicThreshold = await calculateEconomicThreshold(anomaly, field.yieldPotential);
+  const weatherWindow = await getOptimalApplicationWindow(field.location);
+  
+  if (diseaseRisk.severity > economicThreshold.actionLevel) {
+    return await generateTreatmentPlan(anomaly, diseaseRisk, weatherWindow);
+  }
+  
+  return { action: 'monitor', reason: 'Below economic threshold' };
+}
+
+// Workflow Orchestration
+
+export async function dailyOperations(): Promise<void> {
+  await monitorFieldHealth();
+  await processIncomingImagery();
+  await updateCustomerDashboards();
+  await sendDailyAlerts();
+}
+
+export async function weeklyReporting(): Promise<void> {
+  const customers = await getActiveCustomers();
+  
+  for (const customer of customers) {
+    const weeklyReport = await generateWeeklyReport(customer);
+    await sendWeeklyReport(customer, weeklyReport);
+  }
+}
+
+export async function seasonalCalibration(): Promise<void> {
+  const allFields = await getAllFields();
+  
+  for (const field of allFields) {
+    await updatePhenologyModels(field);
+    await recalibrateBaselines(field);
+    await optimizeAlertThresholds(field);
+  }
+}
+
+// Event-Driven Workflows
+
+export const on = {
+  'customer.trial_started': async (event: TrialStartedEvent) => {
+    await setupTrialMonitoring(event.customerId);
+    await scheduleTrialCheckIns(event.customerId);
+  },
+  
+  'alert.generated': async (event: AlertGeneratedEvent) => {
+    await notifyCustomer(event.customerId, event.alert);
+    await createScoutingTask(event.alert);
+    await updateRiskAssessment(event.fieldId);
+  },
+  
+  'task.completed': async (event: TaskCompletedEvent) => {
+    await processTaskCompletion(event.task, event.findings);
+    await updateFieldStatus(event.fieldId);
+    await triggerModelRetraining(event.feedback);
+  },
+  
+  'subscription.upgraded': async (event: SubscriptionUpgradedEvent) => {
+    await enableProFeatures(event.customerId);
+    await updateBillingCycle(event.customerId, event.newTier);
+    await notifySuccessTeam(event);
+  }
+};
+
+// Scheduled Workflows
+
+export const every = {
+  '6 hours': async () => {
+    await fetchLatestSatelliteData();
+    await processImageryQueue();
+  },
+  
+  'daily at 6am': async () => {
+    await dailyOperations();
+    await generateDailyMetrics();
+  },
+  
+  'weekly on monday': async () => {
+    await weeklyReporting();
+    await updateModelPerformanceMetrics();
+  },
+  
+  'monthly': async () => {
+    await generateMonthlyROIReports();
+    await reviewAndOptimizeThresholds();
+    await updateSeasonalModels();
+  }
+};
+```
+
+## Business Logic Integration
+
+The above functions represent the core business processes of SoySight AI as executable code. Each function encapsulates specific business logic:
+
+- **Customer acquisition** flows from lead qualification through onboarding
+- **Product development** processes satellite data into actionable insights  
+- **Revenue generation** manages subscriptions and tracks ROI
+- **Operations** handle daily monitoring and task routing
+- **Decision-making** calibrates models and prioritizes actions
+
+These workflows integrate with the platform's AI primitives, database operations, and external APIs to create an autonomous agricultural monitoring system that operates according to defined business rules and objectives.
