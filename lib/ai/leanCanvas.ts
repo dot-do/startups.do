@@ -4,7 +4,7 @@ import { z } from 'zod'
 
 export const leanCanvas = async (businessIdea: string, additionalContext?: string) => {
   return generateObject({
-    model: openai('gpt-5'),
+    model: openai.responses('gpt-5'),
     prompt: `Generate a comprehensive lean canvas for the following business idea: "${businessIdea}"
   
   ${additionalContext ? `Additional context: ${additionalContext}` : ''}
