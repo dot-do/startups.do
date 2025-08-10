@@ -83,6 +83,321 @@ variants:
     changes: ["No human-in-loop", "Lower limits"]
 ---
 
+```typescript
+import { Business, on, every } from 'workflows.do'
+import { Agent } from 'agents.do'
+import { Human } from 'humans.do'
+
+// Business-as-Code Definition
+export const acmeClaims = Business({
+  name: 'Acme Auto Claims AI',
+  url: 'https://acmeclaims.ai',
+  vision: 'Zero-touch auto claims in minutes.',
+  mission: 'Automate FNOL to payout with AI and human-in-the-loop.',
+  
+  goals: [
+    { 
+      objective: 'Reduce average claim cycle time',
+      keyResults: ['Cycle time ≤ 5 minutes', 'Automated triage rate ≥ 80%']
+    },
+    { 
+      objective: 'Maintain or improve accuracy',
+      keyResults: ['Accuracy ≥ 99%', 'Fraud detection rate ≥ 95%']
+    },
+    {
+      objective: 'Scale customer acquisition',
+      keyResults: ['New insurer partnerships +2/month', 'Claims volume +50%/quarter']
+    }
+  ],
+
+  // Team structure
+  ceo: Human({ name: 'CEO', email: 'ceo@acmeclaims.ai' }),
+  cto: Human({ 
+    name: 'CTO', 
+    email: 'cto@acmeclaims.ai',
+    objective: 'Build industry-leading claims automation platform',
+    keyResults: ['Platform uptime ≥ 99.9%', 'Processing latency ≤ 30 seconds']
+  }),
+  claimsDirector: Agent({ 
+    name: 'Claims Director AI',
+    objective: 'Optimize claims processing workflows',
+    keyResults: ['Straight-through processing rate ≥ 70%', 'Customer satisfaction ≥ 4.5/5']
+  }),
+  fraudAnalyst: Agent({
+    name: 'Fraud Analyst AI', 
+    objective: 'Detect and prevent fraudulent claims',
+    keyResults: ['False positive rate ≤ 5%', 'Fraud detection accuracy ≥ 95%']
+  })
+})
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: InsuranceLead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead)
+  const proposal = await generateProposal(qualifiedLead)
+  const contract = await negotiateContract(proposal)
+  return await onboardCustomer(contract)
+}
+
+export async function qualifyLead(lead: InsuranceLead): Promise<QualifiedLead> {
+  const creditCheck = await performCreditCheck(lead.companyInfo)
+  const volumeAssessment = await assessClaimsVolume(lead.historicalData)
+  const fitScore = await calculateFitScore(lead, creditCheck, volumeAssessment)
+  
+  return {
+    ...lead,
+    creditScore: creditCheck.score,
+    projectedVolume: volumeAssessment.monthlyVolume,
+    fitScore,
+    qualified: fitScore >= 70
+  }
+}
+
+export async function generateProposal(lead: QualifiedLead): Promise<Proposal> {
+  const pricingModel = lead.projectedVolume > 1000 ? 'saas' : 'per-claim'
+  const customFeatures = await identifyRequiredFeatures(lead.requirements)
+  
+  return {
+    customerId: lead.id,
+    pricingModel,
+    monthlyFee: pricingModel === 'saas' ? calculateSaaSPricing(lead.projectedVolume) : 0,
+    perClaimFee: pricingModel === 'per-claim' ? 15 : 0,
+    features: customFeatures,
+    integrationTimeline: estimateIntegrationTime(customFeatures),
+    proposalExpiry: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
+  }
+}
+
+// Core Claims Processing Workflows
+export async function processClaim(claim: ClaimSubmission): Promise<ClaimResult> {
+  const triaged = await triageClaim(claim)
+  const adjudicated = await adjudicateClaim(triaged)
+  const decision = await makeClaimDecision(adjudicated)
+  
+  if (decision.approved) {
+    await initiatePayout(decision)
+  }
+  
+  return decision
+}
+
+export async function triageClaim(claim: ClaimSubmission): Promise<TriagedClaim> {
+  const documents = await parseDocuments(claim.attachments)
+  const riskScore = await calculateRiskScore(claim, documents)
+  const complexity = await assessComplexity(claim, documents)
+  
+  return {
+    ...claim,
+    parsedDocuments: documents,
+    riskScore,
+    complexity,
+    requiresHumanReview: riskScore > 0.7 || complexity === 'high',
+    estimatedValue: await estimateClaimValue(claim, documents)
+  }
+}
+
+export async function adjudicateClaim(claim: TriagedClaim): Promise<AdjudicatedClaim> {
+  if (claim.requiresHumanReview) {
+    return await humanAdjudication(claim)
+  }
+  
+  const coverage = await verifyCoverage(claim.policyNumber, claim.incidentDate)
+  const liability = await determineLiability(claim.parsedDocuments)
+  const damages = await assessDamages(claim.parsedDocuments)
+  
+  return {
+    ...claim,
+    coverage,
+    liability,
+    damages,
+    recommendedPayout: calculatePayout(coverage, liability, damages),
+    confidence: 0.95
+  }
+}
+
+export async function makeClaimDecision(claim: AdjudicatedClaim): Promise<ClaimDecision> {
+  const approved = claim.coverage.valid && 
+                  claim.liability.percentage > 0 && 
+                  claim.confidence >= 0.9
+  
+  return {
+    claimId: claim.id,
+    approved,
+    payoutAmount: approved ? claim.recommendedPayout : 0,
+    reason: approved ? 'Claim meets all criteria' : generateDenialReason(claim),
+    processedAt: new Date(),
+    processingTime: Date.now() - claim.submittedAt.getTime()
+  }
+}
+
+// Revenue Generation Workflows
+export async function generateRevenue(customer: Customer, period: 'monthly' | 'quarterly'): Promise<Revenue> {
+  const usage = await calculateUsage(customer.id, period)
+  const invoice = await generateInvoice(customer, usage)
+  await sendInvoice(invoice)
+  return await trackRevenue(invoice)
+}
+
+export async function optimizePricing(customer: Customer): Promise<PricingRecommendation> {
+  const usage = await getUsageHistory(customer.id)
+  const satisfaction = await getCustomerSatisfaction(customer.id)
+  const marketRate = await getMarketRates(customer.segment)
+  
+  return {
+    currentPricing: customer.pricingPlan,
+    recommendedPricing: calculateOptimalPricing(usage, satisfaction, marketRate),
+    expectedImpact: await modelRevenueImpact(customer, usage),
+    confidence: 0.85
+  }
+}
+
+// Operational Procedures
+export async function detectFraud(claim: ClaimSubmission): Promise<FraudAssessment> {
+  const patterns = await analyzeClaimPatterns(claim)
+  const documentAnalysis = await analyzeDocumentAuthenticity(claim.attachments)
+  const behavioralSignals = await analyzeBehavioralSignals(claim.claimantHistory)
+  
+  const fraudScore = calculateFraudScore(patterns, documentAnalysis, behavioralSignals)
+  
+  return {
+    claimId: claim.id,
+    fraudScore,
+    riskLevel: fraudScore > 0.8 ? 'high' : fraudScore > 0.5 ? 'medium' : 'low',
+    indicators: [...patterns.suspiciousIndicators, ...documentAnalysis.anomalies],
+    recommendedAction: fraudScore > 0.8 ? 'investigate' : 'proceed'
+  }
+}
+
+export async function escalateToHuman(claim: TriagedClaim, reason: string): Promise<HumanReviewTask> {
+  const task = await createHumanReviewTask({
+    claimId: claim.id,
+    priority: claim.riskScore > 0.9 ? 'urgent' : 'normal',
+    reason,
+    assignedTo: await getAvailableAdjuster(),
+    dueDate: new Date(Date.now() + 4 * 60 * 60 * 1000) // 4 hours
+  })
+  
+  await notifyAdjuster(task)
+  return task
+}
+
+// Decision-Making Workflows
+export async function makeStrategicDecision(context: BusinessContext): Promise<StrategicDecision> {
+  const marketAnalysis = await analyzeMarket(context.industry)
+  const competitorAnalysis = await analyzeCompetitors(context.competitors)
+  const internalMetrics = await getInternalMetrics(context.timeframe)
+  
+  const options = await generateStrategicOptions(marketAnalysis, competitorAnalysis, internalMetrics)
+  const evaluation = await evaluateOptions(options, context.objectives)
+  
+  return {
+    decision: evaluation.recommendedOption,
+    rationale: evaluation.reasoning,
+    expectedOutcome: evaluation.projectedResults,
+    riskAssessment: evaluation.risks,
+    implementationPlan: await createImplementationPlan(evaluation.recommendedOption)
+  }
+}
+
+// Event-Driven Workflows
+on('Claim.Submitted', async (claim, { ai, db, taskQueue }) => {
+  const fraudAssessment = await ai.call('detectFraud', claim)
+  await db.claims.update(claim.id, { fraudScore: fraudAssessment.fraudScore })
+  
+  if (fraudAssessment.riskLevel === 'high') {
+    taskQueue.enqueue('InvestigateFraud', { claimId: claim.id })
+  } else {
+    taskQueue.enqueue('ProcessClaim', { claimId: claim.id })
+  }
+})
+
+on('Customer.Onboarded', async (customer, { ai, db, taskQueue }) => {
+  await db.customers.create(customer)
+  taskQueue.enqueue('SetupIntegration', { customerId: customer.id })
+  taskQueue.enqueue('SendWelcomeSequence', { customerId: customer.id })
+})
+
+on('Invoice.Overdue', async (invoice, { ai, db, taskQueue }) => {
+  const customer = await db.customers.findById(invoice.customerId)
+  const followUpStrategy = await ai.call('generateFollowUpStrategy', { customer, invoice })
+  taskQueue.enqueue('SendFollowUp', { customerId: customer.id, strategy: followUpStrategy })
+})
+
+// Scheduled Workflows
+every('hour during business hours', async ({ ai, db, taskQueue }) => {
+  const pendingClaims = await db.claims.findPending()
+  const slaBreaches = pendingClaims.filter(claim => 
+    Date.now() - claim.submittedAt.getTime() > 4 * 60 * 60 * 1000 // 4 hours
+  )
+  
+  for (const claim of slaBreaches) {
+    taskQueue.enqueue('EscalateClaim', { claimId: claim.id, reason: 'SLA breach' })
+  }
+})
+
+every('day at 09:00', async ({ ai, db }) => {
+  const yesterdayMetrics = await db.metrics.getDailySnapshot('yesterday')
+  const insights = await ai.call('generateDailyInsights', yesterdayMetrics)
+  
+  await db.reports.create({
+    type: 'daily',
+    date: new Date(),
+    metrics: yesterdayMetrics,
+    insights
+  })
+})
+
+every('week on Mon at 08:00', async ({ ai, db, taskQueue }) => {
+  const weeklyKPIs = await db.metrics.getWeeklyKPIs()
+  const okrProgress = await ai.call('assessOKRProgress', { 
+    kpis: weeklyKPIs, 
+    objectives: acmeClaims.goals 
+  })
+  
+  taskQueue.enqueue('SendWeeklyReport', { 
+    to: acmeClaims.ceo.email, 
+    report: okrProgress 
+  })
+})
+
+// Type Definitions
+interface InsuranceLead {
+  id: string
+  companyName: string
+  contactEmail: string
+  companyInfo: CompanyInfo
+  historicalData: ClaimsHistory
+  requirements: string[]
+}
+
+interface ClaimSubmission {
+  id: string
+  policyNumber: string
+  claimantInfo: ClaimantInfo
+  incidentDate: Date
+  submittedAt: Date
+  attachments: Document[]
+  description: string
+  claimantHistory: ClaimHistory[]
+}
+
+interface ClaimDecision {
+  claimId: string
+  approved: boolean
+  payoutAmount: number
+  reason: string
+  processedAt: Date
+  processingTime: number
+}
+
+interface FraudAssessment {
+  claimId: string
+  fraudScore: number
+  riskLevel: 'low' | 'medium' | 'high'
+  indicators: string[]
+  recommendedAction: 'proceed' | 'investigate'
+}
+```
+
 export default function Page() {
   return (
     <>
