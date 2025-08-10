@@ -314,7 +314,305 @@ landingPage:
     - 'Month 2: Add demand management and schedule optimization.'
     - 'Go‑Live: Guided setpoints or closed-loop control, with continuous tuning.'
 ---
+
 # ThermaMason AI
 
 Generated for NAICS 327331 — Concrete Block and Brick Manufacturing.
 Service: Energy & Kiln/Dryer Optimization
+
+## Business Process Functions
+
+```typescript
+// Core business entity interfaces
+interface Lead {
+  id: string;
+  companyName: string;
+  plantLocation: string;
+  contactInfo: ContactInfo;
+  energySpend: number;
+  kilnCount: number;
+  naicsCode: string;
+  currentEnergyIntensity?: number;
+}
+
+interface Customer {
+  id: string;
+  lead: Lead;
+  contractDetails: ContractDetails;
+  plantData: PlantData;
+  onboardingStatus: OnboardingStatus;
+}
+
+interface PlantData {
+  kilnTypes: KilnType[];
+  energyBaseline: EnergyBaseline;
+  productionSchedule: ProductionSchedule;
+  qualitySpecs: QualitySpecs;
+}
+
+interface EnergyBaseline {
+  kWhPer1000Units: number;
+  thermsPer1000Units: number;
+  peakDemandKW: number;
+  demandCharges: number;
+  totalEnergyCost: number;
+}
+
+interface OptimizationRecommendation {
+  cycleAdjustments: CycleAdjustment[];
+  demandReduction: DemandReduction;
+  energySavings: EnergySavings;
+  qualityGuardrails: QualityGuardrail[];
+  implementationPlan: ImplementationPlan;
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const energyAssessment = await conductEnergyAssessment(qualifiedLead);
+  const proposal = await generateProposal(qualifiedLead, energyAssessment);
+  const pilot = await executePilotProgram(proposal);
+  const contract = await negotiateContract(pilot);
+  return await onboardCustomer(contract);
+}
+
+export async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  // Validate NAICS 327331 classification
+  if (lead.naicsCode !== '327331') {
+    throw new Error('Lead does not match target NAICS code');
+  }
+  
+  // Check minimum energy spend threshold ($500k/year)
+  if (lead.energySpend < 500000) {
+    throw new Error('Energy spend below minimum threshold');
+  }
+  
+  // Verify kiln/dryer presence
+  const hasKilnDryer = await verifyKilnDryerPresence(lead);
+  if (!hasKilnDryer) {
+    throw new Error('No gas-fired kilns or dryers detected');
+  }
+  
+  return {
+    ...lead,
+    qualificationScore: calculateQualificationScore(lead),
+    priorityLevel: determinePriorityLevel(lead)
+  };
+}
+
+export async function conductEnergyAssessment(lead: QualifiedLead): Promise<EnergyAssessment> {
+  const utilityData = await collectUtilityData(lead);
+  const kilnTelemetry = await gatherKilnTelemetry(lead);
+  const productionData = await analyzeProductionData(lead);
+  
+  const baseline = await establishEnergyBaseline(utilityData, kilnTelemetry, productionData);
+  const opportunities = await identifyOptimizationOpportunities(baseline);
+  
+  return {
+    baseline,
+    opportunities,
+    potentialSavings: calculatePotentialSavings(opportunities),
+    paybackPeriod: estimatePaybackPeriod(opportunities)
+  };
+}
+
+// Product Development Processes
+export async function developOptimizationEngine(plantData: PlantData[]): Promise<OptimizationEngine> {
+  const digitalTwin = await buildDigitalTwin(plantData);
+  const mlModels = await trainMLModels(plantData);
+  const constraintEngine = await buildConstraintEngine(plantData);
+  
+  return await integrateOptimizationComponents(digitalTwin, mlModels, constraintEngine);
+}
+
+export async function buildDigitalTwin(plantData: PlantData[]): Promise<DigitalTwin> {
+  const thermalModels = await createThermalModels(plantData);
+  const airflowModels = await createAirflowModels(plantData);
+  const moistureModels = await createMoistureModels(plantData);
+  
+  return await calibrateDigitalTwin(thermalModels, airflowModels, moistureModels);
+}
+
+export async function trainMLModels(plantData: PlantData[]): Promise<MLModels> {
+  const energyPredictionModel = await trainEnergyPredictionModel(plantData);
+  const qualityPredictionModel = await trainQualityPredictionModel(plantData);
+  const anomalyDetectionModel = await trainAnomalyDetectionModel(plantData);
+  
+  return {
+    energyPrediction: energyPredictionModel,
+    qualityPrediction: qualityPredictionModel,
+    anomalyDetection: anomalyDetectionModel
+  };
+}
+
+// Revenue Generation Flows
+export async function generateRevenue(customer: Customer): Promise<RevenueStream> {
+  const subscription = await processSubscriptionRevenue(customer);
+  const implementation = await processImplementationFees(customer);
+  const performance = await processPerformanceFees(customer);
+  const support = await processSupportRevenue(customer);
+  
+  return await consolidateRevenueStreams(subscription, implementation, performance, support);
+}
+
+export async function processSubscriptionRevenue(customer: Customer): Promise<SubscriptionRevenue> {
+  const lineCount = customer.plantData.kilnTypes.length;
+  const complexity = assessComplexity(customer.plantData);
+  
+  const annualFee = calculateSubscriptionFee(lineCount, complexity); // $30k-$75k/year
+  
+  return await processRecurringPayment(customer, annualFee);
+}
+
+export async function processPerformanceFees(customer: Customer): Promise<PerformanceRevenue> {
+  const verifiedSavings = await measureAndVerifySavings(customer);
+  const performanceFeeRate = 0.15; // 10-20% of verified savings
+  
+  if (verifiedSavings.firstYearSavings > 0) {
+    const performanceFee = verifiedSavings.firstYearSavings * performanceFeeRate;
+    return await processPerformancePayment(customer, performanceFee);
+  }
+  
+  return { amount: 0, verified: false };
+}
+
+// Operational Procedures
+export async function optimizeKilnOperation(customer: Customer): Promise<OptimizationResult> {
+  const currentData = await collectRealTimeData(customer);
+  const recommendations = await generateOptimizationRecommendations(currentData);
+  const safetyCheck = await validateSafetyConstraints(recommendations);
+  
+  if (safetyCheck.passed) {
+    return await implementOptimizations(recommendations);
+  } else {
+    return await rollbackToSafeRecipe(customer);
+  }
+}
+
+export async function generateOptimizationRecommendations(data: RealTimeData): Promise<OptimizationRecommendation> {
+  const cycleOptimizer = await optimizeCycleParameters(data);
+  const demandScheduler = await optimizePeakDemand(data);
+  const qualityGuardrails = await enforceQualityConstraints(data);
+  
+  return {
+    cycleAdjustments: cycleOptimizer.recommendations,
+    demandReduction: demandScheduler.recommendations,
+    energySavings: calculateEnergySavings(cycleOptimizer, demandScheduler),
+    qualityGuardrails: qualityGuardrails,
+    implementationPlan: createImplementationPlan(cycleOptimizer, demandScheduler)
+  };
+}
+
+export async function monitorAndMaintain(customer: Customer): Promise<MaintenanceResult> {
+  const anomalies = await detectAnomalies(customer);
+  const predictiveMaintenance = await predictMaintenanceNeeds(customer);
+  const performanceMetrics = await trackPerformanceMetrics(customer);
+  
+  if (anomalies.length > 0) {
+    await alertOperators(customer, anomalies);
+    await scheduleMaintenanceActions(customer, anomalies);
+  }
+  
+  return {
+    anomalies,
+    predictiveMaintenance,
+    performanceMetrics,
+    systemHealth: assessSystemHealth(performanceMetrics)
+  };
+}
+
+// Decision-Making Workflows
+export async function makeOptimizationDecision(
+  customer: Customer,
+  recommendations: OptimizationRecommendation
+): Promise<OptimizationDecision> {
+  const riskAssessment = await assessOptimizationRisk(recommendations);
+  const benefitAnalysis = await analyzeBenefits(recommendations);
+  const operatorApproval = await requestOperatorApproval(recommendations);
+  
+  if (riskAssessment.acceptable && benefitAnalysis.positive && operatorApproval.approved) {
+    return await approveOptimization(recommendations);
+  } else {
+    return await rejectOptimization(recommendations, {
+      risk: riskAssessment,
+      benefits: benefitAnalysis,
+      approval: operatorApproval
+    });
+  }
+}
+
+export async function decidePilotConversion(pilot: PilotProgram): Promise<ConversionDecision> {
+  const savingsVerification = await verifyPilotSavings(pilot);
+  const qualityValidation = await validateQualityMaintenance(pilot);
+  const operatorFeedback = await collectOperatorFeedback(pilot);
+  const roiAnalysis = await calculateROI(pilot);
+  
+  const conversionScore = calculateConversionScore({
+    savings: savingsVerification,
+    quality: qualityValidation,
+    feedback: operatorFeedback,
+    roi: roiAnalysis
+  });
+  
+  // Target >70% pilot-to-subscription conversion
+  if (conversionScore > 0.7) {
+    return await convertToSubscription(pilot);
+  } else {
+    return await extendPilotOrTerminate(pilot, conversionScore);
+  }
+}
+
+export async function makeCapacityPlanningDecision(
+  demandForecast: DemandForecast,
+  currentCapacity: PlantCapacity
+): Promise<CapacityDecision> {
+  const utilizationAnalysis = await analyzeCapacityUtilization(currentCapacity);
+  const bottleneckIdentification = await identifyBottlenecks(currentCapacity);
+  const optimizationPotential = await assessOptimizationPotential(currentCapacity);
+  
+  if (utilizationAnalysis.efficiency < 0.8) {
+    return await recommendOptimizationFirst(optimizationPotential);
+  } else if (demandForecast.growth > currentCapacity.max) {
+    return await recommendCapacityExpansion(demandForecast, bottleneckIdentification);
+  } else {
+    return await maintainCurrentCapacity(currentCapacity);
+  }
+}
+
+// Utility functions for business logic
+async function calculateQualificationScore(lead: Lead): Promise<number> {
+  const energySpendScore = Math.min(lead.energySpend / 1000000, 1.0); // Normalize to $1M
+  const kilnCountScore = Math.min(lead.kilnCount / 10, 1.0); // Normalize to 10 kilns
+  
+  return (energySpendScore * 0.6) + (kilnCountScore * 0.4);
+}
+
+async function calculatePotentialSavings(opportunities: OptimizationOpportunity[]): Promise<SavingsPotential> {
+  const energyCostReduction = opportunities.reduce((sum, opp) => sum + opp.energySavings, 0);
+  const demandChargeReduction = opportunities.reduce((sum, opp) => sum + opp.demandSavings, 0);
+  
+  return {
+    energyCostReduction: energyCostReduction * 0.15, // 10-20% target
+    demandChargeReduction: demandChargeReduction * 0.175, // 10-25% target
+    totalAnnualSavings: (energyCostReduction * 0.15) + (demandChargeReduction * 0.175),
+    paybackPeriod: calculatePaybackPeriod(energyCostReduction, demandChargeReduction)
+  };
+}
+
+async function validateSafetyConstraints(recommendations: OptimizationRecommendation): Promise<SafetyValidation> {
+  const temperatureGradients = await checkTemperatureGradients(recommendations);
+  const dewPointLimits = await checkDewPointLimits(recommendations);
+  const oxygenLevels = await checkOxygenLevels(recommendations);
+  const pressureLimits = await checkPressureLimits(recommendations);
+  
+  return {
+    passed: temperatureGradients.valid && dewPointLimits.valid && oxygenLevels.valid && pressureLimits.valid,
+    violations: [
+      ...temperatureGradients.violations,
+      ...dewPointLimits.violations,
+      ...oxygenLevels.violations,
+      ...pressureLimits.violations
+    ]
+  };
+}
+```
