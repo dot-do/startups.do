@@ -10,7 +10,7 @@ leanCanvas:
     - Early disease pressure (SDS, white mold, frogeye leaf spot, brown stem rot, SCN) is detected too late; losses of 5–20 bu/ac are common in high-pressure years.
     - Herbicide resistance (waterhemp, Palmer amaranth, marestail) drives over-application and tank-mix costs; mis-IDs and timing errors reduce control and increase spend by $10–25/ac.
     - Fragmented data (equipment, imagery, scouting notes, soil tests, weather, grain settlement) makes in-season decisions slow; growers spend 3–5 hours/week on data wrangling during peak season.
-    - Inefficient variable-rate prescriptions: many growers either don’t use VR or use generic templates, leaving 5–10% seed and 10–20% input savings unrealized.
+    - Inefficient variable-rate prescriptions: many growers either don't use VR or use generic templates, leaving 5–10% seed and 10–20% input savings unrealized.
     - Labor constraints and limited agronomist bandwidth lead to missed scouting windows; drone/imagery data goes underutilized without automated insights.
     - Increasing demand for sustainability and carbon reporting creates administrative burden; growers lack easy MRV to access premiums or comply with programs.
     - Price volatility and basis risk are managed manually; few tools link agronomic outlook (yield probability) to marketing/hedging decisions.
@@ -68,6 +68,450 @@ leanCanvas:
     - Churn: gross logo churn ≤8% annually; reason-coded save workflows with ≥30% win-back on at-risk accounts.
     - Data coverage and reliability: ≥95% of acres with successful data ingestion; ≥99.5% API uptime during season; <24h turnaround for support tickets.
 ---
+
 # SoySight AI
+
+AI-native soybean platform that turns raw field data into precise, in-season actions.
+
+## Business Process Functions
+
+### Core Types
+
+```typescript
+interface Lead {
+  id: string;
+  growerName: string;
+  farmName: string;
+  acres: number;
+  location: {
+    state: string;
+    county: string;
+    coordinates: [number, number];
+  };
+  contactInfo: {
+    email: string;
+    phone: string;
+  };
+  currentTools: string[];
+  painPoints: string[];
+  source: 'direct' | 'referral' | 'event' | 'digital' | 'partner';
+  createdAt: Date;
+}
+
+interface Customer {
+  id: string;
+  growerInfo: Lead;
+  subscription: {
+    tier: 'standard' | 'pro';
+    pricePerAcre: number;
+    totalAcres: number;
+    annualValue: number;
+    startDate: Date;
+    renewalDate: Date;
+  };
+  fields: Field[];
+  integrations: Integration[];
+  onboardingStatus: 'pending' | 'in-progress' | 'complete';
+  healthScore: number;
+}
+
+interface Field {
+  id: string;
+  name: string;
+  acres: number;
+  boundaries: GeoJSON;
+  soilData: SoilAnalysis;
+  plantingDate: Date;
+  maturityGroup: string;
+  historicalYield: YieldData[];
+}
+
+interface Prescription {
+  id: string;
+  fieldId: string;
+  type: 'seeding' | 'fertilizer' | 'fungicide' | 'herbicide';
+  zones: PrescriptionZone[];
+  recommendations: Recommendation[];
+  status: 'draft' | 'approved' | 'applied';
+  createdAt: Date;
+}
+
+interface Alert {
+  id: string;
+  fieldId: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  type: 'disease' | 'pest' | 'nutrient' | 'weather' | 'weed';
+  description: string;
+  actionRequired: boolean;
+  estimatedLoss: number;
+  createdAt: Date;
+}
+```
+
+### Customer Acquisition Workflows
+
+```typescript
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  try {
+    const qualifiedLead = await qualifyLead(lead);
+    const proposal = await generateProposal(qualifiedLead);
+    const contract = await negotiateContract(proposal);
+    const customer = await onboardCustomer(contract);
+    
+    await trackConversion(lead.source, customer.subscription.annualValue);
+    return customer;
+  } catch (error) {
+    await logAcquisitionError(lead.id, error);
+    throw new Error(`Customer acquisition failed: ${error.message}`);
+  }
+}
+
+export async function qualifyLead(lead: Lead): Promise<Lead> {
+  if (lead.acres < 1000) {
+    throw new Error('Lead does not meet minimum acreage requirement');
+  }
+  
+  const soybeanAcres = await estimateSoybeanAcres(lead.location);
+  if (soybeanAcres < lead.acres * 0.3) {
+    throw new Error('Insufficient soybean acreage for target market');
+  }
+  
+  const competitorAnalysis = await analyzeCompetitorPresence(lead.location);
+  const fitScore = calculateFitScore(lead, competitorAnalysis);
+  
+  return {
+    ...lead,
+    fitScore,
+    qualificationDate: new Date()
+  };
+}
+
+export async function generateProposal(lead: Lead): Promise<Proposal> {
+  const yieldPotential = await calculateYieldUpliftPotential(lead.location, lead.acres);
+  const inputSavings = await estimateInputSavings(lead.acres);
+  const roiProjection = calculateROI(yieldPotential, inputSavings, lead.acres);
+  
+  const pricing = determinePricing(lead.acres, lead.location.state);
+  
+  return {
+    leadId: lead.id,
+    yieldUplift: yieldPotential,
+    inputSavings,
+    roiProjection,
+    pricing,
+    guaranteedROI: Math.max(roiProjection * 0.8, 3.0),
+    validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+  };
+}
+
+export async function negotiateContract(proposal: Proposal): Promise<Contract> {
+  const terms = await generateContractTerms(proposal);
+  const approvedTerms = await reviewAndApproveTerms(terms);
+  
+  return {
+    proposalId: proposal.id,
+    terms: approvedTerms,
+    roiGuarantee: proposal.guaranteedROI,
+    signedAt: new Date(),
+    effectiveDate: new Date(),
+    expirationDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
+  };
+}
+
+export async function onboardCustomer(contract: Contract): Promise<Customer> {
+  const customer = await createCustomerRecord(contract);
+  
+  await setupFieldBoundaries(customer);
+  await configureIntegrations(customer);
+  await initializeBaselines(customer);
+  await scheduleTraining(customer);
+  
+  customer.onboardingStatus = 'complete';
+  await updateCustomerRecord(customer);
+  
+  return customer;
+}
+```
+
+### Product Development Processes
+
+```typescript
+export async function developMLModel(modelType: 'yield' | 'disease' | 'weed'): Promise<MLModel> {
+  try {
+    const trainingData = await collectTrainingData(modelType);
+    const processedData = await preprocessData(trainingData);
+    const model = await trainModel(processedData, modelType);
+    const validatedModel = await validateModel(model, modelType);
+    
+    await deployModel(validatedModel);
+    return validatedModel;
+  } catch (error) {
+    await logDevelopmentError(modelType, error);
+    throw new Error(`Model development failed: ${error.message}`);
+  }
+}
+
+export async function collectTrainingData(modelType: string): Promise<TrainingDataset> {
+  const fieldTrials = await getFieldTrialData(modelType);
+  const satelliteImagery = await getSatelliteImagery(fieldTrials.locations);
+  const weatherData = await getWeatherData(fieldTrials.locations, fieldTrials.timeRange);
+  const soilData = await getSoilData(fieldTrials.locations);
+  
+  return {
+    trials: fieldTrials,
+    imagery: satelliteImagery,
+    weather: weatherData,
+    soil: soilData,
+    labels: await generateLabels(fieldTrials, modelType)
+  };
+}
+
+export async function validateModel(model: MLModel, modelType: string): Promise<MLModel> {
+  const testData = await getTestDataset(modelType);
+  const predictions = await runInference(model, testData);
+  const metrics = calculateMetrics(predictions, testData.labels);
+  
+  const thresholds = {
+    yield: { rmse: 5.0, r2: 0.85 },
+    disease: { precision: 0.85, recall: 0.85 },
+    weed: { accuracy: 0.90 }
+  };
+  
+  if (!meetsThreshold(metrics, thresholds[modelType])) {
+    throw new Error(`Model validation failed: ${JSON.stringify(metrics)}`);
+  }
+  
+  model.validationMetrics = metrics;
+  model.validatedAt = new Date();
+  return model;
+}
+
+export async function releaseFeature(feature: Feature): Promise<void> {
+  await runQualityAssurance(feature);
+  await performSecurityReview(feature);
+  await updateDocumentation(feature);
+  
+  const rolloutPlan = await createRolloutPlan(feature);
+  await executeRollout(rolloutPlan);
+  
+  await monitorFeaturePerformance(feature);
+}
+```
+
+### Revenue Generation Flows
+
+```typescript
+export async function processSubscriptionRenewal(customer: Customer): Promise<RenewalResult> {
+  try {
+    const healthScore = await calculateCustomerHealth(customer);
+    const usageMetrics = await getUsageMetrics(customer.id);
+    const roiActual = await calculateActualROI(customer);
+    
+    if (healthScore < 70 || roiActual < 2.0) {
+      return await handleAtRiskRenewal(customer, healthScore, roiActual);
+    }
+    
+    const renewalOffer = await generateRenewalOffer(customer, usageMetrics);
+    const renewedContract = await processRenewal(renewalOffer);
+    
+    await updateCustomerSubscription(customer, renewedContract);
+    return { status: 'renewed', contract: renewedContract };
+  } catch (error) {
+    await logRenewalError(customer.id, error);
+    throw new Error(`Renewal processing failed: ${error.message}`);
+  }
+}
+
+export async function generateVariableRatePrescription(field: Field): Promise<Prescription> {
+  const soilAnalysis = await analyzeSoilVariability(field);
+  const yieldHistory = await getYieldHistory(field);
+  const satelliteData = await getCurrentSatelliteData(field);
+  
+  const zones = await createManagementZones(soilAnalysis, yieldHistory, satelliteData);
+  const recommendations = await generateZoneRecommendations(zones);
+  
+  const prescription: Prescription = {
+    id: generateId(),
+    fieldId: field.id,
+    type: 'seeding',
+    zones,
+    recommendations,
+    status: 'draft',
+    createdAt: new Date()
+  };
+  
+  await validatePrescription(prescription);
+  return prescription;
+}
+
+export async function processSuccessFee(customer: Customer, season: string): Promise<number> {
+  const baseline = await getBaselineMetrics(customer, season);
+  const actual = await getActualMetrics(customer, season);
+  
+  const inputSavings = calculateInputSavings(baseline, actual);
+  const yieldGains = calculateYieldGains(baseline, actual);
+  
+  const totalSavings = inputSavings + yieldGains;
+  const successFee = totalSavings * 0.10;
+  
+  if (successFee > 0) {
+    await generateSuccessFeeInvoice(customer, successFee, {
+      inputSavings,
+      yieldGains,
+      totalSavings
+    });
+  }
+  
+  return successFee;
+}
+```
+
+### Operational Procedures
+
+```typescript
+export async function processFieldAlert(alert: Alert): Promise<void> {
+  try {
+    const field = await getField(alert.fieldId);
+    const customer = await getCustomerByField(alert.fieldId);
+    
+    const priorityScore = calculateAlertPriority(alert, field);
+    const actionPlan = await generateActionPlan(alert, field);
+    
+    await notifyCustomer(customer, alert, actionPlan);
+    await createScoutingTask(alert, field, actionPlan);
+    
+    if (alert.severity === 'critical') {
+      await escalateToAgronomist(alert, customer);
+    }
+    
+    await trackAlertResponse(alert.id);
+  } catch (error) {
+    await logOperationalError('alert_processing', alert.id, error);
+    throw new Error(`Alert processing failed: ${error.message}`);
+  }
+}
+
+export async function runDailyOperations(): Promise<OperationsSummary> {
+  const tasks = [
+    processSatelliteImagery(),
+    updateWeatherData(),
+    runDiseaseModels(),
+    generateAlerts(),
+    updateCustomerDashboards(),
+    processDataIngestion(),
+    runSystemHealthChecks()
+  ];
+  
+  const results = await Promise.allSettled(tasks);
+  const summary = generateOperationsSummary(results);
+  
+  if (summary.criticalErrors > 0) {
+    await notifyOperationsTeam(summary);
+  }
+  
+  return summary;
+}
+
+export async function manageDataIngestion(customer: Customer): Promise<void> {
+  for (const integration of customer.integrations) {
+    try {
+      const data = await fetchIntegrationData(integration);
+      const processedData = await processIncomingData(data, integration.type);
+      await storeCustomerData(customer.id, processedData);
+      
+      integration.lastSync = new Date();
+      integration.status = 'active';
+    } catch (error) {
+      integration.status = 'error';
+      integration.lastError = error.message;
+      await notifyCustomerOfSyncIssue(customer, integration, error);
+    }
+  }
+  
+  await updateCustomerIntegrations(customer);
+}
+```
+
+### Decision-Making Workflows
+
+```typescript
+export async function makeSprayDecision(field: Field, diseaseType: string): Promise<SprayDecision> {
+  try {
+    const diseaseRisk = await assessDiseaseRisk(field, diseaseType);
+    const weatherForecast = await getWeatherForecast(field.location, 7);
+    const economicThreshold = await calculateEconomicThreshold(field, diseaseType);
+    const sprayWindow = await identifySprayWindow(weatherForecast);
+    
+    const decision = evaluateSprayDecision({
+      diseaseRisk,
+      economicThreshold,
+      sprayWindow,
+      fieldConditions: await getFieldConditions(field)
+    });
+    
+    if (decision.recommend) {
+      const products = await recommendFungicides(diseaseType, field);
+      const timing = await optimizeSprayTiming(sprayWindow, field);
+      
+      return {
+        recommend: true,
+        products,
+        timing,
+        expectedROI: decision.expectedROI,
+        confidence: decision.confidence
+      };
+    }
+    
+    return {
+      recommend: false,
+      reason: decision.reason,
+      nextEvaluation: decision.nextEvaluation
+    };
+  } catch (error) {
+    await logDecisionError('spray_decision', field.id, error);
+    throw new Error(`Spray decision failed: ${error.message}`);
+  }
+}
+
+export async function optimizeResourceAllocation(): Promise<AllocationPlan> {
+  const customers = await getActiveCustomers();
+  const resources = await getAvailableResources();
+  const priorities = await calculateCustomerPriorities(customers);
+  
+  const allocationPlan = await solveResourceOptimization({
+    customers,
+    resources,
+    priorities,
+    constraints: await getResourceConstraints()
+  });
+  
+  await validateAllocationPlan(allocationPlan);
+  return allocationPlan;
+}
+
+export async function evaluateExpansionOpportunity(region: Region): Promise<ExpansionDecision> {
+  const marketAnalysis = await analyzeMarket(region);
+  const competitorAnalysis = await analyzeCompetitors(region);
+  const regulatoryAnalysis = await analyzeRegulations(region);
+  
+  const opportunity = calculateOpportunityScore({
+    market: marketAnalysis,
+    competition: competitorAnalysis,
+    regulatory: regulatoryAnalysis
+  });
+  
+  const investmentRequired = await estimateInvestment(region);
+  const projectedReturns = await projectReturns(region, opportunity);
+  
+  return {
+    recommend: projectedReturns.roi > 3.0 && opportunity.score > 70,
+    opportunityScore: opportunity.score,
+    investmentRequired,
+    projectedReturns,
+    timeline: await createExpansionTimeline(region),
+    risks: await identifyExpansionRisks(region)
+  };
+}
+```
 
 Generated from NAICS 111110 — Soybean Farming.
