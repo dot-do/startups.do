@@ -10,7 +10,7 @@ leanCanvas:
     - Early disease pressure (SDS, white mold, frogeye leaf spot, brown stem rot, SCN) is detected too late; losses of 5–20 bu/ac are common in high-pressure years.
     - Herbicide resistance (waterhemp, Palmer amaranth, marestail) drives over-application and tank-mix costs; mis-IDs and timing errors reduce control and increase spend by $10–25/ac.
     - Fragmented data (equipment, imagery, scouting notes, soil tests, weather, grain settlement) makes in-season decisions slow; growers spend 3–5 hours/week on data wrangling during peak season.
-    - Inefficient variable-rate prescriptions: many growers either don’t use VR or use generic templates, leaving 5–10% seed and 10–20% input savings unrealized.
+    - Inefficient variable-rate prescriptions: many growers either don't use VR or use generic templates, leaving 5–10% seed and 10–20% input savings unrealized.
     - Labor constraints and limited agronomist bandwidth lead to missed scouting windows; drone/imagery data goes underutilized without automated insights.
     - Increasing demand for sustainability and carbon reporting creates administrative burden; growers lack easy MRV to access premiums or comply with programs.
     - Price volatility and basis risk are managed manually; few tools link agronomic outlook (yield probability) to marketing/hedging decisions.
@@ -68,6 +68,502 @@ leanCanvas:
     - Churn: gross logo churn ≤8% annually; reason-coded save workflows with ≥30% win-back on at-risk accounts.
     - Data coverage and reliability: ≥95% of acres with successful data ingestion; ≥99.5% API uptime during season; <24h turnaround for support tickets.
 ---
+
 # SoySight AI
+
+AI-native soybean platform delivering precision agriculture through specialized machine learning models and edge computing.
+
+## Business Process Functions
+
+### Core Types and Interfaces
+
+```typescript
+interface Lead {
+  id: string;
+  growerName: string;
+  farmName: string;
+  acres: number;
+  location: {
+    state: string;
+    county: string;
+    coordinates: [number, number];
+  };
+  currentTools: string[];
+  painPoints: string[];
+  contactInfo: {
+    email: string;
+    phone: string;
+  };
+  source: 'direct' | 'referral' | 'event' | 'digital';
+  qualification: 'cold' | 'warm' | 'hot';
+}
+
+interface Customer {
+  id: string;
+  grower: Lead;
+  subscription: 'standard' | 'pro';
+  onboardingStatus: 'pending' | 'in-progress' | 'complete';
+  fields: Field[];
+  integrations: Integration[];
+  contractDetails: Contract;
+  supportTier: 'basic' | 'premium' | 'enterprise';
+}
+
+interface Field {
+  id: string;
+  name: string;
+  acres: number;
+  soilType: string;
+  historicalYield: number[];
+  equipment: Equipment[];
+  prescriptions: Prescription[];
+  alerts: Alert[];
+}
+
+interface Prescription {
+  id: string;
+  type: 'seeding' | 'fertilizer' | 'fungicide' | 'herbicide';
+  zones: Zone[];
+  recommendations: Recommendation[];
+  status: 'draft' | 'approved' | 'applied';
+  roi: number;
+}
+
+interface ModelPrediction {
+  fieldId: string;
+  predictionType: 'yield' | 'disease' | 'weed';
+  confidence: number;
+  recommendations: string[];
+  economicImpact: number;
+}
+```
+
+### 1. Customer Acquisition Workflows
+
+```typescript
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  try {
+    const qualifiedLead = await qualifyLead(lead);
+    const proposal = await generateProposal(qualifiedLead);
+    const contract = await negotiateContract(proposal);
+    const customer = await onboardCustomer(contract);
+    
+    await trackConversion(lead.id, customer.id);
+    return customer;
+  } catch (error) {
+    await logAcquisitionError(lead.id, error);
+    throw new Error(`Customer acquisition failed: ${error.message}`);
+  }
+}
+
+export async function qualifyLead(lead: Lead): Promise<Lead> {
+  const acreageScore = calculateAcreageScore(lead.acres);
+  const locationScore = await calculateLocationScore(lead.location);
+  const toolCompatibility = await assessToolCompatibility(lead.currentTools);
+  const painPointAlignment = assessPainPointAlignment(lead.painPoints);
+  
+  const qualificationScore = (acreageScore + locationScore + toolCompatibility + painPointAlignment) / 4;
+  
+  if (qualificationScore >= 0.7) {
+    lead.qualification = 'hot';
+  } else if (qualificationScore >= 0.4) {
+    lead.qualification = 'warm';
+  }
+  
+  await updateLeadScore(lead.id, qualificationScore);
+  return lead;
+}
+
+export async function generateProposal(lead: Lead): Promise<Proposal> {
+  const fieldAnalysis = await analyzeFields(lead.location);
+  const roiProjection = await calculateROIProjection(lead.acres, fieldAnalysis);
+  const pricingTier = determinePricingTier(lead.acres, lead.qualification);
+  
+  const proposal = {
+    leadId: lead.id,
+    subscription: pricingTier,
+    projectedROI: roiProjection,
+    customizations: await generateCustomizations(lead),
+    pricing: await calculatePricing(lead.acres, pricingTier),
+    timeline: generateImplementationTimeline(lead.acres)
+  };
+  
+  await saveProposal(proposal);
+  await scheduleFollowUp(lead.id, 3); // 3 days
+  
+  return proposal;
+}
+
+export async function nurtureLead(leadId: string): Promise<void> {
+  const lead = await getLead(leadId);
+  const nurturingSequence = await getNurturingSequence(lead.qualification);
+  
+  for (const touchpoint of nurturingSequence) {
+    await executeTouchpoint(leadId, touchpoint);
+    await wait(touchpoint.delayDays * 24 * 60 * 60 * 1000);
+  }
+}
+```
+
+### 2. Product Development Processes
+
+```typescript
+export async function developMLModel(modelType: 'yield' | 'disease' | 'weed'): Promise<MLModel> {
+  try {
+    const trainingData = await collectTrainingData(modelType);
+    const processedData = await preprocessData(trainingData);
+    const model = await trainModel(processedData, modelType);
+    const validatedModel = await validateModel(model);
+    const deployedModel = await deployModel(validatedModel);
+    
+    await trackModelPerformance(deployedModel.id);
+    return deployedModel;
+  } catch (error) {
+    await logDevelopmentError(modelType, error);
+    throw new Error(`Model development failed: ${error.message}`);
+  }
+}
+
+export async function conductFieldTrial(trialConfig: TrialConfig): Promise<TrialResults> {
+  const trialSites = await selectTrialSites(trialConfig.requirements);
+  const protocols = await generateTrialProtocols(trialConfig);
+  
+  const trials = await Promise.all(
+    trialSites.map(site => executeTrial(site, protocols))
+  );
+  
+  const results = await analyzeTrialResults(trials);
+  await validateStatisticalSignificance(results);
+  
+  return results;
+}
+
+export async function updateModelWithFeedback(modelId: string, feedback: FieldFeedback[]): Promise<void> {
+  const currentModel = await getModel(modelId);
+  const labeledData = await processFieldFeedback(feedback);
+  
+  const updatedModel = await retrainModel(currentModel, labeledData);
+  const performance = await evaluateModelPerformance(updatedModel);
+  
+  if (performance.accuracy > currentModel.accuracy) {
+    await deployModelUpdate(updatedModel);
+    await notifyCustomersOfImprovement(modelId, performance);
+  }
+}
+
+export async function developEdgeAICapability(equipmentType: string): Promise<EdgeDeployment> {
+  const modelOptimization = await optimizeForEdge(equipmentType);
+  const hardwareIntegration = await integrateWithEquipment(equipmentType);
+  const fieldTesting = await conductEdgeFieldTests(modelOptimization, hardwareIntegration);
+  
+  return await deployEdgeCapability(fieldTesting);
+}
+```
+
+### 3. Revenue Generation Flows
+
+```typescript
+export async function processSubscriptionRevenue(customerId: string): Promise<RevenueResult> {
+  try {
+    const customer = await getCustomer(customerId);
+    const usage = await calculateUsage(customerId);
+    const baseRevenue = calculateSubscriptionRevenue(customer.subscription, customer.fields);
+    const addOnRevenue = await calculateAddOnRevenue(usage);
+    const successFees = await calculateSuccessFees(customerId);
+    
+    const totalRevenue = baseRevenue + addOnRevenue + successFees;
+    
+    await processPayment(customerId, totalRevenue);
+    await updateRevenueMetrics(customerId, totalRevenue);
+    
+    return {
+      customerId,
+      baseRevenue,
+      addOnRevenue,
+      successFees,
+      totalRevenue,
+      processed: true
+    };
+  } catch (error) {
+    await handlePaymentError(customerId, error);
+    throw error;
+  }
+}
+
+export async function calculateSuccessFees(customerId: string): Promise<number> {
+  const customer = await getCustomer(customerId);
+  const baseline = await getBaselineMetrics(customerId);
+  const currentMetrics = await getCurrentSeasonMetrics(customerId);
+  
+  const inputSavings = calculateInputSavings(baseline, currentMetrics);
+  const yieldImprovement = calculateYieldImprovement(baseline, currentMetrics);
+  
+  const verifiedSavings = await verifyWithThirdParty(inputSavings, yieldImprovement);
+  return verifiedSavings * 0.1; // 10% success fee
+}
+
+export async function expandCustomerRevenue(customerId: string): Promise<ExpansionResult> {
+  const customer = await getCustomer(customerId);
+  const usage = await analyzeUsagePatterns(customerId);
+  const opportunities = await identifyExpansionOpportunities(customer, usage);
+  
+  const expansionPlan = await createExpansionPlan(opportunities);
+  const proposal = await generateExpansionProposal(customer, expansionPlan);
+  
+  await scheduleExpansionDiscussion(customerId, proposal);
+  
+  return {
+    customerId,
+    opportunities,
+    potentialRevenue: expansionPlan.projectedRevenue,
+    timeline: expansionPlan.timeline
+  };
+}
+
+export async function processDataProductRevenue(): Promise<DataRevenueResult> {
+  const aggregatedData = await aggregateAnonymizedData();
+  const insights = await generateMarketInsights(aggregatedData);
+  const buyers = await identifyPotentialBuyers(insights);
+  
+  const contracts = await negotiateDataContracts(buyers, insights);
+  const revenue = await processDataSales(contracts);
+  
+  return {
+    insights: insights.length,
+    contracts: contracts.length,
+    revenue,
+    complianceVerified: true
+  };
+}
+```
+
+### 4. Operational Procedures
+
+```typescript
+export async function executeSeasonalOperations(season: 'pre-plant' | 'in-season' | 'harvest' | 'post-harvest'): Promise<void> {
+  const operations = await getSeasonalOperations(season);
+  
+  for (const operation of operations) {
+    try {
+      await executeOperation(operation);
+      await trackOperationCompletion(operation.id);
+    } catch (error) {
+      await handleOperationError(operation.id, error);
+    }
+  }
+}
+
+export async function processFieldData(fieldId: string): Promise<ProcessingResult> {
+  try {
+    const rawData = await collectFieldData(fieldId);
+    const cleanedData = await cleanAndValidateData(rawData);
+    const enrichedData = await enrichWithExternalData(cleanedData);
+    const insights = await generateInsights(enrichedData);
+    
+    await storeProcessedData(fieldId, insights);
+    await triggerAlerts(fieldId, insights);
+    
+    return {
+      fieldId,
+      dataPoints: rawData.length,
+      insights: insights.length,
+      alertsTriggered: insights.filter(i => i.alertLevel > 0).length
+    };
+  } catch (error) {
+    await logDataProcessingError(fieldId, error);
+    throw error;
+  }
+}
+
+export async function manageEquipmentIntegrations(): Promise<IntegrationStatus[]> {
+  const integrations = await getAllActiveIntegrations();
+  const statuses = [];
+  
+  for (const integration of integrations) {
+    try {
+      const status = await checkIntegrationHealth(integration.id);
+      if (status.healthy) {
+        await syncData(integration.id);
+      } else {
+        await repairIntegration(integration.id);
+      }
+      statuses.push(status);
+    } catch (error) {
+      await escalateIntegrationIssue(integration.id, error);
+      statuses.push({ id: integration.id, healthy: false, error: error.message });
+    }
+  }
+  
+  return statuses;
+}
+
+export async function executeQualityAssurance(): Promise<QAResult> {
+  const modelAccuracy = await validateModelAccuracy();
+  const dataQuality = await validateDataQuality();
+  const systemHealth = await checkSystemHealth();
+  const customerSatisfaction = await measureCustomerSatisfaction();
+  
+  const issues = [];
+  if (modelAccuracy < 0.85) issues.push('Model accuracy below threshold');
+  if (dataQuality < 0.95) issues.push('Data quality issues detected');
+  if (systemHealth < 0.99) issues.push('System health degraded');
+  if (customerSatisfaction < 4.0) issues.push('Customer satisfaction declining');
+  
+  if (issues.length > 0) {
+    await triggerQualityAlert(issues);
+  }
+  
+  return {
+    modelAccuracy,
+    dataQuality,
+    systemHealth,
+    customerSatisfaction,
+    issues
+  };
+}
+```
+
+### 5. Decision-Making Workflows
+
+```typescript
+export async function makeInSeasonRecommendation(fieldId: string, decisionType: string): Promise<Recommendation> {
+  try {
+    const fieldData = await getFieldData(fieldId);
+    const weatherData = await getWeatherForecast(fieldData.location);
+    const marketData = await getMarketPrices(fieldData.location);
+    const modelPredictions = await getModelPredictions(fieldId, decisionType);
+    
+    const recommendation = await generateRecommendation({
+      fieldData,
+      weatherData,
+      marketData,
+      predictions: modelPredictions
+    });
+    
+    const economicAnalysis = await calculateEconomicImpact(recommendation);
+    const riskAssessment = await assessRisk(recommendation);
+    
+    const finalRecommendation = {
+      ...recommendation,
+      economicImpact: economicAnalysis,
+      riskLevel: riskAssessment,
+      confidence: modelPredictions.confidence,
+      timestamp: new Date()
+    };
+    
+    await saveRecommendation(fieldId, finalRecommendation);
+    await notifyCustomer(fieldData.customerId, finalRecommendation);
+    
+    return finalRecommendation;
+  } catch (error) {
+    await logDecisionError(fieldId, decisionType, error);
+    throw error;
+  }
+}
+
+export async function prioritizeFieldAlerts(customerId: string): Promise<PrioritizedAlert[]> {
+  const alerts = await getActiveAlerts(customerId);
+  const customer = await getCustomer(customerId);
+  
+  const prioritizedAlerts = await Promise.all(
+    alerts.map(async alert => {
+      const urgency = await calculateUrgency(alert);
+      const impact = await calculateImpact(alert, customer);
+      const actionability = await assessActionability(alert);
+      
+      return {
+        ...alert,
+        priority: (urgency + impact + actionability) / 3,
+        recommendedAction: await getRecommendedAction(alert),
+        timeWindow: await getActionTimeWindow(alert)
+      };
+    })
+  );
+  
+  return prioritizedAlerts.sort((a, b) => b.priority - a.priority);
+}
+
+export async function makeInvestmentDecision(opportunity: InvestmentOpportunity): Promise<InvestmentDecision> {
+  const marketAnalysis = await analyzeMarketOpportunity(opportunity);
+  const technicalFeasibility = await assessTechnicalFeasibility(opportunity);
+  const resourceRequirements = await calculateResourceRequirements(opportunity);
+  const riskAssessment = await assessInvestmentRisk(opportunity);
+  const roiProjection = await projectROI(opportunity);
+  
+  const score = calculateInvestmentScore({
+    marketAnalysis,
+    technicalFeasibility,
+    resourceRequirements,
+    riskAssessment,
+    roiProjection
+  });
+  
+  const decision = {
+    opportunityId: opportunity.id,
+    recommendation: score > 0.7 ? 'approve' : score > 0.4 ? 'conditional' : 'reject',
+    score,
+    reasoning: generateDecisionReasoning(score, {
+      marketAnalysis,
+      technicalFeasibility,
+      resourceRequirements,
+      riskAssessment,
+      roiProjection
+    }),
+    conditions: score > 0.4 && score <= 0.7 ? await generateConditions(opportunity) : [],
+    timeline: await generateImplementationTimeline(opportunity)
+  };
+  
+  await recordInvestmentDecision(decision);
+  return decision;
+}
+
+export async function optimizeResourceAllocation(): Promise<AllocationPlan> {
+  const resources = await getCurrentResources();
+  const demands = await getCurrentDemands();
+  const constraints = await getResourceConstraints();
+  const priorities = await getBusinessPriorities();
+  
+  const allocationPlan = await solveOptimizationProblem({
+    resources,
+    demands,
+    constraints,
+    priorities
+  });
+  
+  const impact = await simulateAllocationImpact(allocationPlan);
+  
+  if (impact.efficiency > 0.8) {
+    await implementAllocationPlan(allocationPlan);
+  } else {
+    await requestAdditionalResources(allocationPlan.gaps);
+  }
+  
+  return allocationPlan;
+}
+```
+
+### Supporting Utility Functions
+
+```typescript
+async function wait(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function logError(context: string, error: Error): Promise<void> {
+  console.error(`[${context}] ${error.message}`, error.stack);
+  await saveErrorLog(context, error);
+}
+
+async function trackMetric(metric: string, value: number, tags?: Record<string, string>): Promise<void> {
+  await sendMetric(metric, value, tags);
+}
+
+async function notifyStakeholders(event: string, data: any): Promise<void> {
+  const stakeholders = await getStakeholdersForEvent(event);
+  await Promise.all(
+    stakeholders.map(stakeholder => sendNotification(stakeholder, event, data))
+  );
+}
+```
 
 Generated from NAICS 111110 — Soybean Farming.
