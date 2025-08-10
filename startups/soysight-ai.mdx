@@ -10,7 +10,7 @@ leanCanvas:
     - Early disease pressure (SDS, white mold, frogeye leaf spot, brown stem rot, SCN) is detected too late; losses of 5–20 bu/ac are common in high-pressure years.
     - Herbicide resistance (waterhemp, Palmer amaranth, marestail) drives over-application and tank-mix costs; mis-IDs and timing errors reduce control and increase spend by $10–25/ac.
     - Fragmented data (equipment, imagery, scouting notes, soil tests, weather, grain settlement) makes in-season decisions slow; growers spend 3–5 hours/week on data wrangling during peak season.
-    - Inefficient variable-rate prescriptions: many growers either don’t use VR or use generic templates, leaving 5–10% seed and 10–20% input savings unrealized.
+    - Inefficient variable-rate prescriptions: many growers either don't use VR or use generic templates, leaving 5–10% seed and 10–20% input savings unrealized.
     - Labor constraints and limited agronomist bandwidth lead to missed scouting windows; drone/imagery data goes underutilized without automated insights.
     - Increasing demand for sustainability and carbon reporting creates administrative burden; growers lack easy MRV to access premiums or comply with programs.
     - Price volatility and basis risk are managed manually; few tools link agronomic outlook (yield probability) to marketing/hedging decisions.
@@ -68,6 +68,646 @@ leanCanvas:
     - Churn: gross logo churn ≤8% annually; reason-coded save workflows with ≥30% win-back on at-risk accounts.
     - Data coverage and reliability: ≥95% of acres with successful data ingestion; ≥99.5% API uptime during season; <24h turnaround for support tickets.
 ---
-# SoySight AI
+
+# SoySight AI Business Process Functions
+
+## Core Types and Interfaces
+
+```typescript
+interface Lead {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  acres: number;
+  location: {
+    state: string;
+    county: string;
+    coordinates?: [number, number];
+  };
+  currentTools: string[];
+  painPoints: string[];
+  source: 'direct' | 'referral' | 'event' | 'digital';
+  score?: number;
+}
+
+interface Customer {
+  id: string;
+  growerInfo: Lead;
+  subscription: {
+    plan: 'standard' | 'pro';
+    pricePerAcre: number;
+    startDate: Date;
+    renewalDate: Date;
+  };
+  fields: Field[];
+  integrations: Integration[];
+  onboardingStatus: 'pending' | 'in-progress' | 'complete';
+}
+
+interface Field {
+  id: string;
+  name: string;
+  acres: number;
+  boundaries: GeoJSON.Polygon;
+  soilData: SoilAnalysis;
+  historicalYield: YieldData[];
+  currentCrop: 'soybean' | 'corn' | 'wheat' | 'fallow';
+  prescriptions: Prescription[];
+}
+
+interface SoilAnalysis {
+  pH: number;
+  organicMatter: number;
+  phosphorus: number;
+  potassium: number;
+  cationExchangeCapacity: number;
+  testDate: Date;
+}
+
+interface YieldData {
+  year: number;
+  yieldBuPerAcre: number;
+  variety: string;
+  plantingDate: Date;
+  harvestDate: Date;
+}
+
+interface Prescription {
+  id: string;
+  type: 'seeding' | 'fertilizer' | 'fungicide' | 'herbicide';
+  zones: PrescriptionZone[];
+  generatedDate: Date;
+  status: 'draft' | 'approved' | 'applied';
+  estimatedSavings: number;
+}
+
+interface PrescriptionZone {
+  geometry: GeoJSON.Polygon;
+  rate: number;
+  product?: string;
+  confidence: number;
+}
+
+interface Integration {
+  platform: 'john-deere' | 'climate-fieldview' | 'ag-leader' | 'trimble';
+  status: 'connected' | 'pending' | 'error';
+  lastSync: Date;
+  dataTypes: string[];
+}
+
+interface MLModelResult {
+  prediction: number;
+  confidence: number;
+  factors: Record<string, number>;
+  timestamp: Date;
+}
+
+interface ScoutingAlert {
+  id: string;
+  fieldId: string;
+  type: 'disease' | 'pest' | 'weed' | 'nutrient';
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  location: [number, number];
+  description: string;
+  imageUrl?: string;
+  recommendedAction: string;
+  createdAt: Date;
+}
+```
+
+## Customer Acquisition Workflows
+
+```typescript
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  try {
+    const qualifiedLead = await qualifyLead(lead);
+    const proposal = await generateProposal(qualifiedLead);
+    const contract = await negotiateContract(proposal);
+    const customer = await onboardCustomer(contract);
+    
+    await trackConversion(lead.id, customer.id);
+    return customer;
+  } catch (error) {
+    await logAcquisitionError(lead.id, error);
+    throw new Error(`Customer acquisition failed: ${error.message}`);
+  }
+}
+
+export async function qualifyLead(lead: Lead): Promise<Lead & { qualified: boolean; score: number }> {
+  const acreageScore = Math.min(lead.acres / 1000, 1) * 0.3;
+  const locationScore = calculateLocationScore(lead.location) * 0.2;
+  const painPointScore = assessPainPoints(lead.painPoints) * 0.3;
+  const toolCompatibilityScore = assessCurrentTools(lead.currentTools) * 0.2;
+  
+  const totalScore = acreageScore + locationScore + painPointScore + toolCompatibilityScore;
+  const qualified = totalScore >= 0.6 && lead.acres >= 500;
+  
+  await updateLeadScore(lead.id, totalScore);
+  
+  return {
+    ...lead,
+    qualified,
+    score: totalScore
+  };
+}
+
+export async function generateProposal(lead: Lead & { qualified: boolean; score: number }): Promise<{
+  customerId: string;
+  plan: 'standard' | 'pro';
+  pricePerAcre: number;
+  estimatedROI: number;
+  customizations: string[];
+}> {
+  if (!lead.qualified) {
+    throw new Error('Lead not qualified for proposal generation');
+  }
+  
+  const plan = lead.acres > 5000 ? 'pro' : 'standard';
+  const basePrice = plan === 'pro' ? 6 : 3;
+  const volumeDiscount = calculateVolumeDiscount(lead.acres);
+  const pricePerAcre = basePrice * (1 - volumeDiscount);
+  
+  const estimatedYieldUplift = await predictYieldUplift(lead.location, lead.acres);
+  const estimatedInputSavings = await predictInputSavings(lead.currentTools, plan);
+  const estimatedROI = (estimatedYieldUplift + estimatedInputSavings) / (pricePerAcre * lead.acres);
+  
+  const customizations = await generateCustomizations(lead);
+  
+  return {
+    customerId: lead.id,
+    plan,
+    pricePerAcre,
+    estimatedROI,
+    customizations
+  };
+}
+
+export async function negotiateContract(proposal: any): Promise<{
+  terms: any;
+  pricing: any;
+  guarantees: string[];
+}> {
+  const roiGuarantee = proposal.estimatedROI >= 3 ? '3x ROI or refund' : 'Best effort yield improvement';
+  
+  return {
+    terms: {
+      duration: '12 months',
+      autoRenewal: true,
+      cancellationPeriod: '30 days'
+    },
+    pricing: {
+      plan: proposal.plan,
+      pricePerAcre: proposal.pricePerAcre,
+      billingCycle: 'annual',
+      paymentTerms: 'net-30'
+    },
+    guarantees: [roiGuarantee, 'Data privacy compliance', '99.5% uptime SLA']
+  };
+}
+
+export async function onboardCustomer(contract: any): Promise<Customer> {
+  const customer: Customer = {
+    id: generateCustomerId(),
+    growerInfo: contract.lead,
+    subscription: {
+      plan: contract.pricing.plan,
+      pricePerAcre: contract.pricing.pricePerAcre,
+      startDate: new Date(),
+      renewalDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
+    },
+    fields: [],
+    integrations: [],
+    onboardingStatus: 'pending'
+  };
+  
+  await createCustomerRecord(customer);
+  await initiateDataIntegration(customer.id);
+  await scheduleOnboardingCall(customer.id);
+  
+  return customer;
+}
+```
+
+## Product Development Processes
+
+```typescript
+export async function developMLModel(modelType: 'yield' | 'disease' | 'weed', trainingData: any[]): Promise<{
+  modelId: string;
+  accuracy: number;
+  deploymentReady: boolean;
+}> {
+  try {
+    const preprocessedData = await preprocessTrainingData(trainingData, modelType);
+    const model = await trainModel(preprocessedData, modelType);
+    const validation = await validateModel(model, modelType);
+    
+    if (validation.accuracy >= getMinAccuracyThreshold(modelType)) {
+      await deployModel(model, modelType);
+      return {
+        modelId: model.id,
+        accuracy: validation.accuracy,
+        deploymentReady: true
+      };
+    }
+    
+    throw new Error(`Model accuracy ${validation.accuracy} below threshold`);
+  } catch (error) {
+    await logModelDevelopmentError(modelType, error);
+    throw error;
+  }
+}
+
+export async function collectFieldData(fieldId: string): Promise<{
+  imagery: any[];
+  soilData: SoilAnalysis;
+  weatherData: any[];
+  equipmentData: any[];
+}> {
+  const [imagery, soilData, weatherData, equipmentData] = await Promise.all([
+    fetchSatelliteImagery(fieldId),
+    fetchSoilAnalysis(fieldId),
+    fetchWeatherHistory(fieldId),
+    fetchEquipmentData(fieldId)
+  ]);
+  
+  await validateDataQuality({ imagery, soilData, weatherData, equipmentData });
+  
+  return { imagery, soilData, weatherData, equipmentData };
+}
+
+export async function generatePrescription(fieldId: string, prescriptionType: Prescription['type']): Promise<Prescription> {
+  const fieldData = await collectFieldData(fieldId);
+  const mlResult = await runMLModel(prescriptionType, fieldData);
+  
+  const zones = await generatePrescriptionZones(fieldData, mlResult);
+  const estimatedSavings = await calculateEstimatedSavings(zones, prescriptionType);
+  
+  const prescription: Prescription = {
+    id: generatePrescriptionId(),
+    type: prescriptionType,
+    zones,
+    generatedDate: new Date(),
+    status: 'draft',
+    estimatedSavings
+  };
+  
+  await savePrescription(prescription);
+  await notifyCustomer(fieldId, prescription);
+  
+  return prescription;
+}
+
+export async function validatePrescriptionAccuracy(prescriptionId: string, actualResults: any): Promise<{
+  accuracyScore: number;
+  improvements: string[];
+}> {
+  const prescription = await getPrescription(prescriptionId);
+  const predicted = prescription.zones.map(z => z.rate);
+  const actual = actualResults.zones.map((z: any) => z.actualRate);
+  
+  const accuracyScore = calculateAccuracy(predicted, actual);
+  const improvements = await identifyImprovements(prescription, actualResults);
+  
+  await updateModelFeedback(prescription.type, { predicted, actual, accuracyScore });
+  
+  return { accuracyScore, improvements };
+}
+```
+
+## Revenue Generation Flows
+
+```typescript
+export async function optimizeRevenue(customerId: string): Promise<{
+  currentARR: number;
+  optimizedARR: number;
+  recommendations: string[];
+}> {
+  const customer = await getCustomer(customerId);
+  const usage = await getCustomerUsage(customerId);
+  const currentARR = calculateCurrentARR(customer, usage);
+  
+  const upsellOpportunities = await identifyUpsellOpportunities(customer, usage);
+  const addOnRecommendations = await recommendAddOns(customer, usage);
+  const pricingOptimization = await optimizePricing(customer, usage);
+  
+  const optimizedARR = currentARR + upsellOpportunities.value + addOnRecommendations.value;
+  
+  const recommendations = [
+    ...upsellOpportunities.recommendations,
+    ...addOnRecommendations.recommendations,
+    ...pricingOptimization.recommendations
+  ];
+  
+  await trackRevenueOptimization(customerId, { currentARR, optimizedARR, recommendations });
+  
+  return { currentARR, optimizedARR, recommendations };
+}
+
+export async function processSubscriptionRenewal(customerId: string): Promise<{
+  renewed: boolean;
+  newTerms?: any;
+  churnRisk?: number;
+}> {
+  const customer = await getCustomer(customerId);
+  const satisfaction = await calculateCustomerSatisfaction(customerId);
+  const roi = await calculateActualROI(customerId);
+  
+  const churnRisk = calculateChurnRisk(satisfaction, roi, customer);
+  
+  if (churnRisk > 0.7) {
+    const retentionOffer = await generateRetentionOffer(customer, churnRisk);
+    await sendRetentionOffer(customerId, retentionOffer);
+    return { renewed: false, churnRisk };
+  }
+  
+  if (roi >= 3.0) {
+    const upsellOffer = await generateUpsellOffer(customer);
+    const renewed = await processRenewal(customerId, upsellOffer);
+    return { renewed, newTerms: upsellOffer };
+  }
+  
+  const renewed = await processStandardRenewal(customerId);
+  return { renewed };
+}
+
+export async function calculateROI(customerId: string, timeframe: 'season' | 'annual'): Promise<{
+  yieldImprovement: number;
+  inputSavings: number;
+  totalBenefit: number;
+  subscriptionCost: number;
+  roi: number;
+}> {
+  const customer = await getCustomer(customerId);
+  const baseline = await getBaselineMetrics(customerId, timeframe);
+  const current = await getCurrentMetrics(customerId, timeframe);
+  
+  const yieldImprovement = (current.avgYield - baseline.avgYield) * current.totalAcres * getCurrentSoybeanPrice();
+  const inputSavings = baseline.inputCosts - current.inputCosts;
+  const totalBenefit = yieldImprovement + inputSavings;
+  const subscriptionCost = customer.subscription.pricePerAcre * current.totalAcres;
+  const roi = totalBenefit / subscriptionCost;
+  
+  await trackROI(customerId, { yieldImprovement, inputSavings, totalBenefit, subscriptionCost, roi });
+  
+  return { yieldImprovement, inputSavings, totalBenefit, subscriptionCost, roi };
+}
+```
+
+## Operational Procedures
+
+```typescript
+export async function processFieldData(fieldId: string): Promise<{
+  processed: boolean;
+  insights: string[];
+  alerts: ScoutingAlert[];
+}> {
+  try {
+    const rawData = await ingestFieldData(fieldId);
+    const cleanedData = await cleanAndValidateData(rawData);
+    const processedData = await runDataPipeline(cleanedData);
+    
+    const insights = await generateInsights(processedData);
+    const alerts = await detectAnomalies(processedData);
+    
+    await storeProcessedData(fieldId, processedData);
+    await updateFieldStatus(fieldId, 'processed');
+    
+    if (alerts.length > 0) {
+      await sendAlerts(fieldId, alerts);
+    }
+    
+    return { processed: true, insights, alerts };
+  } catch (error) {
+    await logProcessingError(fieldId, error);
+    throw new Error(`Field data processing failed: ${error.message}`);
+  }
+}
+
+export async function manageEquipmentIntegration(customerId: string, equipmentType: string): Promise<{
+  connected: boolean;
+  dataFlow: boolean;
+  lastSync: Date;
+}> {
+  const customer = await getCustomer(customerId);
+  const integration = customer.integrations.find(i => i.platform === equipmentType);
+  
+  if (!integration) {
+    const newIntegration = await initiateIntegration(customerId, equipmentType);
+    return { connected: false, dataFlow: false, lastSync: new Date() };
+  }
+  
+  const connectionStatus = await testConnection(integration);
+  const dataFlowStatus = await verifyDataFlow(integration);
+  
+  if (!connectionStatus || !dataFlowStatus) {
+    await troubleshootIntegration(integration);
+  }
+  
+  await updateIntegrationStatus(integration.platform, {
+    status: connectionStatus ? 'connected' : 'error',
+    lastSync: new Date()
+  });
+  
+  return {
+    connected: connectionStatus,
+    dataFlow: dataFlowStatus,
+    lastSync: new Date()
+  };
+}
+
+export async function performSystemMaintenance(): Promise<{
+  modelsUpdated: number;
+  dataBackedUp: boolean;
+  performanceOptimized: boolean;
+}> {
+  const modelsUpdated = await updateMLModels();
+  const dataBackedUp = await backupCustomerData();
+  const performanceOptimized = await optimizeSystemPerformance();
+  
+  await generateMaintenanceReport({
+    modelsUpdated,
+    dataBackedUp,
+    performanceOptimized,
+    timestamp: new Date()
+  });
+  
+  return { modelsUpdated, dataBackedUp, performanceOptimized };
+}
+```
+
+## Decision-Making Workflows
+
+```typescript
+export async function makeAgronomicDecision(fieldId: string, decisionType: 'fungicide' | 'harvest' | 'replant'): Promise<{
+  recommendation: string;
+  confidence: number;
+  reasoning: string[];
+  economicImpact: number;
+}> {
+  const fieldData = await collectFieldData(fieldId);
+  const weatherForecast = await getWeatherForecast(fieldId, 14);
+  const marketData = await getCurrentMarketPrices();
+  
+  const mlPrediction = await runDecisionModel(decisionType, {
+    fieldData,
+    weatherForecast,
+    marketData
+  });
+  
+  const economicAnalysis = await performEconomicAnalysis(mlPrediction, marketData);
+  const riskAssessment = await assessRisk(mlPrediction, fieldData);
+  
+  const recommendation = generateRecommendation(mlPrediction, economicAnalysis, riskAssessment);
+  
+  await logDecision(fieldId, {
+    type: decisionType,
+    recommendation: recommendation.action,
+    confidence: recommendation.confidence,
+    reasoning: recommendation.reasoning,
+    economicImpact: economicAnalysis.netBenefit
+  });
+  
+  return {
+    recommendation: recommendation.action,
+    confidence: recommendation.confidence,
+    reasoning: recommendation.reasoning,
+    economicImpact: economicAnalysis.netBenefit
+  };
+}
+
+export async function prioritizeFieldActions(customerId: string): Promise<{
+  highPriority: Array<{ fieldId: string; action: string; urgency: number }>;
+  mediumPriority: Array<{ fieldId: string; action: string; urgency: number }>;
+  lowPriority: Array<{ fieldId: string; action: string; urgency: number }>;
+}> {
+  const customer = await getCustomer(customerId);
+  const fieldActions = await Promise.all(
+    customer.fields.map(async (field) => {
+      const alerts = await getActiveAlerts(field.id);
+      const prescriptions = await getPendingPrescriptions(field.id);
+      const weatherRisk = await assessWeatherRisk(field.id);
+      
+      return {
+        fieldId: field.id,
+        actions: [...alerts, ...prescriptions],
+        weatherRisk,
+        acres: field.acres
+      };
+    })
+  );
+  
+  const prioritizedActions = fieldActions
+    .flatMap(field => 
+      field.actions.map(action => ({
+        fieldId: field.fieldId,
+        action: action.type,
+        urgency: calculateUrgency(action, field.weatherRisk, field.acres)
+      }))
+    )
+    .sort((a, b) => b.urgency - a.urgency);
+  
+  return {
+    highPriority: prioritizedActions.filter(a => a.urgency >= 0.8),
+    mediumPriority: prioritizedActions.filter(a => a.urgency >= 0.5 && a.urgency < 0.8),
+    lowPriority: prioritizedActions.filter(a => a.urgency < 0.5)
+  };
+}
+
+export async function optimizeResourceAllocation(customerId: string): Promise<{
+  agronomistTime: Array<{ fieldId: string; hours: number; priority: string }>;
+  equipmentSchedule: Array<{ fieldId: string; equipment: string; timeSlot: Date }>;
+  budgetAllocation: Array<{ category: string; amount: number; justification: string }>;
+}> {
+  const customer = await getCustomer(customerId);
+  const fieldPriorities = await prioritizeFieldActions(customerId);
+  const resourceConstraints = await getResourceConstraints(customerId);
+  
+  const agronomistTime = await allocateAgronomistTime(fieldPriorities, resourceConstraints.agronomistHours);
+  const equipmentSchedule = await scheduleEquipment(fieldPriorities, resourceConstraints.equipment);
+  const budgetAllocation = await allocateBudget(fieldPriorities, resourceConstraints.budget);
+  
+  await saveResourcePlan(customerId, {
+    agronomistTime,
+    equipmentSchedule,
+    budgetAllocation,
+    createdAt: new Date()
+  });
+  
+  return { agronomistTime, equipmentSchedule, budgetAllocation };
+}
+```
+
+## Utility Functions (Referenced by main functions)
+
+```typescript
+async function calculateLocationScore(location: Lead['location']): Promise<number> {
+  const soybeanStates = ['IA', 'IL', 'MN', 'IN', 'NE', 'SD', 'ND', 'OH', 'MO'];
+  return soybeanStates.includes(location.state) ? 1 : 0.5;
+}
+
+async function assessPainPoints(painPoints: string[]): Promise<number> {
+  const highValuePainPoints = ['yield variability', 'disease pressure', 'input costs', 'data fragmentation'];
+  const matches = painPoints.filter(p => 
+    highValuePainPoints.some(hvp => p.toLowerCase().includes(hvp))
+  );
+  return Math.min(matches.length / highValuePainPoints.length, 1);
+}
+
+async function calculateVolumeDiscount(acres: number): Promise<number> {
+  if (acres >= 10000) return 0.15;
+  if (acres >= 5000) return 0.10;
+  if (acres >= 2000) return 0.05;
+  return 0;
+}
+
+async function predictYieldUplift(location: Lead['location'], acres: number): Promise<number> {
+  const baseUplift = 5;
+  const locationMultiplier = await calculateLocationScore(location);
+  const scaleMultiplier = Math.min(acres / 5000, 1.5);
+  return baseUplift * locationMultiplier * scaleMultiplier;
+}
+
+async function generateCustomerId(): Promise<string> {
+  return `cust_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+}
+
+async function getMinAccuracyThreshold(modelType: string): Promise<number> {
+  const thresholds = {
+    'yield': 0.85,
+    'disease': 0.90,
+    'weed': 0.88
+  };
+  return thresholds[modelType] || 0.85;
+}
+
+async function calculateChurnRisk(satisfaction: number, roi: number, customer: Customer): Promise<number> {
+  const satisfactionWeight = 0.4;
+  const roiWeight = 0.4;
+  const tenureWeight = 0.2;
+  
+  const tenure = (Date.now() - customer.subscription.startDate.getTime()) / (365 * 24 * 60 * 60 * 1000);
+  const tenureScore = Math.min(tenure / 2, 1);
+  
+  const riskScore = 1 - (
+    (satisfaction * satisfactionWeight) +
+    (Math.min(roi / 3, 1) * roiWeight) +
+    (tenureScore * tenureWeight)
+  );
+  
+  return Math.max(0, Math.min(1, riskScore));
+}
+
+async function calculateUrgency(action: any, weatherRisk: number, acres: number): Promise<number> {
+  const baseUrgency = action.severity === 'critical' ? 1 : 
+                     action.severity === 'high' ? 0.8 :
+                     action.severity === 'medium' ? 0.6 : 0.4;
+  
+  const weatherMultiplier = 1 + (weatherRisk * 0.3);
+  const scaleMultiplier = 1 + Math.log10(acres / 1000) * 0.1;
+  
+  return Math.min(baseUrgency * weatherMultiplier * scaleMultiplier, 1);
+}
+```
 
 Generated from NAICS 111110 — Soybean Farming.
