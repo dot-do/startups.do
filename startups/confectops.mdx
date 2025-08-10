@@ -1,0 +1,322 @@
+---
+name: ConfectOps AI
+slug: confectops
+service:
+  title: 'AI S&OP: Demand Forecasting and Constrained Production Scheduling'
+  description: >-
+    Automated SKU-level forecasts and feasible weekly production schedules for
+    gummies, hard candy, mints, and lozenges, considering shelf-life,
+    changeovers, and capacity limits.
+  targetUsers:
+    - Supply Chain Manager
+    - Production Planner
+    - Plant Manager
+  triggers:
+    - Weekly S&OP cycle
+    - New POS/shipments loaded
+    - Seasonal event/holiday brief
+  inputs:
+    - Historical sales/POS by SKU-channel
+    - Open orders/backorders
+    - Line capacities and changeover matrix
+    - Shelf-life/hold time constraints
+    - Inventory/ATP
+    - Lead times and MOQs
+  steps:
+    - Ingest and clean data
+    - Forecast by SKU-channel (baseline + events)
+    - Run capacity-constrained plan minimizing changeovers and overtime
+    - 'Simulate what-if scenarios (promo, price, outages)'
+    - Publish schedule and purchase suggestions
+    - Collect planner overrides to improve models
+  tools:
+    - Python/Pandas
+    - Prophet or NeuralProphet
+    - XGBoost
+    - OR-Tools (CP-SAT)
+    - Snowflake/BigQuery
+    - Power BI/Tableau
+    - Google Sheets API
+  outputs:
+    - 12–78 week forecasts (CSV/BI)
+    - Weekly finite schedule per line
+    - Material plan/shortage list
+    - Scenario comparison report
+  pricingModel:
+    - Monthly subscription (tiered by SKUs/sites)
+    - One-time onboarding/setup
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - 'Data quality gaps (new SKUs, promo flags)'
+    - Unmodeled shocks (retailer resets)
+    - Planner adoption/resistance
+  dependencies:
+    - Read-only access to ERP/MDM/POS
+    - Confirmed constraints and changeover rules
+leanCanvas:
+  problem:
+    - >-
+      Weekly demand swings from promotions and holidays (e.g., Halloween,
+      Valentine’s Day) cause stockouts of A-items and excess of long-tail SKUs;
+      current forecasts are biased and lag promotions by 2–4 weeks.
+    - >-
+      Existing tools (ERP/MRP + spreadsheets) don’t generate feasible,
+      finite-capacity schedules—ignoring changeovers, curing/panning times, and
+      labor/tooling constraints—leading to last-minute expedites and overtime.
+    - >-
+      Shelf-life windows (gummies 9–12 months; hard candy 12–24 months;
+      mints/lozenges 12–36 months) are not embedded in planning, causing 1–3% of
+      sales lost to expiry/write-offs and excess safety stock.
+    - >-
+      Changeovers by flavor/color/allergen/gelatin type consume 10–25% of
+      available time; poor sequencing amplifies cleaning/CIP and yields lower
+      OEE.
+    - >-
+      Disconnected demand planning and production scheduling; S&OP plans are not
+      executable at the plant-week level, creating plan vs. schedule gaps and
+      low schedule adherence (<70–80%).
+    - >-
+      Limited scenario planning (promo uplift, new SKUs, capacity shocks)
+      results in reactive decisions and missed service-level targets.
+    - >-
+      Data is fragmented across ERP, MES, WMS, and spreadsheets; planners spend
+      hours on data wrangling instead of value-added planning.
+  solution:
+    - >-
+      Automated data ingestion from ERP/MES/WMS (e.g., SAP, Oracle, NetSuite,
+      Dynamics) for orders, BOMs, routings, capacities, inventory, promotions,
+      and calendar constraints.
+    - >-
+      SKU-DC probabilistic forecasting using hierarchical Bayesian models +
+      gradient boosting; specialized methods for intermittent demand;
+      promo/price uplift with causal features; seasonal event templates
+      (Halloween, holidays).
+    - >-
+      Shelf-life-aware inventory policy and target setting by SKU-family;
+      coverage windows constrained by product stability (gummies 9–12m, hard
+      candy 12–24m, mints/lozenges 12–36m).
+    - >-
+      Finite-capacity scheduling via MILP/CP-SAT with multi-stage routing
+      (cook/cool/pan/bag/case), curing room capacity, tooling/mold constraints,
+      line speeds by SKU, labor skills/shift rules, and maintenance/CIP windows.
+    - >-
+      Changeover optimization using flavor/color/allergen/gelatin sequencing
+      rules and setup matrices; campaign sizing to reduce cleans while meeting
+      freshness windows.
+    - >-
+      Concurrent planning loop: forecasts drive DRP and capacity-feasible master
+      schedule; schedule feedback updates demand feasibility, inventory
+      projections, and service risk.
+    - >-
+      What-if scenarios for promos, new items, capacity shocks, and supplier
+      delays; compare service, cost, overtime, and changeover impacts
+      side-by-side.
+    - >-
+      Exception-based workflows with planner overrides, audit trails, and
+      recommended actions for top drivers of service risk and expiry risk.
+    - >-
+      APIs and UI to publish planned orders to ERP/MRP, dispatch schedules to
+      MES, and share dashboards with commercial/finance.
+  uniqueValueProp: >-
+    Domain-specific AI that unifies probabilistic SKU-DC demand forecasting with
+    constraint-aware, finite-capacity weekly production scheduling for
+    nonchocolate confectionery—explicitly modeling shelf life, changeovers,
+    curing/panning, labor/tooling—and delivers a feasible plan in hours, not
+    weeks. Expected outcomes: +2–5 pts service level, −15–30% changeover time,
+    −20–40% expiry/write-offs, −10–20% inventories, −10–15% overtime within 3–6
+    months.
+  unfairAdvantage: >-
+    A purpose-built optimization and forecasting stack trained on nonchocolate
+    confectionery operational realities (shelf-life coverage, curing/panning
+    constraints, allergen/color/flavor changeovers) plus proprietary changeover
+    matrices and seasonal demand templates gathered from lighthouse
+    deployments—enabling 8–12 week time-to-value and measurable KPI lifts that
+    horizontal suites struggle to match.
+  customerSegments:
+    - >-
+      Mid-market and large nonchocolate confectionery manufacturers ($50M–$2B
+      revenue) producing gummies, hard candy, mints, lozenges.
+    - >-
+      Private-label/contract confectionery manufacturers serving retailers and
+      CPGs.
+    - >-
+      Regional brands with 1–10 plants and 300–3,000 SKUs, with
+      seasonal/promo-driven demand.
+    - >-
+      Key buyers/users: VP Supply Chain/Operations, Plant Managers, S&OP
+      Leaders, Demand/Production Planners, IT/Analytics leaders.
+  channels:
+    - >-
+      Direct sales to ICP: operations and supply chain leaders at confectionery
+      manufacturers (North America, EU, select APAC).
+    - >-
+      Partnerships with ERP/MES SIs (SAP, Microsoft, Oracle) and boutique CPG
+      planning consultancies; revenue sharing for co-sell and implementations.
+    - >-
+      Alliances with equipment/OEMs (e.g., Syntegon, Bühler, NID) to bundle
+      planning with line upgrades and digital initiatives.
+    - >-
+      Industry associations and events: National Confectioners Association
+      (NCA), Sweets & Snacks Expo, ProSweets/ISM, Pack Expo; speaking slots +
+      booths.
+    - >-
+      Content-led growth: shelf-life-aware planning whitepapers, ROI
+      calculators, webinar series with lighthouse customers, case studies, and
+      benchmarking reports.
+    - >-
+      Targeted outbound (LinkedIn + ABM) to 500-profile ICP accounts; pilot
+      offers tied to measurable KPIs.
+    - >-
+      Customer advisory board of 6–10 confectionery ops leaders to guide roadmap
+      and produce references.
+  revenueStreams:
+    - >-
+      SaaS subscription per plant/site, unlimited planner seats: $60k–$200k per
+      plant/year depending on SKU count, lines, and modules.
+    - >-
+      Enterprise module add-ons: cross-plant DRP, promo planning, advanced labor
+      optimization ($20k–$80k per module/year).
+    - >-
+      Implementation/integration fee: $50k–$150k per plant (data integration,
+      modeling, sequencing rules, training).
+    - >-
+      Premium support and managed service (weekly scheduling as-a-service):
+      $3k–$10k per plant/month.
+    - >-
+      Outcome-based upside clauses for hitting agreed KPI thresholds (e.g.,
+      share of savings from reduced expiry or overtime).
+    - >-
+      Data add-ons (syndicated demand signals from Circana/NielsenIQ) at
+      pass-through + margin.
+  costStructure:
+    - 'R&D (forecasting/optimization, MLOps, UI): ~30–35% of OPEX.'
+    - >-
+      Implementation & Customer Success (integration, onboarding, training):
+      ~20–25%.
+    - >-
+      Cloud hosting and compute (AWS/Azure; optimization workloads, storage,
+      networking): ~10–15% COGS; approx. $800–$2,500 per plant/month depending
+      on scale.
+    - 'Sales & Marketing (events, content, partner commissions): ~20–25%.'
+    - 'Data licensing (Circana/NielsenIQ, weather/promo feeds): ~3–6%.'
+    - 'Security/compliance (SOC 2, pen testing, monitoring): ~3–5%.'
+    - 'General & Administrative: ~8–12%.'
+  keyMetrics:
+    - >-
+      Forecast accuracy: sMAPE ≤ 22–28% at SKU-DC-week; MASE < 1.0; forecast
+      bias within ±5%.
+    - >-
+      Service level (fill rate): baseline +2–5 pts to reach 95–97%; OTIF +2–4
+      pts.
+    - >-
+      Schedule adherence/plan attainment: ≥90% weekly adherence (volume and
+      mix).
+    - 'Changeover time reduction: −15–30% hours; OEE +3–6 pts.'
+    - 'Inventory turns: +15–25%; expiry/write-offs: −20–40%.'
+    - 'Overtime: −10–15%; premium freight: −20–30%.'
+    - >-
+      Planner productivity: −40–60% manual planning time; S&OP cycle time
+      reduced from ~10 days to ≤5 days.
+    - >-
+      Time-to-value: first feasible schedule in ≤4 weeks; full ROI payback in
+      ≤6–9 months.
+    - >-
+      Commercial: ACV $120k–$300k per logo; sales cycle 90–180 days;
+      pilot-to-subscription conversion ≥60%; net revenue retention ≥115%; logo
+      churn <8%.
+    - >-
+      Platform: schedule runtime ≤30 min/plant/week; data pipeline success rate
+      ≥99.5%; model drift alerts <2/month/plant.
+storyBrand:
+  character: >-
+    Nonchocolate confectionery ops, planning, and plant leaders who need
+    accurate SKU-level demand and feasible weekly schedules across gummies, hard
+    candy, mints, and lozenges.
+  problem: >-
+    Volatile demand, short shelf-life, costly changeovers, and finite line
+    capacity drive stockouts, overtime, and write-offs; spreadsheets and generic
+    tools can’t balance service, campaigns, and constraints.
+  guide: >-
+    AI S&OP purpose-built for confectionery—empathetic to shelf-life and
+    allergen rules, proven in SKU-level forecasting and constraint-aware
+    scheduling, with transparent models and simple ERP/MES integration.
+  plan: >-
+    1) Connect ERP/MES and demand history; 2) Configure constraints (lines,
+    rates, changeovers, campaigns, shelf-life) and calibrate forecasts; 3) Run
+    weekly: auto-forecast, generate a feasible schedule, review scenarios,
+    publish and monitor.
+  callToAction: >-
+    Book a 30-minute demo and launch a 6-week pilot for one plant or product
+    family.
+  success: >-
+    Confident forecasts and executable schedules that raise service, reduce
+    changeovers and scrap, stabilize labor, and improve margins and retailer
+    trust.
+  failure: >-
+    Continued firefighting—missed promotions, stockouts, stale inventory,
+    overtime, chargebacks, and lost shelf space.
+landingPage:
+  hero:
+    title: AI S&OP for Nonchocolate Confectionery
+    subtitle: >-
+      Automated SKU-level demand forecasts and feasible weekly production
+      schedules for gummies, hard candy, mints, and lozenges—respecting
+      shelf-life, changeovers, and capacity.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - Demand swings by SKU and channel cause stockouts and overstock
+    - 'Spreadsheets can’t model shelf-life, changeovers, and true capacity'
+    - Floor schedules break due to infeasible sequences and short campaigns
+    - 'Excess changeovers waste line time, labor, and materials'
+    - Late signals trigger expediting and missed service levels
+    - Data fragmentation across ERP/MES slows decisions
+  solution:
+    - >-
+      SKU-level, explainable demand forecasts incorporating seasonality and
+      promos
+    - >-
+      Finite, capacity-constrained weekly schedules that run on real lines and
+      shifts
+    - Changeover-aware sequencing to maximize uptime and campaign length
+    - Freshness-aware planning aligned to shelf-life and age-on-ship policies
+    - 'Fast what-if scenarios for demand surges, downtime, or capacity changes'
+    - Clear run lists and materials needs for smooth ERP/MES handoff
+  features:
+    - 'Probabilistic time-series and causal models per SKU, customer, and channel'
+    - >-
+      Changeover matrix support and family-based campaign rules for gummies,
+      hard candy, mints, and lozenges
+    - >-
+      Finite scheduling by line, shift, and packaging; minimum run, batch size,
+      and MOQs
+    - >-
+      Shelf-life constraints with production-to-ship age windows and freshness
+      targets
+    - Service-level driven safety stocks with dynamic reorder signals
+    - Rolling 13-week constrained schedule plus 18–24 month demand plan
+    - Exception-based planning with scenario comparison and overrides
+    - >-
+      Accuracy and performance dashboards: MAPE/WAPE, service, utilization,
+      changeovers
+    - APIs and connectors for SAP/Oracle/NetSuite; secure CSV/S3 imports
+  steps:
+    - >-
+      Connect data: orders/shipments, master data, BOMs, routings, calendars,
+      changeover times, shelf-life rules
+    - >-
+      Configure product families, lines, batch sizes, MOQs, and campaign
+      policies
+    - Train and backtest forecasts; review accuracy and set override rules
+    - Generate the first constrained weekly schedule and materials plan
+    - 'Review exceptions, run scenarios, and approve the plan'
+    - Go live; monitor KPIs and continuously improve via feedback
+---
+# ConfectOps AI
+
+Industry: Nonchocolate Confectionery Manufacturing
+Service: AI S&OP: Demand Forecasting and Constrained Production Scheduling

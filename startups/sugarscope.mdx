@@ -1,0 +1,270 @@
+---
+name: SugarScope QC
+slug: sugarscope
+service:
+  title: Upload-based Vision QC for Confections
+  description: >-
+    Computer vision checks for size, shape, color/gloss, and defects on sampled
+    pieces from lines (e.g., gummies from starch mogul, panned mints).
+  targetUsers:
+    - QC Technician
+    - Production Supervisor
+  triggers:
+    - QC uploads sample images each batch/shift
+  inputs:
+    - High-res images on neutral background with scale
+    - 'Spec tolerances (length, weight, color L*a*b*)'
+    - 'Defect catalog (bubbles, cracks, chips, sugar bloom)'
+  steps:
+    - Color calibration and lighting normalization
+    - Detect and segment pieces; measure dimensions
+    - Classify/count defects and estimate defect rate
+    - Compare to spec; flag trends
+    - Active learning loop from technician feedback
+  tools:
+    - OpenCV
+    - YOLOv8/Detectron2
+    - Scikit-image
+    - Web app (Flask/Streamlit)
+    - S3/Cloud Storage
+  outputs:
+    - Batch QC report with pass/fail and Cpk
+    - Annotated images
+    - Trend chart across shifts
+  pricingModel:
+    - Setup fee + per-image or per-batch credits
+    - Optional monthly subscription
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 7
+    modelCapability: 7
+    overall: 7
+  risks:
+    - Lighting variability causing false flags
+    - Sampling bias vs inline quality
+    - Data privacy for plant images
+  dependencies:
+    - Standardized photo protocol and calibration card
+leanCanvas:
+  problem:
+    - >-
+      Manual, subjective visual checks for size, shape, color/gloss, and surface
+      defects lead to inconsistent decisions and missed drift, especially across
+      shifts and plants.
+    - >-
+      Benchtop color/gloss instruments are slow, require skilled operators, and
+      don’t scale to per-piece inspection; they also struggle with
+      translucent/irregular surfaces (e.g., gummies).
+    - >-
+      Inline vision systems are high CapEx ($150k–$400k per line), rigid to SKU
+      changeovers, and often overkill for plants that rely on periodic sampling.
+    - >-
+      SPC and audit documentation are labor-intensive (Excel, paper logs) and
+      lack traceability to actual images, making BRCGS/SQF audits stressful.
+    - >-
+      Frequent SKU changeovers (shape, color, coatings) increase the risk of
+      out-of-spec lots and rework/scrap.
+    - >-
+      Training new operators for visual quality is slow; know‑how is tribal and
+      not standardized across lines/sites.
+  solution:
+    - >-
+      Mobile/web app to capture and upload images of sampled pieces using a
+      calibration mat and lightbox; automatic per-piece analysis and pass/fail
+      vs spec.
+    - >-
+      Calibration kit (food-safe mat with scale + color patches, optional
+      foldable 5000K lightbox) to normalize size/color/gloss across devices and
+      sites.
+    - >-
+      SKU setup wizard with confection-specific spec templates (e.g., gummy
+      length/width/thickness tolerances, panned gloss ranges, color ΔE vs
+      master).
+    - >-
+      Model training per SKU: fine-tuned defect classifiers (e.g., bubbles,
+      cracks, sugar bloom, misshapes) and geometric/color/gloss measurement
+      models.
+    - >-
+      Real-time SPC and dashboards (Cp/Cpk/Ppk, trend charts, heatmaps by
+      line/shift); auto alerts to supervisors when drift or defects exceed
+      control limits.
+    - >-
+      Integrations: CSV/S3 export, API to QMS/MES/ERP (e.g., InfinityQS, SAP
+      QM), single sign-on, audit trails with image evidence.
+    - >-
+      Guided SOPs: operator checklist, sampling cadence reminders, auto-enforced
+      minimum sample size, multi-language UI.
+    - >-
+      Compliance-ready reporting mapped to SQF/BRCGS clauses; lot-based
+      traceability and e-signatures.
+  uniqueValueProp: >-
+    Lab-grade, audit-ready vision QC from a smartphone photo in under 60
+    seconds—quantifying size, shape, color (L*a*b*/ΔE00), gloss, and defects for
+    nonchocolate confections. Cut scrap and rework, standardize decisions across
+    shifts/sites, and prove compliance—without CapEx.
+  unfairAdvantage: >-
+    A growing, proprietary confection-specific dataset and calibration workflow
+    that delivers validated accuracy on translucent/sticky products; pre-built
+    spec templates and audit packs tailored to SQF/BRCGS; fast pilot-to-value
+    (weeks) without CapEx, plus network effects from cross-plant benchmarks.
+  customerSegments:
+    - >-
+      Mid-sized nonchocolate confectionery manufacturers (100–1,000 employees)
+      in NA/EU producing gummies, jellies, panned mints, hard candy, caramels,
+      chews.
+    - >-
+      Large confectionery enterprises seeking cross-plant standardization and
+      auditability.
+    - >-
+      Contract manufacturers/co-packers handling many SKUs and retailer specs
+      (private label).
+    - >-
+      Plant roles: QA/QC managers, process engineers, production supervisors,
+      plant managers, regulatory/compliance leads.
+  channels:
+    - >-
+      Direct sales to QA leaders and plant managers; land-and-expand via pilot
+      lines.
+    - >-
+      Allied OEM/Integrator partnerships with confection equipment vendors
+      (e.g., NID/Baker Perkins moguls, Dumoulin/Driam panning) and automation
+      integrators (Rockwell/Siemens partners).
+    - >-
+      Co-marketing with ingredient suppliers (gelatin/pectin, glazing systems)
+      and packaging/co-man networks.
+    - >-
+      Presence at PACK EXPO, ProSweets/ISM, IFT FIRST; technical webinars and
+      demo days.
+    - >-
+      Case-study driven content in Candy Industry and ConfectioneryNews; ROI
+      calculators and downloadable SOP templates.
+    - >-
+      Referral program for co-mans and consultants; distributor model for
+      EMEA/APAC with local support.
+  revenueStreams:
+    - >-
+      Annual SaaS per site: Starter $12k/year (up to 2 lines, 3,000 images/mo),
+      Professional $24k/year (up to 5 lines, 8,000 images/mo), Enterprise custom
+      (multi-site, SSO, API, premium SLA).
+    - 'Usage overage: $0.02 per additional image; discounted volume bundles.'
+    - >-
+      One-time onboarding: $5,000 includes site calibration, up to 20 SKU
+      setups, training; additional SKUs $150 each or $2,000/pack of 20.
+    - >-
+      Optional hardware: calibration mat $500, lightbox $1,200, smartphone stand
+      $250 (or lease).
+    - >-
+      Professional services: validation studies, custom defect taxonomies,
+      integrations ($150–$250/hr).
+    - >-
+      Compliance pack add-on: $3k/year for advanced audit features and retention
+      beyond 7 years.
+  costStructure:
+    - >-
+      Cloud compute and storage (GPU training; $4–$8 per 1,000 images inference;
+      $20/TB/mo storage with lifecycle policies).
+    - >-
+      ML engineering, data labeling/QA, full-stack development, DevOps/security
+      (SOC 2).
+    - >-
+      Customer success and field application specialists for onboarding and
+      validation.
+    - 'Sales and marketing (trade shows, demos, content), partner enablement.'
+    - 'Hardware kit sourcing (lightboxes, mats), logistics, and replacements.'
+    - 'Insurance (product/tech E&O), legal (MSAs, DPAs), and certifications.'
+    - >-
+      R&D for improved translucency handling, gloss estimation under varied
+      lighting, and few-shot SKU onboarding.
+  keyMetrics:
+    - >-
+      Pilot technical success: size MAE ≤0.2 mm, ΔE00 ≤1.5 vs master, defect F1
+      ≥0.90, false positive rate ≤5%/lot, upload-to-result ≤60s.
+    - >-
+      Operational adoption: ≥80% adherence to sampling schedule, ≥90% of shifts
+      using the system weekly, ≥95% upload success rate.
+    - >-
+      Quality/financial outcomes: reduce rework/scrap by 0.3–0.7 percentage
+      points; +0.2–0.5 improvement in Ppk on critical dimensions; save 0.3–0.6
+      FTE/line in QC labor.
+    - >-
+      Commercial: pilot-to-paid conversion ≥60%; net revenue retention ≥120%;
+      gross margin ≥75%; CAC payback ≤12 months.
+    - >-
+      Reliability: uptime ≥99.9%; P1 incident MTTR <2 hours; data retention
+      compliance (7+ years).
+    - >-
+      Growth: sites live/quarter; average uploads per line/day; SKUs
+      onboarded/month; case studies published/quarter.
+storyBrand:
+  character: >-
+    QA/QC managers and production leads at nonchocolate confectionery plants who
+    need fast, objective checks on gummies, jellies, panned mints, and chews.
+  problem: >-
+    External: Manual visual checks miss size/shape/color-gloss and defect
+    issues. Internal: Teams worry about inconsistent batches, rework, and
+    chargebacks. Philosophical: Quality shouldn’t depend on tired eyes—it should
+    be data-driven and fair.
+  guide: >-
+    We understand the pressure to hit tight specs at high speed. Our team blends
+    confectionery process know‑how with computer vision expertise; models
+    trained on starch‑mogul gummies and panned mints; secure, compliant, and
+    production‑tested.
+  plan: >-
+    1) Upload sample-tray photos from the line or lab. 2) AI measures size,
+    shape, color/gloss and flags defects/out‑of‑spec. 3) Receive instant
+    pass/fail, spec deltas, and trends; export via CSV/API. 4) Start with a
+    no‑hardware, 2‑week pilot and simple SOP for operators.
+  callToAction: >-
+    Direct: Book a 30‑minute demo, send a sample set, and start a 2‑week pilot.
+    Transitional: Download a sample QC report and spec template or try the ROI
+    calculator.
+  success: >-
+    Consistent, objective QC; faster release decisions; reduced scrap and
+    rework; fewer complaints and chargebacks; audit‑ready traceability; smoother
+    scale‑up for new SKUs; happier retailers and brand teams.
+  failure: >-
+    Ongoing subjective checks that miss defects, cause waste and delays, trigger
+    complaints and penalties, and increase audit risk across lines and shifts.
+landingPage:
+  hero:
+    title: Upload-based Vision QC for Confections
+    subtitle: >-
+      AI QC for gummies, jellies, hard candy, and panned mints—upload sample
+      photos for instant size, shape, color/gloss, and defect checks.
+    ctaText: Get a Demo
+    ctaHref: /demo
+  problem:
+    - 'Manual checks are slow, subjective, and inconsistent.'
+    - Color and gloss require lab fixtures and trained eyes.
+    - 'Late defect finds cause rework, scrap, and release delays.'
+    - Spec drift goes unnoticed between periodic lab runs.
+    - Multi-SKU changeovers make tolerance control difficult.
+    - Audit trails are scattered across spreadsheets and folders.
+  solution:
+    - AI standardizes QC from simple photo uploads.
+    - Instant pass/fail against per-SKU specs and tolerances.
+    - Works with smartphone or line camera images—no new hardware.
+    - Trend alerts catch drift before it becomes waste.
+    - 'Audit-ready reports with images, measurements, and decisions.'
+  features:
+    - 'Size and shape metrics: length, width, thickness, roundness, aspect ratio.'
+    - 'Color and gloss scores: L*a*b*, hue, uniformity, shine index.'
+    - 'Defect detection: cracks, chips, pits, bubbles, misshapes, residue.'
+    - 'Product libraries with tolerances, AQL rules, and sampling plans.'
+    - Auto-scale using reference card or known tray geometry.
+    - Batch analysis and piece counts from gridded trays.
+    - Confidence scores and human-in-the-loop review.
+    - 'SPC charts, trends, and out-of-control alerts.'
+    - 'Exports: CSV, PDF, API; email/Slack notifications.'
+    - 'Secure audit trail with timestamps, users, and e-signatures.'
+  steps:
+    - Define product specs and tolerances.
+    - Upload sample photos from the line or lightbox.
+    - 'Confirm scale/reference; tag product, lot, and line.'
+    - 'Run analysis—get measurements, color/gloss, and defect map.'
+    - Review pass/fail; export report or sync to QMS/LIMS.
+---
+# SugarScope QC
+
+Industry: Nonchocolate Confectionery Manufacturing
+Service: Upload-based Vision QC for Confections

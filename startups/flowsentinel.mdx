@@ -1,0 +1,329 @@
+---
+name: FlowSentinel Advisory
+slug: flowsentinel
+service:
+  title: Secondary Leak Imbalance Early-Warning (Advisory)
+  description: >-
+    Statistical volume/pressure imbalance monitor that provides advisory
+    early-warning signals to complement existing CPM/RTTM systems (not a
+    regulatory replacement).
+  targetUsers:
+    - Leak Detection Engineers
+    - Pipeline Controllers
+    - Operations Managers
+  triggers:
+    - 1–5 min rolling windows
+    - Step changes in flow/pressure
+  inputs:
+    - Inlet/outlet flows and pressures
+    - Linepack/temperature proxies
+    - Batch/product properties (density/viscosity)
+    - Known meter biases
+  steps:
+    - Build segment mass-balance with temperature/linepack compensation
+    - >-
+      Detect persistent imbalance using change-point and sequential probability
+      tests
+    - 'Filter out transients (batch cuts, pump starts) using state classifier'
+    - 'Score and escalate only sustained, multi-signal anomalies'
+    - 'Attach context: recent maintenance, meter proving, batch interface'
+  tools:
+    - Historian API (PI)
+    - CUSUM/Bayesian change-point detection
+    - E-RTTM-inspired statistical filters (advisory)
+    - Python/pandas
+    - Teams/Email API
+  outputs:
+    - Advisory alerts with imbalance magnitude and duration
+    - Timeline showing transient vs persistent behavior
+    - False-positive/true-positive learning report
+  pricingModel:
+    - Setup fee (segment models)
+    - Monthly subscription per monitored segment
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 7
+    overall: 7
+  risks:
+    - Must not be marketed or used as primary CPM
+    - Meter bias and temperature errors can dominate
+    - Controller alert fatigue if thresholds loose
+  dependencies:
+    - Segment definitions and PI tags
+    - Operating procedures to gate escalation
+    - Legal/compliance sign-off on advisory nature
+leanCanvas:
+  problem:
+    - >-
+      Small and medium leaks (<0.5–1.0% of flow) can evade CPM/RTTM detection
+      under transient conditions, causing delayed response and higher spill
+      volumes.
+    - >-
+      High false-alarm rates from existing systems during batching,
+      start-ups/shutdowns, and pressure transients cause alarm fatigue and
+      operator desensitization.
+    - >-
+      Meter drift, line pack variation, and imperfect inventory accounting
+      degrade mass-balance accuracy and delay leak confirmation.
+    - >-
+      Control centers lack a secondary, independent analytical layer that
+      cross-validates CPM/RTTM outputs in real time with probabilistic
+      confidence scoring.
+    - >-
+      Regulated operators want measurable risk reduction without introducing
+      operational or compliance complexity or replacing their approved CPM/RTTM.
+    - >-
+      Pipeline theft taps and chronic pinhole leaks often present as subtle
+      imbalances and pressure signatures that are hard to isolate quickly with
+      deterministic models alone.
+    - >-
+      Existing solutions are costly and time-consuming to tune per line;
+      operators need a lightweight, vendor-agnostic overlay that is fast to
+      deploy and easy to maintain.
+  solution:
+    - >-
+      Deploy a vendor-agnostic analytics overlay that ingests SCADA historian
+      and real-time tags (flow, pressure, temperature, valve states) to run
+      statistical mass-balance and pressure-based anomaly detection.
+    - >-
+      Use ensemble models (change-point detection, Bayesian filters, robust
+      regression, and context-aware thresholds) tuned to each pipeline’s
+      operating regimes (steady-state, transients, batching).
+    - >-
+      Provide advisory alerts with confidence scoring, estimated leak location
+      corridors, and rationale (which signals deviated, by how much, for how
+      long) to aid operator decision-making.
+    - >-
+      Continuously self-calibrate against operating conditions (temperature
+      profiles, line pack, elevation) to reduce drift and adapt thresholds
+      without manual retuning.
+    - >-
+      Integrate via read-only connectors to CPM/RTTM and alarm management tools;
+      no changes to control logic or regulatory systems required.
+    - >-
+      Offer historical backtesting to quantify lift over baseline systems, and a
+      playbook to operationalize early-warning signals in the control room.
+  uniqueValueProp: >-
+    Independent, AI-driven advisory layer that detects subtle volume/pressure
+    imbalances faster and with fewer false alarms—without replacing CPM/RTTM.
+    FlowSentinel provides early-warning signals with confidence scores,
+    explainability, and seamless integration, delivering measurable reductions
+    in time-to-detect and product loss.
+  unfairAdvantage: >-
+    A curated, cross-operator dataset of labeled transient and leak-like events
+    enabling transfer learning for fast, high-accuracy deployment;
+    transient-aware ensembles with explainable alerts tailored to control room
+    workflows; vendor-agnostic, read-only integration minimizing cyber and
+    operational risk; and a pilot-first methodology with quantified lift over
+    baseline CPM/RTTM.
+  customerSegments:
+    - >-
+      Midstream crude oil pipeline operators (interstate and intrastate
+      transmission).
+    - >-
+      Integrated oil & gas majors operating trunk crude lines and gathering
+      networks.
+    - >-
+      Control center managers, leak detection program managers (API 1175),
+      pipeline integrity/reliability engineers.
+    - >-
+      SCADA/OT teams and system integrators responsible for OSIsoft PI/AVEVA,
+      Honeywell, Emerson, Schneider infrastructures.
+    - >-
+      Risk, HSE, and compliance teams seeking quantifiable improvements in leak
+      detection program performance.
+    - >-
+      Insurers and underwriters incentivizing risk-reducing technologies
+      (indirect influencer).
+  channels:
+    - >-
+      Direct enterprise sales targeting North American crude operators first;
+      focus on control center and LDPM stakeholders with a risk-reduction
+      message.
+    - >-
+      Pilot-first motion: 60–90 day paid pilots using historical backtesting
+      plus live shadow-mode; success criteria defined upfront (e.g., >=30%
+      faster MTTD on defined scenarios, <=1/month false positives per 1,000
+      miles at 95% specificity).
+    - >-
+      Partnerships with SCADA/system integrators (OSIsoft PI/AVEVA, Honeywell,
+      Emerson) for implementation and data access acceleration.
+    - >-
+      Co-marketing with insurers/underwriters to offer premium credits or
+      risk-score improvements contingent on deployment and KPI attainment.
+    - >-
+      Industry forums and technical papers: API Pipeline Conference, PPIM, AOPL
+      forums; webinars on transient-aware statistical leak detection.
+    - >-
+      Customer reference program: convert first three pilots into public case
+      studies quantifying detection lift and operational impact.
+    - >-
+      Land-and-expand: start with 1–2 trunk lines per operator; expand to entire
+      network after proving ROI and low operational friction.
+  revenueStreams:
+    - >-
+      Annual subscription per mile monitored (e.g., $250–$650 per mile per year)
+      with volume discounts; minimum annual platform fee (e.g., $120k per
+      operator).
+    - >-
+      Tiered pricing by telemetry density and features (e.g., leak corridor
+      estimation, advanced transient modeling).
+    - >-
+      Professional services: integration, data quality remediation, KPI
+      baselining and LDPM alignment ($30k–$150k per project).
+    - >-
+      Paid pilots ($50k–$150k) including historical backtesting and success
+      criteria definition.
+    - >-
+      Enterprise license for large operators (blended per-mile rate plus
+      enterprise support SLAs).
+    - Training and certification for control room staff and engineers.
+  costStructure:
+    - >-
+      Personnel: data science, pipeline SMEs, OT/SCADA engineers,
+      software/devops, security/compliance (50–60% of total spend in early
+      stage).
+    - >-
+      Cloud/on-prem infrastructure: streaming ingestion, time-series storage,
+      model serving, monitoring (10–20%).
+    - Professional services delivery and partner commissions (10–15%).
+    - >-
+      Security/compliance: SOC 2/ISO 27001 audits, penetration tests, incident
+      response readiness (5–8%).
+    - 'Sales and marketing: industry events, pilots, travel, content (10–15%).'
+    - >-
+      Insurance and legal: contracts with major operators, liability coverage
+      aligned to industry expectations (2–5%).
+  keyMetrics:
+    - >-
+      Model performance: detection sensitivity at defined leak sizes (e.g.,
+      detect 0.3–0.5% of nominal flow within 15–30 minutes with >=95% confidence
+      in steady-state).
+    - >-
+      False positive rate: <=1 spurious advisory per 1,000 pipeline-miles per
+      month in steady-state; explicit thresholds for transient states.
+    - >-
+      MTTD improvement vs. baseline CPM/RTTM: target >=30–50% reduction for
+      small leak scenarios validated via simulation/backtesting.
+    - >-
+      Operator acceptance: >=80% of advisory alerts classified as useful or
+      actionable by control room staff after 90 days.
+    - >-
+      Coverage: share of network miles and stations onboarded; telemetry
+      completeness score (>=95% tag uptime).
+    - >-
+      Time-to-deploy: <=8 weeks to first line live in shadow-mode; <=16 weeks to
+      productionized escalation workflow.
+    - >-
+      Data quality KPIs: percentage of sensors passing drift/outlier checks;
+      time to remediate data gaps.
+    - >-
+      Business impact: estimated barrels not spilled due to earlier detection
+      (formula-based), avoided cleanup costs, and reduced downtime.
+    - >-
+      Model drift: retraining cadence and performance stability across seasons
+      and operating regimes.
+    - >-
+      Security/SLA: platform uptime >=99.9% (advisory), mean time to restore <4
+      hours.
+storyBrand:
+  character: >-
+    Pipeline control-room leaders and leak detection engineers who want earlier,
+    trustworthy imbalance signals without disrupting CPM/RTTM or regulatory
+    procedures.
+  problem: >-
+    - External: Small/secondary leaks and transient-induced imbalances are hard
+    to see early; CPM/RTTM thresholds can delay awareness; batching/slack-line
+    mask signals; alarm fatigue from noise.
+
+    - Internal: Fear of missing a leak; low confidence during transients;
+    pressure to mature the LD program without adding complexity.
+
+    - Philosophical: Operators shouldn’t have to choose between early detection
+    and operational stability/compliance.
+  guide: >-
+    - Empathy: We’ve sat in control rooms and tuned CPM/RTTM—know the tradeoffs
+    and alarm fatigue.
+
+    - Authority: Built by pipeline LD engineers and data scientists; validated
+    on historical backtests; secure, read-only integration; aligns with API
+    1130/1175 and complements—not replaces—regulatory systems.
+  plan: >-
+    - Process: 1) Connect read-only to historian/SCADA. 2) Baseline and
+    calibrate statistical volume/pressure imbalance models. 3) Pilot on a
+    segment; tune thresholds and workflows. 4) Go live with advisory scoring and
+    explainability; review KPIs monthly. 5) Expand across assets.
+
+    - Agreement: No changes to control-room alarm procedures; your data stays
+    yours; advisory-only overlay; simple subscription; cancel anytime.
+  callToAction: >-
+    - Direct: Book a 30-minute discovery call; start a 60-day pilot on one line.
+
+    - Transitional: Request a backtest report using your data; download the
+    technical brief and integration checklist.
+  success: >-
+    Earlier awareness of secondary/small leaks; reduced spill volume and
+    time-to-detection; fewer false negatives; higher controller confidence;
+    improved LD program maturity and auditability; faster troubleshooting;
+    stronger stakeholder trust.
+  failure: >-
+    Small leaks grow into incidents; higher cleanup costs and penalties;
+    reputational damage; extended downtime; ongoing alarm fatigue and
+    uncertainty; missed opportunity to raise LD program performance.
+landingPage:
+  hero:
+    title: Secondary Leak Imbalance Early‑Warning for Crude Pipelines
+    subtitle: >-
+      AI advisory layer that flags statistical volume/pressure imbalances.
+      Complements CPM/RTTM; not a regulatory replacement.
+    ctaText: Request a demo
+    ctaHref: '#demo'
+  problem:
+    - Small or slow leaks hide in noise and fall below steady‑state thresholds.
+    - >-
+      Transients (startups, shutdowns, pigging, batching) create CPM/RTTM blind
+      spots.
+    - Nuisance alarms erode confidence and slow real response.
+    - 'Data quality issues (bad meters, dropouts) mask real imbalances.'
+    - Minutes lost correlating pressure/flow/volume across long lines.
+    - Regulatory systems can’t be tuned aggressively for advisory insight.
+    - Manual reconciliation is time‑consuming and error‑prone.
+  solution:
+    - Independent AI “second opinion” focused on early advisory alerts.
+    - Learns each line’s normal behavior; flags subtle deviations fast.
+    - Probabilistic scores with context to prioritize credible events.
+    - Transient‑aware models preserve sensitivity during non‑steady states.
+    - Complements CPM/RTTM; shortens time‑to‑awareness without workflow change.
+    - Seamless integration to SCADA/historians; alerts in existing tools.
+    - >-
+      Deploy on‑prem or secure cloud. Advisory only; not a regulatory
+      replacement.
+  features:
+    - 'Multi‑sensor fusion: pressure, flow, temperature, density, tank levels.'
+    - 'Segment‑aware models for stations, loops, and batch interfaces.'
+    - Adaptive thresholds with uncertainty bands and confidence scores.
+    - Batch‑aware volumetric reconciliation and linepack compensation.
+    - 'Transient handling for startups, ramping, pigging, and valve/pump changes.'
+    - 'Data quality guardrails: drift, stuck meter, and gap detection.'
+    - Event correlation with pump/valve states and planned operations.
+    - Operator guidance with recommended checks and next actions.
+    - Shadow‑mode validation to compare with CPM/RTTM before go‑live.
+    - 'Connectors: PI, IP.21, eDNA, OPC UA, MQTT, Ignition.'
+    - 'Alert routing: DCS/SCADA, email/SMS, Teams/Slack, webhook/API.'
+    - 'Role‑based access, audit trails, ICS network isolation.'
+    - On‑prem with zero outbound or managed cloud with private link.
+    - 'Fast start: model warms up from 30–90 days of history.'
+    - 'KPI dashboard: time‑to‑awareness, alarm quality, sensitivity.'
+  steps:
+    - 'Connect data: read‑only tags and line configuration.'
+    - 'Baseline: auto‑learn normal from recent history.'
+    - 'Calibrate: set sensitivity, segments, and alert routes.'
+    - 'Validate: run in shadow mode against past events.'
+    - 'Go live: enable advisory alerts and operator playbooks.'
+    - 'Iterate: quarterly review and retraining.'
+---
+# FlowSentinel Advisory
+
+Industry: Pipeline Transportation of Crude Oil
+Service: Secondary Leak Imbalance Early-Warning (Advisory)

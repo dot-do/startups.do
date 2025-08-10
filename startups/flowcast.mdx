@@ -1,0 +1,304 @@
+---
+name: FlowCast Mobility (Demand Forecasting & Supply Positioning for Rideshare/Taxi)
+slug: flowcast
+service:
+  title: Demand Forecasting and Supply Positioning
+  description: >-
+    Forecast rider demand by zone/time and recommend driver staging areas and
+    shift incentives to cut ETAs and cancellations.
+  targetUsers:
+    - Operations Manager
+    - Dispatch Lead
+    - Driver Ops
+  triggers:
+    - Hourly scheduler
+    - Big-event calendar updates
+    - Weather change webhook
+  inputs:
+    - Historical trip logs
+    - Real-time request queue
+    - Driver availability/roster
+    - Event calendars (Ticketmaster/Facebook Events)
+    - Weather data
+  steps:
+    - Ingest and clean demand/supply signals
+    - Train/update short-horizon demand model
+    - Score zones and produce heatmap and supply gaps
+    - Simulate impact of repositioning and incentives
+    - Publish zone assignments and incentives to drivers
+    - Monitor uptake and iterate recommendations
+  tools:
+    - Snowflake/BigQuery
+    - XGBoost/LSTM
+    - Mapbox/Google Maps
+    - iCabbi/Autocab/Curb dispatch APIs
+    - Twilio/WhatsApp Business API
+    - Slack
+  outputs:
+    - Zone heatmaps (PNG/HTML)
+    - Shift/zone assignment CSV
+    - Driver messages with links
+    - Ops dashboard and Slack alerts
+  pricingModel:
+    - Setup fee + monthly subscription
+    - Optional performance bonus tied to reduced cancellation rate
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Regulated fare markets may limit incentive levers
+    - Driver trust/participation
+    - Data latency/quality affecting forecasts
+  dependencies:
+    - Dispatch API access and driver messaging permissions
+    - Event and weather API keys
+    - Data warehouse or trip-log export
+leanCanvas:
+  problem:
+    - >-
+      Unpredictable rider demand by zone/time drives long ETAs (8–12 min during
+      peaks) and high cancellations (8–15% in many cities).
+    - >-
+      Drivers cluster in visible hotspots instead of future hotspots, causing
+      deadheading and low driver utilization (25–40% idle time).
+    - >-
+      Incentive spend is blunt (system-wide surge/bonuses), leading to 4–12% of
+      driver earnings spent on inefficient incentives with unclear ROI.
+    - >-
+      Dispatch systems lack fine-grained, real-time forecasts (by 250–500m
+      tiles, 5–15 min horizon) and a closed-loop way to stage supply and test
+      incentive effectiveness.
+    - >-
+      External signals (events, weather, transit disruptions) are not
+      operationalized quickly, so fleets are reactive rather than proactive.
+    - >-
+      Operators lack A/B testing and off-policy evaluation frameworks to
+      quantify ETA/cancellation improvements and savings from targeted
+      incentives.
+  solution:
+    - >-
+      City-scale demand forecasts at 250–500m tiles, 5–15 minute intervals,
+      rolling 24–72 hours; blended with live telemetry to produce dynamic supply
+      gaps.
+    - >-
+      Driver staging recommendations (heatmaps + ranked staging zones) pushed
+      via API/SDK into driver apps; compliance nudges and routing to staging
+      zones.
+    - >-
+      Incentive Optimizer: micro-bonuses by tile/time/driver cohort sized to
+      close supply gaps at minimum cost; includes budget guardrails and fairness
+      controls.
+    - >-
+      Shift & break scheduling recommender for fleets with contracted drivers to
+      align on-duty hours with forecasted peaks.
+    - >-
+      Event/weather/transit disruption ingestion (e.g., PredictHQ + weather
+      APIs) for demand uplift factors; automatic anomaly detection for pop-ups.
+    - >-
+      Experimentation toolkit: city-level A/B or multi-armed bandit tests;
+      off-policy evaluation to compute counterfactual savings and KPI lifts.
+    - >-
+      Integrations: REST/GraphQL APIs, webhooks, and SDK to plug into dispatch,
+      pricing/surge modules, and driver apps; dashboards for ops/analytics.
+  uniqueValueProp: >-
+    Cut ETAs and cancellations by predicting demand at street-tile resolution
+    and proactively positioning supply with targeted micro-incentives—delivering
+    measurable ROI in 8 weeks.
+  unfairAdvantage: >-
+    Closed-loop optimization that pairs high-resolution forecasts with incentive
+    and staging levers, validated by off-policy evaluation and rapid A/B tests.
+    Cross-city learning and event/weather uplift models improve fast in new
+    markets, and integrations with major dispatch platforms create distribution
+    advantages and switching costs.
+  customerSegments:
+    - >-
+      Tier-2/Tier-3 rideshare platforms (1k–50k active drivers per city; EMEA,
+      LATAM, SEA, MENA).
+    - >-
+      Large taxi operators and dispatch networks (1k–10k vehicles) using
+      platforms like iCabbi, Autocab, Curb, MTData, TaxiCaller.
+    - >-
+      Mobility-as-a-Service aggregators/regional super-apps coordinating
+      multiple supply partners.
+    - >-
+      Airport authorities and event venue mobility coordinators via partnerships
+      with dispatch platforms (indirect/embedded).
+  channels:
+    - >-
+      Direct sales to regional rideshare/taxi operators (founder-led initially,
+      then enterprise AEs).
+    - >-
+      Partnerships with dispatch platforms (iCabbi, Autocab, Curb, MTData,
+      TaxiCaller) with co-sell and marketplace listings.
+    - >-
+      Cloud marketplaces (AWS, Azure, GCP) for procurement simplification and
+      MAP funding for PoCs.
+    - >-
+      Content-led growth: city case studies, ROI whitepapers, conference talks
+      (MOVE, UITP, CoMotion), and targeted webinars per region.
+    - >-
+      Pilot-led GTM: 8-week proof-of-value in 1–2 cities with ROI-based pricing
+      and opt-out if targets not met.
+  revenueStreams:
+    - >-
+      Tiered SaaS subscription based on monthly active drivers (MAD):
+      $1.50–$3.00 per MAD for Forecasting + Staging; volume discounts.
+    - >-
+      Per-trip analytics/API fee for real-time recommendations: $0.002–$0.006
+      per completed trip.
+    - >-
+      Add-ons: Incentive Optimizer (+$0.50–$1.00 per MAD) and Shift Scheduling
+      (+$0.25–$0.50 per MAD).
+    - >-
+      Professional services/integration: $15k–$75k per deployment depending on
+      data complexity.
+    - >-
+      Performance-based upside (optional): 5–10% of verified savings vs baseline
+      incentive spend/ETA/cancellation KPIs.
+  costStructure:
+    - >-
+      COGS: cloud compute/storage/streaming ($0.003–$0.01 per trip depending on
+      data granularity), model training, geospatial queries; map tiles/traffic;
+      observability.
+    - >-
+      Third-party data: events (PredictHQ/Tomorrow.io) $1k–$5k/month per region;
+      weather $300–$2k/month; optional mobility datasets.
+    - ML/data engineering and product team salaries (largest fixed cost).
+    - 'Sales/support: enterprise AEs/solutions engineers, travel, pilot support.'
+    - 'Security/compliance: SOC 2, GDPR legal review, penetration testing.'
+    - >-
+      Customer success/field ops for pilot design, A/B testing, and ROI
+      reporting.
+  keyMetrics:
+    - >-
+      Core business KPIs: average ETA (-10–20%), ETA>8 min share (-20–40%),
+      cancellation rate due to ETA (-15–30%), driver idle time (-8–15%), trips
+      per online hour (+5–10%), incentive cost per completed trip (-5–12%).
+    - >-
+      Forecast accuracy: citywide/tile-level MAPE (<=15% off-peak, <=25% peak),
+      uplift calibration error (<10%).
+    - >-
+      Adoption/compliance: % of online drivers entering recommended staging
+      zones (>30% in 90 days), % of trips initiated from recommended zones
+      (>25%), incentive uptake rate (>60% when offered).
+    - >-
+      Operational performance: API p95 latency (<2s), system uptime (>=99.9%),
+      data pipeline SLA (<=5 min lag).
+    - >-
+      Financial efficiency: net savings vs baseline ($/trip), ROI multiple (>5x
+      within 8 weeks of pilot), LTV/CAC (>3), pilot conversion rate (>50%).
+    - >-
+      Experimentation: statistically significant lifts detected within 2 weeks
+      in at least 1–2 peak windows per city; counterfactual validation error
+      (<10%).
+storyBrand:
+  character: >-
+    Marketplace Ops/Dispatch leader at a taxi or ridesharing network who must
+    put the right number of drivers in the right zones at the right times to cut
+    ETAs and cancellations.
+  problem: >-
+    External: Demand spikes vary by zone/time; drivers idle in the wrong places;
+    long ETAs, cancellations, and blunt incentive spend.
+
+    Internal: Ops teams are stuck firefighting; drivers distrust staging
+    guidance; riders abandon when waits are long.
+
+    Philosophical: People shouldn’t wait for rides when data can position
+    drivers ahead of demand.
+  guide: >-
+    Empathy: We’ve felt the pain of missed surges, empty miles, and unhappy
+    riders.
+
+    Authority: AI built for mobility—city-scale demand forecasting and supply
+    positioning that integrates with your dispatch and driver apps, with clear
+    KPIs and transparent models.
+  plan: >-
+    Process:
+
+    1) Connect: Trip history, driver pings, zones, events, and weather via
+    API/S3.
+
+    2) Forecast & simulate: Rolling zone/time demand, supply gaps, and incentive
+    scenarios.
+
+    3) Act & learn: Push staging zones and shift bonuses; track ETAs, cancels,
+    and ROI.
+
+    Agreement:
+
+    - Pilot one city with shared success targets (ETA, cancellations, incentive
+    ROI).
+
+    - Keep your data; no lock-in; cancel anytime.
+  callToAction: |-
+    Direct: Start a pilot or book a demo today.
+    Transitional: Get a sample forecast map and ROI model for your city.
+  success: >-
+    Shorter ETAs, fewer cancellations, higher driver utilization and earnings,
+    optimized incentive spend, happier riders, and steadier market growth.
+  failure: >-
+    Keep reacting to surges, waste incentives, suffer long waits and
+    cancellations, churn drivers and riders, and lose share to faster
+    competitors.
+landingPage:
+  hero:
+    title: Put Drivers Where Riders Will Be
+    subtitle: >-
+      AI forecasts demand by zone and time, then recommends driver staging and
+      targeted incentives to cut ETAs and cancellations.
+    ctaText: Start a Pilot
+    ctaHref: /start-pilot
+  problem:
+    - 'Peaks and lulls are unpredictable, leading to long ETAs and lost trips.'
+    - Heatmaps lag reality; dispatch decisions stay reactive.
+    - Drivers idle in low-demand zones while nearby requests go unserved.
+    - Broad incentives waste budget without fixing coverage gaps.
+    - >-
+      Manual shift planning can’t keep up with city dynamics, events, and
+      weather.
+    - Cancellations spike when supply misses micro-surges.
+  solution:
+    - >-
+      Rolling demand forecasts by zone in 5–15 minute intervals, hours to days
+      ahead.
+    - >-
+      Driver staging recommendations with expected impact on ETAs and
+      fulfillment.
+    - Targeted shift incentives to close coverage gaps at the lowest cost.
+    - Real-time rebalancing alerts when demand deviates from plan.
+    - Driver app nudges to move to high-opportunity zones.
+    - 'Ops dashboard and API for planning, monitoring, and automation.'
+    - 'What‑if planning for events, weather, and pricing changes.'
+  features:
+    - 'Demand forecasting engine: zone/time predictions continuously refreshed.'
+    - >-
+      Supply positioning: ranked zones, recommended driver counts, and staging
+      points.
+    - >-
+      Dynamic incentives: suggested bonuses by zone/time with expected lift and
+      cost.
+    - ETA and cancellation risk scoring to prioritize actions that matter.
+    - Event and weather awareness to anticipate spikes before they happen.
+    - 'Explainability: top drivers of each forecast and recommendation.'
+    - >-
+      Integrations: trips, pings, maps, weather, events; export to driver apps
+      and dispatch.
+    - Privacy and security built for enterprise deployments.
+    - >-
+      ROI tracking: measure gains in ETA, fulfillment, earnings, and incentive
+      efficiency.
+  steps:
+    - >-
+      Connect your data (trips, supply pings, zones); optional weather and event
+      feeds.
+    - 'Set goals and constraints (ETA SLAs, budget, fairness rules).'
+    - Calibrate with recent history; validate on one or two pilot cities.
+    - 'Go live: dashboard for ops, API for automation, nudges for drivers.'
+    - Monitor impact weekly and expand coverage city by city.
+---
+# FlowCast Mobility (Demand Forecasting & Supply Positioning for Rideshare/Taxi)
+
+Industry: Taxi and Ridesharing Services
+Service: Demand Forecasting and Supply Positioning

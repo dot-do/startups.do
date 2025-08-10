@@ -1,0 +1,322 @@
+---
+name: ChiroVerify AI
+slug: chiroverify
+service:
+  title: Eligibility Verification and Cost Estimate Bot
+  description: >-
+    Automates insurance eligibility checks and sends patients transparent
+    estimates before visits.
+  targetUsers:
+    - Front desk
+    - Billing coordinators
+  triggers:
+    - Appointment booked
+    - 24–48 hours before visit
+    - Insurance updated
+  inputs:
+    - Patient demographics
+    - Insurance payer/plan/member ID
+    - Planned services
+  steps:
+    - 'Query eligibility API; parse plan, copay, deductible, coinsurance'
+    - Crosswalk plan benefits to expected services and clinic fee schedule
+    - Estimate patient responsibility; generate patient-friendly summary
+    - Notify staff; optionally send estimate and secure payment link to patient
+  tools:
+    - 'Eligibility API (Eligible, Availity)'
+    - Fee schedule in Google Sheets/DB
+    - Stripe/Adyen for pre-pay
+    - Twilio/SendGrid for notifications
+    - EHR/PM for appointment context
+  outputs:
+    - Eligibility/benefits report
+    - Patient cost estimate PDF/HTML
+    - Payment link (optional)
+    - Staff task for exceptions
+  pricingModel:
+    - Per-eligibility check $0.20–$0.60
+    - Monthly subscription $49–$149
+  humanInLoop: false
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 7
+    overall: 8
+  risks:
+    - Eligibility APIs can be incomplete/outdated
+    - Estimates are not guarantees—set expectations
+    - Need consent for messaging
+    - Payment disputes if estimates differ
+  dependencies:
+    - Eligibility API credentials
+    - Clinic fee schedule
+    - Messaging templates and disclosures
+leanCanvas:
+  problem:
+    - >-
+      Front-desk staff spend 5–12 minutes per patient on manual insurance
+      eligibility checks via payer portals or phone calls, causing bottlenecks
+      and overtime.
+    - >-
+      Eligibility-related claim denials (coordination of benefits, inactive
+      coverage, unmet deductible, visit limits) account for 8–15% of denials in
+      many chiropractic practices.
+    - >-
+      Patients are surprised by bills because allowed amounts, deductibles, and
+      visit limits are unclear prior to care, hurting trust and satisfaction.
+    - >-
+      Small clinics lack payer-specific rules for chiropractic codes
+      (98940–98942, 97110, 97140, 97012, etc.), leading to inaccurate estimates
+      and compliance risks (e.g., Medicare only covering spinal manipulation).
+    - >-
+      No-show and late-cancel rates increase when patients are uncertain about
+      out-of-pocket costs (5–10% avoidable).
+    - >-
+      Existing RTE (real-time eligibility) tools surface raw 271 data but do not
+      translate it into patient-friendly estimates, prepayment options, or
+      automated reminders.
+    - >-
+      Estimating allowed amounts is hard without a unified fee schedule and
+      payer contract repository; most practices don’t maintain this, leading to
+      under- or over-collection.
+    - >-
+      Front-desk turnover and training challenges make consistent eligibility
+      workflows difficult across staff and locations.
+  solution:
+    - >-
+      AI-driven bot pulls and normalizes eligibility via 270/271 (and payer
+      APIs/portals when required), tailored to chiropractic benefits (CMT,
+      modalities, therapy visit limits).
+    - >-
+      Estimate engine maps benefits, deductibles, copays/coinsurance, visit
+      limits, and medical necessity rules to the clinic’s fees and
+      contracted/allowed amounts to produce a patient-specific estimate.
+    - >-
+      Automated patient communication: sends secure SMS/email 24–48 hours
+      pre-visit with estimate, benefits breakdown, and one-tap prepayment or
+      card-on-file option.
+    - >-
+      Medicare-aware logic: flags that only spinal manipulation is covered under
+      Medicare Part B; prompts ABN workflows for non-covered services (e.g.,
+      exams, x-rays, therapies).
+    - >-
+      Pre-authorization checks and alerts for therapy codes when payer/plan
+      requires it; tracks used vs. remaining visits.
+    - >-
+      Front-desk dashboard: exceptions queue for ambiguous benefits, estimate
+      confidence score, and audit trail; integrates with EHR/PMS schedule and
+      notes.
+    - >-
+      Continuous learning: adjusts allowed-amount assumptions using
+      de-identified historical claims and patient responsibility outcomes to
+      improve estimate accuracy over time.
+    - >-
+      Compliance-by-design: HIPAA-eligible infrastructure, BAAs, encryption,
+      access logging, and role-based permissions.
+  uniqueValueProp: >-
+    Automated, chiropractic-specific eligibility and out-of-pocket estimates
+    that text patients clear costs 24–48 hours before visits—reducing denials,
+    boosting upfront collections, and saving 40–60 staff hours per month per
+    location.
+  unfairAdvantage: >-
+    Chiropractic-specific benefits and estimation engine (codes, visit limits,
+    Medicare nuances) trained on de-identified outcomes, plus pre-built
+    connectors to leading chiropractic EHRs—delivering higher estimate accuracy
+    and fully automated patient messaging that generic RTE/estimators and intake
+    tools lack.
+  customerSegments:
+    - >-
+      Primary: Independent chiropractic clinics (1–5 providers) in the US that
+      accept insurance.
+    - 'Secondary: Mid-size multi-location chiropractic groups (6–50 providers).'
+    - >-
+      Influencers: Chiropractic billing services/RCM firms and state
+      chiropractic associations.
+    - >-
+      Integration buyers: EHR/PMS vendors used by chiropractors (ChiroTouch,
+      Jane, Tebra/Kareo, AdvancedMD, DrChrono).
+  channels:
+    - >-
+      Direct outreach to 1–5 provider clinics via targeted email/LinkedIn; goal:
+      4–6% meeting rate; CAC target <$900 per clinic.
+    - >-
+      Partnerships with chiropractic billing/RCM firms; offer revenue share
+      (10–20%) and white-label options.
+    - >-
+      Integrations/marketplaces with leading EHR/PMS vendors; co-marketing
+      webinars and in-product app listings.
+    - >-
+      Clearinghouse partnerships (Availity, Office Ally, Waystar) for co-selling
+      to existing RTE users needing estimates/messaging.
+    - >-
+      Chiropractic associations (ACA and state chapters): sponsor webinars/CE,
+      conference booths; aim for 2–3 association deals in year 1.
+    - >-
+      Content/SEO: “Eligibility and estimate” playbooks, Medicare for
+      chiropractors explainer, ROI calculator; target 5–7 qualified inbound
+      leads/week by month 6.
+    - >-
+      Customer referrals: 1 month free per referred location; target 20% of new
+      signups via referrals by month 12.
+    - >-
+      Pilot program: 30-day trial for 20 clinics in 3 states; convert >60% to
+      paid; build 3 case studies showing ROI.
+  revenueStreams:
+    - >-
+      SaaS subscription per location: Starter $149/mo (up to 250 eligibility
+      checks), Growth $299/mo (up to 1,000 checks), Plus $499/mo (up to 2,500
+      checks); $0.20 per additional check.
+    - >-
+      SMS/email usage: $0.03/SMS segment, $0.005/email, passed through or
+      bundled at tier thresholds.
+    - >-
+      Setup/onboarding fee: $199 per location (waived for annual prepay or
+      association partners).
+    - >-
+      Payment processing revenue share/interchange on prepayments (via
+      Stripe/healthcare-compliant gateway), target 15–25 bps net.
+    - >-
+      Enterprise/API licensing for multi-location groups/RCM firms with
+      volume-based pricing.
+    - >-
+      Professional services: fee schedule cleanup/contract mapping at $100/hour
+      (optional).
+  costStructure:
+    - >-
+      Team: engineering (X12/EDI, frontend, backend), product, compliance,
+      support; Y1 burn $1.2–1.8M depending on headcount.
+    - >-
+      Clearinghouse/EDI fees: $0.01–$0.08 per 270/271; payer portal automation
+      costs (headless browser infra).
+    - >-
+      Cloud hosting and security stack: $6k–$12k/month at early scale; includes
+      HSM/KMS, monitoring, backups.
+    - >-
+      SMS/email: $0.01–$0.03/SMS segment, $0.001–$0.005/email; short code/10DLC
+      registration.
+    - >-
+      Security/compliance: HIPAA program, SOC 2 Type II audit ($40k–$80k
+      annually), BAAs, penetration tests.
+    - >-
+      Sales/marketing: conferences, webinars, ads; $10k–$30k/month in growth
+      phase.
+    - >-
+      Legal/insurance: cyber liability and E&O ($15k–$40k/year), counsel for
+      payer/EHR contracts.
+    - >-
+      Data acquisition/maintenance: CMS fee schedules, FAIR Health or similar
+      benchmarks for allowed amounts (licensing where applicable).
+  keyMetrics:
+    - >-
+      Operational: eligibility success rate >95%; estimate accuracy within ±10%
+      for 80% of encounters and ±20% for 95%; automation coverage (no human
+      touch) >70% of checks by month 6.
+    - >-
+      Financial outcomes: reduce eligibility-related denials by 30–50% (e.g.,
+      from 10% to 5–7% of denials); increase upfront collections by 15–30%;
+      reduce AR days by 3–7 days.
+    - >-
+      Productivity: save 5–8 minutes per eligibility; target 40–60 staff
+      hours/month saved per location; reduce no-shows by 5–10% via transparent
+      estimates.
+    - >-
+      Growth: lead-to-demo 20–30%; demo-to-paid 40–60%; CAC payback <3 months;
+      logo churn <2% monthly; NRR >110% by month 12.
+    - >-
+      Adoption: time-to-value <7 days; 70% of locations enable prepayment within
+      30 days; 60% of estimates sent 24–48 hours pre-appointment.
+    - >-
+      Compliance/SLA: 99.9% uptime target; incident response <24 hours; access
+      audits monthly.
+storyBrand:
+  character: >-
+    Chiropractic practice owners and front-desk coordinators who want insurance
+    checks and clear patient pricing handled automatically.
+  problem: >-
+    External: Manual eligibility checks and ad‑hoc estimates cause delays,
+    denials, and surprise bills. Internal: Staff feel overworked and patients
+    lose trust. Philosophical: People deserve clear pricing before care and
+    clinicians should focus on treatment, not paperwork.
+  guide: >-
+    Empathy: We understand payer portals, benefit rules, and pre-auths are
+    confusing and time-consuming. Authority: Built by revenue-cycle and
+    healthtech veterans with HIPAA‑aligned safeguards and audit trails;
+    integrates with major clearinghouses/EHRs to standardize eligibility and
+    estimates.
+  plan: >-
+    Process: 1) Connect EHR/clearinghouse and payer credentials. 2) Configure
+    estimate rules, messaging, and thresholds. 3) Bot verifies benefits 24/7,
+    sends patient estimates, and flags exceptions for staff review. Agreement:
+    clear SLA, pilot-first rollout, training and support included.
+  callToAction: >-
+    Direct: Book a 15‑minute demo or start a 30‑day pilot. Transitional:
+    Download the eligibility workflow checklist and ROI calculator.
+  success: >-
+    Upfront price transparency, faster check‑in, fewer surprises and denials,
+    higher time‑of‑service collections, happier patients, and staff time
+    reclaimed for care.
+  failure: >-
+    Ongoing phone‑tag and portal hopping, surprise bills, avoidable denials and
+    write‑offs, frustrated patients, staff burnout, and lost referrals.
+landingPage:
+  hero:
+    title: Verify insurance and send cost estimates before patients arrive
+    subtitle: >-
+      AI bot for chiropractic offices that automates eligibility checks and
+      delivers clear, patient-ready estimates—reducing surprises, no‑shows, and
+      front‑desk workload.
+    ctaText: Book a 15‑minute demo
+    ctaHref: /demo
+  problem:
+    - Front desk spends hours on hold verifying benefits
+    - Patients are surprised by costs and delay payment
+    - Missed visit limits and prior auths cause denials
+    - Inconsistent estimates hurt trust and reviews
+    - Manual workflows don’t scale across locations
+    - Uncollected balances increase days in A/R
+  solution:
+    - Instant eligibility checks for every booked visit
+    - Accurate out‑of‑pocket estimates sent via SMS/email
+    - 'Flags visit limits, deductibles, and prior auth needs'
+    - Collect up front with one‑click pay links
+    - Automated workflows that fit your schedule and rules
+    - Clear dashboard with statuses and exceptions
+  features:
+    - >-
+      Real‑time insurance verification (270/271) across major payers, including
+      chiropractic benefits and visit limits
+    - >-
+      Extracts copay, coinsurance, deductible, OOP remaining, frequency limits,
+      and medical necessity notes
+    - >-
+      Procedure‑aware estimates for exams, 98940–98942, therapies, and re‑evals;
+      supports custom fee schedules and cash plans
+    - >-
+      Branded patient estimates via SMS/email with secure links, pre‑visit
+      payment, and two‑way replies
+    - >-
+      Automations triggered on booking or T‑24/T‑48; retries and exception
+      routing for missing data
+    - >-
+      Front‑desk dashboard with eligibility status, estimate accuracy, and
+      action flags
+    - >-
+      Integrates with leading PM/EHR, scheduling, clearinghouses, and payment
+      processors
+    - >-
+      HIPAA‑ready: encryption in transit/at rest, role‑based access; BAA
+      available
+    - >-
+      Analytics: estimate accuracy, collection rate at check‑in, denial
+      reduction, time saved
+    - Multi‑location and multi‑provider support with custom rules per clinic
+  steps:
+    - Connect your PM/EHR and clearinghouse credentials
+    - Map your fee schedule and common CPT combinations
+    - 'Set automation rules (when to verify, when to send, who approves)'
+    - 'Go live: eligibility and estimates run on every appointment'
+    - Track results and fine‑tune rules from the dashboard
+---
+# ChiroVerify AI
+
+Industry: Offices of Chiropractors
+Service: Eligibility Verification and Cost Estimate Bot

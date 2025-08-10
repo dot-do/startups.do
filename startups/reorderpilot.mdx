@@ -1,0 +1,338 @@
+---
+name: ReorderPilot AI
+slug: reorderpilot
+service:
+  title: Demand Forecast & Reorder Agent
+  description: >-
+    Generates SKU/location forecasts, computes reorder points, and drafts POs
+    considering vendor lead times, MOQs, and seasonality.
+  targetUsers:
+    - Purchasing
+    - Inventory Planning
+    - Ops Management
+  triggers:
+    - Weekly planning cycle
+    - Stockout risk threshold breached
+    - Vendor lead-time update
+  inputs:
+    - Historical sales by SKU/location
+    - 'On-hand, on-order, reservations'
+    - Vendor lead times/MOQs
+    - Promotions/seasonality overrides
+    - Backorder/cancel data
+  steps:
+    - Ingest data from ERP/WMS
+    - Clean and aggregate by SKU/location
+    - Run baseline forecast (statistical + ML)
+    - Compute safety stock and reorder points
+    - 'Simulate scenarios (lead-time changes, demand spikes)'
+    - Draft recommended POs with consolidations
+    - Route for buyer review and approval
+    - Push approved POs to ERP and notify vendors
+  tools:
+    - ERP/WMS API
+    - Forecasting libs (Prophet/XGBoost)
+    - LLM for notes/explanations
+    - Spreadsheet/BI export (Google Sheets/Power BI)
+  outputs:
+    - Forecasts by SKU/location (CSV/BI)
+    - Reorder point recommendations
+    - Draft PO files/ERP records
+    - Exception list (low confidence SKUs)
+  pricingModel:
+    - 'Setup (data connectors, baseline model)'
+    - Monthly subscription
+    - Per-SKU or per-location add-on tiers
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 8
+    overall: 9
+  risks:
+    - Sparse/erroneous history
+    - Sudden demand shifts
+    - Vendor unreliability not captured
+  dependencies:
+    - ERP/WMS data access
+    - Calendar of promotions
+    - Vendor master data
+leanCanvas:
+  problem:
+    - >-
+      Intermittent and seasonal demand across long-tail SKUs drives high
+      forecast error (>35% WAPE at SKU level) and reactive buying.
+    - >-
+      Static MIN/MAX and reorder points in ERP are rarely recalibrated, leading
+      to 5–10% stockout rates and 20–30% excess inventory on slow movers.
+    - >-
+      Vendor constraints (variable lead times, MOQs, case packs, price breaks)
+      create either over-buying or expensive expedites (2–5% margin erosion).
+    - >-
+      Multi-warehouse complexity (2–10 DCs) causes imbalanced inventory and
+      avoidable transfers; planners spend 15–30 hours/week in spreadsheets
+      reconciling ERP, EDI, and vendor emails.
+    - >-
+      Limited visibility into true lead-time variability and seasonality; no
+      closed-loop learning from planner overrides so processes don’t improve
+      over time.
+  solution:
+    - >-
+      Prebuilt ERP connectors ingest item masters, sales history,
+      on-hand/on-order, vendor terms, and lead-time data; auto data quality
+      checks flag gaps and anomalies.
+    - >-
+      Hierarchical, intermittent-demand forecasting (Croston/TSB, hierarchical
+      Prophet/ETS, gradient boosting) with seasonality, product lifecycle, and
+      new-item analogs.
+    - >-
+      Dynamic safety stock and reorder point optimization by SKU/location to hit
+      target service levels (e.g., 98% class A, 95% B, 90% C) while minimizing
+      working capital.
+    - >-
+      Constraint-aware PO drafting that consolidates across SKUs to respect
+      MOQs, case packs, price breaks, and vendor calendars; optional budget caps
+      and container fill goals.
+    - >-
+      Lead-time learning from historical receipts and ASN/booking data to model
+      variability and auto-adjust reorder parameters as supplier reliability
+      changes.
+    - >-
+      Approval workflow and simulations: planners review POs with explainable
+      drivers (demand, safety stock, MOQ) and run what-if scenarios (service
+      level, budget, deferral).
+    - >-
+      Closed-loop learning: system learns from planner edits and realized
+      receipts (Forecast Value Add tracking) and improves recommendations
+      weekly.
+    - >-
+      Multi-warehouse balancing: transfer suggestions to right-size inventory
+      before buying; exception management for overstocks and at-risk stockouts.
+    - >-
+      One-click EDI/portal submission or ERP PO creation; audit logs and KPIs by
+      vendor, category, and planner.
+  uniqueValueProp: >-
+    Cut stockouts by up to 30% and reduce inventory 10–20% within 90 days by
+    auto-generating SKU/location forecasts, dynamic reorder points, and draft
+    POs that respect lead times, MOQs, case packs, and seasonality—fully
+    integrated with your ERP and EDI.
+  unfairAdvantage: >-
+    A distribution-specific forecasting and reorder engine tuned for
+    intermittent demand, plus prebuilt ERP/EDI connectors that enable 6-week
+    pilots; a growing, anonymized benchmark of vendor lead times and service
+    levels that improves recommendations; and a closed-loop system that learns
+    from planner edits (human-in-the-loop) to increase PO automation over time.
+  customerSegments:
+    - >-
+      Primary: Mid-market Other Miscellaneous Durable Goods Merchant Wholesalers
+      (NAICS 423990) with 10k–200k SKUs, 2–10 DCs, and 20%+ imports (typical
+      revenue $50M–$1B).
+    - >-
+      Primary buyer roles: VP Supply Chain/Operations, Director of
+      Purchasing/Inventory, CFO (working capital), Head of IT/ERP.
+    - >-
+      Technographic fit: Epicor Prophet 21, NetSuite, Microsoft Dynamics 365
+      Business Central/Finance & Operations, Infor SX.e/CloudSuite Distribution,
+      Sage 100/300; EDI via SPS Commerce/TrueCommerce.
+    - >-
+      Early adopters: Import-heavy distributors with 60–150 day vendor lead
+      times, seasonal catalogs, and MOQs/case-pack constraints; planning teams
+      of 3–20 analysts.
+  channels:
+    - >-
+      Direct sales to named accounts (top 500 US 423990 firms) via account-based
+      marketing: multi-touch LinkedIn + email cadences targeting VP Supply Chain
+      and CFO; target 10–15% meeting rate.
+    - >-
+      ERP VAR and SI partnerships (Epicor, NetSuite, D365, Infor) with referral
+      fees and co-marketing; publish listings on SuiteApp/AppSource/Infor
+      Marketplace.
+    - >-
+      EDI partners (SPS, TrueCommerce) co-selling to mutual distribution
+      customers needing PO automation.
+    - >-
+      Trade associations and events: NAW, ISA, STAFDA, and distribution tech
+      conferences; sponsor webinars on working capital and service-level
+      optimization.
+    - >-
+      Content-led growth: ROI calculator, “upload a sample CSV” forecasting
+      sandbox, and a free Inventory Health Benchmark using 24 months of history
+      via secure connector.
+    - >-
+      Pilot-first GTM: 6-week paid pilot on two categories and one DC; success
+      criteria pre-agreed (e.g., +2 pts fill rate, -10% excess, 50% planner time
+      saved). Convert pilots to annual contracts (target 40–50% close rate).
+  revenueStreams:
+    - >-
+      SaaS subscription (billed annually) tiered by active SKUs and DCs: Starter
+      (up to 10k SKUs): $24k/yr; Growth (10k–50k): $48k/yr; Scale (50k–250k):
+      $96k+/yr; Enterprise custom.
+    - >-
+      Implementation fee: $15k–$60k based on ERP/EDI integrations, data cleanup,
+      and change management.
+    - >-
+      Add-ons: Automated EDI/portal PO submission $0.05–$0.10 per PO line;
+      container/build plan optimization module $12k/yr; SSO/SOC 2 package
+      $6k/yr.
+    - >-
+      Premium support and quarterly planning workshops with supply chain SME:
+      $12k/yr.
+    - >-
+      Optional “savings assurance” pricing for select pilots: lower subscription
+      + 10–15% share of verified year-1 working capital reduction or margin lift
+      (capped).
+  costStructure:
+    - >-
+      R&D: data science, forecasting research, optimization engine, and MLOps
+      (Kubernetes, feature store, model registry).
+    - >-
+      Cloud infrastructure: storage, compute for training/inference, monitoring,
+      and secure backups (target gross margin 75–80% at scale).
+    - >-
+      Integration development and maintenance for ERPs/EDI, plus iPaaS
+      connectors; certification costs for marketplaces.
+    - >-
+      Security/compliance: SOC 2 Type II audit, penetration testing, insurance
+      (cyber/E&O), and data privacy tooling.
+    - >-
+      Sales and marketing: SDRs, AE commissions, partner MDF, events, content
+      production; CAC target $40k–$60k mid-market.
+    - >-
+      Customer success and onboarding: solution architects, data engineers,
+      support; QBRs and training materials.
+    - 'General & admin: finance, legal, HR, office, tooling.'
+  keyMetrics:
+    - >-
+      Forecast accuracy: WAPE ≤20% at family level; track SKU-level MASE/WAPE by
+      ABC class; FVA improvement ≥10% vs naïve/ERP baseline.
+    - >-
+      Service levels and stockouts: achieve 98% for A, 95% for B, 90% for C
+      within 90 days; reduce stockout incidents ≥30% YoY.
+    - >-
+      Inventory efficiency: reduce excess/obsolete by 10–20% in 6–12 months;
+      increase turns from ~4.0 to ≥5.0 within 12 months; working capital
+      released quantified monthly.
+    - >-
+      PO automation: ≥60% of PO lines auto-approved in first 3 months; ≥80% in
+      12 months; <5% post-approval changes.
+    - >-
+      Planning productivity: planner hours per week on ordering cut by ≥50%;
+      exception-to-PO cycle time <24 hours.
+    - >-
+      Supply reliability: vendor lead-time variance reduced ≥15% via better
+      ordering cadence; expedite rate <1% of POs.
+    - >-
+      Commercial: pilot-to-paid conversion ≥40%; net revenue retention ≥115%;
+      gross margin ≥75%; CAC payback ≤12 months; churn ≤8% annually.
+storyBrand:
+  character: >-
+    Ops and purchasing leaders at Other Miscellaneous Durable Goods wholesalers
+    who want high fill rates without tying up cash.
+  problem: >-
+    - Villain: Demand volatility and long, variable vendor lead times.
+
+    - External: MOQs, seasonality, and multi-location complexity break
+    spreadsheets.
+
+    - Internal: Constant firefighting and second-guessing orders.
+
+    - Philosophical: You shouldn’t have to gamble working capital to keep
+    customers supplied.
+  guide: >-
+    - Empathy: We understand the pressure of juggling thousands of SKUs,
+    vendors, and promises to key accounts.
+
+    - Authority: AI that forecasts per SKU/location, sets reorder points, and
+    drafts POs tuned to lead times, MOQs, and seasonality.
+  plan: >-
+    - Process: 1) Connect ERP/OMS data 2) Calibrate forecasts and policies 3)
+    Auto-create suggested POs for buyer review 4) Approve, send, and monitor.
+
+    - Agreement: Clear ROI targets, month-to-month pilot, secure data handling,
+    human-in-the-loop approvals.
+  callToAction: |-
+    - Direct: Launch a 30-day pilot.
+    - Transitional: Get a free demand variability and service-level audit.
+  success: >-
+    Targets higher fill rates (e.g., 95–98%), 15–30% lower on-hand, fewer
+    expedites, smoother seasonal swings, confident buyers, and happier
+    customers.
+  failure: >-
+    Status quo means stockouts, dead stock, rushed freight, eroded margins, and
+    lost accounts.
+landingPage:
+  hero:
+    title: AI Demand Forecast & Reorder Agent for Durable Goods Wholesalers
+    subtitle: >-
+      Forecast by SKU/location, set smart reorder points, and auto‑draft POs
+      that respect lead times, MOQs, case packs, and seasonality.
+    ctaText: Book a demo
+    ctaHref: /request-demo
+  problem:
+    - Demand is lumpy and seasonal—spreadsheets can’t keep up.
+    - 'Manual reorders miss vendor lead times, MOQs, and case packs.'
+    - Branch/DC variability causes stockouts in one place and excess in another.
+    - Buyers spend hours cleaning data and firefighting exceptions.
+    - >-
+      New and long‑tail SKUs have intermittent demand that standard methods
+      misread.
+    - Slow turns and carrying costs tie up cash and warehouse space.
+    - Long overseas lead times and vendor calendars increase risk.
+    - >-
+      Forecasts aren’t tied to service‑level targets, hurting fill rate and
+      OTIF.
+  solution:
+    - >-
+      ML forecasts per SKU/location that capture trends, seasonality, and
+      volatility.
+    - >-
+      Dynamic safety stock and reorder points based on service level and
+      lead‑time variability.
+    - >-
+      Auto‑drafted POs aligned to MOQs, case packs, price breaks, and vendor
+      calendars.
+    - Scenario planning for expedite vs defer and container build guidance.
+    - Exception‑driven workflow with human approval and full audit trail.
+    - >-
+      Continuous learning from actuals, returns, overrides, and supplier
+      performance.
+  features:
+    - >-
+      Connectors for ERP/WMS/EDI (NetSuite, Acumatica, Epicor, Infor, Sage,
+      custom).
+    - >-
+      Multi‑location forecasting (DC, branch, dropship) with demand transference
+      logic.
+    - ABC/XYZ segmentation to apply differentiated policies by item class.
+    - Intermittent‑demand models for slow movers and service parts.
+    - >-
+      Supplier lead‑time tracking with variability, holidays, and blackout
+      dates.
+    - >-
+      Service‑level targets by category, customer, or SKU with cost‑to‑serve
+      trade‑offs.
+    - 'MOQ, case‑pack, and price‑break aware PO optimization.'
+    - >-
+      Seasonality, promotions, and event overrides with configurable lift
+      factors.
+    - Draft POs pushed to ERP with approvals and user‑level controls.
+    - >-
+      What‑if simulations for budget, cash, and capacity impact before
+      committing.
+    - 'Vendor scorecards for fill rate, lead‑time accuracy, and OTIF.'
+    - 'Alerts for stockout risk, aging/excess inventory, and forecast drift.'
+  steps:
+    - 'Connect sales, inventory, vendor, and lead‑time data from your ERP/WMS.'
+    - >-
+      Map SKUs and locations; set service levels, MOQs, case packs, and
+      calendars.
+    - Train baseline forecasts and validate with backtests and bias checks.
+    - Review recommended reorder points and first PO drafts by vendor.
+    - Approve and sync POs to your ERP; monitor exceptions and alerts.
+    - >-
+      Continuously refine with feedback, overrides, and supplier performance
+      data.
+---
+# ReorderPilot AI
+
+Industry: Other Miscellaneous Durable Goods Merchant Wholesalers
+Service: Demand Forecast & Reorder Agent

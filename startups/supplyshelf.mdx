@@ -1,0 +1,328 @@
+---
+name: SupplyShelf AI
+slug: supplyshelf
+service:
+  title: Demand Forecasting and Purchase Suggestions
+  description: >-
+    Generates SKU-week forecasts and turns them into purchase suggestions
+    respecting MOQs, lead times, and target service levels.
+  targetUsers:
+    - Supply Planner
+    - Purchasing Manager
+    - COO
+  triggers:
+    - Weekly/monthly planning cycle
+    - Low-stock thresholds breached
+    - Seasonal events calendar update
+  inputs:
+    - Historical sales and returns
+    - Open orders and backlog
+    - 'Lead times, MOQs, vendor calendars'
+    - Promotions and holidays
+  steps:
+    - Clean and aggregate demand history
+    - Fit time-series models and reconcile at hierarchy
+    - Simulate service level and safety stock
+    - Create PO proposals and cover letters
+    - Publish plan to Sheets/BI and ERP
+  tools:
+    - Python (Prophet/NeuralProphet/sklearn)
+    - Snowflake/BigQuery or CSVs
+    - NetSuite/SAP B1 purchasing APIs
+    - Google Sheets/Looker Studio
+    - LLM for planner notes
+  outputs:
+    - SKU-week forecasts with confidence intervals
+    - PO proposals by vendor
+    - Stock-out/overstock risk report
+  pricingModel:
+    - Monthly subscription (tiered by SKU count)
+    - Optional gainshare on inventory cost reduction
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Sudden demand shifts not captured
+    - Lead-time volatility
+    - 'Bad master data (MOQs, packs)'
+    - Planner override governance
+  dependencies:
+    - ERP data exports/API
+    - Vendor parameters and calendars
+    - Historical sales/returns quality
+    - Approval workflow
+leanCanvas:
+  problem:
+    - >-
+      Wholesalers juggle 5,000–50,000 SKUs with volatile, seasonal demand (e.g.,
+      back-to-school spikes, calendar-year diaries) causing frequent stockouts
+      and overstock.
+    - >-
+      Purchasing teams rely on spreadsheets or generic ERP modules that ignore
+      MOQs, case-pack sizes, vendor minimums, and variable lead times—leading to
+      suboptimal POs.
+    - >-
+      Long and inconsistent supplier lead times (imported items 6–12 weeks;
+      domestic 2–4 weeks) are not forecasted, inflating safety stock or risking
+      backorders.
+    - >-
+      Capital is tied up in slow-moving inventory (10–25% excess), while fill
+      rates lag (typically 90–95% vs 97–98% target), hurting key account SLAs.
+    - >-
+      Promotion and contract pricing events are not systematically factored into
+      forecasts, causing either missed sales or margin-dilutive clearance.
+    - >-
+      New items and cannibalization are guessed at, producing high initial buys
+      and write-offs.
+    - >-
+      Planning is labor-intensive; a single planner can only manage 3,000–5,000
+      SKUs effectively, delaying decisions and increasing errors.
+  solution:
+    - >-
+      Automated data ingestion from ERPs (e.g., Epicor Prophet 21, NetSuite, SAP
+      Business One, Dynamics 365 BC, Sage 100/300) and EDI sales/PO history;
+      daily updates.
+    - >-
+      Hierarchical AI forecasting at SKU-DC-week level with seasonality
+      (back-to-school, tax season), holidays, promotions, and contract effects;
+      bias correction and intermittent-demand methods for slow movers.
+    - >-
+      Lead-time forecasting using supplier/route history and variability, with
+      dynamic safety stock to hit target service levels (e.g., 97–98%).
+    - >-
+      Purchase suggestion engine that respects MOQs, case packs, vendor
+      minimums/MOV, truckload/pallet rounding, and multi-ship window
+      constraints; auto-create POs for ERP approval.
+    - >-
+      ABC/XYZ segmentation and service-level policies by segment/customer
+      importance; budget-aware buying with what-if simulations.
+    - >-
+      New-item forecasting via analogs/attribute matching; cannibalization
+      alerts when similar SKUs overlap.
+    - >-
+      Dashboards for forecast accuracy (WAPE/MAPE), bias, fill rate, DOH, turns,
+      and capital tied up; exception-based workflow that highlights only SKUs
+      needing attention.
+    - >-
+      Human-in-the-loop overrides with reason codes; audit trail for planners
+      and CFO sign-off.
+    - >-
+      Supplier scorecards: OTIF, lead-time drift, fill-rate trends, and
+      cost-to-serve insights.
+    - >-
+      Deployment in 4–8 weeks; SOC 2-ready architecture; APIs/EDI for
+      closed-loop PO creation.
+  uniqueValueProp: >-
+    SKU-week forecasts that auto-convert into optimal, constraint-aware purchase
+    suggestions—meeting target service levels while reducing working capital
+    10–25% and improving fill rate 1–3 points—purpose-built for office supplies’
+    seasonality, pack sizes, and vendor constraints.
+  unfairAdvantage: >-
+    Category-specific models and constraints (BTS seasonality, case-pack logic,
+    vendor MOVs), plus ready-to-deploy ERP/EDI connectors enabling 4–8 week
+    time-to-value and closed-loop PO automation—reducing planner workload and
+    capital simultaneously. Early network benchmarks provide privacy-preserving
+    lead-time and service-level baselines unique to office supplies.
+  customerSegments:
+    - >-
+      Primary: Mid-sized Stationery & Office Supplies Merchant Wholesalers
+      (NAICS 424120), revenue $20M–$300M, 1–5 DCs, 10k–40k active SKUs.
+    - >-
+      Enterprise wholesalers/distributors with national coverage and
+      private-label programs seeking tighter working-capital control.
+    - >-
+      Independent dealer groups and buying co-ops needing centralized
+      forecasting/purchasing guidance for members.
+    - >-
+      B2B e-commerce wholesalers with dropship plus stock models requiring
+      service-level based inventory planning.
+    - >-
+      Job roles: VP/Director of Supply Chain, Purchasing Manager, Inventory
+      Planner, CFO/Controller, IT/ERP Manager.
+  channels:
+    - >-
+      Direct sales to NAICS 424120 targets via outbound email/phone/LinkedIn
+      with value hypotheses using public import/lead-time signals.
+    - >-
+      Industry partnerships: ERP VARs for NetSuite, SAP B1, Dynamics BC;
+      listings on NetSuite SuiteApp, Microsoft AppSource, Sage Marketplace.
+    - >-
+      Trade associations and events: Independent Suppliers Group (ISG) Industry
+      Week, OPI events; sponsored webinars and case studies.
+    - >-
+      Content marketing: BTS forecasting playbooks, ‘PO Optimization for MOQs’
+      guides, benchmark reports on fill rate and turns; SEO for “wholesale
+      inventory optimization” queries.
+    - >-
+      Pilot-led sales motion: 8–10 week paid pilot using historical data; ROI
+      guarantee or credit applied to first-year subscription.
+    - >-
+      Referrals via EDI providers (SPS Commerce, TrueCommerce, Cleo) and 3PLs
+      supporting office-supplies wholesalers.
+  revenueStreams:
+    - >-
+      SaaS subscription, tiered by active SKUs and DCs: Starter (up to 10k
+      SKUs/1 DC) $3,500/month; Growth (10–30k SKUs/2 DCs) $6,000/month;
+      Enterprise (>30k SKUs/3+ DCs) from $10,000/month; additional DC
+      $1,000/month.
+    - >-
+      One-time implementation/integration fee: $15,000–$50,000 depending on ERP
+      and EDI scope.
+    - >-
+      Optional add-ons: Closed-loop PO/EDI automation $500–$1,500/month;
+      advanced promotion modeling $500/month; premium support/SLA $1,000/month.
+    - >-
+      Alternative pricing for large enterprises: 0.02–0.05% of COGS annually,
+      floor and cap applied.
+  costStructure:
+    - >-
+      Cloud hosting/compute for model training and daily updates (~$0.03–$0.07
+      per active SKU/month).
+    - >-
+      Data engineering and integration development/maintenance for ERP/EDI
+      connectors.
+    - >-
+      Salaries: data scientists, supply chain SMEs, full-stack engineers,
+      solution consultants, and customer success managers.
+    - >-
+      Sales and marketing: SDRs/AEs, paid media, content, events/tradeshows;
+      partner commissions 15–25%.
+    - >-
+      Security/compliance: SOC 2 audits, penetration testing,
+      logging/monitoring.
+    - >-
+      General & administrative: legal, insurance, finance; platform tooling and
+      BI licenses.
+  keyMetrics:
+    - >-
+      Forecast accuracy: WAPE by SKU-week; targets: A-items ≤12–15%, B ≤18–22%,
+      C ≤25–35%; bias within ±5%.
+    - >-
+      Service level/fill rate: increase 1–3 percentage points within 3–6 months;
+      stockout rate reduction 20–40%.
+    - >-
+      Working capital: inventory reduction 10–25%; DOH reduction 10–20%;
+      obsolete/write-offs reduced by 15–30%.
+    - >-
+      PO efficiency: ≥50% of POs auto-generated and approved within 60 days; PO
+      cycle time down 30–50%.
+    - >-
+      Planner productivity: SKUs per planner +30–60%; exceptions per week per
+      planner ≤200.
+    - >-
+      Supplier performance: OTIF +5–10 points on focused suppliers; lead-time
+      variability down 10–20%.
+    - >-
+      Adoption/engagement: weekly active planners ≥90%; override rate ≤15% after
+      90 days; time-to-first-PO <30 days post go-live.
+    - >-
+      Business metrics: Pilot ROI ≥4x within 12 months; GRR ≥90%, NRR ≥110%; CAC
+      payback <12 months.
+storyBrand:
+  character: >-
+    Ops leaders, demand planners, and purchasing managers at stationery &
+    office‑supplies wholesalers who want accurate SKU‑week forecasts and
+    actionable purchase suggestions to hit service levels with less working
+    capital and less manual work.
+  problem: >-
+    - External: Volatile SKU demand, long/variable supplier lead times, strict
+    MOQs, seasonality (back‑to‑school), promotions, and spreadsheet‑driven
+    planning.
+
+    - Internal: Constant firefighting, low trust in numbers, and time wasted
+    building/adjusting POs.
+
+    - Philosophical: Buying inventory shouldn’t be a gamble—every order should
+    be defensible and data‑driven.
+  guide: >-
+    - Empathy: We’ve lived wholesale planning—missed BTS spikes and aging
+    toner/ink are painful.
+
+    - Authority: Built by supply‑chain + ML experts; battle‑tested across
+    thousands of SKUs; respects MOQs, lead times, and service levels; integrates
+    with common ERPs; secure and auditable.
+  plan: >-
+    - Connect: Sync sales, inventory, supplier, and catalog data; map SKUs and
+    constraints.
+
+    - Calibrate: Backtest forecasts, set target service levels, tune MOQs/lead
+    times.
+
+    - Go live: Weekly SKU‑week forecasts auto‑convert to purchase suggestions;
+    buyers review/override and export to ERP.
+
+    - Agreement: Clear SLAs, data ownership, 30‑day pilot/opt‑out, KPI review at
+    90 days.
+  callToAction: >-
+    - Direct: Book a 30‑minute fit call or start a 30‑day pilot.
+
+    - Transitional: Download a sample forecast pack, run the ROI calculator,
+    read the implementation checklist.
+  success: >-
+    - Hit target service levels with fewer stockouts and less excess.
+
+    - 20–40% better forecast accuracy, 10–25% lower inventory, and +3–8 pts
+    service level (typical).
+
+    - Planning time cut from hours to minutes; buyers focus on exceptions, not
+    spreadsheets.
+
+    - Confident orders aligned to seasons, promotions, and supplier calendars.
+
+    - Happier customers and healthier cash flow.
+  failure: |-
+    - Ongoing stockouts on fast‑movers and piles of dead stock on slow‑movers.
+    - Costly expedites, write‑downs, and missed back‑to‑school revenue.
+    - Burned‑out buyers, lost key accounts, and cash trapped in inventory.
+landingPage:
+  hero:
+    title: AI Demand Forecasting & Buying for Office Supplies Wholesalers
+    subtitle: >-
+      Turn SKU‑week forecasts into optimal purchase suggestions that hit service
+      levels while respecting MOQs, lead times, and case packs.
+    ctaText: Book a Demo
+    ctaHref: /demo
+  problem:
+    - 'Seasonal swings (back‑to‑school, year‑end) across thousands of SKUs'
+    - Stockouts lose shelf space; overstocks tie up cash and racking
+    - 'Spreadsheets can’t juggle MOQs, case packs, and variable lead times'
+    - Supplier delays and order windows complicate timing
+    - Promotions and one‑offs distort demand history
+    - Hard to know what to buy today to hit target service levels
+  solution:
+    - 'Clean, corrected demand history (OOS and promo aware)'
+    - Weekly forecasts per SKU and location with seasonality and trend
+    - Service‑level based safety stocks and reorder points
+    - 'Purchase suggestions that respect MOQs, case packs, and lead times'
+    - Ranked buy list with suggested order dates and quantities
+    - Scenario planning for promos and back‑to‑school surges
+    - One‑click export to ERP/PO or supplier‑ready CSV
+    - Continuous learning from actuals and lead time updates
+  features:
+    - SKU‑week forecasting with holiday and seasonal patterns
+    - New item modeling using similar SKUs and attributes
+    - Multi‑warehouse and channel forecasting
+    - Lead time variability and supplier calendars
+    - Service‑level targets by ABC class or customer SLA
+    - 'MOQ, case‑pack, and rounding rules per vendor'
+    - 'Buy list ranked by stockout risk, margin, and urgency'
+    - Budget guardrails and freight threshold awareness
+    - Explainable forecasts with driver insights
+    - 'Exception workflow: shortages, excess, and obsolete alerts'
+    - 'API, SFTP, and spreadsheet import/export; ERP/WMS connectors'
+    - Audit trail and role‑based approvals
+  steps:
+    - 'Connect sales, inventory, and supplier data'
+    - 'Set MOQs, case packs, lead times, and service‑level targets'
+    - Review auto‑generated SKU‑week forecasts
+    - Approve the buy list and create POs with suggested dates/quantities
+    - >-
+      Export to ERP or share supplier‑ready CSV, then track fill rate and
+      forecast accuracy
+---
+# SupplyShelf AI
+
+Industry: Stationery and Office Supplies Merchant Wholesalers
+Service: Demand Forecasting and Purchase Suggestions

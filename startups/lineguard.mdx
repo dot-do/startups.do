@@ -1,0 +1,307 @@
+---
+name: LineGuard LeakScore
+slug: lineguard
+service:
+  title: Leak Likelihood and Location Scoring (Mass-Balance + Transient Cues)
+  description: >-
+    Runs continuous mass-balance checks with transient features to flag
+    potential leaks, estimate location and rate, and route to response workflow.
+    Advisory-only.
+  targetUsers:
+    - Control room
+    - Leak detection engineers
+    - System operations
+  triggers:
+    - Pressure/flow imbalance threshold breach
+    - Compressor trip/valve operation
+    - 'Periodic sweep (e.g., every 5–10 minutes)'
+  inputs:
+    - Station and line pressures/flows/temperatures
+    - Valve/compressor states and timestamps
+    - Pipeline geometry/elevation per segment
+    - Meter accuracy and calibration factors
+    - Existing LDS flags (if any)
+  steps:
+    - Ingest synchronized telemetry and topology
+    - Run rolling linepack and mass-balance by segment
+    - Detect transients vs persistent mismatches
+    - Estimate candidate leak segment via travel-time/gradient methods
+    - 'Output leak likelihood, estimated location and rate with confidence'
+    - Escalate to controller and create incident ticket
+  tools:
+    - OSIsoft PI Web API
+    - Azure Time Series Insights or InfluxDB
+    - 'Python (statsmodels, NumPy), Pyomo for constraints'
+    - GIS (ArcGIS/QGIS) for segment mapping
+  outputs:
+    - Leak likelihood score and confidence
+    - Estimated milepost/station-distance band
+    - Estimated leak rate range
+    - Audit trail and event package for response
+  pricingModel:
+    - One-time model calibration per pipeline
+    - Per mile per month monitoring fee
+    - Optional 24/7 alerting surcharge
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 7
+    modelCapability: 7
+    overall: 7
+  risks:
+    - 'Data quality issues (meter bias, time skew)'
+    - False alarms during major operations
+    - Requires careful tuning per pipeline
+    - Must not trigger automated control actions
+  dependencies:
+    - Accurate pipeline topology and meter specs
+    - Historian access and time sync
+    - Existing LDS outputs (if available) for fusion
+    - Controller SOPs for escalation
+leanCanvas:
+  problem:
+    - >-
+      Leak detection on gas transmission lines must balance sensitivity and
+      false alarms; existing CPM (computational pipeline monitoring) systems
+      often struggle during transients (startups/shutdowns/compressor changes),
+      causing alarm fatigue and slow responses.
+    - >-
+      Regulatory and ESG pressure (PHMSA 49 CFR Part 192, API RP 1130/1175,
+      methane fee under IRA/MERP) require demonstrable performance,
+      documentation, and continuous improvement—operators lack measurable,
+      audit-ready evidence of detection performance.
+    - >-
+      Manual triage and inconsistent workflows slow time-to-detect and
+      time-to-localize; incident routing is fragmented across SCADA, PI
+      historians, emails, and work management tools.
+    - >-
+      Sensor drift, bad actors (frozen transmitters, mis-calibrations), and data
+      latency degrade mass-balance accuracy; operators need automated data
+      quality checks and uncertainty-aware scoring.
+    - >-
+      Retrofitting hardware-based solutions (e.g., fiber optic DAS) is expensive
+      and slow; operators want software-first incremental gains without
+      control-system risk (advisory-only).
+  solution:
+    - >-
+      Real-time stream processing of flows, pressures, temperatures,
+      compressor/valve states, and gas properties to compute dynamic linepack
+      and segment mass-balance deficits.
+    - >-
+      Transient-aware leak scoring using change-point detection,
+      physics-informed priors, and Bayesian filters to separate operational
+      transients from leak signatures.
+    - >-
+      Probabilistic leak localization using multi-end pressure/flow correlations
+      and wave-speed cues; outputs confidence bands on location and estimated
+      leak rate (as % of flow and MSCFD).
+    - >-
+      Automated data quality and uncertainty quantification (sensor drift
+      checks, latency checks, plausibility bounds) to suppress spurious alarms.
+    - >-
+      Workflow integrations that route advisories to control room consoles and
+      work management (e.g., PI Vision, Ignition, SCADA alarm lists read-only
+      mirror, ServiceNow/Maximo), with playbooks aligned to API 1175.
+    - >-
+      Backtesting and reporting suite that quantifies true/false alarm rates,
+      time-to-detect/localize, and minimum detectable leak (MDL) by operating
+      mode for audits and continuous improvement.
+  uniqueValueProp: >-
+    Advisory-only AI that fuses mass-balance with transient-aware features to
+    deliver faster leak likelihood and location scoring with lower false
+    alarms—deployable via read-only SCADA/historian integration, audit-ready for
+    API 1175, and measurable against detection KPIs.
+  unfairAdvantage: >-
+    A physics-plus-ML transient signature library tuned on multi-operator
+    datasets with audit-ready backtesting, delivered through an advisory-only,
+    read-only architecture accepted by control rooms and aligned to API
+    1175—reducing false alarms without requiring control system changes.
+  customerSegments:
+    - >-
+      North American natural gas transmission operators (≥1,000 pipeline miles)
+      with control rooms and established CPM/LDP programs.
+    - >-
+      Large gas gatherers and storage operators managing high-flow,
+      long-distance segments with transient operations.
+    - >-
+      Midstream operators integrating new assets post-M&A who need standardized
+      leak detection across heterogeneous SCADA systems.
+    - >-
+      Pipeline Integrity, Control Room, and Operations Technology leaders (VP
+      Ops, LDP Program Managers, SCADA/OT Managers) responsible for PHMSA
+      compliance and methane reduction targets.
+    - >-
+      Pipeline insurers and underwriters (secondary influencers) seeking
+      improved risk metrics and incident response maturity.
+  channels:
+    - >-
+      Direct enterprise sales targeting Control Room, Integrity, and OT leaders
+      at top 100 NA midstream operators.
+    - >-
+      Proof-of-value pilots (60–90 days) on 300–1,500 pipeline miles with
+      historical backtesting plus live shadow mode.
+    - >-
+      Partnerships with SCADA/historian vendors (AVEVA PI, Honeywell, Emerson,
+      ABB) and system integrators (Wood, Worley, Burns & McDonnell) for
+      co-selling and delivery.
+    - >-
+      Industry events and working groups: API Pipeline Safety, AGA Operations,
+      PRCI—case studies and benchmark papers.
+    - >-
+      Content-led marketing: detection benchmarking reports, ROI calculator for
+      methane fee avoidance, API 1175 compliance templates.
+    - >-
+      Insurance/underwriter collaborations to recognize improved detection
+      performance in risk models (influencer channel).
+  revenueStreams:
+    - >-
+      SaaS subscription priced per active pipeline mile monitored:
+      $20–$50/mile/month (tiered by features and SLA), annual commitment;
+      minimum $150k ARR per operator.
+    - >-
+      One-time onboarding/integration fee: $75k–$300k depending on data
+      complexity and miles onboarded.
+    - >-
+      Premium services: 24/7 analyst co-monitoring add-on ($5–$10/mile/month)
+      and quarterly program reviews ($25k–$75k/year).
+    - >-
+      Compliance/reporting module and data retention beyond 13 months:
+      $0.50–$1.50/mile/month.
+    - >-
+      Professional services: historical backtesting, model tuning, and incident
+      replays ($200–$300/hr or fixed-scope packages).
+  costStructure:
+    - >-
+      Cloud stream processing and storage (hot + warm) (~15–25% of ARR at scale
+      with optimization).
+    - >-
+      Data integration and customer onboarding labor (solutions engineers,
+      pipeline hydraulics SMEs).
+    - >-
+      R&D for physics-informed models, MLOps, and QA automation; licenses for
+      simulation toolkits (e.g., transient hydraulic simulators).
+    - >-
+      Security/compliance: SOC 2 Type II audits, penetration tests, ICS
+      assessments, cyber insurance.
+    - 'Customer success and support (SLAs, on-call rotations, incident response).'
+    - >-
+      Sales and marketing (enterprise sales, conferences, content production)
+      and partner enablement.
+    - >-
+      General and administrative (legal for PHMSA/contracting, quality
+      management systems).
+  keyMetrics:
+    - >-
+      Detection performance: median time-to-detect (TTD) ≤ 10 minutes for ≥1% of
+      flow leaks; median time-to-localize to ≤ 5-mile window; minimum detectable
+      leak (MDL) by operating mode.
+    - >-
+      Accuracy: probability of detection (POD) ≥ 90% at 1% of flow with false
+      alarm rate (FAR) ≤ 2 per 24 hours per 1,000 miles; leak rate estimation
+      MAPE ≤ 30% for steady-state leaks ≥1% of flow.
+    - >-
+      Operational: advisory-to-acknowledgment time ≤ 5 minutes; alarm review
+      closure within 30 minutes for 95% of cases; data latency p95 ≤ 10 seconds.
+    - >-
+      Quality: sensor data quality score (completeness, plausibility) ≥ 98%;
+      model drift alerts resolved < 7 days; uptime ≥ 99.9%.
+    - >-
+      Business: pilot-to-subscription conversion ≥ 60%; net revenue retention ≥
+      115%; LTV:CAC ≥ 4:1; gross margin ≥ 70% at scale.
+    - >-
+      Compliance: API 1175 KPI coverage 100%; quarterly evidence pack delivery
+      on time 100%.
+storyBrand:
+  character: >-
+    Pipeline control-room and integrity teams who need continuous, trustworthy
+    leak likelihood and location signals—without replacing existing systems.
+  problem: >-
+    External: Transient operations and noisy SCADA obscure real leaks;
+    mass-balance alone over/under-alerts, risking safety, emissions, and
+    compliance. Internal: Teams feel blind during starts/stops, face alert
+    fatigue, and lack dispatch confidence. Philosophical: Operators deserve
+    clear, defensible insights from the data they already collect.
+  guide: >-
+    Empathy: We know the pressure to detect early while avoiding costly false
+    dispatches in dynamic gas networks. Authority: We apply proven mass-balance
+    analytics enhanced with transient pattern cues, uncertainty bounds, and
+    auditable scoring—integrated read-only with your historian and aligned with
+    API 1130/1175 best practices.
+  plan: >-
+    Process: 1) Data readiness and risk mapping (tags, meters, topology,
+    elevations). 2) Calibrate and validate in shadow mode on
+    historical/simulated events; set sensitivities and routing. 3) Go-live
+    advisory monitoring: deliver likelihood score, location window, and
+    estimated rate; route to incident workflows; iterate via monthly reviews.
+    Assurance: Read-only, advisory-only, no control logic changes; secure,
+    auditable, and configurable; operator retains decision authority.
+  callToAction: >-
+    Direct: Schedule a 30-minute demo and scope a 60-day pilot on a
+    representative segment. Transitional: Request the methodology brief and
+    sample alert package.
+  success: >-
+    Earlier, more confident detection; fewer false alarms; faster triage and
+    targeted field response; reduced gas loss and methane emissions; auditable
+    reports for stakeholders; improved MTTA/MTTR; stronger regulator/insurer
+    confidence and community trust.
+  failure: >-
+    Undetected or late leaks, unnecessary dispatches, higher gas loss and
+    emissions, regulatory findings and fines, reputational damage, and avoidable
+    downtime.
+landingPage:
+  hero:
+    title: Leak Likelihood & Location Scoring for Gas Pipelines
+    subtitle: >-
+      Continuous mass-balance with transient analytics to detect, localize, and
+      size suspected leaks—advisory-only and routed to your response workflows.
+    ctaText: Request a demo
+    ctaHref: '#demo'
+  problem:
+    - Small leaks hide in noise; transients mimic leak signatures.
+    - Manual checks are slow and inconsistent across shifts.
+    - High false alarms erode trust and waste truck rolls.
+    - Lack of location and rate estimates delays effective dispatch.
+    - Alerts don’t flow into the right SOC/field workflows.
+    - Regulators expect measurable detection performance and auditability.
+  solution:
+    - Always-on mass-balance with transient-aware models to cut through noise.
+    - Real-time leak likelihood scoring with confidence levels.
+    - Estimated leak location along the line and leak rate range.
+    - Smart alerting and auto-routing into your existing workflows.
+    - 'Advisory-only: no control actions—zero operational risk.'
+    - Fast deployment over your current SCADA/historian and GIS.
+  features:
+    - Transient-aware linepack and hydraulic state estimation.
+    - Dynamic uncertainty bounds to reduce false positives during starts/stops.
+    - 'Fusion of flow, pressure, temperature, and compressor states.'
+    - Probabilistic localization snapped to GIS centerline/mileposts.
+    - Leak rate estimation with confidence intervals and trend.
+    - Event deduplication and suppression across stations and assets.
+    - Explainable alerts with contributing signals and rationale.
+    - >-
+      Replay, backtesting, and full audit trails for investigations and
+      compliance.
+    - 'Integrations: AVEVA PI/OSIsoft, OPC UA, MQTT, Ignition, REST APIs, GIS.'
+    - 'Routing to SOC tools: email/SMS, PagerDuty, ServiceNow, Slack/Teams.'
+    - Edge or cloud deployment with buffering and failover resilience.
+    - 'Role-based access, encryption, and data residency controls.'
+  steps:
+    - >-
+      Connect data: SCADA/historian tags, GIS centerline, pipeline config
+      (diameter, elevation, stations, valves).
+    - Calibrate using 30–90 days of history; learn normal transient patterns.
+    - >-
+      Validate on historical events and simulated leaks; tune thresholds to
+      targets.
+    - >-
+      Configure routing: alert tiers, recipients, ticketing/on-call
+      integrations.
+    - Go live in shadow mode; compare against existing alarms and refine.
+    - >-
+      Promote to advisory production; track KPIs (time-to-detect, false-positive
+      rate).
+    - Scale to additional lines; periodic model reviews and updates.
+---
+# LineGuard LeakScore
+
+Industry: Pipeline Transportation of Natural Gas
+Service: Leak Likelihood and Location Scoring (Mass-Balance + Transient Cues)

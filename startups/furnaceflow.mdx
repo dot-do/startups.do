@@ -1,0 +1,325 @@
+---
+name: FurnaceFlow AI — Furnace Schedule and Energy Cost Optimizer
+slug: furnaceflow
+service:
+  title: Furnace Schedule and Energy Cost Optimizer
+  description: >-
+    Creates melt/hold schedules to reduce peak demand and energy cost while
+    meeting order deadlines and minimizing idle/door-open time.
+  targetUsers:
+    - Operations Manager
+    - Energy Manager
+    - Dispatcher
+  triggers:
+    - Day-ahead energy tariff update
+    - Daily/shift production plan
+    - Demand peak alerts
+  inputs:
+    - Planned heats per alloy with due times
+    - 'Furnace capacities, warm-up/hold losses, tap-to-tap time'
+    - Energy tariffs (TOU/CPP/demand charges)
+    - Labor/shift constraints
+    - Historical cycle-time distributions
+  steps:
+    - Forecast cycle times and availability per furnace
+    - Build MILP to schedule heats/holds minimizing energy cost and tardiness
+    - Simulate peak kW and propose preheat/hold strategies
+    - Publish shift schedule and alerts
+    - Track adherence; retrain on realized durations
+  tools:
+    - Python (OR-Tools)
+    - Time-series modeling (prophet/ARIMA)
+    - CSV/Excel import
+    - Slack/Teams notifications
+  outputs:
+    - Shift schedule per furnace with start/stop times
+    - Expected cost and peak kW profile
+    - 'What-if scenarios (rush order, outage)'
+  pricingModel:
+    - Monthly subscription per site
+    - Optional demand-reduction bonus sharing
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Real-time disturbances not captured
+    - SCADA latency or lack of integration
+    - Change-management with supervisors
+  dependencies:
+    - Access to plan and historical furnace timings
+    - Tariff data
+    - Optional read-only SCADA/OPC-UA
+leanCanvas:
+  problem:
+    - >-
+      High and volatile energy costs (electricity demand charges of $60–$150/kW
+      and TOU spreads of 2–6¢/kWh; natural gas 6–12 $/MMBtu) erode margin in
+      secondary smelting and alloying of aluminum.
+    - >-
+      Uncoordinated melt/hold schedules create coincident peaks (melt starts,
+      charger pumps, holders, compressors) driving avoidable demand charges of
+      10–30% of monthly electricity bills.
+    - >-
+      Manual scheduling struggles to meet order due dates under real constraints
+      (alloy recipes, furnace capacities, charge make-up, tap-to-tap times,
+      dross management), leading to late orders or excess WIP/finished goods.
+    - >-
+      Excess door-open and idle-hold time increase fuel/electricity use (3–10%),
+      metal oxidation and dross (0.3–1.0% of charge), and operator fatigue.
+    - >-
+      Limited visibility of tariffs, DR events, and real-time loads prevents
+      plants from monetizing demand response and off-peak opportunities.
+    - >-
+      Generic APS/EMS tools lack aluminum-specific physics (melt curves by
+      charge composition, heat balance, skimming cycles), causing adoption
+      failures or poor ROI.
+  solution:
+    - >-
+      Digital twin of melt shop: models each furnace’s melt rate vs charge mix,
+      hold losses, door-open effects, skimming cycles, and alloy changeover
+      times.
+    - >-
+      AI-driven scheduler (MILP + heuristic search) that sequences melts, taps,
+      and holds to cap site kW, shift load off-peak, and ensure OTIF delivery.
+    - >-
+      Real-time re-optimization when orders, equipment status, or market prices
+      change; keeps demand below a configurable cap while protecting due dates.
+    - >-
+      Tariff engine: ingests TOU tariffs, ratchets, demand charges, and DR event
+      signals; simulates bill impact before schedule release.
+    - >-
+      Operator-first HMI: clear 8–24h schedule, start/stop prompts, door-open
+      timers, and alerts for predicted cap violations or late orders.
+    - >-
+      What-if simulation: test “cap at 1.2 MW,” “add weekend shift,” “change
+      charge mix,” or “move alloys” and compare cost/throughput/dross.
+    - >-
+      Integrations: MES/ERP (orders, BOM/recipes), SCADA/PLC (tags for
+      temperatures, burners, pumps, power), energy meters, historian, and LIMS.
+    - >-
+      Analytics: kWh/ton, $/ton energy, peak kW, door-open minutes/heat,
+      hold-over time, dross %, schedule adherence, and CO2e/ton.
+  uniqueValueProp: >-
+    Reduce energy cost 8–20% and peak demand 10–30% while meeting all order
+    deadlines and lowering dross/idle time—via an aluminum-specific AI scheduler
+    that co-optimizes melt/hold sequences, energy tariffs, and shop-floor
+    constraints with measurable, guaranteed savings.
+  unfairAdvantage: >-
+    Proprietary aluminum-specific digital twin and scheduling IP trained on real
+    melt/hold data across furnaces and charge mixes, combined with OEM/SI
+    partnerships and a proven pilot-to-savings playbook that delivers measurable
+    results in ≤12 weeks with guaranteed savings.
+  customerSegments:
+    - >-
+      Primary: NAICS 331314 Secondary Smelting and Alloying of Aluminum plants
+      with 2–12 melting/holding furnaces (North America, EU).
+    - >-
+      Integrated casthouses at extrusion/rolling mills using scrap-based remelt;
+      billet/slab casters with holding furnaces.
+    - >-
+      High-volume die casting facilities with in-house aluminum melt/hold
+      (side-well reverb + electric holders/ladles).
+    - >-
+      Buyer personas: Plant Manager, Melt Shop Superintendent,
+      Scheduler/Planner, Energy Manager, VP Operations/CFO.
+  channels:
+    - >-
+      Direct sales to Plant Managers/Energy Managers at secondary smelters and
+      casthouses (inside sales + field applications engineers).
+    - >-
+      System integrator partnerships (Ignition, AVEVA, Rockwell partners) for
+      on-site deployment and MES/PLC integrations; 10–20% referral/reseller
+      margin.
+    - >-
+      OEM partnerships with furnace makers and casthouse equipment vendors (LOI
+      Tenova, Hertwich, Wagstaff, STAS, GHI) to bundle with new
+      installs/retrofits.
+    - >-
+      Utility/aggregator programs (Enel X, CPower): co-market DR-enabled
+      savings; leverage incentives and M&V support.
+    - >-
+      Industry events and associations: TMS, ALUMINIUM Düsseldorf, NADCA, AFS
+      Metalcasting Congress; technical talks and case studies.
+    - >-
+      Content-led growth: calculators ($/ton, kW cap), whitepapers on tariff
+      optimization and dross reduction, and before/after case studies.
+    - >-
+      Pilot-to-rollout motion: 8–12 week paid pilots with savings guarantee;
+      land-and-expand across furnaces/sites.
+  revenueStreams:
+    - >-
+      Subscription per furnace: $1,500–$4,000 per furnace per month depending on
+      feature tier and volume; includes updates/support.
+    - >-
+      Platform fee per site: $2,000–$5,000 per month for tariff engine,
+      analytics, and integrations.
+    - >-
+      Implementation/integration: $40,000–$150,000 per site (one-time), varies
+      with number of PLCs, meters, and ERP/MES scope.
+    - >-
+      Optional performance fee: 10–20% of verified first-year energy bill
+      savings beyond baseline (shared-savings model).
+    - >-
+      Professional services: modeling, change management, operator training, DR
+      enrollment; $180–$250/hour or fixed-fee packages.
+  costStructure:
+    - >-
+      R&D and engineering: optimization/ML, edge software, connectors; 8–12 FTEs
+      initially.
+    - >-
+      Implementation and customer success: field engineers and data engineers;
+      travel and on-site commissioning costs.
+    - >-
+      Cloud and data infra: secure data lake, model training/serving,
+      monitoring; $2k–$8k/month per active site.
+    - >-
+      Sales and marketing: technical marketing, conferences, partner commissions
+      (10–20%), demos/pilots.
+    - >-
+      Edge hardware kits (as needed): industrial PC, power meter gateways;
+      $6k–$20k per line (pass-through + margin).
+    - >-
+      Security, compliance, and insurance: SOC 2/ISO 27001, cyber liability,
+      professional indemnity.
+    - >-
+      Support and maintenance: 24/7 on-call for critical sites, SLAs (99.5%
+      scheduler availability).
+  keyMetrics:
+    - Energy cost per ton (target reduction 8–20% within 6 months).
+    - Peak demand reduction (target 10–30%; kW cap adherence ≥98%).
+    - On-time-in-full (OTIF) for melts/orders (target ≥98%).
+    - Door-open minutes per heat (target reduction 15–40%).
+    - Hold-over time above spec (target reduction 20–50%).
+    - >-
+      Dross/metal loss percentage (target reduction 0.2–0.8 percentage points
+      depending on baseline).
+    - Schedule adherence (operators following prompts) ≥90%.
+    - >-
+      Model accuracy: melt/hold time prediction MAPE ≤5%; load forecast MAPE
+      ≤7%.
+    - DR revenue or avoided cost captured (annual $/site).
+    - >-
+      Deployment KPI: time-to-value ≤12 weeks; pilot-to-production conversion
+      ≥70%.
+    - 'Commercial: ARR, logo retention ≥95%, NRR ≥120%, CAC payback ≤12 months.'
+storyBrand:
+  character: >-
+    Melt-shop supervisors and production schedulers at secondary aluminum
+    smelters who must hit ship dates while controlling energy spend.
+  problem: >-
+    External: Unplanned melt/hold overlaps spike peak kW, waste energy during
+    idle/door-open time, and jam furnace capacity. Internal: Constant
+    firefighting and guesswork create stress and late nights. Philosophical:
+    Energy should serve production—not punish it—for meeting customer
+    commitments.
+  guide: >-
+    Empathy: We’ve run furnaces under TOU tariffs and demand ratchets; we know
+    the pressure of juggling alloys, holds, and due dates. Authority: Built with
+    metallurgical, scheduling, and energy-pricing expertise; proven in pilots to
+    reduce peaks and door-open losses while maintaining throughput.
+  plan: >-
+    Process plan: 1) Connect furnace telemetry, order book, tariffs, and
+    constraints. 2) Configure melt rates, batch sizes, alloys, maintenance, and
+    hold limits. 3) AI optimizes melt/hold sequence to minimize peaks, idle, and
+    door-open time while meeting deadlines. 4) Operators receive heat-by-heat
+    schedules, alerts, and adherence tracking; model learns continuously.
+    Agreement plan: Start a 4-week pilot, keep current workflows, define clear
+    ROI targets, cancel anytime; your data stays yours (SOC 2 / on-prem
+    options).
+  callToAction: >-
+    Direct: Book a demo or start a pilot. Transitional: Download the ROI
+    calculator and sample optimized schedules.
+  success: >-
+    Lower peak demand charges and kWh cost; fewer idles and door-open losses;
+    reduced dross/oxidation; on-time delivery with higher throughput; less
+    operator stress and rework; auditable energy and production KPIs.
+  failure: >-
+    Without this: Peak penalties persist, idle and door-open losses grow, more
+    dross/scrap, late orders and overtime, higher CO2 per ton, and margins
+    erode.
+landingPage:
+  hero:
+    title: AI Furnace Schedule & Energy Cost Optimizer
+    subtitle: >-
+      For secondary aluminum smelting and alloying: flatten peaks, meet
+      deadlines, cut kWh/kW—while minimizing idle and door-open time.
+    ctaText: Request a demo
+    ctaHref: '#demo'
+  problem:
+    - Demand charges spike when multiple furnaces ramp at once.
+    - Manual schedules can’t keep up with rush orders and scrap variability.
+    - Idle/hold and door-open time waste energy and increase melt loss.
+    - Operators lack visibility into the true cost of each scheduling decision.
+    - >-
+      Casting windows and furnace availability aren’t coordinated, causing
+      reheat and delays.
+    - 'Complex tariffs (TOU, real-time pricing) make cost planning guesswork.'
+    - Chemistry and charge-mix constraints are hard to optimize across furnaces.
+    - Last-minute changes break the plan and drive overtime and peak hits.
+  solution:
+    - >-
+      Generate melt/hold schedules that minimize peak demand and energy cost
+      while meeting ship dates.
+    - >-
+      Coordinate multi-furnace sequencing to avoid coincident peaks and
+      door-open overlap.
+    - >-
+      Optimize charge mix and heat order to hit alloy chemistry with fewer
+      adjustments.
+    - >-
+      Sync furnace plan with casting and ladle logistics to reduce holds and
+      reheats.
+    - >-
+      Continuously re-optimize with live orders, equipment status, and energy
+      prices.
+    - >-
+      Give operators clear runbooks: when to charge, tap, hold, and preheat—by
+      minute.
+    - Simulate scenarios in seconds and see cost/CO2 impact instantly.
+    - >-
+      Integrate with ERP/MES/LIMS/historians to automate data flow and
+      auditability.
+  features:
+    - 'Peak-aware scheduling across reverb, rotary, and induction furnaces.'
+    - 'Tariff engine for TOU, demand charges, block rates, and real-time prices.'
+    - 'Live rescheduling on order changes, outages, or price spikes.'
+    - >-
+      Door-open time minimization with coordinated charging and skimming
+      windows.
+    - Charge-mix optimizer respecting chemistry targets and scrap availability.
+    - Casting-aligned heat sequencing to cut holds and reheats.
+    - 'Drag-and-drop adjustments with instant cost, kW, and deadline impact.'
+    - Operator worklists and digital instructions (tablet-ready).
+    - >-
+      Constraint modeling: furnace capacity, tap-to-tap, preheat curves, shift
+      rules, maintenance.
+    - >-
+      KPI dashboard: kWh/ton, peak kW, door-open %, on-time heats, cost/ton,
+      CO2/ton.
+    - Alerts before predicted peak events with recommended actions.
+    - 'Interfaces for ERP/MES/LIMS and historians (e.g., PI, Ignition) via API.'
+    - 'Role-based access, audit trail, and change history for compliance.'
+    - Fast deployment on cloud or on-prem; supports multiple sites.
+  steps:
+    - >-
+      Connect your data: orders, furnaces, tariffs, scrap/chemistry, and
+      historian signals.
+    - >-
+      Define constraints and goals: deadlines, max kW, door-open limits, and
+      quality rules.
+    - Auto-generate the optimal furnace and casting schedule with one click.
+    - >-
+      Review and adjust with visual load curves and cost impact—then publish to
+      floor.
+    - Run with live guidance; the system re-optimizes as conditions change.
+    - >-
+      Track results in real time: peak kW, energy cost/ton, on-time performance,
+      and CO2.
+    - Continuously improve with scenario tests and post-run analytics.
+---
+# FurnaceFlow AI — Furnace Schedule and Energy Cost Optimizer
+
+Industry: Secondary Smelting and Alloying of Aluminum
+Service: Furnace Schedule and Energy Cost Optimizer

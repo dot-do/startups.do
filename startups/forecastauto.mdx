@@ -1,0 +1,309 @@
+---
+name: ForecastAuto — Inventory Forecasting & Auto-PO Agent for Auto Parts Retailers
+slug: forecastauto
+service:
+  title: Inventory Forecasting & Auto-PO Agent
+  description: >-
+    Forecast SKU-level demand by vehicle/seasonality and generate PO suggestions
+    with approval workflow.
+  targetUsers:
+    - Inventory planners
+    - Operations managers
+    - Buyers
+  triggers:
+    - Nightly batch
+    - Low-stock threshold hit
+    - Supplier lead-time update
+  inputs:
+    - Order and returns history
+    - Supplier lead times/MOQs
+    - Promotions/calendar/weather seasonality
+    - Current stock and backorders
+  steps:
+    - Clean and reconcile sales/returns
+    - Forecast by SKU and cluster by vehicle/season
+    - Compute safety stock and reorder points
+    - 'Simulate PO scenarios (lead-time risk, budget)'
+    - Generate PO suggestions and email summary
+    - Push approved POs to ERP
+  tools:
+    - ERP/WMS (NetSuite/Cin7/Acctivate)
+    - Forecasting library (Prophet/ARIMA)
+    - BI dashboard (Looker/Power BI)
+    - LLM for executive summaries
+  outputs:
+    - PO suggestions with rationale
+    - ABC classification and days-of-cover
+    - Stockout/overstock risk alerts
+  pricingModel:
+    - Monthly subscription tier by SKU count
+    - Per-PO generated fee
+    - One-time data onboarding
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 7
+    overall: 8
+  risks:
+    - Forecast error from sparse/seasonal demand
+    - Supplier constraints not modeled
+    - Data quality gaps
+  dependencies:
+    - ERP/WMS/API access
+    - Historical sales/returns data
+    - Supplier master data
+leanCanvas:
+  problem:
+    - >-
+      High stockouts on fast-moving, vehicle-specific SKUs (batteries, filters,
+      wipers, sensors) due to limited fitment-aware forecasting; typical
+      stockout rate 10–15% on long-tail items by season and vehicle parc.
+    - >-
+      Excess capital tied up in slow-moving and obsolete inventory (10–25% of
+      inventory value) from generic forecasting and vendor-driven promotions.
+    - >-
+      Fragmented data (POS/ERP, e-commerce, distributor catalogs, ACES/PIES
+      fitment) prevents accurate SKU-vehicle-season demand planning at the store
+      level.
+    - >-
+      Manual PO creation consumes 10–20 hours/week per planner; approvals lack
+      guardrails, leading to over/under-ordering and inconsistent vendor
+      compliance.
+    - >-
+      Lead time variability by vendor/DC and region not modeled; safety stock
+      set via rules of thumb, hurting service levels and working capital.
+    - >-
+      Multi-location chains underuse inter-store transfers and cluster
+      forecasting; missed opportunities to rebalance and reduce expedites.
+  solution:
+    - >-
+      Ingest POS/ERP history and fitment data (ACES/PIES/SEMA Data); generate
+      weekly SKU-location forecasts segmented by vehicle YMM, climate zone,
+      promotion, and calendar season.
+    - >-
+      Dynamic safety stock and reorder points tuned to desired service levels
+      (e.g., 96–98%) using vendor- and item-specific lead time distributions and
+      MOQ/pack-size constraints.
+    - >-
+      Auto-PO suggestions by vendor with budget checks, open-to-buy, and
+      fill-the-truck logic; configurable approval thresholds and audit trails.
+    - >-
+      Multi-location logic: suggest inter-store transfers vs. buys; cluster
+      forecasting for nearby stores with similar vehicle parc and weather
+      patterns.
+    - >-
+      EDI and portal-ready ordering: push POs to suppliers (850/855/856) and
+      ingest ASNs; track confirmations vs. expected arrivals to auto-adjust
+      forecasting.
+    - >-
+      Exception-based workflow: highlight new item introductions,
+      cannibalization, supersessions, and items at risk of stockout/overstock
+      within 14 days.
+    - >-
+      Promo/season planner: simulate lifts for weather events and promotions;
+      what-if scenarios for vendor lead time changes or price breaks.
+    - >-
+      E-commerce harmonization: merge online demand with store allocations;
+      prevent double-counting with configurable attribution rules.
+    - >-
+      Continuous model learning: weekly recalibration using realized error, new
+      fitment, and local vehicle parc changes.
+  uniqueValueProp: >-
+    Fitment-aware, climate- and seasonality-adjusted SKU forecasting with
+    one-click Auto-POs and an auditable approval workflow that raises fill rates
+    2–4 points, cuts excess inventory 15–25%, and frees planners 8–12
+    hours/week—without changing your ERP.
+  unfairAdvantage: >-
+    Fitment-first forecasting IP and climate-aware models trained on anonymized
+    multi-retailer data, plus pre-built connectors to leading aftermarket ERPs
+    and EDI networks. Early distributor partnerships provide trustworthy
+    lead-time signals and catalog accuracy, enabling faster time-to-value and
+    higher automation rates than generic inventory tools. Audit-ready Auto-PO
+    workflows tailored to buying groups and vendor programs create switching
+    costs and embed us in planners’ daily operations.
+  customerSegments:
+    - >-
+      Independent automotive parts & accessories retailers (1–20 locations)
+      using Epicor Eagle/Vision, MAM Autopart, Celerant, or Lightspeed Retail.
+    - >-
+      Regional multi-store chains (20–300 locations) with DCs or heavy
+      distributor reliance (NAPA, WORLDPAC, Federated, Auto-Wares, Pronto,
+      Turn14).
+    - >-
+      Omnichannel/e-commerce-first auto parts retailers
+      (Shopify/BigCommerce/Magento) seeking store-level and online demand
+      harmonization.
+    - >-
+      Performance/off-road specialty retailers using SEMA Data fitment with high
+      SKU proliferation and seasonal demand.
+    - >-
+      Buying group members (NEXUS, Federated, Pronto, Auto Value) seeking
+      group-level programs and negotiated supplier terms leverage.
+  channels:
+    - >-
+      Direct sales to regional chains (20–300 stores) via ROI-led pilots; target
+      COOs/VP Merchandising/Supply Chain with a 90-day proof (3–5 stores).
+    - >-
+      ERP/DMS VAR partnerships (Epicor, MAM, Celerant) with rev-share; co-sell
+      to installed bases; marketplace listings in app stores.
+    - >-
+      Distributor/buying group alliances (Federated, Pronto, Auto-Wares, NEXUS,
+      Turn14, Keystone) offering co-marketing and data onboarding incentives.
+    - >-
+      Industry events and demos: AAPEX/SEMA, Auto Care Connect; host
+      fitment-aware forecasting workshops and publish benchmark reports.
+    - >-
+      Inbound content: vehicle-parc by ZIP and climate effects on demand;
+      calculators for working capital savings; case studies with before/after
+      KPIs.
+    - >-
+      Webinars with SEMA Data and Auto Care Association on ACES/PIES best
+      practices for inventory optimization.
+    - >-
+      Outbound SDR program targeting multi-location independents via LinkedIn
+      and trade directories; offer free diagnostic (MAPE, fill rate baseline)
+      using 12–24 months of data.
+    - >-
+      Land-and-expand: start with top 20 vendors or top 5 categories at one
+      region; expand to full catalog and network after 2–3 cycles.
+    - >-
+      Integrations-led growth: simple connectors and 2–4 week onboarding;
+      published SLAs and SOC 2 Type II to satisfy procurement.
+  revenueStreams:
+    - >-
+      SaaS subscription per location per month, tiered by SKU volume and
+      features: Basic $249, Pro $499, Enterprise $799+ per location.
+    - >-
+      Add-on modules: EDI Automation ($99/location), Multi-location Transfer
+      Optimization ($99/location), e-commerce harmonization ($49/location).
+    - >-
+      One-time onboarding/integration fee: $2,000–$15,000 depending on ERP, data
+      quality, and EDI enablement.
+    - >-
+      Professional services: catalog hygiene, ACES/PIES mapping, demand
+      classification, and training ($150–$225/hour or fixed-scope packages).
+    - >-
+      Annual enterprise support/SLA and SSO fee (10–15% of ARR for Enterprise
+      tier).
+    - >-
+      Potential revenue share for distributor-led programs or co-op funded
+      deployments (5–10% discount funded by partner).
+  costStructure:
+    - >-
+      Cloud compute and storage (forecasting pipelines, data lake, API): 12–18%
+      of revenue; autoscaling for weekly jobs.
+    - >-
+      Third-party data/licensing: ACES/PIES/SEMA Data, NOAA climate feeds, EDI
+      networks (SPS/TrueCommerce) per-document fees: 5–8%.
+    - 'Engineering and data science team (connectors, models, UI): 25–35%.'
+    - 'Sales and marketing (events, SDR, content, partner MDF): 20–30%.'
+    - >-
+      Customer success and onboarding (integration specialists, support):
+      10–15%.
+    - 'Security/compliance (SOC 2 audits, pen tests, SIEM): 3–5%.'
+    - 'General & administrative (legal, finance, insurance): 5–8%.'
+  keyMetrics:
+    - >-
+      Forecast accuracy: MAPE by SKU-location-week (target: A items ≤18–22%, B
+      ≤22–28%, C ≤30–40%); bias within ±5%.
+    - >-
+      Service metrics: on-shelf availability/fill rate (target 96–98% for A
+      items), stockout rate (reduce by 30–50%).
+    - >-
+      Inventory efficiency: turns improvement (baseline 3.5 → 5.0+), GMROI up
+      10–15%, excess/obsolete inventory down 15–25%.
+    - >-
+      Working capital: inventory reduction ($ and %) within 2–3 replenishment
+      cycles; cash conversion cycle improvement (days).
+    - >-
+      Automation: % PO lines auto-approved (target 60–80%), planner time saved
+      (8–12 hours/week per planner), approval cycle time (<24 hours).
+    - >-
+      Supplier performance: realized vs. expected lead time variance,
+      confirmation rate within SLA, on-time/in-full (OTIF) %.
+    - >-
+      Adoption: stores live within 30 days, weekly active planners, exception
+      resolution within 48 hours.
+    - >-
+      Business metrics: logo churn <8%/yr (SMB) and <4%/yr (mid-market), NRR
+      >110%, CAC payback <9 months, gross margin >75%.
+    - >-
+      Data quality: forecast coverage ≥90% of active SKUs with sufficient
+      history; ACES/PIES mapping completeness >95% for top vendors.
+storyBrand:
+  character: >-
+    Auto parts and accessories retailers/eCommerce buyers who want the right
+    SKU-by-vehicle in stock with minimal capital, no surprises, and fewer manual
+    tasks.
+  problem: >-
+    Demand swings by vehicle, season, and region plus inconsistent supplier lead
+    times and siloed data force buyers to juggle spreadsheets and gut feel.
+    They’re tired of stockouts, overstock, and rushed POs. Replenishment should
+    be simple, data-driven, and proactive.
+  guide: >-
+    We understand auto parts replenishment and build AI for supply chains. Our
+    platform learns from your POS/ERP, fitment catalogs, lead times, and seasons
+    to deliver transparent SKU-level forecasts and Auto-PO suggestions you
+    control.
+  plan: >-
+    1) Connect POS/ERP, supplier, and fitment data; 2) Review and tune
+    forecasts, safety stock, and rules; 3) Approve or auto-approve PO
+    suggestions; monitor exceptions and vendor performance.
+  callToAction: >-
+    Direct: Start a 30-day pilot with your data. Transitional: Get a free
+    forecast accuracy and stock health report.
+  success: >-
+    Fast movers stay in stock across YMM and seasons; slow-mover excess drops;
+    higher fill rates, turns, and margins; fewer expedites; buyers focus on
+    vendor strategy and promotions instead of spreadsheets.
+  failure: >-
+    Without it you keep firefighting—missed sales, aging inventory, cash tied
+    up, emergency freight, and customers defecting to competitors.
+landingPage:
+  hero:
+    title: Inventory Forecasting & Auto‑PO Agent for Auto Parts Retailers
+    subtitle: >-
+      Predict SKU demand by vehicle and season, then auto‑create optimized
+      purchase orders with approvals.
+    ctaText: Start Free Pilot
+    ctaHref: /get-started
+  problem:
+    - Stockouts on fast movers and cash tied up in dead stock
+    - Manual spreadsheets can’t keep up with thousands of SKUs and fitments
+    - 'Seasonality, promotions, and vehicle parc shifts make demand volatile'
+    - 'Long lead times, MOQs, and case packs complicate ordering'
+    - 'Multi-store/DC operations need smart transfers, not just more POs'
+    - Low fill rates hurt service levels and customer loyalty
+  solution:
+    - >-
+      AI forecasting at SKU x location with vehicle fitment and seasonality
+      signals
+    - >-
+      Auto-generated PO suggestions factoring lead times, MOQs, case packs, and
+      vendor calendars
+    - Role-based approval workflow with thresholds and exception handling
+    - Multi-location optimization with transfer recommendations before buying
+    - 'What-if scenarios for promotions, price changes, and new lines'
+    - Proactive alerts for stockout risk and order-by dates
+  features:
+    - Vehicle fitment-aware demand modeling (make/model/year/engine)
+    - 'Seasonality, weather, promo, and trend signals in forecasts'
+    - 'Service-level targets with optimized safety stock (e.g., 95–99%)'
+    - 'Supplier constraints: lead time variability, MOQ, case pack, price breaks'
+    - Auto-PO creation to ERP/EDI; drafts and partial lines supported
+    - Multi-store/DC allocation plus inter-store transfer suggestions
+    - 'Supersession, alternates, and core returns handling'
+    - ABC/XYZ classification and dead-stock liquidation flags
+    - 'Dashboards for fill rate, turns, days of supply, forecast accuracy'
+    - Role-based approvals with audit trail and exception queues
+  steps:
+    - 'Connect data: POS/ERP, catalog/fitment, supplier feeds'
+    - 'Set policies: service levels, horizons, min/max, vendor rules'
+    - 'Review suggestions: prioritized queue with ROI and service impact'
+    - 'Approve and send: one-click EDI/email export to vendors'
+    - 'Monitor and improve: alerts, KPIs, and continuous learning'
+---
+# ForecastAuto — Inventory Forecasting & Auto-PO Agent for Auto Parts Retailers
+
+Industry: Automotive Parts and Accessories Retailers
+Service: Inventory Forecasting & Auto-PO Agent

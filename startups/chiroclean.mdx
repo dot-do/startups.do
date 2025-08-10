@@ -1,0 +1,303 @@
+---
+name: ChiroClean 837
+slug: chiroclean
+service:
+  title: Claim Scrubbing and 837P File Builder
+  description: >-
+    Preps encounters into clean claims, applies payer edits, and generates 837P
+    files for clearinghouse submission.
+  targetUsers:
+    - Billers
+    - Practice managers
+  triggers:
+    - Provider signs encounter
+    - End-of-day batch
+  inputs:
+    - Finalized SOAP notes and codes
+    - 'Provider NPI/Tax ID, clinic info'
+    - Payer rules and fee schedules
+  steps:
+    - Extract codes and modifiers from encounter
+    - 'Run payer-specific edits (bundling, frequency, units, MUE/NCCI)'
+    - Validate demographics and insurance data
+    - Generate 837P EDI file; upload to clearinghouse or provide download
+    - Monitor rejections; create fix tasks and revised claims
+  tools:
+    - Rules engine (custom/Databricks)
+    - LLM for rationale/narratives
+    - 'Clearinghouse (Office Ally, Availity, Change Healthcare)'
+    - Google Sheets status board
+    - SFTP/API for submissions
+  outputs:
+    - 837P EDI file per batch
+    - Edits/rejection report with fix suggestions
+    - Claim tracking dashboard
+  pricingModel:
+    - Per-claim $0.25–$0.75
+    - Or monthly tier $99–$399 based on volume
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 7
+    overall: 8
+  risks:
+    - Clearinghouse integration variability
+    - Payer rule drift—requires maintenance
+    - PHI handling and BAAs
+    - Upcoding/undercoding risk—human review recommended
+  dependencies:
+    - Clearinghouse account
+    - Access to EHR billing data
+    - Payer policy library
+    - BAAs in place
+leanCanvas:
+  problem:
+    - >-
+      Chiropractic offices experience 10–20% first-pass payer denials due to
+      missing/incorrect AT modifiers, non-covered services billed to Medicare,
+      or absent subluxation diagnoses (M99.0x).
+    - >-
+      Generic scrubbing tools flag X12 format errors but miss
+      chiropractic-specific policy edits (e.g., MAC LCDs, BCBS policies on 9894x
+      units, maintenance care exclusions).
+    - >-
+      Office staff spend 3–7 minutes per encounter manually coding CPT/ICD-10,
+      adding modifiers, and assembling claim lines; errors scale with volume.
+    - >-
+      EHR data are inconsistently structured; SOAP notes contain key clinical
+      detail that doesn’t map cleanly to 837P loops/segments without manual
+      copying.
+    - >-
+      Small clinics lack dedicated billing expertise and rely on clearinghouse
+      rejections as feedback, causing 7–14 day reimbursement delays and
+      increased Days in A/R.
+    - >-
+      Timely filing and payer-specific requirements (taxonomy 111N00000X, place
+      of service, rendering vs billing NPI, supervising requirements by payer)
+      are inconsistently applied, leading to preventable denials.
+  solution:
+    - >-
+      Ingest encounter data and SOAP notes via EHR integration, CSV upload, or
+      API; normalize patient, provider, insurance, and encounter metadata.
+    - >-
+      AI coding assistant maps documented findings to appropriate CPT (e.g.,
+      98940–98942), ICD-10-CM (e.g., M99.0x for subluxation), and payer-required
+      modifiers (AT for Medicare), with confidence scores.
+    - >-
+      Chiropractic-specific rules engine applies national and payer/MAC
+      policies: coverage, units/time rules, diagnosis-to-procedure validation,
+      maintenance vs active treatment checks, taxonomy/pos validation, and SNIP
+      1–7 X12 validations.
+    - >-
+      Auto-builds compliant 837P 005010X222A1 files with correct loops/segments
+      (billing/rendering provider NPIs, subscriber/guardian logic, claim-level
+      and line-level details).
+    - >-
+      Pre-flight clearinghouse checks and payer-specific edit simulation; flags
+      and explains fixes before submission.
+    - >-
+      One-click export to clearinghouse (SFTP/API) or download; optional
+      999/277CA monitoring via integrations.
+    - >-
+      Continuous learning: updates rules from denial reason codes (CARC/RARC)
+      and user corrections to improve clinic-specific accuracy.
+  uniqueValueProp: >-
+    AI-native, chiropractic-specific claim scrubbing and 837P file generation
+    that converts SOAP encounters into clean claims, applies payer/LCD edits
+    before submission, and achieves >98.5% clearinghouse acceptance with
+    measurable denial reduction—without changing your EHR or clearinghouse.
+  unfairAdvantage: >-
+    Chiropractic-specialized rules and models continuously improved by
+    cross-clinic denial feedback loops and payer policy ingestion, plus native
+    integrations with top chiropractic EHRs—delivering payer-specific, LCD-aware
+    scrubbing beyond generic clearinghouse edits.
+  customerSegments:
+    - >-
+      Independent chiropractic clinics (1–3 providers) submitting 150–600
+      claims/month.
+    - >-
+      Multi-provider chiropractic groups (4–20 providers) with internal billers
+      seeking to scale without adding headcount.
+    - Chiropractic-focused billing companies managing 10–200 clinics.
+    - MSOs/DSOs or regional networks standardizing RCM for member clinics.
+    - >-
+      New clinics transitioning from cash to mixed payer models and needing
+      clean-claim infrastructure.
+  channels:
+    - >-
+      Partnerships with chiropractic EHR vendors and marketplaces (e.g.,
+      ChiroTouch partners program, Jane App add-ons).
+    - 'Clearinghouse referral partnerships (Office Ally, Availity, Waystar).'
+    - >-
+      State and national chiropractic associations (ACA, state boards):
+      sponsored webinars, CE-credit sessions on clean-claims best practices.
+    - Billing consultants/RCM firms as affiliates with revenue share.
+    - >-
+      Targeted digital ads and content for “chiropractic clean claims,” “837P
+      chiropractic,” and “AT modifier Medicare chiropractic.”
+    - >-
+      Conference presence: FCA The National, Parker Seminars, state chiropractic
+      conventions with live ROI demos.
+    - >-
+      Outbound to clinics 1–10 providers via curated lists; offer 30-day
+      risk-free pilot with side-by-side benchmark against current workflow.
+  revenueStreams:
+    - >-
+      Usage-based: $0.35–$0.80 per claim scrubbed + 837P generated (volume
+      tiering: <$0.50 for >5,000 claims/month).
+    - >-
+      Subscription: $99/provider/month for advanced rules, dashboards, and
+      integrations; $0 plan for basic validation (upsell path).
+    - >-
+      Implementation/onboarding package: $299–$1,999 depending on
+      EHR/clearinghouse integrations.
+    - Billing firms/MSOs enterprise contracts with committed monthly minimums.
+    - >-
+      Optional add-ons: automated 999/277CA monitoring and alerts ($0.05/claim),
+      payer policy update packs for niche carriers.
+  costStructure:
+    - 'R&D and engineering (rules engine, NLP models): major fixed cost.'
+    - >-
+      Cloud hosting and storage for PHI with redundancy and backups ($0.02–$0.06
+      per claim at scale).
+    - >-
+      Compliance: HIPAA program, SOC 2 Type II audit ($80k–$150k/yr),
+      penetration testing ($15k–$30k/yr), legal and BAAs.
+    - >-
+      Licensing: CPT content license if distributing code descriptors; X12 TR3
+      guides; possible payer policy content subscriptions ($10k–$50k/yr).
+    - 'Integrations: vendor fees, marketplace revenue share (10–30%).'
+    - >-
+      Support and customer success: onboarding, training, and ongoing rule
+      tuning.
+    - >-
+      Sales and marketing: conference booths ($10k–$30k/event), digital ads,
+      partner commissions (10–20%).
+  keyMetrics:
+    - >-
+      Clearinghouse first-pass acceptance rate (target ≥98.5%; baseline for new
+      clients typically 95–97%).
+    - >-
+      Payer first-pass adjudication acceptance/paid rate within 30 days (target
+      ≥92%).
+    - >-
+      Overall denial rate (target <3% within 90 days of go-live; baseline
+      5–10%).
+    - >-
+      Average time to create and validate a claim (target ≤60 seconds; baseline
+      3–7 minutes).
+    - Days in A/R reduction (target -5 to -10 days over 6 months).
+    - >-
+      Automated code selection accuracy vs coder review (target ≥99% CPT/ICD
+      pair accuracy for 9894x + M99.0x; ≥97% for commercial therapy codes where
+      applicable).
+    - >-
+      Rules coverage breadth (unique payer/LCD rules encoded; target 300+ within
+      12 months) and update latency (≤7 days from policy change).
+    - '837P compliance (SNIP 1–7 pass rate: target 100% pre-submit).'
+    - >-
+      Net revenue lift (target +1–3% collections due to fewer denials and faster
+      resubmits).
+    - >-
+      Customer retention/churn (monthly churn <2%), NPS ≥40, Support
+      first-response time <2 business hours.
+storyBrand:
+  character: >-
+    Chiropractic office/billing manager who needs claims paid on the first pass,
+    fewer denials, and time back from manual scrubbing.
+  problem: >-
+    External: Denials from missing/invalid modifiers, DX-to-CPT mismatch,
+    payer-specific quirks, 837P formatting errors, NPI/taxonomy/COB issues, and
+    ever-changing edits.
+
+    Internal: Staff burnout, cash-flow anxiety, and uncertainty about claim
+    cleanliness.
+
+    Philosophical: Chiropractors should focus on patient care—not deciphering
+    payer rules and file specs.
+  guide: >-
+    Empathy: We know small practices feel every denial and delay.
+
+    Authority: HIPAA-compliant with BAA, audit logs, and least‑privilege access.
+    Built with revenue‑cycle expertise for chiropractic. Applies national and
+    payer‑specific edits (e.g., NCCI/MUE, Medicare policies) before you submit.
+    Integrates with common chiropractic EHR/PMs and clearinghouses. Practices
+    report higher first‑pass acceptance and faster reimbursements.
+  plan: >-
+    Process Plan:
+
+    1) Connect your EHR/PM and select payers.
+
+    2) Our AI scrubs encounters, flags issues, and suggests fixes; you approve
+    in a clean review queue.
+
+    3) Generate clearinghouse‑ready 837P files, submit, and track acceptance
+    with automated feedback loops.
+
+    Agreement Plan:
+
+    - BAA + HIPAA safeguards, encryption, and audit trails.
+
+    - Transparent pricing; cancel anytime; no data lock‑in (export anytime).
+
+    - Guided onboarding and live support.
+  callToAction: >-
+    Direct: Start a 14‑day pilot or book a demo.
+
+    Transitional: Download the Chiropractic Payer Edit Checklist and get a
+    sample 837P + edit report.
+  success: >-
+    What success looks like: 95–99% first‑pass acceptance (target/typical),
+    fewer days in A/R, less rework, predictable cash flow, hours back to staff
+    each week, clean audit trails, and happier patients and providers.
+  failure: >-
+    If nothing changes: persistent denials and resubmissions, revenue leakage,
+    delayed payments, compliance risk, staff burnout, and growth stalled by
+    administrative drag.
+landingPage:
+  hero:
+    title: AI Claim Scrubbing & 837P Builder for Chiropractic Offices
+    subtitle: >-
+      Turn encounters into clean claims. Apply payer edits. Export compliant
+      837P files ready for your clearinghouse.
+    ctaText: Start Free Pilot
+    ctaHref: /start
+  problem:
+    - Denied claims from missing or incorrect modifiers and diagnosis pointers
+    - Payer-specific rules are hard to track and constantly changing
+    - Manual claim entry consumes staff time and causes errors
+    - Clearinghouse rejections delay cash flow and create rework
+    - Inconsistent mapping from SOAP notes to CPT/ICD-10
+    - Formatting 837P files correctly for each trading partner is tedious
+  solution:
+    - 'AI converts encounters into complete, clean claims automatically'
+    - Built-in payer edits catch issues before submission
+    - Chiropractic-specific rules and CMT code checks reduce denials
+    - One-click export of compliant 837P files for any clearinghouse
+    - 'Smart suggestions for codes, modifiers, and diagnosis linking'
+    - 'Review queue with clear, fix-it-now guidance for your team'
+  features:
+    - 'Encounter-to-claim mapping for CPT, ICD-10, units, and diagnosis pointers'
+    - >-
+      Chiropractic-aware rules (e.g., CMT 98940–98942, active-treatment
+      indicator when required)
+    - 'National and payer-specific edits (NCCI, MUE, policy-driven checks)'
+    - 'Provider, facility, and payer validation (NPI, TIN, taxonomy, POS)'
+    - Real-time line-level and claim-level error flags with suggested fixes
+    - Configurable 837P generation with trading-partner-ready ISA/GS/ST segments
+    - Batch exports and scheduling for high-volume days
+    - Role-based reviews and approvals with audit trails
+    - Works with leading chiropractic EHRs and your preferred clearinghouse
+    - HIPAA-grade security and encryption end-to-end
+  steps:
+    - Connect your EHR and set clearinghouse/trading partner settings
+    - Import encounters automatically or via secure upload
+    - 'AI scrubs claims, applies payer edits, and suggests codes/modifiers'
+    - 'Review flagged items, accept suggestions, or make quick edits'
+    - Generate and download or auto-forward compliant 837P files
+    - Monitor claim quality metrics and continuously reduce rework
+---
+# ChiroClean 837
+
+Industry: Offices of Chiropractors
+Service: Claim Scrubbing and 837P File Builder

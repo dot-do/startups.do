@@ -1,0 +1,334 @@
+---
+name: Charge Mix Optimizer for Secondary Aluminum Alloys
+slug: charge
+service:
+  title: Charge Mix Optimizer for Secondary Aluminum Alloys
+  description: >-
+    Optimizes scrap/ingot/master alloy blends to meet alloy chemistry at lowest
+    cost while honoring furnace, contamination, and availability constraints.
+  targetUsers:
+    - Melt Shop Manager
+    - Production Planner
+    - Procurement
+  triggers:
+    - New production order or alloy change
+    - Daily cost/availability update
+    - Low-cost scrap lot becomes available
+  inputs:
+    - 'Alloy target spec ranges (Si, Mg, Fe, Cu, Zn, Mn, etc.)'
+    - Scrap lots with chemistry distributions and moisture/paint/organics flags
+    - 'Costs for each input (scrap, pure, master alloys)'
+    - 'Furnace capacity/charge size, melt loss factors'
+    - Existing inventory and reservations
+  steps:
+    - 'Ingest latest specs, inventory, and price sheets (CSV/API)'
+    - >-
+      Model chemistry and yield of each candidate input (include melt loss and
+      contamination penalties)
+    - Solve LP/MILP for minimum-cost feasible blend with safety margins
+    - 'Generate charge recipe variants (min cost, robust, low-risk)'
+    - Push recipe and BOM to planner; log realized results for learning
+  tools:
+    - 'Python (pandas, pulp/OR-Tools)'
+    - CSV/Excel import
+    - Simple web UI or Slack bot
+    - 'Optional: REST hooks to ERP/MES'
+  outputs:
+    - Per-heat charge recipe (kg by input) with expected chemistry and cost
+    - Feasibility flags and constraint explanations
+    - Sensitivity to price/availability
+    - CSV/Excel export and PDF summary
+  pricingModel:
+    - One-time setup + monthly subscription per site
+    - Optional per-optimization fee
+    - Savings-share option with cap
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 9
+    overall: 9
+  risks:
+    - Scrap chemistry variance vs certificates
+    - 'Hidden contaminants (chlorides, oils) not modeled'
+    - Operator adoption and recipe discipline
+  dependencies:
+    - Access to alloy specs and latest inventory
+    - Historical melt loss factors by input
+    - Basic ERP/MES data export
+leanCanvas:
+  problem:
+    - >-
+      Material costs (scrap + master alloys) account for 70–90% of COGS;
+      planners routinely over-alloy by 0.02–0.10 wt% to avoid spec misses,
+      inflating cost by $10–$30 per metric ton.
+    - >-
+      Scrap chemistries and yields vary lot-to-lot; limited or lagging analyses
+      lead to unexpected Cu/Fe/Mg/Zn/Pb excursions and expensive
+      rework/downgrades (1–3% of heats).
+    - >-
+      Furnace and process constraints (heel chemistry, charge bucket limits,
+      rotary/reverb campaign rules, flux/salt limits, burner capacity) are not
+      modeled in spreadsheets, creating infeasible or unsafe charge recipes.
+    - >-
+      Inventory constraints and supplier availability are not embedded in
+      planning, causing last-minute master alloy purchases and excess working
+      capital tied in high-grade scrap.
+    - >-
+      Manual planning takes 30–90 minutes per heat/dayplan, is highly
+      tribal-knowledge dependent, and does not scale to multi-furnace sites.
+    - >-
+      Compliance and customer audits (automotive/aerospace specs) require
+      traceability of chemistry decisions; current tools lack lot-level
+      rationale and auditable trails.
+    - >-
+      CO2/ESG and recycled-content targets push toward higher scrap utilization,
+      but without robust optimization risk of contamination and yield loss
+      rises.
+  solution:
+    - >-
+      Optimization engine (mixed-integer linear programming + robust,
+      variance-aware constraints) generates least-cost charge blends meeting
+      target chemistry ranges and furnace limits in seconds.
+    - >-
+      Lot-level variability modeling: Bayesian updates of scrap grade
+      chemistry/yield distributions using incoming OES/assay data to guard
+      against uncertainty and reduce safety over-additions.
+    - >-
+      Closed-loop control: consumes heel and ladle OES results and automatically
+      recommends trim additions (master alloy/RSI) with predicted offset to hit
+      the midpoint of spec.
+    - >-
+      Inventory- and availability-aware planning: optimizes across current
+      stock, open POs, and supplier lead times; proposes purchase quantities by
+      grade to meet the next 1–4 weeks’ production plan at minimum expected
+      cost.
+    - >-
+      Furnace-feasible recipes: respects bucket size, charge sequence, flux/salt
+      limits (rotary), burner/throughput constraints, contamination memory
+      (Pb/Bi/Sn) and heel dilution limits.
+    - >-
+      Scenario and Monte Carlo: stress-test plans for price swings (LME,
+      premiums), scrap shortfalls, and chemistry variance to quantify risk and
+      choose robust plans.
+    - >-
+      Sustainability mode: optional co-optimization for CO2e per ton and
+      recycled content, with auditable reports for customers/regulators.
+  uniqueValueProp: >-
+    Cut $10–$30 per ton from melt cost while increasing first-pass chemistry
+    compliance to >98.5% by generating furnace-feasible, inventory-aware charge
+    mixes that honor alloy specs and real-world scrap variability. Closed-loop
+    learning from your OES results continuously reduces over-alloying and
+    rework.
+  unfairAdvantage: >-
+    A closed-loop, variance-aware optimizer purpose-built for aluminum that
+    learns from each plant’s OES and furnace behavior, reducing over-alloying
+    without increasing risk. Prebuilt furnace and contamination constraints
+    (heel memory, Pb/Bi/Sn carryover, Mg oxidation, rotary flux limits) and an
+    alloy-spec library enable rapid, auditable deployments that generic LP tools
+    and spreadsheets cannot match. Speed (<10s solves) supports real-time trim
+    control at the ladle, not just offline planning.
+  customerSegments:
+    - >-
+      Independent secondary smelters producing foundry alloys (e.g., 3xx/5xx/7xx
+      series) and RSI for die casting and automotive.
+    - >-
+      Rolling/extrusion mills with in-house remelt/secondary alloying lines
+      (e.g., 6xxx/5xxx recycled-content products).
+    - >-
+      Integrated recyclers supplying secondary alloy ingot
+      (ADC12/AlSi/Cu-bearing alloys) to automotive and industrial customers.
+    - >-
+      Tier-1 automotive casting suppliers operating remelt lines for
+      gating/returns.
+    - >-
+      Regional scrap processors with in-house melt capacity seeking margin
+      uplift via smarter blending.
+  channels:
+    - >-
+      Direct sales to plant managers, melt supervisors, and operations VPs at
+      secondary smelters and mills.
+    - >-
+      Alliances with MES/ERP integrators (Siemens Opcenter, Rockwell
+      FactoryTalk, Aveva/Wonderware, SAP partners) to bundle into digital
+      foundry programs.
+    - >-
+      Partnerships with OES vendors (Thermo Fisher, Bruker, Hitachi) to co-sell
+      during instrument upgrades.
+    - >-
+      Industry organizations and events: Aluminum Association, IAI, ISRI, NADCA,
+      Aluminium USA/Europe/China expos; technical webinars and case studies.
+    - >-
+      Pilot-first GTM: 8–12 week paid pilots at one furnace line to prove $/t
+      savings, then expand site-wide and multi-site.
+    - >-
+      Content and ABM: calculators for $/t savings, whitepapers on robust charge
+      optimization, and ROI benchmarks targeted by role.
+  revenueStreams:
+    - >-
+      SaaS subscription: base $60k–$120k per site per year (tiered by number of
+      furnace lines) plus usage fee $0.30–$0.80 per ton optimized.
+    - >-
+      Professional services: implementation/integration $25k–$75k per site;
+      optional data cleanup and historical model calibration packages.
+    - >-
+      Premium add-ons: Procurement optimizer ($20k/yr), Sustainability/CO2
+      optimizer and reporting ($15k/yr), Advanced scenario/Monte Carlo
+      ($10k/yr).
+    - Enterprise support/SLA and on-prem license uplift (20–40%).
+    - >-
+      Value-based pricing option: shared savings model (e.g., 10–20% of verified
+      material savings) after baseline period.
+  costStructure:
+    - >-
+      R&D: optimization/OR engineers, metallurgists, data scientists for
+      chemistry variance and yield models.
+    - >-
+      Implementation/integration: connectors to ERP/MES/OES/PLCs; solution
+      engineers and project managers.
+    - >-
+      Cloud/on-prem infrastructure: compute for solvers, databases, security
+      tooling; optional edge gateways for plant connectivity.
+    - >-
+      Sales and marketing: technical pre-sales, pilots, conferences, and partner
+      enablement.
+    - >-
+      Customer success and support: training, model maintenance, periodic
+      re-calibration, and on-site visits.
+    - >-
+      Insurance, certifications, and compliance (ISO 27001, SOC2, IATF/ISO
+      alignment for customers).
+  keyMetrics:
+    - >-
+      Material cost savings per ton ($/t) versus 3–6 month baseline, target:
+      $10–$30/t.
+    - >-
+      First-pass chemistry compliance rate, target: ≥98.5% of heats within full
+      spec bands; stretch ≥99.2%.
+    - >-
+      Over-alloying margin reduction (e.g., Mg, Cu, Si): 30–50% decrease in
+      average positive deviation from target midpoint.
+    - 'Master alloy consumption reduction: 5–15% per ton.'
+    - >-
+      Dross/yield improvement: 0.3–0.8 percentage points (furnace and flux
+      dependent).
+    - 'Rework/downgrade rate reduction: from 1–3% to <0.8% of heats.'
+    - >-
+      Planning time: per-heat planning time from 30–60 minutes to <5 minutes;
+      dayplan from 2–4 hours to <30 minutes.
+    - >-
+      Inventory turns for key scrap grades: +10–20%; aged/at-risk lots reduction
+      by 25–40%.
+    - >-
+      CO2e intensity reduction from scrap mix optimization: 2–6% depending on
+      grade substitution opportunities.
+    - >-
+      Adoption: % of heats optimized (>85% by month 3), active users/week, and
+      operator compliance to instructions (>90%).
+storyBrand:
+  character: >-
+    Melt shop managers and metallurgists at secondary aluminum smelters who must
+    hit alloy specs at the lowest metal cost, every heat, under real furnace and
+    inventory constraints.
+  problem: >-
+    Volatile scrap chemistry and prices, complex contamination risks, and
+    limited furnace capacity make manual spreadsheets slow and
+    error‑prone—leading to costly blends, off‑spec heats, re‑melts, and missed
+    throughput.
+  guide: >-
+    Charge Mix Optimizer is an AI copilot built by aluminum metallurgists and
+    ops engineers. It models chemistry, yields, contamination, furnace limits,
+    and availability to propose the lowest‑cost, spec‑safe charge plan; proven
+    in production and integrates with ERP/MES/LIMS.
+  plan: >-
+    1) Connect specs, inventory, and prices. 2) Calibrate yields/constraints and
+    run optimization. 3) Deploy to shifts with live updates from lab results and
+    purchasing.
+  callToAction: >-
+    Book a 30‑minute demo or start a pilot—upload your inventory, target alloy,
+    and constraints to receive optimized charge sheets and buying signals within
+    days.
+  success: >-
+    Hit spec the first time at the lowest cost; faster planning, fewer re‑melts,
+    higher furnace utilization, traceable charge sheets, smarter purchasing, and
+    confident compliance with chemistry and contamination limits.
+  failure: >-
+    Keep overpaying for metal, chasing off‑spec chemistries, re‑melting heats,
+    wasting furnace hours, and risking missed shipments and margin erosion.
+landingPage:
+  hero:
+    title: Charge Mix Optimizer for Secondary Aluminum Alloys
+    subtitle: >-
+      AI that hits chemistry at the lowest cost—optimizing scrap, ingot, and
+      master alloy blends with furnace, contamination, and availability
+      constraints built in.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - Metal cost leakage from over-ingot and over-mastering
+    - 'Chem misses, re-melts, and downgrades from tramp element variability'
+    - >-
+      Spreadsheets can’t balance cost, chemistry, yield, and furnace limits
+      across heats
+    - Heel and cross-contamination aren’t accounted for in charge plans
+    - Volatile scrap prices complicate buying and scheduling
+    - Slow lab loops delay pours and raise energy and dross losses
+  solution:
+    - Optimal charge mix per heat that meets alloy windows at minimum total cost
+    - >-
+      Guardrails for Fe, Si, Cu, Mg, Zn, Mn, Ni, Cr, Pb, Bi, Sn, and more with
+      heel memory
+    - >-
+      Lot-aware planning using real availability, reservations, and incoming
+      receipts
+    - >-
+      Live trim recommendations from spectrometer results to hit targets without
+      over-mastering
+    - >-
+      Multi-heat optimization to consume inventory efficiently and reduce
+      changeovers
+    - >-
+      Scenario planning and buying guidance to maximize scrap utilization and
+      cut ingot use
+    - ERP/LIMS integration for hands-free data flow and auditable traceability
+    - >-
+      Typical outcomes: 1–3% metal cost reduction, 20–40% lower ingot share,
+      fewer chem misses
+  features:
+    - Chemistry engine for AA/EN/JIS specs and custom element windows per alloy
+    - >-
+      Tramp element and contamination constraints by furnace, heel, and lining
+      history
+    - >-
+      Furnace-aware plans: capacity, heel size, batch sizes, charge sequence,
+      addition timing
+    - >-
+      Cost model includes material price, melt loss, yield, flux/refining, and
+      energy
+    - >-
+      Multi-objective optimization: cost, yield, CO2, and dross with user-set
+      weights
+    - 'Lot-level control: supplier certs, expiry, moisture, and reservations'
+    - Heat-by-heat charge sheets with basket breakdowns and pour targets
+    - >-
+      Spectrometer integration for auto-trim and master alloy dosing
+      recommendations
+    - 'What-if scenarios and sensitivity to prices, specs, and melt losses'
+    - 'ERP connectors (SAP, Oracle, JDE) and open APIs; quick CSV import/export'
+    - Traceability from lot to cast with full audit trail and spec verification
+    - 'Cloud or on-prem deployment; SSO, roles, and data isolation'
+    - 'KPIs and alerts: cost/ton, ingot share, chem misses, yield, CO2/ton'
+  steps:
+    - 'Connect ERP, inventory, and LIMS; import alloy specs and price lists'
+    - 'Configure furnaces, melt losses, heels, and contamination rules'
+    - Sync available lots and the production schedule
+    - >-
+      Run the optimizer for a heat or a shift; review cost and chemistry
+      coverage
+    - Execute the charge plan; capture lab results
+    - Apply auto-trim suggestions; recheck and pour
+    - Close the heat; track KPIs and feed insights to purchasing
+---
+# Charge Mix Optimizer for Secondary Aluminum Alloys
+
+Industry: Secondary Smelting and Alloying of Aluminum
+Service: Charge Mix Optimizer for Secondary Aluminum Alloys

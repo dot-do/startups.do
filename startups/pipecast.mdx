@@ -1,0 +1,292 @@
+---
+name: PipeCast IQ
+slug: pipecast
+service:
+  title: Batch ETA & Interface Quality Predictor
+  description: >-
+    Predicts batch arrival times, interface volumes, and potential contamination
+    to optimize tank scheduling and cut plans.
+  targetUsers:
+    - Scheduling/Dispatch
+    - Terminal Operators
+    - Quality/Lab
+  triggers:
+    - Upon new batch nomination
+    - Hourly updates until arrival
+  inputs:
+    - Batch schedule and lineup
+    - Flow/pressure/temperature trends
+    - Densitometer/viscometer readings
+    - Historical interface volumes
+  steps:
+    - Ingest current batch state and recent hydraulics
+    - Estimate velocity and slippage under temperature/viscosity
+    - Predict ETA and interface growth with uncertainty bands
+    - Flag risk of off-spec at receiving terminal
+    - Notify schedulers and update dashboard
+  tools:
+    - Historian API
+    - Gradient boosting/Prophet
+    - Physics-informed features
+    - Power BI/ArcGIS for map ETA
+  outputs:
+    - ETA with P10/P50/P90
+    - Interface volume forecast
+    - Contamination risk flag and recommended cut plan
+  pricingModel:
+    - Per-batch fee or monthly per active segment
+    - Setup fee for model calibration
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Sensor faults propagate to ETA
+    - Sudden operational changes (unmodeled)
+    - Contractual sensitivity of schedules
+  dependencies:
+    - Access to batch schedule and PI tags
+    - Terminal tank constraints
+    - Quality data history
+leanCanvas:
+  problem:
+    - >-
+      Inaccurate batch ETAs (often ±60–180 minutes) trigger tank constraint
+      breaches, suboptimal linefill management, and marine demurrage
+      ($20k–$100k/day per vessel).
+    - >-
+      Interface volume estimates are routinely off by 10–40%, causing
+      unnecessary transmix cuts and off-spec contamination events costing
+      $50k–$500k per incident.
+    - >-
+      Schedulers lack real-time, uncertainty-aware predictions and rely on
+      static hydraulic models and spreadsheets; models are rarely recalibrated
+      to current viscosity, temperature, DRA, and pump configurations.
+    - >-
+      Quality risk (comingled crude specs like TAN, sulfur, RVP, BS&W) is not
+      quantified ahead of time; tank flips and cut plans are reactive rather
+      than prescriptive.
+    - >-
+      OT/IT data fragmentation (SCADA, historian, lab assays, batch tickets,
+      pump status) makes building a unified, auditable prediction workflow
+      difficult.
+    - >-
+      Regulatory and audit requirements (e.g., PHMSA Part 195, API standards)
+      necessitate traceability and explainability that current in-house tools
+      lack.
+  solution:
+    - >-
+      Unified data pipeline integrating SCADA/historian (e.g., PI), batch
+      tickets, lab assays, topology, pump status, ambient data, and DRA
+      injection rates.
+    - >-
+      Hybrid physics + ML models calibrated per line/segment that output ETA
+      distributions (P10/P50/P90), interface volume forecasts (bbl +
+      uncertainty), and contamination likelihoods by grade pair.
+    - >-
+      Prescriptive engine to generate optimal cut plans and tank schedules
+      subject to operational constraints (tank ullage, custody transfer windows,
+      pump curves, blend specs).
+    - >-
+      Real-time alerting for early/late arrivals, interface growth, and quality
+      risk, with root-cause drivers (temperature shift, pump configuration,
+      viscosity change).
+    - >-
+      What-if simulators for schedulers (e.g., different batch orders, DRA
+      dosage, pump lineups, flow targets) to minimize interface and demurrage.
+    - >-
+      APIs and adapters to push predictions into scheduling/TMS, terminal
+      management, and marine ETA systems; audit-ready reports for compliance.
+  uniqueValueProp: >-
+    Physics-informed, uncertainty-quantified AI that predicts batch ETAs,
+    interface volumes, and contamination risk in real time—and automatically
+    translates predictions into optimal cut plans and tank schedules. Reduce
+    transmix by 10–25%, cut ETA error by 60–80% (to <15–30 minutes on 200–500 mi
+    lines), halve off-spec incidents, and deliver 5–10x ROI within 6–12
+    months—deployable on-prem for OT security.
+  unfairAdvantage: >-
+    Line-calibrated, physics-informed ML with uncertainty quantification and
+    prescriptive cut planning, packaged for OT environments with proven
+    connectors, auditability, and on-prem deployment—plus cross-operator
+    learning (where permissible) that improves interface modeling beyond what
+    single-operator in-house tools can achieve.
+  customerSegments:
+    - Midstream crude pipeline operators (batch pipelines).
+    - >-
+      Terminal operators and storage hubs receiving crude batches (marine, rail,
+      refinery gates).
+    - Pipeline schedulers and control room operators (24/7).
+    - Refinery crude supply planners managing receipts and tank blends.
+    - >-
+      Shippers and quality banks concerned with contamination and custody
+      transfer quality.
+    - >-
+      Trading and marine logistics teams exposed to demurrage and linefill
+      timing risk.
+  channels:
+    - >-
+      Direct enterprise sales targeting midstream operators with batch
+      operations (US/Canada first).
+    - >-
+      Partnerships with OT/SCADA integrators (Accenture, Wood, Worley, Black &
+      Veatch) and historian vendors (AVEVA PI) for co-selling and delivery.
+    - >-
+      Alliances with pipeline simulation vendors and TMS/scheduling platforms
+      (e.g., Quorum/TIPS) for marketplace listings and connectors.
+    - >-
+      Industry events and associations: API Pipeline Conference, PPIM, AOPL, GPA
+      Midstream, AFPM—live demos and case studies.
+    - >-
+      90-day paid pilots with clear success criteria (ETA MAE, transmix
+      reduction, demurrage savings), expanding by line/terminal post-pilot.
+    - >-
+      Thought leadership: whitepapers on physics-informed ML for interfaces,
+      webinars with operator co-presenters, and ROI calculators for schedulers.
+  revenueStreams:
+    - >-
+      Annual subscription per line/throughput tier: $0.005–$0.03 per bbl
+      processed or $250–$600 per pipeline mile/year; enterprise minimum
+      $250k/year per operator covering up to N lines.
+    - >-
+      Add-on modules (prescriptive optimization, marine ETA integration, quality
+      risk modeling) at $50k–$150k/year each.
+    - >-
+      Professional services for integration, data onboarding, and model
+      calibration: $150k–$500k initial SOW depending on complexity.
+    - >-
+      Outcome-based bonuses tied to verified annual savings (e.g., 10–20% share
+      of transmix reduction/demurrage savings above baseline).
+    - Premium support/SLA tiers and on-prem maintenance fees.
+  costStructure:
+    - >-
+      Core team: ML engineers, pipeline hydraulics SMEs, data engineers, OT
+      cybersecurity, product and customer success (~$4–8M/year at scale).
+    - >-
+      Implementation and integration services (SI partners, travel, on-site
+      commissioning).
+    - >-
+      Compute and storage: model training/serving, historian mirrors, DR;
+      on-prem hardware for air-gapped deployments.
+    - >-
+      Security, compliance, and insurance (SOC 2, ISO 27001 audits; cyber
+      liability).
+    - >-
+      Sales and marketing: enterprise sales cycles (9–18 months), conferences,
+      proof-of-value pilots.
+    - >-
+      Ongoing R&D for physics-informed models, connectors, and optimization
+      solvers.
+  keyMetrics:
+    - >-
+      ETA accuracy: mean absolute error (MAE) < 15–30 minutes for 200–500 mi
+      lines; on-time P50 ETA delivery > 90%.
+    - >-
+      Interface prediction accuracy: MAPE < 10%; 95% prediction interval
+      coverage within ±15%.
+    - 'Transmix reduction: 10–25% vs. 12-month baseline (bbl/year).'
+    - 'Off-spec contamination incidents: ≥50% reduction year-over-year.'
+    - >-
+      Demurrage savings: target $1–$3M/year per large terminal connection; track
+      avoided vessel hours.
+    - >-
+      Tank utilization uplift: +3–5% effective ullage from better scheduling;
+      zero tank-level violations.
+    - >-
+      User adoption: >80% of batches with accepted cut plans; NPS ≥ 40 from
+      schedulers/operators.
+    - >-
+      System reliability: >99.5% availability; data latency < 30 seconds from
+      SCADA/historian.
+    - >-
+      Model drift detection MTTR < 24 hours; recalibration cycle time < 2 hours
+      without downtime.
+storyBrand:
+  character: >-
+    Pipeline controllers, schedulers, and terminal operators who need confident
+    ETAs, interface volumes, and contamination risk to plan tanks and cuts with
+    precision.
+  problem: >-
+    Uncertain batch arrivals and interface behavior trigger last‑minute tank
+    flips, off‑spec blends, reblends, and demurrage—teams are forced to guess
+    despite rich SCADA and batch data.
+  guide: >-
+    We’re pipeline and data‑science operators who build ML for batched liquids;
+    integrated with SCADA, batch books, meters, and labs to deliver trustworthy,
+    explainable predictions your control room can act on.
+  plan: >-
+    1) Connect data sources and security. 2) Calibrate on your history and
+    validate. 3) Go live via dashboard, API, and alerts. 4) Review KPIs, refine,
+    and expand segment by segment.
+  callToAction: >-
+    Primary: Book a discovery call to scope a pilot. Transitional: Request a
+    sample forecast and one‑page overview.
+  success: >-
+    Reliable ETAs and interface volumes; proactive tank scheduling and cut
+    plans; reduced contamination and reblend; fewer slowdowns and delays; higher
+    throughput and custody accuracy; calmer, confident shifts.
+  failure: >-
+    Keep firefighting blind—missed tank windows, over/under‑fills, contaminated
+    batches, costly reblends and demurrage, lost throughput, and increased
+    regulatory scrutiny.
+landingPage:
+  hero:
+    title: Batch ETA & Interface Quality Predictor
+    subtitle: >-
+      AI for crude pipelines: precise batch ETAs, interface volumes, and
+      contamination risk to optimize tank scheduling and cut plans.
+    ctaText: Request a demo
+    ctaHref: /request-demo
+  problem:
+    - 'Uncertain ETAs trigger tank stockouts, high linefill, and demurrage.'
+    - Manual interface tracking causes conservative cuts and product downgrades.
+    - >-
+      Limited visibility across segments leads to last‑minute re-sequencing and
+      overtime.
+    - >-
+      Static assumptions miss real pump/valve states, slack-line, and
+      temperature effects.
+    - 'Quality excursions (BS&W, density) slip into custody transfer.'
+    - Schedulers lack early warning to reshuffle batches and tanks.
+    - 'Inconsistent forecasts across control room, terminals, and marketing.'
+    - Contract and regulatory penalties from off-spec deliveries.
+  solution:
+    - 'Live, physics-informed ML for batch ETAs at every station and terminal.'
+    - >-
+      Predict interface volumes, density transitions, and contamination
+      probability.
+    - Confidence bands and early alerts hours to days ahead.
+    - 'What‑if scenarios: pump speeds, DRA dosage, and batch order changes.'
+    - Optimize cut plans and tank lineups to reduce downgrades and reprocessing.
+    - >-
+      Integrates with SCADA, historians, and scheduling tools; APIs and webhooks
+      included.
+    - 'Role-based dashboards for control room, schedulers, and terminal ops.'
+    - Measured accuracy with backtests and continuous improvement.
+  features:
+    - 'Per-batch ETA forecasts at stations, block valves, and terminals.'
+    - >-
+      Interface quality modeling using product properties, temperature, and
+      mixing dynamics.
+    - 'Contamination risk scoring with thresholds, alerts, and watchlists.'
+    - 'Hybrid engine: hydraulic signals + ML over historical batch behavior.'
+    - 'Data connectors: PI System, CygNet, Ignition, OPC UA, SQL, S3.'
+    - 'Two-way schedule sync: nominations, pump schedules, and planned outages.'
+    - 'Uncertainty bands, backtests, and accuracy KPIs visible in-app.'
+    - Scenario sandbox with side-by-side comparisons and shareable links.
+    - Cut-plan optimizer to minimize off-spec barrels and interface waste.
+    - 'Tank farm view: arrival windows, heel compatibility, valve readiness.'
+    - Mobile-friendly and control-room displays with dark mode.
+    - 'Secure deployment: on‑prem or VPC, SSO/SAML, RBAC, audit logs, encryption.'
+    - 'High availability, buffering for comms loss, and health monitoring.'
+  steps:
+    - 'Connect data: SCADA/historian, batch tickets, and product properties.'
+    - Calibrate with recent runs; validate accuracy against ground truth.
+    - 'Configure tanks, interface thresholds, alerts, and user roles.'
+    - 'Go live with dashboards, APIs, and event-driven notifications.'
+    - Monitor KPIs; retrain models and tune scenarios on a set cadence.
+---
+# PipeCast IQ
+
+Industry: Pipeline Transportation of Crude Oil
+Service: Batch ETA & Interface Quality Predictor

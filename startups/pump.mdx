@@ -1,0 +1,340 @@
+---
+name: Pump Energy & DRA Dosing Optimizer (Advisory)
+slug: pump
+service:
+  title: Pump Energy & DRA Dosing Optimizer (Advisory)
+  description: >-
+    AI recommends pump schedules, setpoints, and drag-reducing agent (DRA)
+    dosing to meet throughput at minimum energy/chemical cost within
+    constraints.
+  targetUsers:
+    - Operations Managers
+    - Control Room Engineers
+    - Energy Managers
+  triggers:
+    - Day-ahead planning
+    - Hourly re-optimization on tariff/throughput changes
+  inputs:
+    - Pump curves and efficiency maps
+    - Flow/pressure histories
+    - Power tariffs (TOU/demand)
+    - 'DRA cost, current viscosity/temperature'
+    - 'Operating constraints (NPSH, min/max pressures)'
+  steps:
+    - Fit surrogate model of hydraulics from historical runs
+    - Formulate cost minimization with constraints
+    - Generate candidate schedules and setpoints
+    - Run what-if checks vs limits and demand forecast
+    - Publish recommended plan and compliance checks
+  tools:
+    - OR-Tools/Pyomo
+    - XGBoost/lightGBM
+    - Historian API
+    - Optimization solver (CBC/Gurobi)
+    - Power BI dashboard
+  outputs:
+    - Optimal setpoints/schedules with cost and risk score
+    - Expected energy/DRA savings vs baseline
+    - Constraint/limit check report
+  pricingModel:
+    - Setup fee (model + curves)
+    - Monthly subscription per station/segment
+    - Optional savings-share bonus
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Model mismatch in unusual hydraulics
+    - Recommendations must remain advisory
+    - Tariff data accuracy
+  dependencies:
+    - Historical runs and pump curves
+    - Read-only historian access
+    - Ops approval for advisory use
+leanCanvas:
+  problem:
+    - >-
+      Pipeline operators must meet nominated throughput while staying below
+      MAOP, suction limits, and surge constraints; current operations rely on
+      fixed pump schedules and conservative DRA rules, driving excessive energy
+      and chemical spend.
+    - >-
+      Energy is the second-largest controllable OPEX item for pipelines;
+      electricity usage is often 20–60 MW per trunkline with limited real-time
+      optimization across stations.
+    - >-
+      DRA is frequently overdosed due to uncertainty in batch properties and
+      shear degradation; dosing is set at static ppm targets rather than
+      cost-optimal, throughput-compliant levels.
+    - >-
+      Control rooms lack a unified tool that co-optimizes pump setpoints,
+      station configurations, and DRA dosing against real-time hydraulics, batch
+      interfaces, and ambient conditions.
+    - >-
+      Existing hydraulic simulators are not designed for continuous, closed-loop
+      advisory with M&V and do not capture changing product slates,
+      elevation/temperature effects, and DRA performance in near real-time.
+    - >-
+      Safety and compliance constraints (MAOP, NPSH margin, slack-line
+      avoidance, surge risk) make manual optimization risky, pushing operators
+      to conservative settings with hidden costs.
+  solution:
+    - >-
+      Deploy a physics-informed, real-time optimization engine that co-optimizes
+      pump schedules, VFD speeds, series/parallel configurations, and DRA ppm to
+      minimize $/bbl under hard constraints (MAOP, suction pressure/NPSH, surge,
+      slack-line, temperature).
+    - >-
+      Continuously ingest SCADA/historian data (e.g., OSIsoft PI) for pressures,
+      flows, power, temperatures; batch tracker data for API/viscosity; and DRA
+      injection/stock. Autocalibrate a digital twin per segment to maintain
+      model fidelity (<2% flow and <3% pressure error on rolling 7-day windows).
+    - >-
+      Advisory outputs every 1–5 minutes: station-level setpoints (rpm,
+      start/stop), valve positions, recommended DRA ppm by injection site,
+      expected cost/bbl and constraint margins; includes explanations and
+      confidence intervals.
+    - >-
+      Scenario and day-ahead planning: evaluate nominations, ambient forecasts,
+      and tankage plans to produce next-day schedules with expected costs,
+      sensitivity to product mix, and risk flags.
+    - >-
+      Built-in M&V: compare against baseline control periods normalized for
+      ambient and batch properties; provide finance-grade savings reports (kWh
+      and $ per 1,000 bbl-km; DRA ppm per 1,000 bbl).
+    - >-
+      Integration and change management: read-only advisory phase (60–90 days)
+      with controller acceptance tracking, then optional closed-loop setpoint
+      write-back through approved APC/SCADA interlocks; full audit trail and
+      rollback.
+    - >-
+      Safety-by-design: hard guardrails on pressures/flows, surge-check
+      transient screening on candidate setpoints, and automated lockouts if
+      sensor quality degrades or model uncertainty grows beyond thresholds.
+  uniqueValueProp: >-
+    Meet nominated throughput at the lowest combined energy and DRA cost—safely
+    and compliantly—via real-time, physics-informed AI advisory integrated with
+    SCADA. Typical savings: 5–12% electrical energy and 10–30% DRA usage
+    reduction with zero constraint violations, verified by built-in M&V.
+  unfairAdvantage: >-
+    A unified, safety-first optimizer that co-optimizes energy and DRA using
+    validated, physics-informed models with real-time uncertainty control,
+    coupled with finance-grade M&V and deep integrations to SCADA/EPMS and DRA
+    skids. Access to proprietary dosing-response datasets via chemical supplier
+    partnerships and proven case studies establishes switching costs and
+    credibility competitors lack.
+  customerSegments:
+    - Midstream crude pipeline operators (trunk and regional long-haul)
+    - Control room dispatchers and pipeline controllers
+    - Energy managers and commercial schedulers
+    - Flow assurance and hydraulic engineering teams
+    - Chemical procurement and supplier management teams
+    - 'Pipeline integrity, safety, and compliance leaders'
+  channels:
+    - >-
+      Direct enterprise sales to midstream operators (focus: North America,
+      Middle East, South America) targeting assets with ≥3 pump stations and
+      active DRA programs.
+    - >-
+      Partnerships with DRA suppliers (e.g., LPSI, Baker Hughes, Innospec) to
+      co-sell and bundle performance guarantees.
+    - >-
+      Alliances with SCADA/EPMS vendors and system integrators (Honeywell,
+      Emerson, AVEVA/Schneider, Yokogawa) for integration and channel access.
+    - >-
+      Pilot-led GTM: 90-day paid pilot on a single segment with clear success
+      criteria (≥6% energy or ≥12% DRA reduction or payback <9 months).
+    - >-
+      Industry presence: technical papers and case studies at PPIM,
+      International Pipeline Conference, GPA Midstream, API Pipeline Conference.
+    - >-
+      Targeted ABM campaigns to energy managers and control room directors; ROI
+      calculators using customer tariffs and DRA prices; reference wins and
+      third-party M&V endorsements.
+  revenueStreams:
+    - >-
+      Annual SaaS subscription per station or per pipeline segment: $75k–150k
+      per station/year depending on complexity and throughput.
+    - >-
+      One-time implementation/integration fee: $150k–500k per pipeline segment
+      (data integration, model build, validation, training).
+    - >-
+      Optional savings-based fee model: 5–12% of verified net savings (energy +
+      DRA) with floor/ceiling and M&V agreed upfront.
+    - 'Premium support/SLA tier (24/7, <5 min response): +15–25% of subscription.'
+    - >-
+      Advisory services: scenario studies, debottlenecking, and tariff/TOU
+      optimization charged at $250–350/hour or fixed-fee packages.
+  costStructure:
+    - 'R&D staffing: 6–10 FTE (optimization, hydraulics, ML) ~$1.8–3.0M/year.'
+    - 'Delivery and integration: 4–8 FTE data/controls engineers ~$1.0–2.0M/year.'
+    - >-
+      Cloud and data costs: $3k–10k/month per active pipeline (compute for model
+      training/optimization, storage, VPN/connectivity).
+    - >-
+      3rd-party software/licensing (historians, modeling libraries, transient
+      solver seats): $100k–300k/year.
+    - >-
+      Cybersecurity, audits, and compliance (API 1164 alignment, penetration
+      tests, SOC 2): $150k–300k/year.
+    - 'Sales/marketing: $400k–900k/year (pilots, conferences, travel, ABM).'
+    - >-
+      Insurance, legal, and safety (MOC, HAZOP participation, contractual risk):
+      $100k–250k/year.
+    - >-
+      COGS for savings-based deals (independent M&V, data hosting) ~10–18% of
+      revenue.
+  keyMetrics:
+    - >-
+      Energy intensity: kWh per 1,000 bbl-km (target: 5–12% reduction vs.
+      normalized baseline).
+    - >-
+      DRA intensity: ppm per 1,000 bbl (target: 10–30% reduction with throughput
+      intact).
+    - >-
+      Throughput compliance: ≥99.5% hours on-spec vs nomination; zero MAOP/NPSH
+      violations.
+    - >-
+      Controller adoption: ≥70% recommendation acceptance within 60 days;
+      time-to-accept <5 minutes median.
+    - >-
+      Model fidelity: rolling 7-day MAE <2% for flow, <3% for pressures;
+      uncertainty bounds calibrated to 95% coverage.
+    - >-
+      Financial: verified net savings per segment per year (target: $1.5–6.0M),
+      payback <9 months, gross margin >70%.
+    - >-
+      System reliability: ≥99.5% advisory availability; <1 min data latency from
+      historian.
+    - >-
+      Safety and compliance: zero surge/slack-line events triggered by
+      recommendations; 100% audit trail coverage.
+    - >-
+      Commercial KPIs: pilot-to-subscription conversion >60%; ARR per customer
+      >$500k within 12 months; net revenue retention >115%.
+    - >-
+      Procurement/chemical KPI: variance of DRA usage to plan <±5%; stockout
+      risk alerts with ≥48h lead time.
+storyBrand:
+  character: >-
+    Midstream pipeline operations leaders and control room engineers who must
+    hit nominated throughput at the lowest safe cost.
+  problem: >-
+    - Villain: Escalating power prices and chemical waste hidden in complex
+    hydraulics.
+
+    - External: Dynamic batches, viscosity swings, pump curves, MAOP and power
+    caps, station constraints—making manual setpoint and DRA decisions
+    suboptimal.
+
+    - Internal: Teams are forced to guess and firefight, never confident they’re
+    running at minimum cost.
+
+    - Philosophical: Every barrel should move safely at the lowest defensible
+    marginal cost, with transparent reasoning.
+  guide: >-
+    - Empathy: We understand the pressure of keeping linefill moving while
+    staying inside pressure, power, and nomination limits—shift after shift.
+
+    - Authority: Built by pipeline SMEs and ML engineers; validated on
+    historical runs; integrates with SCADA/historians; IT/OT secure;
+    recommendations are transparent and constraint-aware.
+  plan: >-
+    - Process Plan: 1) Connect data (SCADA, pump curves, DRA specs, tariffs) 2)
+    Define constraints/objectives 3) Calibrate digital twin 4) Optimize pump
+    schedules, setpoints, DRA dosing 5) Deliver advisories via HMI/API and track
+    outcomes.
+
+    - Agreement Plan: Human-in-the-loop approval, safety-first constraints
+    enforced, auditable recommendations, no-autonomy default, clear KPI
+    baselines and change management.
+  callToAction: >-
+    - Direct CTA: Book a pilot on a selected line segment to quantify savings.
+
+    - Transitional CTA: Request a sample advisory and ROI model with your data
+    profile.
+  success: |-
+    - Meet throughput with minimum energy and chemical cost.
+    - Smoother pressure profiles and fewer alarms.
+    - Lower emissions per barrel from reduced power draw.
+    - Defensible DRA usage and tighter budget control.
+    - Confident operators, aligned planners, clear KPIs for leadership.
+  failure: |-
+    - Continued overspend on power and DRA.
+    - Missed nominations, congestion, and avoidable penalties.
+    - Constraint breaches and alarm fatigue.
+    - Guesswork-driven setpoints without auditability.
+    - Lost opportunities to standardize best operating schedules.
+landingPage:
+  hero:
+    title: Pump Energy & DRA Dosing Optimizer
+    subtitle: >-
+      AI advisory for crude oil pipelines—hit throughput targets at the lowest
+      energy and chemical cost, within safety and hydraulic constraints.
+    ctaText: Request a Demo
+    ctaHref: '#request-demo'
+  problem:
+    - >-
+      Rising energy spend from conservative pump setpoints and inefficient
+      schedules
+    - DRA over- or under-dosing wastes budget or misses throughput
+    - 'Operators juggle pressure, NPSH, MAOP, and tank levels manually'
+    - Crude variability and temperature swings break rules-of-thumb
+    - 'Siloed SCADA, batch, and lab data limit real-time decisions'
+    - Hard to quantify savings or emissions impact across shifts
+  solution:
+    - >-
+      AI recommends pump schedules, setpoints, and drag‑reducing agent (DRA)
+      dosing to meet target flow at minimum $/bbl
+    - >-
+      Optimizer respects hydraulic and commercial constraints (MAOP, suction
+      pressure, NPSH, pump curves, tank windows, batch interfaces)
+    - >-
+      Continuously updates with live data; adapts to crude mix, temperature, and
+      tariff changes
+    - >-
+      What‑if planning for throughput targets, crude blends, DRA prices, and
+      energy tariffs
+    - 'Measurable value with automated baselining, M&V, and savings attribution'
+    - >-
+      Human‑in‑the‑loop workflow and audit trails built for control room
+      adoption
+  features:
+    - Physics‑informed digital twin calibrated to your pipeline and pumps
+    - >-
+      Multi‑objective optimization for energy, chemical, throughput, and
+      emissions
+    - 'Constraint‑aware scheduling across stations, loops, and batches'
+    - >-
+      Real‑time advisory with confidence bands and clear rationale for each
+      recommendation
+    - 'Advanced DRA modeling (dilution, degradation, segment‑specific drag)'
+    - 'Tariff‑aware energy cost modeling (TOU, demand charges, block rates)'
+    - >-
+      Short‑term forecasting for temperature, viscosity, and pump efficiency
+      drift
+    - 'Proactive alerts for approaching pressure, NPSH, or tank limit violations'
+    - 'Secure deployment options: on‑prem or VPC; SSO and role‑based access'
+    - 'Native integrations: SCADA/DCS, PI/historians, LIMS, ERP; REST APIs'
+    - 'Control‑room friendly UI, shift handover notes, and mobile summaries'
+    - 'Automated reporting: savings per bbl, kWh/bbl, kg DRA/bbl, and CO2e impact'
+  steps:
+    - >-
+      Connect data: SCADA/historian, pump curves, batch schedules, DRA specs,
+      and energy tariffs
+    - Calibrate the model using recent operating periods and lab data
+    - >-
+      Set targets and constraints: throughput windows, pressure limits, tank
+      levels, max DRA, emissions policies
+    - Pilot on a priority segment; compare to baseline and validate savings
+    - Train operators; enable human‑in‑the‑loop approvals and governance
+    - >-
+      Scale across the network; monitor KPIs, fine‑tune models, and expand use
+      cases
+---
+# Pump Energy & DRA Dosing Optimizer (Advisory)
+
+Industry: Pipeline Transportation of Crude Oil
+Service: Pump Energy & DRA Dosing Optimizer (Advisory)

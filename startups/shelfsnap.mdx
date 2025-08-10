@@ -1,0 +1,300 @@
+---
+name: 'ShelfSnap Auto-Reconcile (for Sewing, Needlework, and Piece Goods)'
+slug: shelfsnap
+service:
+  title: Shelf-Photo Inventory Reconciliation & Auto-Reorder
+  description: >-
+    Computer-vision + POS-driven workflow that flags outs, mis-shelved items,
+    and drafts POs to vendors.
+  targetUsers:
+    - Store owners
+    - Inventory managers
+  triggers:
+    - Weekly inventory check
+    - Low-stock threshold crossed
+    - New vendor shipment received
+  inputs:
+    - Shelf photos of bays/bolts/pegs
+    - POS on-hand and sales history
+    - Min/Max or days-of-cover rules
+    - Vendor lead times and MOQs
+    - SKU catalog with barcodes
+  steps:
+    - >-
+      Agent validates photo quality and runs OCR/vision to read labels/barcodes
+      and detect empty facings
+    - Matches detected SKUs to catalog and reconciles with POS on-hand
+    - >-
+      Forecasts weeks-of-cover using recent sales and seasonality; applies
+      min/max rules
+    - >-
+      Flags anomalies (e.g., shelf shows stock but POS says 0, possible
+      misplacement)
+    - Drafts vendor-specific purchase orders grouped by supplier and lead time
+    - Routes low-confidence items to human for quick review/approval
+    - Pushes approved POs to email/EDI and updates a Google Sheet dashboard
+  tools:
+    - GPT-4o or Azure Vision for OCR and object detection
+    - Shopify/Square/Lightspeed POS APIs
+    - BigQuery/Sheets
+    - Simple forecasting (Prophet/XGBoost)
+    - Email/EDI (Orderful or CSV via email)
+  outputs:
+    - Draft POs (CSV/PDF) per vendor
+    - Stockout-risk report and anomaly list
+    - Updated min/max recommendations dashboard
+  pricingModel:
+    - Monthly subscription per location
+    - Usage fee per processed photo batch
+    - Optional performance bonus for reduced stockouts
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 7
+    overall: 8
+  risks:
+    - OCR misreads causing wrong orders
+    - POS sync latency leading to duplicates
+    - Vendor MOQs/lead-time changes not captured
+  dependencies:
+    - Reliable POS/API access
+    - Consistent photo protocol and lighting
+    - Up-to-date vendor catalogs and SKU mappings
+leanCanvas:
+  problem:
+    - >-
+      Chronic shelf-POS mismatches lead to 1–4% lost sales from outs,
+      mis-shelves, and phantom inventory in specialty sewing and piece-goods
+      retail.
+    - >-
+      Manual cycle counts are labor-intensive (4–12 hrs/week/location) and
+      inconsistent, especially with long-tail SKUs (colors, dye lots, trims).
+    - >-
+      POS reorder points rely on inaccurate on-hand data and do not account for
+      shelf reality, causing stockouts of fast movers and overstock of slow
+      movers.
+    - >-
+      Fragmented vendor catalogs and pack-size rules make reordering cumbersome;
+      owners spend 3–6 hrs/week aggregating POs across vendors.
+    - >-
+      Visual complexity (similar colorways, brand-specific packaging, bolt-end
+      labels) makes barcode-only workflows fragile; many items lack scannable
+      facings on-shelf.
+  solution:
+    - >-
+      Mobile shelf-sweep app: Staff capture each bay with guided photo frames;
+      optional QR shelf/bay tags for fast mapping.
+    - >-
+      Computer vision tuned for sewing/piece-goods: Detects bolt-end labels,
+      thread/spool facings, notion carding; OCR for SKU/UPC/brand/line;
+      fine-grained colorway matching with confidence scores.
+    - >-
+      POS-driven reconciliation: Matches visual counts vs POS on-hand; flags
+      outs, low facings, and suspected mis-shelves by bay/slot; generates
+      discrepancy tasks.
+    - >-
+      Auto-reorder drafting: Combines sales velocity, lead time, vendor
+      MOQs/pack sizes, and min/max to draft vendor-grouped POs; supports
+      alternates for discontinued SKUs.
+    - >-
+      Exception workflow: One-tap corrections, quick relabeling/printing, and
+      variance explanations that sync back to POS.
+    - >-
+      Insights: Shelf heatmaps for high-velocity gaps, shrink signals, and
+      overstock candidates; per-aisle accuracy and labor savings tracking.
+  uniqueValueProp: >-
+    Turn quick shelf photos into accurate on-hand counts, mis-shelved alerts,
+    and vendor-ready draft POs—cut cycle-count labor in half, reduce outs by
+    25–40%, and recover 1–3% topline sales within 90 days.
+  unfairAdvantage: >-
+    A domain-specific vision dataset for sewing/piece-goods and enriched vendor
+    catalogs, coupled with POS-native reconciliation and one-click vendor PO
+    drafting. Network effects from aggregated SKU imagery and bay layouts
+    continuously improve recognition and reorder recommendations.
+  customerSegments:
+    - >-
+      Primary: Independent quilt/fabric shops (1–5 locations, 5k–50k SKUs, 3–20
+      aisles).
+    - >-
+      Primary: Sewing/needlework stores selling fabrics, threads, notions, and
+      sewing machines with accessories.
+    - >-
+      Secondary: Regional specialty craft/fabric chains (5–50 locations) seeking
+      standardized workflows and centralized purchasing.
+    - >-
+      Secondary: Yarn shops with deep colorway assortments and frequent
+      mis-shelves.
+    - >-
+      Early adopters: Stores using Lightspeed Retail, Square for Retail, Shopify
+      POS, Heartland Retail, Rain POS, willing to pilot computer-vision
+      workflows.
+  channels:
+    - >-
+      POS app marketplaces and partner directories (Lightspeed, Shopify,
+      Square).
+    - >-
+      Industry trade shows and associations: h+h americas, International Quilt
+      Market, regional sewing/quilting expos.
+    - >-
+      Distributor/vendor partnerships for referrals (e.g., major sewing/fabric
+      distributors and notion suppliers).
+    - >-
+      Targeted outbound to 3,000–5,000 North American quilt/sewing shops;
+      webinars with case studies.
+    - VARs and retail tech consultants serving specialty retail.
+    - >-
+      Content marketing: before/after ROI stories, shelf-audit checklists, and
+      video demos; email nurture to POS user lists.
+  revenueStreams:
+    - >-
+      Subscription per location/month: Starter $199, Pro $399, Chain $699
+      (volume discounts).
+    - >-
+      Add-ons: Advanced forecasting + vendor EDI pack rules
+      ($99/location/month), additional image storage/retention, SSO/API for
+      chains.
+    - 'One-time onboarding: $300 remote or $1,500 on-site (per location).'
+    - >-
+      Hardware kits (optional): shelf/bay QR tags and label-printer bundles at
+      cost-plus.
+    - >-
+      Aggregated, anonymized market insights for vendors (opt-in) on a
+      revenue-share or data subscription basis.
+  costStructure:
+    - >-
+      COGS: Cloud inference and storage (~$0.002–$0.01 per image; 500–1,500
+      images/week/location), data egress, monitoring.
+    - >-
+      R&D: Computer vision/ML engineers, data labeling/annotation (vendor images
+      + in-store captures), model training/inference optimization.
+    - >-
+      Integrations: Engineering effort for POS APIs, EDI, label-printer drivers;
+      maintenance per vendor/POS change.
+    - >-
+      Customer success and onboarding: Remote training, playbooks, case study
+      development; support SLAs for chains.
+    - >-
+      Sales/marketing: Trade shows, partner MDF, webinars, content, referral
+      fees (10–20% for partners).
+    - 'G&A: Compliance, insurance, and legal (data privacy, vendor agreements).'
+  keyMetrics:
+    - 'Shelf coverage: % of bays photographed/week (target ≥90%).'
+    - >-
+      Recognition accuracy: SKU precision/recall on top 2,000 SKUs (target ≥95%
+      precision, ≥92% recall; thread colorway top-1 ≥90%).
+    - >-
+      Variance resolution time: Median time from flag to resolution (target <48
+      hours).
+    - >-
+      Out-of-stock rate: % SKUs at zero on shelf vs sales in last 30 days
+      (reduce by 25–40% in 90 days).
+    - >-
+      Sales uplift: Same-store sales recovery attributable to reduced outs
+      (target +1–3% revenue within 3 months).
+    - 'Labor savings: Cycle-count hours/week (reduce by 40–60% after month 1).'
+    - >-
+      PO automation: % of vendor POs drafted by system and approved with ≤10%
+      edits (target ≥70%).
+    - 'Photo-to-draft-PO latency: P95 < 10 minutes.'
+    - 'Image cost efficiency: Inference cost per counted SKU (target <$0.01).'
+    - >-
+      Churn and expansion: Monthly logo churn <2%; net revenue retention ≥110%
+      at 12 months.
+storyBrand:
+  character: >-
+    Owners, buyers, and floor managers at sewing, needlework, and piece goods
+    retailers who want full, accurate shelves and effortless reordering.
+  problem: >-
+    - External: Outs, mis-shelved items, POS mismatches, and slow manual counts
+    cause lost sales and messy shelves.
+
+    - Internal: Frustration from guessing what to reorder, stress during rushes,
+    and distrust of on-hand data.
+
+    - Philosophical: You shouldn’t lose a sale because your shelf and POS
+    disagree—every customer should find the exact color, size, or notion they
+    came for.
+  guide: >-
+    - Empathy: We understand the chaos of thread towers, notions walls, and
+    fast-moving SKUs.
+
+    - Authority: Built by retail ops and computer-vision experts; POS-driven
+    workflow that turns shelf photos into flagged fixes and draft POs; designed
+    for specialty retailers.
+  plan: >-
+    - Step 1: Connect your POS and vendor catalogs; set min/max and lead-time
+    rules.
+
+    - Step 2: Staff snap quick shelf photos during normal walks; AI flags
+    outs/mis-shelves and recommends reorder qty.
+
+    - Step 3: Approve fixes and auto-send POs; print/queue shelf-fix tasks for
+    staff.
+
+    - Risk-reversal: Start with one aisle; no long-term contract;
+    month-to-month.
+  callToAction: >-
+    - Direct: Book a 20-minute demo; Start a 30-day pilot.
+
+    - Transitional: Download the shelf-audit checklist; Get an ROI estimate; See
+    a sample vendor PO draft.
+  success: >-
+    - Fewer outs and mis-shelves; higher in-stock rates and turns.
+
+    - Draft POs ready before you run short; vendors get cleaner, faster orders.
+
+    - Trustworthy on-hand counts; cleaner planograms; happier customers; calmer
+    staff; more sales with less labor.
+  failure: >-
+    - Status quo persists: empty pegs, late reorders, overstocked backrooms,
+    hours lost to manual counts, frustrated customers, and slipping sales.
+landingPage:
+  hero:
+    title: Shelf-Photo Inventory Reconciliation & Auto-Reorder
+    subtitle: >-
+      For sewing, needlework, and piece goods retailers. Snap aisles, reconcile
+      to POS, fix errors, and auto-draft vendor POs.
+    ctaText: Get a 15‑min Demo
+    ctaHref: /demo
+  problem:
+    - 'Stock-outs on bolts, skeins, and notions hurt sales.'
+    - Mis-shelved colorways and sizes skew on-hand counts.
+    - Manual cycle counts eat hours and miss errors.
+    - 'Reorders lag with packs, MOQs, and lead times.'
+    - Planograms drift; facings no longer match demand.
+    - Shrink and mislabels go undetected between counts.
+    - Multi-store visibility is slow and fragmented.
+  solution:
+    - AI reads shelf photos and recognizes SKUs/labels.
+    - Reconciles shelf reality with POS on-hands.
+    - 'Flags outs, low stock, and mis-shelved items.'
+    - Auto-builds vendor-ready draft POs with min/max rules.
+    - 'Honors packs, MOQs, and lead times.'
+    - Routes simple fix tasks to staff.
+    - Daily exceptions and shelf accuracy scores.
+  features:
+    - Mobile shelf-photo capture—no special hardware.
+    - 'CV tuned for bolts, skeins, trims, notions.'
+    - 'Label OCR: vendor codes, colorways, dye lots.'
+    - POS sync and real-time reconciliation.
+    - Out-of-stock and low-stock detection.
+    - Mis-shelf and duplicate-location detection.
+    - Facing and capacity estimates by bay/peg.
+    - Draft POs by vendor; packs/MOQs honored.
+    - One-click PO export (email/CSV/EDI).
+    - Multi-store rollups with store-level rules.
+    - Task lists with photo proof.
+    - 'Exception analytics: shrink, mislabels, phantom inventory.'
+    - Seasonal/collection tagging.
+    - Open API and webhooks.
+  steps:
+    - Connect POS and vendor catalogs; set rules.
+    - Snap shelf photos by aisle in the app.
+    - AI reconciles and surfaces exceptions.
+    - Fix mis-shelves; approve suggested quantities.
+    - Release POs and track fills.
+---
+# ShelfSnap Auto-Reconcile (for Sewing, Needlework, and Piece Goods)
+
+Industry: Sewing, Needlework, and Piece Goods Retailers
+Service: Shelf-Photo Inventory Reconciliation & Auto-Reorder

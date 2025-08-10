@@ -1,0 +1,338 @@
+---
+name: RapidBid Concrete AI
+slug: rapidbid
+service:
+  title: Rapid Bid Takeoff and Concrete Estimate
+  description: >-
+    AI-assisted quantity takeoff and cost build-up from plans/specs for
+    foundations, slabs, walls, and footings.
+  targetUsers:
+    - Estimators
+    - Precon Managers
+    - Owners of small concrete firms
+  triggers:
+    - New ITB email or plan upload
+    - Spec revision received
+    - Bid due date approaching
+  inputs:
+    - 'PDF drawings (plans, sections, schedules)'
+    - Specs (033000)
+    - Site address
+    - Labor/productivity rates
+    - 'Material price lists (ready-mix, rebar, formwork)'
+    - Company markups/overheads
+  steps:
+    - 'Ingest PDFs; classify sheets (S, A, C) and find concrete elements'
+    - >-
+      Extract dimensions to compute volumes/areas; estimate rebar tonnage and
+      formwork area
+    - Apply production rates to compute labor hours and equipment
+    - 'Price materials, labor, equipment, taxes/fees; add markups/contingency'
+    - >-
+      Create alternates (mix changes, forming system options) and schedule
+      duration estimate
+    - 'Generate proposal, assumption log, and annotated drawings'
+  tools:
+    - Bluebeam Studio Prime API (sheet management)
+    - STACK/PlanSwift (where API available)
+    - AWS Textract/pdfplumber/layoutparser (OCR and layout)
+    - 'Speckle/BIM 360 Docs API (BIM extraction, if provided)'
+    - RSMeans API or internal cost database
+    - Google Sheets/Excel export
+    - Procore Documents API
+  outputs:
+    - Itemized estimate spreadsheet (CSV/XLSX)
+    - Annotated quantity takeoff PDFs
+    - Assumptions/clarifications log
+    - Bid proposal PDF
+  pricingModel:
+    - Per project (tiered by sheet count)
+    - Monthly subscription with project caps
+    - Rush fee option
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 7
+    overall: 8
+  risks:
+    - Misread plans or missed addenda cause estimate errors
+    - Different drawing conventions reduce extraction accuracy
+    - API access limits for some takeoff tools
+    - Liability for pricing assumptions
+  dependencies:
+    - Access to complete and current plans/specs
+    - Up-to-date price books and productivity rates
+    - Customer proposal template
+leanCanvas:
+  problem:
+    - >-
+      Manual concrete takeoffs from 2D plans consume 6–12 hours per mid-size
+      project (50–150 pages), creating bottlenecks that cause missed bid
+      deadlines and slow quote turnaround.
+    - >-
+      Estimator shortages: most poured-concrete contractors have 1–3 estimators
+      who juggle 5–20 bids/week; capacity ceilings cap revenue growth and
+      responsiveness to addenda.
+    - >-
+      Quantity errors and scope gaps lead to margin slippage: 3–8% average
+      variance between estimated and actual for concrete, rebar, and formwork;
+      misreads of specs (psi, slump, admixtures, vapor barriers, reinforcement
+      schedules) are common.
+    - >-
+      Poor version control and late addenda drive rework; teams spend 1–3 hours
+      reconciling plan revisions and alternates per bid.
+    - >-
+      Fragmented cost data: outdated labor/equipment/productivity rates;
+      volatile materials (cement, rebar, admixtures) with regional variance lead
+      to inaccurate cost build-ups.
+    - >-
+      Inconsistent symbology and detail conventions across architects/engineers
+      make automation difficult; many tools are general-purpose and not
+      concrete-specific.
+    - >-
+      Limited integration with workflows (Procore, Bluebeam, Autodesk) forces
+      double-entry, Excel duct-tape, and error-prone handoffs.
+    - >-
+      Contractors need defensible, auditable estimates with line-by-line
+      assumptions for GC negotiations and VE; most tools lack confidence scores
+      and traceability back to plan callouts.
+  solution:
+    - >-
+      AI-powered plan and spec ingestion (PDFs, vector CAD exports) that
+      automatically detects slab areas and thicknesses, wall lengths and
+      heights, footings/grade beams, piers, joints, embeds, vapor barriers,
+      insulation, and rebar schedules.
+    - >-
+      Spec parsing to extract mix designs, compressive strength, exposure
+      classes, cover, fiber vs mesh, admixtures, curing requirements, and
+      jointing details, with alerts when specs conflict with plan notes.
+    - >-
+      Concrete-specific assemblies and cost build-ups: concrete volume and
+      waste, rebar by size/spacing/grade with lap/splice logic, formwork surface
+      area and cycle times, pumping/placing/finishing labor, sawcutting, curing,
+      and QA/QC.
+    - >-
+      Estimator-in-the-loop workflow: quick review of AI-detected elements with
+      side-by-side plan overlays, confidence scores, and one-click corrections
+      that retrain project-level models.
+    - >-
+      Versioning and change reconciliation: compare base set to addenda, cloud
+      changes, and alternates; highlight quantity deltas and cost impacts for VE
+      options.
+    - >-
+      Calibrated productivity and cost models by region; import historical
+      actuals to tune production rates and labor/equipment crews.
+    - >-
+      One-click exports to Excel templates, cost codes (CSI 033000), and
+      integrations with Procore Estimating, Autodesk Build/Takeoff, Bluebeam
+      Revu, and STACK/PlanSwift.
+    - >-
+      Defensible proposals: generate scope clarifications,
+      inclusions/exclusions, and assumption logs with hyperlinks to plan
+      callouts.
+  uniqueValueProp: >-
+    Produce bid-ready concrete takeoffs and cost build-ups in minutes—not
+    days—using AI tuned for foundations, slabs, walls, and footings, delivering
+    ±3% concrete volume accuracy and ±5% rebar weight accuracy on benchmarked
+    sets, with auditable traceability and integrations to the tools concrete
+    estimators already use.
+  unfairAdvantage: >-
+    A concrete-first AI stack trained on thousands of annotated
+    foundation/slab/wall/footing plan sets with linked actuals, yielding
+    superior detection of reinforcement and formwork vs. generic takeoff tools;
+    estimator-in-the-loop feedback captured at element level to continuously
+    improve models; early integrations and co-marketing with Procore/Bluebeam
+    plus supplier quote automation create switching costs and a defensible data
+    moat.
+  customerSegments:
+    - >-
+      Primary: Poured Concrete Foundation and Structure Contractors (NAICS
+      238110), commercial/multifamily/industrial, 10–500 employees; roles: Chief
+      Estimator, Preconstruction Manager, Owner.
+    - >-
+      Secondary: Self-perform concrete divisions within General Contractors
+      (regional/national), 100–5,000 employees.
+    - >-
+      Tertiary: Residential foundation contractors (5–50 employees) who bid from
+      builder sets; smaller but high-volume takeoffs.
+    - >-
+      Influencers/Channels: Ready-mix suppliers, rebar fabricators, formwork
+      system vendors, industry associations (ACI, ASCC), software ecosystems
+      (Procore, Bluebeam, Autodesk).
+  channels:
+    - >-
+      Direct sales to subcontractors via SDR/AE motions targeting Chief
+      Estimators on LinkedIn and email.
+    - >-
+      App marketplace listings and integrations (Procore Marketplace, Autodesk
+      App Store, Bluebeam plugins).
+    - >-
+      Partnerships with ready-mix suppliers and rebar fabricators for
+      co-marketing and referrals (quote automation incentives).
+    - >-
+      Industry associations and events: World of Concrete, ACI chapter meetings,
+      ASCC webinars and newsletters.
+    - >-
+      Content marketing: benchmark studies on concrete bid accuracy,
+      downloadable takeoff templates, training videos; SEO for terms like
+      “concrete takeoff software” and “foundation estimate template.”
+    - >-
+      Customer referrals and ambassador program: discounts for bringing peer
+      contractors; case studies with measurable ROI.
+    - >-
+      Regional focus GTM (TX, FL, CA to start) with GC and DOT bid calendars;
+      sponsorship of Bluebeam user groups.
+  revenueStreams:
+    - >-
+      SaaS subscriptions per seat: Starter $199/seat/month (pay-as-you-go), Pro
+      $499/seat/month (higher limits, advanced features), Enterprise custom
+      (SSO, SOC 2 reports, priority support).
+    - >-
+      Usage-based processing: $5 per plan sheet or $0.10 per MB beyond tier
+      limits; volume discounts.
+    - >-
+      Done-for-you estimate service for overflow: $350–$1,500 per project
+      depending on sheet count and scope; 48-hour SLA.
+    - >-
+      Enterprise API access for self-perform GCs: starting at $2,000/month +
+      usage.
+    - >-
+      Training/onboarding packages: $1,500 fixed for 2-day remote enablement;
+      optional onsite.
+    - >-
+      Supplier referral fees for qualified leads (opt-in) to
+      fabricators/ready-mix (e.g., $50–$200 per awarded referral).
+  costStructure:
+    - >-
+      R&D: ML/CV/LLM engineers and data scientists ($150k–$220k/yr per FTE),
+      estimator SMEs ($120k–$160k/yr), product/QA.
+    - >-
+      Cloud compute and storage: inference GPUs/CPUs, vectorization services,
+      document storage; target <$0.50 per processed sheet COGS.
+    - >-
+      Data labeling and model evaluation: contractor-partner feedback stipends
+      and managed labeling vendors ($0.05–$0.20 per annotation).
+    - >-
+      Sales and marketing: SDR/AE comp, trade shows (World of Concrete booth
+      $30k–$70k), paid search/linkedin, content production.
+    - >-
+      Integrations and certifications: marketplace fees, SOC 2 Type II
+      ($60k–$120k/year maintenance), SSO/SAML.
+    - >-
+      Customer success and support: chat, onboarding, documentation, help center
+      video production.
+  keyMetrics:
+    - >-
+      Time-to-first-takeoff: <15 minutes from upload to initial quantities (P50)
+      for a 100-page set.
+    - >-
+      Takeoff accuracy benchmarks: concrete volume MAE ≤3%, rebar weight MAE
+      ≤5%, formwork area MAE ≤7% on validation projects; track against
+      ground-truth post-award.
+    - >-
+      Estimator throughput: 3–5x more bids per estimator; target 8+ bids/week
+      vs. baseline 2–3.
+    - >-
+      Win-rate uplift: +2–5 percentage points due to faster, more defensible
+      proposals; measure by cohort pre/post adoption.
+    - >-
+      Retention: logo churn <2% monthly; net revenue retention >115% by
+      expansion seats/usage.
+    - >-
+      Gross margin: 75–85%; compute cost per sheet <$0.50 and trending down 10%
+      per quarter.
+    - >-
+      Sales funnel: MQL→SQL 25%, demo→close 20–30%; CAC payback <9 months; ACV
+      (Pro) $6k–$12k.
+    - >-
+      Activation: 80% of new accounts complete first project within 14 days;
+      WAU/MAU >60%.
+    - >-
+      Data quality loop: ≥30% of projects provide post-award actuals for model
+      calibration within 60 days.
+storyBrand:
+  character: >-
+    Poured-concrete foundation contractors and estimators who need fast,
+    reliable takeoffs and costed estimates for slabs, walls, footings, and
+    foundations to win more profitable bids.
+  problem: >-
+    External: Manual plan takeoffs are slow, inconsistent, and miss revisions.
+    Internal: Bids feel rushed and risky, and margins feel exposed.
+    Philosophical: You shouldn’t lose work or profit because paperwork beats
+    production.
+  guide: >-
+    We understand the pressure to price concrete work accurately on tight
+    timelines. Our AI-driven service reads plans and specs for concrete scopes
+    and produces quantified, costed line items using field-ready assemblies and
+    current cost inputs, so you can bid with confidence.
+  plan: >-
+    Process: 1) Upload plans/specs. 2) Review AI quantities and cost build-up
+    for slabs, walls, footings, and foundations. 3) Adjust crews, rates, and
+    inclusions; finalize your estimate package. Agreement: Transparent
+    calculations and assumptions, with your team in control before submission.
+  callToAction: >-
+    Primary: Schedule a demo to see your scope estimated. Transitional: Request
+    a sample takeoff from a past project.
+  success: >-
+    Consistently fast, defensible estimates; fewer scope gaps and change orders;
+    stronger hit rates; protected margins; more time for field coordination;
+    scalable estimating capacity without adding headcount.
+  failure: >-
+    Keep burning nights on manual takeoffs, miss scope on revisions, over- or
+    under-price work, lose winnable bids—or win unprofitable ones—and erode
+    trust and margins.
+landingPage:
+  hero:
+    title: Rapid Bid Takeoff and Concrete Estimates for Concrete Contractors
+    subtitle: >-
+      Upload plans and specs. Get quantified foundations, slabs, walls, and
+      footings with a fully costed estimate in minutes—accurate, auditable, and
+      bid-ready.
+    ctaText: Start Free Trial
+    ctaHref: /signup
+  problem:
+    - Manual takeoffs eat hours and delay bids.
+    - 'Missed rebar, formwork, or waste factors erode margin.'
+    - Plan revisions force do-overs across spreadsheets.
+    - Estimates vary by estimator—no standard assemblies.
+    - Limited visibility from spec notes to line items increases risk.
+    - Slow turnaround loses invitations and awards.
+  solution:
+    - >-
+      AI reads plans/specs and quantifies concrete, rebar, and formwork by
+      element.
+    - >-
+      Auto-detects foundations, slabs, walls, footings—by thickness, steps, and
+      types.
+    - 'Builds costs from your labor, material, equipment, and production rates.'
+    - Visual overlays and line-by-line audit trail for instant verification.
+    - 'Addendum-aware: compares revisions and shows quantity deltas.'
+    - Exports to Excel/CSV/PDF; integrates via API with your systems.
+    - Confidence flags highlight low-certainty items for quick review.
+  features:
+    - Drag-and-drop PDF plan sets; multi-sheet parsing with sheet recognition.
+    - 'Concrete quantities: CY, SF, LF with pour breaks and thickness changes.'
+    - 'Walls and footings: lengths by type, formwork area, keys, steps, haunches.'
+    - Rebar takeoff from bar schedules and spacing to tonnage and bar counts.
+    - 'Formwork and accessories: ties, liners, chamfers, embeds, blockouts.'
+    - 'Slabs: control joints, thickened edges, vapor barrier, insulation, curing.'
+    - >-
+      Assemblies library with waste factors, productivity, and markups you
+      control.
+    - 'Spec reader extracts mix design, strength, exposure class; links to items.'
+    - Change comparison across revisions with side-by-side quantity differences.
+    - 'Team review, notes, approvals, and version history for traceability.'
+    - 'Unit systems: US customary and metric; roundings and waste rules.'
+    - 'One-click exports: Excel/CSV/PDF; API for estimating/ERP sync.'
+  steps:
+    - Upload plans and specs.
+    - 'Pick a template and cost database; set crews, rates, and production.'
+    - Review AI takeoff overlays and detected elements.
+    - Adjust quantities and assumptions; lock scoped items.
+    - 'Generate cost build-up; apply markups, alternates, and exclusions.'
+    - Export and submit your bid with a full audit trail.
+---
+# RapidBid Concrete AI
+
+Industry: Poured Concrete Foundation and Structure Contractors
+Service: Rapid Bid Takeoff and Concrete Estimate

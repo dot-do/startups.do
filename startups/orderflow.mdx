@@ -1,0 +1,317 @@
+---
+name: OrderFlow AI — EDI Agent for Stationery & Office Supply Wholesalers
+slug: orderflow
+service:
+  title: EDI Order Intake and Exception Handling Agent
+  description: >-
+    Automates ingestion of EDI purchase orders, creates sales orders in ERP,
+    returns confirmations/ASNs, and handles exceptions with human approval as
+    needed.
+  targetUsers:
+    - Operations Manager
+    - EDI Analyst
+    - IT/ERP Admin
+  triggers:
+    - New EDI 850 received
+    - 855 confirmation due
+    - 856 ASN due
+    - Price/availability mismatch detected
+  inputs:
+    - EDI 850/855/856/810/997
+    - ERP item master and pricing
+    - Customer trading partner profiles
+    - On-hand and ATP inventory
+  steps:
+    - Listen for inbound EDI via gateway
+    - Validate and map to canonical schema
+    - Price/availability check against ERP
+    - Create/hold Sales Order in ERP
+    - Auto-send 855 or route exceptions to human
+    - Generate 856 from pick/pack/ship events
+    - Log and reconcile functional acks (997)
+  tools:
+    - SPS Commerce or Orderful (EDI)
+    - NetSuite SuiteTalk or SAP Business One Service Layer
+    - Acumatica/QuickBooks Enterprise APIs
+    - PostgreSQL or Snowflake
+    - LLM for exception emails and summaries
+  outputs:
+    - ERP Sales Orders
+    - EDI 855/856/997 acknowledgments
+    - Exception tickets and customer emails
+    - Daily compliance report
+  pricingModel:
+    - One-time mapping/setup fee
+    - Per-PO processing fee
+    - Optional 24/7 SLA surcharge
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 7
+    overall: 8
+  risks:
+    - Incorrect order creation due to mapping errors
+    - EDI compliance failures with trading partners
+    - Inventory timing mismatches causing backorders
+    - Data security of EDI and ERP credentials
+  dependencies:
+    - EDI gateway credentials and partner profiles
+    - ERP API access and sandbox
+    - Inventory/pricing accuracy
+    - Email domain for notifications
+leanCanvas:
+  problem:
+    - >-
+      High manual effort and latency to ingest EDI 850 purchase orders into ERPs
+      (Epicor P21, Infor SX.e/CloudSuite, D365 BC, NetSuite, SAP B1, Acumatica),
+      causing delays and missed SLAs.
+    - >-
+      Frequent exceptions (price mismatches, item cross-references, pack-size
+      conversions, min-order quantities, shipping windows, address/compliance
+      errors) create rework and require senior EDI analysts.
+    - >-
+      Costly chargebacks and retailer compliance penalties due to late or
+      incorrect 855 acknowledgments, 856 ASNs, or UCC-128 label/pack detail
+      inaccuracies.
+    - >-
+      Seasonal spikes (back-to-school, calendar-year-end) overwhelm order-entry
+      teams; staffing up is expensive and slow to train.
+    - >-
+      Legacy EDI translators and iPaaS tools move data but don’t interpret
+      business rules; IT must maintain brittle mappings and custom scripts per
+      trading partner.
+    - >-
+      Limited end-to-end visibility: ops leaders lack real-time metrics on
+      touchless rates, exception root causes, and chargeback risk by trading
+      partner.
+  solution:
+    - >-
+      Continuously ingest EDI 850s from VAN/AS2/SFTP, normalize and validate
+      against customer/item/price contracts, and auto-create sales orders in the
+      ERP with accurate ship dates, pack sizes, and backorder logic.
+    - >-
+      Auto-generate and transmit EDI 855 order acknowledgments and 856 ASNs with
+      correct pack/carton hierarchy and UCC-128 labels; track and enforce
+      trading-partner-specific compliance rules.
+    - >-
+      AI exception triage: explain issues (e.g., price variance, invalid SKU,
+      ship-window conflict), propose resolution (substitute SKU, price override
+      within tolerance, split shipment), and route for approval in
+      Slack/Teams/email with one-click actions.
+    - >-
+      Prebuilt connectors and mappings for top ERPs, VANs, and common
+      office-supply trading partners; reusable cross-reference catalogs for
+      SKUs, GTINs, and pack sizes.
+    - >-
+      Real-time dashboard: touchless rate, exception reasons and cycle time, ASN
+      timeliness, chargeback risk, and per-partner SLA performance.
+    - >-
+      Continuous learning: model improves from approved resolutions; monitoring
+      to catch map drift, master-data changes, and new partner requirements.
+  uniqueValueProp: >-
+    90%+ touchless EDI-to-ERP order creation in under 2 minutes, with AI-driven
+    exception reasoning that reduces chargebacks 30–50% and cuts EDI labor
+    50–70%—all with human-in-the-loop approvals where it matters.
+  unfairAdvantage: >-
+    Domain-specific exception corpus and rule packs for office-supply trading
+    partners, plus SKU/pack-size cross-reference libraries that enable high
+    initial touchless rates. Combined with deep ERP connectors (P21, SX.e, D365,
+    NetSuite) and human-in-the-loop workflows embedded in Slack/Teams, this
+    yields faster time-to-value and lower exception rates than generic EDI/iPaaS
+    or RPA tools.
+  customerSegments:
+    - >-
+      Primary: Mid-market stationery and office supply merchant wholesalers
+      ($50M–$1B revenue) serving retailers, schools, government, and enterprise
+      procurement.
+    - >-
+      Operational buyers: EDI managers, order management leaders, customer
+      service managers, distribution/operations directors, and CIO/IT
+      integration leads.
+    - >-
+      Tech environments: ERPs (Epicor P21, Infor SX.e/CloudSuite, D365 BC/FO,
+      NetSuite, SAP B1, Acumatica), EDI VANs (SPS Commerce, TrueCommerce,
+      OpenText/GXS, Cleo, DiCentral/E2Open), WMS/3PL integrations.
+    - >-
+      Beachhead: US/Canada wholesalers with at least 10 active EDI trading
+      partners and 25k+ EDI orders/year, experiencing chargebacks >$25k/year or
+      exception rates >15%.
+  channels:
+    - >-
+      ERP VAR/ISV partnerships (Epicor Alliance, Infor Partner Network,
+      Microsoft AppSource, NetSuite SuiteApp) with revenue sharing and
+      co-marketing.
+    - >-
+      EDI VAN partnerships (SPS Commerce, TrueCommerce, Cleo, OpenText/GXS) to
+      position AI exception handling as a value-add to existing translation
+      services.
+    - >-
+      Industry associations and events: OPI (Office Products International)
+      events, ISG (Independent Suppliers Group) Industry Week, SP
+      Richards/Essendant partner events; speaking slots on chargeback reduction
+      and touchless order flows.
+    - >-
+      Targeted ABM outbound to EDI/ops leaders at US/CA wholesalers with 10–100
+      trading partners; sequences include ROI calculators and 30-day pilot
+      offers.
+    - >-
+      Customer evidence program: 2–3 lighthouse accounts with published case
+      studies (touchless rate, chargeback reduction, labor savings) and
+      webinars.
+    - >-
+      Marketplace listings and SEO around “P21 EDI automation,” “office supply
+      ASN automation,” “EDI exception handling AI.”
+  revenueStreams:
+    - >-
+      Subscription: tiered by annual EDI order volume (e.g., Starter up to 25k
+      orders: $2.5k/month; Growth 25k–100k: $5k–$8k/month; Enterprise >100k:
+      custom).
+    - >-
+      Usage add-on: $0.03–$0.09 per EDI line processed beyond plan thresholds;
+      discounted annual commitments.
+    - >-
+      Implementation/onboarding: $15k–$60k one-time depending on ERP, trading
+      partners, and data-migration complexity.
+    - >-
+      Premium support and SLA: 24x7 incident response, dedicated CSM, quarterly
+      optimization—$12k–$40k/year.
+    - >-
+      Add-on modules: retail-label printing integration, advanced cartonization
+      optimization, analytics export to data warehouse.
+    - >-
+      Professional services: trading partner testing, new partner onboarding,
+      custom rule packs.
+  costStructure:
+    - >-
+      R&D and cloud infrastructure (compute for parsing/inference, data storage;
+      $15k–$60k/month scaling with logos/volume).
+    - 'Implementation and support labor (solution engineers, EDI analysts, CSMs).'
+    - 'Partner fees and revshare (ERP VARs, VAN marketplaces, app stores 10–30%).'
+    - >-
+      Security/compliance (SOC 2 audit, pentesting, logging/monitoring),
+      insurance (cyber/E&O).
+    - 'Sales and marketing (ABM tools, events, content), demos and pilot support.'
+    - >-
+      Labeling/curation of exception datasets and maintaining rule packs for
+      trading partners.
+  keyMetrics:
+    - >-
+      Touchless order creation rate (% of EDI 850s posted to ERP without human
+      touch). Target: 90%+ after 90 days.
+    - >-
+      Median and 95th percentile order processing latency (EDI receipt to ERP
+      order creation). Target: p95 < 2 minutes.
+    - >-
+      Exception rate by reason (price, item xref, ship-to, MOQs, window
+      conflicts) and median exception resolution time. Target: <4 hours median.
+    - >-
+      ASN timeliness compliance (% ASNs sent within trading-partner window).
+      Target: >98%.
+    - >-
+      Chargeback rate per 1,000 orders and total chargeback $ trend. Target:
+      30–50% reduction by month 6.
+    - 'Human approvals per 100 orders. Target: <5 after stabilization.'
+    - 'New trading partner onboarding time. Target: <5 business days.'
+    - >-
+      Map drift incidents per month (unexpected master-data mismatches). Target:
+      <2/month with proactive alerts.
+    - >-
+      Gross margin impact via labor savings (FTEs reduced or repurposed) and
+      cost per order. Target: 50–70% reduction in EDI handling cost/order.
+    - >-
+      Commercial KPIs: CAC payback <12 months; net revenue retention >115%; logo
+      churn <5% annually; pilot-to-paid conversion >60%.
+storyBrand:
+  character: >-
+    Stationery and office supplies wholesalers who need EDI orders processed
+    accurately and on time without adding headcount.
+  problem: >-
+    External: fragmented EDI feeds, retailer-specific rules, manual ERP entry,
+    missed 855/856 windows, chargebacks; Internal: ops teams stretched, error
+    anxiety, hard to scale; Philosophical: machines should handle routine EDI so
+    people can focus on customers and growth.
+  guide: >-
+    EDI Order Intake & Exception Handling Agent—an AI service specialized for
+    wholesalers. We integrate to your EDI/VAN and ERP, enforce trading-partner
+    rules, keep humans in the loop for exceptions, and provide full audit trails
+    and SLAs.
+  plan: >-
+    1) Connect: link your EDI/VAN and ERP; 2) Configure: map partners,
+    tolerances, and approval rules; 3) Launch: automate 850→sales order, send
+    855/856, and route exceptions for quick human approval—continuously
+    monitored and improved.
+  callToAction: >-
+    Book a 30‑minute demo or start a limited-scope pilot; get an ROI estimate
+    and readiness checklist.
+  success: >-
+    Orders flow from EDI to ERP in minutes; accurate confirmations and ASNs;
+    fewer chargebacks; high straight‑through processing; lower cost per order;
+    add partners and volume without hiring; happier customers and healthier cash
+    flow.
+  failure: >-
+    Manual entry continues; missed confirmations/ASNs; mounting chargebacks;
+    delays and dissatisfied customers; eroded margins; staff burnout; growth
+    stalls.
+landingPage:
+  hero:
+    title: EDI Order Intake & Exception Agent for Office Supply Wholesalers
+    subtitle: >-
+      Auto‑ingest 850s, create ERP sales orders, send 855s/ASNs, and route
+      exceptions for one‑click approval. Faster cycles, fewer chargebacks.
+    ctaText: Book a 20‑minute demo
+    ctaHref: '#demo'
+  problem:
+    - Manual entry from EDI/VAN/portals slows order cycles and creates errors
+    - 'Price, UOM, and pack‑size mismatches trigger rework and chargebacks'
+    - ASN and label compliance issues risk retailer penalties
+    - Inconsistent ERP order creation across CSRs
+    - 'Backorders, substitutions, and ship‑from rules depend on tribal knowledge'
+    - Little visibility into exception reasons and SLA performance
+    - Trading partner onboarding takes too long
+  solution:
+    - 'Centralize EDI PO intake (AS2, SFTP, VAN, portals) with spec validation'
+    - >-
+      Auto‑create clean sales orders in your ERP with SKU mapping and ATP
+      allocation
+    - >-
+      Instantly return compliant 855 acknowledgements and 856 ASNs with carton
+      detail
+    - Route edge cases to a human‑in‑the‑loop queue with suggested fixes
+    - Learn from approvals to reduce recurring exceptions over time
+    - >-
+      Monitor confirmations, ASN timeliness, and chargeback risk in one
+      dashboard
+    - Maintain a full audit trail with traceable document links
+  features:
+    - >-
+      ERP integrations: NetSuite, Acumatica, Epicor P21, SAP Business One,
+      Microsoft Dynamics
+    - >-
+      VAN/AS2 connectivity: SPS Commerce, TrueCommerce, OpenText, direct AS2,
+      SFTP
+    - >-
+      Trading partner templates for Staples, Office Depot, WB Mason, Amazon
+      Vendor, Grainger
+    - Item/UPC/GTIN mapping and catalog normalization
+    - Pack/inner/carton conversions and UOM handling
+    - 'ATP check, allocation rules, and backorder logic'
+    - Pricing validation against contracts and promos
+    - 'Routing guide compliance: ship windows, carrier/SCAC, FOB/terms'
+    - UCC‑128/GS1‑128 label data and cartonization API
+    - >-
+      Exception reason codes (price, MOQ, UOM, discontinued, address, tax,
+      freight)
+    - Role‑based approvals with email/Slack/Teams notifications
+    - 'Security: SOC 2‑aligned controls; encryption in transit and at rest'
+  steps:
+    - Connect your ERP and EDI endpoints
+    - Import trading partner specs and select processing rules
+    - 'Map SKUs, locations, pricing; set substitution/kit preferences'
+    - Test with sample 850s; verify 855/856 and label outputs
+    - Go live with auto‑processing and alerting
+    - Approve exceptions as needed—the agent learns and reduces future reviews
+---
+# OrderFlow AI — EDI Agent for Stationery & Office Supply Wholesalers
+
+Industry: Stationery and Office Supplies Merchant Wholesalers
+Service: EDI Order Intake and Exception Handling Agent

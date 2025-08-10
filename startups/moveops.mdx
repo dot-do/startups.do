@@ -1,0 +1,298 @@
+---
+name: MoveOps Optimizer
+slug: moveops
+service:
+  title: 'Route, Crew, and Load Plan Optimizer'
+  description: >-
+    Optimizes daily routes, job assignments, crew skills, and truck loading
+    order to reduce drive time and overtime while respecting time windows and
+    capacity.
+  targetUsers:
+    - Dispatchers
+    - Operations managers
+  triggers:
+    - Nightly planning run
+    - New booking/change same day
+    - Weather/traffic disruptions
+  inputs:
+    - Jobs with time windows and service durations
+    - Estimated cubic feet/weight
+    - Crew availability and skills
+    - Truck capacities and depot location
+    - Traffic and road constraints
+  steps:
+    - Ingest jobs and constraints from CRM
+    - Solve VRP with time windows/capacities
+    - Assign crews and trucks; sequence stops
+    - Produce turn-by-turn links and load order
+    - Push plan to crew apps; notify customers of ETA windows
+  tools:
+    - 'Optimization: OR-Tools/Routific/OptimoRoute/Onfleet'
+    - 'Maps/ETA: Google Maps/Mapbox'
+    - 'CRM/ops: Supermove/MoveitPro'
+    - 'Notifications: Twilio/SendGrid'
+  outputs:
+    - Crew/truck assignments
+    - Optimized routes and ETAs
+    - Load plan by truck with item groupings
+    - Customer ETA notifications
+  pricingModel:
+    - 'Per truck per day (e.g., $1–$4)'
+    - Monthly subscription by fleet size
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 8
+    overall: 9
+  risks:
+    - Bad inputs (inaccurate volumes/durations) degrade plans
+    - Last-minute changes causing re-optimization churn
+    - Crew pushback on assignments
+  dependencies:
+    - Accurate job data
+    - Crew calendars and skill tags
+    - GPS/traffic data access
+leanCanvas:
+  problem:
+    - >-
+      Dispatchers spend 1–3 hours daily manually building routes, crew
+      assignments, and loading plans across whiteboards/spreadsheets, leading to
+      inconsistent plans and slow response to day-of changes.
+    - >-
+      Suboptimal routing and crew matching create 10–20% excess drive time,
+      25–40% overtime, and frequent late arrivals against customer time windows
+      (AM/PM, building elevator slots).
+    - >-
+      Crew skills (e.g., piano handling, packing/crating, modular furniture
+      disassembly, hoisting, long-carry) are not systematically factored into
+      assignments, causing rework, damage risk, and schedule slippage.
+    - >-
+      Truck capacity and load order are guessed; poor 3D space use and wrong
+      loading sequence cause double-handling and 10–20% extra loading/unloading
+      time.
+    - >-
+      Day-of disruptions (traffic, cancellations, job overruns, sick calls) are
+      handled ad hoc; no real-time re-optimization or ETA recalculation, causing
+      cascading delays and dissatisfied customers.
+    - >-
+      Lack of integrated analytics; operators can’t quantify the cost of
+      overtime, empty miles, or late-window penalties, making margin improvement
+      guesses rather than data-driven actions.
+  solution:
+    - >-
+      Import tomorrow’s jobs with time windows, inventories/cube estimates,
+      access notes, and promised durations from existing move-management
+      software.
+    - >-
+      Auto-generate an optimal plan in under 90 seconds: routes by truck, crew
+      assignments by skill, start times, and per-stop load/unload sequencing to
+      meet windows while minimizing drive and overtime.
+    - >-
+      Provide a 3D load plan and pick-path with labels that match unload order,
+      reducing double-handling and time at destination.
+    - >-
+      Model labor rules and cost: shifts, lunch breaks, overtime thresholds,
+      prevailing wage/union constraints, and driver qualifications.
+    - >-
+      Real-time re-optimization on disruptions (traffic, delay, job overrun,
+      no-show) with ETA updates, customer notifications, and crew reassignment
+      recommendations.
+    - >-
+      Dashboards quantify impact: on-time rate, overtime hours and cost, empty
+      miles, crew utilization, CO2, job margin by branch/truck/crew.
+  uniqueValueProp: >-
+    One system that simultaneously optimizes routes, crew skills, and 3D loading
+    sequence—then re-optimizes in real time as the day changes—cutting drive
+    time 10–20%, overtime 25–40%, and boosting daily job capacity 5–10% within
+    30 days of go-live.
+  unfairAdvantage: >-
+    A moving-specific “triple optimizer” (routes + crew skills + 3D load order)
+    trained on real operational data and integrated with dominant
+    move-management systems, enabling faster time-to-value, higher plan
+    adoption, and measurable ROI that generic delivery route tools can’t match.
+  customerSegments:
+    - >-
+      Local and regional household-goods movers with 5–50 trucks seeking margin
+      and on-time performance improvements.
+    - >-
+      National van line agents (e.g., United/Mayflower, Allied, North American)
+      needing standardized planning and reporting across branches.
+    - >-
+      Office/commercial movers managing elevator reservations, dock access,
+      union/prevailing-wage constraints, and strict time windows.
+    - >-
+      Franchise networks and multi-branch moving brands looking to harmonize
+      operations and analytics across locations.
+    - >-
+      Operations leaders: dispatchers, branch managers, GMs, and owners focused
+      on reducing overtime and improving NPS/claims.
+  channels:
+    - >-
+      Direct sales to operations leaders via outbound and LinkedIn: 40 targeted
+      outreach messages/week/AE; goal 8 demos/week; 25% demo-to-pilot
+      conversion.
+    - >-
+      Partnerships and integrations with move-management platforms (SmartMoving,
+      Supermove, MoveitPro, Movegistics, Vonigo) with revenue share (10–20%) and
+      marketplace listings.
+    - >-
+      Industry associations and events: ATA Moving & Storage Conference, IAM,
+      state associations (e.g., CMSA); sponsor and run “live optimization”
+      workshops; collect pilot signups (target 30+ leads/event).
+    - >-
+      Content-led inbound: ROI calculator (overtime and empty miles), case
+      studies, and SEO around “moving route optimization,” “crew scheduling for
+      movers,” and “3D truck loading plan.” Target 2–3 MQLs/day within 6 months.
+    - >-
+      Channel referrals: consultants and van-line corporate ops teams; offer
+      referral fee ($1,000 per qualified install) and co-branded training.
+    - >-
+      Land-and-expand: start with one branch/pilot truck set; expand to all
+      branches within 90 days post-ROI validation.
+  revenueStreams:
+    - >-
+      SaaS subscription (Annual, billed monthly): Starter (up to 5 trucks): $299
+      base + $49/truck/month; Growth (6–25 trucks): $499 base + $79/truck/month;
+      Enterprise (26+ trucks): custom volume pricing ($49–$69/truck/month) with
+      SLAs.
+    - >-
+      Implementation package: $1,500–$10,000 per tenant depending on
+      integrations, data migration, and on-site training needs.
+    - >-
+      Usage-based add-ons: high-frequency re-optimization beyond plan (e.g.,
+      >200 runs/month) at $0.10/job; SMS notifications $0.01/message; premium
+      analytics $199/month/branch.
+    - >-
+      Professional services: process audits, custom constraints, and advanced
+      load-planning templates at $150–$220/hour.
+    - >-
+      Partner/reseller channel: 10–20% revenue share with integrated platforms
+      and van-line corporate programs; white-label options for large networks.
+  costStructure:
+    - >-
+      Engineering and data science payroll (optimization engineers, data
+      engineers, full-stack devs).
+    - >-
+      Cloud compute for optimization workloads; GPU/CPU autoscaling; cost target
+      <$0.03 per optimized job day.
+    - >-
+      Mapping/traffic APIs (Google/Mapbox/HERE) usage fees; negotiated
+      enterprise rates as volume grows.
+    - >-
+      Sales and marketing: SDR/AE compensation, event sponsorships, partner
+      program fees, and content production.
+    - >-
+      Customer success and onboarding: solution architects, training materials,
+      and support tooling; target <8 weeks to positive ROI per customer.
+    - >-
+      Security/compliance: SOC 2 Type II, pen tests, logging/monitoring; annual
+      budget allocation 3–5% of revenue.
+    - >-
+      General & administrative: legal, insurance (E&O, cyber), finance, and
+      office overhead.
+  keyMetrics:
+    - >-
+      Customer value KPIs per account: drive time reduction 10–20%; overtime
+      hours reduced 25–40%; on-time arrival rate ≥95%; job capacity +5–10%;
+      load/unload time -15–20%; gross margin +3–7 pp within 90 days.
+    - >-
+      Operational performance: average optimization runtime <90 seconds for
+      25–40 jobs and 10–20 trucks; 99.9% uptime; re-optimization latency <30
+      seconds for partial plan updates.
+    - >-
+      Adoption: plan adoption rate >80% (percentage of optimized plan steps
+      executed as planned), dispatcher weekly active usage >3 days/week, crew
+      adherence to load sequence >70% within 60 days.
+    - >-
+      Financial metrics: ACV per account $6k–$50k; CAC payback <9 months; logo
+      churn <1.5% monthly; NRR >115%; Gross margin >75% at scale.
+    - >-
+      Sales funnel: email/LinkedIn reply rate >8%; demo set rate >15%; pilot
+      close rate >25%; pilot-to-annual conversion >70% within 60 days.
+    - >-
+      Sustainability: empty miles -8–15%; CO2 emissions -8–15% (modelled via
+      fuel consumption and idling reductions).
+storyBrand:
+  character: >-
+    Ops managers, dispatchers, and owners of moving companies who want every
+    job, crew, and truck planned right the first time.
+  problem: >-
+    Manual, day-of planning leads to wasted miles, missed time windows,
+    unbalanced crews, overtime, and damages from ad-hoc load orders; complexity
+    across capacity, skills, traffic, and customer promises overwhelms
+    spreadsheets.
+  guide: >-
+    We understand the 5 a.m. scramble. Our team blends moving-industry know-how
+    with proven optimization and packing algorithms to deliver dispatch-ready
+    routes, crew assignments, and load sequences that respect time windows,
+    capacity, and skills.
+  plan: >-
+    1) Connect your jobs, crews, and trucks via CSV/API; 2) Review the AI
+    plan—routes, assignments, load order—with on-time and cost KPIs; 3)
+    One-click dispatch and live re-optimize as changes occur.
+  callToAction: Book a 30-minute demo or start a 14-day pilot with your own jobs and crews.
+  success: >-
+    Measurably less drive time and overtime, balanced crews, near-perfect
+    on-time arrivals, fewer handling touches from smart load order, happier
+    customers, and higher profit per truck.
+  failure: >-
+    Keep burning fuel and hours, miss windows, scramble crews, overload or
+    underfill trucks, increase damage and claims, and lose repeat business to
+    faster competitors.
+landingPage:
+  hero:
+    title: 'AI Route, Crew, and Load Plan Optimizer for Moving Companies'
+    subtitle: >-
+      Plan each day in minutes—optimal routes, skill‑based crew assignments, and
+      truck loading order—so you hit time windows, cut drive time, and curb
+      overtime.
+    ctaText: Request a Demo
+    ctaHref: /demo
+  problem:
+    - Zig‑zag routes waste miles and push crews into overtime.
+    - 'Wrong crew mix for specialty items (pianos, systems furniture, crating).'
+    - Trucks over/under‑loaded; double‑handling at the job site.
+    - Missed time windows and elevator/dock constraints.
+    - Last‑minute changes trigger endless calls and chaos.
+    - No live ETAs or visibility into utilization and costs.
+  solution:
+    - >-
+      One‑click daily plan that respects time windows, capacity, and labor
+      rules.
+    - Skill‑based job assignments matched to every move.
+    - Truck load plan sequenced first‑off/last‑on to minimize handling.
+    - Traffic‑aware routing that reduces miles and drive time.
+    - 'Real‑time re‑optimization for cancellations, add‑ons, and delays.'
+    - Live ETAs for office and customers with proactive alerts.
+    - 'Clear KPIs: utilization, overtime risk, on‑time performance.'
+  features:
+    - 'Multi‑stop, multi‑truck optimization across crews and branches.'
+    - >-
+      Skill and certification matrix (packing, piano, crating, systems
+      furniture).
+    - 'Capacity by cubic feet, weight, and door/ramp/liftgate constraints.'
+    - 'Time windows, elevator/dock reservations, and parking rules.'
+    - Load order generator with bay/stack labeling and item groups.
+    - Drag‑and‑drop dispatch board with lock/pin and manual overrides.
+    - 'Mobile crew app: route, tasks, load sequence, photos, notes.'
+    - Predictive ETAs with live traffic and dwell time modeling.
+    - 'Overtime, breaks, and union/labor rule compliance.'
+    - 'What‑if planning: split jobs, add a truck, shift windows.'
+    - Simple imports from CRM/estimating tools or spreadsheets.
+    - 'API and webhooks for orders, status, GPS/telematics, and ELD.'
+    - 'Audit trail, simulations, and post‑day metrics for improvement.'
+    - 'Role‑based access, SSO, and granular permissions.'
+  steps:
+    - 'Connect jobs via CSV, API, or integration.'
+    - 'Define fleet, crews, skills, labor rules, and service areas.'
+    - 'Set time windows, site constraints, and job priorities.'
+    - 'Click Optimize to generate routes, assignments, and load plans.'
+    - 'Review, tweak, and lock critical jobs with drag‑and‑drop.'
+    - Publish to crew mobile and send customer ETAs.
+    - Monitor the day; re‑optimize as conditions change.
+    - 'Export timesheets, mileage, and performance reports.'
+---
+# MoveOps Optimizer
+
+Industry: Used Household and Office Goods Moving
+Service: Route, Crew, and Load Plan Optimizer

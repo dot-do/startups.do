@@ -1,0 +1,340 @@
+---
+name: SpindleSight AI
+slug: spindlesight
+service:
+  title: Predictive Maintenance from Machine Logs
+  description: >-
+    Predicts spindle/bearing/toolholder issues using load, vibration, and
+    downtime logs without on-site installation (uses existing historian/MES
+    exports).
+  targetUsers:
+    - Maintenance managers
+    - Manufacturing engineers
+  triggers:
+    - Weekly data sync
+    - Unexpected downtime event
+    - Threshold breach in historian
+  inputs:
+    - 'Historian/MES logs (amps, vibration, temp)'
+    - Work orders and downtime codes
+    - Tool life counters
+  steps:
+    - Aggregate and clean time-series per asset
+    - Label past failure precursors from CMMS
+    - Train anomaly/remaining useful life models
+    - Generate risk calendar and PM windows
+    - Notify when risk exceeds thresholds
+  tools:
+    - OSIsoft PI/AVEVA (CSV/API)
+    - Ignition/Kepware OPC UA (exports)
+    - Python/Prophet/XGBoost
+    - Power BI
+  outputs:
+    - Asset risk dashboard (web)
+    - Next-7/30-day PM recommendations (PDF)
+    - Alert tickets to CMMS
+  pricingModel:
+    - Setup + model training fee
+    - Per-asset per-month
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 7
+    overall: 7
+  risks:
+    - Sensor fidelity/coverage gaps
+    - Ambiguous downtime codes reduce label quality
+    - Overfitting to short history
+  dependencies:
+    - Historian/CMMS access
+    - Accurate asset hierarchy
+    - VPN or secure data drop
+leanCanvas:
+  problem:
+    - >-
+      Unplanned spindle, bearing, and toolholder failures on CNC machines lead
+      to 8–24+ hours of downtime per incident and $20k–$80k in lost production
+      and repair cost per event.
+    - >-
+      Existing condition monitoring often requires new sensors, capital
+      approvals, and machine stoppages; adoption cycles can exceed 6–12 months.
+    - >-
+      Historian and MES logs (spindle load, vibration, downtime codes) are
+      underutilized for early failure detection and root-cause analysis.
+    - >-
+      Maintenance is reactive or calendar-based, causing both catastrophic
+      failures and unnecessary over-maintenance of spindles and toolholders.
+    - >-
+      Inconsistent failure labeling across shifts/plants limits cross-site
+      learning and repeatability of reliability improvements.
+    - >-
+      Plant teams lack leading indicators (2–6 weeks early) tied to actionable
+      work orders and verified ROI.
+    - >-
+      Multi-plant steering/suspension operations need standardized,
+      component-specific insights (spindle/bearing/toolholder) rather than
+      generic machine monitoring.
+  solution:
+    - >-
+      Zero-install data ingestion: secure API/SFTP ingestion of existing
+      historian/MES exports (e.g., spindle load/torque, speed, vibration if
+      logged, downtime codes, tool changes).
+    - >-
+      Automated ETL and asset mapping: normalize tags by controller (Fanuc,
+      Siemens, Okuma), align by cycle/part number, and exclude planned
+      downtime/shifts.
+    - >-
+      Physics-informed ML: change-point detection, trend drift, spectral
+      features (if vibration logged), survival analysis for
+      probability-of-failure, and remaining useful life (RUL) regression.
+    - >-
+      Component-specific models: classifiers tailored to spindle bearings,
+      drawbar/toolholder taper, and imbalance/misalignment signatures common in
+      steering/suspension machining.
+    - >-
+      Actionable alerts: early-warning severity score with 2–6 week lead times,
+      recommended inspection tasks, and confidence bands.
+    - >-
+      Closed-loop workflow: create CMMS work orders (Maximo, Fiix, eMaint) and
+      reconcile outcomes for continuous model learning.
+    - >-
+      Dashboards and reports: watchlist by asset/line/site, OEE impact
+      attribution, and monthly ROI verification.
+    - >-
+      Security and compliance: SOC 2-ready controls, field-level encryption,
+      private cloud/VPC deployment, and read-only data access patterns.
+  uniqueValueProp: >-
+    Predict spindle, bearing, and toolholder degradation weeks in advance using
+    the historian and MES data you already collect—no on‑site sensors or
+    installations, no downtime. Deploy in days, reduce unplanned spindle
+    failures by 30–50%, and achieve payback in under 90 days.
+  unfairAdvantage: >-
+    A cross-plant, labeled dataset and physics-informed models specifically
+    tuned for automotive steering/suspension machining—combined with no-sensor,
+    no-downtime deployment via existing historian/MES data and deep integrations
+    to CMMS. Partnerships with spindle rebuilders provide verified failure
+    outcomes that competitors often lack, accelerating model accuracy and ROI.
+  customerSegments:
+    - >-
+      Tier-1 and Tier-2 motor vehicle steering and suspension component
+      manufacturers (NAICS 336330).
+    - >-
+      Roles: Reliability/maintenance managers, machining/process engineers,
+      plant managers, CI/operations excellence leaders, quality managers, IT/OT
+      managers.
+    - >-
+      Asset types: CNC machining centers, lathes, grinders, broaches with
+      spindles/toolholders used for knuckles, control arms, tie rods, ball
+      joints, hubs, and subframes.
+    - >-
+      Geographies: North America, EU, Mexico, Japan; multi-plant enterprises
+      with centralized reliability programs.
+    - >-
+      Adjacent stakeholders: Spindle rebuilders, machine OEM service teams,
+      MES/CMMS administrators.
+  channels:
+    - >-
+      Account-based selling to top 150 global steering/suspension producers;
+      target roles: reliability managers and plant managers.
+    - >-
+      Paid pilot motion: 8–12 week pilots on 8–20 machines/site with ROI-backed
+      success criteria; pilot-to-subscription conversion goal ≥60%.
+    - >-
+      Alliances with spindle rebuilders (e.g., Setco, SKF service) for referral
+      and co-validation reports.
+    - >-
+      Co-selling with MES/historian SIs and machine OEM service teams; offer
+      joint workshops and data-readiness assessments.
+    - >-
+      Industry events and councils: IMTS, Automotive Testing Expo, AIAG/OESA
+      supplier forums; present quantified case studies.
+    - >-
+      Content-led demand: “sensorless” predictive maintenance playbooks, ROI
+      calculator, benchmark reports by process/material.
+    - >-
+      Outbound plus LinkedIn ads targeting reliability/maintenance personas;
+      SDRs sequenced with data-sheet and case study assets.
+    - >-
+      Land-and-expand: start with one value stream or cell, expand to all
+      spindles on site, then to multi-site enterprise agreements.
+  revenueStreams:
+    - >-
+      SaaS subscription per connected machine: $200–$400 per machine per month;
+      volume tiers (e.g., >100 machines/site at $225).
+    - >-
+      Enterprise/site license options: floor price $6k–$12k per site per month,
+      capped at machine count for predictability.
+    - >-
+      One-time onboarding/integration fee: $10k–$50k per site/enterprise
+      depending on connectors and data readiness.
+    - >-
+      Paid pilot: $25k for up to 20 machines/one site (credited upon
+      conversion).
+    - >-
+      Optional managed monitoring service (weekly analyst review): $1.5k–$3k per
+      site per month.
+    - 'Premium support/SLA and private VPC surcharge: 10–15% of ARR.'
+  costStructure:
+    - >-
+      Cloud compute/storage for ingestion, feature extraction, training, and
+      scoring: $3–$8 per machine per month at scale.
+    - Data engineering and ML/reliability SME salaries and contractors.
+    - >-
+      Customer success/onboarding engineers for integrations and change
+      management.
+    - >-
+      Sales and marketing (ABM, events, content), including SDRs and partner
+      MDF.
+    - >-
+      Partner commissions/referral fees: 10–20% of first-year ARR for
+      rebuilders/SIs.
+    - >-
+      Security/compliance costs: SOC 2 audits, penetration testing,
+      logging/SIEM.
+    - 'Product development: connectors, MLOps platform, UI/UX.'
+    - 'Insurance (cyber, E&O), legal, and overhead.'
+    - >-
+      R&D dataset acquisition (anonymized cross-plant learning and synthetic
+      data tooling).
+  keyMetrics:
+    - >-
+      Model precision/recall on failure prediction by mode (spindle bearing,
+      toolholder taper): target F1 ≥0.7 within 90 days/site.
+    - >-
+      Average early warning lead time: target 2–6 weeks prior to functional
+      failure; 90th percentile ≥10 days.
+    - >-
+      False positive rate: <0.2 alerts per machine per week; missed-event rate
+      <10%.
+    - >-
+      Reduction in unplanned spindle-related downtime: 30–50% within 6 months of
+      go-live.
+    - 'Increase in MTBF for spindles: +15–30% within 12 months.'
+    - >-
+      Scrap reduction on affected operations: 0.5–1.5 percentage points within
+      3–6 months.
+    - >-
+      OEE improvement attributable to spindle/toolholder health: +2–4 percentage
+      points within 6 months.
+    - 'Time-to-first-signal after data connection: ≤14 days.'
+    - 'Pilot conversion rate: ≥60%; payback period: ≤90 days.'
+    - >-
+      Net revenue retention (NRR): ≥120% via expansion to additional
+      machines/sites.
+    - >-
+      Alert acknowledgment rate: ≥85%; CMMS work order linkage rate: ≥70% of
+      actionable alerts.
+    - >-
+      Data coverage: ≥95% cycles captured with valid tags; integration uptime:
+      ≥99.5%.
+    - 'Gross margin: ≥70% by month 18; CAC payback: ≤9 months.'
+storyBrand:
+  character: >-
+    Ops and maintenance leaders in motor‑vehicle steering & suspension machining
+    (e.g., knuckles, hubs, control arms, tie‑rod ends) who must keep spindles,
+    bearings, and toolholders healthy while hitting OEE and on‑time delivery.
+  problem: >-
+    External: sudden spindle/bearing/toolholder degradation causes scrap,
+    crashes, and downtime while valuable machine logs sit unused. Internal:
+    teams are stuck firefighting and guessing maintenance windows.
+    Philosophical: you shouldn’t need new sensors or on‑site installs—your
+    existing historian/MES data should prevent failures.
+  guide: >-
+    Empathy: We’ve run high‑volume automotive machining and know IATF 16949
+    pressures and the cost of a missed shipment. Authority: vendor‑agnostic
+    models learn from load, vibration, and downtime logs to flag anomalies days
+    in advance; secure, read‑only workflow proven in Tier‑1 pilots.
+  plan: >-
+    1) Export existing historian/MES logs (load, vibration, downtime). 2) We map
+    assets, baseline behavior, and deliver health scores, RUL estimates, and
+    root‑cause alerts. 3) You schedule maintenance before failure and track
+    OEE/scrap savings. No sensors, no on‑site install; start with a 2‑week
+    pilot.
+  callToAction: >-
+    Direct: Book a 30‑minute data review to qualify a line and start a 2‑week
+    pilot. Transitional: request a sample alert pack and ROI model.
+  success: >-
+    Predictable throughput and higher OEE/Cpk, planned maintenance during
+    changeovers, extended spindle life, lower scrap and premium freight,
+    audit‑ready traceability, and added capacity without new CapEx.
+  failure: >-
+    Continued surprise failures, overtime and premium freight, damaged
+    tooling/workpieces, missed customer shipments and chargebacks, and eroded
+    OEE and morale.
+landingPage:
+  hero:
+    title: >-
+      Predict spindle, bearing, and toolholder failures—before they stop your
+      line
+    subtitle: >-
+      AI for steering & suspension machining that turns existing load,
+      vibration, and downtime logs into 1–3 week early warnings. No sensors. No
+      on‑site install.
+    ctaText: Schedule a demo
+    ctaHref: /demo
+  problem:
+    - >-
+      Unplanned spindle/bearing breakdowns derail knuckle, rack, and control arm
+      machining lines
+    - Downtime and expedited freight from late-stage failures
+    - Toolholder looseness and bearing wear progress unnoticed between PMs
+    - Historian/MES data sits unused; adding sensors is slow and costly
+    - Manual condition checks miss subtle patterns across shifts and machines
+    - >-
+      Maintenance gets alerts too late—after surface finish or dimension drift
+      appears
+  solution:
+    - >-
+      Uses your existing historian/MES exports (CSV/API) to predict spindle,
+      bearing, and toolholder issues
+    - >-
+      Learns each machine’s normal load/vibration behavior and correlates with
+      downtime reasons
+    - >-
+      Delivers 1–3 week early warnings with confidence and remaining useful life
+      estimates
+    - >-
+      Ranks assets by risk and production impact so crews fix the right machine
+      first
+    - 'No PLC changes, no hardware, no site visit—fast pilot and low IT lift'
+  features:
+    - >-
+      Ingests spindle/axis load, vibration channels, currents, temperatures,
+      cycle time, downtime codes, and part counts
+    - 'Automatic tag mapping, data quality checks, resampling, and gap handling'
+    - >-
+      Models tuned for NAICS 336330 machining (knuckles, housings, racks,
+      control arms)
+    - >-
+      Failure-mode signals: imbalance, bearing wear, misalignment, toolholder
+      looseness
+    - >-
+      Early-warning analytics: RMS/crest factors, sideband energy, torque
+      spikes, thermal drift, multivariate anomalies
+    - Alerts via email/Teams/Slack with clear recommended actions and urgency
+    - >-
+      Dashboards: asset health index, RUL trend, downtime risk forecast, and
+      quality impact likelihood
+    - >-
+      CMMS hooks (Maximo/Fiix/eMaint/etc.) to auto-create prioritized work
+      orders
+    - >-
+      Deployment: secure cloud or on‑prem; read‑only data access, SSO,
+      role‑based permissions, encryption in transit/at rest
+    - >-
+      ROI tracking: avoided downtime, scrap reduction, and spare inventory
+      optimization
+  steps:
+    - 30‑minute data review to confirm available exports and tags
+    - Upload 90–180 days of historian/MES data or connect API
+    - Map tags to assets/components; quick data health check
+    - Backtest to surface missed precursors and estimate savings
+    - Go live with alerts and dashboards for maintenance and production
+    - >-
+      Monthly tuning and expansion to additional lines/assets; optional CMMS
+      integration
+---
+# SpindleSight AI
+
+Industry: Motor Vehicle Steering and Suspension Components (except Spring) Manufacturing
+Service: Predictive Maintenance from Machine Logs

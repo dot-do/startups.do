@@ -1,0 +1,325 @@
+---
+name: >-
+  ComplyGrid — SKU x Locality Compliance & Order Blocking for Tobacco/ENDS
+  Wholesalers
+slug: complygrid
+service:
+  title: SKU x Locality Compliance Matrix & Order Blocking
+  description: >-
+    Maintains dynamic matrix of which SKUs can be sold/ship to each
+    state/county/city; enforces in ordering.
+  targetUsers:
+    - Compliance
+    - Sales Ops
+    - Ecommerce/EDI
+  triggers:
+    - New or revised SKU
+    - Law change for a locality
+    - New geography opened
+  inputs:
+    - 'SKU attributes (flavor, nicotine, device type)'
+    - Ship-from and ship-to locations
+    - Current restrictions database
+  steps:
+    - Fetch latest restrictions and locality rules
+    - Map rules to SKU attributes to create allow/deny logic
+    - Geo-resolve ship-to ZIP to county/city
+    - Publish matrix to ERP/checkout
+    - Block/flag orders and log exceptions
+    - Provide override workflow with reason codes
+  tools:
+    - GIS/ZIP-to-county API
+    - Rules engine (Decision Tables)
+    - Shopify Plus/Custom B2B portal/Netsuite
+    - Regulatory data provider/scraper
+  outputs:
+    - SKU x locality allow/deny matrix
+    - Order blocking rules
+    - Exception/override report
+  pricingModel:
+    - Setup + monthly subscription
+    - Per-SKU update fee for complex lines
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 6
+    overall: 7
+  risks:
+    - Local ordinance granularity errors
+    - Overblocking and lost sales
+    - Latency between rule change and enforcement
+  dependencies:
+    - Reliable rule sources
+    - ERP/checkout integration
+    - Exception management policy
+leanCanvas:
+  problem:
+    - >-
+      Patchwork regulations: State, county, and city rules change frequently
+      (flavor bans, nicotine caps, product registration lists, pack size
+      minimums, shipping restrictions, license requirements), making manual
+      tracking error-prone.
+    - >-
+      Manual processes: Many wholesalers rely on spreadsheets/tribal knowledge.
+      This causes slow order reviews, inconsistent decisions, and gaps during
+      staff turnover.
+    - >-
+      ERP gaps: Most ERPs/WMS/OMS lack granular, locality-level rule engines.
+      State-level blocks miss municipal ordinances; custom scripting is brittle
+      and hard to maintain.
+    - >-
+      Regulatory exposure: Shipments that violate local rules can trigger fines,
+      seizure, chargebacks, and license risk; lack of an audit trail complicates
+      state PACT/excise audits.
+    - >-
+      Revenue leakage: Blanket state-level blocking to avoid risk causes lost
+      sales in compliant jurisdictions within restricted states (e.g.,
+      city-specific bans).
+    - >-
+      Slow change management: Law changes, emergency orders, and AG guidance
+      often take weeks to be reflected in internal systems; no SLA or systematic
+      governance.
+    - >-
+      No visibility: Leadership lacks metrics like violation risk, false
+      positive blocks, and compliance coverage by jurisdiction/SKU.
+  solution:
+    - >-
+      Regulatory knowledge graph: Continuously ingests and normalizes
+      state/county/city laws, AG guidance, emergency orders, product
+      registration lists, and enforcement bulletins; curated by analysts and
+      validated by counsel.
+    - >-
+      SKU intelligence: AI/NLP classifies SKUs by attributes that matter for
+      rules (e.g., flavor category, nicotine mg/mL, product type,
+      disposable/refillable, device w/closed pods, package size, synthetic vs.
+      tobacco-derived) from PDP, GTIN, manufacturer docs.
+    - >-
+      Jurisdiction resolution: Address geocoding and boundary matching down to
+      incorporated city/township for correct rule set selection; handles
+      unincorporated areas and special districts.
+    - >-
+      Policy engine & order blocking: Sub-200ms API decisioning to
+      allow/block/warn line items during order capture (ERP, EDI 850, B2B
+      portal). Returns reason codes and human-readable explanations.
+    - >-
+      Change management SLA: Monitors bills and notices; publishes change
+      alerts; enforces rules by effective date with 72-hour update SLA, 24-hour
+      for emergency orders.
+    - >-
+      Audit trail & evidence: Immutable logs of decisions, rule versions,
+      citations; exportable packets for state audits and internal QA.
+    - >-
+      What-if simulator: Bulk test SKU/jurisdiction scenarios; run last 90 days
+      of orders to quantify risk, false positives, and revenue opportunity.
+    - >-
+      Exception workflow: Role-based overrides with justification, expiration,
+      and downstream reporting; configurable tolerances by customer/license
+      class.
+    - >-
+      Integrations: Prebuilt connectors for NetSuite, Acumatica, MS Dynamics 365
+      BC/FO, SAP Business One, Sage X3/100, Odoo; EDI via SPS/Cleo/TrueCommerce;
+      shipping via EasyPost/ShipEngine; tax overlay via Avalara Excise/Sovos.
+    - >-
+      License & registration management: Track customer reseller/retail licenses
+      and state product registration lists; block by license class or
+      unregistered SKU.
+  uniqueValueProp: >-
+    Always-current, machine-readable compliance matrix that maps every SKU to
+    every US jurisdiction and enforces it at order time. Reduce violations and
+    fines to near-zero, recover compliant revenue otherwise lost to blanket
+    blocks, and pass audits with a defensible trail—without slowing down the
+    cart or the warehouse.
+  unfairAdvantage: >-
+    A continuously updated, locality-level rule corpus fused with a SKU
+    attribute knowledge graph—trained on tobacco/ENDS-specific labels—and
+    embedded directly into ERP/EDI order flows. Feedback from live decision
+    outcomes creates a proprietary loop improving precision/recall and coverage
+    that generic tax or state-level tools cannot match. Early integrations and
+    SOC 2 certification raise switching costs and trust barriers.
+  customerSegments:
+    - >-
+      Primary: US Tobacco Product and Electronic Cigarette Merchant Wholesalers
+      (NAICS 42494) operating across multiple states or municipalities.
+    - >-
+      Regional DSD distributors that include OTP/ENDS in their portfolios
+      (c-store, vape channel).
+    - >-
+      National and regional vape product importers/wholesalers (synthetic
+      nicotine, disposables, e-liquids).
+    - 3PLs and fulfillment centers servicing tobacco/ENDS brands B2B.
+    - >-
+      B2B marketplaces serving c-stores/vape shops that need seller-side order
+      governance.
+    - >-
+      Buying groups/co-ops and master distributors coordinating multi-state
+      sales.
+    - >-
+      Internal buyers: Compliance officers, Ops/Order Management leaders, IT/ERP
+      owners, CFO/GC focused on risk and margin protection.
+  channels:
+    - >-
+      Direct sales to top 300 multi-state wholesalers; outbound SDRs with
+      compliance ROI messaging.
+    - >-
+      ERP/OMS partnerships and marketplaces (NetSuite SDN, Acumatica ISV,
+      Microsoft AppSource, SAP B1 partners).
+    - >-
+      Alliances with excise tax/returns vendors (Avalara Excise, Sovos) and EDI
+      providers (SPS Commerce, Cleo) to co-sell into shared accounts.
+    - >-
+      Industry associations and events: TMA, NATO, NACS Show, Total Product Expo
+      (TPE), ASD Market Week; sponsored compliance workshops with law firms.
+    - >-
+      Content-led growth: Monthly “Locality Compliance Tracker” newsletter,
+      enforcement digest, and downloadable matrices by state to capture leads.
+    - >-
+      Risk-free pilot offers: 30-day historical order scan to identify at-risk
+      shipments and lost-revenue due to over-blocking.
+    - >-
+      Insurance/broker channels: Partner with carriers/brokers to offer premium
+      credits/endorsements for using automated compliance controls.
+    - >-
+      Case-study-driven webinars with early adopters demonstrating KPI lifts and
+      audit outcomes.
+  revenueStreams:
+    - >-
+      SaaS subscription (annual): tiered by order volume, SKU count, and
+      jurisdictions covered.
+    - >-
+      Implementation/onboarding fee (one-time): data mapping, connector setup,
+      and initial SKU classification.
+    - >-
+      Premium add-ons: accelerated change SLA (e.g., 24-hour), extended audit
+      support, custom connectors, dedicated IPs, advanced analytics.
+    - API usage overages for high-frequency decisioning/validation endpoints.
+    - >-
+      Professional services: compliance gap assessments, SKU attribute
+      enrichment, custom rule exceptions/policies.
+    - Multi-entity/roll-up pricing for groups and 3PLs with multiple tenants.
+  costStructure:
+    - >-
+      Team: regulatory analysts, counsel retainers, ML/NLP engineers,
+      integration engineers, customer success, sales.
+    - >-
+      Cloud infrastructure: compute for NLP pipelines, API gateways, databases;
+      staging environments; monitoring/observability.
+    - >-
+      Data/content: municipal code and legal data subscriptions; address/geo
+      APIs (e.g., Smarty/Melissa/Google); product data sources.
+    - >-
+      Security/compliance: SOC 2 audits, penetration tests, logging/retention,
+      incident response tooling, cyber liability insurance.
+    - >-
+      GTM: events, partner MDF, content production, outbound SDR tools, solution
+      architects for demos/POCs.
+    - >-
+      Support & onboarding: solution engineering, training, documentation, and
+      helpdesk tooling.
+  keyMetrics:
+    - >-
+      Regulatory coverage: % of US population under active locality rules
+      covered (target >95%); # of jurisdictions with validated rules.
+    - >-
+      Decision quality: false positive rate (<0.5%), false negative rate (<1% on
+      sampled audits), precision/recall by category.
+    - >-
+      Update speed: median time from published change to production rule (<72
+      hours; <24 for emergencies).
+    - >-
+      Decision performance: p95 latency <200ms; API uptime >99.9%; failed
+      decision rate <0.1%.
+    - >-
+      Business impact: violations prevented (count and $ exposure), audit
+      findings reduced (pre/post), recovered revenue from over-blocks.
+    - >-
+      Adoption: % of orders validated by the engine (>98%), % SKUs classified
+      (>99%), # active integrations per customer (>2).
+    - >-
+      Sales: lead-to-pilot conversion (>20%), pilot-to-paid conversion (>60%),
+      average sales cycle (<90 days), ARR, CAC payback (<12 months).
+    - >-
+      Customer success: onboarding time (<45 days), NPS (>40), gross revenue
+      retention (>95%), net revenue retention (>115%).
+storyBrand:
+  character: >-
+    Ops/compliance leaders at tobacco and e‑cig wholesale distributors who must
+    move product nationwide without risking violations.
+  problem: >-
+    Hyper‑local, fast‑changing rules make it easy to sell/ship prohibited SKUs;
+    manual checks miss nuances, leading to fines, returns, and license risk.
+  guide: >-
+    We’re compliance technologists and regulatory analysts who maintain a living
+    SKU×locality matrix and embed it in your order flow—proven, audited, and
+    continuously updated.
+  plan: >-
+    1) Connect catalog, ERP/eCom, and ship‑to geos; 2) Configure policies and
+    tolerances; 3) Enforce real‑time blocks, compliant substitutions, and alerts
+    with audit logs.
+  callToAction: >-
+    Book a 30‑minute assessment; run a 60‑day pilot; go live across ERP, eCom,
+    and EDI.
+  success: >-
+    Orders are compliant by design; penalties and returns drop; licenses stay
+    protected; fulfillment speeds up; audit‑ready evidence is instant; sales
+    grow in allowed markets.
+  failure: >-
+    Violations, seized shipments, chargebacks, lost licenses, channel bans, and
+    brand damage from non‑compliant orders.
+landingPage:
+  hero:
+    title: SKU x Locality Compliance & Order Blocking
+    subtitle: >-
+      AI that knows which tobacco and ENDS SKUs can ship to every state, county,
+      and city—then enforces it at order time for wholesalers.
+    ctaText: Get a demo
+    ctaHref: /demo
+  problem:
+    - 'Patchwork rules vary by state, county, and city—and change constantly.'
+    - >-
+      Illegal shipments risk fines, license loss, and damaged distributor
+      relationships.
+    - Spreadsheets and tribal knowledge don’t scale or survive turnover.
+    - 'ERPs and portals can’t block at SKU x ship-to across CSR, web, and EDI.'
+    - >-
+      Flavor bans, nicotine limits, PMTA status, and age/license rules are hard
+      to encode.
+    - No clear audit trail for why an order was allowed or blocked.
+  solution:
+    - Live compliance matrix mapping every SKU to every locality’s rules.
+    - 'Real-time warn or hard-block in ERP entry, web checkout, and EDI 850.'
+    - 'AI-extracted rule updates from statutes and bulletins, human-validated.'
+    - Clear “why blocked” explanations with sources and rule versions.
+    - 'Seamless integrations with ERP, OMS, eCommerce, and EDI.'
+    - 'Simulation mode to test routes, customers, and catalogs before go-live.'
+  features:
+    - 'Locality precision: state → county → city stacking and overrides.'
+    - >-
+      Attribute-aware rules: nicotine mg/mL, flavor profile, device type,
+      disposable vs refillable, PMTA status.
+    - License gating by customer type; manage license records and expirations.
+    - Carrier policy checks and adult-signature flags (USPS/UPS/FedEx).
+    - Address validation and geocoding to the correct jurisdiction.
+    - Real-time updates with version history and effective dates.
+    - 'Order channel coverage: CSR screens, web portal, mobile rep app, EDI.'
+    - >-
+      Enforcement modes: observe, soft warn, hard block; overrides with
+      approvals.
+    - 'Audit trail: who, what, where, why blocked; exportable reports.'
+    - >-
+      Dashboards: blocked orders, revenue at risk, hotspot localities, top
+      offending SKUs.
+    - 'API + webhooks + connectors (NetSuite, Acumatica, SAP B1, Dynamics, Sage).'
+    - Bulk import and mapping for SKUs and attributes via CSV/API.
+    - Sandbox and testing to simulate compliance before promotions or launches.
+  steps:
+    - Connect your ERP/OMS/eCommerce or EDI feed.
+    - 'Import SKUs and map key attributes (flavor, nicotine, device type, PMTA).'
+    - Sync customers and ship-to addresses; validate geocodes.
+    - 'Choose enforcement mode: observe, warn, or block with overrides.'
+    - Run simulations and coverage reports; fix gaps in SKU attributes.
+    - Go live; monitor exceptions and audits; tune rules as regulations change.
+---
+# ComplyGrid — SKU x Locality Compliance & Order Blocking for Tobacco/ENDS Wholesalers
+
+Industry: Tobacco Product and Electronic Cigarette Merchant Wholesalers
+Service: SKU x Locality Compliance Matrix & Order Blocking

@@ -1,0 +1,324 @@
+---
+name: FormQuote AI
+slug: formquote
+service:
+  title: RFQ Intake-to-Quote Automation
+  description: >-
+    Automatically parse RFQs, extract features, estimate time/cost, and draft
+    quotes for sheet metal parts.
+  targetUsers:
+    - Estimators
+    - Sales
+    - Owners
+  triggers:
+    - RFQ email received
+    - Portal file upload
+  inputs:
+    - PDF drawings
+    - STEP/DXF/IGES
+    - Material/thickness
+    - Quantities
+    - Due date
+    - Shop rates and burden
+    - Machine/process catalog
+  steps:
+    - Ingest RFQ email/portal files; normalize file names and revisions.
+    - >-
+      Parse PDFs and CAD to extract part count, materials, thickness, finishes,
+      tolerances.
+    - >-
+      Recognize features (bends, holes, hems, countersinks, PEMs) from CAD and
+      compute flat pattern.
+    - >-
+      Select routing (laser/punch → deburr → bend → hardware insertion →
+      weld/finish).
+    - >-
+      Estimate setup/run time per operation with parametric models and
+      shop-specific rates.
+    - Compute material usage (nesting pre-estimate) and scrap factors.
+    - 'Flag risks (tight GD&T, small flanges, special tooling).'
+    - >-
+      Generate quote (line items, lead time, terms) and push to CRM/ERP; enable
+      human review/override.
+    - Send quote and track status.
+  tools:
+    - Autodesk Platform Services (APS) for CAD translation/view
+    - OpenCascade/CadQuery for geometry/feature extraction
+    - spaCy/PDFMiner/Azure Form Recognizer for RFQ parsing
+    - Custom cost model engine
+    - HubSpot/Salesforce/E2/JobBOSS/ProShop ERP connectors
+  outputs:
+    - Structured RFQ record
+    - Costed routing with time by operation
+    - Quote PDF/email and CSV
+    - Risk/assumption log
+  pricingModel:
+    - Monthly platform fee
+    - 'Usage: per RFQ or per part estimated'
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 7
+    overall: 8
+  risks:
+    - Feature recognition inaccuracies lead to under/overquotes
+    - Incomplete specs or hidden notes in PDFs
+    - Rates/assumptions drift over time
+  dependencies:
+    - Access to CAD/drawings
+    - Shop rate tables and process catalog
+    - ERP/CRM API access
+leanCanvas:
+  problem:
+    - >-
+      RFQs arrive via fragmented channels (email, portals, PDFs, spreadsheets)
+      and require 30–120 minutes of manual parsing per RFQ, creating backlogs
+      and slow quote turnarounds (often 24–72 hours).
+    - >-
+      Critical details (material, thickness, finish, quantities, tolerances,
+      delivery/Incoterms) are frequently missing or buried in attachments,
+      causing rework, errors, and missed requirements.
+    - >-
+      Geometry-driven effort is hard to estimate consistently; tribal knowledge
+      leads to quote variance, margin leakage, and poor predictability.
+    - >-
+      Estimators are scarce and expensive; throughput is capped at ~80–200
+      RFQs/month per estimator, constraining growth and responsiveness.
+    - >-
+      Current tools don’t automate intake-to-quote end-to-end; point solutions
+      require manual data entry or don’t integrate with ERP/MRP or email
+      inboxes.
+    - >-
+      Inaccurate or slow quotes reduce win rates by 10–20% versus faster
+      competitors; complex aerospace/medical RFQs exacerbate compliance burdens
+      and cycle times.
+    - >-
+      Leadership lacks visibility: no standard KPIs for quote cycle time, margin
+      accuracy, estimator utilization, or lost RFQs due to incomplete intake.
+  solution:
+    - >-
+      Unified RFQ intake: connect shared inboxes (Outlook/Gmail), portals, and
+      drag-and-drop; automatically correlate emails, PDFs, spreadsheets, and CAD
+      files into a single RFQ record.
+    - >-
+      AI extraction: parse line items, quantities, due dates,
+      materials/finishes/tolerances; 2D (DXF/DWG) and 3D (STEP, SLDPRT) feature
+      extraction (bend count, angles, flat pattern area, pierce count, hardware
+      callouts).
+    - >-
+      Shop-specific cost modeling: translate detected features to routings
+      (laser/punch → bend → hardware → weld → coat → inspect) with
+      machine-specific rates, setup times, yields, and scrap; live material
+      pricing options.
+    - >-
+      Quote drafting: auto-generate pricing, lead time, and cover letter with
+      terms; produce customer-ready PDF and portal uploads; confidence scoring
+      and human-in-the-loop approval.
+    - >-
+      Integrations: sync customers/items/parts with ERP/MRP (JobBOSS², E2/ECi,
+      ProShop, Epicor), update CRM, and push routings/BOMs upon award.
+    - >-
+      Analytics and feedback: track RFQ-to-quote cycle time, estimator
+      utilization, quote win rate, and margin MAE; continuous model tuning from
+      outcomes.
+  uniqueValueProp: >-
+    From RFQ to first-pass quote in minutes. FormQuote AI automatically ingests
+    RFQs, extracts requirements and geometry features, estimates
+    time/material/cost with shop-specific models, and drafts ready-to-send
+    quotes—cutting cycle time by 60–80%, increasing estimator throughput 2–4x,
+    and improving margin accuracy by 2–4 points.
+  unfairAdvantage: >-
+    Closed-loop learning on real RFQ→quote→win/loss→actuals data across diverse
+    shops yields rapidly compounding accuracy in both extraction and cost
+    estimation. Deep ERP/email/CAD integrations and a HITL workflow tuned to
+    estimators allow true intake-to-quote automation that competitors focused on
+    point quoting or CAD only cannot easily replicate.
+  customerSegments:
+    - >-
+      Primary: Sheet metal fabrication job shops (20–250 employees) in North
+      America and Europe serving industrial, aerospace, defense (ITAR), medical
+      devices, and electronics.
+    - >-
+      Mid-market contract manufacturers with mixed capabilities (laser, punch,
+      bend, weld, PEM hardware insertion, powder coat) that process 100–2,000
+      RFQs/month.
+    - >-
+      OEM captive shops with internal cost-estimating teams that require
+      auditability and ERP integration.
+    - >-
+      Secondary: High-mix/low-volume metal fabricators and precision machine
+      shops with sheet metal cells.
+  channels:
+    - >-
+      Direct sales to owners/GM/estimating managers via targeted outbound on
+      Thomasnet/MFG/FMA member lists and FABTECH exhibitor lists.
+    - >-
+      Partnerships with ERP/MRP vendors (ProShop, ECi/JobBOSS²/E2, Epicor) and
+      CAD/CAM resellers; co-marketing, app marketplace listings, and rev-share
+      referrals.
+    - >-
+      Industry events and demos: FABTECH, IMTS, FMA and SME chapters; live
+      “30-minute RFQ-to-Quote” challenges.
+    - >-
+      Content marketing: case studies, ROI calculators, teardown videos of real
+      RFQs, estimator best-practice guides.
+    - >-
+      Webinars with manufacturing consultants and nesting/CAM experts; community
+      roundtables for estimators.
+    - >-
+      Integration with RFQ marketplaces (Thomas, MFG.com) to auto-capture
+      opportunities and convert inbound traffic.
+  revenueStreams:
+    - >-
+      SaaS subscription tiers: Core ($1,250/month, 3 seats, 300 RFQs included),
+      Pro ($3,500/month, 10 seats, 1,000 RFQs), Enterprise ($12,000/month,
+      unlimited seats, on-prem/ITAR options).
+    - >-
+      Usage-based overages: $0.75/RFQ (Core), $0.50/RFQ (Pro), negotiated
+      enterprise rates; volume discounts above 5,000 RFQs/month.
+    - >-
+      Implementation/onboarding fees: $8k (Core), $20k (Pro), $50k+ (Enterprise)
+      covering integrations, cost model tuning, and staff training.
+    - >-
+      Premium add-ons: material price API integrations, custom DFM rule packs,
+      dedicated SSO, private model hosting, advanced analytics
+      ($500–$3,000/month).
+    - >-
+      Professional services: historical quote benchmarking, win-rate analysis,
+      cost model calibration, and estimator SOP development ($150–$250/hour).
+    - 'Optional ITAR/Sovereign hosting surcharge: 15–30% uplift.'
+  costStructure:
+    - >-
+      COGS per RFQ: LLM/OCR parsing $0.03–$0.10, CAD geometry processing
+      $0.05–$0.25, storage/egress $0.01–$0.05, monitoring/support $0.05–$0.15;
+      total target $0.20–$0.60/RFQ.
+    - >-
+      Software licensing: CAD kernels/exchange (e.g., HOOPS/Open Cascade;
+      $50k–$200k/year), nesting libraries, PDF parsers.
+    - >-
+      Cloud infrastructure: $10k–$50k/month depending on volume; GPU/CPU pools
+      for CAD and inference; regional redundancy for ITAR/SOC 2.
+    - >-
+      R&D and staffing: ML/FE/BE engineers, manufacturing process experts,
+      integrations team; $3–$7M/year at scale.
+    - >-
+      Sales/marketing: AE/SE headcount, events (FABTECH booth ~$40–$80k),
+      content, partner MDF; $1–$3M/year growth stage.
+    - >-
+      Compliance and security: SOC 2 Type II audit ($60–$120k/year), ITAR
+      enclave costs, pen testing, cyber insurance.
+    - >-
+      Customer success and onboarding: solution architects, training content,
+      support SLAs.
+  keyMetrics:
+    - >-
+      Operational: median RFQ-to-first-quote time (target <30 minutes), 95th
+      percentile processing time (<2 hours), auto-quote rate without edits
+      (target 60% after 90 days).
+    - >-
+      Accuracy: extraction F1 for key fields (>0.97 for
+      material/thickness/quantity; >0.95 for features), margin MAE versus
+      actuals (<8% at go-live; <3% after 90 days of tuning).
+    - >-
+      Business impact: estimator throughput (+2–4x), labor hours saved per RFQ
+      (0.5–1.2 hours), quote win-rate lift (+5–15%), gross margin improvement
+      (+2–4 pts).
+    - >-
+      Adoption: % RFQs processed through platform (>85%), HITL override rate
+      (<40% after 60 days), seats with weekly active use (>80%).
+    - >-
+      Financial: gross margin (>75%), NRR (>110%), CAC payback (<12 months),
+      ARPA (Core $1.7k, Pro $4.6k, Ent $15k incl. overages/add-ons).
+    - >-
+      Quality/compliance: SLA adherence (>99.5% uptime), security incidents (0
+      critical), audit log coverage (100% of quotes).
+storyBrand:
+  character: >-
+    Estimators and sales teams at sheet metal job shops and contract
+    manufacturers who need fast, accurate quotes to win more work without adding
+    headcount.
+  problem: >-
+    RFQs arrive as messy emails, PDFs, and CAD files. Manual feature extraction
+    and time/cost estimation is slow and inconsistent—creating quote backlogs,
+    pricing errors, missed deadlines, and lost margin.
+  guide: >-
+    RFQ Intake-to-Quote Automation pairs deep sheet-metal manufacturing know‑how
+    with production‑grade AI. We understand RFQ spikes, thin margins, and tribal
+    knowledge. Our secure, auditable system integrates with your CAD/CAM and ERP
+    to make quoting predictable, consistent, and trustworthy.
+  plan: >-
+    1) Onboard your shop data (rates, machines, materials) and connect
+    email/portals plus CAD/CAM/ERP. 2) AI parses RFQs (PDF/DXF/STEP), extracts
+    features, flags risks (tolerances, finishes), estimates time/cost with your
+    rules, and drafts quotes in your template. 3) Review margins, approve, and
+    send; sync to ERP and continuously improve from outcomes.
+  callToAction: >-
+    Direct: Book a 30‑minute demo with your RFQs. Transitional: Get the ROI
+    calculator and sample quote pack.
+  success: >-
+    Quotes go out same day with consistent pricing. Win rate rises, margins are
+    protected, throughput scales without extra estimators, and customers get
+    faster, clearer responses with full traceability.
+  failure: >-
+    Quoting stays slow and error‑prone—deadlines are missed, bids are lost,
+    margins leak, and the business remains dependent on a few overworked
+    experts, risking growth and customer trust.
+landingPage:
+  hero:
+    title: RFQ Intake-to-Quote Automation for Sheet Metal
+    subtitle: >-
+      Parse RFQs, extract features, estimate time/cost, and send accurate quotes
+      in minutes.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - Manual RFQ triage slows response times
+    - Estimates vary by estimator; margins leak
+    - Tribal knowledge makes quoting hard to scale
+    - 'Data trapped in emails, PDFs, and drawings'
+    - Long queues cause missed opportunities
+    - Error-prone BOMs create rework and delays
+    - 'Hard to track revisions, notes, and assumptions'
+    - 'Limited visibility into quote speed, wins, and margin'
+  solution:
+    - 'AI-driven intake that reads emails, portals, and attachments'
+    - 'Automatic feature extraction from PDFs, DXF, STEP, and drawings'
+    - 'Smart routing for laser/punch, bend, hardware, weld, finish, assembly'
+    - Parametric cycle-time models tuned to your machines and rates
+    - 'Costing engine: material yield, labor, overhead, markups, and price breaks'
+    - 'Drafted, branded quotes with lead times and terms, ready to send'
+    - Human-in-the-loop review with confidence scores and exception flags
+    - One-click push to ERP/CRM with full revision history and audit trail
+  features:
+    - Email and portal ingestion with auto-RFQ capture and dedupe
+    - >-
+      Feature recognition: material, thickness, flat pattern, bends, holes, cut
+      length, tool hits, weld length, hardware, finish, tolerances
+    - 'CAD/CAM handling: PDF, DXF, DWG, STEP; automatic flat extraction'
+    - >-
+      Routing suggestions by capability and constraints (laser/punch, brake,
+      hardware, weld, finish, assembly)
+    - 'Machine-aware cycle times: setup/run, batch sizing, operator ratios'
+    - 'Material costing with nesting yield, scrap factors, and remnant rules'
+    - 'Multi-quantity price breaks, margin targets, and lead-time options'
+    - 'Quote builder: branding, terms, alternates, and customer-specific pricing'
+    - 'Revision control, attachment management, and audit logs'
+    - 'Reviewer notes, redlines, approvals, and exception workflows'
+    - 'Integrations: ERP/MRP and CRM (push parts, routings, quotes, POs)'
+    - 'KPIs and dashboards: turnaround time, win rate, margin, workload'
+    - >-
+      Security and compliance: role-based access, SOC 2-ready controls, optional
+      ITAR handling
+  steps:
+    - Connect your RFQ inbox and upload portal
+    - 'Import CAD, drawings, and line items automatically'
+    - 'AI extracts features, materials, quantities, and requirements'
+    - System builds routing and calculates cycle time and cost
+    - 'Reviewer adjusts assumptions, markups, and lead times'
+    - Generate and send the branded quote to the customer
+    - 'Sync to ERP/CRM and track opens, revisions, and wins'
+---
+# FormQuote AI
+
+Industry: Sheet Metal Work Manufacturing
+Service: RFQ Intake-to-Quote Automation

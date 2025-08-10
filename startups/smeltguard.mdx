@@ -1,0 +1,341 @@
+---
+name: SmeltGuard AI
+slug: smeltguard
+service:
+  title: Emissions Monitoring and Auto-Compliance Reporting
+  description: >-
+    Aggregates CEMS/portable analyzer data to compute rolling averages, detect
+    exceedances, and auto-generate air permit reports with evidence.
+  targetUsers:
+    - EHS Manager
+    - Plant Manager
+  triggers:
+    - New emissions data batch
+    - Permit reporting deadline
+    - Exceedance threshold crossed
+  inputs:
+    - 'Stack analyzer timeseries (NOx, CO, SO2, HF, PM)'
+    - Flow/temp/oxygen data
+    - Permit limits and averaging rules
+    - Downtime/maintenance logs
+  steps:
+    - 'Ingest data, validate sensors, fill gaps with rules'
+    - 'Compute required stats (hourly/daily averages, 95th percentile)'
+    - Detect exceedances and probable causes
+    - Generate draft deviation narratives and reports
+    - Notify and archive with audit trail
+  tools:
+    - TimescaleDB/InfluxDB
+    - Python (pandas)
+    - Report generation (PDFKit)
+    - Email/Teams alerts
+  outputs:
+    - Compliance dashboards
+    - Auto-filled permit reports (PDF/Excel)
+    - Exceedance alerts with root-cause hints
+  pricingModel:
+    - Setup + monthly
+    - Optional regulatory update service
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Incomplete or miscalibrated sensors
+    - Regulatory interpretation nuances
+    - Cybersecurity for data feeds
+  dependencies:
+    - Access to CEMS exports or OPC-UA
+    - Permit specs
+    - Event/maintenance logs
+leanCanvas:
+  problem:
+    - >-
+      Compliance with 40 CFR Part 63 Subpart RRR (Secondary Aluminum Production)
+      requires complex rolling-average calculations (e.g., 3-hr, 24-hr) across
+      multiple units, fuels, and operating modes—often done manually in
+      spreadsheets, increasing error risk.
+    - >-
+      CEMS/CPMS/portable analyzer data live in silos (SCADA, data historians,
+      USB exports), making it hard to compute valid averages, handle missing
+      data, track calibrations, and maintain an auditable chain of custody.
+    - >-
+      Facilities often detect deviations/exceedances late (days to weeks),
+      limiting corrective action windows and increasing the likelihood of formal
+      deviations, production slowdowns, and fines.
+    - >-
+      Preparing Title V Semiannual Monitoring Reports (SMR), Deviation Reports,
+      and Annual Compliance Certifications (ACC) takes 20–80 hours per reporting
+      cycle per plant and is vulnerable to staff turnover.
+    - >-
+      Audits are disruptive when evidence is scattered; maintaining 5-year data
+      retention, method references, and calibration records is onerous.
+    - >-
+      Permits and rules change (state-specific conditions, permit renewals, MACT
+      updates); keeping calculations and templates current is a constant burden.
+  solution:
+    - >-
+      Edge and cloud data aggregation from CEMS, CPMS, SCADA/PLCs, historians
+      (OPC UA/DA, Modbus, PI Web API), and portable analyzer uploads (CSV/JSON).
+    - >-
+      Regulatory rules engine with prebuilt templates for 40 CFR 63 Subpart RRR
+      and common Title V permit conditions, including 3-hr/24-hr rolling
+      averages, downtime/substitution logic, and startup/shutdown handling.
+    - >-
+      Real-time exceedance detection, with alerting via SMS/Email/Microsoft
+      Teams and recommended corrective actions tied to permit language.
+    - >-
+      Automated report generation: SMR, Deviation Reports, ACC, and
+      facility-specific logs (e.g., baghouse DP logs, afterburner temperature
+      compliance) with embedded calculations and attachments (charts,
+      calibration proofs).
+    - >-
+      Audit-ready evidence management: immutable audit trails, calibration/QAQC
+      tracking, eSignatures, reviewer workflows, and 5–10 year retention.
+    - >-
+      Data quality module: data completeness KPI, gap-filling rules, drift
+      checks, and daily health summaries to catch issues before reporting
+      periods close.
+  uniqueValueProp: >-
+    Purpose-built compliance automation for secondary aluminum: unify
+    CEMS/CPMS/portable analyzer data, compute permit- and Subpart RRR–specific
+    rolling averages in real time, detect exceedances early, and auto-generate
+    ready-for-audit reports with embedded evidence—cutting reporting time by
+    70–90% and reducing deviation risk.
+  unfairAdvantage: >-
+    A validated, audit-tested Subpart RRR rule pack with state-specific permit
+    templates and connectors tailored to secondary aluminum operations, coupled
+    with an evidence locker that preserves data integrity end-to-end. Over time,
+    a proprietary dataset of parameter patterns and corrective actions enables
+    predictive exceedance prevention that generalist EHS platforms and generic
+    CEMS DAS lack.
+  customerSegments:
+    - >-
+      Title V secondary aluminum smelting and alloying facilities (NAICS
+      331314): plant managers and EHS/compliance managers.
+    - >-
+      Corporate EHS/Compliance leaders overseeing multi-plant aluminum
+      recycling/alloying portfolios.
+    - >-
+      Environmental consulting firms that prepare air permit reports for
+      smelters (white-label/partner).
+    - >-
+      CEMS/CPMS vendors and system integrators seeking analytics and reporting
+      add-ons.
+  channels:
+    - >-
+      Direct sales to EHS/plant managers at NAICS 331314 facilities
+      (account-based outreach to top 100 plants by throughput).
+    - >-
+      Partnerships with CEMS/CPMS vendors and control system integrators to
+      bundle the analytics/reporting layer.
+    - >-
+      Alliances with environmental consulting firms for white-labeled report
+      automation and ongoing managed compliance.
+    - >-
+      Industry associations and events (Aluminum Association, ISRI, AFS,
+      regional air quality workshops) with demos and case studies.
+    - >-
+      Targeted content and webinars: Subpart RRR reporting pitfalls, calculation
+      validation guides, and templates to capture leads.
+    - >-
+      Proof-of-concept pilots (60–90 days) with success fees tied to time saved
+      and audit outcomes.
+  revenueStreams:
+    - >-
+      SaaS subscription per facility: Base $2,500–$6,000/month includes up to 3
+      monitored units and standard report packs; +$600–$1,000/month per
+      additional emissions unit/stack.
+    - >-
+      Implementation/onboarding: $12,000–$35,000 per facility (connectors, rule
+      configuration, report templating, validation against permit).
+    - >-
+      Managed compliance add-on: $1,500–$3,000/month for monthly QAQC reviews,
+      pre-audit checks, and report submission support.
+    - >-
+      Enterprise package: multi-plant discounts (10–25%), consolidated
+      dashboards, and dedicated CSM.
+    - >-
+      Professional services: custom permit templates, data migrations, and audit
+      support ($150–$220/hr).
+  costStructure:
+    - >-
+      Personnel: compliance SMEs, data engineers, full-stack engineers, QA, and
+      customer success ($2.5M–$4M/year at ~15–25 FTE by year 3).
+    - >-
+      Cloud/infra: data ingestion, storage (hot+archive), compute for analytics,
+      security tooling ($12k–$25k/month at 50 plants; scales with ingestion
+      rate).
+    - >-
+      Sales and marketing: ABM tools, conferences, travel, collateral
+      ($300k–$700k/year).
+    - >-
+      Partnership and certifications: SOC 2, ISO 27001, penetration tests, legal
+      ($120k–$250k/year).
+    - Liability and cyber insurance ($60k–$120k/year).
+    - >-
+      Edge hardware for pilots (loaners/CapEx buffer): $3k–$8k per site,
+      recoverable via onboarding fees.
+  keyMetrics:
+    - >-
+      Time to first compliant report per facility: target <30 days from
+      kick-off.
+    - >-
+      Reduction in reporting effort: baseline hours vs. post-implementation;
+      target 70–90% reduction (e.g., 40 hours to <10 hours per SMR).
+    - >-
+      Mean Time to Detect (MTTD) exceedances: target <5 minutes from breach;
+      early-warning alerts ≥2 hours before projected exceedance in 80% of cases.
+    - >-
+      Data completeness: >99.0% valid data capture per reporting period; missing
+      data resolved within 24 hours.
+    - >-
+      False alert rate: <2% per month; alert acknowledgment median <15 minutes
+      during staffed hours.
+    - >-
+      Uptime/SLO: 99.9% application availability; data pipeline latency <60
+      seconds for streaming sources.
+    - >-
+      Report automation coverage: ≥85% of SMR/ACC content auto-generated; <5
+      manual edits per report on average.
+    - >-
+      Onboarding velocity: median 6 weeks from contract to go-live; ≥2
+      connectors configured per week per implementation engineer.
+    - >-
+      Customer ROI: payback in <9 months; tracked via avoided deviations, time
+      saved, and reduced consulting spend.
+    - >-
+      Commercial: ARR, logo retention >95%, net revenue retention >115% by year
+      3.
+storyBrand:
+  character: >-
+    Environmental and operations managers at secondary aluminum smelters who
+    must continuously prove air‑permit compliance while keeping furnaces running
+    on schedule.
+  problem: >-
+    External: Fragmented CEMS/portable analyzer data, complex rolling-average
+    rules, and manual spreadsheets make exceedance detection and reporting slow
+    and error‑prone. Internal: Constant anxiety about missing an event, rework
+    before audits, and nights/weekends lost to data wrangling. Philosophical: If
+    a plant runs clean, proving compliance should be transparent, timely, and
+    effortless.
+  guide: >-
+    We understand the pressure of federal/state air permits, audits, and
+    inspections—and how data gaps can jeopardize production. Built with
+    air‑permit engineers and data scientists, our approach aligns calculations
+    to permit language and standard methods, providing clear traceability from
+    raw data to final reports.
+  plan: >-
+    Process: 1) Connect data sources (CEMS/DAHS, PLC historians, portable
+    analyzers). 2) Map permit limits, averaging windows, validity, and
+    substitution rules. 3) Validate calculations against sample periods. 4)
+    Monitor in real time, alert on exceedances/deviations, and track evidence.
+    5) Auto‑generate submittal‑ready reports with audit trails. Agreement: Start
+    with a low‑risk pilot on one stack, data security by design, role‑based
+    access, and staff training with documented calculation methods.
+  callToAction: >-
+    Direct: Schedule a 30‑minute demo and launch a 30‑day pilot on a priority
+    stack. Transitional: Download a sample report/calculation methodology and a
+    compliance checklist for secondary aluminum operations.
+  success: >-
+    Confident, continuous compliance; earlier detection of issues; reporting
+    time reduced from hours to minutes; clear evidence trails (calibrations,
+    uptime, annotations); smoother audits and inspections; less downtime risk;
+    more time for process optimization.
+  failure: >-
+    Missed or late reports, undetected exceedances, inconsistent calculations,
+    costly fines or consent actions, forced curtailments, and damaged
+    stakeholder trust.
+landingPage:
+  hero:
+    title: AI Emissions Monitoring & Auto-Reporting for Secondary Aluminum
+    subtitle: >-
+      Aggregate CEMS and portable analyzer data to compute rolling averages,
+      detect exceedances, and auto-generate air permit reports—with evidence.
+      Built for Secondary Smelting & Alloying and 40 CFR 63 Subpart RRR
+      workflows.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - >-
+      Rolling averages across furnaces and emission points are manual and
+      error-prone.
+    - >-
+      Data lives in CEMS, portable FTIR, PLCs, and spreadsheets—nothing stays in
+      sync.
+    - 'Exceedances surface days later, after reports are due.'
+    - >-
+      Permits mix units, limits, and averaging periods across scenarios and
+      devices.
+    - Evidence assembly for Title V/NESHAP reports drains EHS bandwidth.
+    - Audits stall without traceable QA/QC and calibration records.
+    - Missing-data rules and substitutions create compliance exposure.
+  solution:
+    - >-
+      Unified data layer for CEMS, portable analyzers, CPMS, and production
+      logs.
+    - >-
+      Real-time 3-hr, 24-hr, 30-day, and 12-month rolling averages by
+      stack/unit.
+    - >-
+      Instant exceedance detection with prioritized alerts and corrective-action
+      workflows.
+    - >-
+      Auto-generated semiannual/annual reports, deviation logs, and CEDRI-ready
+      exports.
+    - >-
+      Evidence packs with time-stamped trends, raw files, calibrations, and
+      operator notes.
+    - >-
+      Rule templates for 40 CFR 63 Subpart RRR and site-specific permit
+      conditions.
+    - >-
+      Audit-ready data lineage and change history across all edits and
+      approvals.
+  features:
+    - >-
+      Plug-and-play connectors: CEMS/COMS, FTIR/NDIR portable analyzers,
+      PLC/SCADA, data historians, LIMS.
+    - >-
+      No-code permit mapping: stack, unit, pollutant, limit, averaging period,
+      operating scenario.
+    - >-
+      Rolling/block averages per rule (e.g., 3-hr THC surrogate, 24-hr PM,
+      30-day fluxing limits).
+    - Smart exceedance rules with early-warning trend prediction.
+    - >-
+      QA/QC engine: zero/span, daily drift, CF checks, CGA/RATA scheduling and
+      capture.
+    - >-
+      Missing-data logic per 40 CFR 60/63 with transparent substitutions and
+      flags.
+    - Calibration and maintenance logs linked to data gaps and evidence bundles.
+    - >-
+      Automated report builders: Title V deviation, NESHAP Subpart RRR
+      semiannual, SSM logs.
+    - >-
+      CEDRI-ready outputs (XML/CSV/PDF) and shareable, time-stamped evidence
+      packages.
+    - 'Role-based access, SSO, and full audit trail for edits and approvals.'
+    - >-
+      Unit conversion, validation rules, and anomaly detection for sensor
+      faults.
+    - Open API and web UI; deploy in cloud or on-prem as needed.
+    - Multi-site dashboards with roll-up KPIs and site comparisons.
+    - >-
+      Secure storage with retention policies aligned to permits and consent
+      orders.
+  steps:
+    - 'Connect data sources (CEMS, portable analyzers, PLC/SCADA, historian).'
+    - Import permit conditions or start from RRR templates.
+    - Map emission points and limits; validate with backfilled data.
+    - 'Configure alerts, QA/QC checks, and approval workflows.'
+    - Go live with real-time monitoring and exceedance notifications.
+    - Generate your first semiannual/Title V report with evidence in minutes.
+    - 'Iterate with insights: refine thresholds, add sites, expand pollutants.'
+---
+# SmeltGuard AI
+
+Industry: Secondary Smelting and Alloying of Aluminum
+Service: Emissions Monitoring and Auto-Compliance Reporting

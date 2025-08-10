@@ -1,0 +1,293 @@
+---
+name: FareGuard Assist
+slug: fareguard
+service:
+  title: 'Rider Support Automation (Refunds, Receipts, Basic Issues)'
+  description: >-
+    LLM agent handles Tier-1 support: fare adjustments, receipts, promo issues,
+    duplicate charges, with safe-guarded payments.
+  targetUsers:
+    - Support Lead
+    - Ops Manager
+    - Finance
+  triggers:
+    - New ticket in Zendesk/Intercom/Freshdesk
+    - Inbound email/chat/social DM
+  inputs:
+    - Ticket text and metadata
+    - Trip and fare data
+    - Refund/promo policies
+    - Payment processor tokens
+  steps:
+    - Classify intent and authenticate rider
+    - Retrieve trip(s) and compute policy-compliant resolution
+    - Draft response and propose refund/credit
+    - Execute approved actions via PSP
+    - Close ticket with audit trail; escalate edge cases
+  tools:
+    - Zendesk/Intercom/Freshdesk APIs
+    - OpenAI/Anthropic LLM with policy RAG
+    - Stripe/Adyen/Braintree APIs
+    - Twilio/WhatsApp API
+  outputs:
+    - Resolved tickets with response text
+    - Refund/credit transactions
+    - Audit log and analytics
+  pricingModel:
+    - Per-resolution fee
+    - Volume-tiered monthly subscription
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 9
+    overall: 9
+  risks:
+    - Incorrect refunds/credits
+    - PII handling/GDPR
+    - Edge-case escalations causing delays
+  dependencies:
+    - CRM access
+    - PSP API keys and scoped permissions
+    - Written refund/promo policies
+leanCanvas:
+  problem:
+    - >-
+      High volume and cost of Tier-1 rider support (fare adjustments, receipts,
+      promo issues, duplicate charges) create long queues and inconsistent
+      outcomes.
+    - >-
+      Refund leakage due to inconsistent policy application, manual errors, and
+      fraudulent claims increases CX cost and erodes margins.
+    - >-
+      Existing chatbots deflect inquiries but cannot safely authorize monetary
+      adjustments or access trip/receipt data end-to-end with auditability.
+    - >-
+      24/7 multilingual coverage is expensive to staff; unpredictable spikes
+      (weather, events, outages) overwhelm human teams.
+    - >-
+      Compliance risk around payments and PII (PCI DSS, SOC 2, GDPR/CCPA) limits
+      automation and increases integration friction.
+    - >-
+      Fragmented tech stacks (dispatch, PSPs, CCaaS, analytics) slow resolution
+      and complicate root-cause analysis.
+  solution:
+    - >-
+      LLM-driven Tier-1 support agent embedded in in-app chat, web, email, and
+      WhatsApp that identifies the ride, classifies the issue, and executes
+      refunds/credits/promo fixes end-to-end.
+    - >-
+      Policy engine with hard guardrails: refund caps, velocity limits, step-up
+      verification, risk scores; auto-escalation for high-risk or out-of-policy
+      cases.
+    - >-
+      Safe-guarded payment adjustments via tokenized refunds/credits through the
+      operator’s PSP; full audit trail and double-approval for high-value cases.
+    - >-
+      Receipts and invoice automation: on-demand retrieval, corrections (e.g.,
+      tip added/removed, business profile), and resend via preferred channel.
+    - >-
+      Promo resolution: eligibility checks, re-issue/extension, and abuse
+      prevention using device/account heuristics.
+    - >-
+      Duplicate charge detection across payment attempts, preventing double
+      refunds and reconciling partial authorizations/holds.
+    - >-
+      RAG-powered policy and knowledge retrieval so the agent cites policy
+      snippets in responses; A/B policy enforcement and change management.
+    - >-
+      Analytics and operations console: automation rate, FCR, CSAT, refund
+      leakage, fraud flags, SLA adherence; cohort and root-cause analysis.
+  uniqueValueProp: >-
+    Resolve 60–80% of Tier-1 rider issues in under 2 minutes with policy-locked,
+    auditable refunds and receipt delivery—cutting support cost per ticket by
+    50–70% while reducing refund leakage by 15–30% and improving CSAT to 4.5+/5.
+  unfairAdvantage: >-
+    Mobility-specific policy engine and guardrails with prebuilt integrations to
+    trip data and PSPs, enabling auditable monetary actions few generic bots can
+    perform. Accumulated domain dataset and test harness for duplicate charges,
+    promo abuse, and fare adjustments delivers higher FCR and lower leakage than
+    generalist solutions. OEM distribution via dispatch platforms creates
+    embedded, sticky adoption.
+  customerSegments:
+    - >-
+      Ride-hailing platforms (regional to global) with 10k–1M+ trips/day;
+      decision makers: VP/Head of Operations, CX, Trust & Safety.
+    - >-
+      Taxi dispatch platforms and white-label mobility platforms serving fleets
+      (100–10,000 vehicles).
+    - >-
+      Hybrid mobility operators (airport shuttles, micro-mobility) with similar
+      Tier-1 support patterns.
+    - >-
+      BPOs/contact centers serving mobility clients seeking automation to
+      improve margins.
+  channels:
+    - >-
+      Direct sales to Ops/CX leaders at ride-hailing/taxi platforms; ROI-focused
+      pilots with 4–8 week timelines.
+    - >-
+      CCaaS marketplaces (Zendesk, Salesforce, Intercom, Freshdesk) with
+      certified app listings and co-marketing.
+    - >-
+      Partnerships with taxi dispatch/white-label platforms to embed
+      white-labeled automation for their fleets.
+    - >-
+      Payment processor partnerships (e.g., Stripe/Adyen/Braintree marketplaces)
+      to showcase safe refund flows.
+    - >-
+      Industry events (Move, Slush Mobility, Transport Tech), targeted webinars,
+      and case-study-driven content (automation rate, refund savings).
+    - BPO partnerships to offer automation-first managed service bundles.
+    - >-
+      Bottom-up developer adoption via APIs/SDKs and a sandbox with synthetic
+      trip/receipt data.
+  revenueStreams:
+    - >-
+      Platform subscription by volume tier ($2k–$10k/month) including analytics,
+      policy engine, and integrations.
+    - >-
+      Usage-based per resolved ticket ($0.75–$2.00 depending on
+      complexity/locale); discounted committed-use contracts.
+    - >-
+      Implementation/onboarding fee ($10k–$60k) covering integrations, policy
+      modeling, and security reviews.
+    - >-
+      Premium compliance and data residency add-ons (SOC 2 Type II reports,
+      EU-only processing, private VPC).
+    - >-
+      White-label/OEM licensing for dispatch platforms, rev-share per active
+      fleet.
+    - Optional managed review service for high-risk cases (per-case fee).
+  costStructure:
+    - >-
+      COGS: LLM inference and embeddings ($0.03–$0.15 per resolved ticket
+      typical), vector DB/storage, observability, and telemetry.
+    - >-
+      COGS: Platform infrastructure (Kubernetes, databases), event streaming,
+      and in-region deployments for data residency.
+    - >-
+      COGS: Payment integration overhead (webhooks, retries); minimal PSP fees
+      as refunds flow through client PSPs.
+    - >-
+      R&D: Model orchestration, policy engine, risk tooling, multilingual NLU,
+      test harnesses.
+    - >-
+      G&A/Compliance: SOC 2 Type II and PCI DSS SAQ assessments ($50k–$150k/yr),
+      legal/privacy, security tooling.
+    - >-
+      S&M: Enterprise sales, solution engineering, partner enablement,
+      conferences, content.
+    - >-
+      Support/Success: On-call reliability, customer enablement, quarterly
+      policy reviews.
+    - >-
+      Gross margin target: 70–80% by optimizing model routing (cheap models for
+      easy cases, premium for edge cases).
+  keyMetrics:
+    - 'Automation rate (eligible Tier-1 flows): target 60–80%.'
+    - >-
+      First Contact Resolution (FCR): target 85%+ for eligible flows; 95%+ for
+      receipts and duplicate charges.
+    - 'Median resolution time: <120 seconds for automated Tier-1; P95 <5 minutes.'
+    - 'CSAT for automated interactions: 4.5/5+; complaint rate <1%.'
+    - >-
+      Refund leakage reduction vs human baseline: 15–30% decrease while
+      maintaining CSAT.
+    - >-
+      False-positive refund rate (out-of-policy): <0.2%; escalation rate for
+      high-risk: 3–8%.
+    - >-
+      Cost per resolved ticket: $0.90–$1.60 vs human baseline $3–$7; payback
+      period for pilot <90 days.
+    - 'SLA adherence: 95% responses <3s; service availability 99.9%+ monthly.'
+    - 'Data protection: PII exposure incidents = 0; redaction coverage 99.9%.'
+    - >-
+      Adoption: % of rider contacts routed to automation >70% within 60 days;
+      opt-out rate <5%.
+    - >-
+      Net refund savings per 1,000 rides: baseline and post-automation tracked
+      monthly.
+    - >-
+      Sales metrics: Pilot win rate >30%; conversion to annual contract >60%;
+      net revenue retention >120% via expansion.
+storyBrand:
+  character: >-
+    Operations and Support leaders at taxi and ridesharing companies who need
+    fast, reliable rider issue resolution at scale.
+  problem: >-
+    Riders flood support with fare adjustments, receipts, promo code problems,
+    and duplicate charges. Manual handling is slow, costly, and
+    error‑prone—creating churn, refund leakage, and unhappy teams. Riders expect
+    instant, fair fixes; leaders need control and compliance.
+  guide: >-
+    We understand high‑volume mobility support and the risk of touching
+    payments. Rider Support Automation is a policy‑aware LLM agent that safely
+    resolves Tier‑1 cases end‑to‑end—with guardrails (policy checks, spend
+    limits, reversible credits, role‑based approvals, audit logs) and seamless
+    integrations (CRM, billing, payments, comms).
+  plan: >-
+    1) Connect your systems (billing, payments, CRM) and policy docs. 2)
+    Configure refund rules, limits, and approval paths; choose copilot or
+    autopilot. 3) Launch a supervised pilot, review audits, then expand to more
+    issue types.
+  callToAction: >-
+    Direct: Book a 20‑minute demo or start a pilot. Transitional: Get the Tier‑1
+    Automation Playbook and ROI worksheet.
+  success: >-
+    24/7 instant resolutions for refunds, receipts, promo fixes, and duplicate
+    charges; lower cost per ticket and faster first response; fewer chargebacks
+    and errors via payment guardrails; happier riders and agents; consistent
+    policy enforcement with full auditability.
+  failure: >-
+    Queues stay long, costs climb, refund leakage persists, chargeback risk
+    grows, and riders churn to competitors.
+landingPage:
+  hero:
+    title: Automate Rider Support. Refunds and Receipts in Seconds.
+    subtitle: >-
+      LLM agent for taxi and ridesharing handles Tier-1 issues — fare
+      adjustments, receipts, promo fixes, duplicate charges — with policy
+      control and payment safeguards.
+    ctaText: Book a Demo
+    ctaHref: '#demo'
+  problem:
+    - Riders wait hours for simple fare fixes and receipts.
+    - Agents drown in repetitive tickets; costs rise with volume.
+    - Inconsistent resolutions drive chargebacks and churn.
+    - 'Manual refunds risk errors, over-credits, and fraud.'
+    - Peak demand overwhelms queues; SLAs and CSAT drop.
+    - 'Ops lacks unified visibility across chat, email, and in-app.'
+  solution:
+    - 'AI agent resolves Tier-1 cases end-to-end, 24/7.'
+    - Instant trip verification via APIs; policy-aware credits and refunds.
+    - 'Detects duplicates, applies promos, issues compliant receipts.'
+    - 'Secure payments with caps, velocity limits, approvals, and audit trail.'
+    - 'Omnichannel: in-app, email, web, WhatsApp, and more.'
+    - Seamless human handoff for edge cases and high-value riders.
+  features:
+    - 'Policy engine: per-market rules, refund caps, rider tiers.'
+    - 'Payment safeguards: tokenized payouts, 2FA/manager approvals.'
+    - Duplicate charge detection and safe reversal.
+    - 'Receipt generation: branded, itemized, tax-compliant.'
+    - 'Promo resolution: eligibility checks and automatic re-credits.'
+    - 'Real-time trip lookups: driver, route, surge, tolls, fees.'
+    - 'Fraud signals: anomaly scoring, velocity checks, blocklists.'
+    - Human-in-the-loop for high-risk or high-value cases.
+    - 'Analytics: CSAT, AHT, refund leakage, root-cause trends.'
+    - Multilingual NLU with enterprise PII redaction.
+    - 'SLA automation: prioritization, auto-escalation, callbacks.'
+    - 'Integrations: Zendesk, Freshdesk, Intercom, Twilio, email.'
+    - APIs and webhooks; SDKs for iOS/Android; SSO and RBAC.
+    - Sandbox mode with synthetic rides for safe testing.
+  steps:
+    - 'Connect ride, billing, and support APIs.'
+    - 'Define policies: markets, refund limits, approval thresholds.'
+    - Map intents and templates; import macros and FAQs.
+    - Enable payment safeguards and audit logging.
+    - Pilot on 10% of Tier-1 volume; calibrate and tune.
+    - Go live; monitor dashboards and iterate.
+---
+# FareGuard Assist
+
+Industry: Taxi and Ridesharing Services
+Service: Rider Support Automation (Refunds, Receipts, Basic Issues)

@@ -1,0 +1,313 @@
+---
+name: EvenRail Advisor
+slug: evenrail
+service:
+  title: Real-time Headway/Bunching Advisor
+  description: >-
+    Monitors fixed-guideway services (e.g., light rail, monorail, tram, people
+    mover) and proposes actionable hold/express/short-turn instructions to keep
+    even headways.
+  targetUsers:
+    - Rail/Transit controllers
+    - Dispatch/OCC supervisors
+    - Ops performance analysts
+  triggers:
+    - Headway deviation exceeds threshold
+    - Vehicle enters critical segment
+    - Schedule adherence KPI breach
+  inputs:
+    - GTFS static
+    - 'GTFS-realtime (VehiclePositions, TripUpdates)'
+    - Line headway policies by time of day
+    - Block/consist constraints
+    - Historic dwell times/APC (optional)
+  steps:
+    - Ingest and align GTFS and RT feeds
+    - Compute segment-level headways and detect bunching/gaps
+    - 'Simulate candidate actions (hold, skip-stop, short-turn) under constraints'
+    - Rank actions by passenger delay minimized and feasibility
+    - Notify controllers with recommended action and rationale
+    - Log action taken and outcome for learning
+  tools:
+    - GTFS/GTFS-RT
+    - Swiftly or equivalent CAD/AVL API
+    - Python optimization service
+    - Slack/Teams bot
+    - Dashboard (Power BI/Tableau)
+  outputs:
+    - Actionable alert with proposed instruction and expected impact
+    - Controller console widget
+    - End-of-day headway performance report
+  pricingModel:
+    - One-time setup + monthly subscription per line or per active vehicle
+    - Optional per-alert pricing for SMS/voice notifications
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Latency/quality of real-time data may cause bad advice
+    - Recommendations must respect safety/SOP/union rules
+    - Controller alert fatigue if thresholds poorly tuned
+  dependencies:
+    - Access to GTFS-RT/CAD-AVL
+    - Documented operating rules/constraints
+    - Ops champion for tuning thresholds
+leanCanvas:
+  problem:
+    - >-
+      Frequent fixed-guideway services (light rail, tram, monorail, people
+      movers) suffer from headway instability and bunching due to variable dwell
+      times (passenger surges, wheelchair boardings, events) and small
+      disturbances (door faults, signal delays).
+    - >-
+      Most OCCs and line controllers rely on manual rules and radio calls;
+      existing ATS/SCADA tools optimize timetable adherence, not real-time
+      headway regularity for frequent service.
+    - >-
+      Vendor ATS “regulation” features are often locked to a single OEM and
+      require costly upgrades; multi-vendor networks and mixed signaling
+      environments lack a unified, predictive headway tool.
+    - >-
+      Controllers lack predictive, actionable recommendations
+      (hold/express/short-turn) with quantified passenger impacts and rule/union
+      constraints; decisions are inconsistent across shifts.
+    - >-
+      Airports/people movers experience recurring micro-disruptions (door holds,
+      crowd surges) where small, timely actions would prevent long recovery
+      times, but current tools lack sub-minute forecasting.
+  solution:
+    - >-
+      Ingest real-time train positions (ATS), dwell times (APC/doors), schedules
+      (GTFS/plan), incidents, and platform crowd data to forecast headways 5–15
+      minutes ahead with sub-5-second refresh.
+    - >-
+      Optimization engine proposes bounded actions (hold X sec at Station Y;
+      skip Z; short-turn at W) respecting safety, union, and service policies,
+      with quantified passenger-minute tradeoffs.
+    - >-
+      Human-in-the-loop HMI for OCC: ranked recommendations, one-click
+      directives, rationale, and predicted impacts on EWT, headway SD, and
+      recovery time.
+    - >-
+      “Shadow mode” and A/B pilots: run recommendations silently to build a
+      pre-deployment ROI case using live data.
+    - >-
+      What-if sandbox for planners: simulate rules (max hold limits, express
+      policies) and special events to tune policies before go-live.
+    - >-
+      APIs to integrate advisories into existing OCC/ATS screens, operator
+      tablets/radios, and passenger information systems for consistent
+      messaging.
+  uniqueValueProp: >-
+    Vendor-agnostic, real-time headway regulation that predicts bunching minutes
+    ahead and delivers safe, actionable hold/express/short-turn instructions to
+    controllers and operators—cutting excess wait time 15–30% and stabilizing
+    service within minutes, not hours.
+  unfairAdvantage: >-
+    Cross-operator dataset and learned policies for headway stability on
+    fixed-guideway systems, combined with vendor-agnostic ATS/CBTC connectors
+    and an explainable, constraint-aware advisory engine that controllers
+    trust—hard for OEMs to replicate quickly across mixed fleets and legacy
+    OCCs.
+  customerSegments:
+    - >-
+      Public transit agencies operating light rail/tram lines (3–10 min peak
+      headways).
+    - >-
+      Airport authorities and O&M contractors for automated people
+      movers/monorails.
+    - >-
+      Private concessionaires/PPPs operating urban rail corridors under
+      performance KPIs (regularity/EWT).
+    - >-
+      Rail systems integrators and OCC vendors seeking advanced regulation
+      modules.
+    - >-
+      City DOTs/transport authorities overseeing multi-operator networks needing
+      performance analytics.
+  channels:
+    - >-
+      Direct enterprise sales to agencies, airport authorities, and PPP
+      operators via RFP/RFQ; proof-of-concept pilots on a single line.
+    - >-
+      Partnerships with OEMs and system integrators (Alstom, Siemens, Thales,
+      Hitachi Rail, CAF, Mitsubishi, INIT, Trapeze, Clever Devices, GMV) to
+      bundle as a module in OCC upgrades.
+    - >-
+      Cooperative procurement frameworks and pre-qualification lists (where
+      applicable) to shorten purchasing cycles.
+    - >-
+      Industry conferences and working groups (APTA, UITP, Rail~Volution,
+      InnoTrans) with live pilot case studies.
+    - >-
+      Thought leadership and ROI whitepapers using shadow-mode results; webinars
+      for operations chiefs and OCC managers.
+    - >-
+      Targeted account-based marketing to top 200 LRT/tram/people mover
+      operators; reference pilots in 2–3 regions to drive follow-on sales.
+  revenueStreams:
+    - >-
+      Annual subscription per line, tiered by fleet size/headway frequency: USD
+      60k–180k per line/year.
+    - >-
+      One-time implementation/integration fee: USD 75k–250k per line
+      (connectors, HMI integration, policy setup, training).
+    - >-
+      Premium modules: Event Mode, Digital Twin/Sandbox, Platform Crowding
+      Integration (USD 10k–40k per module/year).
+    - '24/7 support/SLA upgrade: USD 15k–30k per year per agency.'
+    - >-
+      Optional success-based bonus tied to EWT improvement after pilot (e.g.,
+      USD 10k per percentage point beyond baseline target).
+  costStructure:
+    - >-
+      Engineering (ML/optimization/backend/HMI): USD 250k–350k per quarter for a
+      6–8 person core team.
+    - >-
+      Systems integration and field engineering: USD 80k–150k per deployment
+      (labor and travel).
+    - >-
+      Cloud/infra (prod + staging) per active line: USD 1.5k–5k per month
+      depending on data rates and retention.
+    - >-
+      Security/compliance: SOC 2 Type II and ISO 27001 setup and audits: USD
+      100k–200k year 1; USD 60k–100k annually thereafter.
+    - >-
+      Sales and business development (long-cycle enterprise): USD 200k–400k per
+      year (team + travel + pilots).
+    - >-
+      Liability insurance and rail-specific safety process (assurance for
+      advisory systems): USD 50k–100k per year.
+    - 'Customer success/training: USD 3k–10k per line per year.'
+  keyMetrics:
+    - >-
+      Service regularity: headway standard deviation (target: -25% vs baseline
+      within 3 months).
+    - 'Excess Wait Time (EWT) on frequent segments (target: -15% to -30%).'
+    - >-
+      Bunching incidence rate (trains arriving within 60 seconds of each other
+      when headway >3 minutes) (target: -30%).
+    - >-
+      Recovery time after micro-disruptions (>90 seconds dwell or signal stop)
+      (target: -40%).
+    - >-
+      Directive adoption rate by controllers/operators (target: >80% accepted
+      actions after 6 weeks).
+    - >-
+      Forecast accuracy (SMAPE on arrival/dwell forecasts) (target: <12% on 0–10
+      min horizon).
+    - >-
+      System performance: decision latency <2 seconds; uptime 99.95%; data
+      ingestion completeness >99.5%.
+    - >-
+      Safety/Compliance: 0 safety incidents attributable to advisories; 100%
+      adherence to configured constraints.
+    - >-
+      Pilot ROI: passenger minutes saved per peak hour (target: >5,000 for busy
+      lines); payback <12 months.
+storyBrand:
+  character: >-
+    Urban rail controllers and operations leaders who must keep even headways
+    across light rail, tram, monorail, and people mover lines.
+  problem: >-
+    - External: Disturbances and dwell variability create gaps and bunches on
+    fixed-guideway lines.
+
+    - Internal: Controllers are stuck firefighting with blunt tools and constant
+    pressure.
+
+    - Philosophical: Riders deserve predictable waits; data-rich systems should
+    run with precision.
+  guide: >-
+    - Empathy: We understand the stakes—safety, reliability, and public scrutiny
+    every minute.
+
+    - Authority: Built by transit ops and AI experts; integrates with
+    ATS/vehicle location and GTFS-rt; explainable, human-in-the-loop
+    recommendations.
+  plan: |-
+    Process:
+    1) Connect data: ATS/vehicle location, schedules, constraints
+    2) Calibrate: headway targets and hold/express/short-turn rules
+    3) Go live: real-time instructions, audit trails, KPIs
+
+    Agreements:
+    - Safety-first; operator discretion preserved
+    - Transparent impacts; minimal radio chatter
+    - Secure data; low-latency performance
+  callToAction: |-
+    - Direct: Start a 60-day pilot on one corridor.
+    - Transitional: Book a demo and request an offline replay with your data.
+  success: |-
+    - Even headways; fewer bunches and gaps
+    - Shorter, consistent waits and less platform crowding
+    - Better capacity use and KPI compliance
+    - Calmer control rooms and higher rider satisfaction
+  failure: |-
+    - Persistent bunching and gaps
+    - Crowding, overtime, and missed targets
+    - Stress, complaints, and lost public trust
+landingPage:
+  hero:
+    title: Real-time Headway Advisor for Fixed-Guideway Lines
+    subtitle: >-
+      AI that monitors light rail, tram, monorail, and people movers to
+      recommend hold, express, and short-turn actions that keep even headways
+      and smoother loads.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - 'Uneven headways create crowding spikes, long gaps, and wasted capacity.'
+    - 'Controllers lack instant, data-driven guidance when service drifts.'
+    - Static schedules and radio calls can’t recover quickly from incidents.
+    - Short-turn and express decisions are ad hoc and hard to coordinate.
+    - Platform crowding and dwell variability cascade into bunching.
+    - 'Headway and excess-wait KPIs are missed, triggering penalties.'
+    - Local holds can backfire without visibility into network effects.
+  solution:
+    - >-
+      Live monitoring of vehicles, dwell times, and headways by segment and
+      direction.
+    - >-
+      Action engine proposes hold, express, skip-stop, and short-turn options
+      with projected impact.
+    - >-
+      Respects operating rules: crew reliefs, layover limits, turnback capacity,
+      and signals.
+    - >-
+      Operator-friendly prompts delivered to controllers and operators in real
+      time.
+    - >-
+      Forecasts rider impact: expected wait, load balance, and platform
+      crowding.
+    - Learns from outcomes to improve recommendations over time.
+    - Sandbox to test policies on historical days before going live.
+  features:
+    - Real-time headway and excess-wait dashboards per segment and direction.
+    - 'Action cards with ETA impact, load balance, and risk level.'
+    - 'Policy engine encoding local rules, SOPs, and labor agreements.'
+    - 'Integrations with ATS/CBTC/TCMS, CAD/AVL, APC, and GTFS-RT.'
+    - Platform crowding and dwell time prediction with early-bunching alerts.
+    - Automated recovery plans after incidents and delays.
+    - One-click dispatch messages to operators via existing comms.
+    - Turnback and pocket-track capacity checks before recommending short-turns.
+    - Multi-line coordination for shared tracks and junctions.
+    - Explainable recommendations with full audit trail.
+    - 'Role-based access for controllers, planners, and leadership.'
+    - Cloud or on-prem deployment with high availability and security.
+  steps:
+    - 'Connect data feeds and define lines, terminals, and pocket tracks.'
+    - >-
+      Configure headway targets, hold limits, skip/express rules, and
+      constraints.
+    - Calibrate with historical operations and APC data.
+    - Run a shadow pilot to compare against current practices.
+    - Go live on a corridor with guardrails and alert thresholds.
+    - Scale to the full network and continuously tune policies.
+---
+# EvenRail Advisor
+
+Industry: Other Urban Transit Systems
+Service: Real-time Headway/Bunching Advisor

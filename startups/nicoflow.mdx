@@ -1,0 +1,303 @@
+---
+name: NicoFlow Demand & PO
+slug: nicoflow
+service:
+  title: Demand Forecasting & Purchase Order Suggestions
+  description: >-
+    Forecasts SKU demand, sets reorder points, and drafts vendor POs with
+    MOQs/lead times.
+  targetUsers:
+    - Operations
+    - Purchasing
+    - Finance
+  triggers:
+    - Weekly planning cycle
+    - Vendor lead time change
+    - Promo calendar update
+  inputs:
+    - Historical sales by SKU/channel
+    - On-hand/on-order inventory
+    - Vendor lead times/MOQs
+    - Seasonality/promotions
+  steps:
+    - Clean and aggregate data
+    - Forecast demand per SKU (short and medium term)
+    - Compute safety stock and reorder points
+    - Generate PO proposals with MOQ/pack rounding
+    - Simulate cash and storage impact
+    - Route for approval and send PO
+  tools:
+    - Forecasting libs (Prophet/XGBoost)
+    - NetSuite/QuickBooks/ERP API
+    - Google Sheets/Looker Studio
+    - Email/EDI
+  outputs:
+    - Forecast report
+    - Draft POs by vendor
+    - Inventory health dashboard
+  pricingModel:
+    - Monthly subscription (tiered by SKU count)
+    - Optional setup fee for data pipelines
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 8
+    overall: 9
+  risks:
+    - Forecast error during shocks
+    - 'Bad master data (units, packs)'
+    - Vendor constraints not modeled
+  dependencies:
+    - Accurate sales/inventory history
+    - Vendor terms
+    - PO export or EDI
+leanCanvas:
+  problem:
+    - >-
+      Wholesalers carry 5,000–50,000 SKUs across cigarettes, OTP, nicotine
+      pouches, disposable e-cigs, coils, and e-liquids with highly skewed
+      velocity and frequent new SKUs, making manual forecasting error-prone.
+    - >-
+      Demand is volatile due to tax changes, flavor restrictions, manufacturer
+      buy-downs, and promotional cycles; planners lack tools to quickly
+      incorporate these shocks.
+    - >-
+      MOQs, case-pack constraints, and variable supplier lead times (especially
+      for imports) make optimal reorder points and economic order quantities
+      hard to compute.
+    - >-
+      Stockouts on A-movers (e.g., top 200 SKUs) immediately impact key account
+      retention; overstocks on slow movers tie up working capital and risk
+      obsolescence when regs change.
+    - >-
+      PO creation is manual and time-consuming (4–20 hours/week/planner), with
+      limited ability to simulate vendor constraints or consolidate orders
+      across categories.
+    - >-
+      Leadership lacks unified KPIs for forecast accuracy, service levels,
+      turns, and dead stock, making it difficult to quantify improvement or hold
+      teams accountable.
+  solution:
+    - >-
+      Demand forecasting: Hierarchical (SKU→brand→category) weekly forecasts at
+      SKU-location using gradient boosted models with seasonality, promo, and
+      regulatory event features.
+    - >-
+      Service-level optimized reorder points: Calculate safety stock and reorder
+      points targeting 95–98% service levels on A/B SKUs and cost-optimized
+      levels on C/D SKUs.
+    - >-
+      Vendor-constrained PO drafting: Auto-build POs that meet MOQs, case packs,
+      pallet layers, price breaks, and combine lines to minimize freight;
+      simulate multiple vendors.
+    - >-
+      Lead time modeling: Continuously learn supplier- and lane-specific lead
+      time distributions; adjust for holidays, customs, or policy announcements.
+    - >-
+      Event and promo overlays: One-click overlays for tax increases, buy-downs,
+      flavor bans, price changes; simulate scenarios and lock adjustments.
+    - >-
+      NPI/long-tail logic: Cold-start demand with analogs and Bayesian priors;
+      automatically cap buys on volatile or at-risk SKUs.
+    - >-
+      Workflow & approvals: Planner workbench, exception-based review, and
+      approvals; one-click export via EDI/API to ERP/WMS.
+    - >-
+      Data pipeline & integrations: Native connectors for NetSuite, Acumatica,
+      Sage 100/300, Dynamics 365 BC/FO, QuickBooks Enterprise; WMS/EDI partners;
+      optional c-store sell-through via partners.
+    - >-
+      Measurement & governance: Built-in dashboard for MAPE/WAPE, service level,
+      turns, dead stock, and PO cycle time; audit trail for regulators and
+      vendors.
+  uniqueValueProp: >-
+    Reduce stockouts 25–40% and excess inventory 10–20% within 90 days while
+    auto-generating vendor-ready POs that respect MOQs, case packs, and lead
+    times—purpose-built for tobacco and vape wholesalers.
+  unfairAdvantage: >-
+    Verticalized models and datasets that encode regulatory/promo dynamics,
+    supplier constraints, and c-store sell-through signals—plus out-of-the-box
+    ERP/EDI connectors—deliver faster time-to-value and higher accuracy than
+    generic forecasting tools or spreadsheets.
+  customerSegments:
+    - >-
+      Primary: Mid-market tobacco and electronic cigarette merchant wholesalers
+      (NAICS 42494) with $20M–$800M revenue, 1–8 warehouses, 5k–30k active SKUs.
+    - >-
+      Secondary: Convenience products distributors (serving c-stores) where
+      tobacco/vape is ≥25% of revenue.
+    - >-
+      Tertiary: Large national distributors and importers of vape
+      hardware/e-liquids with long, uncertain lead times.
+  channels:
+    - >-
+      Direct outbound to inventory, purchasing, and operations leaders via
+      LinkedIn/Sales Navigator with case-study driven messaging.
+    - >-
+      Partnerships with ERP/WMS resellers and EDI providers; marketplace
+      listings (NetSuite SuiteApp, Acumatica, Microsoft AppSource).
+    - >-
+      Industry associations and trade events: Convenience Distribution
+      Association (CDA), TPE/Total Product Expo, NACS, CSP events.
+    - >-
+      Webinars and whitepapers on regulatory shock forecasting and MOQ/lead-time
+      optimization; co-marketing with data partners (Skupos, NielsenIQ).
+    - >-
+      Pilot-led land-and-expand: 60–90 day pilots converting to annual
+      contracts; references within regional distributor networks.
+    - >-
+      Account-based marketing to top 300 regional wholesalers; targeted content
+      by state (tax/regulatory calendars).
+  revenueStreams:
+    - >-
+      Subscription (SaaS) tiered by active SKUs and warehouses: Starter (up to
+      5k SKUs, 1 site) $1,250/month; Growth (up to 20k SKUs, up to 3 sites)
+      $3,500/month; Enterprise (custom) $6,000–$15,000/month.
+    - >-
+      Implementation/onboarding: $8,000–$40,000 depending on integrations and
+      data hygiene.
+    - >-
+      Add-ons: EDI PO transmission ($0.10–$0.25/line), vendor collaboration
+      portal ($500–$2,000/month), retailer POS/market data connectors
+      (pass-through + 15% margin).
+    - 'Premium support/SLA and dedicated CSM: +15–20% of subscription.'
+    - >-
+      Professional services: Demand planning process redesign, inventory
+      segmentation, master data cleanup ($150–$220/hour).
+  costStructure:
+    - >-
+      R&D: Data science/engineering salaries; model training/inference compute
+      (cloud), MLOps tooling.
+    - >-
+      Cloud infrastructure: Data storage, compute, secure VPCs, backups,
+      observability ($250–$1,200/customer/month depending on scale).
+    - Third-party data and EDI fees (volume-based).
+    - >-
+      Implementation/CS: Solution architects and CSMs for onboarding and ongoing
+      success.
+    - 'Sales & marketing: SDRs, AEs, partner programs, events, content.'
+    - >-
+      Security/compliance: SOC 2 audits, pen tests, monitoring, insurance
+      (E&O/Cyber).
+    - >-
+      G&A: Legal (especially for data use and regulatory considerations),
+      finance, HR.
+  keyMetrics:
+    - >-
+      Forecast accuracy: WAPE ≤ 22% for A/B SKUs, ≤ 35% overall within 90 days;
+      forecast bias within ±5%.
+    - >-
+      Service level fill rate: 97% on A SKUs, 95% on B SKUs; stockout rate
+      reduction 25–40% in first two quarters.
+    - >-
+      Inventory efficiency: 10–20% reduction in excess/obsolete inventory;
+      10–15% improvement in inventory turns within 6 months.
+    - >-
+      Working capital impact: 8–15% reduction in inventory value for targeted
+      categories without service degradation.
+    - >-
+      PO automation: 70–90% reduction in planner time spent creating POs; ≥80%
+      of POs auto-generated and accepted without edits after 3 months.
+    - >-
+      Supplier reliability: OTIF improvement 5–10% via lead time modeling and
+      earlier order triggers; late delivery variance reduced by 20%.
+    - >-
+      Adoption and data health: >85% user login weekly for planners; master data
+      completeness >98%; integration uptime >99.5%.
+    - >-
+      Commercial: Pilot-to-paid conversion ≥60%; Net revenue retention ≥115% via
+      expansion across sites/categories.
+storyBrand:
+  character: >-
+    Tobacco and e‑cigarette merchant wholesalers who want the right SKUs in the
+    right DCs at the right time—without tying up cash or relying on guesswork.
+  problem: >-
+    Volatile demand, complex MOQs and lead times, and frequent launches make
+    manual forecasting and PO creation slow and error‑prone—causing stockouts,
+    overstock, and margin erosion. You shouldn’t lose sales to preventable
+    out‑of‑stocks or sit on aging inventory.
+  guide: >-
+    We understand the seasonality, regulatory constraints, and SKU churn of
+    tobacco and vape distribution. Our supply‑chain AI, built by planners and
+    data scientists, turns ERP/POS history into accurate demand forecasts,
+    reorder points, and vendor‑ready PO suggestions.
+  plan: >-
+    1) Connect ERP/POS and vendor catalogs. 2) Configure MOQs, case packs, lead
+    times, and service targets by SKU/vendor/DC. 3) Review forecast and reorder
+    points; approve suggested POs. 4) Auto‑generate vendor‑ready POs and track
+    exceptions weekly.
+  callToAction: >-
+    Book a 20‑minute demo | Request a free sample forecast and PO pack using
+    your anonymized data.
+  success: >-
+    Keep best‑sellers in stock, cut excess inventory, and free working capital.
+    Raise fill rates, reduce rush buys, and standardize buying with audit‑ready
+    logic—so reps, retailers, and finance all win.
+  failure: >-
+    Keep firefighting with spreadsheets, miss MOQs, pay expedite fees, and lose
+    sales to out‑of‑stocks while cash is trapped in slow‑movers—eroding margins
+    and customer trust.
+landingPage:
+  hero:
+    title: AI Demand Forecasting & PO Suggestions for Tobacco and Vape Wholesalers
+    subtitle: >-
+      Right SKUs, right warehouse, right time. Forecast demand, set reorder
+      points, and auto-draft vendor POs with MOQs, case packs, price breaks, and
+      lead times.
+    ctaText: Book a 20‑min demo
+    ctaHref: /demo
+  problem:
+    - >-
+      Volatile demand across disposables, pods, coils, and liquids makes manual
+      planning guesswork.
+    - Cash tied up in slow movers while top sellers stock out.
+    - >-
+      Vendor rules (MOQ, master case, increments, price breaks) trigger
+      last‑minute rework.
+    - Lead-time variability and holidays blow up PO timing.
+    - 'Multi-warehouse, multi-state compliance adds complexity and risk.'
+    - 'Data is scattered across ERP, POS, WMS, and online channels.'
+  solution:
+    - >-
+      SKU- and warehouse-level forecasts that adapt to seasonality, launches,
+      and promos.
+    - Reorder points and safety stock set to your service levels per location.
+    - >-
+      Auto-generated PO suggestions honoring MOQs, case packs, price breaks, and
+      vendor calendars.
+    - Lead-time-aware ordering with buffers and vendor performance learning.
+    - Compliance-aware suppression for restricted SKUs by jurisdiction.
+    - Transfer recommendations to rebalance inventory before buying more.
+  features:
+    - >-
+      Demand engine blends sales history, seasonality, promos, and trend shifts
+      in tobacco/vape categories.
+    - New SKU forecasting via analogs/lookalikes when history is thin.
+    - >-
+      Case pack, master case, and price-break optimization for lowest landed
+      cost.
+    - Open-to-buy guardrails and budget-aware PO batching by vendor calendar.
+    - Margin and inventory turns impact shown for every suggested order line.
+    - Dead-stock and excess alerts with liquidation and markdown picks.
+    - Backorder fill and equivalent SKU substitution suggestions.
+    - Multi-warehouse allocation and cross-dock planning.
+    - Vendor scorecards with lead-time drift and fill-rate tracking.
+    - >-
+      Audit trail and approvals for forecasts and POs; export to ERP or email
+      vendors.
+    - 'Integrations with major ERPs, POS, WMS, and e‑commerce platforms.'
+  steps:
+    - 'Connect ERP/POS/WMS and map vendors, SKUs, case packs, and jurisdictions.'
+    - >-
+      Set targets: service levels, days of supply, budgets, and compliance
+      rules.
+    - Review forecasts and auto-calculated reorder points by warehouse.
+    - >-
+      Approve suggested POs and send to vendors or export to your ERP in one
+      click.
+    - 'Track fill rate, stockouts, turns, and cash; the model improves weekly.'
+---
+# NicoFlow Demand & PO
+
+Industry: Tobacco Product and Electronic Cigarette Merchant Wholesalers
+Service: Demand Forecasting & Purchase Order Suggestions

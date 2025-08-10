@@ -1,0 +1,315 @@
+---
+name: Compressor Station Efficiency and Setpoint Advisory (AI)
+slug: compressor2
+service:
+  title: Compressor Station Efficiency and Setpoint Advisory
+  description: >-
+    Optimizes compressor operating points for fuel use, throughput, and
+    emissions within constraints and anti-surge margins, delivering advisory
+    setpoints.
+  targetUsers:
+    - Station operators
+    - Optimization/operations engineers
+    - Energy managers
+  triggers:
+    - Daily start-of-day advisory
+    - After ambient/gas composition change
+    - On compressor status change
+  inputs:
+    - Compressor maps and performance curves
+    - 'Live station data (suction/discharge, speed, recycle)'
+    - Gas composition and temperature
+    - 'System constraints (min/max pressures, anti-surge margins)'
+    - Throughput or pressure targets
+  steps:
+    - Validate and align compressor map data
+    - Estimate current efficiency and constraint margins
+    - Run multi-objective optimization (fuel vs throughput)
+    - Generate safe advisory setpoints and recycle guidance
+    - Quantify expected savings and constraint impacts
+  tools:
+    - CoolProp/REFPROP (thermo)
+    - 'Python (SciPy, Pyomo)'
+    - Historian API for data ingest
+    - 'Excel/CSV export, dashboard embedding'
+  outputs:
+    - Advisory setpoints for each unit
+    - Fuel/emissions savings estimate
+    - Constraint and anti-surge margin checks
+    - What-if scenarios (throughput vs fuel)
+  pricingModel:
+    - Setup and calibration per station
+    - Monthly subscription per station
+    - Optional gainshare (percentage of verified fuel savings)
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Inaccurate maps or sensor bias
+    - Operating outside recommended OEM guidance
+    - Anti-surge protection misinterpretation—advisory only
+    - Change-management requirements
+  dependencies:
+    - Compressor OEM maps
+    - Historian data and station constraints
+    - Operations approval workflow
+    - Fuel baseline for M&V
+leanCanvas:
+  problem:
+    - >-
+      Pipeline compressor stations waste 2–8% fuel due to conservative
+      anti-surge margins, suboptimal unit selection, and manual setpoint tuning.
+    - >-
+      Operators lack a real-time, constraint-aware optimizer that balances
+      throughput, fuel, and emissions while respecting OEM maps, anti-surge
+      control, and safety limits.
+    - >-
+      Mixed fleets (reciprocating and centrifugal, different OEMs) and changing
+      ambient/line conditions make consistent optimal operation difficult across
+      shifts and seasons.
+    - >-
+      SCADA/DCS alarms and anti-surge events increase risk and cause unplanned
+      recycle, consuming extra fuel and reducing equipment life.
+    - >-
+      Regulatory and ESG pressure to cut CO2 and methane intensity require
+      measurable reductions without compromising reliability or throughput.
+  solution:
+    - >-
+      Deploy a hybrid physics+ML optimizer that uses compressor maps, station
+      constraints, and live SCADA data to compute advisory setpoints: unit
+      selection, load split, speed/load, IGV/pocketing, recycle positions,
+      target anti-surge margin.
+    - >-
+      Edge application connected to SCADA/DCS (read-only initially) with
+      operator HMI to present recommendations, constraint rationales, and
+      predicted benefits (fuel, CO2, throughput).
+    - >-
+      Automated model calibration from historian data (e.g., PI), including
+      ambient corrections and dirty/clean performance states; periodic
+      re-identification.
+    - >-
+      Anti-surge-aware optimizer enforces minimum margin envelopes (e.g.,
+      dynamic 10–15% based on stability) and hard constraints (pressures,
+      temperatures, power, vibration).
+    - >-
+      Optional closed-loop mode after pilot: setpoint write-back with
+      interlocks, MOC process, and OEM-approved limits.
+    - >-
+      Fleet view: roll-up KPIs, benchmarking, exception-based alerts, and
+      dispatch recommendations across multiple stations.
+  uniqueValueProp: >-
+    Real-time, safety-aware setpoint advisory that reduces fuel 2–6%, cuts CO2
+    intensity, and increases throughput 1–3% by optimizing unit dispatch, load
+    sharing, and anti-surge margins—OEM-agnostic, integrates with existing
+    SCADA/DCS, and proves savings with auditable M&V.
+  unfairAdvantage: >-
+    A safety-certified, surge-aware optimizer with OEM-agnostic map ingestion
+    and dynamic margin control, proven across mixed fleets; audited M&V library
+    and benchmarks enabling performance-based contracts; established
+    integrations to leading DCS/SCADA systems reducing deployment time to <8
+    weeks.
+  customerSegments:
+    - >-
+      Midstream natural gas transmission operators (interstate/intrastate) with
+      5–200+ compressor stations.
+    - Gas storage operators with variable injection/withdrawal cycles.
+    - >-
+      LNG feed gas pipeline networks and large gathering systems feeding
+      processing plants.
+    - >-
+      Pipeline operators in North America, EU, Middle East with formal control
+      rooms and mature SCADA/DCS.
+    - >-
+      Operations executives (VP Ops), control room managers, rotating equipment
+      engineers, plant/field supervisors, ESG/compliance leads.
+  channels:
+    - Direct enterprise sales to midstream operators (top-50 by mileage).
+    - >-
+      Strategic partnerships with compressor OEMs (Siemens Energy, Solar
+      Turbines, Baker Hughes/GE, Ariel) and control vendors (Emerson, Honeywell,
+      ABB) for co-selling and integration.
+    - >-
+      System integrators specializing in pipeline SCADA/DCS for deployment and
+      validation.
+    - >-
+      Industry conferences (GPA Midstream, AGA Operations, Pipeline Pigging &
+      Integrity Management), technical papers, and pilots with public case
+      studies.
+    - >-
+      Targeted outreach via industry associations (INGAA, EUROGAS) and ESG
+      reporting forums.
+    - >-
+      Land-and-expand: 90-day pilot at 1–2 stations → regional rollout → fleet
+      contract.
+  revenueStreams:
+    - >-
+      Annual SaaS subscription per station: 80k–200k USD (tiered by number of
+      units and features).
+    - >-
+      One-time integration/onboarding per station: 50k–150k USD (includes edge
+      hardware, connectors, model calibration).
+    - >-
+      Optional performance-based fee: 10–20% of measured fuel savings (with
+      mutually agreed M&V).
+    - 'Fleet analytics and dispatch module: +30k–60k USD per station per year.'
+    - >-
+      Professional services: operator training, tuning workshops, M&V reporting
+      for ESG (5k–25k USD per engagement).
+  costStructure:
+    - >-
+      COGS: edge hardware 10k–30k per station; cloud/compute 3k–8k per
+      station/year; data storage/telemetry 1k–3k per station/year.
+    - >-
+      Engineering and support: controls/rotating equipment engineers, data
+      scientists, site commissioning (primary cost driver).
+    - System integration/SI partner fees for complex DCS environments.
+    - >-
+      Cybersecurity compliance and audits (SOC 2/ISO 27001), insurance, and
+      safety certifications.
+    - >-
+      Sales and marketing: industry events, pilots, travel for site acceptance
+      testing.
+    - 'Product R&D: optimization solver, OEM map ingestion, M&V, UI/UX.'
+  keyMetrics:
+    - >-
+      Fuel efficiency: MMBtu per unit head or per MMscf-mile; target 2–6%
+      reduction vs. normalized baseline.
+    - >-
+      CO2 intensity: kg CO2 per MMscf transported; target 2–6% reduction;
+      absolute tCO2 avoided per station per year.
+    - >-
+      Throughput at constant fuel: +1–3% uplift or maintained throughput at
+      lower fuel.
+    - >-
+      Anti-surge performance: average margin maintained within target band
+      (e.g., 10–12%); ≥70% reduction in surge/recycle events.
+    - >-
+      Recycle minimization: % of time with recycle closed; target >90% closed
+      during steady-state.
+    - >-
+      Operator adoption: setpoint acceptance rate >75% in first 90 days;
+      time-to-adoption <10 minutes per recommendation.
+    - >-
+      Reliability: no increase in trips; vibration/temperature excursions
+      reduced by ≥20%.
+    - >-
+      Financial: verified annual savings per station 150k–500k USD; payback <12
+      months; NPS of operations team >40.
+    - >-
+      Deployment: time-to-first-value <8 weeks; model prediction error <3% on
+      head/efficiency in validated ranges.
+storyBrand:
+  character: >-
+    Pipeline operations leaders and control room engineers for natural-gas
+    transmission who must hit nominations, minimize fuel and emissions, and
+    protect equipment/compliance.
+  problem: >-
+    Static, conservative setpoints and manual tuning can’t keep up with changing
+    ambient, gas composition, and network conditions—causing excess fuel burn
+    and CO2, surge risk and alarm storms, constrained throughput, and compliance
+    headaches.
+  guide: >-
+    We understand the pressure to move gas safely and efficiently; our
+    OEM-agnostic AI combines compressor maps, surge-control expertise, and
+    pipeline hydraulics, integrates securely with SCADA/DCS, and is validated by
+    domain SMEs and field pilots.
+  plan: >-
+    1) Connect & baseline: non-intrusive data integration and performance
+    benchmarking. 2) Calibrate & optimize: digital twin + real-time optimizer
+    with anti-surge and constraint guardrails. 3) Advise & scale:
+    operator-facing setpoints with explainability, KPI tracking, and rollout
+    from one pilot station to fleet.
+  callToAction: >-
+    Schedule a demo and start a 90-day pilot at one station; request a
+    customized ROI estimate.
+  success: >-
+    Operators trust clear, explainable advisory setpoints; measurable fuel
+    savings and emissions reductions (often 3–10%); throughput met or increased
+    within limits; zero surge events; fewer alarms; audit-ready compliance
+    reports; months-level payback.
+  failure: >-
+    Keep overburning fuel and paying for avoidable CO2/NOx, risk surge and
+    unplanned downtime, miss nominations, raise OPEX and compliance exposure,
+    and leave capacity and margin on the table.
+landingPage:
+  hero:
+    title: Compressor Station Efficiency & Setpoint Advisory
+    subtitle: >-
+      AI-optimized operating points for natural gas pipelines—cut fuel and
+      emissions, protect anti-surge, meet throughput targets.
+    ctaText: Request a Demo
+    ctaHref: /demo
+  problem:
+    - 'Stations run conservatively to avoid surge, wasting fuel and capacity.'
+    - Manual setpoint tuning drifts from optimal as conditions change.
+    - Rising fuel costs and emissions limits tighten operating windows.
+    - >-
+      Throughput targets conflict with power, temperature, and permit
+      constraints.
+    - Ambient swings and gas composition shifts outpace static controls.
+  solution:
+    - >-
+      Real-time advisory setpoints per unit and station—optimized for fuel,
+      emissions, and throughput within all constraints and anti-surge margins.
+    - >-
+      Physics-informed + ML models align compressor maps with live conditions
+      for precise, safe adjustments.
+    - >-
+      Multi-objective optimization balances cost, CO2/NOx, and capacity while
+      honoring pressure, power, temperature, vibration, and permit limits.
+    - >-
+      SCADA/DCS integration for advisory-only or closed-loop; operators see
+      rationale, expected gains, and constraint drivers.
+  features:
+    - >-
+      Anti-surge protection with configurable guard bands and surge proximity
+      monitoring.
+    - >-
+      Station-level load sharing and unit dispatch across parallel/series
+      trains.
+    - >-
+      Objective weighting: fuel burn, CO2/NOx intensity, throughput,
+      starts/stops, reliability.
+    - >-
+      Live adaptation to ambient temperature, gas composition, and linepack
+      dynamics.
+    - Compressor map ingestion and auto-calibration from recent operating data.
+    - >-
+      Sub-minute advisory updates with stability checks and rate-of-change
+      limits.
+    - >-
+      Operator UI: clear setpoints, expected savings, and constraint
+      explanations.
+    - 'What-if planning: outages, maintenance windows, tariff/market scenarios.'
+    - >-
+      Audit-ready reporting: fuel saved, emissions avoided, KPI trends,
+      compliance hours.
+    - >-
+      API-first with connectors (OPC UA, Modbus, PI, MQTT); on-prem or VPC
+      deployment.
+    - Cybersecurity and role-based access; no external data egress required.
+    - 'Safe-state fallbacks, rollbacks, and MOC-ready change logs.'
+    - >-
+      Supports turbines, motors, and hybrid drivers; coolers and recycle
+      integrated.
+    - Alarm-aware optimization that respects trip limits and permissives.
+  steps:
+    - >-
+      Connect: Link SCADA/historian and import compressor maps, limits, and
+      tags.
+    - 'Calibrate: Fit the station digital twin and validate against recent runs.'
+    - >-
+      Configure: Set objectives, constraints, anti-surge margins, and guard
+      rails.
+    - 'Pilot: Run advisory-only at one station; compare to baseline KPIs.'
+    - 'Deploy: Enable workflows or closed-loop control with operator sign-off.'
+    - 'Measure: Track fuel, throughput, emissions; auto-generate reports.'
+    - 'Refine: Adjust weights and constraints based on goals and seasons.'
+    - 'Scale: Template and roll out across the pipeline network.'
+---
+# Compressor Station Efficiency and Setpoint Advisory (AI)
+
+Industry: Pipeline Transportation of Natural Gas
+Service: Compressor Station Efficiency and Setpoint Advisory

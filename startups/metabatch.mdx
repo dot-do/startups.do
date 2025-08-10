@@ -1,0 +1,378 @@
+---
+name: MetaBatch AI
+slug: metabatch
+service:
+  title: Batch Metadata Extraction and Enrichment
+  description: >-
+    AI-assisted extraction of titles, dates, names, places, and subjects from
+    digitized items and minimal records; authority linking and subject
+    suggestions; output to MARC/MODS/DC for import.
+  targetUsers:
+    - Digital libraries
+    - Archives
+    - Special collections
+  triggers:
+    - New digitized batch ready
+    - Minimal records supplied
+    - Backlog flagged for enrichment
+  inputs:
+    - TIFF/JPEG/PDF
+    - Existing CSV/MARC with minimal fields
+    - Collection policy and field map
+  steps:
+    - Run OCR/HTR where needed
+    - Extract entities and dates; normalize
+    - Suggest subjects (FAST/LCSH) and summaries
+    - Match names to VIAF/LCNAF/Wikidata; add identifiers
+    - Generate MARC/MODS/DC; validate
+    - 'Human QC (spot check, policy alignment)'
+    - Deliver import files and change log
+  tools:
+    - Tesseract or Google Cloud Vision OCR
+    - 'OpenAI API (NER, summarization)'
+    - spaCy
+    - OCLC FAST API
+    - 'VIAF, LC Linked Data, Wikidata'
+    - OpenRefine reconciliation
+    - pymarc
+  outputs:
+    - Enriched MARCXML/MODS/DC
+    - Authority links (URIs)
+    - QC report with confidence scores
+  pricingModel:
+    - 'Per item or per 1,000 pages'
+    - One-time setup for mappings
+    - Optional human QC billed hourly
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 4
+    overall: 4.5
+  risks:
+    - Incorrect authority matches
+    - Subject drift vs. local practice
+    - OCR noise on poor scans
+    - License/API rate limits
+  dependencies:
+    - Export/import access to ILS/DAMS
+    - API keys (VIAF/FAST/etc.)
+    - Field mapping and local policies
+leanCanvas:
+  problem:
+    - >-
+      Digitized backlogs grow faster than staff capacity; typical cataloger
+      throughput is 15–30 items/day, leaving 10k–1M item backlogs for large
+      institutions.
+    - >-
+      Manual description takes 8–20 minutes per item for titles, dates, names,
+      places, subjects; at $35–$60/hour fully loaded cost, per-item description
+      costs $4.50–$20.
+    - >-
+      Authority control (LCNAF/VIAF/ISNI/ORCID) is inconsistent and
+      time-consuming; match rates can be under 60% without tooling, reducing
+      discovery quality.
+    - >-
+      Subject assignment (LCSH, FAST, AAT) is laborious and inconsistent; lack
+      of confidence metrics makes QA difficult.
+    - >-
+      Legacy systems require clean exports to MARC/MODS/DC/EAD; crosswalk errors
+      lead to rework, ingest failures, and audit issues.
+    - >-
+      Multi-language OCR/HTR and historical scripts (Gothic, Fraktur, cursive)
+      are error-prone, especially for archival materials.
+    - >-
+      Lack of measurable QA: teams cannot quantify precision/recall, authority
+      match rates, or reviewer acceptance; grants require defensible metrics.
+    - >-
+      Compliance and privacy needs (e.g., PII redaction from OCR text) are
+      under-served in generic AI tools.
+    - >-
+      Local vocabularies and variant forms (e.g., local name/subject headings)
+      are hard to reconcile with standards without custom rules.
+    - >-
+      Existing tools are fragmented; building in-house pipelines (OCR + NER +
+      reconciliation + crosswalks) takes months and is brittle.
+    - >-
+      Budget predictability is hard under per-hour consulting models; leaders
+      need transparent per-item or tiered pricing.
+    - >-
+      Integrations with Alma, WorldShare, ArchivesSpace, DSpace, Fedora,
+      Islandora, and ContentDM are nontrivial and slow projects.
+  solution:
+    - >-
+      Ingest pipelines for IIIF, OAI-PMH, S3/Blob, local SMB/NFS shares, and
+      repository connectors (Alma, WorldShare, ArchivesSpace,
+      DSpace/Fedora/Islandora, ContentDM).
+    - >-
+      Adaptive OCR/HTR selection per material type (printed vs. manuscript),
+      with language detection and model switching; support for Latin, Cyrillic,
+      Arabic, CJK, Hebrew, and historical scripts.
+    - >-
+      Named Entity Recognition for titles, personal/corporate names, places,
+      dates, subjects; trained on library/archival corpora.
+    - >-
+      Entity resolution to LCNAF, VIAF, ISNI, ORCID, GeoNames, Getty AAT/TGN,
+      and Wikidata with confidence scores and variant name handling.
+    - >-
+      Subject suggestion models aligned to LCSH/FAST/AAT and configurable for
+      local vocabularies; transparent confidence thresholds.
+    - >-
+      Date parsing and normalization to EDTF/ISO 8601 with qualifiers
+      (approximate, uncertain, inferred) and range handling.
+    - >-
+      Geocoding with coordinates, historical name variants, and jurisdiction
+      hierarchies for improved spatial discovery.
+    - >-
+      Human-in-the-loop review UI with keyboard shortcuts, bulk actions,
+      sampling strategies, and inter-rater agreement metrics.
+    - >-
+      PII detection and optional redaction in OCR text; rights statements
+      mapping (RightsStatements.org) with templates.
+    - >-
+      Export mappers and validators to MARC21 (e.g., 245/100/6XX/650/651/7XX),
+      MODS, Dublin Core, EAD, and JSON-LD; crosswalk unit tests to prevent
+      regressions.
+    - >-
+      Batch scheduler with retries, lineage/audit trail, and reproducible runs;
+      SSO (SAML/OIDC) and RBAC for governance.
+    - >-
+      Dashboards for backlog, throughput, precision/recall, authority match
+      rates, reviewer acceptance, and export error rates.
+    - >-
+      Deployment options: multi-tenant SaaS with regional data residency or
+      on-premises containers (Kubernetes/VM) with no internet dependency if
+      required.
+  uniqueValueProp: >-
+    Purpose-built, human-in-the-loop AI that reduces description time per item
+    by 60–80% while improving authority control and subject consistency. Batch
+    process tens of thousands of items with measurable quality (e.g., 90%+
+    precision on named entities), export natively to MARC21/MODS/DC/EAD, and
+    integrate with Alma, WorldShare, ArchivesSpace, DSpace/Fedora. Available as
+    SaaS or on-prem with procurement-ready security and auditability.
+  unfairAdvantage: >-
+    A domain-tuned stack built with consortium-shared training data and
+    crosswalk rulebooks unavailable to generic AI vendors; human-in-the-loop
+    workflows that continuously improve models; deep standards compliance
+    (MARC/MODS/DC/EAD, EDTF) and certified integrations with
+    Alma/WorldShare/ArchivesSpace/DSpace that shorten deployments from months to
+    weeks; procurement readiness (on-prem option, SOC 2 roadmap, accessibility)
+    and published third-party benchmarks that make quality and ROI transparent.
+  customerSegments:
+    - >-
+      Academic research libraries (ARL/ACRL institutions) with digitization
+      programs.
+    - 'National, state, and regional libraries.'
+    - >-
+      Large public libraries with special collections and local history
+      digitization.
+    - University archives and special collections departments.
+    - Government archives and records offices.
+    - Museums with archives and GLAM institutions.
+    - Library consortia seeking shared services and negotiated pricing.
+    - >-
+      Digitization bureaus and service providers seeking value-added metadata
+      enrichment for clients.
+    - >-
+      Repository platform customers and system librarians (Alma Digital,
+      Rosetta, DSpace, Fedora, Islandora, ContentDM).
+    - >-
+      Roles: Heads of Metadata and Discovery, Cataloging Managers, Digital
+      Collections Librarians, Archivists, Systems/Integration Librarians,
+      Digital Asset Managers.
+  channels:
+    - >-
+      Founding-pilot program with 6–10 flagship libraries/archives; 12-week
+      pilots with SLAs and success metrics (time saved, accuracy, match rates),
+      discounted conversion to annual contracts.
+    - >-
+      Consortial agreements (e.g., state/regional consortia) with tiered volume
+      pricing and shared training; goal: 3 consortia in year 1.
+    - >-
+      Partnerships with repository vendors (Ex Libris, OCLC, LYRASIS/DSpace) and
+      digitization bureaus for co-selling and bundled offerings.
+    - >-
+      Conferences and workshops: ALA, SAA, DLF Forum, Code4Lib, IFLA, RLUK,
+      PASIG; live demos and hands-on labs using sample collections.
+    - >-
+      Content marketing with benchmark reports (public gold datasets,
+      reproducible notebooks), case studies, and ROI calculators.
+    - >-
+      Webinars and office hours targeted to Heads of Metadata and Digital
+      Collections; monthly cadence with Q&A and sandbox access.
+    - >-
+      Grants alignment: tooling and text for IMLS/NEH/IMLS-UKRI proposals;
+      dedicated grant support to be included as a service.
+    - >-
+      Marketplace listings and procurement frameworks (e.g., GSA/ed
+      marketplaces, UK frameworks) for streamlined purchasing.
+    - >-
+      Outbound outreach to 500 priority institutions/roles per quarter with
+      tailored metrics-based proposals.
+    - >-
+      Community engagement in IIIF, LD4, and Code4Lib; open-sourcing non-core
+      utilities (e.g., MARC crosswalk validator) to build trust.
+    - >-
+      Referral program for partners and early adopters (10–15% year-one credit);
+      reseller agreements with digitization vendors.
+    - >-
+      Pricing transparency page with calculators (per item/page) and sample
+      budgets for grants to reduce friction.
+  revenueStreams:
+    - >-
+      Annual SaaS subscriptions by processed items: Starter $12k/year up to 100k
+      items; Pro $40k/year up to 1M items; Enterprise custom SLAs/data
+      residency.
+    - >-
+      Pay-as-you-go overage: $0.005–$0.02 per page or $0.02–$0.10 per item
+      depending on complexity (OCR/HTR vs. born-digital).
+    - >-
+      On-premises license with support/updates: $60k–$150k/year depending on
+      cores/nodes and integrations.
+    - >-
+      Professional services: onboarding, crosswalk customization, local
+      authority mapping, integrations ($150–$220/hour) with typical packages
+      $10k–$50k.
+    - >-
+      Custom model training for local vocabularies or languages: $15k–$75k per
+      model depending on data volume.
+    - >-
+      Training and certification for reviewers/supervisors: $2,500–$5,000 per
+      cohort (10–20 staff).
+    - >-
+      Premium SLAs and compliance add-ons (99.9% uptime, 4-hour response,
+      dedicated VPC, annual pen test reports): $10k–$40k/year.
+    - >-
+      Data hosting of extracted full-text and derivatives (SaaS): $0.002–$0.01
+      per GB-month beyond included quota.
+    - >-
+      Revenue-share bundles with digitization partners (metadata enrichment
+      addon at negotiated per-item rates).
+  costStructure:
+    - Engineering and ML staff (core team 8–12 FTE in year 1–2).
+    - >-
+      Domain experts (catalogers/archivists) for annotation, evaluation, and
+      crosswalk governance (2–4 FTE or contracted).
+    - >-
+      Cloud compute for OCR/HTR/NER; GPUs/CPUs for inference; estimated
+      $0.001–$0.01 per page variable cost depending on pipeline.
+    - Storage and egress for images/text/logs; caching of authority data.
+    - >-
+      Third-party licenses (e.g., ABBYY/Transkribus HTR seats, translation APIs,
+      geocoding if premium).
+    - >-
+      Security and compliance (SOC 2 Type II, vulnerability management, pen
+      tests, logging/monitoring).
+    - >-
+      Customer success/support team for onboarding, training, and ongoing ops
+      (2–3 FTE initially).
+    - 'Sales and marketing: conferences, travel, demos, collateral, partner MDF.'
+    - >-
+      Legal/procurement costs for DPAs, SLAs, accessibility and security
+      questionnaires.
+    - >-
+      R&D for multilingual and historical-script HTR, continuous model
+      improvement, benchmark curation.
+    - 'Insurance (cyber, E&O), finance/admin overhead.'
+  keyMetrics:
+    - >-
+      Entity extraction precision/recall by type (names, places, dates,
+      subjects); target: names precision ≥0.90, recall ≥0.85; places precision
+      ≥0.92, recall ≥0.80.
+    - >-
+      Authority match rate: names ≥80%, places ≥75%, with false-positive rate
+      ≤2%.
+    - >-
+      Subject suggestion reviewer acceptance rate ≥60% (baseline) with goal to
+      reach ≥75% after 6 months of feedback.
+    - >-
+      Average reviewer time per item ≤4 minutes (from baseline 10+ min) for
+      items under 5 pages; track distribution by complexity.
+    - >-
+      End-to-end throughput: ≥10,000 items/day/node; 95th percentile job queue
+      wait time ≤2 hours.
+    - >-
+      Backlog reduction: 50% reduction within 6 months for pilot cohorts; items
+      cleared per week vs. target.
+    - >-
+      Export error rate (schema/crosswalk validation) ≤0.5% per batch; automated
+      validation coverage ≥95% of fields used.
+    - Pilot-to-paid conversion rate ≥40%; time-to-contract ≤90 days.
+    - Annual churn ≤5%; Net Revenue Retention ≥110%; NPS ≥40.
+    - ACV $25k–$60k; Sales cycle length median ≤120 days; Win rate in RFPs ≥30%.
+    - 'Support metrics: first response ≤4 business hours; CSAT ≥4.5/5.'
+    - Uptime ≥99.9%; SLA breach incidents per quarter = 0.
+    - >-
+      Model drift alerts ≤2 per quarter; labeled evaluation set refreshed every
+      release.
+    - >-
+      Security: critical vulnerabilities remediated within 7 days; security
+      incidents = 0.
+storyBrand:
+  character: >-
+    Libraries and archives with digitized backlogs who need fast,
+    standards‑compliant metadata at scale.
+  problem: >-
+    Backlogs and inconsistent minimal records hide collections; manual
+    cataloging is slow, costly, and weak on authority control and crosswalks.
+  guide: >-
+    We understand cataloging pressures and bring AI plus metadata standards
+    expertise to extract, enrich, and authority‑link reliably.
+  plan: >-
+    1) Ingest batches or connect your repository; 2) AI extracts
+    titles/dates/names/places/subjects, links authorities, suggests subjects; 3)
+    You review/QA and export MARC/MODS/DC for import.
+  callToAction: Start a pilot batch or book a 30‑minute demo with a free sample export.
+  success: >-
+    Clean, consistent, authority‑linked records delivered 10x faster, better
+    discovery and interoperability, and staff time freed for high‑value work.
+  failure: >-
+    Persistent backlogs, inconsistent records, poor discovery and reporting,
+    increased costs, and staff burnout.
+landingPage:
+  hero:
+    title: Batch Metadata Extraction & Enrichment for Libraries & Archives
+    subtitle: >-
+      AI that transforms digitized items and minimal records into
+      authority-linked, import-ready MARC/MODS/DC—at scale.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - Growing backlogs of digitized items with minimal metadata
+    - 'Manual description is slow, inconsistent, and costly'
+    - Authority control requires scarce expert time
+    - Hard to batch-update legacy records across systems
+    - Creating import-ready MARC/MODS/DC is error-prone
+  solution:
+    - 'AI extracts titles, dates, names, places, and subjects at scale'
+    - Normalizes formats; disambiguates entities; applies preferred forms
+    - 'Links to VIAF, LCNAF, FAST, GeoNames, Getty AAT/TGN, ISNI'
+    - Subject suggestions with confidence and rationale
+    - 'One-click export to MARC21/MARCXML, MODS, and Dublin Core'
+  features:
+    - 'Batch processing for images, PDFs, and minimal records'
+    - OCR- and IIIF-aware text extraction
+    - 'Configurable mappings to MARC21, MODS, Dublin Core'
+    - Field-level confidence scores and thresholds
+    - Human-in-the-loop review queues
+    - 'Authority linking: VIAF, LCNAF, FAST, GeoNames, Getty AAT/TGN, ISNI'
+    - Date normalization to EDTF/ISO 8601
+    - Name/place deduplication and disambiguation
+    - Subject recommendation with source vocabularies
+    - Validation rules for required fields and punctuation
+    - Change history and audit trail
+    - 'Bulk approve, edit, and merge'
+    - 'Exports: CSV, JSON, MARCXML, MODS-XML, DC-XML'
+    - API and webhooks for workflow automation
+    - On-prem or cloud deployment options
+  steps:
+    - Connect your repository or upload a batch
+    - 'Select templates, target schema, and authority sources'
+    - Run extraction and enrichment
+    - Review flagged fields; approve in bulk
+    - 'Export MARC/MODS/DC; import to ILS, DAM, IR'
+    - Save the profile; rerun on new collections
+---
+# MetaBatch AI
+
+Industry: Libraries and Archives
+Service: Batch Metadata Extraction and Enrichment

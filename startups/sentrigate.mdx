@@ -1,0 +1,353 @@
+---
+name: SentriGate EC-Guard
+slug: sentrigate
+service:
+  title: Export-Controlled Data Classifier and Routing Agent
+  description: >-
+    Automatically classifies documents/CAD as ITAR/EAR, proposes ECCN/USML tags,
+    enforces access labels, screens recipients, and produces redacted shareable
+    versions with full audit trail.
+  targetUsers:
+    - Export compliance
+    - Program managers
+    - PLM/IT admins
+    - Design engineers
+  triggers:
+    - New file uploaded to PLM/SharePoint/Drive
+    - Email attachment detected
+    - Supplier share request
+    - New part created
+  inputs:
+    - Documents (PDF/DOCX)
+    - CAD metadata (STEP/JT/SLDPRT)
+    - Part master data
+    - Recipient list (emails/CAGE/JCP status)
+    - Export control policy/rulebook
+  steps:
+    - >-
+      Ingest and OCR files; extract entities (materials, calibers, defense
+      terms)
+    - Classify ITAR/EAR/ECCN/USML with ML+policy rules and confidence scoring
+    - Apply labels (MIP/DLP) and route to restricted libraries or quarantine
+    - >-
+      Auto-redact sensitive sections to produce releasable versions when
+      possible
+    - Screen recipients against denied/restricted party lists and JCP
+    - Log decisions and notify owners for review/override
+  tools:
+    - OCR (Azure AI Vision/Tesseract)
+    - LLM classification (Azure OpenAI with Private Link)
+    - Azure Purview/Microsoft Information Protection
+    - Denied party screening APIs
+    - Neo4j for traceability graph
+    - UiPath/Power Automate for routing
+  outputs:
+    - Classification labels with confidence
+    - Routing actions and access controls
+    - Redacted derivative documents
+    - Recipient screening report
+    - Audit logs and dashboards
+  pricingModel:
+    - One-time setup/integration fee
+    - 'Per-1,000 pages or per-asset processed'
+    - Monthly subscription for monitoring and API access
+    - Optional hourly SME review
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Misclassification causing compliance breaches
+    - False negatives in recipient screening
+    - Policy drift vs evolving regulations
+  dependencies:
+    - Access to PLM/SharePoint/Email gateways
+    - Approved export control rulebook
+    - Subscriptions to DPL/Watchlist services
+    - Secure enclave/VPN; data residency controls
+leanCanvas:
+  problem:
+    - >-
+      Manufacturers of tanks, armored vehicles, and components face high risk of
+      inadvertent ITAR/EAR violations due to manual, error-prone document and
+      CAD handling across PLM, M365, email, and supplier portals.
+    - >-
+      Export control classification (USML/ECCN) and labeling are slow (often
+      2–10 days turnaround) and inconsistent, delaying bids, design reviews, and
+      supplier collaboration.
+    - >-
+      CAD and technical data are hard to sanitize; engineers over-share or block
+      work due to uncertainty, creating either compliance exposure or
+      operational friction.
+    - >-
+      Recipient screening is fragmented (identity, citizenship, org, location,
+      denied party lists), resulting in gaps and audit findings.
+    - >-
+      Compliance teams lack end-to-end, immutable audit trails tying
+      classification decisions, approvals, and distribution to specific users
+      and versions for investigations and disclosures.
+    - >-
+      Existing DLP/MIP tools lack deep CAD awareness and USML Category
+      VII/600-series specifics, forcing costly manual review.
+    - >-
+      Frequent regulatory updates (BIS/EAR, USML revisions, sanctions) outpace
+      static policies, making it difficult to keep rules current across systems.
+  solution:
+    - >-
+      Multimodal classifier for documents, drawings, and CAD that detects
+      ITAR/EAR scope and proposes USML Category VII and 600-series ECCNs (e.g.,
+      0A606/0E606) with confidence scores and rationale.
+    - >-
+      Human-in-the-loop review workflow: configurable thresholds for
+      auto-approve, escalate, or require dual control; side-by-side rationale
+      and citations to regs and prior decisions.
+    - >-
+      Automated labeling and access control: applies MIP/Titus labels and ABAC
+      policies to files, PLM items, and emails; enforces US Person/geo
+      restrictions; blocks or quarantines disallowed transmissions.
+    - >-
+      Recipient and transaction screening: real-time checks against
+      BIS/OFAC/State DDTC lists, citizenship/ITAR US Person status, org
+      affiliation, data location, program/TAA restrictions, and contract
+      clauses.
+    - >-
+      Redaction and shareable derivatives: CAD decimation/simplification,
+      feature removal, metadata scrubbing, drawing masking/watermarking, and
+      document redaction to produce non-controlled or EAR99 versions where
+      possible.
+    - >-
+      Immutable audit trail: hash-chained, time-stamped records of
+      classifications, policy evaluations, user actions, and distribution
+      events; exportable for disclosures and audits (WORM storage/QLDB-like).
+    - >-
+      Connectors and in-path enforcement: native integrations for Teamcenter,
+      Windchill, Enovia, NX/Creo/CATIA/SolidWorks, SharePoint/OneDrive,
+      Outlook/Exchange, SFTP/MFT, Slack/Teams, Box/Egnyte Gov, SIEM/SOAR, DLP,
+      and CASB.
+    - >-
+      Policy and rule engine continuously updated with BIS/EAR/USML changes and
+      company-specific carve-outs (licenses, TAAs, MLAs, NDA program lists).
+    - >-
+      Deployment options: on-prem/air-gapped, SCIF-friendly, or AWS
+      GovCloud/Azure Government; US Persons-only support; NIST 800-171/CMMC
+      alignment; path to FedRAMP Moderate/High and DoD IL5.
+  uniqueValueProp: >-
+    AI-native, CAD-aware export control guardian that auto-classifies ITAR/EAR
+    technical data, proposes accurate USML/ECCN tags, enforces access and
+    routing across your toolchain, screens recipients in real time, and produces
+    redacted, shareable artifacts—backed by an immutable audit trail—cutting
+    violations and cycle time without slowing engineering.
+  unfairAdvantage: >-
+    Defense-CAD-native classifiers trained on a proprietary, adjudicated corpus;
+    prebuilt enforcement across PLM/CAD/email; immutable audit vault; and US
+    Persons-only operations with Gov-ready architectures. Early ATOs and
+    design-partner references in armored vehicle programs create high switching
+    costs and credibility.
+  customerSegments:
+    - >-
+      Primary: US-based armored vehicle OEMs and prime contractors (e.g.,
+      tank/armored platforms, turrets, fire control, transmissions).
+    - >-
+      Primary: Tier-1/Tier-2 suppliers of armor, powertrain, weapons
+      integration, sensors, electronics, and mobility subsystems.
+    - >-
+      Secondary: Export compliance consultancies and system integrators serving
+      defense manufacturers.
+    - >-
+      Secondary: Allied-nation primes with US operations subject to ITAR (US
+      Persons-only deployments).
+  channels:
+    - >-
+      Direct enterprise sales to primes and Tier-1/2 suppliers via account-based
+      marketing focused on ground systems.
+    - >-
+      Partnerships with PLM vendors and resellers (Siemens Teamcenter, PTC
+      Windchill, Dassault Enovia) and Gov-focused distributors (Carahsoft,
+      immixGroup).
+    - >-
+      Alliances with export compliance consultancies and law firms to co-deliver
+      deployments and policy tuning.
+    - >-
+      Presence at NDIA, AUSA, BIS Update Conference, SIA Export Control
+      Conference; technical workshops with SAE committees relevant to defense
+      manufacturing.
+    - >-
+      Targeted content marketing: ITAR/EAR for CAD guide, case studies, and ROI
+      calculators; webinars co-hosted with compliance leaders at reference
+      customers.
+    - >-
+      Pilot-first GTM: 8–12 week paid pilots with clear success criteria tied to
+      precision/recall, cycle time reduction, and incident prevention.
+    - >-
+      Procurement vehicles: GSA MAS via reseller, OTA consortia for prototype
+      with FFRDCs/primes, state and local for guard manufacturing divisions.
+  revenueStreams:
+    - >-
+      Annual subscription (SaaS or on-prem license) tiered by number of users,
+      repositories connected, and data volume processed.
+    - >-
+      Add-on modules: CAD redaction, advanced recipient screening, GovCloud/IL5,
+      immutable audit vault, and SIEM/SOAR packs.
+    - >-
+      Professional services: integrations, data mapping, policy tuning, and
+      model calibration (fixed-fee packages).
+    - >-
+      Premium support: US Persons-only 24x7, dedicated TAM, quarterly risk
+      reviews.
+    - Training and certification for admins/reviewers; partner enablement.
+    - >-
+      Enterprise license with multi-division discounts and multi-year prepay
+      incentives.
+  costStructure:
+    - >-
+      R&D: ML/NLP/CV engineering, CAD parsers, rule engine, and integration
+      connectors (~40–55% of OPEX in first 24 months).
+    - >-
+      Compliance and accreditation: SOC 2 Type II, FedRAMP Moderate/High ATO
+      (est. $1.2–2.0M initial, $400–700k/yr ongoing), CMMC alignment,
+      penetration tests.
+    - >-
+      Cloud/GovCloud and on-prem appliance build/support; STIG hardening and
+      patch pipelines.
+    - >-
+      US Persons-only hiring premium; background checks and export compliance
+      training.
+    - >-
+      Liability and cyber insurance for export compliance tech; legal counsel
+      and external audits.
+    - >-
+      Sales and marketing: ABM, conferences, solution architects for pilots;
+      channel margins (10–25%).
+    - >-
+      Data subscriptions: restricted party list feeds, sanctions updates,
+      regulatory content.
+    - >-
+      Customer success and support (Tier 1–3) with secure ticketing and on-call
+      coverage.
+  keyMetrics:
+    - >-
+      Classification performance by artifact type (target: F1 ≥ 0.92 for repeat
+      doc types; ≥ 0.88 for CAD within 90 days of deployment).
+    - >-
+      Coverage: % of repos and comms channels under enforcement (target: ≥ 90%
+      within 6 months).
+    - >-
+      Cycle time reduction from authoring to compliant share (target: -60% vs.
+      baseline).
+    - >-
+      Auto-approval rate at safe thresholds (target: ≥ 70% after calibration; <
+      2% false positives).
+    - >-
+      Incident metrics: blocked attempted violations per month; confirmed
+      incidents (target: 0 material incidents).
+    - >-
+      Mean time to review (MTTR-Review) escalations (target: < 4 business
+      hours).
+    - >-
+      Redaction throughput and latency (target: 95th percentile < 2 min for
+      drawings; < 10 min for assemblies up to N=5k parts).
+    - >-
+      Audit completeness: % of distribution events with immutable records
+      (target: 100%).
+    - >-
+      User adoption: weekly active reviewers/engineers; time-in-app; NPS ≥ 40
+      within 2 quarters.
+    - >-
+      Policy freshness: time-to-update after BIS/USML change (target: < 5
+      business days).
+    - >-
+      Savings: compliance labor hours saved per month and cost avoidance from
+      rework/holds (quantified in pilot ROI).
+    - 'SLA/SLO: uptime ≥ 99.9% (GovCloud), support response ≤ 15 min Sev-1.'
+    - >-
+      Data residency and US Person compliance: 100% adherence with automated
+      attestations.
+storyBrand:
+  character: >-
+    Program, engineering, and export-compliance leaders at armored vehicle,
+    tank, and component manufacturers who must move technical data
+    quickly—without violating ITAR/EAR.
+  problem: >-
+    External: Manual classification and routing of CAD and technical data is
+    slow, error-prone, and rules/partners change constantly. Internal: One
+    mistaken share can trigger fines, debarment, program delays, and lost trust.
+    Philosophical: Mission-critical work should be both fast and fully
+    compliant.
+  guide: >-
+    We understand the burden of export control in high-tempo defense programs.
+    Our AI-powered classifier and routing agent, tuned to ITAR/EAR policy and
+    identity context, prevents leaks before they happen, enforces access labels,
+    and proves due diligence with a complete audit trail.
+  plan: >-
+    1) Connect PLM/PDM, DMS, cloud drives, and email; define jurisdictions,
+    USML/ECCN policies, and approved parties. 2) Auto-classify CAD/docs as
+    ITAR/EAR, propose USML/ECCN, apply labels, and continuously screen
+    recipients. 3) Route or block shares, generate redacted exportable versions,
+    and capture tamper-evident logs for audit and oversight.
+  callToAction: >-
+    Direct: Start a secure pilot with your sample files. Transitional: Schedule
+    a compliance readiness demo and risk snapshot.
+  success: >-
+    Confidently share CAD and tech data, reduce manual review, speed partner
+    onboarding, maintain chain-of-custody, pass audits, protect IP, and keep
+    programs on schedule.
+  failure: >-
+    Accidental exports, costly fines and stop-work orders, IP leakage, rework,
+    delays in foreign military sales, and lasting reputational damage.
+landingPage:
+  hero:
+    title: Export‑Controlled Data Classifier & Routing Agent
+    subtitle: >-
+      AI for armored vehicle, tank, and component manufacturers: auto‑classify
+      ITAR/EAR, propose ECCN/USML, enforce access, screen recipients, redact,
+      and audit.
+    ctaText: Request Demo
+    ctaHref: /demo
+  problem:
+    - Export rules change fast; teams can’t keep up.
+    - Manual ITAR/EAR labeling is slow and inconsistent.
+    - 'CAD and docs sprawl across PLM, PDM, email, and drives.'
+    - Supplier collaboration risks uncontrolled re‑shares.
+    - Denied‑party screening is ad hoc or after‑the‑fact.
+    - Audits consume weeks; evidence is fragmented.
+    - 'Redaction is manual, error‑prone, and delays delivery.'
+    - Compliance fear stalls programs and revenue.
+  solution:
+    - Real‑time ITAR/EAR classification for documents and CAD.
+    - AI proposes ECCN/USML with confidence and rationale.
+    - Enforce access labels and routing by jurisdiction and role.
+    - Recipient screening against DDTC/BIS/OFAC and citizenship controls.
+    - 'One‑click redacted, watermarkable shareables with expiry.'
+    - 'Full audit trail: who accessed what, when, and why.'
+    - Plug‑ins for PLM/PDM/DMS and secure supplier portals.
+    - Human‑in‑the‑loop review for high‑risk items.
+  features:
+    - 'CAD‑native parsing (STEP, JT, CATIA, SolidWorks, NX).'
+    - 'Metadata and content inspection (BOM, materials, tolerances).'
+    - Policy packs tuned for armored vehicles and tank components.
+    - Explainable decisions with citations to ITAR/EAR/USML text.
+    - Automated ECCN/USML suggestions with confidence scores.
+    - Zero‑trust delivery with time‑bound links and file‑level DRM.
+    - Geofenced access and export‑jurisdiction checks.
+    - Recipient identity and citizenship verification.
+    - Continuous denied‑party screening and watchlist sync.
+    - 'Smart redaction of drawings, parameters, and notes.'
+    - 'Watermarking, fingerprinting, and anti‑reshare controls.'
+    - Evidence‑grade audit logs with immutable hash chain.
+    - 'Review queues, dual‑control approvals, and holds.'
+    - 'APIs, webhooks, and SSO/SCIM for enterprise rollout.'
+    - 'Deploy on‑prem, air‑gapped, or FedRAMP/GovCloud.'
+  steps:
+    - 'Connect PLM/PDM/DMS, email, and file shares.'
+    - Select or import policy pack (ITAR/EAR/USML).
+    - Auto‑classify the backlog; flag high‑risk items.
+    - Review and approve suggested labels and routing.
+    - Share securely; system applies screening and redaction.
+    - Monitor dashboards; resolve alerts and exceptions.
+    - Export audit reports for DDTC/BIS inquiries.
+---
+# SentriGate EC-Guard
+
+Industry: Military Armored Vehicle, Tank, and Tank Component Manufacturing
+Service: Export-Controlled Data Classifier and Routing Agent

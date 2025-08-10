@@ -1,0 +1,319 @@
+---
+name: CutFillAI
+slug: cutfillai
+service:
+  title: AI Bid Takeoff & Site-Work Scope Builder
+  description: >-
+    Automated quantity takeoff and scope extraction from civil plan sets and
+    specs for site-prep packages.
+  targetUsers:
+    - Estimators
+    - Preconstruction Managers
+  triggers:
+    - Bid invite/ITB received
+    - IFB/IFC plans posted
+    - Short bid window flagged
+  inputs:
+    - 'PDF drawings (civil, demo, erosion control, utilities)'
+    - Specs/divisions
+    - Bid form and unit list
+    - Typical sections and details
+  steps:
+    - Ingest and index sheets; detect scales and legends
+    - >-
+      Extract and classify symbols/linework (silt fence, inlet protection,
+      demolition, limits of disturbance)
+    - Measure LF/SF/EA quantities; export to BOQ by bid item
+    - Cross-check specs vs drawings; flag discrepancies
+    - Produce assumptions/clarifications and RFI list
+    - Generate marked-up plan sheets with measurements
+  tools:
+    - PyMuPDF/PDFplumber
+    - Computer vision/OCR
+    - Geopandas/Shapely
+    - QGIS/Bluebeam
+    - Excel/CSV export
+  outputs:
+    - Excel/CSV quantity takeoff by bid item
+    - Clarifications/RFI list
+    - Marked-up PDFs with measurements and scales
+  pricingModel:
+    - Per project based on sheet count
+    - Per sheet
+    - Rush surcharge optional
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 8
+    overall: 9
+  risks:
+    - Symbol/scale misreads causing quantity inaccuracies
+    - Incomplete or conflicting specs
+    - Estimator still responsible for final bid numbers
+  dependencies:
+    - Legible scaled plans
+    - Bid item structure or cost codes
+leanCanvas:
+  problem:
+    - >-
+      Estimators spend 8–20 hours per bid manually extracting quantities and
+      scope from 100–600 page civil plan sets and specs, limiting bids submitted
+      per month and delaying responses to GCs.
+    - >-
+      Manual takeoffs for earthwork (contours, TINs, strip/spoil, shrink/swell,
+      haul) and sitework items (utilities, curb/gutter, paving, erosion control)
+      are error-prone; 1–3 missed scope items per bid is common, eroding margin
+      by 2–5%.
+    - >-
+      Plan revisions force near-complete rework; version diffing is manual and
+      risky, leading to change-order disputes and absorbed costs.
+    - >-
+      Shortage of experienced estimators increases backlog; firms cannot staff
+      up quickly during peak seasons, hurting hit rates and revenue.
+    - >-
+      Fragmented tools (Bluebeam, AGTEK/Trimble, HCSS HeavyBid, spreadsheets)
+      require double-entry and lose context; no system-of-record for
+      assumptions, factors, or spec-driven obligations.
+    - >-
+      GCs/Owners are demanding faster turnarounds and clearer scope breakdowns;
+      poor scope clarity increases RFI churn and bid exclusions.
+  solution:
+    - >-
+      Upload or ingest plan sets/specs (PDF, TIFF, DWG) from
+      Procore/Autodesk/Box; auto-classify sheets, parse legends, scales, match
+      plan/profile/cross-sections.
+    - >-
+      Earthwork engine builds a 3D TIN from existing/proposed contours, spot
+      elevations, sections; computes cut/fill by phase, topsoil strip/respread,
+      shrink/swell, over-excavation, and haul distances with selectable methods
+      (average end area, grid, TIN).
+    - >-
+      Automated takeoff for key sitework items: demolition/clearing, erosion
+      control, excavation/backfill, utilities (sanitary, storm, water with
+      trench volumes and bedding), curb/gutter, sidewalks, asphalt/concrete
+      areas and tonnage, signage/striping, fencing.
+    - >-
+      Spec and notes miner extracts CSI 31–33 requirements, alternates, testing,
+      temporary works, permits, and constraints to build a scope checklist and
+      bid item list; links each item to sheet/spec citations.
+    - >-
+      Revision and delta detection highlights changes in contours, utilities,
+      details, addenda; regenerates affected quantities; maintains an audit
+      trail of what changed.
+    - >-
+      Risk and scope gap flags: missing details, mismatched plan/spec,
+      conflicting elevations, unusual shrink/swell assumptions, utility
+      crossings; confidence scoring per quantity.
+    - >-
+      Human-in-the-loop QA: optional estimator review workflow with side-by-side
+      plan evidence; one-click corrections train the model for that customer.
+    - >-
+      Exports: CSV, Excel, HCSS HeavyBid items, AGTEK/Trimble surfaces, Autodesk
+      Takeoff, Procore budget lines; include assumption sheets and RFI draft
+      list.
+    - >-
+      Project templates with company factors (crew productivity, waste,
+      shrink/swell defaults) and local material densities; scenario comparisons
+      for alternates/phasing.
+    - >-
+      API for partners and enterprise integrations; SSO, SOC 2-ready data
+      handling.
+  uniqueValueProp: >-
+    From plan set to bid-ready earthwork volumes and sitework scope in hours,
+    not days—AI that understands civil drawings and specs, flags scope gaps,
+    tracks revisions, and exports directly to HeavyBid/AGTEK/Autodesk. Reduce
+    takeoff time by 60–80% and missed-scope risk by 50%+ while documenting every
+    assumption.
+  unfairAdvantage: >-
+    A continuously growing, proprietary dataset of annotated civil/site plan
+    sets and spec-to-scope mappings combined with physics-informed terrain
+    modeling and customer-specific calibration (shrink/swell, densities). Tight
+    integrations with HeavyBid/AGTEK and human-in-the-loop QA create a learning
+    loop competitors without domain data or estimator workflows cannot
+    replicate.
+  customerSegments:
+    - >-
+      Small/mid-size site preparation contractors ($5M–$100M revenue) bidding
+      private and public civil/site packages; 1–5 estimators; 5–40 bids/month.
+    - >-
+      Large regional civil contractors ($100M–$500M) with dedicated precon
+      teams; need speed and governance; 5–20 estimators.
+    - >-
+      Self-perform site divisions within General Contractors needing internal
+      takeoffs for budgeting.
+    - >-
+      Estimating consultants serving multiple sitework subcontractors on a
+      per-bid basis.
+  channels:
+    - >-
+      Direct outbound to estimators and precon managers via LinkedIn/Sales
+      Navigator and industry lists (AGC, NUCA, CFMA chapters).
+    - >-
+      Integration marketplace listings and co-marketing with HCSS,
+      AGTEK/Trimble, Autodesk (Autodesk Construction Cloud) and Procore.
+    - >-
+      Content-led growth: playbooks, ROI calculators, annotated plan set
+      examples, YouTube breakdowns of real civil takeoffs; SEO on “earthwork
+      takeoff”, “sitework estimating”.
+    - >-
+      Industry events and user conferences: HCSS User Group, Trimble Dimensions,
+      CONEXPO/CON-AGG, local AGC/NUCA meetings; live demos on attendee plan
+      sets.
+    - >-
+      Partnerships with plan rooms (Dodge, ConstructConnect) and estimating
+      consultants to offer “AI-accelerated takeoff” services.
+    - >-
+      Bottom-up PLG: 14-day free trial or 3-project credit; pay-per-project
+      pricing for small shops; in-app referral rewards.
+  revenueStreams:
+    - >-
+      Subscription: per estimator seat $149–$499/month depending on features
+      (Starter, Pro, Enterprise).
+    - >-
+      Usage-based: per project or per sheet processing ($0.50–$2.00/sheet) with
+      volume discounts; Pro includes monthly sheet allowance.
+    - >-
+      Enterprise contracts: SSO, custom exports, SLAs, audit/compliance; annual
+      minimums ($25k–$150k).
+    - >-
+      Professional services: white-glove takeoff/QC, model calibration, custom
+      templates ($150–$220/hr).
+    - >-
+      Data products: anonymized benchmarking (e.g., typical shrink/swell by soil
+      type/region) offered as add-on for enterprises.
+  costStructure:
+    - >-
+      COGS compute: $0.20–$0.80 per sheet (OCR, vector extraction, segmentation,
+      inference); average 250-sheet plan set = $50–$200.
+    - >-
+      Human QA optional cost: 10–30 minutes/project at $18–$30/hr when enabled =
+      $3–$15 per project.
+    - >-
+      Cloud infrastructure: GPUs for training/inference ($8k–$15k/month at early
+      scale), storage ($0.023/GB/mo), egress.
+    - >-
+      Data labeling/annotation: $5k–$20k/month during ramp; expert review by
+      civil estimators for gold sets.
+    - >-
+      R&D staff: ML engineers, civil estimators, full-stack dev, integrations;
+      $200k–$400k/month at Series A scale.
+    - 'Sales/Marketing: events, paid search, partner MDF; $30k–$100k/quarter.'
+    - 'Security/compliance: SOC 2 audit and monitoring $50k–$120k annually.'
+    - >-
+      Customer success/support tooling and onboarding/training content
+      $5k–$15k/month.
+  keyMetrics:
+    - >-
+      Estimator activation rate (first project processed within 7 days): target
+      70%+.
+    - >-
+      Time-to-first bid-ready package: median <4 hours from upload for 200+
+      sheet sets.
+    - >-
+      Cycle time reduction vs baseline: 60–80% reduction; measured hours saved
+      per bid.
+    - >-
+      Quantity accuracy: ±5–10% on cut/fill after customer calibration;
+      line-item recall ≥95% for targeted scope classes; spec citation precision
+      ≥90%.
+    - >-
+      Revision turnaround: <30 minutes to re-process addendum on 200-sheet
+      deltas.
+    - 'Missed-scope incidents per bid: reduce by 50%+ vs baseline over 90 days.'
+    - 'Exports adoption: ≥80% of projects exported to HeavyBid/AGTEK/Excel.'
+    - 'Bids per estimator per month: +30–50% increase after 60 days.'
+    - >-
+      MRR growth: 12–20% QoQ; Net revenue retention ≥115%; logo churn <2%
+      monthly.
+    - 'Support burden: <0.5 tickets per project; P0 defect rate <1% of projects.'
+    - >-
+      Model learning velocity: percent of user corrections incorporated in next
+      release (target ≥70% within 30 days).
+storyBrand:
+  character: >-
+    Site preparation contractors (estimators and PMs) who need fast, accurate
+    quantities and clear scopes from civil plans to bid more work with
+    confidence.
+  problem: >-
+    External: Dense plan sets, manual takeoffs, and scattered specs cause slow
+    bids and missed scope. Internal: Stress on bid day, fear of errors, not
+    enough time or staff. Philosophical: Accurate quantities and clear scopes
+    should be instant and accessible to every estimator.
+  guide: >-
+    Empathy: We’ve felt the pressure of tight deadlines and risky assumptions.
+    Authority: Built by civil engineers and former estimators; trained on
+    thousands of site-prep plan sets; proven accuracy with human-in-the-loop QA
+    and secure workflows.
+  plan: >-
+    Process Plan: 1) Upload plans and specs, 2) AI extracts quantities and scope
+    items, 3) Review, adjust, and export to your estimating tools. Agreement
+    Plan: Transparent pricing, NDA + data security, support and onboarding
+    included.
+  callToAction: >-
+    Direct: Start a free trial or book a live demo. Transitional: Download a
+    sample deliverable and ROI checklist.
+  success: >-
+    Faster, defensible bids; standardized scopes; fewer surprises; protected
+    margins; more wins with the same team; estimators focused on strategy
+    instead of tracing lines.
+  failure: >-
+    Missed items, blown margins, late proposals, burnout, rework and disputes,
+    and losing to competitors who bid faster with better visibility.
+landingPage:
+  hero:
+    title: AI Bid Takeoff & Site-Work Scope Builder
+    subtitle: >-
+      Automated quantity takeoff and scope extraction for site-prep bids—built
+      for Site Preparation Contractors.
+    ctaText: Start a Takeoff
+    ctaHref: /get-started
+  problem:
+    - Manual takeoffs burn days you don’t have.
+    - Missed quantities and scope gaps crush margins.
+    - Addenda and revisions force last‑minute rework.
+    - 'Specs, notes, and details are scattered across sheets.'
+    - Numbers lack traceability—hard to defend your bid.
+    - Estimators measure instead of pricing and winning.
+  solution:
+    - Upload plans/specs; get itemized quantities in minutes.
+    - Auto-build a complete site-work scope aligned to your pay items.
+    - 'Earthwork, utilities, paving, demo, and erosion control covered.'
+    - Each line item links to sheet/callout evidence for traceability.
+    - One-click export to Excel/CSV and estimating systems.
+    - Revision compare highlights deltas and quantity changes.
+    - Team review with confidence flags and quick overrides.
+  features:
+    - 'Earthwork model: cut/fill maps, import/export, topsoil strip and respread.'
+    - >-
+      Utilities: pipe LF by size/material, bedding, structures, depths,
+      laterals.
+    - >-
+      Paving & curbs: asphalt tons, base/subbase CY, curb/gutter LF, sidewalk
+      SF.
+    - >-
+      Erosion control: silt fence LF, inlet protection, stabilized entrances,
+      SWPPP items.
+    - 'Demo & clearing: removals, sawcut LF, tree counts, haul-off estimates.'
+    - >-
+      Spec and note parsing to catch hidden requirements, alternates, and
+      phasing.
+    - 'Pay item mapping: DOT/municipal codes, CSI, or your custom bid schedule.'
+    - Addenda/change detection with redline diffs and quantity impact reports.
+    - >-
+      Traceability: every number links to the sheet, detail, and takeoff
+      geometry.
+    - 'Templates for inclusions, exclusions, clarifications, and assumptions.'
+    - 'Exports: Excel/CSV, cost codes, API and webhooks to your estimating stack.'
+    - 'Permissions, audit trail, and enterprise-grade security.'
+  steps:
+    - 1) Upload the plan set and specs (PDF/DWG) or paste a bid link.
+    - 2) Select a scope template or import your pay-item schedule.
+    - 3) Review AI takeoff by category; tweak with point-and-click edits.
+    - '4) Approve the scope; auto-fill inclusions, exclusions, and assumptions.'
+    - 5) Export quantities and scope to Excel/CSV or your estimating tool.
+    - '6) When addenda drop, re-run and compare changes in minutes.'
+---
+# CutFillAI
+
+Industry: Site Preparation Contractors
+Service: AI Bid Takeoff & Site-Work Scope Builder

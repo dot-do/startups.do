@@ -1,0 +1,327 @@
+---
+name: PrimalFlow AI
+slug: primalflow
+service:
+  title: Demand Forecasting & Auto-Replenishment Assistant
+  description: >-
+    SKU/location-level forecasts and reorder proposals that consider
+    seasonality, customer contracts, lead times, and constraints, then post
+    suggested POs or transfers.
+  targetUsers:
+    - Demand Planner
+    - Procurement Manager
+    - Operations Manager
+  triggers:
+    - Nightly schedule
+    - Low-stock threshold crossed
+    - New customer contract uploaded/changed
+  inputs:
+    - Historical order lines (24+ months)
+    - On-hand and on-order inventory snapshots
+    - Supplier lead times/MOQs
+    - Customer forecasts/contracts/promotions
+    - Holidays/seasonality calendar
+  steps:
+    - Ingest data from ERP/WMS and clean anomalies
+    - Train/update forecasting models per SKU-location
+    - Generate daily/weekly forecasts with confidence intervals
+    - >-
+      Compute safety stock and reorder points based on service levels and lead
+      times
+    - Create suggested POs/transfers with dates/qtys
+    - Push proposals to ERP for approval and send summary to Slack/Email
+  tools:
+    - 'Python (pandas, scikit-learn, Prophet/NeuralProphet)'
+    - SQL connectors (Snowflake/BigQuery/Redshift)
+    - 'ERP APIs (NetSuite, Acumatica, Sage)'
+    - Google Sheets/Excel export
+    - Slack/Email webhook
+  outputs:
+    - Forecast CSV/Excel per SKU-location
+    - Suggested PO/transfer file or direct ERP draft POs
+    - 'Exception list (stockouts, forecast error)'
+    - Slack/Email summary
+  pricingModel:
+    - 'One-time setup (data mapping, model tuning)'
+    - Monthly subscription tiered by number of SKUs/sites
+    - Optional premium SLA
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8.5
+  risks:
+    - Poor historical data quality/skewed by COVID/promo spikes
+    - Supplier constraints not reflected in ERP
+    - Forecast drift during sudden market shocks
+  dependencies:
+    - Read/write access to ERP/WMS
+    - Calendar of promotions/holidays
+    - User rules for service levels and MOQs
+leanCanvas:
+  problem:
+    - >-
+      High shrink/spoilage (1–3% of COGS) due to short shelf life, variable
+      demand, and overbuying to protect service levels
+    - >-
+      Frequent stockouts on key SKUs during seasonal spikes (e.g., grilling
+      season, holidays) causing lost sales and customer churn
+    - >-
+      Manual, spreadsheet-driven buying with limited visibility to lead times,
+      customer contracts, and vendor constraints; buyer tribal knowledge risk
+    - >-
+      Catch-weight complexity (variable weights, case-to-lb conversions) and
+      lot/shelf-life rules not handled by generic planning tools
+    - >-
+      Unoptimized transfers between branches/DCs leading to aged inventory in
+      one site and shortages in another
+    - >-
+      Vendor programs (MOQs, layer/pallet rounding, kill schedules) create
+      constraints planners struggle to honor while meeting fill-rate targets
+    - >-
+      Limited integration between forecasting and ERP/WMS/EDI; slow PO cycle
+      times and error-prone rekeying
+    - >-
+      Inability to model weather/holiday/event-driven demand and promotional
+      lifts accurately at SKU/location/customer granularity
+    - >-
+      Working capital tied in safety stock due to poor forecast accuracy and
+      static policies
+  solution:
+    - >-
+      SKU/location/customer-level probabilistic forecasting tuned for
+      perishable, intermittent demand (Croston/ETS/ML ensemble) with
+      seasonality, weather, holiday, promo, and contract signals
+    - >-
+      Constraint-aware auto-replenishment engine that respects MOQs,
+      catch-weight, case/pallet rounding, vendor calendars/lead times,
+      shelf-life/lot rules, capacity, and service-level targets
+    - >-
+      Transfer optimizer to balance inventory across DCs before buying new,
+      minimizing aged inventory and emergency buys
+    - >-
+      Program/contract-aware planning: maps customer contracts and forward-buys
+      to demand ensuring commitments are met and overbuys are avoided
+    - >-
+      Automated PO/transfer proposal generation with human-in-the-loop
+      approvals; posts via ERP/EDI with audit trail and role-based controls
+    - >-
+      Exception-driven workflow: daily alerts for risk of stockout, at-risk
+      (aging) lots, demand spikes, supply delays, and contract violations
+    - >-
+      Scenario planning: what-if for price changes, lead time shocks,
+      promotions, and service level adjustments with impact on fill rate,
+      shrink, and working capital
+    - >-
+      Analytics and KPIs: forecast accuracy, bias, fill rate, turns, shrink,
+      aged inventory, emergency buy rate, buyer productivity
+  uniqueValueProp: >-
+    An AI buyer’s assistant purpose-built for meat wholesalers that forecasts
+    demand by SKU/location/customer, optimizes orders and inter-branch transfers
+    under perishability and catch-weight constraints, and auto-posts
+    POs/transfers to your ERP—cutting shrink 20–40%, raising fill rate to
+    97–99%, and reducing planner time 30–50% within 90 days.
+  unfairAdvantage: >-
+    Vertical depth for meat: catch-weight native data model,
+    shelf-life/lot-aware optimization, vendor constraint library (kill
+    schedules/MOQs), and prebuilt integrations to leading meat-friendly
+    ERPs—plus a growing proprietary dataset of protein demand and waste patterns
+    that improves model accuracy and shrink minimization over time.
+  customerSegments:
+    - >-
+      Primary: Mid-market meat and meat product merchant wholesalers (NAICS
+      424470) with 1–10 DCs and $50M–$1B revenue
+    - >-
+      Secondary: Protein divisions within broadline foodservice distributors
+      (regional)
+    - >-
+      Specialty: Halal/Kosher meat wholesalers with segregation and
+      certification requirements
+    - >-
+      Importers/Exporters of boxed beef, pork, poultry managing long lead times
+      and cold storage
+    - Regional grocery wholesale co-ops and club-store protein wholesalers
+  channels:
+    - >-
+      Direct sales (AE-led) to VP Procurement/Operations/CFO at meat wholesalers
+      ($50M–$1B)
+    - >-
+      Account-based marketing: targeted outreach to NAICS 424470 via LinkedIn,
+      industry lists, and intent data
+    - >-
+      ERP marketplace partnerships and VARs (NetSuite, SAP B1, Microsoft
+      Dynamics, Epicor P21, NECS entrée, Produce Pro) with co-selling and
+      integration listings
+    - >-
+      Industry associations and events: NAMI, IFDA DSC, Annual Meat Conference,
+      IPPE; speaking slots and ROI case studies
+    - >-
+      Content and tools: shrink reduction calculator, backtest reports on
+      historical data, whitepapers on catch-weight planning
+    - >-
+      Pilot-to-production motion: 8–10 week paid pilots with ROI guarantees and
+      executive QBRs
+    - >-
+      Customer referrals and advisory council of early adopters; case studies
+      highlighting shrink, fill-rate, and labor savings
+    - >-
+      Outbound SDR program focused on regions with high BBQ seasonality and
+      import-heavy operations (lead-time pain)
+  revenueStreams:
+    - >-
+      SaaS subscription: tiered by number of DCs and active SKU-locations (e.g.,
+      $3,000/month base + $500/month per DC + $0.08 per active
+      SKU-location/month)
+    - >-
+      Implementation/onboarding fee: $25,000–$80,000 depending on ERP
+      integration and number of DCs
+    - >-
+      EDI/integration add-ons: $500–$1,500/month per external vendor integration
+      (SPS/TrueCommerce, 3PL, TMS)
+    - >-
+      Premium support and training: $1,000–$3,000/month (24/7, dedicated CSM,
+      quarterly on-sites)
+    - >-
+      Optional managed replenishment (BPO) for small wholesalers: per-lb or
+      per-order fee
+    - >-
+      Professional services: custom reports, additional models (price
+      elasticity, supplier risk)
+  costStructure:
+    - >-
+      R&D and Product (data science, engineering, QA): ~40–50% of operating
+      expense
+    - >-
+      Cloud infrastructure (compute/storage/ML ops): ~$300–$800 per
+      customer-month at scale; gross margin target 75–85%
+    - >-
+      Third-party data: weather/events APIs, EDI networks, commodity price feeds
+      (USDA AMS); $100–$400 per customer-month blended
+    - >-
+      Implementation/Customer Success: ~$20–30k cost per mid-market go-live
+      (recouped via onboarding fee)
+    - >-
+      Sales & Marketing: AEs/SDRs, events, partner MDF; CAC target $60–120k with
+      9–12 month payback
+    - 'Security/compliance: SOC 2 Type II, penetration testing, cyber insurance'
+    - >-
+      G&A: finance, legal (USDA/FSMA traceability considerations), office/travel
+      for on-site change management
+  keyMetrics:
+    - >-
+      Forecast accuracy: WMAPE ≤ 18% at SKU/location aggregate within 90 days;
+      bias between -2% and +2%
+    - >-
+      Fill rate: line fill 97–99% on A-items, 95–97% overall; emergency buy rate
+      < 2% of lines
+    - >-
+      Shrink/spoilage: reduce from baseline (e.g., 2.2% of COGS) to ≤ 1.5%
+      within 6 months; aged inventory (>70% life consumed) down 30%
+    - 'Inventory productivity: turns +15–25%; days on hand -10–20% for A/B SKUs'
+    - >-
+      Service-level adherence by customer tier: ≥ 98% for contract customers;
+      contract compliance > 99%
+    - >-
+      Planner productivity: buyer time on ordering -30–50%; proposal acceptance
+      rate ≥ 80% by month 3
+    - >-
+      Financial impact: working capital reduction 10–20%; purchase price
+      variance savings via transfer-first strategy 0.3–0.8% of COGS
+    - >-
+      Cycle times: time-to-PO from proposal < 15 minutes; exception resolution
+      SLA < 24 hours
+    - >-
+      Adoption/health: weekly active buyers > 90%; override rate < 20% with
+      reason codes captured; time-to-value (first accepted PO) < 30 days
+storyBrand:
+  character: >-
+    Inventory and operations leaders at meat and meat product merchant
+    wholesalers who need the right items in the right locations—without
+    stockouts, overstock, or waste.
+  problem: >-
+    External: volatile demand, seasonality, contract commitments, variable lead
+    times, and operational constraints. Internal: planners stuck in spreadsheets
+    and guesswork, anxious about service levels and spoilage. Philosophical: you
+    shouldn’t have to gamble with perishable inventory to keep customers happy.
+  guide: >-
+    We understand perishables and contract-driven fulfillment are hard. Our AI
+    assistant delivers SKU/location-level forecasts and reorder proposals that
+    honor seasonality, customer contracts, lead times, and constraints—then
+    posts suggested POs or transfers to your purchasing system—so your team can
+    review and approve instead of manually compiling.
+  plan: >-
+    1) Connect data: sales, inventory, item/location master, suppliers, and
+    contracts. 2) Calibrate & pilot: validate accuracy, set service targets and
+    constraints, review proposed orders. 3) Go live: auto-generate daily
+    forecasts and replenishment proposals; approve/post POs or transfers;
+    monitor KPIs and fine-tune.
+  callToAction: >-
+    Direct: Book a demo. Transitional: Get a sample forecast and reorder file
+    using your data.
+  success: >-
+    The right products in the right quantities at the right time. Higher fill
+    rates with less inventory and waste, fewer rush buys, and on-time contract
+    fulfillment. Planners focus on strategy while clean, auditable POs/transfers
+    flow daily—driving margin and trust.
+  failure: >-
+    Continued guesswork, stockouts and spoilage write-offs, missed contract
+    promises, rush freight, margin erosion, and firefighting that burns time and
+    customer trust.
+landingPage:
+  hero:
+    title: AI Demand Forecasting & Auto-Replenishment for Meat Wholesalers
+    subtitle: >-
+      SKU/location forecasts and reorder proposals that factor seasonality,
+      customer contracts, lead times, shelf-life, and constraints—then post
+      suggested POs or transfers to your ERP.
+    ctaText: Get a demo
+    ctaHref: /demo
+  problem:
+    - 'Volatile demand from holidays, weather, and promos is hard to predict.'
+    - 'Perishability and aging lots drive spoilage, markdowns, and write-offs.'
+    - Contracted service levels are missed due to late or inaccurate buys.
+    - Manual spreadsheets and gut feel slow buyers and create errors.
+    - 'Complex constraints: lead times, truck days, MOQs, and case packs.'
+    - 'Catch-weight items lead to rounding, costing, and proposal mistakes.'
+    - Multi-DC balancing is reactive; transfers happen too late.
+    - 'Thin margins: overstock ties up cold storage; stockouts kill sales.'
+  solution:
+    - SKU/location forecasts tuned for meat seasonality and events.
+    - Contract-aware planning to hit customer service levels consistently.
+    - Shelf-life and age constraints embedded in every reorder proposal.
+    - 'Lead-time calendars, vendor MOQs, and case packs respected automatically.'
+    - Native handling of catch-weight and unit conversions for accurate buys.
+    - Auto-generated POs and inter-DC transfers with one-click approval.
+    - Dynamic safety stocks to balance waste reduction and fill rates.
+    - Direct posting to ERP/WMS with full audit trails and what-if scenarios.
+  features:
+    - >-
+      Machine learning forecasts using order history, holidays, promos, and
+      weather signals.
+    - Customer-level modeling for contracted items and standing orders.
+    - Lot age and remaining shelf-life rules by SKU and customer requirement.
+    - 'Vendor lead times, truck schedules, and blackout/inspection day calendars.'
+    - 'Min/max, MOQs, case packs, catch-weight rounding, and price break logic.'
+    - Transfer optimizer to rebalance inventory across DCs and routes.
+    - Promo lift planning and forward-buy recommendations ahead of peak weeks.
+    - Exception workbench prioritized by dollars at risk and days-to-stockout.
+    - Substitution rules and new/discontinued SKU detection.
+    - 'Multi-unit support: cases, pieces, pounds; precise unit conversions.'
+    - >-
+      KPIs: fill rate, spoilage %, forecast accuracy, inventory turns, days on
+      hand.
+    - >-
+      APIs and connectors to major ERPs/WMS; secure audit logging and
+      permissions.
+  steps:
+    - 'Connect ERP, WMS, vendor, and sales history data.'
+    - Auto-cleanse history and build SKU/location baselines.
+    - 'Set policies: service levels, lead times, MOQs, packs, shelf-life rules.'
+    - Review daily workbench with forecasts and reorder proposals.
+    - Approve to post POs or inter-DC transfers to your ERP automatically.
+    - 'Monitor KPIs, adjust policies, and let the model learn continuously.'
+---
+# PrimalFlow AI
+
+Industry: Meat and Meat Product Merchant Wholesalers
+Service: Demand Forecasting & Auto-Replenishment Assistant

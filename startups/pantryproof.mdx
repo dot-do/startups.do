@@ -1,0 +1,297 @@
+---
+name: PantryProof COGS
+slug: pantryproof
+service:
+  title: Vendor Invoice OCR & COGS Reconciliation
+  description: >-
+    Extract invoice data, match to POs/receipts, reconcile COGS, and flag
+    variances or shrink.
+  targetUsers:
+    - Owners
+    - Operations/Finance Managers
+  triggers:
+    - New invoice email/upload
+    - Month-end close
+  inputs:
+    - Vendor invoices (PDF/email)
+    - POs and receiving logs
+    - Price lists/contracts
+    - Chart of accounts
+  steps:
+    - OCR and line-item parse
+    - Match to PO/receipt; detect price/qty variances
+    - Post to accounting; update item costs
+    - Flag shrink/expiry anomalies
+    - Weekly summary and exceptions queue
+  tools:
+    - AWS Textract/Google Vision OCR
+    - QuickBooks/Xero API
+    - POS/ERP API
+    - Gmail/Drive API
+    - Google Sheets
+  outputs:
+    - Reconciled entries
+    - Variance/shrink report
+    - Exceptions queue
+  pricingModel:
+    - Per-invoice processing + monthly support tier
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 8
+    overall: 8.5
+  risks:
+    - OCR misreads on poor scans
+    - GL mapping errors
+    - Vendor terms misapplied
+  dependencies:
+    - Accounting system access
+    - PO/receiving discipline
+    - Vendor email forwarding
+leanCanvas:
+  problem:
+    - >-
+      Manual invoice entry and COGS reconciliation consumes 8–20 hours per store
+      per week; error rates of 1–3% lead to misstatements and rework.
+    - >-
+      Vendor invoices vary wildly (PDF/email/photo, non-EDI, handwritten notes,
+      catch-weight items, mixed units of measure), making 2/3-way matching to
+      POs/receipts impractical at scale.
+    - >-
+      Price, quantity, and UOM variances go undetected; 0.5–2.0% margin leakage
+      from overcharges, missed credits, substitutions, and shrink.
+    - >-
+      Month-end close is delayed 3–7 days due to invoice backlog and unresolved
+      discrepancies; limited visibility into item-level COGS and shrink drivers.
+    - >-
+      Fragmented systems (POS/inventory, accounting, AP) require swivel-chair
+      reconciliation; specialty food retailers often rely on QuickBooks + POS
+      without robust invoice capture.
+    - >-
+      Small/local vendors have low EDI adoption; retailers need OCR that
+      actually handles vendor-specific quirks and specialty food nuances.
+  solution:
+    - >-
+      Specialty-food-tuned OCR/ML: line-item extraction from PDFs/photos,
+      including catch-weight, lot codes, pack sizes, fees (freight, deposits),
+      and credits.
+    - >-
+      UOM normalization and mapping: convert lb/oz/kg/case/each; maintain
+      item-mapping graph linking vendor SKUs to retailer PLUs/UPCs and
+      categories.
+    - >-
+      2/3-way match: auto-match invoices to POs and receiving logs from
+      POS/inventory; tolerance-based matching (price/qty/UOM); smart handling of
+      substitutions and partial receipts.
+    - >-
+      Variance engine: flag price deltas, quantity short/over, UOM mismatches,
+      and unexpected fees; configurable thresholds; root-cause tagging (vendor
+      price change, receiving error, promo).
+    - >-
+      Shrink and margin analytics: reconcile sold vs received vs theoretical;
+      identify top shrink drivers and vendor/items causing margin leakage;
+      actionable dashboards.
+    - >-
+      AP + GL integration: push coded bills/line-level COGS to
+      QuickBooks/Xero/NetSuite; auto-attach invoice images; support approval
+      workflows and audit trails.
+    - >-
+      Human-in-the-loop QA: exception handling with <2-hour turnaround; final
+      accuracy target ≥99.5%; vendor template library grows over time.
+    - >-
+      Easy capture: email ingestion (invoices@), drag-and-drop, mobile capture
+      with auto-crop; EDI 810 ingestion where available.
+    - >-
+      Security & compliance: SOC 2 roadmap, PII minimization, encryption at
+      rest/in transit, role-based access, detailed audit logs.
+  uniqueValueProp: >-
+    Turn messy vendor invoices into reconciled COGS and shrink alerts
+    automatically—purpose-built for specialty food retailers. Cut invoice
+    processing time by 80%, recover 0.5–1.5% margin, and close the books 3–5
+    days faster, with catch-weight and UOM mastery.
+  unfairAdvantage: >-
+    A growing vendor template and item-mapping graph purpose-built for specialty
+    food (catch-weight/UOM nuances) that compounds with each client, combined
+    with human-in-the-loop QA achieving >99.5% final accuracy and fast SLAs.
+    Deep POS/accounting integrations and distributor relationships reduce
+    onboarding friction and create data network effects and switching costs.
+  customerSegments:
+    - >-
+      Primary: US NAICS 445299 All Other Specialty Food Retailers (cheese shops,
+      gourmet/ethnic specialty stores, spice/tea/coffee retailers, olive
+      oil/vinegar shops, natural/specialty grocers under 10k sq ft).
+    - >-
+      Firmographics: 1–20 locations (some up to 50), $1–50M revenue, 100–1,000
+      invoices/month, 10–30 line items/invoice.
+    - >-
+      Systems: POS (Lightspeed Retail, Square Retail, Clover, Shopify POS),
+      accounting (QuickBooks Online, Xero), light inventory tools; limited or no
+      EDI.
+    - >-
+      Buyer roles: Owners, CFO/Controller, Ops Director, AP/Back Office Manager;
+      influencers include store managers and external accountants/fractional
+      CFOs.
+    - >-
+      Secondary: Small regional specialty food chains (20–100 stores) with
+      NetSuite/Acumatica; distributors seeking cleaner invoice data exchange.
+  channels:
+    - >-
+      App marketplaces: QuickBooks App Store, Xero App Store, Lightspeed,
+      Square—listings, reviews, and co-marketing.
+    - >-
+      Referrals: accounting firms/fractional CFOs specializing in retail; AP
+      automation partners (Bill.com, Melio).
+    - >-
+      Distributor partnerships: co-sell with UNFI/KeHE and regional specialty
+      distributors; provide vendor template onboarding as a value-add.
+    - >-
+      Industry associations/events: Specialty Food Association (Fancy Food
+      Show), state retail associations; sponsor webinars on margin leakage.
+    - >-
+      Outbound + social: targeted LinkedIn/email campaigns to
+      owners/controllers; offer 30-day trial with ROI guarantee.
+    - >-
+      Content/SEO: guides on catch-weight reconciliation, PO matching, and
+      QuickBooks workflows; case studies showing recovered credits and shrink
+      reduction.
+    - >-
+      Pilot-led sales: 2–4 week pilots priced nominally; success plan with
+      quantified ROI to convert to annual contracts.
+    - >-
+      Funnel targets (initial 6 months): 300 MQLs/quarter, 20% to trials, 50%
+      trial-to-paid, CAC payback <9 months.
+  revenueStreams:
+    - >-
+      SaaS subscription per store/month (annual options). Suggested pricing:
+      Starter $149 (up to 500 lines), Growth $249 (2,000 lines), Chain $349
+      (5,000 lines).
+    - >-
+      Usage-based overage: $0.07/line (Starter), $0.05/line (Growth), $0.03/line
+      (Chain).
+    - 'One-time onboarding: $300–$1,000 per store (data mapping, integrations).'
+    - >-
+      Premium add-ons: Advanced analytics and shrink module ($49/store/mo), AP
+      approvals/roles ($29/store/mo), NetSuite connector ($99/account/mo).
+    - >-
+      Professional services: vendor catalog normalization, historical backfill,
+      custom reports.
+    - >-
+      Potential revenue share with AP/payment partners for bill pay adoption
+      (optional, compliance permitting).
+  costStructure:
+    - >-
+      Cloud infrastructure (OCR/LLM/compute/storage): target ≤$0.02 per invoice
+      page or ≤$0.03 per line variable cost.
+    - >-
+      Human-in-the-loop review: budget $0.02–$0.05 per line on exceptions; drive
+      STP higher to reduce blend.
+    - 'Engineering and product: OCR/ML, integrations, data pipeline, QA.'
+    - Customer success and onboarding; support (chat/email/SLA).
+    - >-
+      Sales and marketing: partner listings, ads, events; initial CAC target
+      $1,500–$2,500 per multi-store logo.
+    - >-
+      Compliance and security: SOC 2 Type II ($50k–$100k/year including audits
+      and tooling).
+    - 'General and administrative: legal, insurance (cyber/E&O), office/tools.'
+    - >-
+      Contingency and R&D: continuous model training, vendor template expansion,
+      new integrations.
+  keyMetrics:
+    - 'Straight-through processing (STP) rate: 80% in 90 days; 90%+ by month 12.'
+    - 'Extraction accuracy: header ≥99%; line-item ≥98.5%; final post-QA ≥99.5%.'
+    - >-
+      Turnaround time: 95% of invoices processed within 2 hours; median <15
+      minutes.
+    - 'Hours saved: 8–15 hours/store/week vs baseline.'
+    - >-
+      Variance detection: value of flagged variances per month; capture rate
+      ≥80% of eligible vendor credits.
+    - >-
+      Margin lift: recover 0.5–1.5% of COGS in first 6 months through price and
+      shrink controls.
+    - 'Month-end close: reduce by 3–5 days.'
+    - 'Onboarding time to first value: <14 days; time to ROI: <60 days.'
+    - >-
+      Financial: gross margin ≥70%, NRR ≥110% (usage and add-ons), logo churn
+      ≤1.5%/mo (target ≤1.0% by year 2), CAC payback ≤9 months, LTV/CAC ≥3:1.
+    - >-
+      Quality: alert precision ≥90% (low false positives), user NPS ≥40, support
+      CSAT ≥90%.
+storyBrand:
+  character: >-
+    Owners, ops managers, and accounting teams at specialty food retailers who
+    need accurate, real-time COGS without drowning in vendor invoices.
+  problem: >-
+    Manual invoice entry and mismatched POs/receipts hide true COGS; vendor
+    errors and shrink erode margins; month-end closes drag on.
+  guide: >-
+    We understand perishables, random-weight items, and volatile pricing. Our AI
+    plus retail finance team delivers 99%+ OCR accuracy and dependable
+    PO/receipt reconciliation.
+  plan: >-
+    1) Connect vendor inboxes and PO/receiving/POS-accounting systems. 2) AI
+    extracts invoices, matches to POs/receipts, and auto-reconciles COGS. 3)
+    Review and resolve flagged variances/shrink with clear workflows.
+  callToAction: >-
+    Book a 20-minute demo; get a free 30-day COGS variance report from your
+    invoices.
+  success: >-
+    Clean, trustworthy COGS; protected margins; faster month-end close; vendor
+    accountability; shrink visibility; audit-ready records.
+  failure: >-
+    Keep leaking margin to errors and shrink, wasting hours on manual
+    reconciliation, and flying blind on product profitability.
+landingPage:
+  hero:
+    title: Invoice OCR & COGS Reconciliation for Specialty Food Retailers
+    subtitle: >-
+      Extract vendor invoices, match to POs/receiving, reconcile COGS, and flag
+      price, weight, and shrink variances—automatically.
+    ctaText: Book a Demo
+    ctaHref: /demo
+  problem:
+    - Manual invoice entry eats hours after every delivery.
+    - Price creep and vendor errors slip through unchecked.
+    - 'Catch-weight, tare, and UOM mismatches erode margin.'
+    - 'Spoilage, sampling, and theft hide inside COGS.'
+    - Credits/allowances get missed and never redeemed.
+    - 'COGS close is slow, inconsistent, and hard to audit.'
+    - Multi-store rollups are messy and late.
+  solution:
+    - 'AI reads any food invoice (PDF, photo, email) with line‑item accuracy.'
+    - Auto-matches to POs and receiving; normalizes UOM and catch‑weight.
+    - >-
+      Flags variances by price, quantity, weight, and substitutions in real
+      time.
+    - Reconciles COGS and posts entries to accounting—no spreadsheets.
+    - Updates item costs in your POS/catalog to protect shelf margin.
+    - Surfaces shrink and vendor performance with audit‑ready trails.
+  features:
+    - Line‑item OCR trained on food vendor formats
+    - Catch‑weight (lb/kg) and tare handling; case/each/pack conversions
+    - UOM normalization and catalog mapping across vendors
+    - 2‑ or 3‑way match to PO and receiving with tolerance rules
+    - 'Variance alerts by price, qty, weight, and item substitutions'
+    - Promo allowances and credit detection with follow‑up tasks
+    - Duplicate invoice and overbilling detection
+    - Lot/expiration capture (optional)
+    - Cost change history and vendor scorecards
+    - 'Multi‑location, department, and category rollups'
+    - One‑click approvals with role‑based access
+    - 'Exports and APIs to POS/inventory and accounting (e.g., QuickBooks, Xero)'
+    - Email forwarding and mobile capture for invoices
+    - Audit log and document vault with full traceability
+    - 'Secure, permissioned access with encryption in transit and at rest'
+  steps:
+    - Connect your POS/inventory and accounting systems.
+    - Email or upload invoices; we auto-capture line items.
+    - AI matches to POs/receiving and normalizes UOM/catch‑weight.
+    - Review only exceptions; approve variances with one click.
+    - Sync COGS and push updated costs to POS/accounting.
+    - 'Monitor shrink, variances, and vendor performance dashboards.'
+---
+# PantryProof COGS
+
+Industry: All Other Specialty Food Retailers
+Service: Vendor Invoice OCR & COGS Reconciliation

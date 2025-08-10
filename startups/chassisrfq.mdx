@@ -1,0 +1,365 @@
+---
+name: ChassisRFQ AI
+slug: chassisrfq
+service:
+  title: RFQ Costing & Manufacturability Assistant
+  description: >-
+    Rapidly estimates cycle times, routing, and cost for steering/suspension
+    parts from drawings/CAD and historicals; flags tolerance/process risks.
+  targetUsers:
+    - Costing/quoting
+    - Sales engineering
+    - Manufacturing engineering
+  triggers:
+    - New RFQ received
+    - Drawing revision received
+  inputs:
+    - 2D drawings/CAD (STEP/DWG)
+    - Annual volumes and EAU ramps
+    - Material specs and treatments
+    - Historical part family costs
+  steps:
+    - Parse features/tolerances/threads/finishes
+    - 'Map to routing (machining, HT, coating, assembly)'
+    - Estimate cycle times and scrap factors
+    - 'Roll material, machine, labor, overhead'
+    - Generate manufacturability comment set
+    - Package quote with risk register
+  tools:
+    - SolidWorks/Inventor APIs or STEP parsers
+    - OpenCascade
+    - Python/NumPy
+    - Cost model spreadsheets
+  outputs:
+    - Should-cost breakdown (XLSX)
+    - Feasibility and risk notes (PDF)
+    - Alt-process suggestions (HTML)
+  pricingModel:
+    - Per-RFQ fee
+    - Subscription with monthly RFQ quota
+    - Success bonus for wins
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Complex GD&T misreadings
+    - Outdated rates/overhead inputs
+    - Liability from quote inaccuracies
+  dependencies:
+    - Access to CAD/drawings
+    - Current rates and run data
+    - Historical win/loss data
+leanCanvas:
+  problem:
+    - >-
+      RFQ turnaround is slow (median 1–3 days) causing missed bid windows and
+      low responsiveness to OEMs; manual cycle-time estimation and routing
+      selection are bottlenecks.
+    - >-
+      Quote accuracy varies widely (±20–30%) leading to margin leakage on awards
+      or uncompetitive pricing; historicals are underutilized or siloed.
+    - >-
+      GD&T and tolerance risks (true position, surface finish, datum schemes,
+      SC/CC features) are missed during bid, driving late ECOs, capability
+      issues, premium freight, or PPAP delays.
+    - >-
+      Process selection for steering/suspension parts
+      (forge/cast/machine/weld/HT/coating) is inconsistent across estimators;
+      tribal knowledge leaves with people.
+    - >-
+      Preparing quote packages (BOE, routing, cycle-time breakdowns, cost stack,
+      risk log) is labor-intensive (2–8 hours/RFQ) and error-prone; data rekeyed
+      across CAD, ERP, PLM, and Excel.
+  solution:
+    - >-
+      Ingest 2D drawings (PDF/TIFF), 3D CAD (STEP, Parasolid, CATPart, NX),
+      extract features, materials, and GD&T including SC/CC flags.
+    - >-
+      Auto-generate routing alternatives for typical chassis processes:
+      closed-die forging or casting, rough/finish machining, welding, heat
+      treat, surface treatment (phosphate, e-coat), assembly.
+    - >-
+      Estimate cycle times with hybrid physics + ML: toolpath-level for
+      machining features (bores, tapered studs, splines, ball seats), press
+      tonnage/upset for forging, oven dwell for HT, line speeds for coating.
+    - >-
+      Parametric cost stack: material and buy-to-fly, scrap/yield modeling, tool
+      wear and changeover, labor/machine rates, utilities, overhead, logistics.
+    - >-
+      DFM/DFA risk engine: flags tolerance stack risks, deep bore ratios, thin
+      walls, fixturing complexity, hard-facing, corrosion spec pitfalls;
+      suggests design or process mitigations.
+    - >-
+      Historical learning: calibrate per plant using awarded quotes, actual run
+      data, and NCR root causes; predicts price-to-win ranges and confidence
+      intervals.
+    - >-
+      One-click quote package: BOE, routing, cycle times, risk register,
+      assumptions, markup scenarios; export to Excel/PDF and push to ERP/PLM.
+    - >-
+      Security and deployment: cloud or on-prem/air-gapped; SSO, role-based
+      access, audit trails, TISAX/SOC2 alignment.
+    - >-
+      Integrations: SAP/Infor/Epicor/Plex ERP, Teamcenter/3DEXPERIENCE/Windchill
+      PLM, CAM (NX CAM/Mastercam) for toolpath validation.
+  uniqueValueProp: >-
+    From drawing/CAD to a defensible costed quote with manufacturability risks
+    in under 60 minutes—purpose-built for steering and suspension components.
+    Domain-trained AI blends feature/GD&T extraction with calibrated process
+    models to increase quote accuracy, speed, and win rates while reducing
+    margin leakage and PPAP risk.
+  unfairAdvantage: >-
+    A domain-trained hybrid AI (feature/GD&T extraction + physics-informed
+    costing) calibrated with steering/suspension-specific datasets from partner
+    plants, plus a closed-loop feedback from PPAP/quality results. Rapid
+    deployment via prebuilt commodity routings and OEM drawing-standard parsers
+    delivers value in weeks, not months. On-prem, air-gapped option clears
+    stringent automotive IT/security requirements.
+  customerSegments:
+    - >-
+      Tier 1 steering system manufacturers (e.g., racks, housings, gears,
+      columns, EPS components).
+    - >-
+      Tier 1/2 suspension component manufacturers (e.g., control arms, knuckles,
+      ball joints, stabilizer links, tie rods/ends, bushings housings).
+    - >-
+      Tier 2 machining/forging/casting suppliers specializing in chassis-grade
+      steels and aluminum.
+    - >-
+      Aftermarket steering/suspension suppliers quoting OEM service and private
+      label.
+    - >-
+      Buyer roles: VP/Director of Costing & Estimating, Quoting Manager,
+      Manufacturing/Process Engineering Manager, Plant Controller/Finance,
+      Program Manager.
+  channels:
+    - >-
+      Direct sales to Tier 1/2 suppliers; start with 8–12 week paid pilots per
+      plant tied to ROI SLAs.
+    - >-
+      PLM/ERP VAR partnerships to bundle with Teamcenter/3DX/Windchill and
+      SAP/Plex; revenue share 10–20%.
+    - >-
+      Industry events and buyer enablement: SAE WCX, IMTS, Forge Fair, GIFA, CTI
+      Symposium, Automotive Suppliers Summit; live quote-a-thons.
+    - >-
+      Thought leadership: GD&T risk playbooks for chassis parts, benchmark
+      studies on quote speed/accuracy; webinars with cutting tool and forging
+      partners.
+    - >-
+      Account-based marketing targeting top 150 steering/suspension suppliers in
+      NA+EU; personalized ROI calculators using public financials.
+    - >-
+      Referrals via manufacturing consultancies specializing in APQP/PPAP and
+      cost takeout; co-deliver pilot projects.
+    - >-
+      Bottom-up land-and-expand: start with quoting team (3–10 users), expand to
+      multiple plants and ME/quality users post-ROI.
+    - >-
+      OEM portals and sourcing ecosystems: integration/readiness to accept
+      structured quote submissions to major OEMs.
+  revenueStreams:
+    - >-
+      SaaS subscription: $2,000–$3,000 per named user/month or $150,000–$500,000
+      per enterprise plant license/year (includes 2,000 RFQs/yr).
+    - >-
+      Usage-based overage: $5–$20 per additional RFQ depending on CAD complexity
+      and feature count.
+    - >-
+      Implementation/calibration package: $25,000–$80,000 per plant for model
+      tuning to local machines, tooling, and rates.
+    - 'Integrations: $10,000–$40,000 per connector (ERP/PLM/CAM).'
+    - 'Premium support and SLAs (24/7, dedicated TAM): +15% of subscription.'
+    - >-
+      On-prem/air-gapped deployment fee: $50,000–$150,000 setup plus annual
+      maintenance 15%.
+    - >-
+      Training and certification for estimators/MEs: $3,000 per user or $20,000
+      per cohort.
+  costStructure:
+    - >-
+      R&D: ML engineers, manufacturing/process SMEs, software engineers (~55–65%
+      of total OPEX).
+    - 'Sales/Marketing: AE/SE teams, partner MDF, events (~15–25% of OPEX).'
+    - Customer success/implementation (~10–15% of OPEX).
+    - >-
+      Cloud compute/storage for CAD processing and model inference (COGS
+      ~$0.30–$1.20 per RFQ depending on 3D complexity).
+    - 'Third-party components/licensing (CAD kernels, OCR, geometry libraries).'
+    - >-
+      Security/compliance (SOC 2, TISAX), penetration testing, E&O/cyber
+      insurance.
+    - Partner/reseller commissions (10–20%).
+    - Travel and trade shows for industry events.
+  keyMetrics:
+    - >-
+      Median time-to-quote: target <60 minutes from CAD upload to draft quote;
+      p90 <4 hours.
+    - >-
+      Quote accuracy vs awarded price or actual cost: MAPE ≤7–10%; reduce
+      variance by ≥50% vs baseline.
+    - >-
+      Win-rate improvement: +15–25% in targeted commodities within 2 quarters
+      post-implementation.
+    - >-
+      Engineering hours saved: ≥1.5–3.0 hours per RFQ; annualized savings per
+      plant ≥2,000 hours.
+    - >-
+      Margin protection: reduce underquoted awards by ≥30%; detect ≥80% of DFM
+      risks that historically caused cost/time overruns.
+    - >-
+      Adoption: >70% weekly active users among licensed estimators; >50% of
+      quotes generated with ChassisRFQ AI within 90 days.
+    - >-
+      Data quality: ≥90% auto-extraction precision/recall for critical GD&T
+      (position, flatness, surface finish) on supported drawing standards.
+    - >-
+      Implementation velocity: time-to-first-quote <2 weeks; full calibration <8
+      weeks.
+    - >-
+      Net revenue retention: ≥120% driven by seat expansion and additional
+      plants.
+storyBrand:
+  character: >-
+    Estimators, costing managers, and process engineers at steering and
+    suspension component manufacturers (excluding springs) who want fast,
+    defensible RFQ estimates and DFM risk visibility from drawings/CAD.
+  problem: >-
+    External: RFQs stack up with complex tolerances, materials, and volumes;
+    manual spreadsheets and tribal knowledge slow quotes and miss risks.
+    Internal: Pressure and uncertainty about routing, cycle times, and margins.
+    Philosophical: It shouldn’t take days or guesswork to quote safe, profitable
+    steering and suspension parts.
+  guide: >-
+    We understand the stakes of quoting safety-critical parts under tight
+    timelines. Our domain-trained AI and process library for machining, forging,
+    welding, heat treat, coating, and inspection provide credible routings,
+    times, and risk flags grounded in your historicals.
+  plan: >-
+    - Upload RFQ package: prints/CAD, material, annual volumes, and
+    requirements.
+
+    - AI extracts features and tolerances; proposes routing, machines, cycle
+    times, and inspection.
+
+    - Review and tune assumptions: rates, scrap, OEE, batch sizes,
+    tooling/fixturing, supplier ops.
+
+    - Receive a costed quote pack with DFM notes and tolerance/process risk
+    flags.
+
+    - Export to your ERP/CPQ and lock revisions; your data remains private by
+    default.
+  callToAction: >-
+    Direct: Start a pilot with your next 3 RFQs. Schedule a 30‑minute demo.
+
+    Transitional: Download a sample quote pack or run a free DFM check on one
+    drawing.
+  success: >-
+    Quotes in hours, not days; consistent, auditable cost models; higher win
+    rates at protected margins; fewer late surprises from tolerances or process
+    choices; faster onboarding and knowledge capture across teams.
+  failure: >-
+    Missed deadlines, thin or negative margins, fire‑drill rerouting, quality
+    escapes from overlooked tolerances, rework/scrap, and lost bids to faster
+    competitors.
+landingPage:
+  hero:
+    title: Quote Steering & Suspension Components in Minutes
+    subtitle: >-
+      AI RFQ Costing & Manufacturability Assistant for motor-vehicle steering
+      and suspension parts (excluding springs). Instant cycle times, routing,
+      cost, and tolerance risk alerts from CAD and drawings.
+    ctaText: Upload a Drawing
+    ctaHref: /get-started
+  problem:
+    - RFQs take days and depend on tribal knowledge and scattered spreadsheets.
+    - 'GD&T risks slip through manual reviews, causing scrap and late changes.'
+    - >-
+      Routing assumptions vary by estimator, creating inconsistent quotes and
+      margin leakage.
+    - >-
+      Historical run data isn’t leveraged, so similar parts are re-estimated
+      from scratch.
+    - Engineers are pulled into repetitive estimates instead of high-value work.
+    - Customers expect 24-hour turns; you lose bids when you can’t respond fast.
+  solution:
+    - >-
+      Upload a print or CAD; the assistant reads material, features, GD&T,
+      finishes, and notes.
+    - >-
+      Generates end-to-end routing tailored to steering/suspension parts (tie
+      rods, control arms, knuckles, housings, ball studs, links).
+    - >-
+      Calculates operation-level cycle times and cost (material, machine,
+      tooling, setup, scrap, outside processes, logistics).
+    - >-
+      Flags high-risk tolerances, datums, surface finishes, and process
+      capability gaps; suggests alternatives.
+    - >-
+      Learns from your historicals to calibrate rates, yields, and cycle times;
+      recommends similar part references.
+    - >-
+      Outputs a quote-ready breakdown with confidence scores and exports to
+      ERP/MES/PLM or Excel/PDF.
+  features:
+    - >-
+      Feature recognition for turning, milling, drilling, broaching, grinding,
+      sawing, and mill-turn parts common to steering/suspension.
+    - >-
+      Routing builder across cut/forge/cast, machine, heat treat, weld, shot
+      blast, coat, assemble, and inspect.
+    - >-
+      Cycle time models by machine class (CNC lathe, VMC/HMC, mill-turn, broach,
+      grinder, robotic weld cell, press).
+    - >-
+      GD&T analyzer: positional tolerance, runout, profile, flatness, and true
+      position risk scoring with Cp/Cpk feasibility hints.
+    - >-
+      Tolerance stack and datum scheme review with suggestions to relax or
+      reframe for capability.
+    - >-
+      Material and forging/casting allowance handling with auto weight,
+      buy-to-fly, and chip volume estimates.
+    - >-
+      Cost rollup: machine rates, burden, setup/changeover, tooling wear,
+      outside services (heat treat, coating), freight, and scrap.
+    - >-
+      Historical similarity search: find look-alike parts, prior quotes, actual
+      run times, and lessons learned.
+    - >-
+      DFM recommendations: radius/chamfer standards, finish substitutions,
+      process swaps (grind vs. hard-turn), and gauge plans.
+    - >-
+      Quote artifacts: operation sheets, BOM/route, control plan flags (CC/SC),
+      and inspection time estimates.
+    - >-
+      Configurable rate cards, batch sizes, and shift patterns; what-if
+      scenarios in seconds.
+    - >-
+      Integrations: SolidWorks/Creo/STEP, PDF drawings, ERP/MES connectors,
+      secure exports.
+    - >-
+      Security: private cloud or on‑prem; role-based access; audit trail on
+      every RFQ.
+    - 'Collaboration: reviewer comments, change history, and approval workflows.'
+  steps:
+    - 'Upload CAD/drawings and RFQ requirements (material, quantity, due date).'
+    - >-
+      Review auto-extracted features, materials, and GD&T; confirm or edit
+      inputs.
+    - >-
+      Get instant routing and cycle times; tune machine assignments, rates, and
+      lot sizes.
+    - Assess risk alerts; accept DFM suggestions or request customer changes.
+    - >-
+      Generate costed quote with breakdown and confidence score; export to
+      ERP/MES or PDF/Excel.
+    - Track win/loss and actual run data to continuously improve estimates.
+---
+# ChassisRFQ AI
+
+Industry: Motor Vehicle Steering and Suspension Components (except Spring) Manufacturing
+Service: RFQ Costing & Manufacturability Assistant

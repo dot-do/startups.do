@@ -1,0 +1,341 @@
+---
+name: FabFlow AI Scheduler
+slug: fabflow
+service:
+  title: AI Production Scheduler (Job-Shop)
+  description: >-
+    Constraint-aware finite scheduling across laser/punch, press brakes,
+    hardware insertion, welding, and finishing.
+  targetUsers:
+    - Schedulers/Planners
+    - Operations Managers
+  triggers:
+    - Daily schedule run
+    - Rush order or downtime event
+  inputs:
+    - Work orders/routings
+    - Setup/run times and changeover matrices
+    - Machine calendars and labor shifts
+    - Due dates/priority
+    - Skills/certifications matrix
+  steps:
+    - Ingest ERP/MES data; validate routings and times.
+    - >-
+      Formulate CP-SAT model with precedence, machine/labor, setup, and due date
+      constraints.
+    - >-
+      Optimize for on-time delivery, WIP, and setups; generate baseline
+      schedule.
+    - 'Run what-if scenarios (overtime, expedite, maintenance).'
+    - 'Publish Gantt, dispatch lists, and KPIs; sync back to ERP.'
+    - Monitor actuals; re-optimize on events.
+  tools:
+    - Google OR-Tools CP-SAT
+    - Pandas/scikit-learn for time prediction (optional)
+    - ERP/MES connectors (Epicor/E2/ProShop/Odoo)
+    - Calendar APIs
+  outputs:
+    - Optimized schedule (Gantt/CSV)
+    - Dispatch lists by cell/shift
+    - Scenario comparisons and KPIs
+  pricingModel:
+    - Monthly subscription
+    - Tiered by machines/users
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 8
+    overall: 9
+  risks:
+    - Bad or missing routing data
+    - Uncaptured tribal constraints reduce adoption
+    - Change management/UX issues
+  dependencies:
+    - ERP/MES API access
+    - Accurate time standards
+    - Shift calendars and constraints
+leanCanvas:
+  problem:
+    - >-
+      Manual, spreadsheet-based scheduling in high-mix, low-volume sheet metal
+      shops cannot account for finite capacity and complex constraints (gauge
+      changes, tooling, skilled operators, oven capacity, outsourced steps),
+      resulting in firefighting and missed due dates.
+    - >-
+      Disjointed systems (ERP, nesting/CAM, machine controls) create data
+      latency; schedule assumptions rarely match real-time machine states or
+      material availability.
+    - >-
+      Sequence-dependent setups and nesting-driven batching are not optimized
+      end-to-end, inflating changeovers, WIP, and travel time between work
+      centers.
+    - >-
+      Reactive rescheduling after disruptions (rush orders, breakdowns, sick
+      leave) is slow (hours) and error-prone; dispatch on the floor drifts from
+      the plan within a shift.
+    - >-
+      OTD and lead-time reliability are inconsistent (typical baseline 75–85%
+      OTD), driving expediting, premium freight, and customer churn.
+    - >-
+      Generic ERP APS modules lack domain-specific heuristics for
+      lasers/punches, press brakes, welding, finishing, leading to low adoption
+      by planners and operators.
+  solution:
+    - >-
+      Unified data model that links ERP jobs/routings, nesting batches, tooling,
+      skills, and machine/oven capacities into a finite-capacity digital twin of
+      the shop.
+    - >-
+      AI-powered APS engine (constraint programming + MILP + heuristics) that
+      optimizes sequence-dependent setups (gauge, tooling families), batches
+      nested parts, and respects material availability, skill matrices, and
+      maintenance calendars.
+    - >-
+      Real-time dispatch boards for each work center with operator feedback
+      loops; automatic re-optimization when disruptions occur (breakdowns, rush
+      orders, no-shows).
+    - >-
+      What-if simulation and scenario comparison (e.g., add overtime, split
+      lots, outsource a weld operation) with quantified OTD and cost impacts.
+    - >-
+      Machine connectivity (OPC UA/MTConnect/vendor APIs) for live status;
+      connectors to ERP (ProShop, JobBOSS2/E2, Epicor) and nesting/CAM
+      (SigmaNEST, Lantek, BySoft, TruTops, Amada).
+    - >-
+      Explainable scheduling (why-this-next) and change-impact analysis to build
+      trust on the floor; role-based permissions and schedule locking by
+      cell/shift.
+    - >-
+      Implementation playbook (6–8 weeks): data extraction/template mapping,
+      time-study calibration, pilot cell go-live, whole-shop rollout, and ROI
+      validation.
+  uniqueValueProp: >-
+    Constraint-aware, finite scheduling purpose-built for sheet metal job-shops
+    that plans your entire value stream (laser/punch → press brake → hardware →
+    weld → finish) in minutes and re-plans in seconds—with explainable
+    decisions—boosting OTD to 95%+, cutting changeovers 10–20%, and freeing
+    planners 50–70% of their time.
+  unfairAdvantage: >-
+    A domain-specific APS with nesting-aware batching and press-brake setup
+    optimization, pre-integrated with the most common sheet metal ERPs/CAMs,
+    plus an explainable scheduling layer trusted by operators; accumulated
+    calibration datasets and templates drastically shorten time-to-value
+    compared with generic APS/ERP modules.
+  customerSegments:
+    - >-
+      Primary: Contract sheet metal fabrication job-shops (20–250 employees),
+      with 2–10 lasers/punches, 4–20 press brakes, 1–8 welding cells,
+      powder-coat/finishing lines; North America, UK, DACH, Nordics, Benelux.
+    - >-
+      Secondary: Captive OEM fabrication departments (50–500 employees)
+      supplying internal assembly lines with strict OTIF requirements.
+    - >-
+      Early adopters: Shops using SigmaNEST/Lantek/BySoft/TruTops for nesting,
+      and ERP such as ProShop, JobBOSS2/E2, Epicor Kinetic, Global Shop; visible
+      pain (whiteboards/Excel, frequent expedites).
+    - >-
+      Buyer roles: Operations/Plant Manager (economic buyer), Production
+      Scheduler (daily user), VP Manufacturing/Owner (signs off ROI),
+      IT/Engineering (integration).
+  channels:
+    - >-
+      Direct outbound to target accounts (NAICS 332322/332312) via
+      LinkedIn/email; goal: 50 new contacts/month/SDR, 12 discovery calls, 4
+      demos, 1 pilot.
+    - >-
+      Partnerships: ERP vendors (ProShop, JobBOSS2/E2, Epicor), nesting/CAM
+      vendors (SigmaNEST, Lantek, Bystronic/BySoft, TRUMPF/TruTops, Amada) for
+      co-selling and marketplace listings.
+    - >-
+      Trade shows and associations: FABTECH (NA), EuroBLECH (EU), FMA/SME
+      membership webinars; target: 200 leads/event, 15 pilot opportunities.
+    - >-
+      Content-led inbound: case studies (before/after KPIs), ROI calculator,
+      benchmark reports; SEO for “job-shop scheduling”, “press brake
+      scheduling”, “nesting scheduling”.
+    - >-
+      System integrators and machine OEM resellers as referral partners;
+      commission 10–15% of first-year ARR.
+    - >-
+      Pilot-led sales motion: 8-week paid pilot with success criteria (e.g.,
+      +10pp OTD, -15% setups), then convert to annual subscription.
+  revenueStreams:
+    - >-
+      SaaS subscription (per site, tiered by active machines/cells): Starter (up
+      to 10 machines) $1,500/month; Growth (up to 25) $3,500/month; Scale (up to
+      50) $6,000/month; enterprise custom.
+    - >-
+      Implementation package: $15,000–$60,000 one-time depending on scope
+      (connectors, data cleanup, time studies, training).
+    - >-
+      Premium support/SLA (24x5, 1-hour response): +15% of subscription;
+      Enterprise 24x7 available.
+    - >-
+      Add-ons: Advanced connectors (custom ERP/CAM), predictive runtime models,
+      multi-facility synchronization, analytics export; $300–$1,000/month each.
+    - >-
+      Professional services: custom rules, scheduling templates, operator
+      training, continuous improvement coaching; $150–$220/hour.
+    - Revenue share from partners/marketplaces where applicable.
+  costStructure:
+    - >-
+      R&D and product (constraint/optimization engineers, full-stack devs, data
+      scientists): ~40–45% of Opex.
+    - >-
+      Sales and marketing (AEs, SDRs, content, events): ~25–30% of Opex; CAC
+      target $20k–$35k per mid-market site.
+    - 'Customer success and implementation: ~15–20% of Opex.'
+    - >-
+      Cloud infrastructure (compute for solver runs, databases, monitoring):
+      $80–$180/site/month average; scales with scheduling frequency and machine
+      data ingest.
+    - >-
+      Partner commissions and channel fees: 10–15% of first-year ARR for sourced
+      deals.
+    - 'G&A, compliance (SOC 2), and insurance: ~8–12% of Opex.'
+  keyMetrics:
+    - >-
+      Customer outcome KPIs (target within 90 days): OTD ≥ 95% (from baseline
+      75–85%); schedule adherence ≥ 90%; expedite incidents -50%; average lead
+      time -20–30%; setup hours -10–20%; machine utilization +5–10 percentage
+      points; WIP age -25–40%.
+    - >-
+      Planner productivity: time spent scheduling -50–70%; replan time < 2
+      minutes for whole shop; operator acceptance rate of dispatch suggestions ≥
+      85%.
+    - >-
+      Value realization: pilot success rate ≥ 70%; median payback < 6 months;
+      case study ROI ≥ 3–7x in year 1.
+    - >-
+      Product metrics: average schedule compute time < 90 seconds for 500+
+      concurrent operations; data integration completed < 6 weeks; uptime ≥
+      99.9%.
+    - >-
+      Commercial metrics: win rate ≥ 25% of qualified opportunities; ARR per
+      site $24k–$72k; gross margin ≥ 75%; NRR ≥ 110%; logo churn ≤ 8% annually;
+      CAC payback ≤ 12 months.
+storyBrand:
+  character: >-
+    Operations leaders and schedulers at high-mix, low-volume sheet-metal job
+    shops who need dependable promise dates, smooth flow, and fewer fires.
+  problem: >-
+    External: High-mix work, changeovers, and shifting priorities make
+    spreadsheets fail; finite constraints across laser/punch, press brakes,
+    hardware insertion, welding, and finishing are ignored. Internal: Constant
+    firefighting, tribal scheduling knowledge, and no trustworthy view of
+    capacity. Philosophical: A schedule should reflect reality, not wishful
+    thinking—and everyone should be able to trust it.
+  guide: >-
+    Empathy: We’ve lived the chaos of HMLV fabrication and know how nests,
+    setups, tools, and skills collide with due dates. Authority: Built by
+    manufacturing and optimization engineers; a constraint-aware finite
+    scheduler that integrates with ERP/MES and CAD/CAM nesting; transparent
+    logic that explains every decision.
+  plan: >-
+    - Connect data: sync jobs, routings, work centers, calendars, materials, and
+    nests (laser/punch) from ERP/MES/CAD/CAM.
+
+    - Configure constraints: capacities, setup/changeover matrices,
+    tooling/fixture availability, operator skills and shifts, maintenance,
+    buffers and transfer times, alternate routings/outsourcing.
+
+    - Go live: generate a finite, dispatchable schedule and load board; run
+    what-if scenarios; auto re-optimize when rush orders, breakdowns, or
+    shortages hit.
+  callToAction: >-
+    Direct: Book a live demo and start a pilot on your data. Transitional: Send
+    a recent backlog to receive a sample schedule and gap analysis.
+  success: >-
+    - Reliable promise dates and higher on-time delivery.
+
+    - Lower WIP and shorter lead times with balanced machine and labor loads.
+
+    - Fewer expedites and less overtime; clear, ranked dispatch lists for every
+    cell.
+
+    - End-to-end visibility from nest to brake to weld to finish, with
+    dependency-aware sequencing.
+
+    - Confidence: the schedule explains why each job is where it is.
+  failure: |-
+    - Missed due dates, rush fees, and unhappy customers.
+    - Overtime, idle bottlenecks, and bloated WIP from guesswork.
+    - Spreadsheet chaos when priorities change or a key scheduler is out.
+    - Disconnected nesting and downstream cells causing starvation or blocking.
+landingPage:
+  hero:
+    title: AI Production Scheduler for Sheet Metal Job Shops
+    subtitle: >-
+      Constraint-aware, finite scheduling across laser or punch, press brakes,
+      hardware insertion, welding, and finishing. Improve on-time delivery, cut
+      WIP, and stop firefighting.
+    ctaText: Book a Demo
+    ctaHref: /demo
+  problem:
+    - >-
+      Manual spreadsheets and whiteboards break under rush orders and
+      changeovers
+    - >-
+      Department-by-department planning causes starvation and blocking between
+      cells
+    - >-
+      No single source of truth for machine, labor, tooling, and material
+      constraints
+    - Press brake tool changes and poor nesting inflate setup time
+    - 'Late material, rework, and breakdowns trigger endless rescheduling'
+    - Unclear promise dates lead to missed commitments and expediting
+    - 'High WIP, long queues, and overtime to catch up'
+  solution:
+    - One end-to-end finite schedule across all work centers and shifts
+    - >-
+      Optimizes with real constraints: machines, skills, tooling, fixtures, and
+      material
+    - >-
+      Seamless coordination from nesting to brake sequencing to welding and
+      finishing
+    - >-
+      Minimizes changeovers with setup families, batch windows, and smart
+      sequencing
+    - Live rescheduling on events with due date protection and priority rules
+    - 'Interactive Gantt with drag-and-drop, locks, and what-if scenarios'
+    - >-
+      Clear dispatch lists and job travelers for every cell, updated in real
+      time
+    - 'API integration with ERP or MES for orders, routings, and shop feedback'
+  features:
+    - 'Finite-capacity, constraint-aware solver tailored to sheet metal routings'
+    - Nest-aware laser or punch planning with material availability and remnants
+    - Press brake sequencing to minimize tool changes and stage bends
+    - Skill- and certification-based labor assignment with shift calendars
+    - 'Tooling and fixture availability, kitting, and maintenance calendars'
+    - Alternative machines and routings with penalty-based selection
+    - 'Batching by color, finish, and paint windows with WIP limits and buffers'
+    - 'Real-time rescheduling on late material, scrap, or downtime'
+    - 'KPI dashboard for OTD, WIP hours, throughput, utilization, and changeovers'
+    - >-
+      Secure cloud or on-prem deployment with REST APIs and ERP or MES
+      connectors
+    - Operator terminals and mobile dispatch lists with barcode or QR support
+    - Capable-to-promise dates and load projections for quoting and planning
+  steps:
+    - >-
+      Connect ERP or MES data for items, routings, work centers, calendars,
+      tooling, and skills
+    - >-
+      Set objectives and rules: due date priority, setup families, batching, and
+      WIP limits
+    - Import orders and WIP; generate your first finite schedule in minutes
+    - >-
+      Review in interactive Gantt; lock constraints, drag to adjust, run what-if
+      scenarios
+    - >-
+      Publish dispatch lists to cells; track progress with live shop feedback
+      and alerts
+    - >-
+      Continuously improve with KPIs and policy tuning; scale across plants and
+      lines
+---
+# FabFlow AI Scheduler
+
+Industry: Sheet Metal Work Manufacturing
+Service: AI Production Scheduler (Job-Shop)

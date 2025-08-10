@@ -1,0 +1,299 @@
+---
+name: CarveCast AI
+slug: carvecast
+service:
+  title: SKU Demand Forecasting + Auto-Order Agent
+  description: >-
+    Forecast perishable demand by SKU/day and draft purchase orders and cutting
+    plans to hit service levels while minimizing waste.
+  targetUsers:
+    - Owners
+    - Store Managers
+    - Buyers
+    - Head Butchers
+  triggers:
+    - 'Daily at set time (e.g., 3pm)'
+    - Low stock or days-of-cover threshold
+    - Before supplier cutoff
+  inputs:
+    - POS sales history (52+ weeks)
+    - Current on-hand inventory
+    - Lead times and delivery days
+    - Shelf-life per SKU
+    - Supplier catalogs and pack sizes
+    - Holiday/events calendar
+  steps:
+    - 'Ingest POS, inventory, calendar, and supplier data'
+    - Clean/aggregate by SKU/day; detect outliers
+    - Forecast demand (per SKU/day/location)
+    - Compute reorder qty with safety stock and shelf-life
+    - Draft supplier POs and cutting list
+    - Route for approval via Slack/Email; one-click send (email/EDI)
+    - Write-back confirmed orders to POS/ERP and log
+  tools:
+    - Square/Clover/Lightspeed/NCR APIs
+    - Google Sheets/BigQuery
+    - Prophet/sktime
+    - Slack/Email (SMTP)
+    - 'SPS Commerce (EDI, optional)'
+  outputs:
+    - Approved purchase orders (CSV/PDF/EDI)
+    - Cutting schedule by SKU/day
+    - Fill-rate and waste risk dashboard
+  pricingModel:
+    - Per location monthly subscription
+    - One-time setup/data mapping
+    - Optional performance bonus tied to waste reduction
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 4
+    overall: 5
+  risks:
+    - Bad/missing inventory or shelf-life data
+    - Supplier constraints override plan
+    - Over/under-forecast on holidays
+    - Model drift without retraining
+  dependencies:
+    - POS/ERP/API credentials
+    - Supplier contacts or EDI
+    - Shelf-life and pack size table
+    - Holiday/event inputs
+leanCanvas:
+  problem:
+    - >-
+      Fresh meat demand is highly volatile by day/SKU/store; manual ordering
+      drives 3–6% shrink and frequent stockouts, especially around promos,
+      weekends, and holidays.
+    - >-
+      Most systems don’t model primal-to-cut yields, shelf lives, and case-ready
+      vs. in-store cutting, so POs and cutting plans are disconnected from real
+      demand.
+    - >-
+      Meat managers spend 60–120 minutes daily per department placing orders and
+      planning cuts with limited visibility into target service levels.
+    - >-
+      Lead times and supplier fill vary, creating either over-ordering (waste)
+      or under-ordering (lost sales).
+    - >-
+      Existing forecasting tools are configured for center store; they
+      underperform on perishables due to limited use of weather, local events,
+      promo cannibalization, and dynamic shelf-life constraints.
+    - >-
+      Corporate teams lack SKU-level attribution of shrink drivers (forecast
+      error vs. execution vs. promo planning) and can’t reliably quantify ROI of
+      changes.
+  solution:
+    - >-
+      Daily store-SKU forecasts leveraging POS, on-hand, promo calendars,
+      weather, holidays, and local events to target 15–20% WMAPE for fresh meat.
+    - >-
+      Auto-Order Agent that drafts EDI/portal-ready POs to suppliers by cutoff,
+      optimizing for service-level targets (e.g., 97–98%) and waste minimization
+      under lead-time and shelf-life constraints.
+    - >-
+      Cutting Plan Optimizer translating forecasted SKU demand into primal
+      orders and cut schedules using yield libraries, labor calendars, and
+      case-ready availability.
+    - >-
+      Closed-loop learning: ingest actuals (sales, markdowns, waste, returns)
+      and user overrides to retrain models weekly and tune store-specific
+      parameters.
+    - >-
+      Exception-based workflow: managers review only flagged orders (e.g.,
+      supplier shortage, unexpected weather spike, promo conflicts).
+    - >-
+      Executive dashboard quantifying shrink reduction, service-level lift, and
+      GMROI improvements at SKU/department/banner levels.
+  uniqueValueProp: >-
+    Predict daily meat demand by SKU and auto-generate purchase orders and
+    cutting plans that raise on-shelf availability to 97–99% while reducing
+    shrink 15–30% and cutting ordering time by 70%—with payback in 8–12 weeks.
+  unfairAdvantage: >-
+    A meat-specific, closed-loop system that uniquely links SKU/day forecasts to
+    primal-aware ordering and labor-ready cutting plans—powered by a proprietary
+    yield library and override/waste feedback that continuously tunes
+    store-level models. Deep integrations with scale/label systems and supplier
+    EDI make execution fast and sticky, raising switching costs.
+  customerSegments:
+    - >-
+      Regional grocery chains (10–500 stores) with in-store meat cutting
+      operations.
+    - >-
+      Supermarkets using a mix of case-ready and limited in-store cutting
+      seeking to optimize both.
+    - Independent butcher shops and small regional banners (1–10 stores).
+    - >-
+      Later expansion: large national grocers; wholesalers providing managed
+      retail programs.
+  channels:
+    - >-
+      Direct sales to VP Fresh/Category Management/Operations at regional
+      grocers via targeted outreach and ROI calculators.
+    - >-
+      8–12 week paid pilots in 5–10 stores with clearly defined success metrics
+      and executive QBRs.
+    - >-
+      Partnerships with POS/ERP integrators and EDI providers (SPS Commerce) for
+      referrals and bundled integrations.
+    - >-
+      Industry events and associations: FMI FreshForward, NGA Show, North
+      American Meat Institute (NAMI) events; publish meat-specific whitepapers
+      and case studies.
+    - >-
+      Cloud marketplaces (AWS/GCP/Azure) for procurement-friendly listings and
+      committed-spend drawdown.
+    - >-
+      Customer advocacy program: reference accounts, co-marketing with early
+      adopters, and referral incentives.
+  revenueStreams:
+    - >-
+      SaaS subscription per store/month, tiered: Forecasting ($400–$600),
+      +Auto-Order ($650–$900), +Cutting Plan ($950–$1,400).
+    - >-
+      One-time implementation/integration fee ($10k–$50k per chain; or $250–$750
+      per store, size-dependent).
+    - >-
+      Optional performance-based fees (e.g., 10–20% of verified shrink reduction
+      above baseline) for risk-sharing pilots.
+    - >-
+      Premium support/SLA and training packages (e.g., $0.05–$0.10 per weekly
+      forecasted SKU for high-volume enterprises).
+    - >-
+      Professional services: yield calibration, promo elasticity studies, custom
+      reports.
+  costStructure:
+    - >-
+      Cloud compute/storage (feature stores, training/inference, secure data
+      lake): ~$25–$60 per store/month at scale.
+    - >-
+      Data integration and maintenance (ETL/ELT, EDI, POS connectors): amortized
+      $5k–$15k per integration partner; $1k–$3k per new store for bespoke
+      mapping.
+    - >-
+      ML/engineering team salaries; ongoing model R&D and MLOps (CI/CD,
+      monitoring).
+    - >-
+      Customer success and change management (training, on-site visits,
+      playbooks).
+    - 'Sales and marketing (pilots, travel, events, content).'
+    - 'Security/compliance (SOC 2, pen tests, logging), insurance, and support.'
+    - >-
+      Unit economics target: gross margin >75% by Month 18; CAC payback <9
+      months; pilot-to-rollout conversion >60%.
+  keyMetrics:
+    - >-
+      Forecast accuracy: WMAPE ≤18% daily at SKU/store; A-class SKUs ≤12%;
+      stable error distribution across seasons.
+    - >-
+      On-shelf availability (service level): 97–99% during non-promo weeks; >95%
+      on promo peaks.
+    - >-
+      Shrink: 15–30% reduction vs. baseline within 12 weeks; track $/week
+      savings per store and % of sales.
+    - 'GMROI: +5–10% improvement; Inventory turns +0.5–1.5x in fresh meat.'
+    - >-
+      Labor: 60–80% reduction in ordering/planning time (target: <15
+      minutes/day/department).
+    - >-
+      Adoption: >85% of orders auto-approved; manual override rate <20% after 6
+      weeks; exception rate <10% of SKUs/day.
+    - >-
+      Pilot KPIs: meet 2 of 3 gates—≥15% shrink reduction, ≥97% service level,
+      ≥50% time saved; NPS ≥40 from meat managers.
+    - >-
+      Sales/expansion: pilot conversion ≥60%; net revenue retention ≥120%;
+      time-to-live store <30 days post-contract.
+    - >-
+      Data health: daily data latency <60 minutes; anomaly rate <1% of SKUs/day;
+      supplier EDI success rate >98%.
+    - >-
+      Financial: payback 8–12 weeks; ARR/store $7.8k–$16.8k; gross margin >75%
+      at steady state.
+storyBrand:
+  character: >-
+    Meat retail operators who want full, fresh cases and profit, but need a
+    simple way to forecast daily SKU demand and generate purchase orders and
+    cutting plans without guesswork.
+  problem: >-
+    - External: Perishable demand swings with promos, weather, holidays, and
+    yields—manual ordering causes stockouts or shrink.
+
+    - Internal: Managers are tired of firefighting and second‑guessing orders.
+
+    - Philosophical: Keeping meat fresh and available shouldn’t require heroics;
+    data should do the heavy lifting.
+  guide: >-
+    We understand the cut-by-cut realities of meat. Our team blends grocery ML
+    expertise with store operations know‑how to forecast perishable demand by
+    SKU/day and auto-draft purchase orders and cutting plans that hit service
+    levels while minimizing waste.
+  plan: >-
+    1) Connect: POS, promotions, on-hand, lead times, and cut yields. 2) Pilot:
+    Calibrate forecasts, validate against history, run in a few departments. 3)
+    Roll out: Auto-drafted POs and cutting plans for manager review/approval,
+    with ongoing tuning.
+  callToAction: >-
+    Primary: Book a 30‑minute demo. Secondary: Request a store‑level ROI
+    estimate and pilot timeline.
+  success: |-
+    - Consistently high on‑shelf availability with fresher product
+    - Lower shrink and markdowns
+    - Fewer rush orders and backroom clutter
+    - Time back to focus on merchandising and customers
+    - Confident, auditable ordering and planning
+  failure: |-
+    - Ongoing stockouts, markdowns, and expired shrink
+    - Cash tied up in slow or wrong cuts
+    - Stressful, inconsistent ordering across managers
+    - Eroding customer trust and margin
+landingPage:
+  hero:
+    title: AI Demand Forecasting + Auto-Order for Meat Retailers
+    subtitle: >-
+      Daily SKU-level forecasts with auto-drafted purchase orders and cutting
+      plans to hit service levels and cut shrink.
+    ctaText: Book a demo
+    ctaHref: '#demo'
+  problem:
+    - Over- and under-ordering drive shrink and stockouts
+    - 'Demand whiplash from weather, holidays, and promos'
+    - Manual spreadsheets and guesswork
+    - Lead times and case sizes don’t fit daily need
+    - Cut plans misaligned to demand; excess trim and rework
+    - Low on-shelf availability and margin leakage
+    - Labor wasted on emergency runs and adjustments
+  solution:
+    - 'Accurate SKU/day/store forecasts using POS, promos, weather, and events'
+    - 'Auto-drafted purchase orders honoring lead times, MOQs, and case sizes'
+    - Yield-aware cutting plans by primal/subprimal to match the day’s mix
+    - Targeted service levels with freshness- and shelf-life-aware safety stock
+    - 'What-if scenarios for price, promos, and demand shifts'
+    - Exception-based alerts with one-click approve or adjust
+    - Seamless integrations with POS/ERP/EDI and scale systems
+  features:
+    - >-
+      Causal, hierarchical time-series models tuned for perishables and
+      shelf-life
+    - 'Freshness-aware logic: expiry, rotation, and case-ready vs in-store cut'
+    - 'Replenishment optimizer balancing service level, shrink, and margin'
+    - Yield and trim balancing across cuts; auto targets for grind/trim
+    - 'Supplier constraints: lead times, MOQs, delivery windows, blackout days'
+    - Backroom/display capacity and min/max rules
+    - Store clustering and new-item forecasts via analogs
+    - 'Real-time KPIs: OSA, shrink%, waste$, spoilage risk, aged inventory'
+    - 'Exception workflows, guardrails, and full audit trail'
+    - Auto-PO via EDI/email; tasks and notifications
+    - Enterprise-grade security and role-based access
+  steps:
+    - 'Connect POS, inventory, waste, promo, and supplier data'
+    - 'Set service levels, lead times, case sizes, and yield tables'
+    - Review baseline forecasts; validate against history
+    - Enable auto-drafted POs and cutting plans; start with approvals
+    - Roll out auto-approve rules for low-risk items
+    - Monitor KPIs and refine targets; expand across stores
+---
+# CarveCast AI
+
+Industry: Meat Retailers
+Service: SKU Demand Forecasting + Auto-Order Agent

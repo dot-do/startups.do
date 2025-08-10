@@ -1,0 +1,348 @@
+---
+name: SCADA/PI Anomaly Triage Agent for Crude Pipeline Operations
+slug: scada
+service:
+  title: SCADA/PI Anomaly Triage Agent
+  description: >-
+    AI agent that ranks, clusters, and explains abnormal signals across flow,
+    pressure, temperature, and station KPIs to reduce controller alarm noise and
+    surface actionable anomalies.
+  targetUsers:
+    - Pipeline Controllers
+    - SCADA Engineers
+    - Operations Managers
+  triggers:
+    - Every 1–5 minutes or on new tag updates
+    - Manual ad-hoc drill-down request
+  inputs:
+    - 'Historian tags (flow, pressure, temperature, valve state, pump status)'
+    - Alarm/event logs
+    - 'Tag metadata (units, limits)'
+  steps:
+    - Ingest time-series via historian API
+    - 'Clean, resample, and align tags per segment/station'
+    - Apply unsupervised anomaly detection and alarm de-duplication
+    - Rank anomalies by severity/novelty and correlate across tags
+    - Generate root-cause hypotheses and recommended checks
+    - Post alerts and summaries to controller dashboard/Teams
+  tools:
+    - OSIsoft PI Web API or Aveva Data Hub
+    - Azure Data Explorer/Kusto or TimescaleDB
+    - Merlion/Kats/River (time-series AD)
+    - Isolation Forest/Prophet/XGBoost
+    - Power BI/ Grafana
+    - Microsoft Teams/Slack API
+  outputs:
+    - Ranked anomaly list with confidence and correlated tags
+    - Short explanation and suggested checks
+    - Daily/weekly stability score by asset/segment
+  pricingModel:
+    - Setup fee (data mapping + model tuning)
+    - 'Monthly subscription per control center + per 1,000 tags'
+    - Optional per-alert overage for high volumes
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Data latency or dropouts lead to false alerts
+    - Controller workload if triage not tuned
+    - Cybersecurity/access approvals
+  dependencies:
+    - Read access to historian and alarm/event streams
+    - Tag dictionary and limits
+    - Security review and service account
+leanCanvas:
+  problem:
+    - >-
+      Alarm floods overwhelm controllers during transients (starts/stops, batch
+      changes, pigging), causing >30 alarms/10 minutes/operator vs ISA 18.2
+      target of ≤10.
+    - >-
+      High nuisance/standing alarm rates (often 20–40% of daily alarms) mask
+      true safety or equipment anomalies.
+    - >-
+      Manual triage is slow and inconsistent; mean time to acknowledge/triage
+      (MTTA) often >20 minutes for complex multi-station events.
+    - >-
+      Root cause is unclear across correlated tags (flow, suction/discharge
+      pressure, temperature, KPIs), leading to unnecessary shutdowns or missed
+      incidents.
+    - >-
+      Existing rules-based analytics and generic ML tools require heavy manual
+      configuration and don’t adapt to changing hydraulic states, seasonal
+      effects, or station maintenance windows.
+    - >-
+      Regulatory and audit pressure (PHMSA, ISA 18.2, EEMUA 191) requires alarm
+      rationalization and performance reporting; generating evidence is
+      labor-intensive.
+  solution:
+    - >-
+      Plug-and-play connectors to AVEVA PI (PI Data Archive/AF/EF), OPC UA, and
+      common SCADA historians; read-only via DMZ with store-and-forward.
+    - >-
+      Real-time multivariate anomaly detection that auto-segments by operating
+      state (steady, ramp, batch transition, pigging, maintenance) to prevent
+      false positives.
+    - >-
+      Event clustering and ranking: correlates alarms/tags from station to
+      system level to surface the true initiating event with confidence scores.
+    - >-
+      Explainable AI: causal graphs and contribution scores (per tag/KPI) with
+      recommended actions and links to SOPs.
+    - >-
+      Nuisance alarm suppression suggestions and alarm performance analytics
+      mapped to ISA 18.2/EEMUA 191 KPIs.
+    - >-
+      Human-in-the-loop triage: controllers accept/override classifications;
+      system learns and retrains with feedback.
+    - >-
+      Workflow integration: creates incident tickets (ServiceNow/Maximo), sends
+      summaries to Teams/Email, and adds shift-handover reports.
+    - >-
+      Governance and audit: versioned models, change logs, event frames, and
+      compliance dashboards for PHMSA audits.
+  uniqueValueProp: >-
+    From alarm floods to actionable, explained anomalies. The agent ranks,
+    clusters, and explains abnormal signals across
+    flow/pressure/temperature/station KPIs in real time, reducing alarm noise by
+    50–70%, cutting MTTA by 60–80%, and producing audit-ready reports—without
+    changing your SCADA or control logic (read-only, ISA 18.2-aligned).
+  unfairAdvantage: >-
+    A pipeline-specific anomaly library and hydraulics-aware, state-segmented
+    models combined with a causal knowledge graph deliver accurate, explainable
+    triage under transient conditions where generic analytics fail. Deep
+    PI/SCADA integrations, ISA 18.2-aligned reporting, and a read-only,
+    fail-open OT deployment pattern reduce security and change-management
+    friction, accelerating adoption and regulatory acceptance.
+  customerSegments:
+    - >-
+      Midstream crude pipeline operators (North America focus initially; expand
+      to EMEA/LatAm/APAC).
+    - >-
+      Control Center Managers and Pipeline Controllers responsible for real-time
+      operations.
+    - >-
+      SCADA/OT managers and engineers (PI/AVEVA, OPC UA, MQTT, DNP3) maintaining
+      historian and control systems.
+    - >-
+      Alarm Management leaders driving ISA 18.2/IEC 62682 compliance and
+      rationalization.
+    - >-
+      Asset integrity and reliability teams monitoring pump stations, valves,
+      tanks, and station KPIs.
+    - >-
+      Operations excellence/digital transformation leaders seeking measurable
+      ROI.
+  channels:
+    - >-
+      Direct enterprise sales to target operators (top 50 by crude miles) with
+      OT-aware account executives and solution architects.
+    - >-
+      System integrator partnerships (AVEVA/OSIsoft partners; SCADA OEM
+      integrators like Emerson, Honeywell, ABB) for deployment and change
+      management.
+    - >-
+      Co-marketing with AVEVA/OSIsoft ecosystem and PI user groups; sessions at
+      API Pipeline Conference, AGA Operations Conference, PPIM.
+    - >-
+      Pilot-first motion: 8–12 week paid pilots on historical + live data with
+      explicit success criteria.
+    - >-
+      Industry thought leadership: alarm benchmarking reports, ISA 18.2-aligned
+      whitepapers, webinars with Control Center leaders.
+    - >-
+      Targeted ABM campaigns to Control Center Managers, Alarm Mgmt leads, and
+      OT Directors; ROI calculators and case studies.
+    - >-
+      Customer advocacy: reference operators and safety case studies
+      post-deployment.
+  revenueStreams:
+    - 'Annual subscription based on monitored scope:'
+    - '- Per 10,000 monitored tags: $8,000–$15,000/month ($96k–$180k/year).'
+    - '- Alternative: $200–$400 per pipeline mile per year for liquids networks.'
+    - >-
+      - Optional: $1,500/controller seat/month for control-room-only
+      deployments.
+    - >-
+      Professional services: implementation/integration ($75k–$250k per site),
+      alarm rationalization workshops, SOP/playbook authoring.
+    - >-
+      Premium support/SLA (24x7): +15–25% of subscription; dedicated success
+      engineer.
+    - >-
+      Compliance add-on: automated ISA 18.2/PHMSA reporting pack and evidence
+      archive.
+    - >-
+      Enterprise license for multi-country operators with volume discounts and
+      multi-control-room bundling.
+  costStructure:
+    - >-
+      R&D: ML/OT engineers, data scientists, domain SMEs (hydraulics/alarm
+      mgmt), approx 35–45% of expenses.
+    - >-
+      Implementation/Customer success: solution architects, field engineers,
+      training (15–25%).
+    - >-
+      Cloud/VPC costs for telemetry processing, model storage, and CI/CD;
+      on-prem edge licenses when applicable (8–12%).
+    - 'Sales/Marketing, partner margins, conferences (15–20%).'
+    - >-
+      Security/compliance: SOC2/ISO 27001 audits, penetration tests, OT
+      cybersecurity tooling (3–6%).
+    - >-
+      Liability/insurance for industrial software; legal for MSAs and
+      indemnities (2–4%).
+  keyMetrics:
+    - 'Operational outcomes:'
+    - >-
+      - Alarm Flood Index (AFI): target ≤10 alarms/10 minutes/operator (ISA
+      18.2); baseline reduction from 30–60 to ≤10 within 90 days.
+    - '- Nuisance alarm rate: reduce by 50–70% within 6 months.'
+    - '- MTTA (mean time to triage): reduce by 60–80% (e.g., 25 min to <8 min).'
+    - >-
+      - Detection performance: ≥85% recall on priority anomalies with ≤10% false
+      positive rate; trend to <5% FP for critical events.
+    - >-
+      - Controller workload: ≥30% reduction in time spent on triage per shift;
+      acceptance rate of recommended actions ≥70% by month 3.
+    - 'Safety/continuity:'
+    - >-
+      - Early detection lead time: surface initiating events ≥10 minutes before
+      downstream alarm cascades in >70% of cases.
+    - '- Standing alarms: 80% reduction in top 20 standing alarms within 90 days.'
+    - 'Adoption/product:'
+    - '- Tag coverage: % of relevant assets/tags onboarded (>85% of target).'
+    - >-
+      - Human-in-the-loop feedback volume and model improvement cadence
+      (monthly).
+    - >-
+      - Uptime/SLA: ≥99.9% for inference; data freshness <5 seconds behind
+      historian.
+    - 'Business/ROI:'
+    - >-
+      - Annualized time savings (controller hours) and avoided downtime
+      incidents; ROI ≥3x within first 12 months.
+storyBrand:
+  character: >-
+    Pipeline control room managers and SCADA/PI analysts responsible for safe,
+    compliant, and efficient crude oil pipeline operations 24/7.
+  problem: >-
+    External: Floods of alarms and noisy PI/SCADA signals across flow, pressure,
+    temperature, and station KPIs obscure real issues. Internal: Controllers
+    feel fatigued, reactive, and worried about missing weak signals.
+    Philosophical: Safety‑critical operations deserve clear, trustworthy signal
+    triage—not noise.
+  guide: >-
+    Empathy: We understand alarm fatigue, audit pressure, and the stakes of
+    pipeline incidents. Authority: An AI triage agent that ranks, clusters, and
+    explains anomalies; integrates with PI/SCADA; read‑only and secure
+    (on‑prem/VPC); aligned to API RP 1167 and ISA/IEC 62443; built with pipeline
+    SMEs to deliver auditable, actionable insights.
+  plan: >-
+    Process: 1) Connect—read‑only to PI/SCADA; 2) Calibrate—learn normal
+    patterns and tune with SME feedback; 3) Triage—deliver ranked clusters with
+    plain‑language explanations to alarm consoles and shift reports. Agreement:
+    No control writes; data stays in your environment; clear success metrics and
+    audits from day one.
+  callToAction: >-
+    Direct: Schedule a 30‑minute demo or start a 4‑week pilot on a target
+    segment. Transitional: Download the technical brief and ROI calculator, or
+    run a historical backtest on sample data.
+  success: >-
+    Controllers focus on actionable anomalies; MTTD/MTTR drop; alarm noise
+    shrinks; fewer false trips and incidents; stabilized throughput and station
+    KPIs; clean audit trails and improved alarm management maturity.
+  failure: >-
+    Without triage, alarm floods persist; weak signals go unnoticed; downtime
+    and spill risk rise; fines and audit findings accumulate; teams burn out and
+    over‑alert, eroding safety culture.
+landingPage:
+  hero:
+    title: SCADA/PI Anomaly Triage Agent for Crude Oil Pipelines
+    subtitle: >-
+      Cut alarm noise. Rank, cluster, and explain anomalies across flow,
+      pressure, temperature, and station KPIs—so controllers act faster on what
+      matters.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - Alarm floods from static limits bury critical events.
+    - 'Controllers spend hours triaging noisy, duplicate alarms.'
+    - No cross-tag correlation across stations or segments.
+    - 'Seasonal shifts, batching, and product changes break thresholds.'
+    - 'Context is scattered across PI, SCADA, logs, and shift notes.'
+    - Compliance and audit documentation is manual and slow.
+  solution:
+    - >-
+      Real-time anomaly ranking with risk scores tied to hydraulic impact and
+      volume-at-risk.
+    - Clusters related tags/events into one incident with full context.
+    - >-
+      Natural-language explanations: contributing tags, why-now, expected vs.
+      observed.
+    - Automatic de-duplication and suppression to cut alarm noise at the source.
+    - Actionable anomaly inbox with routing to controllers and maintenance.
+    - >-
+      Fast integration with PI System and SCADA; secure VPC or on‑prem
+      deployment; audit-ready.
+  features:
+    - >-
+      Risk-scored anomaly inbox across flow, pressure, temperature, vibration,
+      and station KPIs.
+    - >-
+      Cross-segment correlation: upstream/downstream coherence and pump/valve
+      state awareness.
+    - >-
+      Root-cause hints: setpoint changes, batch interfaces, DRA injection,
+      equipment starts/stops.
+    - >-
+      Explainability: per-signal contribution, why-now, expected bands, and
+      confidence.
+    - >-
+      Noise reduction: de-duplication, hysteresis, dwell-time, and suppression
+      policies.
+    - >-
+      Sensor health: drift, stuck, dropouts, time skew, and recalibration
+      prompts.
+    - 'Adaptive baselines by season, product, throughput, and daypart.'
+    - >-
+      Integrations: PI AF/EF, PI Vision links, OPC UA tag browse,
+      Historian/SCADA, REST APIs.
+    - >-
+      Workflows: Controller console, email/SMS, Teams/Slack, ServiceNow/Jira
+      ticketing.
+    - >-
+      Safety-first escalation: role-based playbooks aligned to control room
+      policy.
+    - >-
+      Edge-ready: optional station agent for low-latency detection and bandwidth
+      savings.
+    - >-
+      Deployment: customer VPC or on‑prem/air‑gapped; SSO/SAML, RBAC,
+      encryption, audit logs.
+    - >-
+      Compliance support: CRM/PHMSA exports, MOC-ready incident records and
+      timelines.
+    - >-
+      Works alongside CPM/RTTM leak detection—adds triage and context, not a
+      replacement.
+  steps:
+    - 'Connect: Read-only link to PI/SCADA and import tag metadata.'
+    - >-
+      Map: Select pipelines, stations, and KPIs; link AF elements and state
+      tags.
+    - 'Learn: Build history-based baselines; set risk models and policies.'
+    - >-
+      Validate: Run in shadow mode and compare against existing
+      alarms/incidents.
+    - 'Go live: Route triaged anomalies; enable suppression rules and playbooks.'
+    - >-
+      Improve: Capture operator feedback; auto-tune models and export audit
+      reports.
+---
+# SCADA/PI Anomaly Triage Agent for Crude Pipeline Operations
+
+Industry: Pipeline Transportation of Crude Oil
+Service: SCADA/PI Anomaly Triage Agent

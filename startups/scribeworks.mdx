@@ -1,0 +1,364 @@
+---
+name: ScribeWorks AI — OCR/HTR to Searchable Text Pipeline for Libraries & Archives
+slug: scribeworks
+service:
+  title: OCR/HTR to Searchable Text Pipeline
+  description: >-
+    Create searchable PDFs and ALTO/TEI text for scans; quality-scored and
+    corrected with language models.
+  targetUsers:
+    - Digitization labs
+    - Archives
+    - Local history collections
+  triggers:
+    - New scan batches
+    - Legacy PDFs lacking text
+    - Grant deliverables
+  inputs:
+    - TIFF/PDF images
+    - Language/script info
+    - Desired output formats
+  steps:
+    - 'Layout detection, OCR/HTR'
+    - Confidence scoring and noise filtering
+    - LM-assisted spelling/post-correction
+    - Embed text into PDFs; export ALTO/TEI/Plain Text
+    - Sample QA and error report
+    - Package deliverables
+  tools:
+    - 'Tesseract, ABBYY, or Google Vision'
+    - Transkribus (HTR)
+    - OpenAI API (post-correction)
+    - ocrd_all/ocrmypdf
+  outputs:
+    - Searchable PDFs
+    - ALTO XML / TEI / TXT
+    - QA report with accuracy estimates
+  pricingModel:
+    - Per page (volume discounts)
+    - Premium for HTR or complex layouts
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 4
+    overall: 4
+  risks:
+    - Poor scan quality limits accuracy
+    - Handwritten/cursive variability
+    - Cloud OCR costs
+  dependencies:
+    - Access to image files (SFTP/cloud)
+    - Rights clearance for processing
+    - Language models for target scripts
+leanCanvas:
+  problem:
+    - >-
+      Large digitization backlogs: millions of scanned pages sit as images or
+      PDFs without full text, blocking discovery and accessibility.
+    - >-
+      Historical print and handwriting are hard: 18th–20th c. typefaces, mixed
+      languages/scripts, marginalia, and degraded paper reduce OCR/HTR accuracy
+      by 20–60% vs. modern print.
+    - >-
+      Limited QA: institutions often cannot measure or prove text quality (no
+      CER/WER baselines, no sampling plans), making vendor comparisons and grant
+      reporting difficult.
+    - >-
+      Standards compliance gap: outputs often lack ALTO XML or TEI P5, or fail
+      schema validation; IIIF search and annotation integration is inconsistent.
+    - >-
+      High cost of manual correction: in-house or crowdsourced correction can
+      exceed $0.10–$0.50 per page in staffing time.
+    - >-
+      Fragmented workflows: digitization, OCR, metadata, DAM/IR integration
+      (CONTENTdm, Islandora, DSpace, ArchivesSpace, Primo/Alma) require brittle,
+      manual steps.
+    - >-
+      Data governance constraints: some collections require on-prem/VPC
+      processing, audit trails, and no external data sharing — many AI services
+      are cloud-only or non-compliant.
+    - >-
+      Funding-cycle risk: projects run on grants with fixed deliverables and
+      audits; institutions need predictable pricing, documented QA, and
+      reproducible pipelines.
+    - >-
+      Accessibility/compliance: legal and policy requirements for searchable,
+      screen-reader–friendly PDFs and WCAG alignment are rising, but current
+      pipelines don’t deliver consistently.
+  solution:
+    - >-
+      Ingestion: Accept TIFF/JPEG/PDF/JP2 and IIIF endpoints;
+      auto-language/script detection and page-type classification.
+    - >-
+      Pre-processing: De-skew, de-noise, binarize; layout and region
+      segmentation (text blocks, headers, tables, marginalia, footnotes).
+    - >-
+      Model selection: Route by era/script to best OCR/HTR stack (e.g.,
+      kraken/eScriptorium models for historical print/HTR; transformer OCR for
+      modern print), with per-batch A/B evaluation.
+    - >-
+      LLM-based post-correction: Domain-tuned, cost-optimized language models
+      perform context-aware normalization and correction; rulesets for spelling
+      variants preserved in TEI where desired.
+    - >-
+      Quality estimation and scoring: Calibrated confidence, dictionary/language
+      models, and sample-based CER/WER to produce a per-page and per-batch
+      quality score with confidence intervals.
+    - >-
+      Standards output: Generate ALTO XML (v4), TEI P5 (with provenance,
+      certainty, and normalization), PDF/A searchable, and IIIF Search API
+      annotations; validate against schemas.
+    - >-
+      Human-in-the-loop: Web UI to spot-check, correct, and approve pages;
+      active learning loops to retrain models on corrected lines/words.
+    - >-
+      Integration and delivery: Push to CONTENTdm, Islandora, DSpace, Fedora,
+      ArchivesSpace, Alma/Primo; export to S3/Azure/GCS and OAI-PMH; publish
+      IIIF manifests with search.
+    - >-
+      Governance and security: On-prem/VPC deployment option; full audit trail,
+      role-based access, PII redaction, and no data exfiltration without
+      contract.
+    - >-
+      Reporting: Grant-ready QA reports (CER/WER, sampling plans), cost and
+      throughput reports, and accessibility conformance statements.
+  uniqueValueProp: >-
+    Highest-quality, standards-ready OCR/HTR for historical collections with
+    measurable accuracy, automated LLM-based correction, and turnkey delivery to
+    ALTO/TEI and searchable PDFs—deployable in cloud or on-prem with direct
+    DAM/IIIF integration.
+  unfairAdvantage: >-
+    A growing, governed corpus of historically diverse ground truth paired with
+    an evaluation harness for CER/WER and ALTO/TEI validation, enabling superior
+    LLM-driven post-correction and continuous improvement—combined with turnkey
+    DAM/IIIF integrations and on-prem deployment that many competitors lack.
+  customerSegments:
+    - >-
+      Primary: Academic and research libraries’ digital initiatives (R1/R2
+      universities, consortia such as HathiTrust members).
+    - >-
+      Primary: National/state/provincial archives and public library systems
+      digitizing newspapers, records, and special collections.
+    - >-
+      Primary: Museum and GLAM archives with manuscript collections (IIIF
+      adopters).
+    - >-
+      Secondary: Newspaper digitization programs and genealogy platforms
+      requiring historical OCR at scale.
+    - >-
+      Secondary: Digitization vendors and service bureaus seeking a white-label
+      OCR/HTR backend.
+    - >-
+      Secondary: Research infrastructures and consortia (DPLA, Europeana
+      aggregators) needing standards-compliant text at scale.
+  channels:
+    - >-
+      Direct sales to academic libraries and archives via RFP/procurement;
+      respond with fixed-scope pilot offers.
+    - >-
+      Partnerships with digitization vendors and scanning bureaus to embed as
+      white-label OCR/HTR backend.
+    - >-
+      Consortia deals with state/regional networks (e.g., California Digital
+      Library, Big Ten, Jisc) for volume pricing.
+    - >-
+      Conference presence and workshops at SAA, DLF Forum, IFLA, IIIF
+      Conference, Code4Lib; publish open datasets and benchmarks.
+    - >-
+      Offer a free quality assessment on a 500–1,000-page sample with a
+      comparative accuracy report vs. baseline OCR.
+    - >-
+      Content marketing: case studies on historical newspapers/manuscripts;
+      webinars with integration demos for CONTENTdm/Islandora.
+    - >-
+      Listing on cloud marketplaces (AWS, Azure, GCP) and eligible public
+      procurement frameworks where applicable.
+    - >-
+      Open-source connectors and TEI/ALTO validators to drive inbound interest
+      and lower integration friction.
+  revenueStreams:
+    - >-
+      Per-page processing fees (SaaS): $0.02–$0.05 OCR for modern print;
+      $0.05–$0.12 for historical/HTR, volume-tiered; includes ALTO/TEI/PDF
+      outputs.
+    - >-
+      Annual subscription plans for institutions: bundles of 1M–20M pages with
+      rollover, priority support, and SSO ($25k–$350k ARR).
+    - >-
+      On-prem/VPC license: annual platform fee ($50k–$150k) plus per-page or
+      capacity-based pricing; includes updates and support.
+    - >-
+      Professional services: custom model training, workflow integration, and
+      TEI customization ($150–$220/hour or fixed-scope packages).
+    - >-
+      Managed corrections workforce (optional): priced at $0.06–$0.20/page
+      incremental depending on target CER/WER and languages.
+    - >-
+      Training and workshops for staff (TEI/ALTO, QA methods, IIIF Search) and
+      grant application support packages.
+  costStructure:
+    - >-
+      Compute: $0.003–$0.015 per page blended (GPU OCR/HTR + on-prem LLM
+      correction); optimize with batching/quantization to keep gross margin
+      >70%.
+    - >-
+      Storage and egress: $23/TB-month object storage; typical 1M pages ≈ 2–4 TB
+      images + 0.1 TB text/ALTO; plan for 90-day hot + archival tiering.
+    - >-
+      Core team: 6–10 FTE in year 1–2 (2 ML engineers, 2
+      full-stack/integrations, 1 infra/DevOps, 1 PM/solutions, 1–2
+      QA/annotation, 1 sales); loaded cost $1.6–$2.4M/year.
+    - >-
+      Compliance and security: SOC 2 Type II in year 2 ($80k–$150k initial +
+      $40k–$80k/year maintenance); pen tests ($20k/year); insurance
+      ($15k–$40k/year).
+    - >-
+      Licensing/tooling: OCR/HTR OSS preferred; potential ABBYY licensing for
+      niche use-cases; monitoring and CI/CD tooling ($30k–$60k/year).
+    - >-
+      Sales and marketing: conferences, pilots, content ($150k–$300k/year);
+      partner rebates (5–15%).
+    - >-
+      Contractor pool for human correction as needed; elastic cost tied to
+      managed correction revenue.
+  keyMetrics:
+    - >-
+      Text accuracy: median CER for modern print ≤1.5%; 19th-c. print CER ≤5%;
+      HTR WER ≤15% for target collections (report with 95% CI).
+    - >-
+      Relative error reduction vs. baseline OCR (e.g., Tesseract): ≥30% on pilot
+      sets; publish side-by-side benchmarks.
+    - >-
+      Throughput: sustained 100k pages/day in SaaS; on-prem reference deployment
+      25k pages/day per 8-GPU node; average turnaround <5 days for 500k pages.
+    - >-
+      Quality coverage: ≥95% of pages processed with validated ALTO/TEI; schema
+      validation error rate <0.5%.
+    - >-
+      Human effort saved: ≥60% reduction in manual correction minutes/page vs.
+      current workflow (measured on pilot).
+    - >-
+      Reliability: 99.9% monthly uptime; failed-job rate <0.2%; auto-retry
+      success >95%.
+    - >-
+      Sales funnel: 12+ qualified pilots/quarter; pilot-to-contract conversion
+      ≥40%; median deal size $75k–$200k; sales cycle ≤120 days.
+    - >-
+      Expansion: Net revenue retention ≥115%; multi-year renewals ≥80%; add-on
+      adoption (IIIF Search, PII redaction) ≥25%.
+    - 'Unit economics: Gross margin ≥70%; CAC payback <12 months; LTV/CAC ≥3.'
+    - >-
+      Compliance: 100% of on-prem clients with completed security
+      questionnaires; 0 critical audit findings per quarter.
+storyBrand:
+  character: >-
+    - Primary user: Library and archive digitization leads, special collections
+    managers, records officers
+
+    - Goal: Turn scans and manuscripts into accurate, searchable,
+    preservation-grade text with minimal staff time
+  problem: >-
+    - External: Mixed-quality scans, historical typefaces and handwriting,
+    multiple languages; legacy OCR too noisy; missing ALTO/TEI; batch QA is
+    tedious
+
+    - Internal: Teams overwhelmed by post-correction; uncertain quality
+    undermines confidence to publish
+
+    - Philosophical: Cultural heritage shouldn’t remain locked in images—open
+    access deserves accurate text
+  guide: >-
+    - Empathy: We understand fragile collections, messy inputs, tight grants,
+    and the grind of manual cleanup
+
+    - Authority: Built by preservation and NLP experts; tuned OCR/HTR +
+    language-model correction; proven with GLAM institutions; reproducible,
+    documented pipelines; secure and compliant
+  plan: |-
+    - Process:
+      1) Assess: Sample run + quality audit (CER/WER, confidence heatmaps)
+      2) Configure: Choose OCR/HTR + LLM correction; adapt to your scripts/languages; map to ALTO/TEI
+      3) Deliver: Process at scale; outputs = searchable PDFs, ALTO/TEI; dashboard + review loop
+    - Agreement:
+      - Fixed per-page pricing and SLA
+      - Secure cloud or on-prem; no training on your data without consent
+      - Preservation packaging (METS/ALTO/TEI, IIIF-ready)
+  callToAction: >-
+    - Direct: Book a demo and free 500-page pilot
+
+    - Transitional: Download sample outputs + QA report; get a readiness
+    checklist and grant boilerplate
+  success: >-
+    - Collections become fully searchable; improved discovery and citations
+
+    - Preservation-grade ALTO/TEI with provenance and confidence scores
+
+    - 20–50% lower error rates vs baseline OCR; major reduction in staff
+    correction hours
+
+    - Repeatable, auditable pipeline that satisfies grants and stakeholders
+  failure: >-
+    - Collections remain dark images with inconsistent quality
+
+    - Costly manual corrections persist; projects stall; grants and timelines
+    slip
+
+    - Researchers lose trust and usage lags
+landingPage:
+  hero:
+    title: OCR/HTR to Searchable Text Pipeline for Libraries & Archives
+    subtitle: >-
+      Turn scans into searchable PDFs and ALTO/TEI text—quality-scored,
+      LLM-corrected, and standards-compliant.
+    ctaText: Book a demo
+    ctaHref: '#book-demo'
+  problem:
+    - 'Digitized pages aren’t discoverable without accurate, searchable text.'
+    - Historical fonts and handwriting defeat generic OCR tools.
+    - 'Manual correction is slow, expensive, and inconsistent.'
+    - 'Outputs often miss archival standards like ALTO, TEI, PDF/A, METS.'
+    - No clear confidence scores to drive efficient human review.
+    - >-
+      Difficult to integrate with repositories, IIIF viewers, and discovery
+      layers.
+    - Scaling to millions of pages strains budgets and infrastructure.
+  solution:
+    - >-
+      Unified OCR/HTR pipeline for print and handwriting, tuned for historical
+      collections.
+    - Per-page and per-line quality scoring to prioritize human review.
+    - >-
+      Language-model assisted correction improves accuracy without heavy staff
+      time.
+    - 'Exports to ALTO XML, TEI, and PDF/A with embedded text and structure.'
+    - Preservation-friendly workflows with provenance and versioning.
+    - >-
+      Simple API and no-code UI; integrates with IIIF, S3, and common repository
+      systems.
+    - Cloud or on-prem deployment to meet security and compliance needs.
+  features:
+    - 'OCR + HTR for mixed collections (Fraktur, cursive, multi-script).'
+    - LLM-assisted correction with transparent diffs and audit trail.
+    - Confidence scoring and thresholds to auto-accept or route to review.
+    - 'Standards-ready outputs: ALTO, TEI, PDF/A; optional METS/BagIt packaging.'
+    - 'Advanced layout analysis: columns, footnotes, marginalia, tables.'
+    - Language detection and model selection per page or batch.
+    - 'Batch processing, queues, and resumable uploads for large ingest.'
+    - 'IIIF in/out: consume manifests; publish searchable canvases.'
+    - API-first design with webhooks; S3/Azure/GCS storage connectors.
+    - Role-based review UI with keyboard-driven corrections.
+    - Provenance logs and versioning for preservation workflows.
+    - 'Cost controls: per-page pricing, quotas, and detailed usage reports.'
+  steps:
+    - Upload scans or point to an IIIF manifest/S3 bucket.
+    - Auto-detect language/script and select best OCR/HTR model.
+    - 'Run layout analysis, OCR/HTR, and entity-level segmentation.'
+    - Score quality; apply LLM-assisted corrections with safeguards.
+    - 'Review flagged lines/pages, accept or adjust with inline tools.'
+    - 'Export searchable PDF/A, ALTO XML, TEI, and optional METS packaging.'
+    - 'Sync back to your repository, IIIF server, or discovery index.'
+---
+# ScribeWorks AI — OCR/HTR to Searchable Text Pipeline for Libraries & Archives
+
+Industry: Libraries and Archives
+Service: OCR/HTR to Searchable Text Pipeline

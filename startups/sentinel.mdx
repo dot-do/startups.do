@@ -1,0 +1,367 @@
+---
+name: Sentinel Weld & Coat AI
+slug: sentinel
+service:
+  title: Visual Weld and Coating Inspection from Shop-Floor Images
+  description: >-
+    Automated image-based quality checks for weld bead geometry and coating
+    coverage against WPS/paint specs; creates NCRs with evidence.
+  targetUsers:
+    - Welding QA
+    - Manufacturing QA
+    - Production supervisors
+  triggers:
+    - New image set uploaded from workcell/app
+    - Lot completion
+    - First-article inspections
+  inputs:
+    - Weld/paint images or short videos
+    - WPS and acceptance criteria
+    - Camera calibration/scale reference
+  steps:
+    - Preprocess and correct lighting/scale
+    - Detect weld seams; measure bead width/undercut/spatter
+    - Detect coating thin spots/runs/holidays
+    - Compare to spec; aggregate lot-level results
+    - Create NCRs and annotate images
+  tools:
+    - OpenCV/torchvision
+    - YOLOv8/Detectron2
+    - Power BI/Tableau for dashboards
+    - MES/QA integrations via REST
+  outputs:
+    - Annotated images with defects
+    - Pass/fail per feature and per lot
+    - Auto-generated NCRs and summary report
+  pricingModel:
+    - Model setup/tuning fee
+    - Per-image or per-lot pricing
+    - Optional monthly QA dashboard subscription
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Poor image quality affecting accuracy
+    - Spec interpretation nuances
+    - Model drift with new welders/materials
+  dependencies:
+    - Standardized photo capture SOP
+    - Initial labeled dataset
+    - MES/QA API access
+leanCanvas:
+  problem:
+    - >-
+      Manual visual inspection of welds and coatings is highly variable (R&R
+      studies often >30% contribution to variance), causing inconsistent
+      accept/reject decisions and quality escapes.
+    - >-
+      Late defect discovery (after sub-assembly or paint) drives rework and
+      schedule risk; typical NCR cycle time is 2–10 days and costs $500–$2,000
+      per occurrence, with line stops on critical defects.
+    - >-
+      Inspectors lack objective, spec-linked measurements (leg length, throat
+      size, undercut depth, coating coverage/holidays); documentation is often
+      photo-only without calibrated evidence.
+    - >-
+      WPS and paint spec compliance is difficult to enforce at scale; inspectors
+      must recall numerous WPS variants and MIL/AMPP coating rules under time
+      pressure.
+    - >-
+      Defense programs require stringent traceability (ITAR/CMMC/AS9100/ISO
+      9001); current image capture lacks secure metadata (WPS ID, operator ID,
+      heat/lot, part serial).
+    - >-
+      Training new inspectors is slow; tribal knowledge and subjective calls
+      lead to elevated false rejects/accepts during workforce turnover.
+    - >-
+      Existing fixed-station vision or NDT solutions are costly, inflexible for
+      large armored structures, and do not quantify visible geometry/coverage
+      from ad-hoc shop-floor images.
+    - >-
+      Suppliers struggle to provide objective evidence for PPAP/FAI and contract
+      audits; primes spend time revalidating supplier welds and coatings.
+  solution:
+    - >-
+      Guided capture app (rugged mobile or fixed camera) with WPS/paint spec
+      lookup, on-screen framing guides, and reference scale/lighting prompts to
+      achieve repeatable imagery.
+    - >-
+      AI measurement of weld bead geometry (fillet leg lengths L1/L2, effective
+      throat, cap width/height, convexity/concavity, undercut length/depth,
+      overlap, porosity count/size, spatter) with ±0.5 mm target MAE (95% CI)
+      when using the provided calibration target and lighting.
+    - >-
+      Coating coverage analysis for CARC: percent coverage, holidays/pinholes,
+      runs/sags, dry-spray/orange peel classification; optional UV tracer
+      support; BLE integration with DFT gauges (DeFelsko/Elcometer) to fuse film
+      thickness data with image coverage.
+    - >-
+      Automated pass/fail versus WPS/paint spec tolerances, with confidence
+      scores; instant operator feedback and escalation workflow.
+    - >-
+      Auto-generated NCRs containing annotated images, measured values vs
+      limits, referenced WPS/paint spec paragraphs, location on 3D model or 2D
+      drawing zone, and operator/time/part traceability.
+    - >-
+      APIs and connectors to MES/PLM/QMS (SAP, Teamcenter, Windchill, ETQ,
+      MasterControl) to push results, link to work orders, and close-loop
+      corrective actions.
+    - >-
+      Defense-compliant deployment: on-prem air-gapped edge inference (NVIDIA
+      Jetson Orin or x86 GPU), optional AWS GovCloud/Azure Government; ITAR data
+      handling, encryption, detailed audit logs.
+    - >-
+      Validation toolkit: MSA (Gage R&R) workflows, uncertainty budgets, and
+      calibration artifacts to document objective measurement capability for
+      auditors.
+  uniqueValueProp: >-
+    Near-real-time, spec-verified weld and coating inspections from any
+    shop-floor image—quantified against WPS and CARC/AMPP specs, auto-generating
+    NCRs with calibrated evidence—deployed securely on-prem/GovCloud for ITAR
+    and CMMC compliance.
+  unfairAdvantage: >-
+    Defense-specific labeled datasets tied to WPS and CARC/AMPP rules; validated
+    measurement capability (documented uncertainty and Gage R&R) acceptable to
+    defense auditors; turnkey, air-gapped edge deployment with secure evidence
+    packaging and automated NCR workflows that general-purpose vision platforms
+    lack.
+  customerSegments:
+    - >-
+      Prime defense ground vehicle OEMs (e.g., GDLS, BAE Systems, Rheinmetall,
+      KNDS, Hanwha, Oshkosh Defense).
+    - >-
+      Tier-1/2 fabricators of armored hulls, turrets, suspension, powertrain
+      housings, and brackets with defense contracts.
+    - >-
+      U.S./NATO depots and arsenals performing reset/MRO (e.g., Anniston Army
+      Depot, JSMC Lima, Red River, Letterkenny).
+    - >-
+      Specialty coating contractors applying CARC per MIL-DTL-53072 and related
+      specs.
+    - >-
+      Quality, manufacturing engineering, and supplier quality teams accountable
+      for WPS/paint spec compliance and NCR throughput.
+    - >-
+      Systems integrators and MES/QMS providers serving defense manufacturing
+      (SAP ME/MII, Siemens Opcenter, Rockwell FactoryTalk, ETQ, MasterControl).
+  channels:
+    - >-
+      Direct enterprise sales to primes and depots with executive sponsorship
+      from Quality and Operations; land-and-expand via pilot in a single
+      cell/line.
+    - >-
+      System integrator partnerships (Siemens, Rockwell, PTC, SAP) to bundle
+      with MES/QMS projects; revenue share and co-delivery.
+    - >-
+      Alliances with welding OEMs and digital platforms (Lincoln Electric, ESAB,
+      Fronius) and coating suppliers (PPG, Sherwin-Williams) for co-marketing
+      and joint validations.
+    - >-
+      Defense IT contractors (Leidos, SAIC, Booz Allen) for on-prem secure
+      deployments and ATO support.
+    - >-
+      Participation in defense and manufacturing forums: AUSA, DSEI, FABTECH,
+      AWS/Welding Summit, AMPP Conference; technical papers and demo cells.
+    - >-
+      Government/consortium vehicles for rapid prototyping (OTAs via NAMC,
+      S2MARTS, C5) to fund pilots at depots and OEMs.
+    - >-
+      Targeted ABM campaigns to 200 named accounts; proof-of-value offers with
+      clear success criteria and ROI calculators.
+  revenueStreams:
+    - >-
+      Annual subscription per site including base platform plus module seats:
+      typical $50k base + $5k/year per weld station + $10k/year per paint booth;
+      volume discounts for multi-site.
+    - >-
+      Usage-based overage for high-volume imaging beyond included quota (e.g.,
+      $0.02–$0.05 per processed image) if elected.
+    - >-
+      One-time deployment and model tuning fee per WPS/paint spec family:
+      $25k–$150k depending on scope and integrations.
+    - >-
+      Professional services: MSA studies, calibration setup, MES/QMS
+      integrations, supplier onboarding; $175–$250/hour or fixed-price work
+      packages.
+    - >-
+      Hardware kits (sale or lease): rugged mobiles, lighting, calibration
+      targets; $5k–$20k per cell.
+    - >-
+      Premium support and compliance package (24/7, on-site support, additional
+      audit artifacts): +15% ARR.
+    - Training and certification for inspectors/suppliers; per cohort pricing.
+  costStructure:
+    - >-
+      R&D: computer vision engineers, welding/coating SMEs, data science, and
+      MLOps ($3–5M/year at scale).
+    - >-
+      Security and compliance: CMMC/NIST controls, SOC 2 Type II, pen tests,
+      secure SDLC, FedRAMP partnership costs ($300k–$800k/year).
+    - >-
+      Edge and cloud infrastructure: GPU servers, device management, CI/CD,
+      observability ($150k–$500k/year).
+    - >-
+      Data labeling and synthetic data generation; SME review of ground truth
+      ($100k–$400k/year).
+    - >-
+      Field deployments and customer success (travel, on-site time, training)
+      ($200k–$600k/year).
+    - >-
+      Sales and marketing: enterprise reps, SI partnerships, conferences, demo
+      kits ($500k–$1.5M/year).
+    - Liability insurance and product warranty reserves.
+    - Partner revenue share (5–20%) on SI-led deals.
+  keyMetrics:
+    - >-
+      Model performance by defect type: precision/recall, MAE for geometry
+      (goal: ≤0.5 mm MAE for leg length/throat; undercut depth error ≤0.2 mm),
+      coating coverage error ≤3% area.
+    - >-
+      Operational performance: percent auto-accept without human review (goal:
+      >60% after 90 days), false reject rate (<5%), average inspection cycle
+      time reduction (>50%).
+    - >-
+      Quality outcomes: FPY improvement (+10–25%), NCR rate reduction (−30–50%),
+      rework hours per vehicle (−20–40%), DPMO reduction (−30%).
+    - >-
+      Business impact: ROI within 6–12 months; cost of poor quality reduction
+      ($/month), throughput gain (units/shift).
+    - >-
+      Adoption: DAU/WAU of inspectors, number of active cells, supplier
+      onboarding count, training completion rate.
+    - >-
+      Reliability/SLA: inference latency (<2 s), system uptime (>99.5%),
+      time-to-model-hotfix (<24 h P1).
+    - >-
+      Compliance: completed MSA studies per measurement type, audit findings
+      count (target: zero major), traceability coverage (% inspections with
+      complete metadata).
+storyBrand:
+  character: >-
+    Quality, welding, and coating leaders at armored-vehicle and tank OEMs and
+    tier suppliers who need fast, defensible, digital inspections from
+    shop-floor images.
+  problem: >-
+    - External: Manual weld and coating inspections are slow, subjective, and
+    paper-heavy; WPS and paint specs are complex; evidence collection is
+    tedious.
+
+    - Internal: Teams are stretched thin and worried about missed defects, audit
+    findings, and schedule slips.
+
+    - Philosophical: Equipment that protects lives deserves inspection quality
+    that’s objective, repeatable, and always available.
+  guide: >-
+    - Empathy: We understand the pressure of MIL-STD conformance, first-pass
+    yield targets, and immovable delivery dates.
+
+    - Authority: Our AI checks weld bead geometry and coating coverage against
+    your WPS/paint specs and compiles NCRs with annotated evidence; designed for
+    heavy-vehicle manufacturing and secure deployment (on‑prem or private cloud)
+    with QMS/MES integration.
+  plan: >-
+    - Process Plan: 1) Map your WPS/paint specs and inspection points. 2)
+    Capture shop-floor images via mobile or fixed cameras. 3) AI analyzes, flags
+    nonconformances, and generates NCRs with visual evidence and traceability.
+
+    - Agreement Plan: Start with a scoped pilot and clear success criteria;
+    deploy in your environment; you control your data and access.
+  callToAction: >-
+    - Direct: Schedule a 30‑minute demo or launch a 30‑day pilot on one
+    cell/line.
+
+    - Transitional: Upload sample images for a free fit check and receive a
+    sample NCR evidence pack.
+  success: |-
+    - Faster, consistent inspections tied to WPS/paint specs
+    - Higher first-pass yield and fewer escapes
+    - Instant, audit-ready NCRs with annotated evidence
+    - Traceability from image to part, spec, operator, and timestamp
+    - Shorter cycle times and lower rework/scrap costs
+    - Confidence in readiness and compliance across programs
+  failure: |-
+    - Missed defects leading to rework, scrap, and schedule risk
+    - Subjective findings that don’t stand up in audits
+    - Growing NCR backlog without clear evidence
+    - Cost overruns and delayed fielding of critical vehicles
+landingPage:
+  hero:
+    title: AI Weld & Coating Inspection for Armored Vehicle Manufacturing
+    subtitle: >-
+      Automated image checks from shop-floor images—verify weld bead geometry
+      and coating coverage against your WPS and paint specs. Generate NCRs with
+      annotated evidence, instantly.
+    ctaText: Book a Demo
+    ctaHref: /demo
+  problem:
+    - 'Manual visual inspection is slow, subjective, and varies by shift.'
+    - 'Late defect discovery drives rework, scrap, and DCMA/QA bottlenecks.'
+    - Evidence capture and NCR documentation are scattered and time-consuming.
+    - >-
+      Coating coverage and edge protection are hard to verify on complex
+      geometries.
+    - Limited visibility across cells and suppliers increases compliance risk.
+    - >-
+      Proving conformance to WPS/paint specs and MIL/ISO requirements is
+      painful.
+  solution:
+    - >-
+      Automated, spec-accurate weld and coating checks from any approved camera
+      in seconds.
+    - >-
+      Quantifies weld bead geometry and flags surface defects to your WPS
+      limits.
+    - >-
+      Measures coating coverage; detects runs/sags, pinholes/holidays, and
+      overspray.
+    - >-
+      Instant pass/fail; auto-generate NCRs with annotated images and
+      measurement tables.
+    - Full traceability by part/lot/operation; integrates with MES/QMS/PLM.
+    - 'Secure deployment: on-prem, edge, or air-gapped—ITAR-friendly.'
+  features:
+    - >-
+      Spec library mapped to part numbers, operations, WPS, and paint specs;
+      revision-controlled.
+    - >-
+      Guided capture with pose/lighting prompts; supports smartphones, tablets,
+      and fixed stations.
+    - >-
+      Real-time weld measurements (e.g., width, leg, throat) with tolerance
+      checks.
+    - >-
+      Surface defect detection: undercut, overlap, porosity, spatter, visible
+      cracks.
+    - >-
+      Coating analytics: coverage completeness, edge/fastener protection,
+      runs/sags, pinholes/holidays, overspray.
+    - Automated operation tagging; weld symbol association from traveler/route.
+    - >-
+      NCR creation with annotated evidence, containment, and disposition
+      workflows.
+    - >-
+      APIs/connectors for SAP, Opcenter, Plex, 42Q, Teamcenter, Windchill, and
+      custom systems.
+    - >-
+      Role-based access, tamper-evident audit trail, and fine-grained data
+      retention.
+    - Offline-first; syncs when connected; supports air-gapped networks.
+    - 'Dashboards for FPY, defect Pareto, and heat maps by cell/supplier/shift.'
+    - >-
+      Model tuning for your parts, coatings, and lighting—continuous improvement
+      without disruption.
+  steps:
+    - Import WPS and paint specs; map to parts and operations.
+    - Capture images or short clips at the station using the guided UI.
+    - AI measures weld geometry and coating coverage; validates against specs.
+    - Receive instant pass/fail with confidence score and annotated overlays.
+    - Auto-generate NCRs when needed; route to owners and contain suspect WIP.
+    - Sync results and evidence to MES/QMS/PLM for a complete digital traveler.
+    - Track KPIs and refine models with feedback for ongoing quality gains.
+---
+# Sentinel Weld & Coat AI
+
+Industry: Military Armored Vehicle, Tank, and Tank Component Manufacturing
+Service: Visual Weld and Coating Inspection from Shop-Floor Images

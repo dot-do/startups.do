@@ -1,0 +1,296 @@
+---
+name: RxResolve Copilot
+slug: rxresolve
+service:
+  title: Prior Authorization + Claim-Reject Resolution Copilot
+  description: >-
+    Assists staff in decoding NCPDP reject codes, initiating prior
+    authorizations, proposing payer-compliant fixes, and tracking resolution.
+  targetUsers:
+    - Retail pharmacies
+    - Specialty pharmacies
+    - Central billing teams
+  triggers:
+    - Real-time claim reject event
+    - Staff flag for assistance
+  inputs:
+    - NCPDP reject code details
+    - BIN/PCN/Group/Plan ID
+    - 'Drug/NDC, quantity/days’ supply'
+    - Patient/prescriber info
+    - Plan PA criteria/formulary
+  steps:
+    - >-
+      Parse reject; match to playbook for likely fixes (PA, DAW, quantity limit,
+      step therapy)
+    - >-
+      If PA: prefill via CoverMyMeds; draft clinical rationale; request missing
+      info from prescriber
+    - >-
+      For DUR rejects: suggest override codes or dosing changes for staff
+      approval
+    - 'If non-formulary/high copay: propose alternatives (see savings service)'
+    - Surface actions for pharmacist approval; submit and track status
+    - Document actions and outcomes in PMS
+  tools:
+    - Clearinghouse/switch feed (change file/API)
+    - CoverMyMeds API/portal
+    - Surescripts RxChange/Refill request
+    - Fax/email API (InterFAX/eFax)
+    - Internal reject-code knowledge base
+  outputs:
+    - Resolved claim cases
+    - Turnaround time and approval rates
+    - Open PA queue
+  pricingModel:
+    - Per resolved case
+    - Monthly per store for continuous coverage
+    - One-time integration/setup
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 7
+    modelCapability: 7.5
+    overall: 7.2
+  risks:
+    - Incorrect override leading to audit/chargebacks
+    - Portal/API access limits and ToS
+    - Handling PHI securely
+    - Dynamic payer criteria changes
+  dependencies:
+    - Clearinghouse access
+    - CoverMyMeds or payer portal credentials
+    - Pharmacist final review SOP
+leanCanvas:
+  problem:
+    - >-
+      High reject volume: Typical community pharmacies see 10–15% first-pass
+      claim rejections on 4,000–6,000 monthly prescriptions/store (400–900
+      rejects/month).
+    - >-
+      Hidden labor cost: Techs/pharmacists spend 60–100 hours/month/store on
+      reject troubleshooting and prior auths (PAs), at blended labor of
+      $20–$55/hour.
+    - >-
+      Revenue leakage: 5–10% of rejected prescriptions are ultimately abandoned,
+      driving lost dispensing margin and patient dissatisfaction.
+    - >-
+      Complexity fragmentation: Hundreds of payer/PBM-specific rules, plan-level
+      quirks, and drug/NDC-specific edit paths that change frequently.
+    - >-
+      Slow PA workflows: Manual, phone/fax-heavy PA initiation with incomplete
+      clinical data creates multi-day delays and low approval rates.
+    - >-
+      Inconsistent resolution quality: Different staff interpret NCPDP reject
+      codes variably (e.g., 70, 75, 76, 79, 88, M/I codes), causing multiple
+      resubmissions and payer callbacks.
+    - >-
+      Limited visibility: Managers lack clear metrics on reject drivers, staff
+      time, payer bottlenecks, and patient impact.
+  solution:
+    - >-
+      Realtime decoding of NCPDP reject codes with payer- and plan-specific,
+      compliant fix suggestions.
+    - >-
+      One-click initiation of electronic PAs (ePA) with auto-populated clinical
+      and claim context; guidance to achieve first-time approval.
+    - >-
+      Automated payer-compliant resubmission edits (e.g., DAW, DUR overrides
+      where allowed, days’ supply splits, NDC swaps, refill timing).
+    - >-
+      BIN/PCN/Group-ID and formulary alternatives lookup with benefit-aware
+      recommendations.
+    - >-
+      Resolution tracker: case management, SLAs, and escalations across rejects
+      and PAs at patient/Rx/payer levels.
+    - >-
+      Knowledge engine: continuously updated payer policy graph (formularies,
+      step therapy, QL, PA criteria) and reject-resolution playbooks.
+    - >-
+      Audit trail and documentation generation to support compliance and reduce
+      payer callbacks.
+    - >-
+      Analytics and alerts: top reject drivers, payer scorecards,
+      time-to-therapy, and abandonment risk prediction.
+  uniqueValueProp: >-
+    Reduce claim-reject handling and prior authorization time by 50–70%, recover
+    lost scripts, and improve payer-compliant first-pass resolution with an AI
+    copilot embedded in pharmacy workflow.
+  unfairAdvantage: >-
+    A growing, de-identified dataset linking NCPDP reject codes + payer/plan +
+    NDC to the exact steps that successfully resolved the issue, combined with
+    tight PMS and ePA integrations and continuously updated payer policy
+    graphs—creating a feedback loop competitors without workflow access cannot
+    easily replicate.
+  customerSegments:
+    - 'Primary: Independent and small-chain community pharmacies (1–50 stores).'
+    - 'Secondary: Regional and national chains (50–10,000+ stores).'
+    - 'Secondary: Health-system outpatient/ambulatory pharmacies.'
+    - 'Secondary: Specialty and mail-order pharmacies with high PA volume.'
+    - >-
+      Influencers/aggregators: PSAOs, wholesalers (Cencora/AB, Cardinal,
+      McKesson), pharmacy associations (NCPA, NACDS), GPOs, and PMS vendors
+      (e.g., PioneerRx, QS/1, Liberty, Rx30, EnterpriseRx).
+  channels:
+    - >-
+      Direct sales to independents and regional chains via pharmacy associations
+      (NCPA, state associations) and wholesaler programs.
+    - >-
+      Marketplace integrations and co-selling with PMS vendors (PioneerRx,
+      Liberty, QS/1, Rx30, EnterpriseRx).
+    - >-
+      Partnerships with PSAOs and GPOs to bundle/discount and drive adoption at
+      scale.
+    - >-
+      Enterprise deals with large chains through pilot proof-of-value (10–50
+      stores) and ROI commitments.
+    - >-
+      Thought leadership: CE-accredited webinars on reducing rejects/PA delays;
+      payer playbook reports by therapeutic class.
+    - >-
+      Referral incentives for store managers and district leaders; customer
+      advisory board of top-performing pharmacies.
+    - >-
+      Conference presence (NCPA, NACDS Total Store Expo, Asembia) and targeted
+      digital ads to pharmacy owners and ops leaders.
+  revenueStreams:
+    - >-
+      SaaS per-location subscription (monthly): Essentials $249, Pro $499,
+      Enterprise $699+ depending on features, users, and integrations.
+    - >-
+      Usage-based fees: $0.10–$0.30 per resolved reject event beyond plan
+      thresholds; $1–$3 per ePA initiated (aligned with network costs).
+    - >-
+      Enterprise add-ons: custom integrations, SSO, premium analytics, priority
+      support.
+    - >-
+      Volume-based discounts via PSAOs/wholesalers; multi-year enterprise
+      contracts.
+    - >-
+      Optional services: after-hours overflow handling or white-glove PA support
+      (per-case pricing).
+  costStructure:
+    - >-
+      Cloud infra and LLM inference: $50–$120/location/month at scale; optimize
+      via batching/caching and fine-tuned smaller models.
+    - >-
+      Transaction fees to ePA networks/eligibility services: $0.20–$2.00 per
+      ePA; ~$0.01–$0.05 per eligibility/benefit check.
+    - >-
+      PMS/switch integration and certification costs; NCPDP membership and
+      standards updates.
+    - Clinical/payer policy team for knowledge base curation; data labeling/QA.
+    - 'Sales and marketing (conferences, CE content, partner MDF).'
+    - >-
+      Security/compliance: SOC 2 audits, penetration testing, HIPAA program,
+      BAAs.
+    - Customer success/onboarding and support.
+    - >-
+      R&D for model tuning, safety, and new workflows (e.g., specialty
+      enrollment).
+  keyMetrics:
+    - >-
+      Operational: median time-to-suggestion <2 seconds; guidance coverage on
+      90%+ of reject types by month 6.
+    - >-
+      Effectiveness: 50–70% reduction in staff time on rejects/PA within 90
+      days; 20–30% faster time-to-therapy for impacted Rxs.
+    - >-
+      Quality: >85% suggestion acceptance rate for common rejects; <2% incorrect
+      suggestion rate; PA first-pass approval rate uplift +10–20 pts depending
+      on class.
+    - >-
+      Financial impact: +2–4% script capture on previously abandoned Rxs;
+      $600–$1,500/month/store labor savings; 3–5x ROI at list pricing.
+    - >-
+      Adoption: >70% of stores active weekly; >60% of eligible rejects touched
+      by the copilot within 60 days of go-live.
+    - >-
+      Compliance/Safety: 0 PHI incidents; 100% BAA coverage; audit trail on 100%
+      automated actions.
+    - >-
+      Business: Gross margin >75%; net revenue retention >110%; payback period
+      <6 months; CAC payback <9 months.
+storyBrand:
+  character: >-
+    Pharmacy managers, pharmacists, and techs at drug retailers who want claims
+    to pass the first time and patients on therapy faster.
+  problem: >-
+    External: Constant NCPDP reject codes, shifting payer rules, and PA
+    bottlenecks stall fills. Internal: Frustration at the counter, time lost on
+    calls/faxes, uncertainty about the next best step. Philosophical: Patients
+    shouldn’t wait—and pharmacies shouldn’t lose revenue—because of opaque,
+    fixable administrative hurdles.
+  guide: >-
+    Empathy: We understand the grind of rejects, PAs, and callbacks during peak
+    hours. Authority: AI tuned to NCPDP standards and payer guidance; built with
+    HIPAA‑aligned safeguards, audit trails, and pharmacy workflow expertise.
+  plan: >-
+    Process: 1) Decode reject → plain‑English reason and impact; 2) Propose
+    payer‑compliant fixes and required fields; 3) Auto‑initiate PA or generate a
+    clean resubmission; 4) Track, nudge, and close the loop; 5) Sync
+    documentation to your PMS/EHR. Agreement: Low‑risk pilot; simple integration
+    (switch/PMS or web); role‑based access and logs; responsive support and
+    clear SLAs.
+  callToAction: >-
+    Direct: Book a 20‑minute demo; Start a single‑store pilot. Transitional:
+    Download the NCPDP reject cheat sheet; Use the ROI calculator; Read the
+    quick‑start guide.
+  success: >-
+    Higher first‑pass approvals; faster time‑to‑therapy; fewer abandoned
+    scripts; recovered reimbursements; shorter lines; happier staff and
+    patients; clean, audit‑ready documentation.
+  failure: >-
+    More rejections and manual rework; lost fills and write‑offs; staff burnout;
+    patient leakage to competitors; compliance exposure and audit risk.
+landingPage:
+  hero:
+    title: Prior Authorization + Claim‑Reject Resolution Copilot
+    subtitle: >-
+      Decode NCPDP rejects, launch PAs, and resolve faster—without the
+      phone-and-fax grind.
+    ctaText: Request a Demo
+    ctaHref: /demo
+  problem:
+    - Claim rejects stall the bench and trigger endless callbacks.
+    - 'Staff decode NCPDP codes manually, then chase payer rules.'
+    - PAs bounce back for missing fields or wrong forms.
+    - Phone/fax loops delay fills; patients abandon prescriptions.
+    - 'No single place to track status, notes, and deadlines.'
+    - Managers lack visibility into bottlenecks and lost revenue.
+  solution:
+    - 'Instant, plain‑language explanations for NCPDP rejects.'
+    - 'One‑click, payer‑ready PA initiation with smart prefill.'
+    - Plan‑compliant fix suggestions to clear rejects or avoid PA.
+    - 'Automated docs, ePA/portal/fax submission, and live status tracking.'
+    - 'Team queues, SLAs, and alerts to keep items moving.'
+    - 'Analytics on time‑to‑fill, approval rates, and recovered revenue.'
+  features:
+    - NCPDP reject decoder with likely causes and next‑best actions.
+    - Payer rules engine delivering plan‑ and state‑specific guidance.
+    - 1‑click PA kickoff with auto‑prefilled forms from claim data.
+    - 'Supports ePA, portal, or fax workflows—your choice.'
+    - >-
+      Fix suggestions: tier alternatives, quantity/DAW edits, step therapy
+      prompts.
+    - 'Eligibility, formulary, and benefit checks to prevent rework.'
+    - Prescriber outreach templates and missing‑info checklists.
+    - Secure document generation and e‑signature capture.
+    - 'Real‑time status, ETAs, and escalation routing.'
+    - 'Task queues, assignments, comments, and attachments.'
+    - Comprehensive audit trail with timestamps and user actions.
+    - Multi‑store dashboard with role‑based access controls.
+    - 'Analytics: first‑pass approvals, time‑to‑resolution, at‑risk scripts.'
+    - APIs/connectors for common pharmacy systems and workflows.
+  steps:
+    - Connect your pharmacy system and set routing rules.
+    - Send rejects or PA triggers to the Copilot automatically or on demand.
+    - Review plain‑language guidance and accept a suggested fix or PA path.
+    - Submit via ePA/portal/fax with one click—documents auto‑generated.
+    - >-
+      Track to resolution with alerts; notify patient/prescriber and close the
+      loop.
+---
+# RxResolve Copilot
+
+Industry: Pharmacies and Drug Retailers
+Service: Prior Authorization + Claim-Reject Resolution Copilot

@@ -1,0 +1,341 @@
+---
+name: Voyage Fuel & Emissions Reporter (EU ETS/IMO DCS/CII)
+slug: voyage
+service:
+  title: Voyage Fuel & Emissions Reporter (EU ETS/IMO DCS/CII)
+  description: >-
+    Automates MRV/DCS/CII calculations and EU ETS allowance estimates from noon
+    reports, AIS, and BDNs.
+  targetUsers:
+    - Technical managers
+    - Compliance teams
+    - CFO/Finance
+    - Vessel operators
+  triggers:
+    - Noon report received
+    - Voyage completion
+    - Month/quarter end
+  inputs:
+    - Noon reports (email/CSV)
+    - BDNs
+    - AIS-derived distance and time in/out of EU
+    - Cargo tonnage (where needed)
+    - 'Vessel particulars (deadweight, reference speed)'
+  steps:
+    - Collect noon/BDN/AIS data via inbox/API
+    - Normalize and resolve gaps
+    - 'Compute CO2, AER, CII, DCS/MRV metrics'
+    - Determine EU ETS in-scope legs and EUA quantity
+    - Generate statements and audit trail
+    - Flag anomalies and request confirmations
+  tools:
+    - Gmail/Outlook API
+    - AWS Textract/Azure Form Recognizer (OCR)
+    - OpenAI for field extraction/QA
+    - Internal rules engine for MRV/DCS/CII/ETS
+    - PDF/Excel generators
+    - Google Sheets/SharePoint connectors
+  outputs:
+    - MRV/DCS-ready CSV/XML
+    - EU ETS allowance summary by voyage/month
+    - CII current and projected grade
+    - Exception list for manual review
+    - Signed PDF packs with evidence
+  pricingModel:
+    - Per vessel/month
+    - Per voyage processed
+    - Implementation fee
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 4.5
+    overall: 4.7
+  risks:
+    - Regulatory changes
+    - Data gaps/inaccuracies in noon reports
+    - Audit liability exposure
+    - Version control of vessel particulars
+  dependencies:
+    - Access to noon reports/BDNs
+    - AIS track access
+    - Up-to-date regulatory rulesets
+leanCanvas:
+  problem:
+    - >-
+      Manual consolidation of noon reports, AIS tracks, and BDNs leads to
+      inconsistent fuel and emissions data, audit findings, and costly rework
+      before verifier submission.
+    - >-
+      EU ETS exposure is volatile and material to voyage economics, but most
+      owners/operators lack real-time allowance estimation per voyage/leg and
+      cannot reliably accrue or hedge.
+    - >-
+      Regulatory complexity and change: EU ETS phased coverage (40% in 2024, 70%
+      in 2025, 100% from 2026), intra-EU 100% vs extra-EU 50% rules, exemptions,
+      and CII tightening lead to frequent errors and compliance risk.
+    - >-
+      Data gaps and errors (missing noon reports, off-by-one-day timestamps,
+      fuel-sulphur misclassification) cause disputes with charterers and
+      verifiers; audit trails are weak.
+    - >-
+      Operators lack scenario tools to plan CII improvements (speed, routing,
+      hull maintenance) and to quantify impact on ETS exposure and TCE.
+    - >-
+      Finance teams struggle to align verified MRV/DCS numbers with accruals,
+      balance-sheet EUA positions, and charterparty ETS clauses for cost
+      recovery.
+    - >-
+      Existing solutions are either heavy performance platforms or spreadsheets;
+      neither provides automated, verifier-ready packs with uncertainty
+      quantification and change logs.
+  solution:
+    - >-
+      Automated data ingestion and normalization from emails, APIs, and file
+      drops for noon reports, AIS, BDNs, and port call events; OCR with ML for
+      PDFs/attachments.
+    - >-
+      Voyage segmentation engine reconciles AIS tracks with reported events
+      (departures/arrivals/bunkering) to construct legs, fuel types, and
+      consumption timelines; gap-filling with probabilistic models and
+      confidence bands.
+    - >-
+      Regulatory rules engine: EU ETS coverage logic (100% intra-EU; 50%
+      extra-EU), phased scope (2024: 40%, 2025: 70%, 2026+: 100%), exemptions,
+      ice-class adjustments, cargo types for CII, and IMO DCS/MRV formats.
+    - >-
+      EUA estimator: live and forecasted EUA requirements per vessel/voyage/leg,
+      with ICE EUA price feeds, accrual suggestions, and hedge quantity
+      guidance; charterparty cost-allocation calculator.
+    - >-
+      CII analytics: near-real-time AER/EEOI tracking, year-end projection with
+      “what-if” simulation (speed, RPM caps, weather routing, hull/propeller
+      cleaning), SEEMP III compliance tracking.
+    - >-
+      Verifier-ready pack generator: complete audit trail of data sources,
+      transformations, uncertainties, and change logs; direct export in
+      THETIS-MRV/DCS-compatible formats and verifier portal templates.
+    - >-
+      APIs and connectors: push/pull to Veson IMOS, Dataloy, ShipNet, common
+      ERPs, and data lakes; SSO, role-based access, and immutable ledger for
+      auditability.
+  uniqueValueProp: >-
+    Audit-grade, automated emissions and ETS exposure per voyage and per
+    leg—built from your noon reports, AIS, weather, and BDNs—providing real-time
+    EUA estimates, verifier-ready submissions, and actionable CII optimization
+    with finance-grade audit trails.
+  unfairAdvantage: >-
+    Verifier-aligned, audit-grade pipeline that reconciles noon/AIS/weather with
+    quantified uncertainty and immutable change logs, plus pre-certified
+    templates that reduce verification hours by 30–50%. Fleet-specific learning
+    models improve accuracy over time, and deep integrations with voyage/ERP
+    systems enable finance-grade accruals and charterparty
+    allocation—capabilities not matched by generic performance tools or
+    spreadsheets.
+  customerSegments:
+    - >-
+      Deep sea shipowners and managers (bulk, tanker, container, LNG/LPG, car
+      carriers) with 10–200 vessels, EU port calls.
+    - >-
+      Commercial operators/time-charterers needing per-voyage ETS cost
+      allocation and CII reporting to cargo owners/financiers.
+    - >-
+      Compliance/HSSEQ teams responsible for EU MRV, IMO DCS, and CII (SEEMP
+      Part III), including interactions with verifiers.
+    - >-
+      CFO/treasury functions managing EUA procurement, accruals, and P&L at risk
+      from EUA price volatility.
+    - >-
+      Voyage management platform providers (e.g., Veson IMOS, Dataloy) seeking
+      emissions modules via API/embedded partnerships.
+  channels:
+    - >-
+      Direct sales to owners/managers in EU-intensive trades; target 50–150
+      vessel fleets for lighthouse wins.
+    - >-
+      Partnerships with verifiers (DNV, LR, BV, RINA, ABS) to bundle
+      “verification-ready” packs and co-market.
+    - >-
+      Integrations and marketplace listings with voyage/ERP platforms (Veson
+      IMOS, Dataloy, ShipNet) to access existing customer bases.
+    - >-
+      Thought leadership and education: EU ETS/CII webinars, checklists, and ROI
+      calculators; capture leads via content syndication and conference
+      workshops (Nor-Shipping, Posidonia, LISW).
+    - >-
+      Referral partnerships with ETS brokers and carbon advisors (e.g., Vertis,
+      CF Partners, South Pole, Clarksons) for EUA procurement workflows.
+    - >-
+      Pilot programs: 90-day trials on 5–10 vessels per fleet with guaranteed
+      verification support and time-to-value in <2 weeks.
+  revenueStreams:
+    - >-
+      Tiered SaaS per vessel per month (annual contract): Basic (IMO DCS/MRV
+      automation) $150; Plus (adds EU ETS estimator + charterparty allocation)
+      $400; Pro (adds CII what-if + finance APIs + SLA) $700.
+    - >-
+      Verification-ready pack add-on: $1,200 per vessel per year; discounted at
+      scale.
+    - >-
+      Onboarding/pro services: Monitoring Plan/SEEMP III setup, data mapping,
+      and integrations: $5,000–$25,000 per fleet depending on complexity.
+    - >-
+      API-only or embedded licensing to platform partners: usage-based or
+      revenue-share.
+    - >-
+      Optional EUA workflow assistance with broker partners: referral fees or
+      revenue share (subject to regulation/compliance).
+  costStructure:
+    - >-
+      Data licensing: satellite/terrestrial AIS, hindcast weather ($8–20 per
+      vessel per month at scale) plus baseline platform fees ($3k–10k/month).
+    - >-
+      Cloud infrastructure and storage: $0.10–$0.25 per active vessel-day; batch
+      compute for OCR/ML; target COGS <$100 per vessel per year for infra at
+      scale.
+    - >-
+      Engineering and ML team (8–15 FTE over first 18 months), compliance SMEs
+      (1–3 FTE), and customer success (2–5 FTE); blended fully loaded cost per
+      FTE $140k–$180k.
+    - >-
+      Sales and marketing: events, webinars, partner MDF; CAC target $8k–$20k
+      per logo depending on fleet size.
+    - 'Security/compliance and audits (ISO 27001/SOC 2): $60k–$120k annually.'
+    - >-
+      Verifier partnership and sandbox certification costs: $25k–$75k
+      setup/maintenance.
+  keyMetrics:
+    - >-
+      Data completeness: >95% of hours covered by either noon or AIS+weather
+      models; gap-fill uncertainty bands <7% for 90% of legs.
+    - >-
+      Parsing automation: >98% field extraction success for noon/BDN after first
+      month; <2% manual touch rate.
+    - >-
+      EUA forecast accuracy: Mean Absolute Error <5% versus verified MRV
+      emissions per vessel-year.
+    - >-
+      On-time compliance: 100% of customers submit MRV/DCS by deadlines; 0
+      missed EUA surrender deadlines.
+    - >-
+      Time-to-value: <14 days from contract to first verified voyage; <2 hours
+      average integration time per data source.
+    - >-
+      Adoption: Monthly Active Vessels (MAV) >85% of contracted vessels; user
+      NPS ≥ 40; module attach rate (CII/ETS) ≥ 60%.
+    - >-
+      Commercial: Gross margin ≥ 75%; logo retention ≥ 95% annually; net revenue
+      retention ≥ 115%; CAC payback < 12 months.
+storyBrand:
+  character: >-
+    Deep-sea shipowners, operators, and compliance teams who need accurate,
+    timely fuel and emissions reporting and ETS exposure forecasting.
+  problem: >-
+    Manual, siloed data from noon reports, AIS, and BDNs makes MRV/IMO DCS/CII
+    reporting and EU ETS allowance estimation slow, error-prone, and
+    costly—leading to fines, disputes, and budget surprises.
+  guide: >-
+    We understand onboard and shoreside realities. Our AI reconciles voyages,
+    fuel types, and consumption against current EU/IMO rules, delivering
+    transparent, audit-ready calculations you can trust.
+  plan: >-
+    1) Connect AIS, noon reports, and BDNs via API or upload. 2) AI cleans and
+    reconciles data; calculates MRV/DCS/CII and identifies ETS scope. 3) Review
+    dashboards and per-voyage EU ETS allowance estimates. 4) Export filings and
+    share with charterers/verifiers.
+  callToAction: Book a demo and launch a two-voyage pilot.
+  success: >-
+    Save hours per vessel, file on time with confidence, avoid penalties and
+    charterparty disputes, budget ETS accurately, and improve CII through
+    actionable visibility.
+  failure: >-
+    Stay stuck in spreadsheets, miss deadlines, over/under-buy allowances, risk
+    fines and strained counterpart relationships, and slip to worse CII ratings.
+landingPage:
+  hero:
+    title: Voyage Fuel & Emissions Reporter
+    subtitle: >-
+      AI automation for EU ETS, IMO DCS, and CII. Turn noon reports, AIS, and
+      BDNs into audit-ready emissions and allowance forecasts for deep sea
+      freight.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - Manual spreadsheets create inconsistent MRV/DCS data and missed deadlines
+    - >-
+      Fragmented inputs (noon reports, AIS, BDNs) don’t reconcile to voyages and
+      fuel use
+    - >-
+      EU ETS introduces material cost exposure that’s hard to predict per voyage
+      and fleet
+    - CII ratings slide without early warning or clear operational levers
+    - Complex scope rules (intra-EU vs extra-EU 50%) invite costly errors
+    - Auditors demand transparent calculations and a full change history
+    - >-
+      Teams waste hours cleaning data and chasing confirmations from vessels and
+      agents
+  solution:
+    - >-
+      Unified pipeline that ingests noon reports, AIS, and BDNs and reconciles
+      them automatically
+    - >-
+      Verified MRV/DCS/CII calculations with transparent assumptions and audit
+      trail
+    - >-
+      EU ETS allowance and cost estimator per voyage, leg, vessel, and fleet
+      with live price curves
+    - Real-time data quality checks and anomaly detection to catch issues early
+    - >-
+      What-if scenarios for speed, routing, and fuel to protect CII and reduce
+      ETS cost
+    - >-
+      One-click exports to THETIS-MRV and IMO DCS formats, plus APIs for
+      TMS/VMS/BI
+    - >-
+      Fleet dashboards and alerts for CII risk, ETS exposure, and missing or
+      suspect data
+  features:
+    - 'AI parsing of PDFs, emails, and spreadsheets for noon reports and BDNs'
+    - Smart voyage segmentation using AIS and port call intelligence
+    - 'Automatic EU scope classification (intra-EU, extra-EU 50%) per leg'
+    - >-
+      Fuel reconciliation across ROB, BDN, and consumption with plausibility
+      checks
+    - Per-leg CO2 calculations by fuel grade and emission factor
+    - CII calculator with projected annual rating and required improvement delta
+    - >-
+      EU ETS calculator with EUA estimate, cost forecast, and charterer
+      allocation tags
+    - >-
+      Data quality engine: gap filling, outlier detection, and crew feedback
+      loop
+    - 'Audit trail with versioning, approvals, and immutable calculation logs'
+    - >-
+      Compliance packages: THETIS-MRV export, IMO DCS annual report, SEEMP III
+      tracking
+    - >-
+      Integrations to TMS/VMS, bunker procurement, weather routing, and
+      finance/ERP
+    - >-
+      Enterprise-grade security: SSO, role-based access, and EU data residency
+      options
+  steps:
+    - >-
+      Connect data sources: AIS feed, noon report inbox, BDN repository, and
+      fleet systems
+    - 'Map vessels, fuel types, baselines, and reporting periods'
+    - Auto-segment voyages and compute MRV/DCS/CII metrics and EU ETS exposure
+    - 'Review flagged anomalies; accept, correct, or request master confirmation'
+    - >-
+      Generate file-ready exports for THETIS-MRV and IMO DCS and share with
+      stakeholders
+    - >-
+      Track CII rating and ETS cost against budget; run what-if scenarios to
+      optimize
+    - >-
+      Sync results to BI/ERP and enable alerts for deviations and upcoming
+      deadlines
+---
+# Voyage Fuel & Emissions Reporter (EU ETS/IMO DCS/CII)
+
+Industry: Deep Sea Freight Transportation
+Service: Voyage Fuel & Emissions Reporter (EU ETS/IMO DCS/CII)

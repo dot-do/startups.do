@@ -1,0 +1,317 @@
+---
+name: PipelineGuard AI
+slug: pplngrd
+service:
+  title: Real-time SCADA/Telemetry Alarm Triage and Root-Cause Assistant
+  description: >-
+    Monitors historian/SCADA alarms, deduplicates cascades, detects anomalies,
+    and suggests likely root causes and next best actions. Advisory-only; no
+    control moves.
+  targetUsers:
+    - Pipeline controllers
+    - Control room supervisors
+    - OT/SCADA engineers
+    - Reliability engineers
+  triggers:
+    - New alarm or alarm flood
+    - Threshold breach on pressure/flow/temperature
+    - Hourly health check
+  inputs:
+    - SCADA alarm/event stream
+    - 'Historian tags (pressures, flows, temperatures, valve/compressor states)'
+    - Maintenance calendar/outages
+    - Weather feeds (temperature)
+    - SOPs/runbooks
+  steps:
+    - Connect read-only to historian/SCADA via VPN
+    - Window and feature extraction around events
+    - Cluster and deduplicate alarm storms
+    - Causal correlation across adjacent stations/segments
+    - Generate top root-cause hypotheses and SOP-linked recommendations
+    - Open/augment ticket in CMMS or alert in control-room chat
+  tools:
+    - OSIsoft PI Web API or AVEVA Data Hub
+    - Ignition Perspective/Tag Historian (read-only)
+    - OPC UA (read-only)
+    - Azure Data Explorer / Time Series Insights
+    - 'Python (pandas, scikit-learn), River (online ML)'
+    - ServiceNow/SAP/Maximo APIs
+    - Slack/Teams Webhooks
+  outputs:
+    - Ranked incident card with probable cause and confidence
+    - Recommended diagnostic checks and escalation path
+    - Annotated time-series snapshot and affected assets
+    - JSON/CSV export and ticket enrichment
+  pricingModel:
+    - One-time setup and data onboarding
+    - Per monitored site/station per month
+    - Optional per-alarm triage add-on
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 8
+    overall: 8
+  risks:
+    - False positives/negatives leading to alarm fatigue
+    - Latency or loss of historian connectivity
+    - Cybersecurity posture for read-only access
+    - Overreliance on AI—requires controller judgment
+  dependencies:
+    - Read-only historian/SCADA access via VPN/VDI
+    - Tag list and alarm philosophy
+    - SOP/runbook library for recommendations
+    - CMMS/notification integration
+leanCanvas:
+  problem:
+    - >-
+      Alarm floods overwhelm controllers during compressor trips, power blips,
+      or telecom outages: 100–1,000+ alarms in 10 minutes vs EEMUA 191 target of
+      ≤10 alarms/10 minutes per operator.
+    - >-
+      Cascading/duplicate alarms across RTUs, stations, and dependent control
+      loops obscure the initiating fault; operators spend 10–30 minutes triaging
+      during upsets.
+    - >-
+      Root cause identification relies on tribal knowledge; handovers lose
+      context; inconsistent actions drive longer MTTR and unnecessary
+      callouts/line balance changes.
+    - >-
+      Spurious alarms from bad data quality (telemetry dropouts, stale
+      timestamps, stuck values) erode trust and create alarm fatigue.
+    - >-
+      Compliance friction: PHMSA CRM (49 CFR 192.631) and API 1167 require alarm
+      rationalization and performance monitoring; current reporting is manual,
+      error-prone, and quarterly at best.
+    - >-
+      Existing tools are either static alarm rationalization databases or
+      generic analytics; they lack pipeline topology/context (valves,
+      compressors, regulator stations, linepack) and provide limited real-time
+      guidance.
+    - >-
+      Safety and cybersecurity constraints prohibit autonomous control;
+      advisory-only tools must be low-latency, high-reliability, and read-only
+      to SCADA/historian.
+  solution:
+    - >-
+      Real-time ingestion of SCADA events, alarm journals, and historian tags
+      (e.g., AVEVA PI, Canary, Aspen IP.21) via read-only connectors;
+      sub-5-second end-to-end latency.
+    - >-
+      Cascading alarm deduplication using pipeline topology and
+      sequence-of-events to group related alarms into incidents.
+    - >-
+      Causal reasoning: equipment- and topology-aware models (compressors,
+      regulators, valves, linepack, telecom) to rank root causes with confidence
+      intervals.
+    - >-
+      Hybrid anomaly detection (change-point, multivariate residuals, seasonal
+      baselines) to catch subtle degradations (e.g., rising compressor discharge
+      temp under constant load).
+    - >-
+      Next Best Action recommendations mapped to operator SOPs and alarm
+      rationalization notes (API 1165/1167 aligned), with clear why-explanations
+      and confidence bands.
+    - >-
+      Context enrichment: work orders (SAP PM/Maximo), planned outages, weather
+      (NOAA), power utility status, and telecom link health.
+    - >-
+      Operator HMI overlay/side-panel plugin for common SCADA platforms and a
+      web dashboard for supervisors and compliance.
+    - >-
+      Alarm performance and compliance analytics (EEMUA 191/API 1167): rates,
+      floods, shelving, standing alarms, operator response times; export to
+      audit packages.
+    - >-
+      Offline training and simulation mode using historical events for
+      controller drills and change management.
+  uniqueValueProp: >-
+    Real-time, advisory-only alarm triage and root-cause assistant built for
+    natural gas pipelines. Consolidates floods into incidents, ranks likely
+    causes with confidence, and recommends next best actions mapped to
+    SOPs—within seconds. Cuts alarm noise 50–80%, reduces triage time 40–60%,
+    and produces audit-ready CRM/API 1167 evidence without issuing control
+    moves.
+  unfairAdvantage: >-
+    Pipeline-specific causal knowledge base and topology-aware incidentization
+    engine validated across multiple operators, combined with audit-ready
+    CRM/API 1167 reporting. Read-only, low-latency deployment patterns
+    pre-approved by common SCADA cybersecurity standards reduce procurement
+    friction and time-to-value.
+  customerSegments:
+    - 'Gas transmission pipeline operators (1,000–20,000+ mile networks)'
+    - Gas storage operators and pipeline control rooms
+    - Midstream companies operating gathering systems with centralized SCADA
+    - Control Room Managers and Alarm Management/CRM owners
+    - SCADA/Telemetry managers and OT engineering
+    - 'Pipeline integrity, reliability, and operations excellence teams'
+    - System integrators serving pipeline SCADA projects
+  channels:
+    - >-
+      Direct enterprise sales to control room leadership and SCADA/OT managers;
+      land with a paid 90-day pilot in one control center.
+    - >-
+      Alliances with system integrators (Wood, Accenture, SLB, CGI) for
+      deployment and change management; revenue share on services.
+    - >-
+      OEM/ISV partnerships with historian and SCADA vendors (AVEVA PI, Inductive
+      Automation, Schneider, Honeywell) for marketplace listings and co-sell.
+    - >-
+      Industry route-to-market: AGA Operations Conference, PPIM, INGAA/AGA
+      committees, API 1167 working groups; publish benchmark studies mapping to
+      CRM outcomes.
+    - >-
+      Security-first procurement: provide architecture, data flows, pen test
+      results, and reference designs to expedite ICS cybersecurity reviews.
+    - >-
+      Customer success playbook: operator workshops to codify SOPs into
+      playbooks, weekly value reviews, and KPI scorecards.
+    - >-
+      Digital channels: targeted webinars, case studies with quantified
+      reductions in alarm floods/MTTR; invite-only user council for roadmap
+      feedback.
+  revenueStreams:
+    - >-
+      Annual subscription (SaaS or on-prem license) priced by control room and
+      data volume/tag count: $100k–$500k ARR per control center; enterprise
+      bundles for multi-region.
+    - >-
+      Professional services: integration, SOP/playbook mapping, model validation
+      and acceptance testing: $75k–$250k per deployment.
+    - 'Premium support/SRE and 24/7 on-call: 15–20% of annual license.'
+    - >-
+      Training and simulation modules for controller certification/refreshers:
+      $25k–$75k per site annually.
+    - OEM/partner revenue share via SCADA/historian marketplaces and SI channel.
+  costStructure:
+    - 'R&D for OT-safe ML (data scientists, SCADA engineers, reliability SMEs).'
+    - >-
+      Product engineering: connectors, HMI plugins, causal/graph engine, MLOps
+      platform.
+    - >-
+      Security/compliance: SOC 2, secure SDLC, threat modeling, pentesting,
+      insurance.
+    - Deployment/professional services and customer success teams.
+    - >-
+      On-prem appliances or edge compute costs; optional cloud hosting
+      (Kafka/TSDB) and storage.
+    - >-
+      Sales/marketing: technical presales, pilots/POCs, industry events,
+      certifications.
+    - >-
+      Partner enablement and training; lab environments mirroring common SCADA
+      stacks.
+  keyMetrics:
+    - >-
+      Alarm flood reduction: target 50–80% reduction in 10-minute flood windows
+      compared to baseline.
+    - >-
+      Average alarms per operator per hour: move toward EEMUA 191 target ≤6/hr
+      and peak ≤10 in 10 minutes; measure conformance hours/month.
+    - >-
+      Mean time to triage (MTTT): 40–60% reduction from baseline (e.g., from 20
+      min to ≤10 min for priority incidents).
+    - Top-3 root cause recall ≥80% vs SME labels; false recommendation rate ≤5%.
+    - >-
+      Suggestion acceptance rate by operators ≥70% within 6 months;
+      time-to-first-value ≤30 days from go-live.
+    - >-
+      Data quality suppression accuracy ≥90% precision on flagged telemetry
+      faults.
+    - >-
+      Operator workload proxy: keystrokes/clicks per incident reduced ≥30%;
+      shift handover time reduced ≥20%.
+    - >-
+      Compliance: automated monthly API 1167/EEMUA reports delivered 100% on
+      time; audit findings related to alarm management reduced to zero.
+    - >-
+      System performance: end-to-end detection latency ≤5 seconds; uptime ≥99.5%
+      (on-prem) / ≥99.9% (cloud components in DMZ).
+storyBrand:
+  character: >-
+    Pipeline control room managers, controllers, and SCADA/reliability engineers
+    who need calm, compliant, always-on natural gas pipeline operations.
+  problem: >-
+    External—alarm floods, telemetry dropouts, cascading events, and false
+    positives obscure true issues. Internal—controllers feel overwhelmed and
+    uncertain about what to act on first. Philosophical—people should make the
+    decisions; machines should triage the noise and surface context.
+  guide: >-
+    We understand 24/7 pipeline pressure and regulatory scrutiny. Built by
+    pipeline SCADA and reliability practitioners; aligned with ISA 18.2, EEMUA
+    191, and API 1167 best practices. Advisory-only—no control moves.
+  plan: >-
+    1) Read-only connect to SCADA/historian/alarm logs. 2) Learn patterns and
+    alarm relationships. 3) Real-time triage to dedupe cascades and detect
+    anomalies. 4) Suggest likely root causes and next best actions with
+    evidence. 5) Operator feedback closes the loop. Guardrails: auditable,
+    secure, advisory-only.
+  callToAction: >-
+    Direct—Book a 30-minute demo or start a limited-scope pilot.
+    Transitional—Get the Alarm Flood Readiness Scorecard and a sample root-cause
+    report.
+  success: >-
+    A calm control room where critical signals stand out. Faster, confident
+    responses; fewer alarm floods and callouts; reduced MTTR; audit-ready
+    rationale; improved uptime and safety; easier compliance.
+  failure: >-
+    Noise hides real problems, causing slow responses, unplanned outages, safety
+    and environmental risk, regulatory findings, controller burnout, and higher
+    operating costs.
+landingPage:
+  hero:
+    title: Real-time SCADA Alarm Triage & Root-Cause Assistant
+    subtitle: >-
+      For natural gas pipelines. Cut alarm floods, find cause, act
+      fast—advisory-only.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - Alarm floods hide the real issue during upsets.
+    - Cascading alarms overwhelm controllers and slow response.
+    - Threshold-only rules miss weak signals and drift.
+    - Manual triage steals time when every minute counts.
+    - Scarce SMEs; knowledge varies by shift and district.
+    - 'Data is siloed: SCADA, historian, logs, weather, work orders.'
+    - Inconsistent incident notes and handovers hurt continuity.
+    - 'Compliance requires evidence, explanations, and audit trails.'
+  solution:
+    - Always-on AI watches SCADA and historian in real time.
+    - Deduplicates cascades; summarizes storms into root events.
+    - 'Correlates pressure, flow, equipment states, and telemetry.'
+    - Proposes likely root causes with confidence and evidence.
+    - Recommends next best actions and playbook steps.
+    - Advisory-only by design; never issues control commands.
+    - Routes insights to the right roles and shifts fast.
+    - Explainable reasoning for audit and training.
+  features:
+    - Alarm storm deduplication and intelligent suppression windows.
+    - 'Multi-signal correlation across stations, segments, and assets.'
+    - Anomaly detection beyond thresholds with baselines and seasonality.
+    - Root-cause hypotheses with confidence scores and evidence links.
+    - 'Next-best-action guidance, playbooks, and checklists.'
+    - Incident timeline with geospatial and asset hierarchy context.
+    - 'Impact estimates on flow, linepack, and service risk.'
+    - 'Integrations: PI/historian, OPC UA, MQTT, REST APIs.'
+    - Read-only connectors; no control writes by design.
+    - 'Role-based routing to control room, field, and engineering.'
+    - 'Alerts in console, email, SMS, Teams, or Slack.'
+    - Shadow mode to validate before operational go-live.
+    - PHMSA-aligned audit trail and clear explanations.
+    - Shift handover summaries and post-incident reports.
+    - On-premises or private cloud deployment options.
+    - 'High availability, failover, and offline buffering for OT.'
+    - 'SSO, RBAC, and least-privilege access controls.'
+    - End-to-end encryption and data residency options.
+  steps:
+    - 'Connect SCADA, historian, and asset data (read-only).'
+    - 'Map assets, segments, and your alarm taxonomy.'
+    - Baseline on historical events and seasonal patterns.
+    - Validate in shadow mode with real alarms.
+    - Tune playbooks and routing with your SMEs.
+    - Go live and track triage KPIs and outcomes.
+    - Continuously improve via post-incident reviews.
+---
+# PipelineGuard AI
+
+Industry: Pipeline Transportation of Natural Gas
+Service: Real-time SCADA/Telemetry Alarm Triage and Root-Cause Assistant

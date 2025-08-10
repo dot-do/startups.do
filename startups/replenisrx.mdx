@@ -1,0 +1,306 @@
+---
+name: ReplenisRx AI
+slug: replenisrx
+service:
+  title: Inventory Forecasting and Auto-Replenishment Assistant
+  description: >-
+    Forecasts demand by NDC/GCN, sets reorder points, prepares wholesaler
+    orders, and suggests substitutions during backorders.
+  targetUsers:
+    - Independent pharmacies
+    - Chains
+    - Specialty pharmacies
+  triggers:
+    - Daily inventory snapshot
+    - Wholesaler update/backorder notice
+    - Seasonality/event calendar updates
+  inputs:
+    - Historic sales and dispense data
+    - On-hand/on-order quantities and lead times
+    - Price breaks/contract tiers
+    - 'Local seasonality (flu/COVID), holidays'
+  steps:
+    - Normalize NDCs and map to therapeutic classes
+    - Train/statistical forecast with seasonality and events
+    - Compute reorder points and EOQ by item/vendor
+    - Generate suggested orders; incorporate price breaks and contract terms
+    - Detect backorders; propose therapeutically equivalent NDCs per policy
+    - Push orders via wholesaler API/file; alert exceptions
+  tools:
+    - PMS exports/API
+    - 'Wholesaler APIs (McKesson Connect, ABCorder, Cardinal)'
+    - Forecasting libs (Prophet/ARIMA)
+    - Simple BI dashboards
+  outputs:
+    - Order files/suggestions
+    - Forecast and stockout risk report
+    - Backorder substitution list
+  pricingModel:
+    - Monthly tiered by SKU count
+    - One-time setup/data cleaning
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8.5
+  risks:
+    - Over/under-stocking from forecast error
+    - API outages or ordering cutoffs
+    - Improper substitutions violating policy
+  dependencies:
+    - Reliable history and on-hand data
+    - Wholesaler credentials
+    - Substitution SOPs
+leanCanvas:
+  problem:
+    - >-
+      Pharmacies face 3–8% revenue loss from stockouts of top movers and patient
+      churn when prescriptions can’t be filled same-day.
+    - >-
+      Manual ordering consumes 3–6 hours/week per store and relies on static
+      min/max rules that don’t adapt to seasonality, price volatility, or lead
+      time variability.
+    - >-
+      Excess inventory ties up $25k–$80k per store in working capital; expired
+      and dead stock typically account for 1.5–3.0% of on-hand dollars annually.
+    - >-
+      Backorders force time-consuming calls and guesswork; substitutions are not
+      systematically optimized for AB-rated equivalents, payer MAC lists, or
+      acquisition cost.
+    - >-
+      Existing tools in PMS/wholesaler portals provide basic reorder suggestions
+      but lack SKU-level demand forecasting for intermittent items (slow movers)
+      and multi-wholesaler optimization.
+    - >-
+      Compliance complexities (controlled substances thresholds, DSCSA, audit
+      trails) deter more aggressive automation.
+  solution:
+    - >-
+      SKU-level demand forecasting by NDC and roll-up by GCN using a hybrid of
+      intermittent-demand models (Croston/TSB) and seasonal models,
+      incorporating day-of-week patterns, local epidemiology (e.g., CDC ILI),
+      promotions, and prescriber behavior.
+    - >-
+      Dynamic reorder point and safety stock optimization with target service
+      levels by ABC class (e.g., A items 98–99%, B 96–97%, C 92–95%) and
+      lead-time variability by wholesaler.
+    - >-
+      Automated order preparation: generate reviewable purchase orders by
+      wholesaler with pack-size awareness, MOQs, contract cost, rebates, and
+      controlled-substance thresholds; transmit via EDI 850/API.
+    - >-
+      Intelligent substitution engine for backorders: suggests AB-rated
+      therapeutically equivalent NDCs, alternative strengths/forms when
+      clinically appropriate, and cross-wholesaler availability; considers payer
+      MAC lists and patient co-pay sensitivity.
+    - >-
+      Price and rebate optimization: detect cost changes, primary vs. secondary
+      wholesaler arbitrage, and timing of buy-downs where contractually
+      permitted.
+    - >-
+      Compliance-by-design: audit trails, role-based approvals, suspicious order
+      monitoring for controlled substances, and DSCSA documentation links for
+      traceability.
+  uniqueValueProp: >-
+    Boost service levels and free cash with pharmacy-specific AI that forecasts
+    by NDC/GCN, optimizes reorder points for targeted service levels,
+    auto-prepares wholesaler orders, and proposes clinically and payer-aligned
+    substitutions during backorders—reducing stockouts 30–50%, on-hand inventory
+    12–18%, and expired stock 25–40%, while saving 3–6 hours/week per store.
+  unfairAdvantage: >-
+    Closed-loop optimization trained on cross-store, SKU-level pharmacy demand
+    and lead-time patterns; breadth of PMS/wholesaler integrations;
+    clinically-aware substitution engine aligned to Orange Book and payer
+    economics; and trusted distribution via PSAO/wholesaler partnerships. Over
+    time, network effects improve forecasts and substitution success by
+    geography and seasonality.
+  customerSegments:
+    - >-
+      Primary: Independent retail pharmacies (1–10 locations) and small chains
+      (10–100 locations) in the U.S.
+    - >-
+      Secondary: Grocery/pharmacy banners (regional chains, 50–500 locations)
+      and mid-size chains (100–500).
+    - >-
+      Adjacent: Closed-door LTC and specialty pharmacies with predictable cycles
+      and high-cost inventory.
+    - >-
+      Long-term: International community pharmacies (Canada, UK, Australia)
+      subject to local regulatory adaptation.
+  channels:
+    - >-
+      Direct inside sales to independents and small chains; target via pharmacy
+      associations (NCPA) and curated lead lists.
+    - >-
+      Partnerships with PSAOs and GPOs (e.g., Elevate, Arete, Health Mart Atlas)
+      offering co-marketing, revenue share, and bundled pricing.
+    - >-
+      PMS marketplace listings and technical partnerships to streamline
+      integrations and co-selling.
+    - >-
+      Wholesaler partnerships for referral and potential white-label modules in
+      ordering portals.
+    - >-
+      Content-led growth: CE-accredited webinars on inventory best practices,
+      case studies, ROI calculators, and benchmarking reports.
+    - >-
+      Pilot-to-scale motion: 60–90 day pilots with clear baseline measures and a
+      performance-based conversion offer.
+    - >-
+      Events: Sponsor booths and talks at NCPA, NACDS Regional, ThoughtSpot, and
+      PSAO annual meetings.
+    - Referral program for owners and consultants with tiered incentives.
+  revenueStreams:
+    - >-
+      SaaS subscription per location: Basic $299/store/month (single
+      wholesaler), Pro $499/store/month (multi-wholesaler + substitution
+      engine), Enterprise custom for 20+ locations.
+    - >-
+      One-time onboarding/integration fee: $300–$1,000 per store depending on
+      PMS/wholesaler setup complexity.
+    - >-
+      Premium add-ons: advanced analytics pack ($99/store/month),
+      controlled-substance optimization module ($79/store/month), LTC module
+      ($59/store/month).
+    - >-
+      Channel revenue share with PSAOs/wholesalers for referred deals where
+      compliant.
+    - >-
+      Professional services: historical data clean-up, custom forecasting
+      policies, and staff training packages.
+  costStructure:
+    - >-
+      Cloud infrastructure and data pipeline costs: $40–$80/store/month at scale
+      (compute + storage).
+    - >-
+      Engineering and data science salaries; EDI/API integration maintenance
+      team.
+    - >-
+      Drug and pricing data licensing (e.g., FDB/Elsevier) and/or RxNorm/Orange
+      Book mapping costs; budget $50k–$250k/year depending on scope.
+    - >-
+      Security and compliance: SOC 2 Type II, HIPAA-compliant hosting, BAAs;
+      annual audit/ops ~$60k–$150k.
+    - >-
+      Sales and marketing: CAC target $700–$1,200/store via inside sales and
+      partner channels; events budget $50k–$150k/year.
+    - Customer success and pharmacy SME staff for onboarding and policy tuning.
+    - 'Legal, insurance (cyber/E&O), and data vendor fees.'
+  keyMetrics:
+    - >-
+      Stockout rate on A-class items: baseline − target reduction 30–50%; goal
+      <2.0% line-item stockout rate monthly.
+    - >-
+      Service levels: A-class 98–99%, B-class 96–97%, C-class 92–95% within 90
+      days of go-live.
+    - >-
+      On-hand inventory dollars: reduce 12–18% within 6 months; target inventory
+      turns increase from 9x to 12x+ annually.
+    - >-
+      Expired/dead stock: reduce to <1.5% of on-hand dollars; target 25–40%
+      reduction in 12 months.
+    - >-
+      Forecast accuracy: MAPE ≤20% for fast movers; ≤30–35% for intermittent
+      items; bias within ±5%.
+    - >-
+      Order automation coverage: >80% of PO lines auto-prepared; <10% manual
+      overrides after 90 days.
+    - >-
+      Backorder resolution: >60% substitution acceptance rate; average
+      resolution time <24 hours.
+    - >-
+      Labor savings: 3–6 hours/week/store of pharmacist/tech time reallocated
+      from ordering.
+    - >-
+      Gross margin improvement: +30–90 bps from acquisition cost optimization
+      and reduced expiries.
+    - >-
+      Time-to-value: pilot ROI within 60–90 days; net revenue retention >110%
+      year over year.
+storyBrand:
+  character: >-
+    Pharmacy owners, buyers, and ops managers who must keep the right NDC/GCN in
+    stock without tying up cash.
+  problem: >-
+    External: frequent stockouts, overstocks, and wholesaler backorders make
+    ordering guesswork. Internal: hours lost to spreadsheets and uncertainty.
+    Philosophical: patients shouldn’t wait because inventory was misforecasted.
+  guide: >-
+    Inventory Forecasting & Auto‑Replenishment Assistant—an AI built for
+    pharmacies. We understand the pressure to never miss a fill and bring proven
+    forecasting by NDC/GCN, wholesaler integrations, and secure operations.
+  plan: >-
+    1) Connect PMS/POS, wholesaler, and catalog data. 2) Calibrate forecasts by
+    NDC/GCN, lead times, service levels, and min/max; set reorder points. 3)
+    Auto‑prepare POs and backorder substitutions for approval; learn and
+    optimize continuously.
+  callToAction: >-
+    Direct: Book a demo or start a 30‑day pilot. Transitional: Get a free
+    inventory‑turns and stockout‑risk benchmark.
+  success: >-
+    Higher service levels with fewer stockouts and emergency transfers; less
+    excess/expired inventory and better cash flow; faster, consistent ordering;
+    higher script capture and patient satisfaction.
+  failure: >-
+    Without it: missed scripts and lost patients, capital stuck in dead stock,
+    overtime on manual orders, preventable write‑offs, and chronic backorder
+    firefighting.
+landingPage:
+  hero:
+    title: AI Inventory Forecasting & Auto‑Replenishment for Pharmacies
+    subtitle: >-
+      Forecast by NDC/GCN, set optimal reorder points, auto-build wholesaler
+      orders, and suggest safe substitutions—so you fill more scripts with less
+      cash tied up.
+    ctaText: Request a Demo
+    ctaHref: '#demo'
+  problem:
+    - Stockouts that delay fills and frustrate patients
+    - Overstock and expired meds tying up capital
+    - Manual ordering in spreadsheets and portals
+    - Seasonal swings and prescriber changes hard to predict
+    - Backorders derail orders with no clear alternatives
+    - Inconsistent ordering across stores and buyers
+    - Limited visibility into true service levels and waste
+  solution:
+    - AI forecasts demand at NDC/GCN granularity
+    - Dynamic reorder points and order quantities by service level
+    - Auto-generated wholesaler orders ready for approval
+    - Smart substitution suggestions during backorders and shortages
+    - 'Real-time alerts for exceptions, anomalies, and rush demand'
+    - Central policies with store-level tuning and oversight
+    - 'Clear KPIs for stockouts, turns, and working capital'
+  features:
+    - >-
+      Item-level forecasting using seasonality, day-of-week, trends, and local
+      prescriber mix
+    - 'Configurable service levels by drug class, payer mix, or store'
+    - Dynamic safety stock and EOQ with lead time variability
+    - 'Auto-build purchase orders by wholesaler, pack size, and price breaks'
+    - Backorder substitution by GCN/therapeutic class with formulary rules
+    - Preferred NDC and DAW-aware recommendations
+    - Controlled substance safeguards and max-qty rules
+    - Vendor lead time learning and reliability scoring
+    - Multi-store rebalancing suggestions to prevent emergency orders
+    - Expiry-aware reorder logic to curb waste
+    - On-hand reconciliation via POS/dispensing and cycle counts
+    - 'Exception queues for sudden spikes, new items, and launches'
+    - 'What-if scenarios: service level vs. inventory cost'
+    - 'Dashboards for stockouts, turns, aging, and fill rate'
+    - 'Audit trail for every forecast, change, and order'
+    - APIs and flat-file connectors to major PMS/POS and wholesalers
+  steps:
+    - 'Connect dispensing history, on-hand, item master, and wholesaler catalogs'
+    - >-
+      Set policies: target service levels, preferred wholesalers, substitution
+      rules
+    - Review initial forecasts and proposed reorder points by NDC/GCN
+    - Approve the first auto-generated order and push to your wholesaler
+    - Monitor alerts and exceptions; accept or adjust suggestions
+    - Track KPIs and tune policies to balance fill rate and inventory
+    - Enable auto-approval for trusted items to fully automate replenishment
+---
+# ReplenisRx AI
+
+Industry: Pharmacies and Drug Retailers
+Service: Inventory Forecasting and Auto-Replenishment Assistant
