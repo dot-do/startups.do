@@ -10,7 +10,7 @@ leanCanvas:
     - Early disease pressure (SDS, white mold, frogeye leaf spot, brown stem rot, SCN) is detected too late; losses of 5–20 bu/ac are common in high-pressure years.
     - Herbicide resistance (waterhemp, Palmer amaranth, marestail) drives over-application and tank-mix costs; mis-IDs and timing errors reduce control and increase spend by $10–25/ac.
     - Fragmented data (equipment, imagery, scouting notes, soil tests, weather, grain settlement) makes in-season decisions slow; growers spend 3–5 hours/week on data wrangling during peak season.
-    - Inefficient variable-rate prescriptions: many growers either don’t use VR or use generic templates, leaving 5–10% seed and 10–20% input savings unrealized.
+    - Inefficient variable-rate prescriptions: many growers either don't use VR or use generic templates, leaving 5–10% seed and 10–20% input savings unrealized.
     - Labor constraints and limited agronomist bandwidth lead to missed scouting windows; drone/imagery data goes underutilized without automated insights.
     - Increasing demand for sustainability and carbon reporting creates administrative burden; growers lack easy MRV to access premiums or comply with programs.
     - Price volatility and basis risk are managed manually; few tools link agronomic outlook (yield probability) to marketing/hedging decisions.
@@ -68,6 +68,338 @@ leanCanvas:
     - Churn: gross logo churn ≤8% annually; reason-coded save workflows with ≥30% win-back on at-risk accounts.
     - Data coverage and reliability: ≥95% of acres with successful data ingestion; ≥99.5% API uptime during season; <24h turnaround for support tickets.
 ---
-# SoySight AI
+
+# SoySight AI Business Workflows
+
+## Core Business Process Functions
+
+```typescript
+// Types and Interfaces
+interface Lead {
+  id: string
+  name: string
+  email: string
+  phone: string
+  farmName: string
+  totalAcres: number
+  soybeanAcres: number
+  location: {
+    state: string
+    county: string
+    coordinates: [number, number]
+  }
+  currentTools: string[]
+  painPoints: string[]
+  source: 'direct' | 'referral' | 'trade_show' | 'digital' | 'partner'
+  leadScore: number
+}
+
+interface Customer {
+  id: string
+  farmOperation: FarmOperation
+  subscription: Subscription
+  onboardingStatus: OnboardingStatus
+  agronomist?: string
+  supportTier: 'standard' | 'pro' | 'enterprise'
+}
+
+interface FarmOperation {
+  id: string
+  name: string
+  totalAcres: number
+  fields: Field[]
+  equipment: Equipment[]
+  dataConnections: DataConnection[]
+  historicalYields: YieldData[]
+}
+
+interface Field {
+  id: string
+  name: string
+  acres: number
+  soilType: string
+  drainageTile: boolean
+  irrigated: boolean
+  zones: ManagementZone[]
+  prescriptions: Prescription[]
+}
+
+interface Prescription {
+  id: string
+  type: 'seeding' | 'fertilizer' | 'fungicide' | 'herbicide'
+  zones: ZonePrescription[]
+  generatedAt: Date
+  appliedAt?: Date
+  results?: ApplicationResults
+}
+
+interface AIInsight {
+  type: 'disease_risk' | 'yield_prediction' | 'weed_pressure' | 'input_optimization'
+  confidence: number
+  recommendation: string
+  economicImpact: number
+  urgency: 'low' | 'medium' | 'high' | 'critical'
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  try {
+    const qualifiedLead = await qualifyLead(lead)
+    const proposal = await generateCustomProposal(qualifiedLead)
+    const contract = await negotiateContract(proposal)
+    const customer = await onboardCustomer(contract)
+    
+    await scheduleOnboardingCall(customer)
+    await setupTrialFields(customer)
+    
+    return customer
+  } catch (error) {
+    await logLeadLoss(lead, error.message)
+    throw error
+  }
+}
+
+export async function qualifyLead(lead: Lead): Promise<Lead> {
+  const qualificationCriteria = {
+    minAcres: 1000,
+    soybeanPercentage: 0.3,
+    techReadiness: await assessTechReadiness(lead),
+    budgetFit: await estimateBudgetFit(lead)
+  }
+  
+  if (lead.soybeanAcres < qualificationCriteria.minAcres) {
+    throw new Error('Insufficient soybean acreage for platform ROI')
+  }
+  
+  const enrichedLead = await enrichLeadData(lead)
+  enrichedLead.leadScore = await calculateLeadScore(enrichedLead, qualificationCriteria)
+  
+  return enrichedLead
+}
+
+export async function generateCustomProposal(lead: Lead): Promise<Proposal> {
+  const farmAnalysis = await analyzeFarmPotential(lead)
+  const roiProjection = await calculateROIProjection(farmAnalysis)
+  const pricingTier = await determinePricingTier(lead, farmAnalysis)
+  
+  return {
+    customerId: lead.id,
+    projectedSavings: roiProjection.inputSavings,
+    projectedYieldGain: roiProjection.yieldUplift,
+    recommendedTier: pricingTier,
+    guaranteedROI: roiProjection.guaranteedMultiple,
+    implementationPlan: await createImplementationPlan(lead),
+    trialOffer: await generateTrialOffer(lead)
+  }
+}
+
+// Product Development Processes
+export async function developAIModel(modelType: string, trainingData: TrainingDataset): Promise<AIModel> {
+  const preprocessedData = await preprocessTrainingData(trainingData)
+  const model = await trainModel(modelType, preprocessedData)
+  const validationResults = await validateModel(model, preprocessedData.validationSet)
+  
+  if (validationResults.accuracy < 0.85) {
+    throw new Error('Model accuracy below threshold')
+  }
+  
+  const deployedModel = await deployModel(model)
+  await setupModelMonitoring(deployedModel)
+  
+  return deployedModel
+}
+
+export async function collectFieldData(field: Field): Promise<FieldDataCollection> {
+  const satelliteImagery = await fetchSatelliteImagery(field)
+  const weatherData = await fetchWeatherData(field.coordinates)
+  const soilData = await fetchSoilData(field)
+  const equipmentData = await fetchEquipmentData(field)
+  
+  const processedData = await processMultiSourceData({
+    imagery: satelliteImagery,
+    weather: weatherData,
+    soil: soilData,
+    equipment: equipmentData
+  })
+  
+  return {
+    fieldId: field.id,
+    collectionDate: new Date(),
+    dataQuality: await assessDataQuality(processedData),
+    insights: await generateFieldInsights(processedData),
+    recommendations: await generateRecommendations(processedData)
+  }
+}
+
+// Revenue Generation Flows
+export async function processSubscriptionRenewal(customer: Customer): Promise<RenewalResult> {
+  const usageAnalytics = await analyzeCustomerUsage(customer)
+  const roiActuals = await calculateActualROI(customer)
+  const satisfactionScore = await assessCustomerSatisfaction(customer)
+  
+  if (roiActuals.multiple < 3.0) {
+    await triggerROIGuaranteeProcess(customer, roiActuals)
+  }
+  
+  const renewalStrategy = await determineRenewalStrategy(customer, {
+    usage: usageAnalytics,
+    roi: roiActuals,
+    satisfaction: satisfactionScore
+  })
+  
+  return await executeRenewalStrategy(customer, renewalStrategy)
+}
+
+export async function generateVariableRatePrescription(field: Field): Promise<Prescription> {
+  const fieldData = await collectFieldData(field)
+  const yieldPotentialMap = await generateYieldPotentialMap(fieldData)
+  const soilVariabilityMap = await generateSoilVariabilityMap(fieldData)
+  
+  const zones = await delineateManagementZones(field, {
+    yieldPotential: yieldPotentialMap,
+    soilVariability: soilVariabilityMap,
+    historicalPerformance: field.historicalYields
+  })
+  
+  const prescription = await optimizePrescriptionByZone(zones, {
+    seedRate: await optimizeSeedRate(zones),
+    fertilizer: await optimizeFertilizer(zones),
+    economics: await calculateZoneEconomics(zones)
+  })
+  
+  await validatePrescription(prescription)
+  return prescription
+}
+
+// Operational Procedures
+export async function monitorFieldHealth(customer: Customer): Promise<HealthMonitoringResult> {
+  const alerts: Alert[] = []
+  
+  for (const field of customer.farmOperation.fields) {
+    const currentConditions = await assessCurrentConditions(field)
+    const diseaseRisk = await assessDiseaseRisk(field, currentConditions)
+    const weedPressure = await assessWeedPressure(field, currentConditions)
+    
+    if (diseaseRisk.level === 'high' || diseaseRisk.level === 'critical') {
+      alerts.push(await createDiseaseAlert(field, diseaseRisk))
+    }
+    
+    if (weedPressure.level === 'high' || weedPressure.level === 'critical') {
+      alerts.push(await createWeedAlert(field, weedPressure))
+    }
+    
+    await updateFieldHealthStatus(field, {
+      disease: diseaseRisk,
+      weeds: weedPressure,
+      overall: currentConditions
+    })
+  }
+  
+  if (alerts.length > 0) {
+    await sendAlertsToCustomer(customer, alerts)
+    await notifyAgronomist(customer, alerts)
+  }
+  
+  return {
+    customerId: customer.id,
+    alertsGenerated: alerts.length,
+    fieldsMonitored: customer.farmOperation.fields.length,
+    overallHealthScore: await calculateOverallHealthScore(customer.farmOperation.fields)
+  }
+}
+
+export async function processInSeasonRecommendation(field: Field, insight: AIInsight): Promise<RecommendationResult> {
+  const recommendation = await generateActionableRecommendation(field, insight)
+  const economicAnalysis = await analyzeRecommendationEconomics(recommendation)
+  
+  if (economicAnalysis.roi < 2.0) {
+    return {
+      status: 'rejected',
+      reason: 'Insufficient economic return',
+      alternativeActions: await generateAlternativeActions(field, insight)
+    }
+  }
+  
+  const approvedRecommendation = await submitForApproval(recommendation, economicAnalysis)
+  await scheduleImplementation(approvedRecommendation)
+  await trackImplementationResults(approvedRecommendation)
+  
+  return {
+    status: 'approved',
+    recommendation: approvedRecommendation,
+    expectedROI: economicAnalysis.roi,
+    implementationDate: approvedRecommendation.scheduledDate
+  }
+}
+
+// Decision-Making Workflows
+export async function optimizeResourceAllocation(customer: Customer): Promise<AllocationStrategy> {
+  const fieldPriorities = await rankFieldsByPotential(customer.farmOperation.fields)
+  const budgetConstraints = await assessBudgetConstraints(customer)
+  const timingConstraints = await assessTimingConstraints(customer)
+  
+  const allocationStrategy = await createAllocationStrategy({
+    fields: fieldPriorities,
+    budget: budgetConstraints,
+    timing: timingConstraints,
+    objectives: customer.objectives
+  })
+  
+  const optimizedStrategy = await optimizeStrategy(allocationStrategy)
+  await validateStrategyFeasibility(optimizedStrategy)
+  
+  return optimizedStrategy
+}
+
+export async function evaluateTrialResults(customer: Customer, trialData: TrialData): Promise<TrialEvaluation> {
+  const statisticalAnalysis = await performStatisticalAnalysis(trialData)
+  const economicAnalysis = await calculateTrialEconomics(trialData)
+  const agronomicValidation = await validateAgronomicOutcomes(trialData)
+  
+  const evaluation = {
+    yieldImpact: statisticalAnalysis.yieldDifference,
+    inputSavings: economicAnalysis.inputReduction,
+    netBenefit: economicAnalysis.netBenefit,
+    confidence: statisticalAnalysis.confidence,
+    recommendation: await generateScalingRecommendation(statisticalAnalysis, economicAnalysis)
+  }
+  
+  await updateCustomerROIBaseline(customer, evaluation)
+  await generateTrialReport(customer, evaluation)
+  
+  return evaluation
+}
+
+export async function handleCustomerEscalation(issue: CustomerIssue): Promise<EscalationResult> {
+  const issueClassification = await classifyIssue(issue)
+  const urgencyLevel = await assessUrgency(issue, issueClassification)
+  
+  const escalationPath = await determineEscalationPath(urgencyLevel, issueClassification)
+  const assignedExpert = await assignExpert(escalationPath)
+  
+  const resolution = await resolveIssue(issue, assignedExpert)
+  await updateCustomerSatisfaction(issue.customerId, resolution)
+  await documentLessonsLearned(issue, resolution)
+  
+  return {
+    issueId: issue.id,
+    resolutionTime: resolution.timeToResolve,
+    customerSatisfaction: resolution.satisfactionScore,
+    preventiveActions: await generatePreventiveActions(issue, resolution)
+  }
+}
+
+// Supporting Functions (referenced but not fully implemented)
+async function enrichLeadData(lead: Lead): Promise<Lead> { /* Implementation */ }
+async function calculateLeadScore(lead: Lead, criteria: any): Promise<number> { /* Implementation */ }
+async function analyzeFarmPotential(lead: Lead): Promise<FarmAnalysis> { /* Implementation */ }
+async function calculateROIProjection(analysis: FarmAnalysis): Promise<ROIProjection> { /* Implementation */ }
+async function trainModel(type: string, data: any): Promise<AIModel> { /* Implementation */ }
+async function validateModel(model: AIModel, validationSet: any): Promise<ValidationResults> { /* Implementation */ }
+async function generateYieldPotentialMap(data: FieldDataCollection): Promise<YieldMap> { /* Implementation */ }
+async function delineateManagementZones(field: Field, data: any): Promise<ManagementZone[]> { /* Implementation */ }
+async function assessDiseaseRisk(field: Field, conditions: any): Promise<RiskAssessment> { /* Implementation */ }
+async function generateActionableRecommendation(field: Field, insight: AIInsight): Promise<Recommendation> { /* Implementation */ }
+```
 
 Generated from NAICS 111110 — Soybean Farming.
