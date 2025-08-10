@@ -328,7 +328,549 @@ landingPage:
     - Export targets and share with your team or pipeline.
     - 'Iterate, compare versions, and track changes over time.'
 ---
+
 # Variant Impact Triage (Research Use)
 
 Generated for NAICS 541714 — Research and Development in Biotechnology (except Nanobiotechnology).
 Service: Variant Impact Triage (Research Use)
+
+## Business Process Functions
+
+```typescript
+// Core business types
+interface Lead {
+  id: string;
+  organization: string;
+  contactName: string;
+  email: string;
+  role: string;
+  researchArea: 'oncology' | 'rare-disease' | 'target-discovery' | 'other';
+  sampleVolume: number;
+  currentTools: string[];
+  painPoints: string[];
+  source: 'conference' | 'partnership' | 'content' | 'referral' | 'inbound';
+}
+
+interface Customer {
+  id: string;
+  organizationId: string;
+  tier: 'team' | 'pro' | 'enterprise';
+  contractValue: number;
+  seats: number;
+  deploymentType: 'saas' | 'vpc' | 'on-prem';
+  onboardedAt: Date;
+  accountManager: string;
+}
+
+interface VariantSample {
+  id: string;
+  vcfPath: string;
+  referenceGenome: string;
+  phenotypeTerms: string[];
+  projectId: string;
+  customerId: string;
+  metadata: Record<string, any>;
+}
+
+interface TriageResult {
+  sampleId: string;
+  rankedVariants: RankedVariant[];
+  evidenceLinks: EvidenceLink[];
+  rulesetVersion: string;
+  processingTime: number;
+  auditTrail: AuditEntry[];
+}
+
+interface RankedVariant {
+  chromosome: string;
+  position: number;
+  ref: string;
+  alt: string;
+  gene: string;
+  consequence: string;
+  score: number;
+  rank: number;
+  evidenceTypes: string[];
+  explanation: string;
+}
+
+interface EvidenceLink {
+  variantId: string;
+  source: string;
+  type: 'literature' | 'database' | 'prediction';
+  url: string;
+  confidence: number;
+  lastUpdated: Date;
+}
+
+interface AuditEntry {
+  timestamp: Date;
+  action: string;
+  datasetVersion: string;
+  modelVersion: string;
+  rulesetId: string;
+  userId: string;
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  try {
+    const qualifiedLead = await qualifyLead(lead);
+    const pilot = await initiatePilot(qualifiedLead);
+    const proposal = await generateProposal(pilot);
+    const contract = await negotiateContract(proposal);
+    return await onboardCustomer(contract);
+  } catch (error) {
+    throw new Error(`Customer acquisition failed: ${error.message}`);
+  }
+}
+
+async function qualifyLead(lead: Lead): Promise<Lead> {
+  const qualificationCriteria = {
+    minSampleVolume: 100,
+    targetRoles: ['Director of Bioinformatics', 'Computational Biology Lead', 'Research Scientist'],
+    targetOrganizations: ['biotech', 'pharma', 'academic', 'cro']
+  };
+  
+  if (lead.sampleVolume < qualificationCriteria.minSampleVolume) {
+    throw new Error('Lead does not meet minimum sample volume requirement');
+  }
+  
+  return { ...lead, qualified: true };
+}
+
+async function initiatePilot(lead: Lead): Promise<{ leadId: string; pilotConfig: any }> {
+  const pilotDuration = 90; // days
+  const sampleLimit = Math.min(lead.sampleVolume, 3000);
+  
+  return {
+    leadId: lead.id,
+    pilotConfig: {
+      duration: pilotDuration,
+      sampleLimit,
+      projectCount: Math.min(5, Math.ceil(sampleLimit / 500)),
+      supportLevel: 'priority',
+      customRulesets: lead.researchArea === 'oncology' ? 3 : 1
+    }
+  };
+}
+
+async function generateProposal(pilot: any): Promise<any> {
+  const basePrice = pilot.pilotConfig.sampleLimit <= 500 ? 1200 : 4000;
+  const enterpriseThreshold = 10000;
+  
+  return {
+    tier: pilot.pilotConfig.sampleLimit > enterpriseThreshold ? 'enterprise' : 'pro',
+    monthlyPrice: basePrice,
+    annualDiscount: 0.15,
+    includedSamples: pilot.pilotConfig.sampleLimit,
+    overageRate: pilot.pilotConfig.sampleLimit > 3000 ? 0.75 : 1.50,
+    deployment: pilot.pilotConfig.sampleLimit > enterpriseThreshold ? 'vpc' : 'saas'
+  };
+}
+
+async function negotiateContract(proposal: any): Promise<any> {
+  return {
+    ...proposal,
+    contractLength: 12, // months
+    paymentTerms: 'annual',
+    sla: proposal.tier === 'enterprise' ? 'custom' : 'standard',
+    support: proposal.tier === 'enterprise' ? 'dedicated' : 'shared'
+  };
+}
+
+async function onboardCustomer(contract: any): Promise<Customer> {
+  return {
+    id: generateId(),
+    organizationId: contract.organizationId,
+    tier: contract.tier,
+    contractValue: contract.monthlyPrice * contract.contractLength,
+    seats: contract.seats || 5,
+    deploymentType: contract.deployment,
+    onboardedAt: new Date(),
+    accountManager: assignAccountManager(contract.tier)
+  };
+}
+
+// Product Development Processes
+export async function developVariantTriageCapability(
+  requirements: any
+): Promise<{ version: string; capabilities: string[] }> {
+  try {
+    const knowledgeGraph = await updateKnowledgeGraph();
+    const mlModels = await trainExplainableModels(requirements);
+    const ruleEngine = await buildConfigurableRuleEngine();
+    const benchmarks = await runBenchmarkSuite();
+    
+    return {
+      version: generateVersionNumber(),
+      capabilities: [
+        'variant-annotation',
+        'evidence-linking',
+        'rule-based-scoring',
+        'batch-processing',
+        'audit-trails'
+      ]
+    };
+  } catch (error) {
+    throw new Error(`Product development failed: ${error.message}`);
+  }
+}
+
+async function updateKnowledgeGraph(): Promise<any> {
+  const dataSources = [
+    'clinvar', 'gnomad', 'cosmic', 'ensembl', 'civic', 'disgenet'
+  ];
+  
+  return Promise.all(dataSources.map(async (source) => {
+    return await syncDataSource(source);
+  }));
+}
+
+async function trainExplainableModels(requirements: any): Promise<any> {
+  return {
+    nlpModel: await trainNLPModel(requirements.literatureCorpus),
+    graphModel: await trainGraphModel(requirements.knowledgeGraph),
+    ensembleModel: await combineModels(['nlp', 'graph', 'rules'])
+  };
+}
+
+async function buildConfigurableRuleEngine(): Promise<any> {
+  return {
+    acmgInspired: true,
+    ruoAdapted: true,
+    versionControlled: true,
+    projectTemplates: ['oncology', 'rare-disease', 'pharmacogenomics'],
+    customCriteria: true
+  };
+}
+
+// Revenue Generation Flows
+export async function generateRevenue(
+  customer: Customer,
+  usage: any
+): Promise<{ amount: number; type: string; period: string }> {
+  try {
+    if (customer.tier === 'enterprise') {
+      return await processEnterpriseRevenue(customer, usage);
+    } else {
+      return await processSaaSRevenue(customer, usage);
+    }
+  } catch (error) {
+    throw new Error(`Revenue generation failed: ${error.message}`);
+  }
+}
+
+async function processSaaSRevenue(customer: Customer, usage: any): Promise<any> {
+  const basePricing = {
+    team: { monthly: 1200, includedSamples: 500 },
+    pro: { monthly: 4000, includedSamples: 3000 }
+  };
+  
+  const baseRevenue = basePricing[customer.tier].monthly;
+  const overageSamples = Math.max(0, usage.samples - basePricing[customer.tier].includedSamples);
+  const overageRevenue = overageSamples * (customer.tier === 'team' ? 2 : 1);
+  
+  return {
+    amount: baseRevenue + overageRevenue,
+    type: 'saas-subscription',
+    period: 'monthly'
+  };
+}
+
+async function processEnterpriseRevenue(customer: Customer, usage: any): Promise<any> {
+  return {
+    amount: customer.contractValue / 12,
+    type: 'enterprise-license',
+    period: 'monthly'
+  };
+}
+
+export async function processAPIUsageRevenue(
+  partnerId: string,
+  samples: number
+): Promise<{ amount: number; type: string }> {
+  const tierRates = {
+    low: { threshold: 1000, rate: 1.50 },
+    medium: { threshold: 10000, rate: 1.00 },
+    high: { threshold: 50000, rate: 0.75 }
+  };
+  
+  let rate = tierRates.high.rate;
+  if (samples < tierRates.low.threshold) rate = tierRates.low.rate;
+  else if (samples < tierRates.medium.threshold) rate = tierRates.medium.rate;
+  
+  return {
+    amount: samples * rate,
+    type: 'api-usage'
+  };
+}
+
+// Operational Procedures
+export async function operateTriageWorkflow(
+  sample: VariantSample
+): Promise<TriageResult> {
+  try {
+    const startTime = Date.now();
+    
+    const validatedSample = await validateSample(sample);
+    const annotations = await annotateVariants(validatedSample);
+    const evidence = await gatherEvidence(annotations);
+    const scores = await applyRuleBasedScoring(annotations, evidence);
+    const rankedVariants = await rankVariants(scores);
+    const auditTrail = await generateAuditTrail(sample, annotations, scores);
+    
+    const processingTime = Date.now() - startTime;
+    
+    return {
+      sampleId: sample.id,
+      rankedVariants,
+      evidenceLinks: evidence,
+      rulesetVersion: await getCurrentRulesetVersion(),
+      processingTime,
+      auditTrail
+    };
+  } catch (error) {
+    throw new Error(`Triage workflow failed: ${error.message}`);
+  }
+}
+
+async function validateSample(sample: VariantSample): Promise<VariantSample> {
+  if (!sample.vcfPath || !sample.referenceGenome) {
+    throw new Error('Invalid sample: missing required fields');
+  }
+  
+  const supportedGenomes = ['GRCh37', 'GRCh38', 'hg19', 'hg38'];
+  if (!supportedGenomes.includes(sample.referenceGenome)) {
+    throw new Error(`Unsupported reference genome: ${sample.referenceGenome}`);
+  }
+  
+  return sample;
+}
+
+async function annotateVariants(sample: VariantSample): Promise<any[]> {
+  return await Promise.all([
+    runVEPAnnotation(sample.vcfPath),
+    addPopulationFrequencies(sample.vcfPath),
+    addInSilicoPredictions(sample.vcfPath),
+    addConservationScores(sample.vcfPath)
+  ]);
+}
+
+async function gatherEvidence(annotations: any[]): Promise<EvidenceLink[]> {
+  const evidenceTypes = ['literature', 'database', 'prediction'];
+  const evidence: EvidenceLink[] = [];
+  
+  for (const annotation of annotations) {
+    for (const type of evidenceTypes) {
+      const links = await searchEvidenceByType(annotation, type);
+      evidence.push(...links);
+    }
+  }
+  
+  return evidence;
+}
+
+async function applyRuleBasedScoring(annotations: any[], evidence: EvidenceLink[]): Promise<any[]> {
+  const rules = await loadScoringRules();
+  
+  return annotations.map(variant => {
+    let score = 0;
+    const explanations: string[] = [];
+    
+    for (const rule of rules) {
+      const ruleScore = evaluateRule(rule, variant, evidence);
+      score += ruleScore.value;
+      if (ruleScore.value > 0) {
+        explanations.push(ruleScore.explanation);
+      }
+    }
+    
+    return {
+      ...variant,
+      score,
+      explanation: explanations.join('; ')
+    };
+  });
+}
+
+// Decision-Making Workflows
+export async function prioritizeVariantsForExperiment(
+  triageResults: TriageResult[],
+  experimentBudget: number,
+  researchGoals: string[]
+): Promise<{ selectedVariants: RankedVariant[]; rationale: string }> {
+  try {
+    const allVariants = triageResults.flatMap(result => result.rankedVariants);
+    const filteredVariants = await filterByResearchGoals(allVariants, researchGoals);
+    const budgetConstrainedVariants = await applyBudgetConstraints(filteredVariants, experimentBudget);
+    const finalSelection = await optimizeForDiversity(budgetConstrainedVariants);
+    
+    return {
+      selectedVariants: finalSelection,
+      rationale: generateSelectionRationale(finalSelection, researchGoals, experimentBudget)
+    };
+  } catch (error) {
+    throw new Error(`Variant prioritization failed: ${error.message}`);
+  }
+}
+
+async function filterByResearchGoals(variants: RankedVariant[], goals: string[]): Promise<RankedVariant[]> {
+  return variants.filter(variant => {
+    return goals.some(goal => 
+      variant.evidenceTypes.includes(goal) || 
+      variant.consequence.includes(goal) ||
+      variant.gene.toLowerCase().includes(goal.toLowerCase())
+    );
+  });
+}
+
+export async function makePublicationDecision(
+  results: TriageResult[],
+  qualityThresholds: any
+): Promise<{ shouldPublish: boolean; recommendations: string[] }> {
+  const metrics = await calculateQualityMetrics(results);
+  const recommendations: string[] = [];
+  
+  let shouldPublish = true;
+  
+  if (metrics.precision < qualityThresholds.minPrecision) {
+    shouldPublish = false;
+    recommendations.push('Improve precision before publication');
+  }
+  
+  if (metrics.recall < qualityThresholds.minRecall) {
+    shouldPublish = false;
+    recommendations.push('Increase recall through additional evidence sources');
+  }
+  
+  if (metrics.reproducibility < qualityThresholds.minReproducibility) {
+    shouldPublish = false;
+    recommendations.push('Ensure reproducible results across validation sets');
+  }
+  
+  return { shouldPublish, recommendations };
+}
+
+// Utility functions
+function generateId(): string {
+  return Math.random().toString(36).substring(2, 15);
+}
+
+function generateVersionNumber(): string {
+  return `v${new Date().getFullYear()}.${new Date().getMonth() + 1}.${Date.now()}`;
+}
+
+function assignAccountManager(tier: string): string {
+  return tier === 'enterprise' ? 'senior-am' : 'standard-am';
+}
+
+async function syncDataSource(source: string): Promise<any> {
+  return { source, lastSync: new Date(), status: 'success' };
+}
+
+async function trainNLPModel(corpus: any): Promise<any> {
+  return { type: 'nlp', accuracy: 0.85, version: '1.0' };
+}
+
+async function trainGraphModel(graph: any): Promise<any> {
+  return { type: 'graph', accuracy: 0.82, version: '1.0' };
+}
+
+async function combineModels(models: string[]): Promise<any> {
+  return { type: 'ensemble', models, accuracy: 0.88 };
+}
+
+async function runVEPAnnotation(vcfPath: string): Promise<any> {
+  return { tool: 'VEP', variants: [], consequences: [] };
+}
+
+async function addPopulationFrequencies(vcfPath: string): Promise<any> {
+  return { source: 'gnomAD', frequencies: {} };
+}
+
+async function addInSilicoPredictions(vcfPath: string): Promise<any> {
+  return { tools: ['CADD', 'PolyPhen', 'SIFT'], predictions: {} };
+}
+
+async function addConservationScores(vcfPath: string): Promise<any> {
+  return { scores: {}, sources: ['PhyloP', 'GERP'] };
+}
+
+async function searchEvidenceByType(annotation: any, type: string): Promise<EvidenceLink[]> {
+  return [];
+}
+
+async function loadScoringRules(): Promise<any[]> {
+  return [
+    { name: 'consequence_severity', weight: 0.3 },
+    { name: 'population_frequency', weight: 0.2 },
+    { name: 'conservation', weight: 0.2 },
+    { name: 'literature_evidence', weight: 0.3 }
+  ];
+}
+
+function evaluateRule(rule: any, variant: any, evidence: EvidenceLink[]): { value: number; explanation: string } {
+  return { value: Math.random() * rule.weight, explanation: `Applied ${rule.name}` };
+}
+
+async function rankVariants(scoredVariants: any[]): Promise<RankedVariant[]> {
+  return scoredVariants
+    .sort((a, b) => b.score - a.score)
+    .map((variant, index) => ({ ...variant, rank: index + 1 }));
+}
+
+async function generateAuditTrail(sample: VariantSample, annotations: any[], scores: any[]): Promise<AuditEntry[]> {
+  return [
+    {
+      timestamp: new Date(),
+      action: 'sample_processed',
+      datasetVersion: 'v2024.1',
+      modelVersion: 'v1.0',
+      rulesetId: 'default',
+      userId: 'system'
+    }
+  ];
+}
+
+async function getCurrentRulesetVersion(): Promise<string> {
+  return 'v1.0.0';
+}
+
+async function applyBudgetConstraints(variants: RankedVariant[], budget: number): Promise<RankedVariant[]> {
+  const costPerVariant = 1000;
+  const maxVariants = Math.floor(budget / costPerVariant);
+  return variants.slice(0, maxVariants);
+}
+
+async function optimizeForDiversity(variants: RankedVariant[]): Promise<RankedVariant[]> {
+  const genesSeen = new Set();
+  return variants.filter(variant => {
+    if (genesSeen.has(variant.gene)) {
+      return false;
+    }
+    genesSeen.add(variant.gene);
+    return true;
+  });
+}
+
+function generateSelectionRationale(variants: RankedVariant[], goals: string[], budget: number): string {
+  return `Selected ${variants.length} variants based on research goals: ${goals.join(', ')}. Budget: $${budget}`;
+}
+
+async function calculateQualityMetrics(results: TriageResult[]): Promise<any> {
+  return {
+    precision: 0.75,
+    recall: 0.85,
+    reproducibility: 0.90
+  };
+}
+
+async function runBenchmarkSuite(): Promise<any> {
+  return {
+    precision_at_20: 0.70,
+    recall_at_100: 0.85,
+    false_positive_rate: 0.05
+  };
+}
+```
