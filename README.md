@@ -2,6 +2,8 @@
 
 Build autonomous businesses with **Devin** and the **`.do` platform**
 
+> _Imagine Devin **NOT** just building software, but running businesses defined in this repo._
+
 ---
 
 Transform AI startup creation with `Startups.do` – generate, evaluate, and assemble startups from Industries and Occupations across the world to uncover AI Service businesses using Functions, Workflows, and Agents.
