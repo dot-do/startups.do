@@ -1,0 +1,380 @@
+---
+name: TerraInvert AI
+slug: terrainvert
+naics:
+  primary: '541360'
+  occupations: []
+service:
+  title: Ground ERT/IP Inversion and Section Production
+  description: >-
+    Automated ingestion, QC, and inversion of ERT/IP lines with
+    depth-of-investigation and section maps.
+  targetUsers:
+    - Environmental/engineering geophysics firms
+    - Hydrogeology teams
+    - Mining/exploration crews
+  triggers:
+    - Field crew uploads raw ERT/IP data
+    - Regulatory or design needs subsurface resistivity/chargeability
+  inputs:
+    - 'Instrument files (ABEM, Syscal, SuperSting)'
+    - Electrode geometry and coordinates
+    - Acquisition log and current density
+  steps:
+    - 'Parse and validate data, remove outliers'
+    - 'Set mesh/constraints, robust weighting'
+    - Run 2D inversion per line (pyGIMLi/SimPEG)
+    - Batch lines to 3D if available
+    - 'Compute DOI, sensitivity, and fit metrics'
+    - Export sections and interpreted horizons (optional)
+  tools:
+    - 'pyGIMLi, SimPEG'
+    - 'numpy, scipy'
+    - 'geopandas, matplotlib'
+    - QGIS for section layouts
+  outputs:
+    - 2D/3D resistivity and chargeability models
+    - DOI maps and misfit stats
+    - 'GeoTIFF/PNG section exports, GPKG line models'
+    - Brief interpretation memo
+  pricingModel:
+    - Per line-meter inverted
+    - Bundle price per site (multi-line)
+    - Optional hourly for interpretation
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Poor electrode contact/geometry errors
+    - Cultural noise affecting IP
+    - Over-regularization causing smear
+  dependencies:
+    - Accurate electrode positions/array type
+    - Topography along profiles
+    - Acquisition log with currents/voltages
+leanCanvas:
+  problem:
+    - >-
+      Manual ERT/IP QC and inversion is slow and inconsistent: typical 2D line
+      processing takes 1–3 hours of a geophysicist’s time per line, creating
+      backlogs and delaying field decisions.
+    - >-
+      Data quality varies across OEMs and crews (contact resistance, poor
+      electrodes, sferic noise, bad geometry), requiring expert heuristics that
+      are not standardized and are costly to train for.
+    - >-
+      Existing desktop tools are powerful but not automated or collaborative;
+      they require license management, high-skill operators, and manual
+      report/section production.
+    - >-
+      Turnaround time matters: missed same-day QC leads to wasted mobilization
+      days costing $5k–$20k/day on environmental and mining programs.
+    - >-
+      Clients increasingly require uncertainty and DOI mapping, but many
+      deliverables omit it or estimate it inconsistently, undermining confidence
+      in interpretations and permitting submissions.
+    - >-
+      Fragmented data formats (ABEM, Iris, Zonge, AGI, custom CSV) and
+      topography handling slow integration with downstream tools (Leapfrog,
+      Oasis montaj, QGIS).
+    - >-
+      Geophysical contractors face margin pressure; they need lower per-line
+      processing costs without sacrificing quality or auditability.
+  solution:
+    - >-
+      Automated ingestion for common file types (ABEM Terrameter/LS, Iris
+      Syscal, AGI SuperSting, Zonge/Scintrex, CSV) with survey metadata capture,
+      electrode geometry validation, and topography import (DEM or measured).
+    - >-
+      AI-assisted QC: reciprocity tests, spike/outlier detection, stack variance
+      analysis, contact resistance screening, array geometry checks;
+      auto-suggested fixes and confidence scores.
+    - >-
+      Physics-guided inversion engine built on robust, proven libraries (e.g.,
+      pyGIMLi/SimPEG stack) with L1/L2 norms, smoothness constraints,
+      topography, and error models; IP time-domain/chargeability options.
+    - >-
+      Depth of Investigation (DOI) and uncertainty quantification via
+      sensitivity analysis, perturbation runs, and coverage maps; DOI polygons
+      exported with sections.
+    - >-
+      Auto-generation of standardized outputs: pseudo-sections,
+      resistivity/chargeability sections, DOI overlays, plan-view fence
+      diagrams, multi-line stitched sections, and georeferenced exports
+      (GeoTIFF, DXF, shapefile, PDF).
+    - >-
+      Web UI and API: project dashboards, batch runs, versioned workflows, audit
+      trails; templated deliverables for clients and regulators (e.g., NI 43-101
+      style appendices).
+    - >-
+      Edge-to-cloud field pipeline: lightweight uploader that validates
+      electrode layout on-site and streams partial stacks for rapid
+      pre-inversion QC, enabling same-day re-shoot decisions.
+    - >-
+      Integrations: one-click export to Leapfrog, Oasis montaj, QGIS;
+      S3/SharePoint connectors; OEM data log importers.
+    - >-
+      Human-in-the-loop review: flag lines requiring expert review; compare AI
+      inversion vs operator-tuned run; built-in change logs for defensible
+      reporting.
+  uniqueValueProp: >-
+    From raw ERT/IP files to QC’d inversions with DOI and publication-ready
+    sections in hours, not days—standardized, auditable, and
+    instrument-agnostic. Cut per-line processing cost by 50–70% and enable
+    same-day field decisions.
+  unfairAdvantage: >-
+    Network effects from aggregated, labeled multi-instrument ERT/IP datasets
+    and embedded OEM workflows produce steadily improving QC heuristics and
+    inversions that are hard to replicate. Audit-ready DOI/uncertainty and a
+    same-day field pipeline create a defensible wedge vs. desktop-only
+    incumbents.
+  customerSegments:
+    - >-
+      Near-surface geophysical contractors running ground ERT/IP (primary early
+      adopters).
+    - >-
+      Mining exploration teams (juniors and majors) commissioning IP/ERT for
+      sulfide targeting and alteration mapping.
+    - >-
+      Environmental/engineering consultancies (hydrogeology, landfill,
+      contaminated sites, infrastructure).
+    - >-
+      Civil/geotechnical firms doing subsurface characterization for
+      foundations, tunnels, dams, and levees.
+    - >-
+      Utilities/municipalities mapping buried infrastructure/leakage/ground
+      conditions.
+    - >-
+      Government geological surveys and research labs running method development
+      and baseline mapping.
+    - >-
+      Instrument OEMs (ABEM/Guideline Geo, Iris Instruments, AGI, Zonge) seeking
+      value-added cloud processing for customers.
+  channels:
+    - >-
+      Direct sales to geophysical contractors: target list of top 300 ERT/IP
+      contractors in NA, EU, ANZ; 6-touch outbound sequences with technical
+      demos and pilot offers.
+    - >-
+      OEM partnerships: bundle a 60–90-day trial code with new instrument sales;
+      revenue share on upsells; co-webinars on best practices for QC/inversion.
+    - >-
+      Conferences/workshops: exhibit and run live inversion challenges at
+      SAGEEP/NSG EAGE, SEG Near Surface, PDAC, AME Roundup; offer on-site pilot
+      processing for attendees’ datasets.
+    - >-
+      Content-led growth: publish benchmark studies comparing AI-assisted vs
+      manual inversions on public datasets; release DOI/uncertainty playbooks;
+      produce how-to videos.
+    - >-
+      Community and standards: contribute ingestion code to open-source readers
+      (where licensing permits), sponsor pyGIMLi/SimPEG sprints; build goodwill
+      and inbound leads.
+    - >-
+      Systems integrators and software ecosystems: integrations with Seequent
+      (Leapfrog Works/Geo), Oasis montaj, QGIS; list on partner marketplaces.
+    - >-
+      Freemium/trial motion: free processing up to 3,000 meters for 30 days;
+      field uploader free tier to seed usage; in-app prompts to convert.
+    - >-
+      Land-and-expand: start with one crew or region, expand to entire
+      contractor fleet; enterprise procurement support and security reviews.
+    - >-
+      Academic/government programs: discounted seats in exchange for published
+      case studies to build authoritative validation.
+  revenueStreams:
+    - >-
+      Usage-based processing: $0.35 per linear meter of ERT/IP processed (min
+      $50 per line); volume discounts to $0.20/m at >100k m/year.
+    - >-
+      Subscriptions: Pro at $1,250/month includes 5,000 m plus $0.25/m overage;
+      Business at $3,500/month includes 20,000 m plus $0.20/m overage;
+      multi-user and SSO included at Business.
+    - >-
+      Enterprise: private VPC deployment, custom SLAs, data residency, advanced
+      security; annual contracts $60k–$250k depending on volume and features.
+    - >-
+      Professional services: onboarding, workflow tuning, custom templates, and
+      historical backlog processing ($150–$220/hr).
+    - >-
+      OEM white-label: embedded processing in OEM portals; revenue share 15–30%
+      of processing fees.
+    - >-
+      Training and certification: operator training courses and DOI/uncertainty
+      workshops ($1,500–$3,000 per cohort).
+    - >-
+      Data storage/retention: long-term cold storage beyond 12 months at
+      $0.004/GB-month (pass-through + margin).
+  costStructure:
+    - >-
+      Cloud compute (CPU/GPU) for inversions: target <$0.02 per processed meter
+      via batch scheduling and spot pricing.
+    - >-
+      Object storage and egress: <$0.005 per meter-year; CDN for downloads; data
+      residency premiums where required.
+    - >-
+      R&D: geophysics PhDs, ML engineers, and full-stack developers
+      ($1.5–$3.0M/year at scale).
+    - >-
+      Customer success and solution engineering to support pilots and enterprise
+      rollouts ($300k–$800k/year).
+    - >-
+      Sales/marketing: conferences, travel, demos, and content production
+      ($250k–$600k/year).
+    - Partner rev-share with OEMs/integrations (10–30% of referred revenue).
+    - 'Security/compliance: SOC 2 audits, pen tests, insurance ($80k–$200k/year).'
+    - >-
+      General/admin and legal, including IP and contract reviews
+      ($100k–$300k/year).
+  keyMetrics:
+    - >-
+      Turnaround time: median end-to-end < 20 minutes per line by month 6; 95th
+      percentile < 60 minutes.
+    - >-
+      Auto-QC efficacy: ≥90% of common QC issues correctly detected; <5% false
+      positives after 6 months.
+    - >-
+      First-pass acceptance rate: ≥85% of lines accepted without manual
+      parameter tuning; ≥95% after one iteration.
+    - >-
+      Accuracy: inversion misfit within 5–10% of expert-tuned baselines; DOI
+      coverage within ±10% of benchmark methods on test suites.
+    - 'Uptime/SLA: 99.5% monthly pipeline success; job failure rate < 1%.'
+    - >-
+      Adoption: lines processed per month (LPM); target 30k LPM by month 12;
+      150k LPM by month 24.
+    - >-
+      Revenue: MRR targets $60k by month 12; $200k by month 24; Net revenue
+      retention (NRR) > 120%.
+    - >-
+      Unit economics: gross margin > 75%; COGS per meter <$0.06; LTV:CAC > 4:1
+      by month 18.
+    - >-
+      Conversion funnel: trial-to-paid conversion ≥ 25%; payback period < 6
+      months.
+    - >-
+      Customer satisfaction: CSAT ≥ 4.6/5; support response < 4 business hours;
+      churn < 8% annual for SMB; < 3% for enterprise.
+    - >-
+      Field impact: same-day QC decisions on ≥70% of field days; re-shoot rate
+      reduction ≥30% for pilot customers.
+storyBrand:
+  character: >-
+    - Geophysical project leads and data managers at surveying/mapping firms
+    (NAICS 541360)
+
+    - They want fast, defensible ERT/IP inversions, DOI maps, and
+    publication-ready sections without manual churn.
+  problem: >-
+    - External: Messy field data, electrode geometry errors, tedious
+    QC/parameter tuning, slow inversions, hard-to-replicate workflows,
+    bottlenecked map/section production.
+
+    - Internal: Anxiety about deadlines, data credibility, and reviewer
+    challenges; fear of costly rework.
+
+    - Philosophical: Geophysicists should interpret and decide, not babysit
+    imports and inversion runs.
+  guide: >-
+    - Empathy: We’ve wrestled with noisy lines, inconsistent arrays, and
+    last-minute deliverable changes.
+
+    - Authority: Built by geophysicists; standardized pipelines; audited QC
+    checkpoints; established inversion engines; secure deployment (cloud or
+    on‑prem); reproducible results with clear DOI reporting.
+  plan: >-
+    - Process: 1) Ingest raw ERT/IP + metadata; 2) Auto QC (geometry, spikes,
+    contact resistance) and normalization; 3) AI‑assisted inversion with DOI
+    estimation; 4) Review dashboards to adjust constraints/parameters; 5) Export
+    sections, grids, and map layers with a QC/report bundle.
+
+    - Agreement: Transparent pricing; versioned workflows and audit logs; you
+    keep data ownership; easy pilot start; responsive support.
+  callToAction: >-
+    - Direct: Book a live demo; Start a pilot on your next line/survey; Connect
+    your data bucket and run your first inversion.
+
+    - Transitional: Download sample report and sections; Read the DOI/QC
+    checklist; Request the integration/format guide.
+  success: >-
+    - Same‑day turnaround on sections and DOI maps.
+
+    - Consistent, reproducible QC and defensible deliverables.
+
+    - Lower processing costs and fewer field re‑runs.
+
+    - Teams freed to interpret and advise clients.
+
+    - Scales across crews and projects; GIS/CAD-ready exports that win bids and
+    pass review.
+  failure: >-
+    - Missed milestones and budget overruns from reprocessing.
+
+    - Inconsistent sections that invite challenges or rejection.
+
+    - Erosion of client and regulator confidence.
+
+    - High‑value geophysicists stuck in manual processing instead of
+    interpretation.
+landingPage:
+  hero:
+    title: Automated ERT/IP Inversion & Section Maps
+    subtitle: >-
+      Upload lines. Get QC’d, inverted resistivity/chargeability sections with
+      depth-of-investigation and export-ready maps in minutes.
+    ctaText: Upload a Line
+    ctaHref: /upload
+  problem:
+    - Manual cleaning and parameter tuning slow down reporting.
+    - Inconsistent inversions across crews and projects.
+    - Unclear depth-of-investigation leads to over-interpretation.
+    - Hard to compare multi-line surveys at project scale.
+    - 'QC steps (reciprocity, contact resistance) are tedious and error-prone.'
+    - Exporting to GIS/CAD takes too long.
+    - Limited audit trail and version control for clients and regulators.
+  solution:
+    - Automated ingestion from common ERT/IP formats with topography handling.
+    - >-
+      AI-driven QC: reciprocity checks, contact resistance, spike and outlier
+      detection, bad electrode masking.
+    - Template-based inversions with AI-recommended parameters per array type.
+    - Depth-of-investigation and sensitivity maps with confidence masks.
+    - Auto-generated resistivity and chargeability sections and plan-view maps.
+    - Batch processing for entire projects with consistent settings.
+    - 'One-click exports to GeoTIFF, GeoPackage, CSV, and PDF; ArcGIS/QGIS-ready.'
+    - API-first and on-prem options with versioning and audit logs.
+  features:
+    - >-
+      Array autodetection: Dipole–Dipole, Wenner, Schlumberger, Gradient,
+      Pole–Dipole.
+    - >-
+      2D inversions with topographic correction; IP windows and chargeability
+      handling.
+    - Robust and smoothness constraints (L1/L2); absolute/relative error models.
+    - Adaptive meshing and regularization tuned to data coverage.
+    - DOI via sensitivity-threshold methods; per-pixel confidence overlays.
+    - >-
+      Interactive section viewer with electrode positions, stations, picks, and
+      scalebars.
+    - >-
+      QC dashboards: reciprocity histograms, misfit curves, contact resistance
+      maps.
+    - >-
+      Batch reports with metadata, inversion settings, and reproducible run
+      hashes.
+    - Project templates to enforce consistent workflows across teams.
+    - 'Secure cloud or on‑prem; SSO, role-based access, and audit trails.'
+  steps:
+    - Upload a line or connect a folder/API.
+    - Auto-QC runs; review quick summary and flagged issues.
+    - Select a template or accept AI-recommended inversion settings.
+    - Run inversion with GPU acceleration.
+    - 'Review sections, DOI, and misfit; tweak if needed and re-run.'
+    - Export GeoTIFF/GeoPackage/PDF and share with stakeholders.
+---
+# TerraInvert AI
+
+Generated for NAICS 541360 — Geophysical Surveying and Mapping Services.
+Service: Ground ERT/IP Inversion and Section Production

@@ -1,0 +1,329 @@
+---
+name: StrataWatch InSAR
+slug: stratawatch
+naics:
+  primary: '541360'
+  occupations: []
+service:
+  title: InSAR Ground Deformation Monitoring (Sentinel-1)
+  description: 'SBAS time-series InSAR for subsidence, uplift, and slope movement over AOIs.'
+  targetUsers:
+    - 'Mining (tailings, open pits)'
+    - Infrastructure/transport
+    - Water and urban planning
+  triggers:
+    - Request to monitor AOI monthly/quarterly
+    - Incident/complaint requiring deformation check
+  inputs:
+    - AOI polygon
+    - Temporal window and cadence
+    - Reference point(s) if available
+  steps:
+    - Fetch Sentinel-1 stack (ASF/ESA)
+    - Coregistration and interferogram generation
+    - 'SBAS network, phase unwrapping'
+    - Atmospheric corrections (GACOS/PyAPS)
+    - Time-series inversion and velocity mapping
+    - Export rasters and point time series
+  tools:
+    - 'MintPy, ISCE2 or SNAP'
+    - 'ASF API, AWS Sentinel-1'
+    - PyAPS/GACOS
+    - 'rasterio, xarray, dask'
+  outputs:
+    - LOS velocity map and coherence
+    - Cumulative displacement rasters
+    - Per-point time series (CSV/GeoPackage)
+    - Methodology/QC report
+  pricingModel:
+    - Per km² per monitoring period
+    - Subscription for ongoing monitoring
+    - Setup fee for AOI configuration
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 7
+    modelCapability: 8
+    overall: 7.5
+  risks:
+    - Decorrelation over vegetation/snow
+    - Atmospheric artifacts
+    - Geometry-induced bias without GNSS tie
+  dependencies:
+    - AOI size manageable on laptop or light cloud
+    - DEM (SRTM/ALOS) for geocoding
+    - Reference network selection
+leanCanvas:
+  problem:
+    - >-
+      Asset owners and geophysical consultants lack affordable, wide-area
+      deformation monitoring that covers entire Areas of Interest (AOIs) at
+      sub-centimeter sensitivity. Traditional ground sensors (GNSS/leveling)
+      cost $3k–$10k per station and only sample points; many projects need
+      wall-to-wall coverage.
+    - >-
+      Regulatory and ESG pressures (e.g., for tailings dams, land subsidence,
+      and landslide risk) require auditable, frequent reporting
+      (monthly/quarterly) that current manual surveys struggle to meet, causing
+      schedule delays and compliance risk.
+    - >-
+      Existing InSAR services can be slow (weeks) and opaque, with inconsistent
+      quality control and limited integration into clients’ GIS/CAD workflows,
+      creating operational friction and adoption barriers.
+    - >-
+      Many AOIs are in mixed-coherence terrain (urban vs. vegetated). Users need
+      reliable uncertainty quantification and confidence masks to avoid false
+      alarms; current outputs often lack standardized error bars tied to GNSS
+      benchmarks.
+    - >-
+      Budgets are constrained. Buyers need predictable, subscription-based
+      pricing tied to AOI size and update frequency rather than bespoke, ad-hoc
+      quotes that impede scaling.
+    - >-
+      Field safety and access constraints (e.g., unstable slopes, remote
+      deserts) make frequent ground campaigns risky and expensive; remote
+      sensing can reduce field days by 30–60%.
+    - >-
+      Decision-makers need timely alerts (within 24–72 hours of new
+      acquisitions) to mitigate risk. Current latency from data acquisition to
+      insight is often >1–2 weeks.
+  solution:
+    - >-
+      SBAS time-series InSAR pipeline purpose-built for Sentinel-1
+      (ascending/descending) to produce velocity (mm/year), cumulative
+      displacement, and time-series per PS/DS point and raster outputs.
+    - >-
+      AI-assisted quality control: coherence prediction, phase-unwrapping QA,
+      atmospheric artifact suppression selection (e.g., GACOS/ERA5) and anomaly
+      detection for change events.
+    - >-
+      Operational SLAs: initial 3–5 year historical baseline for AOIs up to
+      10,000 km² in 3–5 business days; routine updates delivered within 24–72
+      hours of new acquisitions; optional weekly cadence using supplemental SAR.
+    - >-
+      Uncertainty quantification: per-pixel/point confidence masks, velocity
+      standard error maps, and cross-validation against nearby GNSS stations
+      (where available) with automated reporting of RMSE and coverage metrics.
+    - >-
+      GIS-first delivery: WMS/WMTS, tiled vector points (WebGL), GeoTIFFs,
+      shapefiles/GeoPackage, and ArcGIS/GeoServer connectors; API and web
+      dashboard for visualizations and alerts.
+    - >-
+      Alerting and thresholds: user-defined mm/month thresholds, trend-break
+      detection, and corridor buffers (e.g., 100 m each side of pipeline) to
+      reduce false positives and focus on assets.
+    - >-
+      Scalable architecture: cloud-native ingestion of SLC bursts, interferogram
+      formation, SBAS estimation (e.g., ISCE2/MintPy-derived), catalog indexing,
+      and incremental processing for rapid updates; optional augmentation with
+      commercial SAR for gap-filling.
+  uniqueValueProp: >-
+    Actionable, AOI-based SBAS InSAR monitoring from Sentinel-1 with mm/year
+    trend accuracy, delivered as GIS-ready layers, APIs, and alerts within 24–72
+    hours of acquisition—at a price point that scales from single sites to
+    nationwide programs, with auditable uncertainty tied to GNSS benchmarks.
+  unfairAdvantage: >-
+    Pre-indexed Sentinel-1 burst archive with AOI-aware, incremental SBAS
+    processing and AI-driven QA that cuts baseline delivery to days, plus a
+    validated GNSS benchmark corpus enabling auditable uncertainty metrics
+    competitors struggle to provide at scale.
+  customerSegments:
+    - >-
+      Primary: Geophysical Surveying and Mapping firms (NAICS 541360) seeking
+      value-added satellite deformation products for their clients.
+    - >-
+      Mining operators and engineering consultants (tailings dams, open pits,
+      underground) needing compliance-grade subsidence/uplift monitoring.
+    - >-
+      Transportation and infrastructure owners (rail, highways, airports, ports)
+      monitoring settlement and slope stability along corridors and platforms.
+    - >-
+      Oil & Gas and utilities (pipelines, LNG facilities, water/wastewater
+      utilities) for right-of-way subsidence and geohazard monitoring.
+    - >-
+      Public agencies and regulators (state DOTs, geological surveys, water
+      authorities, municipalities) for regional subsidence and landslide hazard
+      mapping.
+    - >-
+      Insurance and reinsurance analytics teams assessing geotechnical risk in
+      portfolios.
+  channels:
+    - >-
+      Direct sales to geophysical firms and AEC/consulting engineers with a
+      land-and-expand motion (pilot AOIs → multi-site → enterprise).
+    - >-
+      Reseller/partner channel through established survey/mapping firms (NAICS
+      541360) and geospatial VARs; revenue share and white-label options.
+    - >-
+      ArcGIS Marketplace and Esri Partner Network listings; integrations and
+      story maps/case studies for lead-gen.
+    - >-
+      Public-sector procurement: register on GSA/SEWP schedules via a reseller;
+      respond to RFQs/RFPs for DOTs, water agencies, geological surveys.
+    - >-
+      Content and thought leadership: webinars (SAGEEP, AEG, AGU/EGU), applied
+      white papers (e.g., tailings dam case), benchmark studies vs. GNSS.
+    - >-
+      Account-based marketing for ICPs (asset integrity managers, chief
+      geotechnical engineers, GIS managers); LinkedIn outreach and targeted
+      conference demos.
+    - >-
+      Year 1 GTM plan: 10 lighthouse pilots (mix of mining, DOT, pipeline) with
+      published case studies; 3 reseller agreements; ArcGIS Marketplace live;
+      quarterly webinars; attend SAGEEP/AGU; submit 2–3 public-sector bids.
+  revenueStreams:
+    - >-
+      AOI-based subscriptions: monthly/quarterly updates priced per km² with
+      tiered volume discounts. Indicative: $0.15–$0.50 per km² per update;
+      minimum order $5,000/AOI/year.
+    - >-
+      Baseline historical analysis (one-time): $0.30–$0.80 per km² for 3–5 year
+      back-processing; minimum $3,000/AOI.
+    - >-
+      Corridor pricing for linear assets: $30–$100 per km per update depending
+      on width, terrain, and cadence.
+    - >-
+      Enterprise plans: regional/national licenses (unlimited AOIs within area)
+      starting at $150,000/year with SLA and dedicated support.
+    - >-
+      Professional services: interpretation, GNSS integration, custom models,
+      and regulatory reporting at $180–$250/hour or fixed-price packages.
+    - >-
+      Premium data add-ons: commercial SAR gap-fill or higher cadence (weekly)
+      via partners, pass-through plus 15–25% margin.
+  costStructure:
+    - >-
+      Cloud compute for interferogram formation, SBAS inversion, and storage:
+      target COGS 15–25% of revenue at scale; typical AOI (5,000–10,000 km², 3–5
+      years history) costs $800–$2,500 to process initially; monthly updates
+      $150–$500 depending on acquisitions and coherence.
+    - >-
+      Engineering and science staff: SAR scientists, data engineers, DevOps, and
+      QA; initial team of 6–10 FTEs (~$1.5M–$2.5M/year).
+    - >-
+      Software and tooling: CI/CD, monitoring, licensing for supporting
+      libraries; $50k–$150k/year.
+    - >-
+      Sales and marketing: conferences, demos, partner enablement, content;
+      $150k–$300k/year early-stage.
+    - >-
+      Insurance, legal, and compliance (contracts, data protection, audits):
+      $50k–$120k/year.
+    - >-
+      Optional commercial SAR data for premium tiers: pass-through plus margin;
+      managed to maintain blended gross margin >60%.
+    - >-
+      GNSS data access/partnerships and reference station subscriptions (where
+      applicable): $10k–$40k/year.
+  keyMetrics:
+    - >-
+      Acquisition: SQLs/month, pilot-to-subscription conversion rate (target
+      >40%), average sales cycle (target <90 days), CAC payback (<12 months).
+    - >-
+      Revenue: ARR, ARPA by segment (target ARPA: $20k–$80k for consulting
+      firms; $80k–$250k for asset owners), gross margin (target >65%), net
+      revenue retention (>110%).
+    - >-
+      Adoption/engagement: active AOIs, AOI coverage >60% above coherence
+      threshold, API calls/month, dashboards MAU, alert engagement rate (>50%
+      acknowledged within 24h).
+    - >-
+      Quality: median velocity RMSE vs. GNSS (<3 mm/year in urban/coherent
+      areas), single-epoch displacement precision (5–10 mm in high-coherence),
+      false alarm rate (<5% per AOI per quarter with persistence rules).
+    - >-
+      Operations: time-to-baseline for 10,000 km² (<5 business days), update
+      latency (<72 hours from acquisition), processing success rate (>98%),
+      uptime (>99.5%).
+    - >-
+      Churn: logo churn <8% annually for consulting firms, <5% for asset owners;
+      reasons tracked and mitigated via playbooks.
+    - >-
+      Partner performance: reseller-sourced ARR share (>30% by Year 2), partner
+      pipeline velocity, co-sell win rate.
+storyBrand:
+  character: >-
+    Geophysical Surveying & Mapping leaders (NAICS 541360) who need SBAS
+    time-series InSAR to monitor subsidence, uplift, and slope movement across
+    AOIs, so they can de-risk projects, satisfy clients, and win bids.
+  problem: >-
+    External: Ground deformation is continuous but hard to see; sparse
+    instruments and episodic surveys create blind spots. Internal: Teams worry
+    they are missing mm-scale trends until it is too late. Philosophical: You
+    should not have to guess where the ground is moving.
+  guide: >-
+    We understand the pressure to deliver defensible deformation maps on tight
+    budgets and timelines. Our AI InSAR service runs SBAS on Sentinel-1 to
+    produce validated mm/yr rates and cumulative displacement,
+    all-weather/day-night, with QA/QC, GIS/APIs, and historical backfill to 2015
+    with 6-12 day updates.
+  plan: >-
+    1) Define AOIs, cadence, and outputs. 2) We process Sentinel-1 archives and
+    new scenes with SBAS plus AI trend/anomaly detection. 3) You receive
+    dashboards, map layers, alerts, and reports; start with a pilot, then scale
+    under an SLA.
+  callToAction: Book a demo; request a free sample AOI report; start a 30-day pilot.
+  success: >-
+    See and act on deformation early; reduce field visits; avoid surprises;
+    defend decisions with auditable time-series; deliver on time and budget; win
+    more and larger projects.
+  failure: >-
+    Missed warnings lead to asset damage, delays, overruns, safety incidents,
+    and lost credibility with clients and regulators.
+landingPage:
+  hero:
+    title: InSAR Ground Deformation Monitoring (Sentinel-1)
+    subtitle: >-
+      AI-powered SBAS time-series for subsidence, uplift, and slope movement
+      over your AOIs — built for Geophysical Surveying & Mapping (NAICS 541360).
+    ctaText: Request a demo
+    ctaHref: /request-demo
+  problem:
+    - Ground movement goes undetected between infrequent field surveys.
+    - 'Traditional InSAR pipelines are slow, specialist-heavy, and hard to scale.'
+    - Inconsistent baselines and atmospheric noise obscure true deformation.
+    - Fragmented AOIs and data formats complicate reporting and compliance.
+    - 'Late detection increases risk to assets, safety, and budgets.'
+    - 'Stakeholders need defensible rates, uncertainties, and clear alerts.'
+  solution:
+    - >-
+      Automated SBAS time-series from Sentinel-1 for frequent, consistent
+      monitoring.
+    - >-
+      Millimeter-scale deformation rates, cumulative displacement, and trend
+      change detection.
+    - >-
+      Atmospheric correction, coherence masking, and quality metrics out of the
+      box.
+    - Ascending/descending fusion for vertical and horizontal components.
+    - 'Dashboards per AOI with thresholds, alerts, and versioned reports.'
+    - Seamless GIS integration and API for enterprise workflows.
+  features:
+    - Global Sentinel-1 coverage; historical archive 2014–present.
+    - SBAS processing on IW mode with robust baseline optimization.
+    - 'Velocity maps (mm/yr), cumulative displacement, and per-pixel time series.'
+    - Change-point and acceleration detection for early warnings.
+    - 'Coherence, layover/shadow, and uncertainty layers for QA/QC.'
+    - Auto or manual reference point selection with stability screening.
+    - Ascending/descending combination; vertical/East–West decomposition.
+    - 'AOI management: draw, upload polygons, or import from GIS.'
+    - 'Threshold-based alerts via email, Slack, and webhooks.'
+    - 'Exports: GeoTIFF/COG, GeoJSON, Shapefile, CSV; OGC WMS/WCS.'
+    - ArcGIS Online and QGIS plugins; REST/GraphQL API.
+    - 'Role-based access, audit logs, and project-level billing.'
+    - 'Batch processing for portfolios of assets (pipelines, tailings, urban).'
+    - GNSS integration for calibration/validation and bias correction.
+  steps:
+    - Define your AOI (draw or upload) and select time window.
+    - >-
+      Choose track(s) and geometry (ascending/descending); set resolution and
+      masks.
+    - Pick a reference point or let the system auto-select stable benchmarks.
+    - Run SBAS processing; monitor progress in the job queue.
+    - Review velocity and displacement maps with QA layers and uncertainties.
+    - Configure thresholds and subscribers for alerts and scheduled reports.
+    - Export layers or connect via API/WMS to your GIS and enterprise tools.
+---
+# StrataWatch InSAR
+
+Generated for NAICS 541360 — Geophysical Surveying and Mapping Services.
+Service: InSAR Ground Deformation Monitoring (Sentinel-1)
