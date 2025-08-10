@@ -344,7 +344,595 @@ landingPage:
       notebook.
     - 'Export figures, tables, and methods; archive the run for reproducibility.'
 ---
+
 # ODEA — Omics Differential Expression & Enrichment Analyst
 
 Generated for NAICS 541714 — Research and Development in Biotechnology (except Nanobiotechnology).
 Service: Omics Differential Expression & Enrichment Analyst
+
+## Business-as-Code Workflow Functions
+
+```typescript
+// Core Types and Interfaces
+interface Lead {
+  id: string;
+  company: string;
+  contactName: string;
+  email: string;
+  phone?: string;
+  source: 'direct' | 'partner' | 'conference' | 'referral' | 'content';
+  biotechType: 'therapeutic' | 'platform' | 'diagnostics' | 'tools';
+  employeeCount: number;
+  hasInternalBioinformatics: boolean;
+  currentAnalysisMethod: 'manual' | 'consultant' | 'internal' | 'none';
+  urgency: 'low' | 'medium' | 'high';
+  budget?: number;
+}
+
+interface Customer {
+  id: string;
+  lead: Lead;
+  contractValue: number;
+  subscriptionTier?: 'starter' | 'growth' | 'enterprise';
+  onboardingDate: Date;
+  primaryContact: string;
+  securityRequirements: string[];
+  complianceNeeds: string[];
+}
+
+interface Dataset {
+  id: string;
+  customerId: string;
+  type: 'rna-seq' | 'proteomics' | 'cross-omics';
+  sampleCount: number;
+  uploadDate: Date;
+  metadata: {
+    organism: string;
+    studyDesign: string;
+    contrasts: string[];
+    batchFactors: string[];
+  };
+  status: 'uploaded' | 'qc-pending' | 'processing' | 'completed' | 'failed';
+  priority: 'standard' | 'expedited';
+}
+
+interface AnalysisResult {
+  id: string;
+  datasetId: string;
+  qcReport: QCReport;
+  differentialExpression: DEResults;
+  pathwayEnrichment: EnrichmentResults;
+  notebook: NotebookOutput;
+  deliveryDate: Date;
+  reviewStatus: 'pending' | 'approved' | 'revision-needed';
+}
+
+interface QCReport {
+  passedQC: boolean;
+  metrics: {
+    alignmentRate?: number;
+    duplicateRate?: number;
+    rnaIntegrity?: number;
+    proteinIdentifications?: number;
+  };
+  outliers: string[];
+  batchEffects: boolean;
+  recommendations: string[];
+}
+
+interface DEResults {
+  significantGenes: number;
+  upregulated: number;
+  downregulated: number;
+  topPathways: string[];
+  effectSizes: number[];
+}
+
+interface EnrichmentResults {
+  geneSetDatabase: string[];
+  significantPathways: number;
+  topTerms: Array<{
+    term: string;
+    pValue: number;
+    fdr: number;
+    geneCount: number;
+  }>;
+}
+
+interface NotebookOutput {
+  format: 'jupyter' | 'quarto';
+  reproducibilityHash: string;
+  parameters: Record<string, any>;
+  figures: string[];
+  tables: string[];
+  methods: string;
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const proposal = await generateProposal(qualifiedLead);
+  const contract = await negotiateContract(proposal);
+  const customer = await onboardCustomer(contract);
+  
+  await trackConversion(lead, customer);
+  return customer;
+}
+
+async function qualifyLead(lead: Lead): Promise<Lead> {
+  // Qualify based on biotech criteria
+  const qualificationScore = calculateQualificationScore(lead);
+  
+  if (qualificationScore < 0.6) {
+    throw new Error('Lead does not meet qualification criteria');
+  }
+  
+  // Schedule discovery call for high-potential leads
+  if (qualificationScore > 0.8) {
+    await scheduleDiscoveryCall(lead);
+  }
+  
+  return { ...lead, urgency: qualificationScore > 0.8 ? 'high' : 'medium' };
+}
+
+function calculateQualificationScore(lead: Lead): number {
+  let score = 0;
+  
+  // Company size scoring (5-200 employees is sweet spot)
+  if (lead.employeeCount >= 5 && lead.employeeCount <= 200) score += 0.3;
+  else if (lead.employeeCount > 200 && lead.employeeCount <= 500) score += 0.2;
+  
+  // Biotech type scoring
+  if (lead.biotechType === 'therapeutic') score += 0.3;
+  else if (lead.biotechType === 'platform') score += 0.2;
+  
+  // Internal bioinformatics capacity
+  if (!lead.hasInternalBioinformatics) score += 0.2;
+  else score += 0.1; // Still valuable for surge capacity
+  
+  // Current analysis method
+  if (lead.currentAnalysisMethod === 'consultant') score += 0.2;
+  else if (lead.currentAnalysisMethod === 'manual') score += 0.15;
+  
+  return Math.min(score, 1.0);
+}
+
+async function generateProposal(lead: Lead): Promise<{
+  pricing: number;
+  timeline: string;
+  deliverables: string[];
+  terms: string[];
+}> {
+  const basePrice = lead.biotechType === 'therapeutic' ? 5000 : 4000;
+  const urgencyMultiplier = lead.urgency === 'high' ? 1.3 : 1.0;
+  
+  return {
+    pricing: basePrice * urgencyMultiplier,
+    timeline: lead.urgency === 'high' ? '48 hours' : '72 hours',
+    deliverables: [
+      'QC report with recommendations',
+      'Differential expression analysis',
+      'Pathway enrichment results',
+      'Interactive Jupyter notebook',
+      'Publication-ready figures',
+      'Methods documentation'
+    ],
+    terms: [
+      'Secure data handling with SOC 2 compliance',
+      'Full reproducibility guarantee',
+      'One round of revisions included',
+      'Expert review and interpretation'
+    ]
+  };
+}
+
+async function negotiateContract(proposal: any): Promise<any> {
+  // Contract negotiation logic
+  const contract = {
+    ...proposal,
+    signedDate: new Date(),
+    paymentTerms: 'Net 30',
+    dataRetention: '7 years',
+    ipOwnership: 'Customer retains all rights'
+  };
+  
+  await sendContractForSignature(contract);
+  return contract;
+}
+
+async function onboardCustomer(contract: any): Promise<Customer> {
+  const customer: Customer = {
+    id: generateCustomerId(),
+    lead: contract.lead,
+    contractValue: contract.pricing,
+    onboardingDate: new Date(),
+    primaryContact: contract.lead.contactName,
+    securityRequirements: ['SOC 2', 'Data encryption'],
+    complianceNeeds: contract.lead.biotechType === 'therapeutic' ? ['FDA audit trail'] : []
+  };
+  
+  await setupSecureDataPortal(customer);
+  await provisionAnalysisEnvironment(customer);
+  await sendOnboardingMaterials(customer);
+  
+  return customer;
+}
+
+// Product Development Processes
+export async function developAnalysisPipeline(
+  dataType: 'rna-seq' | 'proteomics',
+  requirements: {
+    organism: string;
+    studyType: string;
+    specialRequirements?: string[];
+  }
+): Promise<{
+  pipelineId: string;
+  containerImage: string;
+  validationResults: any;
+}> {
+  const pipeline = await buildPipeline(dataType, requirements);
+  const validation = await validatePipeline(pipeline);
+  const container = await containerizePipeline(pipeline);
+  
+  return {
+    pipelineId: pipeline.id,
+    containerImage: container.image,
+    validationResults: validation
+  };
+}
+
+async function buildPipeline(dataType: string, requirements: any) {
+  const baseComponents = {
+    'rna-seq': ['STAR', 'Salmon', 'DESeq2', 'edgeR', 'limma'],
+    'proteomics': ['MaxQuant', 'FragPipe', 'MSstats', 'limma']
+  };
+  
+  return {
+    id: generatePipelineId(),
+    components: baseComponents[dataType],
+    parameters: await optimizeParameters(dataType, requirements),
+    qcSteps: await defineQCSteps(dataType),
+    outputFormat: 'jupyter-notebook'
+  };
+}
+
+async function validatePipeline(pipeline: any) {
+  // Run validation datasets through pipeline
+  const testDatasets = await getValidationDatasets(pipeline.dataType);
+  const results = [];
+  
+  for (const dataset of testDatasets) {
+    const result = await runPipeline(pipeline, dataset);
+    const metrics = await calculateValidationMetrics(result);
+    results.push(metrics);
+  }
+  
+  return {
+    reproducibilityScore: calculateReproducibilityScore(results),
+    accuracyMetrics: results,
+    benchmarkComparison: await compareToBenchmarks(results)
+  };
+}
+
+// Revenue Generation Flows
+export async function processProjectPayment(
+  customer: Customer,
+  analysisResult: AnalysisResult
+): Promise<{
+  invoiceId: string;
+  amount: number;
+  paymentStatus: string;
+}> {
+  const invoice = await generateInvoice(customer, analysisResult);
+  await sendInvoiceToCustomer(invoice);
+  
+  const payment = await trackPayment(invoice);
+  await updateRevenueMetrics(payment);
+  
+  return payment;
+}
+
+export async function manageSubscription(
+  customer: Customer,
+  action: 'upgrade' | 'downgrade' | 'cancel' | 'renew'
+): Promise<{
+  newTier?: string;
+  effectiveDate: Date;
+  proratedAmount?: number;
+}> {
+  switch (action) {
+    case 'upgrade':
+      return await upgradeSubscription(customer);
+    case 'downgrade':
+      return await downgradeSubscription(customer);
+    case 'cancel':
+      return await cancelSubscription(customer);
+    case 'renew':
+      return await renewSubscription(customer);
+    default:
+      throw new Error(`Unknown subscription action: ${action}`);
+  }
+}
+
+async function generateInvoice(customer: Customer, result: AnalysisResult) {
+  const baseAmount = result.dataset.type === 'rna-seq' ? 5000 : 6500;
+  const expeditedFee = result.dataset.priority === 'expedited' ? baseAmount * 0.3 : 0;
+  
+  return {
+    id: generateInvoiceId(),
+    customerId: customer.id,
+    amount: baseAmount + expeditedFee,
+    lineItems: [
+      {
+        description: `${result.dataset.type} analysis - ${result.dataset.sampleCount} samples`,
+        amount: baseAmount
+      },
+      ...(expeditedFee > 0 ? [{
+        description: 'Expedited processing fee',
+        amount: expeditedFee
+      }] : [])
+    ],
+    dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+    terms: 'Net 30'
+  };
+}
+
+// Operational Procedures
+export async function executeAnalysisWorkflow(dataset: Dataset): Promise<AnalysisResult> {
+  try {
+    // Step 1: Data validation and QC
+    const qcResult = await performQualityControl(dataset);
+    
+    if (!qcResult.passedQC) {
+      await notifyCustomerOfQCIssues(dataset.customerId, qcResult);
+      throw new Error('Dataset failed QC requirements');
+    }
+    
+    // Step 2: Run differential expression analysis
+    const deResults = await runDifferentialExpression(dataset, qcResult);
+    
+    // Step 3: Perform pathway enrichment
+    const enrichmentResults = await runPathwayEnrichment(deResults);
+    
+    // Step 4: Generate reproducible notebook
+    const notebook = await generateNotebook(dataset, qcResult, deResults, enrichmentResults);
+    
+    // Step 5: Create final deliverables
+    const result: AnalysisResult = {
+      id: generateResultId(),
+      datasetId: dataset.id,
+      qcReport: qcResult,
+      differentialExpression: deResults,
+      pathwayEnrichment: enrichmentResults,
+      notebook: notebook,
+      deliveryDate: new Date(),
+      reviewStatus: 'pending'
+    };
+    
+    // Step 6: Quality review
+    await performExpertReview(result);
+    
+    // Step 7: Deliver to customer
+    await deliverResults(result);
+    
+    return result;
+    
+  } catch (error) {
+    await handleAnalysisFailure(dataset, error);
+    throw error;
+  }
+}
+
+async function performQualityControl(dataset: Dataset): Promise<QCReport> {
+  const qcSteps = dataset.type === 'rna-seq' 
+    ? ['fastqc', 'alignment_metrics', 'duplication_check', 'rna_integrity']
+    : ['protein_identification', 'missing_values', 'cv_analysis', 'batch_effects'];
+  
+  const metrics = {};
+  const outliers = [];
+  let passedQC = true;
+  
+  for (const step of qcSteps) {
+    const stepResult = await runQCStep(step, dataset);
+    metrics[step] = stepResult.value;
+    
+    if (!stepResult.passed) {
+      passedQC = false;
+      outliers.push(...stepResult.outliers);
+    }
+  }
+  
+  return {
+    passedQC,
+    metrics,
+    outliers,
+    batchEffects: await detectBatchEffects(dataset),
+    recommendations: await generateQCRecommendations(metrics, outliers)
+  };
+}
+
+async function runDifferentialExpression(dataset: Dataset, qcResult: QCReport): Promise<DEResults> {
+  const method = dataset.type === 'rna-seq' ? 'DESeq2' : 'limma';
+  const parameters = await optimizeAnalysisParameters(dataset, qcResult);
+  
+  const results = await executeDEAnalysis(method, dataset, parameters);
+  
+  return {
+    significantGenes: results.significant.length,
+    upregulated: results.upregulated.length,
+    downregulated: results.downregulated.length,
+    topPathways: results.topPathways,
+    effectSizes: results.effectSizes
+  };
+}
+
+async function runPathwayEnrichment(deResults: DEResults): Promise<EnrichmentResults> {
+  const databases = ['GO_BP', 'GO_MF', 'GO_CC', 'KEGG', 'Reactome', 'MSigDB_Hallmark'];
+  const enrichmentResults = [];
+  
+  for (const db of databases) {
+    const result = await performEnrichmentAnalysis(db, deResults.significantGenes);
+    enrichmentResults.push(...result.significantTerms);
+  }
+  
+  return {
+    geneSetDatabase: databases,
+    significantPathways: enrichmentResults.length,
+    topTerms: enrichmentResults
+      .sort((a, b) => a.fdr - b.fdr)
+      .slice(0, 20)
+  };
+}
+
+// Decision-Making Workflows
+export async function makeGoNoGoDecision(
+  analysisResult: AnalysisResult,
+  businessCriteria: {
+    minSignificantGenes: number;
+    requiredPathways: string[];
+    confidenceThreshold: number;
+  }
+): Promise<{
+  decision: 'go' | 'no-go' | 'more-data-needed';
+  reasoning: string[];
+  confidence: number;
+  recommendations: string[];
+}> {
+  const criteria = await evaluateAnalysisResults(analysisResult, businessCriteria);
+  const confidence = calculateDecisionConfidence(criteria);
+  
+  let decision: 'go' | 'no-go' | 'more-data-needed';
+  const reasoning: string[] = [];
+  const recommendations: string[] = [];
+  
+  if (confidence < businessCriteria.confidenceThreshold) {
+    decision = 'more-data-needed';
+    reasoning.push('Statistical confidence below threshold');
+    recommendations.push('Consider increasing sample size');
+    recommendations.push('Validate findings with orthogonal methods');
+  } else if (criteria.significantGenes >= businessCriteria.minSignificantGenes) {
+    decision = 'go';
+    reasoning.push(`Found ${criteria.significantGenes} significant genes`);
+    reasoning.push(`Key pathways identified: ${criteria.keyPathways.join(', ')}`);
+  } else {
+    decision = 'no-go';
+    reasoning.push('Insufficient significant findings');
+    recommendations.push('Reconsider experimental design');
+  }
+  
+  return { decision, reasoning, confidence, recommendations };
+}
+
+export async function prioritizeTargets(
+  enrichmentResults: EnrichmentResults,
+  criteria: {
+    therapeuticArea: string;
+    drugability: 'high' | 'medium' | 'low';
+    novelty: 'high' | 'medium' | 'low';
+  }
+): Promise<Array<{
+  target: string;
+  score: number;
+  rationale: string;
+  evidence: string[];
+}>> {
+  const targets = await extractTargetsFromPathways(enrichmentResults);
+  const prioritized = [];
+  
+  for (const target of targets) {
+    const score = await calculateTargetScore(target, criteria);
+    const rationale = await generateTargetRationale(target, score);
+    const evidence = await gatherSupportingEvidence(target);
+    
+    prioritized.push({ target, score, rationale, evidence });
+  }
+  
+  return prioritized.sort((a, b) => b.score - a.score);
+}
+
+// Monitoring and Optimization
+export async function monitorOperationalMetrics(): Promise<{
+  ttfr: number; // Time to first result
+  onTimeDelivery: number;
+  reproducibilityScore: number;
+  customerSatisfaction: number;
+}> {
+  const metrics = await gatherOperationalData();
+  
+  return {
+    ttfr: await calculateMedianTTFR(metrics.deliveries),
+    onTimeDelivery: await calculateOnTimeRate(metrics.deliveries),
+    reproducibilityScore: await calculateReproducibilityScore(metrics.analyses),
+    customerSatisfaction: await calculateNPS(metrics.feedback)
+  };
+}
+
+export async function optimizePipelinePerformance(
+  pipelineId: string,
+  performanceData: any[]
+): Promise<{
+  optimizedParameters: Record<string, any>;
+  expectedImprovement: number;
+  validationResults: any;
+}> {
+  const currentPerformance = await analyzeCurrentPerformance(performanceData);
+  const optimizedParams = await runParameterOptimization(pipelineId, currentPerformance);
+  const validation = await validateOptimization(pipelineId, optimizedParams);
+  
+  return {
+    optimizedParameters: optimizedParams,
+    expectedImprovement: validation.improvementPercent,
+    validationResults: validation
+  };
+}
+
+// Helper functions (implementation details would be filled in)
+async function scheduleDiscoveryCall(lead: Lead): Promise<void> { /* Implementation */ }
+async function trackConversion(lead: Lead, customer: Customer): Promise<void> { /* Implementation */ }
+async function setupSecureDataPortal(customer: Customer): Promise<void> { /* Implementation */ }
+async function provisionAnalysisEnvironment(customer: Customer): Promise<void> { /* Implementation */ }
+async function sendOnboardingMaterials(customer: Customer): Promise<void> { /* Implementation */ }
+async function sendContractForSignature(contract: any): Promise<void> { /* Implementation */ }
+async function getValidationDatasets(dataType: string): Promise<any[]> { /* Implementation */ }
+async function runPipeline(pipeline: any, dataset: any): Promise<any> { /* Implementation */ }
+async function calculateValidationMetrics(result: any): Promise<any> { /* Implementation */ }
+async function compareToBenchmarks(results: any[]): Promise<any> { /* Implementation */ }
+async function sendInvoiceToCustomer(invoice: any): Promise<void> { /* Implementation */ }
+async function trackPayment(invoice: any): Promise<any> { /* Implementation */ }
+async function updateRevenueMetrics(payment: any): Promise<void> { /* Implementation */ }
+async function upgradeSubscription(customer: Customer): Promise<any> { /* Implementation */ }
+async function downgradeSubscription(customer: Customer): Promise<any> { /* Implementation */ }
+async function cancelSubscription(customer: Customer): Promise<any> { /* Implementation */ }
+async function renewSubscription(customer: Customer): Promise<any> { /* Implementation */ }
+async function notifyCustomerOfQCIssues(customerId: string, qcResult: QCReport): Promise<void> { /* Implementation */ }
+async function performExpertReview(result: AnalysisResult): Promise<void> { /* Implementation */ }
+async function deliverResults(result: AnalysisResult): Promise<void> { /* Implementation */ }
+async function handleAnalysisFailure(dataset: Dataset, error: any): Promise<void> { /* Implementation */ }
+async function runQCStep(step: string, dataset: Dataset): Promise<any> { /* Implementation */ }
+async function detectBatchEffects(dataset: Dataset): Promise<boolean> { /* Implementation */ }
+async function generateQCRecommendations(metrics: any, outliers: any[]): Promise<string[]> { /* Implementation */ }
+async function optimizeAnalysisParameters(dataset: Dataset, qcResult: QCReport): Promise<any> { /* Implementation */ }
+async function executeDEAnalysis(method: string, dataset: Dataset, parameters: any): Promise<any> { /* Implementation */ }
+async function performEnrichmentAnalysis(database: string, genes: any): Promise<any> { /* Implementation */ }
+async function evaluateAnalysisResults(result: AnalysisResult, criteria: any): Promise<any> { /* Implementation */ }
+async function calculateDecisionConfidence(criteria: any): Promise<number> { /* Implementation */ }
+async function extractTargetsFromPathways(results: EnrichmentResults): Promise<string[]> { /* Implementation */ }
+async function calculateTargetScore(target: string, criteria: any): Promise<number> { /* Implementation */ }
+async function generateTargetRationale(target: string, score: number): Promise<string> { /* Implementation */ }
+async function gatherSupportingEvidence(target: string): Promise<string[]> { /* Implementation */ }
+async function gatherOperationalData(): Promise<any> { /* Implementation */ }
+async function calculateMedianTTFR(deliveries: any[]): Promise<number> { /* Implementation */ }
+async function calculateOnTimeRate(deliveries: any[]): Promise<number> { /* Implementation */ }
+async function calculateReproducibilityScore(analyses: any[]): Promise<number> { /* Implementation */ }
+async function calculateNPS(feedback: any[]): Promise<number> { /* Implementation */ }
+async function analyzeCurrentPerformance(data: any[]): Promise<any> { /* Implementation */ }
+async function runParameterOptimization(pipelineId: string, performance: any): Promise<any> { /* Implementation */ }
+async function validateOptimization(pipelineId: string, params: any): Promise<any> { /* Implementation */ }
+
+// Utility functions
+function generateCustomerId(): string { return `cust_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`; }
+function generatePipelineId(): string { return `pipe_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`; }
+function generateInvoiceId(): string { return `inv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`; }
+function generateResultId(): string { return `res_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`; }
+```
