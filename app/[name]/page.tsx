@@ -1,0 +1,5 @@
+// landing page for a startup
+
+export default function Page() {
+  return <div>Page</div>
+}
