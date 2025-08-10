@@ -303,7 +303,440 @@ landingPage:
     - Scan red flags and site constraints on the map.
     - Export the memo and push to your deal pipeline or draft an LOI.
 ---
+
 # LandScreen AI
 
 Generated for NAICS 236117 — New Housing For-Sale Builders.
 Service: Land Deal Screen & Quick Underwriting
+
+## Business Workflow Functions
+
+```typescript
+// Core business process types
+interface Lead {
+  id: string;
+  source: 'broker' | 'direct' | 'referral' | 'marketing';
+  parcelData: {
+    address?: string;
+    apn?: string;
+    polygon?: GeoJSON.Polygon;
+    acreage: number;
+  };
+  contactInfo: {
+    name: string;
+    email: string;
+    phone?: string;
+    company?: string;
+  };
+  urgency: 'low' | 'medium' | 'high';
+  createdAt: Date;
+}
+
+interface Customer {
+  id: string;
+  companyName: string;
+  division: string;
+  tier: 'team' | 'enterprise' | 'national';
+  subscriptionPlan: {
+    monthlyScreens: number;
+    overageRate: number;
+    features: string[];
+  };
+  contacts: Array<{
+    name: string;
+    role: string;
+    email: string;
+  }>;
+  integrations: {
+    crm?: 'salesforce' | 'lasso' | 'dealpath';
+    notifications?: 'slack' | 'teams' | 'email';
+  };
+}
+
+interface LandScreen {
+  id: string;
+  parcel: {
+    address: string;
+    apn: string;
+    acreage: number;
+    zoning: string;
+  };
+  analysis: {
+    comps: Array<{
+      address: string;
+      salePrice: number;
+      pricePerSqft: number;
+      saleDate: Date;
+    }>;
+    yield: {
+      estimatedLots: number;
+      confidenceRange: [number, number];
+    };
+    residualLandValue: {
+      value: number;
+      perLot: number;
+      perAcre: number;
+    };
+    absorption: {
+      monthlyPace: number;
+      seasonalityFactor: number;
+    };
+    redFlags: Array<{
+      category: string;
+      severity: 'low' | 'medium' | 'high';
+      description: string;
+    }>;
+  };
+  memo: {
+    executiveSummary: string;
+    recommendation: 'go' | 'no-go' | 'conditional';
+    pdfUrl: string;
+    excelUrl: string;
+  };
+  status: 'processing' | 'completed' | 'reviewed' | 'exported';
+  processingTime: number; // minutes
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  try {
+    const qualifiedLead = await qualifyLead(lead);
+    const demo = await scheduleDemoWithSampleScreen(qualifiedLead);
+    const pilot = await proposePilotProgram(demo);
+    const contract = await negotiateSubscription(pilot);
+    return await onboardCustomer(contract);
+  } catch (error) {
+    await logLeadConversionFailure(lead.id, error);
+    throw error;
+  }
+}
+
+export async function qualifyLead(lead: Lead): Promise<Lead & { qualified: boolean; score: number }> {
+  const builderProfile = await validateBuilderProfile(lead.contactInfo.company);
+  const marketPresence = await assessMarketPresence(builderProfile);
+  const dealVolume = await estimateAnnualDealVolume(builderProfile);
+  
+  const qualificationScore = calculateQualificationScore({
+    builderProfile,
+    marketPresence,
+    dealVolume,
+    urgency: lead.urgency
+  });
+
+  return {
+    ...lead,
+    qualified: qualificationScore >= 70,
+    score: qualificationScore
+  };
+}
+
+export async function scheduleDemoWithSampleScreen(lead: Lead & { qualified: boolean }): Promise<{
+  demoScheduled: boolean;
+  sampleScreen?: LandScreen;
+}> {
+  if (!lead.qualified) {
+    throw new Error('Lead not qualified for demo');
+  }
+
+  const sampleParcel = await findPublicSampleParcel(lead.parcelData);
+  const sampleScreen = await generateSampleScreen(sampleParcel);
+  const demoSlot = await bookDemoSlot(lead.contactInfo);
+  
+  await sendSampleScreenEmail(lead.contactInfo.email, sampleScreen);
+  
+  return {
+    demoScheduled: true,
+    sampleScreen
+  };
+}
+
+// Product Development Processes
+export async function developScreeningCapability(market: string): Promise<{
+  dataSourcesIntegrated: string[];
+  modelAccuracy: number;
+  averageProcessingTime: number;
+}> {
+  const dataSources = await integrateMarketDataSources(market);
+  const compModel = await trainComparableModel(market, dataSources);
+  const yieldModel = await calibrateYieldModel(market);
+  const absorptionModel = await buildAbsorptionModel(market);
+  
+  const accuracy = await validateModelAccuracy([compModel, yieldModel, absorptionModel]);
+  const processingTime = await benchmarkProcessingSpeed();
+  
+  return {
+    dataSourcesIntegrated: dataSources.map(ds => ds.name),
+    modelAccuracy: accuracy,
+    averageProcessingTime: processingTime
+  };
+}
+
+export async function enhanceScreeningAccuracy(feedback: Array<{
+  screenId: string;
+  analystOverride: any;
+  actualOutcome?: any;
+}>): Promise<void> {
+  const patterns = await analyzeAnalystOverrides(feedback);
+  await updateModelWeights(patterns);
+  await retrainRedFlagDetection(feedback);
+  await validateImprovedAccuracy();
+}
+
+// Revenue Generation Flows
+export async function processSubscriptionRevenue(customer: Customer, month: Date): Promise<{
+  baseRevenue: number;
+  overageRevenue: number;
+  totalRevenue: number;
+}> {
+  const usage = await getMonthlyUsage(customer.id, month);
+  const baseRevenue = customer.subscriptionPlan.monthlyScreens * getBaseRate(customer.tier);
+  
+  let overageRevenue = 0;
+  if (usage.screensProcessed > customer.subscriptionPlan.monthlyScreens) {
+    const overageScreens = usage.screensProcessed - customer.subscriptionPlan.monthlyScreens;
+    overageRevenue = overageScreens * customer.subscriptionPlan.overageRate;
+  }
+
+  const analystReviewRevenue = usage.analystReviews * 500;
+  const totalRevenue = baseRevenue + overageRevenue + analystReviewRevenue;
+
+  await recordRevenue(customer.id, {
+    base: baseRevenue,
+    overage: overageRevenue,
+    analystReview: analystReviewRevenue,
+    total: totalRevenue,
+    month
+  });
+
+  return { baseRevenue, overageRevenue, totalRevenue };
+}
+
+export async function expandCustomerRevenue(customer: Customer): Promise<{
+  upsellOpportunities: string[];
+  projectedARR: number;
+}> {
+  const usage = await analyzeCustomerUsage(customer.id);
+  const opportunities = [];
+  let projectedARR = customer.subscriptionPlan.monthlyScreens * 12;
+
+  if (usage.averageMonthlyScreens > customer.subscriptionPlan.monthlyScreens * 0.8) {
+    opportunities.push('upgrade-tier');
+    projectedARR *= 1.5;
+  }
+
+  if (!customer.integrations.crm) {
+    opportunities.push('crm-integration');
+  }
+
+  if (usage.analystReviewRate < 0.1) {
+    opportunities.push('analyst-review-addon');
+  }
+
+  return { upsellOpportunities: opportunities, projectedARR };
+}
+
+// Operational Procedures
+export async function processLandScreen(request: {
+  customerId: string;
+  parcelData: Lead['parcelData'];
+  productType: string;
+  assumptions: any;
+}): Promise<LandScreen> {
+  const startTime = Date.now();
+  
+  try {
+    const parcelInfo = await geocodeAndEnrichParcel(request.parcelData);
+    const comps = await fetchComparables(parcelInfo);
+    const zoning = await analyzeZoning(parcelInfo);
+    const yield = await calculateYield(parcelInfo, zoning, request.productType);
+    const absorption = await modelAbsorption(parcelInfo, comps);
+    const rlv = await computeResidualLandValue(yield, absorption, request.assumptions);
+    const redFlags = await detectRedFlags(parcelInfo);
+    
+    const memo = await generateMemo({
+      parcelInfo,
+      comps,
+      yield,
+      absorption,
+      rlv,
+      redFlags
+    });
+
+    const processingTime = (Date.now() - startTime) / (1000 * 60); // minutes
+
+    const screen: LandScreen = {
+      id: generateScreenId(),
+      parcel: {
+        address: parcelInfo.address,
+        apn: parcelInfo.apn,
+        acreage: parcelInfo.acreage,
+        zoning: zoning.designation
+      },
+      analysis: {
+        comps,
+        yield,
+        residualLandValue: rlv,
+        absorption,
+        redFlags
+      },
+      memo,
+      status: 'completed',
+      processingTime
+    };
+
+    await saveScreen(screen);
+    await notifyCustomer(request.customerId, screen);
+    
+    return screen;
+  } catch (error) {
+    await logProcessingError(request, error);
+    throw error;
+  }
+}
+
+export async function maintainDataQuality(): Promise<{
+  dataSourcesChecked: number;
+  issuesFound: number;
+  issuesResolved: number;
+}> {
+  const dataSources = await getAllDataSources();
+  let issuesFound = 0;
+  let issuesResolved = 0;
+
+  for (const source of dataSources) {
+    const healthCheck = await checkDataSourceHealth(source);
+    if (!healthCheck.healthy) {
+      issuesFound++;
+      const resolved = await attemptDataSourceRepair(source, healthCheck.issues);
+      if (resolved) issuesResolved++;
+    }
+  }
+
+  await updateDataFreshnessMetrics();
+  await validateModelPerformance();
+
+  return {
+    dataSourcesChecked: dataSources.length,
+    issuesFound,
+    issuesResolved
+  };
+}
+
+// Decision-Making Workflows
+export async function evaluateMarketExpansion(market: string): Promise<{
+  recommendation: 'expand' | 'wait' | 'skip';
+  confidence: number;
+  reasoning: string[];
+}> {
+  const marketAnalysis = await analyzeMarketOpportunity(market);
+  const competitorPresence = await assessCompetitorPresence(market);
+  const dataAvailability = await evaluateDataSourceCoverage(market);
+  const customerDemand = await estimateCustomerDemand(market);
+
+  const score = calculateExpansionScore({
+    marketSize: marketAnalysis.builderCount,
+    growthRate: marketAnalysis.growthRate,
+    competition: competitorPresence.intensity,
+    dataQuality: dataAvailability.score,
+    demand: customerDemand.score
+  });
+
+  let recommendation: 'expand' | 'wait' | 'skip';
+  const reasoning: string[] = [];
+
+  if (score >= 80) {
+    recommendation = 'expand';
+    reasoning.push('Strong market opportunity with good data coverage');
+  } else if (score >= 60) {
+    recommendation = 'wait';
+    reasoning.push('Market has potential but needs better data sources or timing');
+  } else {
+    recommendation = 'skip';
+    reasoning.push('Market opportunity insufficient or too competitive');
+  }
+
+  return {
+    recommendation,
+    confidence: score,
+    reasoning
+  };
+}
+
+export async function prioritizeProductFeatures(feedback: Array<{
+  customerId: string;
+  feature: string;
+  priority: number;
+  impact: string;
+}>): Promise<{
+  roadmap: Array<{
+    feature: string;
+    priority: number;
+    estimatedEffort: number;
+    expectedImpact: string;
+  }>;
+}> {
+  const featureScores = await scoreFeatureRequests(feedback);
+  const technicalComplexity = await assessTechnicalComplexity(featureScores.map(f => f.feature));
+  const customerImpact = await modelCustomerImpact(featureScores);
+
+  const roadmap = featureScores
+    .map(feature => ({
+      ...feature,
+      estimatedEffort: technicalComplexity[feature.feature] || 5,
+      expectedImpact: customerImpact[feature.feature] || 'medium'
+    }))
+    .sort((a, b) => (b.priority / b.estimatedEffort) - (a.priority / a.estimatedEffort));
+
+  return { roadmap };
+}
+
+// Helper function declarations (these would be implemented separately)
+declare function validateBuilderProfile(company?: string): Promise<any>;
+declare function assessMarketPresence(profile: any): Promise<any>;
+declare function estimateAnnualDealVolume(profile: any): Promise<any>;
+declare function calculateQualificationScore(params: any): number;
+declare function findPublicSampleParcel(parcelData: any): Promise<any>;
+declare function generateSampleScreen(parcel: any): Promise<LandScreen>;
+declare function bookDemoSlot(contact: any): Promise<any>;
+declare function sendSampleScreenEmail(email: string, screen: LandScreen): Promise<void>;
+declare function integrateMarketDataSources(market: string): Promise<any[]>;
+declare function trainComparableModel(market: string, sources: any[]): Promise<any>;
+declare function calibrateYieldModel(market: string): Promise<any>;
+declare function buildAbsorptionModel(market: string): Promise<any>;
+declare function validateModelAccuracy(models: any[]): Promise<number>;
+declare function benchmarkProcessingSpeed(): Promise<number>;
+declare function analyzeAnalystOverrides(feedback: any[]): Promise<any>;
+declare function updateModelWeights(patterns: any): Promise<void>;
+declare function retrainRedFlagDetection(feedback: any[]): Promise<void>;
+declare function validateImprovedAccuracy(): Promise<void>;
+declare function getMonthlyUsage(customerId: string, month: Date): Promise<any>;
+declare function getBaseRate(tier: string): number;
+declare function recordRevenue(customerId: string, revenue: any): Promise<void>;
+declare function analyzeCustomerUsage(customerId: string): Promise<any>;
+declare function geocodeAndEnrichParcel(parcelData: any): Promise<any>;
+declare function fetchComparables(parcelInfo: any): Promise<any>;
+declare function analyzeZoning(parcelInfo: any): Promise<any>;
+declare function calculateYield(parcelInfo: any, zoning: any, productType: string): Promise<any>;
+declare function modelAbsorption(parcelInfo: any, comps: any): Promise<any>;
+declare function computeResidualLandValue(yield: any, absorption: any, assumptions: any): Promise<any>;
+declare function detectRedFlags(parcelInfo: any): Promise<any>;
+declare function generateMemo(data: any): Promise<any>;
+declare function generateScreenId(): string;
+declare function saveScreen(screen: LandScreen): Promise<void>;
+declare function notifyCustomer(customerId: string, screen: LandScreen): Promise<void>;
+declare function logProcessingError(request: any, error: any): Promise<void>;
+declare function logLeadConversionFailure(leadId: string, error: any): Promise<void>;
+declare function getAllDataSources(): Promise<any[]>;
+declare function checkDataSourceHealth(source: any): Promise<any>;
+declare function attemptDataSourceRepair(source: any, issues: any): Promise<boolean>;
+declare function updateDataFreshnessMetrics(): Promise<void>;
+declare function validateModelPerformance(): Promise<void>;
+declare function analyzeMarketOpportunity(market: string): Promise<any>;
+declare function assessCompetitorPresence(market: string): Promise<any>;
+declare function evaluateDataSourceCoverage(market: string): Promise<any>;
+declare function estimateCustomerDemand(market: string): Promise<any>;
+declare function calculateExpansionScore(params: any): number;
+declare function scoreFeatureRequests(feedback: any[]): Promise<any[]>;
+declare function assessTechnicalComplexity(features: string[]): Promise<Record<string, number>>;
+declare function modelCustomerImpact(features: any[]): Promise<Record<string, string>>;
+```
