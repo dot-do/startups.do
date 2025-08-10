@@ -1,11 +1,16 @@
-# startups.do Business-as-Code
+# Startups.do
 
-Transform AI startup creation into code. startups.do generates, evaluates, and assembles startups from Occupations and NAICS-coded opportunities using Functions, Workflows, and Agents.
+Transform AI startup creation with `.do` and Business-as-Code. 
+
+---
+
+`Startups.do` generates, evaluates, and assembles startups from Industries and Occupations to uncover AI Service business opportunities using Functions, Workflows, and Agents.
 
 - Vision: Business-as-Code (define the business as code; generate the rest with AI)
 - Output: MDX-driven startup sites in `startups/{name}.mdx` backed by YAML frontmatter
 - Engine: AI workflows that research, score, design, and build startup artifacts
 - Automation: Assign implementation to Devin via the Devin API and generate slides
+
 
 Links:
 - See ROADMAP: ./ROADMAP.md
