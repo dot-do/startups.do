@@ -319,6 +319,357 @@ landingPage:
       Improve: Track outcomes and ROI; models retrain continuously as conditions
       change.
 ---
+
+// Business Process Functions for LiftGuard AI
+
+export interface Lead {
+  companyName: string;
+  contactInfo: ContactInfo;
+  wellCount: number;
+  liftTypes: ('ESP' | 'RodLift')[];
+  currentFailureRate: number;
+  estimatedRevenue: number;
+  region: string;
+}
+
+export interface ContactInfo {
+  name: string;
+  title: string;
+  email: string;
+  phone: string;
+}
+
+export interface Customer {
+  id: string;
+  companyName: string;
+  contractValue: number;
+  wellsConnected: number;
+  onboardingStatus: 'pending' | 'in-progress' | 'complete';
+  integrationComplexity: 'low' | 'medium' | 'high';
+}
+
+export interface WellData {
+  wellId: string;
+  liftType: 'ESP' | 'RodLift';
+  scadaData: ScadaMetrics;
+  vsdData: VsdMetrics;
+  productionData: ProductionMetrics;
+  historicalFailures: FailureEvent[];
+}
+
+export interface PredictionResult {
+  wellId: string;
+  failureMode: string;
+  probability: number;
+  leadTimeDays: number;
+  confidence: number;
+  prescriptiveActions: Action[];
+}
+
+export interface Action {
+  type: 'vsd_adjustment' | 'chemical_dosing' | 'workover_schedule' | 'maintenance';
+  description: string;
+  priority: 'low' | 'medium' | 'high' | 'critical';
+  estimatedCost: number;
+  expectedBenefit: number;
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const proposal = await generateProposal(qualifiedLead);
+  const contract = await negotiateContract(proposal);
+  const customer = await onboardCustomer(contract);
+  
+  await scheduleKickoffMeeting(customer);
+  await assignAccountManager(customer);
+  
+  return customer;
+}
+
+export async function qualifyLead(lead: Lead): Promise<Lead> {
+  // Validate minimum well count and revenue potential
+  if (lead.wellCount < 50) {
+    throw new Error('Lead does not meet minimum well count threshold');
+  }
+  
+  const revenueScore = calculateRevenueScore(lead);
+  const technicalFitScore = await assessTechnicalFit(lead);
+  
+  if (revenueScore < 0.6 || technicalFitScore < 0.7) {
+    throw new Error('Lead does not meet qualification criteria');
+  }
+  
+  return { ...lead, qualified: true };
+}
+
+export async function generateProposal(lead: Lead): Promise<Proposal> {
+  const wellAnalysis = await analyzeWellPortfolio(lead);
+  const savingsProjection = calculateSavingsProjection(wellAnalysis);
+  const pricingTier = determinePricingTier(lead.wellCount, lead.liftTypes);
+  
+  return {
+    customerId: lead.companyName,
+    wellCount: lead.wellCount,
+    projectedSavings: savingsProjection,
+    pricing: pricingTier,
+    implementationTimeline: calculateImplementationTimeline(lead),
+    roi: savingsProjection.annualSavings / pricingTier.annualCost
+  };
+}
+
+// Product Development Processes
+export async function developPredictiveModel(trainingData: WellData[]): Promise<MLModel> {
+  const preprocessedData = await preprocessWellData(trainingData);
+  const physicsFeatures = extractPhysicsInformedFeatures(preprocessedData);
+  const mlFeatures = await generateMLFeatures(preprocessedData);
+  
+  const combinedFeatures = mergeFeatureSets(physicsFeatures, mlFeatures);
+  const model = await trainHybridModel(combinedFeatures);
+  
+  const validationResults = await validateModel(model, preprocessedData);
+  if (validationResults.recall < 0.7 || validationResults.precision < 0.6) {
+    throw new Error('Model does not meet performance thresholds');
+  }
+  
+  return model;
+}
+
+export async function generatePrescriptiveActions(prediction: PredictionResult): Promise<Action[]> {
+  const failureMode = prediction.failureMode;
+  const wellContext = await getWellContext(prediction.wellId);
+  
+  const actions: Action[] = [];
+  
+  switch (failureMode) {
+    case 'gas_interference':
+      actions.push(await generateGasLockClearingSequence(wellContext));
+      actions.push(await optimizeVSDSettings(wellContext, 'gas_mitigation'));
+      break;
+    case 'scale_deposition':
+      actions.push(await adjustChemicalDosing(wellContext, 'scale_inhibitor'));
+      actions.push(await schedulePreventiveMaintenance(wellContext, 7));
+      break;
+    case 'rod_string_wear':
+      actions.push(await scheduleWorkover(wellContext, prediction.leadTimeDays - 2));
+      actions.push(await orderSpareParts(wellContext, 'rod_string'));
+      break;
+    case 'electrical_issues':
+      actions.push(await schedulePowerQualityCheck(wellContext));
+      actions.push(await adjustVSDProtectionSettings(wellContext));
+      break;
+  }
+  
+  return prioritizeActions(actions, prediction.confidence);
+}
+
+// Revenue Generation Flows
+export async function processSubscriptionBilling(customer: Customer): Promise<BillingResult> {
+  const wellsConnected = await getConnectedWellCount(customer.id);
+  const usageMetrics = await calculateUsageMetrics(customer.id);
+  const baseSubscription = calculateBaseSubscription(wellsConnected, customer.liftTypes);
+  
+  let totalAmount = baseSubscription;
+  
+  // Add premium features
+  if (customer.hasEdgeIntegration) {
+    totalAmount += calculateEdgeIntegrationFees(usageMetrics.edgeHours);
+  }
+  
+  if (customer.hasChemicalAdvisory) {
+    totalAmount += wellsConnected * 20; // $20/well-month
+  }
+  
+  const invoice = await generateInvoice(customer, totalAmount, usageMetrics);
+  const paymentResult = await processPayment(invoice);
+  
+  if (customer.hasSuccessFeeOption) {
+    const verifiedSavings = await calculateVerifiedSavings(customer.id);
+    const successFee = verifiedSavings * customer.successFeeRate;
+    await processSuccessFeePayment(customer, successFee);
+  }
+  
+  return {
+    customerId: customer.id,
+    invoiceAmount: totalAmount,
+    paymentStatus: paymentResult.status,
+    nextBillingDate: addMonths(new Date(), 1)
+  };
+}
+
+export async function trackCustomerROI(customerId: string): Promise<ROIMetrics> {
+  const baseline = await getCustomerBaseline(customerId);
+  const currentMetrics = await getCurrentPerformanceMetrics(customerId);
+  
+  const downtimeReduction = calculateDowntimeReduction(baseline, currentMetrics);
+  const mtbfImprovement = calculateMTBFImprovement(baseline, currentMetrics);
+  const loeReduction = calculateLOEReduction(baseline, currentMetrics);
+  
+  const totalSavings = downtimeReduction.savings + loeReduction.savings;
+  const customerSpend = await getCustomerSpend(customerId);
+  
+  return {
+    customerId,
+    totalSavings,
+    customerSpend,
+    roi: totalSavings / customerSpend,
+    downtimeReduction: downtimeReduction.percentage,
+    mtbfImprovement: mtbfImprovement.percentage,
+    loeReduction: loeReduction.percentage,
+    measurementPeriod: '12_months'
+  };
+}
+
+// Operational Procedures
+export async function ingestWellData(wellId: string): Promise<WellData> {
+  const scadaData = await fetchSCADAData(wellId);
+  const vsdData = await fetchVSDData(wellId);
+  const productionData = await fetchProductionData(wellId);
+  const historicalFailures = await fetchFailureHistory(wellId);
+  
+  const validatedData = await validateDataQuality({
+    wellId,
+    scadaData,
+    vsdData,
+    productionData,
+    historicalFailures
+  });
+  
+  if (validatedData.qualityScore < 0.8) {
+    await flagDataQualityIssue(wellId, validatedData.issues);
+  }
+  
+  await storeWellData(validatedData);
+  await triggerPredictionUpdate(wellId);
+  
+  return validatedData;
+}
+
+export async function monitorSystemHealth(): Promise<SystemHealthReport> {
+  const modelPerformance = await checkModelPerformance();
+  const dataIngestionHealth = await checkDataIngestionHealth();
+  const predictionLatency = await checkPredictionLatency();
+  const customerSatisfaction = await checkCustomerSatisfaction();
+  
+  const overallHealth = calculateOverallHealth([
+    modelPerformance,
+    dataIngestionHealth,
+    predictionLatency,
+    customerSatisfaction
+  ]);
+  
+  if (overallHealth.score < 0.8) {
+    await triggerHealthAlert(overallHealth);
+    await scheduleSystemMaintenance();
+  }
+  
+  return {
+    timestamp: new Date(),
+    overallScore: overallHealth.score,
+    modelPerformance,
+    dataIngestionHealth,
+    predictionLatency,
+    customerSatisfaction,
+    recommendations: generateHealthRecommendations(overallHealth)
+  };
+}
+
+// Decision-Making Workflows
+export async function prioritizeCustomerRequests(requests: CustomerRequest[]): Promise<CustomerRequest[]> {
+  const scoredRequests = await Promise.all(
+    requests.map(async (request) => {
+      const customerTier = await getCustomerTier(request.customerId);
+      const businessImpact = calculateBusinessImpact(request);
+      const technicalComplexity = assessTechnicalComplexity(request);
+      const urgency = calculateUrgency(request);
+      
+      const priorityScore = (
+        customerTier.weight * 0.3 +
+        businessImpact * 0.4 +
+        (1 - technicalComplexity) * 0.2 +
+        urgency * 0.1
+      );
+      
+      return { ...request, priorityScore };
+    })
+  );
+  
+  return scoredRequests.sort((a, b) => b.priorityScore - a.priorityScore);
+}
+
+export async function decideModelRetraining(modelId: string): Promise<RetrainingDecision> {
+  const performanceMetrics = await getModelPerformanceMetrics(modelId);
+  const driftDetection = await detectModelDrift(modelId);
+  const newDataAvailability = await checkNewTrainingData(modelId);
+  
+  const shouldRetrain = (
+    performanceMetrics.recall < 0.7 ||
+    performanceMetrics.precision < 0.6 ||
+    driftDetection.driftScore > 0.3 ||
+    newDataAvailability.significantNewData
+  );
+  
+  if (shouldRetrain) {
+    const retrainingPlan = await createRetrainingPlan(modelId, {
+      performanceIssues: performanceMetrics,
+      driftIssues: driftDetection,
+      newData: newDataAvailability
+    });
+    
+    return {
+      decision: 'retrain',
+      reasoning: generateRetrainingReasoning(performanceMetrics, driftDetection),
+      plan: retrainingPlan,
+      estimatedDuration: retrainingPlan.estimatedHours,
+      priority: calculateRetrainingPriority(performanceMetrics, driftDetection)
+    };
+  }
+  
+  return {
+    decision: 'no_action',
+    reasoning: 'Model performance within acceptable thresholds',
+    nextEvaluationDate: addWeeks(new Date(), 2)
+  };
+}
+
+export default function Page() {
+  return (
+    <>
+      <Hero
+        title="Predict ESP & Rod Lift Failures Before They Happen"
+        subtitle="AI early warning and prescriptive actions to cut downtime, deferment, and LOE across your field."
+        ctaText="Request a Demo"
+        ctaHref="/demo"
+      />
+      <Problem bullets={[
+        "Unplanned ESP/rod lift failures drive production deferment and costly workovers",
+        "Reactive maintenance extends MTTR and elevates HSE exposure",
+        "SCADA, historian, and CMMS data are siloed—insight comes too late",
+        "Alarm floods and false positives overwhelm engineers and operators"
+      ]} />
+      <Solution bullets={[
+        "Predict imminent lift failures (days in advance) with confidence and failure-mode tagging",
+        "Prescribe preventive actions: setpoint changes, speed ramps, chemical treatments, gas mitigation",
+        "Prioritize wells by production at risk and time-to-failure for focused action",
+        "Auto-orchestrate work orders, routes, and vendor notifications via CMMS integration"
+      ]} />
+      <Features items={[
+        "Time-to-failure forecasts with confidence intervals",
+        "Failure-mode classification: gas lock, vibration/wear, scale/sand, overheating, pump-off",
+        "Prescriptive playbooks with step-by-step actions and expected impact",
+        "Real-time streaming integrations: SCADA, historians, edge gateways",
+        "CMMS connectors: SAP PM, IBM Maximo—auto-create and update work orders"
+      ]} />
+      <Steps steps={[
+        "Connect: Hook up SCADA/historian, well tests, failure logs, and CMMS in days",
+        "Calibrate: Train on your run histories; validate with lift SMEs and field trials",
+        "Configure: Choose playbooks, alert thresholds, and integration endpoints",
+        "Go Live: Start early warnings and prescriptive advisories to field teams"
+      ]} />
+    </>
+  )
+}
+
 # LiftGuard AI
 
 Generated for NAICS 211120 — Crude Petroleum Extraction.
