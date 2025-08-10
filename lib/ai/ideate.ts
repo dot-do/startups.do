@@ -1,5 +1,6 @@
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
+import PQueue from 'p-queue'
 import { leanCanvas } from './leanCanvas'
 import { setStartup } from '../startups/setStartup'
 import type { StartupDocInput } from '../startups/setStartup'
@@ -135,6 +136,8 @@ export async function ideate(opts: IdeateOptions = {}): Promise<IdeatedIdea[]> {
   const limitedOccs = typeof maxOccupations === 'number' ? shuffledOccs.slice(0, maxOccupations) : shuffledOccs
 
   const results: IdeatedIdea[] = []
+  const queue = new PQueue({ concurrency: 20 })
+  const taskPromises: Promise<void>[] = []
 
   console.log(`Starting ideation process...`)
   console.log(`Processing ${limitedNaics.length} industries and ${limitedOccs.length} occupations`)
@@ -153,58 +156,60 @@ export async function ideate(opts: IdeateOptions = {}): Promise<IdeatedIdea[]> {
 
     for (let serviceIndex = 0; serviceIndex < limitedServices.length; serviceIndex++) {
       const svc = limitedServices[serviceIndex]
-      const title = String((svc as any).title ?? 'AI Service')
-      const description = String((svc as any).description ?? '')
-      const serviceIdea = `${title} — AI service for ${n.industry} (NAICS ${n.naics})`
-      console.log(`  Processing service ${serviceIndex + 1}/${limitedServices.length}: ${title}`)
-      const ctx = [
-        additionalContext ? `Context: ${additionalContext}` : null,
-        description ? `Service description: ${description}` : null,
-      ]
-        .filter(Boolean)
-        .join('\n')
+      taskPromises.push(queue.add(async () => {
+        const title = String((svc as any).title ?? 'AI Service')
+        const description = String((svc as any).description ?? '')
+        const serviceIdea = `${title} — AI service for ${n.industry} (NAICS ${n.naics})`
+        console.log(`  Processing service ${serviceIndex + 1}/${limitedServices.length}: ${title}`)
+        const ctx = [
+          additionalContext ? `Context: ${additionalContext}` : null,
+          description ? `Service description: ${description}` : null,
+        ]
+          .filter(Boolean)
+          .join('\n')
 
-      console.log(`    Generating lean canvas for: ${title}`)
-      const canvas = await leanCanvas(serviceIdea, ctx)
-      console.log(`    Generating story brand for: ${title}`)
-      const sb = await storyBrand(serviceIdea, ctx)
-      console.log(`    Generating landing page for: ${title}`)
-      const lp = await landingPage(serviceIdea, ctx)
+        console.log(`    Generating lean canvas for: ${title}`)
+        const canvas = await leanCanvas(serviceIdea, ctx)
+        console.log(`    Generating story brand for: ${title}`)
+        const sb = await storyBrand(serviceIdea, ctx)
+        console.log(`    Generating landing page for: ${title}`)
+        const lp = await landingPage(serviceIdea, ctx)
 
-      const businessName = canvas.object.businessName
-      const baseSlug = subdomainName(businessName)
-      const slug = persist ? await ensureUniqueSlug(baseSlug) : baseSlug
-      results.push({ kind: 'industry', naics: n, canvas, slug })
+        const businessName = canvas.object.businessName
+        const baseSlug = subdomainName(businessName)
+        const slug = persist ? await ensureUniqueSlug(baseSlug) : baseSlug
+        results.push({ kind: 'industry', naics: n, canvas, slug })
 
-      if (persist) {
-        const frontmatter = {
-          name: businessName,
-          slug,
-          naics: { primary: n.naics, occupations: [] as string[] },
-          service: svc,
-          leanCanvas: {
-            problem: canvas.object.problemStatement,
-            solution: canvas.object.solution,
-            uniqueValueProp: canvas.object.uniqueValueProposition,
-            unfairAdvantage: canvas.object.unfairAdvantage,
-            customerSegments: canvas.object.customerSegments,
-            channels: canvas.object.channels,
-            revenueStreams: canvas.object.revenueStreams,
-            costStructure: canvas.object.costStructure,
-            keyMetrics: canvas.object.keyMetrics,
-          },
-          storyBrand: (sb as any).object,
-          landingPage: (lp as any).object,
-        }
-        const content = `# ${businessName}
+        if (persist) {
+          const frontmatter = {
+            name: businessName,
+            slug,
+            naics: { primary: n.naics, occupations: [] as string[] },
+            service: svc,
+            leanCanvas: {
+              problem: canvas.object.problemStatement,
+              solution: canvas.object.solution,
+              uniqueValueProp: canvas.object.uniqueValueProposition,
+              unfairAdvantage: canvas.object.unfairAdvantage,
+              customerSegments: canvas.object.customerSegments,
+              channels: canvas.object.channels,
+              revenueStreams: canvas.object.revenueStreams,
+              costStructure: canvas.object.costStructure,
+              keyMetrics: canvas.object.keyMetrics,
+            },
+            storyBrand: (sb as any).object,
+            landingPage: (lp as any).object,
+          }
+          const content = `# ${businessName}
 
 Generated for NAICS ${n.naics} — ${n.industry}.
 Service: ${title}
 `
-        const doc: StartupDocInput<typeof frontmatter> = { data: frontmatter, content }
-        await setStartup(slug, doc)
-        console.log(`    Saved startup: ${slug}`)
-      }
+          const doc: StartupDocInput<typeof frontmatter> = { data: frontmatter, content }
+          await setStartup(slug, doc)
+          console.log(`    Saved startup: ${slug}`)
+        }
+      }))
     }
   }
 
@@ -227,62 +232,65 @@ Service: ${title}
 
     for (let serviceIndex = 0; serviceIndex < limitedServices.length; serviceIndex++) {
       const svc = limitedServices[serviceIndex]
-      const title = String((svc as any).title ?? 'AI Service')
-      const description = String((svc as any).description ?? '')
-      const serviceIdea = `${title} — AI copilot for ${o.name}`
-      console.log(`  Processing service ${serviceIndex + 1}/${limitedServices.length}: ${title}`)
-      const ctx = [
-        additionalContext ? `Context: ${additionalContext}` : null,
-        o.description ? `Occupation description: ${o.description}` : null,
-        description ? `Service description: ${description}` : null,
-      ]
-        .filter(Boolean)
-        .join('\n')
+      taskPromises.push(queue.add(async () => {
+        const title = String((svc as any).title ?? 'AI Service')
+        const description = String((svc as any).description ?? '')
+        const serviceIdea = `${title} — AI copilot for ${o.name}`
+        console.log(`  Processing service ${serviceIndex + 1}/${limitedServices.length}: ${title}`)
+        const ctx = [
+          additionalContext ? `Context: ${additionalContext}` : null,
+          o.description ? `Occupation description: ${o.description}` : null,
+          description ? `Service description: ${description}` : null,
+        ]
+          .filter(Boolean)
+          .join('\n')
 
-      console.log(`    Generating lean canvas for: ${title}`)
-      const canvas = await leanCanvas(serviceIdea, ctx)
-      console.log(`    Generating story brand for: ${title}`)
-      const sb = await storyBrand(serviceIdea, ctx)
-      console.log(`    Generating landing page for: ${title}`)
-      const lp = await landingPage(serviceIdea, ctx)
+        console.log(`    Generating lean canvas for: ${title}`)
+        const canvas = await leanCanvas(serviceIdea, ctx)
+        console.log(`    Generating story brand for: ${title}`)
+        const sb = await storyBrand(serviceIdea, ctx)
+        console.log(`    Generating landing page for: ${title}`)
+        const lp = await landingPage(serviceIdea, ctx)
 
-      const businessName = canvas.object.businessName
-      const baseSlug = subdomainName(businessName)
-      const slug = persist ? await ensureUniqueSlug(baseSlug) : baseSlug
-      results.push({ kind: 'occupation', occupation: o, canvas, slug })
+        const businessName = canvas.object.businessName
+        const baseSlug = subdomainName(businessName)
+        const slug = persist ? await ensureUniqueSlug(baseSlug) : baseSlug
+        results.push({ kind: 'occupation', occupation: o, canvas, slug })
 
-      if (persist) {
-        const frontmatter = {
-          name: businessName,
-          slug,
-          naics: { primary: '', occupations: [o.name] },
-          service: svc,
-          leanCanvas: {
-            problem: canvas.object.problemStatement,
-            solution: canvas.object.solution,
-            uniqueValueProp: canvas.object.uniqueValueProposition,
-            unfairAdvantage: canvas.object.unfairAdvantage,
-            customerSegments: canvas.object.customerSegments,
-            channels: canvas.object.channels,
-            revenueStreams: canvas.object.revenueStreams,
-            costStructure: canvas.object.costStructure,
-            keyMetrics: canvas.object.keyMetrics,
-          },
-          storyBrand: (sb as any).object,
-          landingPage: (lp as any).object,
-        }
-        const content = `# ${businessName}
+        if (persist) {
+          const frontmatter = {
+            name: businessName,
+            slug,
+            naics: { primary: '', occupations: [o.name] },
+            service: svc,
+            leanCanvas: {
+              problem: canvas.object.problemStatement,
+              solution: canvas.object.solution,
+              uniqueValueProp: canvas.object.uniqueValueProposition,
+              unfairAdvantage: canvas.object.unfairAdvantage,
+              customerSegments: canvas.object.customerSegments,
+              channels: canvas.object.channels,
+              revenueStreams: canvas.object.revenueStreams,
+              costStructure: canvas.object.costStructure,
+              keyMetrics: canvas.object.keyMetrics,
+            },
+            storyBrand: (sb as any).object,
+            landingPage: (lp as any).object,
+          }
+          const content = `# ${businessName}
 
 Generated for Occupation ${o.code} — ${o.name}.
 Service: ${title}
 `
-        const doc: StartupDocInput<typeof frontmatter> = { data: frontmatter, content }
-        await setStartup(slug, doc)
-        console.log(`    Saved startup: ${slug}`)
-      }
+          const doc: StartupDocInput<typeof frontmatter> = { data: frontmatter, content }
+          await setStartup(slug, doc)
+          console.log(`    Saved startup: ${slug}`)
+        }
+      }))
     }
   }
 
+  await Promise.all(taskPromises)
   console.log(`Ideation complete! Generated ${results.length} total ideas`)
   return results
 }
