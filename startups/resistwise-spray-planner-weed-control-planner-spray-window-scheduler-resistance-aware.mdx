@@ -306,6 +306,688 @@ landingPage:
     - 'Receive alerts, adjust timing, and lock in the plan'
     - 'Execute, log applications, and export records for audits and rebates'
 ---
+
+import { Business } from '@dot-do/business-as-code'
+
+// Core business workflow functions for ResistWise Spray Planner
+
+export interface Lead {
+  id: string
+  name: string
+  email: string
+  phone: string
+  acres: number
+  location: string
+  currentProgram?: string
+  painPoints: string[]
+  source: 'referral' | 'website' | 'event' | 'partner'
+}
+
+export interface Customer {
+  id: string
+  name: string
+  email: string
+  acres: number
+  subscriptionTier: 'startup' | 'growth' | 'enterprise'
+  fields: Field[]
+  onboardedAt: Date
+}
+
+export interface Field {
+  id: string
+  name: string
+  acres: number
+  soybeanTrait: 'Enlist' | 'XtendFlex' | 'LibertyLink' | 'Conventional'
+  weedHistory: string[]
+  resistanceConcerns: string[]
+  location: { lat: number; lng: number }
+}
+
+export interface SprayPlan {
+  id: string
+  fieldId: string
+  preEmergenceProgram: HerbicideProgram
+  postEmergenceProgram: HerbicideProgram
+  sprayWindows: SprayWindow[]
+  totalCost: number
+  expectedControlRate: number
+  riskScore: number
+}
+
+export interface HerbicideProgram {
+  products: Array<{
+    name: string
+    rate: number
+    moa: string
+    cost: number
+  }>
+  adjuvants: string[]
+  tankMixCompatible: boolean
+  labelCompliant: boolean
+}
+
+export interface SprayWindow {
+  start: Date
+  end: Date
+  weatherConditions: {
+    windSpeed: number
+    temperature: number
+    humidity: number
+    inversionRisk: 'low' | 'medium' | 'high'
+  }
+  confidenceScore: number
+  priority: 'primary' | 'backup'
+}
+
+export interface Subscription {
+  customerId: string
+  acres: number
+  tier: 'startup' | 'growth' | 'enterprise'
+  pricePerAcre: number
+  totalAmount: number
+  billingCycle: 'seasonal' | 'annual'
+  features: string[]
+}
+
+// Customer Acquisition Workflow
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead)
+  
+  if (!qualifiedLead.qualified) {
+    throw new Error(`Lead ${lead.name} does not meet qualification criteria`)
+  }
+  
+  const proposal = await generateProposal(qualifiedLead)
+  const contract = await negotiateContract(proposal)
+  const customer = await onboardCustomer(contract)
+  
+  // Track acquisition metrics
+  await trackMetric('customer_acquired', {
+    customerId: customer.id,
+    acres: customer.acres,
+    source: lead.source,
+    conversionTime: Date.now() - new Date(lead.createdAt).getTime()
+  })
+  
+  return customer
+}
+
+export async function qualifyLead(lead: Lead): Promise<{ qualified: boolean; score: number; reasons: string[] }> {
+  const qualificationCriteria = {
+    minAcres: 1000,
+    targetRegions: ['IL', 'IA', 'MN', 'IN', 'MO', 'NE', 'OH', 'SD', 'ND', 'KS', 'AR'],
+    painPointsRequired: ['resistance', 'timing', 'compliance']
+  }
+  
+  let score = 0
+  const reasons: string[] = []
+  
+  // Acres qualification
+  if (lead.acres >= qualificationCriteria.minAcres) {
+    score += 40
+    reasons.push(`Manages ${lead.acres} acres (meets minimum)`)
+  } else {
+    reasons.push(`Only ${lead.acres} acres (below ${qualificationCriteria.minAcres} minimum)`)
+  }
+  
+  // Geographic qualification
+  const state = extractStateFromLocation(lead.location)
+  if (qualificationCriteria.targetRegions.includes(state)) {
+    score += 30
+    reasons.push(`Located in target region: ${state}`)
+  } else {
+    reasons.push(`Outside target regions: ${state}`)
+  }
+  
+  // Pain point alignment
+  const alignedPainPoints = lead.painPoints.filter(pain => 
+    qualificationCriteria.painPointsRequired.some(required => 
+      pain.toLowerCase().includes(required)
+    )
+  )
+  score += alignedPainPoints.length * 10
+  reasons.push(`${alignedPainPoints.length} aligned pain points`)
+  
+  return {
+    qualified: score >= 70,
+    score,
+    reasons
+  }
+}
+
+export async function generateProposal(lead: Lead): Promise<{
+  customProgram: SprayPlan[]
+  pricing: Subscription
+  roi: { savings: number; riskReduction: number }
+}> {
+  // Analyze lead's current program and resistance data
+  const resistanceData = await fetchLocalResistanceData(lead.location)
+  const currentProgramCost = estimateCurrentProgramCost(lead.acres, lead.currentProgram)
+  
+  // Generate optimized spray plans
+  const optimizedPlans = await generateOptimizedSprayPlans({
+    acres: lead.acres,
+    location: lead.location,
+    resistanceData,
+    currentProgram: lead.currentProgram
+  })
+  
+  // Calculate pricing based on acres and tier
+  const pricing = calculatePricing(lead.acres)
+  
+  // Estimate ROI
+  const roi = {
+    savings: currentProgramCost - optimizedPlans.reduce((sum, plan) => sum + plan.totalCost, 0),
+    riskReduction: 0.25 // 25% reduction in respray risk
+  }
+  
+  return {
+    customProgram: optimizedPlans,
+    pricing,
+    roi
+  }
+}
+
+// Product Development Workflow
+export async function developSprayPlan(field: Field): Promise<SprayPlan> {
+  // Fetch resistance intelligence
+  const resistanceData = await fetchResistanceIntelligence(field.location, field.weedHistory)
+  
+  // Design resistance-aware program
+  const preEmergenceProgram = await designPreEmergenceProgram(field, resistanceData)
+  const postEmergenceProgram = await designPostEmergenceProgram(field, resistanceData)
+  
+  // Validate label compliance
+  await validateLabelCompliance(preEmergenceProgram, postEmergenceProgram, field.soybeanTrait)
+  
+  // Generate spray windows
+  const sprayWindows = await generateSprayWindows(field.location)
+  
+  // Calculate costs and risk
+  const totalCost = calculateProgramCost(preEmergenceProgram, postEmergenceProgram, field.acres)
+  const expectedControlRate = calculateControlRate(preEmergenceProgram, postEmergenceProgram, resistanceData)
+  const riskScore = assessRiskScore(preEmergenceProgram, postEmergenceProgram, sprayWindows)
+  
+  return {
+    id: generateId(),
+    fieldId: field.id,
+    preEmergenceProgram,
+    postEmergenceProgram,
+    sprayWindows,
+    totalCost,
+    expectedControlRate,
+    riskScore
+  }
+}
+
+export async function optimizeSprayWindows(location: { lat: number; lng: number }): Promise<SprayWindow[]> {
+  // Fetch 14-day weather forecast
+  const forecast = await fetchWeatherForecast(location, 14)
+  
+  // Analyze wind patterns and inversion risk
+  const windows = forecast
+    .filter(day => day.windSpeed <= 10 && day.inversionRisk !== 'high')
+    .map(day => ({
+      start: new Date(day.date + 'T06:00:00'),
+      end: new Date(day.date + 'T18:00:00'),
+      weatherConditions: {
+        windSpeed: day.windSpeed,
+        temperature: day.temperature,
+        humidity: day.humidity,
+        inversionRisk: day.inversionRisk
+      },
+      confidenceScore: calculateConfidenceScore(day),
+      priority: day.windSpeed <= 5 ? 'primary' : 'backup'
+    }))
+    .sort((a, b) => b.confidenceScore - a.confidenceScore)
+  
+  return windows.slice(0, 5) // Return top 5 windows
+}
+
+// Revenue Generation Workflow
+export async function processSubscription(customer: Customer, acres: number): Promise<{
+  subscription: Subscription
+  invoice: { amount: number; dueDate: Date }
+  paymentStatus: 'pending' | 'paid' | 'failed'
+}> {
+  // Determine subscription tier based on acres
+  const tier = acres >= 10000 ? 'enterprise' : acres >= 5000 ? 'growth' : 'startup'
+  
+  // Calculate pricing
+  const pricing = calculatePricing(acres)
+  
+  // Create subscription
+  const subscription: Subscription = {
+    customerId: customer.id,
+    acres,
+    tier,
+    pricePerAcre: pricing.pricePerAcre,
+    totalAmount: pricing.totalAmount,
+    billingCycle: 'seasonal',
+    features: getFeaturesByTier(tier)
+  }
+  
+  // Generate invoice
+  const invoice = {
+    amount: subscription.totalAmount,
+    dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
+  }
+  
+  // Process payment
+  const paymentStatus = await processPayment(customer, invoice.amount)
+  
+  // Track revenue metrics
+  await trackMetric('revenue_generated', {
+    customerId: customer.id,
+    amount: invoice.amount,
+    tier: subscription.tier,
+    acres: subscription.acres
+  })
+  
+  return { subscription, invoice, paymentStatus }
+}
+
+// Operational Workflow
+export async function executeSprayPlan(plan: SprayPlan, applicator: string): Promise<{
+  executionId: string
+  status: 'scheduled' | 'in_progress' | 'completed' | 'delayed'
+  actualConditions: any
+  complianceRecord: any
+}> {
+  const executionId = generateId()
+  
+  // Check current weather conditions
+  const currentConditions = await getCurrentWeatherConditions(plan.fieldId)
+  
+  // Validate spray window
+  const isValidWindow = validateSprayWindow(currentConditions, plan.sprayWindows[0])
+  
+  if (!isValidWindow) {
+    // Reschedule to next available window
+    const nextWindow = plan.sprayWindows.find(w => w.priority === 'backup')
+    if (nextWindow) {
+      await scheduleSprayExecution(plan, nextWindow, applicator)
+      return {
+        executionId,
+        status: 'delayed',
+        actualConditions: currentConditions,
+        complianceRecord: null
+      }
+    }
+  }
+  
+  // Execute spray application
+  const complianceRecord = await createComplianceRecord(plan, currentConditions, applicator)
+  
+  // Export to equipment systems
+  await exportToEquipmentSystems(plan, applicator)
+  
+  // Track execution metrics
+  await trackMetric('spray_executed', {
+    planId: plan.id,
+    executionId,
+    applicator,
+    conditions: currentConditions
+  })
+  
+  return {
+    executionId,
+    status: 'completed',
+    actualConditions: currentConditions,
+    complianceRecord
+  }
+}
+
+// Outcome Tracking Workflow
+export async function trackOutcomes(planId: string, daysAfterApplication: number): Promise<{
+  controlRate: number
+  resprayNeeded: boolean
+  resistanceObserved: string[]
+  recommendations: string[]
+}> {
+  // Collect field observations
+  const observations = await collectFieldObservations(planId, daysAfterApplication)
+  
+  // Calculate control rate
+  const controlRate = calculateActualControlRate(observations)
+  
+  // Assess respray need
+  const resprayNeeded = controlRate < 85 || observations.escapes.length > 0
+  
+  // Identify resistance patterns
+  const resistanceObserved = identifyResistancePatterns(observations.escapes)
+  
+  // Generate recommendations
+  const recommendations = await generateRecommendations({
+    controlRate,
+    resprayNeeded,
+    resistanceObserved,
+    originalPlan: await getSprayPlan(planId)
+  })
+  
+  // Update resistance database
+  await updateResistanceDatabase(planId, resistanceObserved)
+  
+  // Track outcome metrics
+  await trackMetric('outcome_tracked', {
+    planId,
+    controlRate,
+    resprayNeeded,
+    daysAfterApplication
+  })
+  
+  return {
+    controlRate,
+    resprayNeeded,
+    resistanceObserved,
+    recommendations
+  }
+}
+
+// Decision-Making Workflow
+export async function makeSprayDecision(
+  fieldId: string,
+  weatherForecast: any[],
+  weedPressure: 'low' | 'medium' | 'high'
+): Promise<{
+  decision: 'spray_now' | 'wait' | 'reschedule'
+  reasoning: string[]
+  alternativeWindows: SprayWindow[]
+}> {
+  const field = await getField(fieldId)
+  const currentPlan = await getCurrentSprayPlan(fieldId)
+  
+  // Analyze current conditions
+  const currentConditions = weatherForecast[0]
+  const reasoning: string[] = []
+  
+  // Check wind conditions
+  if (currentConditions.windSpeed > 10) {
+    reasoning.push(`Wind speed ${currentConditions.windSpeed} mph exceeds safe threshold`)
+    return {
+      decision: 'wait',
+      reasoning,
+      alternativeWindows: await findAlternativeWindows(field.location)
+    }
+  }
+  
+  // Check inversion risk
+  if (currentConditions.inversionRisk === 'high') {
+    reasoning.push('High inversion risk detected')
+    return {
+      decision: 'wait',
+      reasoning,
+      alternativeWindows: await findAlternativeWindows(field.location)
+    }
+  }
+  
+  // Check weed growth stage
+  const weedGrowthStage = await assessWeedGrowthStage(fieldId)
+  if (weedGrowthStage === 'too_advanced' && weedPressure === 'high') {
+    reasoning.push('Weeds beyond optimal spray timing')
+    return {
+      decision: 'reschedule',
+      reasoning,
+      alternativeWindows: await generateEmergencySprayWindows(field.location)
+    }
+  }
+  
+  // All conditions favorable
+  reasoning.push('Weather conditions favorable')
+  reasoning.push(`Weed pressure: ${weedPressure}`)
+  reasoning.push('Within optimal spray window')
+  
+  return {
+    decision: 'spray_now',
+    reasoning,
+    alternativeWindows: []
+  }
+}
+
+// Helper functions (pseudocode implementations)
+async function extractStateFromLocation(location: string): Promise<string> {
+  // Extract state abbreviation from location string
+  return location.split(',').pop()?.trim().toUpperCase() || 'UNKNOWN'
+}
+
+async function fetchLocalResistanceData(location: string): Promise<any> {
+  // Fetch resistance data from university databases
+  return { waterhemp: 'high', palmerAmaranth: 'medium', marestail: 'low' }
+}
+
+async function estimateCurrentProgramCost(acres: number, program?: string): Promise<number> {
+  // Estimate cost of current herbicide program
+  return acres * 45 // $45/acre average
+}
+
+async function generateOptimizedSprayPlans(params: any): Promise<SprayPlan[]> {
+  // Generate optimized spray plans based on resistance data
+  return []
+}
+
+function calculatePricing(acres: number): { pricePerAcre: number; totalAmount: number } {
+  const pricePerAcre = acres >= 10000 ? 1.50 : acres >= 5000 ? 2.00 : 3.00
+  return {
+    pricePerAcre,
+    totalAmount: acres * pricePerAcre
+  }
+}
+
+async function fetchResistanceIntelligence(location: any, weedHistory: string[]): Promise<any> {
+  // Fetch local resistance intelligence
+  return {}
+}
+
+async function designPreEmergenceProgram(field: Field, resistanceData: any): Promise<HerbicideProgram> {
+  // Design pre-emergence herbicide program
+  return {
+    products: [],
+    adjuvants: [],
+    tankMixCompatible: true,
+    labelCompliant: true
+  }
+}
+
+async function designPostEmergenceProgram(field: Field, resistanceData: any): Promise<HerbicideProgram> {
+  // Design post-emergence herbicide program
+  return {
+    products: [],
+    adjuvants: [],
+    tankMixCompatible: true,
+    labelCompliant: true
+  }
+}
+
+async function validateLabelCompliance(preProgram: HerbicideProgram, postProgram: HerbicideProgram, trait: string): Promise<void> {
+  // Validate label compliance for trait
+}
+
+async function generateSprayWindows(location: any): Promise<SprayWindow[]> {
+  // Generate optimal spray windows
+  return []
+}
+
+function calculateProgramCost(preProgram: HerbicideProgram, postProgram: HerbicideProgram, acres: number): number {
+  // Calculate total program cost
+  return acres * 40
+}
+
+function calculateControlRate(preProgram: HerbicideProgram, postProgram: HerbicideProgram, resistanceData: any): number {
+  // Calculate expected control rate
+  return 90
+}
+
+function assessRiskScore(preProgram: HerbicideProgram, postProgram: HerbicideProgram, windows: SprayWindow[]): number {
+  // Assess overall risk score
+  return 0.15
+}
+
+function generateId(): string {
+  return `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+}
+
+async function fetchWeatherForecast(location: any, days: number): Promise<any[]> {
+  // Fetch weather forecast
+  return []
+}
+
+function calculateConfidenceScore(day: any): number {
+  // Calculate confidence score for spray window
+  return 0.85
+}
+
+function getFeaturesByTier(tier: string): string[] {
+  const features = {
+    startup: ['Basic program design', 'Email support'],
+    growth: ['Advanced analytics', 'Priority support', 'API access'],
+    enterprise: ['Custom integrations', 'Dedicated support', 'Advanced reporting']
+  }
+  return features[tier] || []
+}
+
+async function processPayment(customer: Customer, amount: number): Promise<'pending' | 'paid' | 'failed'> {
+  // Process payment through payment gateway
+  return 'paid'
+}
+
+async function getCurrentWeatherConditions(fieldId: string): Promise<any> {
+  // Get current weather conditions
+  return {}
+}
+
+function validateSprayWindow(conditions: any, window: SprayWindow): boolean {
+  // Validate if current conditions match spray window
+  return true
+}
+
+async function scheduleSprayExecution(plan: SprayPlan, window: SprayWindow, applicator: string): Promise<void> {
+  // Schedule spray execution for alternative window
+}
+
+async function createComplianceRecord(plan: SprayPlan, conditions: any, applicator: string): Promise<any> {
+  // Create compliance record
+  return {}
+}
+
+async function exportToEquipmentSystems(plan: SprayPlan, applicator: string): Promise<void> {
+  // Export to John Deere Operations Center, etc.
+}
+
+async function trackMetric(metric: string, data: any): Promise<void> {
+  // Track business metrics
+  console.log(`Tracking ${metric}:`, data)
+}
+
+async function collectFieldObservations(planId: string, days: number): Promise<any> {
+  // Collect field observations
+  return { escapes: [], controlRate: 90 }
+}
+
+function calculateActualControlRate(observations: any): number {
+  // Calculate actual control rate from observations
+  return observations.controlRate
+}
+
+function identifyResistancePatterns(escapes: any[]): string[] {
+  // Identify resistance patterns from escapes
+  return []
+}
+
+async function generateRecommendations(params: any): Promise<string[]> {
+  // Generate recommendations based on outcomes
+  return []
+}
+
+async function getSprayPlan(planId: string): Promise<SprayPlan> {
+  // Get spray plan by ID
+  return {} as SprayPlan
+}
+
+async function updateResistanceDatabase(planId: string, resistance: string[]): Promise<void> {
+  // Update resistance database with new observations
+}
+
+async function getField(fieldId: string): Promise<Field> {
+  // Get field by ID
+  return {} as Field
+}
+
+async function getCurrentSprayPlan(fieldId: string): Promise<SprayPlan> {
+  // Get current spray plan for field
+  return {} as SprayPlan
+}
+
+async function findAlternativeWindows(location: any): Promise<SprayWindow[]> {
+  // Find alternative spray windows
+  return []
+}
+
+async function assessWeedGrowthStage(fieldId: string): Promise<string> {
+  // Assess current weed growth stage
+  return 'optimal'
+}
+
+async function generateEmergencySprayWindows(location: any): Promise<SprayWindow[]> {
+  // Generate emergency spray windows
+  return []
+}
+
+// Business-as-Code Configuration
+export const resistWiseBusiness = Business({
+  name: 'ResistWise Spray Planner',
+  url: 'https://resistwise.ai',
+  vision: 'Zero herbicide resistance through intelligent spray planning',
+  goals: [
+    'Reduce respray rates by 25%',
+    'Improve on-time spray execution by 20%',
+    'Lower herbicide costs by $10/acre',
+    'Achieve 90%+ weed control rates'
+  ],
+  departments: {
+    sales: { name: 'Sales', budget: 500000 },
+    product: { name: 'Product Development', budget: 800000 },
+    operations: { name: 'Operations', budget: 300000 }
+  },
+  agents: {
+    sprayPlanner: {
+      name: 'Spray Planning Agent',
+      role: 'Generate resistance-aware spray plans',
+      permissions: ['read', 'execute'],
+      capabilities: ['weather_analysis', 'resistance_modeling', 'label_compliance']
+    },
+    windowOptimizer: {
+      name: 'Window Optimization Agent',
+      role: 'Optimize spray timing windows',
+      permissions: ['read', 'execute'],
+      capabilities: ['weather_forecasting', 'risk_assessment', 'scheduling']
+    }
+  },
+  roles: {
+    agronomist: {
+      name: 'Lead Agronomist',
+      permissions: ['read', 'execute', 'approve'],
+      responsibilities: ['Program validation', 'Resistance monitoring', 'Customer support']
+    },
+    salesManager: {
+      name: 'Sales Manager',
+      permissions: ['read', 'execute'],
+      responsibilities: ['Lead qualification', 'Customer onboarding', 'Revenue tracking']
+    }
+  },
+  processes: {
+    customerAcquisition: {
+      name: 'Customer Acquisition Process',
+      steps: ['Lead qualification', 'Proposal generation', 'Contract negotiation', 'Onboarding'],
+      owner: 'salesManager'
+    },
+    sprayPlanDevelopment: {
+      name: 'Spray Plan Development Process',
+      steps: ['Resistance analysis', 'Program design', 'Label validation', 'Window optimization'],
+      owner: 'agronomist'
+    }
+  }
+})
+
 # ResistWise Spray Planner
 
 Generated for NAICS 111110 — Soybean Farming.
