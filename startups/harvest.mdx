@@ -1,0 +1,266 @@
+---
+name: Harvest LossMap AI
+slug: harvest
+service:
+  title: In-Field Harvest Loss Mapping from Drone/Phone Images
+  description: >-
+    Quantifies header/separator losses using uploaded drone or smartphone
+    images; produces loss heatmaps and setting advice.
+  targetUsers:
+    - Farm managers
+    - Precision ag specialists
+    - Custom harvesters
+  triggers:
+    - Early-season calibration pass
+    - When loss suspected or after setting changes
+    - Weekly QA
+  inputs:
+    - Geotagged nadir drone photos or phone images with scale target
+    - Field boundary
+    - Crop type/row spacing and header width
+    - Combine settings at time of capture
+  steps:
+    - Validate image quality and coverage
+    - Orthomosaic (for drone) and grid sampling
+    - Computer vision counts of kernels/ears/pods on ground
+    - Convert counts to bu/ac or t/ha loss using crop-specific formulas
+    - Generate heatmap and recommendations; optional follow-up call
+  tools:
+    - Web uploader/portal (S3/GCS)
+    - OpenDroneMap/WebODM for orthomosaic
+    - CV models (YOLOv8/Detectron2 custom)
+    - GeoPandas/QGIS for mapping
+    - Report generator (PDF/CSV)
+  outputs:
+    - Loss heatmap (GeoTIFF/MBTiles)
+    - Per-field loss statistics and monetary impact
+    - Recommended setting changes and validation protocol
+  pricingModel:
+    - Per-field or per-image-pack fee
+    - Subscription with monthly image quota
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 6
+    overall: 7
+  risks:
+    - Variable image quality/lighting
+    - Ground truth scarcity for calibration
+    - Residue occlusion impacts counting
+    - User adherence to capture protocol
+  dependencies:
+    - User-provided imagery with scale reference
+    - Field boundaries
+    - Crop-specific conversion factors
+leanCanvas:
+  problem:
+    - >-
+      Operators and growers cannot see or quantify in-field header and separator
+      losses during harvest, leading to 0.5–3.0 bu/ac of avoidable grain left in
+      the field.
+    - >-
+      Manual methods (drop pans, visual counts) are time-consuming, unsafe
+      around moving machinery, and produce sparse, non-geolocated measurements
+      with high human error.
+    - >-
+      Existing combine loss sensors provide relative indications, not
+      calibrated, spatially resolved, absolute loss maps; OEM automation (e.g.,
+      sieve/rotor auto-adjust) lacks independent ground-truth verification.
+    - >-
+      Loss varies with micro-topography, moisture, crop conditions, and
+      settings; without heatmaps, operators overgeneralize from a few checks and
+      miss problem zones.
+    - >-
+      Advisors and retailers lack an objective, scalable way to demonstrate ROI
+      of harvest setting changes to customers during short harvest windows.
+    - >-
+      Custom harvesters need fast, repeatable documentation of loss performance
+      to win and retain contracts.
+  solution:
+    - >-
+      Smartphone and drone image capture workflows with AR guidance for
+      consistent sampling (grid or adaptive).
+    - >-
+      AI models detect and count dropped kernels/ears/pods and thresh losses on
+      the ground; convert to calibrated bu/ac (or t/ha) by crop and row spacing.
+    - >-
+      Field-level heatmaps and hotspots identify where header vs. separator
+      losses dominate; exportable as GeoTIFF/MBTiles/Shape/ISOXML.
+    - >-
+      Actionable setting engine linking loss signatures to adjustment playbooks
+      (e.g., rotor speed, fan, concave, sieve, header angle, reel speed, ground
+      speed).
+    - >-
+      Closed-loop workflow: re-sample after adjustments to verify improvement;
+      automatic before/after and ROI reporting.
+    - >-
+      Integrations: John Deere Operations Center, CNH AFS, AGCO Fuse, Climate
+      FieldView, DroneDeploy/Pix4D/Sentera for capture and data sync.
+  uniqueValueProp: >-
+    Quantify real, dollarized harvest loss in minutes and turn it into precise
+    heatmaps and machine-setting advice. Typical users recover 0.5–1.5 bu/ac
+    within the first day of use; 10-minute turnaround from image upload to
+    recommendations; integrates with major FMIS and dealer workflows to document
+    savings and adjustments.
+  unfairAdvantage: >-
+    A growing, proprietary dataset linking ground-truth loss imagery with
+    machine settings, crop conditions, and outcomes, enabling a recommendation
+    engine that not only measures loss but reliably reduces it within minutes.
+    Closed-loop evidence (before/after + ROI) builds trust and creates switching
+    costs for operators, dealers, and advisors.
+  customerSegments:
+    - >-
+      Row-crop and small grain producers operating 1–10 combines (US, Canada,
+      EU, Australia).
+    - >-
+      Custom harvesters (US Great Plains wheat run; Brazil/Argentina custom
+      operators).
+    - >-
+      Agronomy retailers/consultants offering in-season advisory and proving
+      value to growers.
+    - >-
+      Combine OEM dealers and precision ag teams (Deere, CNH, AGCO) seeking
+      differentiators and upsell of service bundles.
+    - Drone service providers and co-ops offering harvest scouting packages.
+    - Large enterprises/estates (>10k acres) with internal agronomy teams.
+  channels:
+    - >-
+      Direct-to-grower digital acquisition: webinars, harvest clinics, ROI
+      calculator, farmer YouTube/influencers demonstrating loss recovery.
+    - >-
+      Dealer channel: bundle with pre-harvest inspections and combine
+      optimization packages; co-marketing MDF with OEM dealers.
+    - >-
+      Agronomy retailers/consultants: reseller plans with per-acre pricing and
+      white-label reports to prove advisory value.
+    - >-
+      Drone service providers: turnkey harvest-loss mapping package with revenue
+      share; include flight plans and SOPs.
+    - >-
+      Integrations/marketplaces: John Deere Operations Center, Climate
+      FieldView, DroneDeploy app market for discovery and one-click install.
+    - >-
+      Field events: on-farm demos during wheat, corn, and soybean harvest
+      windows; state extension/field days; harvest competition sponsorships.
+  revenueStreams:
+    - >-
+      Per-acre analysis: $0.50–$1.50/ac depending on volume; minimum field fee
+      $50.
+    - >-
+      Per-combine seasonal subscription (unlimited acres for that machine):
+      $1,500–$2,400/season; enterprise discounts for fleets.
+    - >-
+      Advisor/retailer reseller plans: $0.35–$0.85/ac with 20–35% margin to
+      partner.
+    - >-
+      OEM/dealer bundles: annual seat per combine technician ($600–$900) plus
+      revenue share on farmer activations.
+    - >-
+      API/Enterprise licensing for FMIS/OEMs to embed loss estimation and
+      heatmaps ($50k–$250k/yr depending on scope).
+    - >-
+      Optional hardware kit (foldable calibration mat with fiducials): $249
+      one-time; increases accuracy in challenging conditions.
+  costStructure:
+    - >-
+      Cloud inference and storage: ~$0.02–$0.05 per 20MP image; typical field
+      80–200 images => $1.60–$10 COGS per field.
+    - >-
+      Labeling and model development: $200k–$500k annually for multi-crop
+      dataset expansion and QA.
+    - >-
+      Core engineering/product team: $1.2M–$2.0M annually (backend, mobile, ML,
+      integrations).
+    - >-
+      Sales and partner enablement (SPIFs, MDF, commissions): 10–20% of
+      partner-sourced revenue.
+    - 'Field ops, pilots, and travel during harvest windows: $100k–$300k/yr.'
+    - 'Support, success, and training (seasonal surge staffing): $100k–$250k/yr.'
+    - 'Liability and E&O insurance; data security and compliance: $50k–$150k/yr.'
+  keyMetrics:
+    - >-
+      Model accuracy: per-crop mean absolute error ≤0.5 bu/ac (corn/soy), ≤0.3
+      bu/ac (wheat/canola) on validated datasets; F1 ≥0.85 for object detection
+      under typical conditions.
+    - >-
+      Time-to-insight: P50 <10 minutes, P95 <20 minutes from upload to map and
+      recommendations.
+    - >-
+      Adoption/usage: active combines per season; acres analyzed per customer;
+      weekly active users during harvest.
+    - >-
+      Outcome metrics: median loss reduction ≥0.5 bu/ac after 1–2 adjustment
+      cycles; $/ac saved; payback period (days of harvest).
+    - >-
+      Retention and revenue: seasonal retention ≥80%; net revenue retention
+      ≥110% via expansion; partner-sourced revenue ≥40%.
+    - >-
+      Quality: image QC pass rate ≥85% on first attempt; re-sample rate <10%;
+      customer-reported accuracy satisfaction ≥4.5/5.
+    - >-
+      Sales funnel: free-to-paid conversion ≥20% for trial fields; CAC payback
+      <6 months.
+storyBrand:
+  character: >-
+    Harvest operators and farm managers who want every bushel in the bin while
+    keeping machines moving.
+  problem: >-
+    Header and separator losses are invisible and variable; dialing in settings
+    is guesswork that leaves profit on the ground.
+  guide: >-
+    An AI harvest-loss guide that turns simple drone or phone images into
+    quantified header/separator loss, heatmaps, and clear setting advice.
+  plan: >-
+    Capture a short pass with a phone or drone; upload images; receive loss
+    heatmaps and specific header/separator adjustments; re-scan to verify
+    savings. No extra hardware.
+  callToAction: Upload your first field today—first pass analyzed free.
+  success: >-
+    Faster setup, 0.5–2+ bu/ac less loss, confident operators, documented
+    savings, and data-driven harvest decisions.
+  failure: >-
+    Keep leaving grain, time, and fuel on the ground with no proof or guidance,
+    repeating the same setting mistakes across fields.
+landingPage:
+  hero:
+    title: Stop Leaving Grain on the Ground
+    subtitle: >-
+      AI maps harvest losses from drone or phone images—see hotspots, fix
+      settings, and save yield within hours.
+    ctaText: Upload Field Images
+    ctaHref: /get-started
+  problem:
+    - Hidden header and separator losses quietly drain profit.
+    - 'Manual pan counts are slow, subjective, and hard to repeat.'
+    - No spatial view to pinpoint hotspots or operator effects.
+    - Short harvest windows leave no time for trial-and-error.
+    - 'Inconsistent settings across fields, crops, and conditions.'
+  solution:
+    - Upload drone or smartphone images to quantify losses per area.
+    - Instant loss heatmaps with GPS—bushels/acre or kg/ha.
+    - Header vs separator loss attribution to target the right fix.
+    - 'Machine setting advice tailored to crop, conditions, and model.'
+    - Before/after comparison to prove savings and guide operators.
+  features:
+    - Works with drone or phone—no new hardware needed.
+    - 'Multi-crop models (corn, soy, wheat, canola, and more).'
+    - Combine-aware advice; header/separator diagnostics.
+    - 'Fast turnaround—results in minutes, even in-field.'
+    - Offline capture with auto-sync when connectivity returns.
+    - 'Exports: PDF, shapefiles, and shareable links.'
+    - 'Integrations: farm platforms and telematics (e.g., Ops Center, FieldView).'
+    - Yield-saved calculator and ROI tracking.
+    - 'Team sharing, operator scorecards, and audit trail.'
+    - Your data stays yours—private and secure.
+  steps:
+    - 'Capture: Take ground images after a pass (geotag on).'
+    - 'Upload: Drag-and-drop or auto-sync; select crop and machine.'
+    - 'Analyze: AI detects kernels/pods and quantifies loss by zone.'
+    - 'Review: See heatmaps, metrics, and header vs separator split.'
+    - 'Act: Apply setting recommendations and operator checklist.'
+    - 'Verify: Re-scan, compare before/after, and export the report.'
+---
+# Harvest LossMap AI
+
+Industry: Crop Harvesting, Primarily by Machine
+Service: In-Field Harvest Loss Mapping from Drone/Phone Images

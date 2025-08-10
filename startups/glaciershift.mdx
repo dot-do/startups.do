@@ -1,0 +1,320 @@
+---
+name: GlacierShift — AI Energy & DR Scheduler for Ice Plants
+slug: glaciershift
+service:
+  title: Energy Optimization & Demand Response Scheduler
+  description: >-
+    Plan compressor/defrost cycles and ice inventory usage to avoid peak tariffs
+    and participate in DR events while meeting production targets.
+  targetUsers:
+    - Plant Manager
+    - Energy Manager
+    - Controls Engineer
+  triggers:
+    - Day-ahead tariff published
+    - DR event notification
+    - Peak demand threshold hit
+    - High ambient forecast
+  inputs:
+    - Utility tariff schedules and demand charges
+    - Compressor load curves and setpoint ranges
+    - Current ice inventory and storage capacity
+    - Production targets by day
+    - Weather forecast
+  steps:
+    - Ingest tariffs and baseline load profile
+    - Estimate thermal storage and melt rates
+    - Optimize compressor/defrost schedule under constraints
+    - Create human-readable runbook or push setpoints via BMS
+    - Monitor real-time load; re-optimize on deviations
+    - Calculate monthly savings vs baseline
+  tools:
+    - EIA/utility tariff APIs
+    - OpenADR (if available)
+    - OR-Tools
+    - Grafana/Looker Studio
+    - OPC UA/Modbus gateway (read/write or read-only)
+    - Slack/Email
+  outputs:
+    - Day-ahead run schedule with setpoints
+    - DR event participation plan
+    - Monthly savings report and M&V
+  pricingModel:
+    - Setup fee
+    - Monthly subscription per site
+    - Performance-based savings share option
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 3.5
+    modelCapability: 4.2
+    overall: 3.8
+  risks:
+    - Limited remote access/write control to BMS/PLC
+    - Controls safety/interlocks must not be overridden
+    - Tariff/DR data inconsistencies
+  dependencies:
+    - Read access to energy meters/SCADA
+    - Tariff data or bills
+    - Safe control interface or manual execution of runbook
+leanCanvas:
+  problem:
+    - >-
+      High demand charges from compressor starts and coincident peaks increase
+      bills 20–40% despite stable annual kWh.
+    - >-
+      Manual scheduling doesn’t account for tariffs, DR events, weather, or
+      order variability; operators lack decision support at shift change.
+    - >-
+      Defrost cycles are mistimed, causing demand spikes, lost production hours,
+      and thermal inefficiency.
+    - >-
+      Ice inventory decisions (produce now vs. melt later) aren’t tied to energy
+      price signals, leading to overproduction or stockouts.
+    - >-
+      Utilities’ DR participation (enrollment, telemetry, baseline/M&V) is
+      complex; plants miss revenue or face penalties for underperformance.
+    - >-
+      Existing PLC/SCADA controls maintain setpoints but don’t optimize for
+      cost; setpoints are static and vendor-specific.
+    - >-
+      Limited visibility into cost/throughput KPIs (kWh/ton, $/ton, peak kW,
+      run-hours) hinders continuous improvement.
+    - >-
+      Staffing constraints mean no dedicated energy analyst; savings
+      opportunities are lost daily.
+  solution:
+    - >-
+      Plant digital twin of compressors, evaporators, storage bins, and
+      constraints (min-on/off, suction/discharge limits, sanitation windows).
+    - >-
+      Optimization engine (mixed-integer linear programming) generating 24–48h
+      day-ahead schedules at 5–15 min granularity, with intraday re-optimization
+      every 15–60 minutes.
+    - >-
+      Forecasting of ambient temperature, melt rates, production orders, and
+      electricity prices/DR events; learns seasonal patterns.
+    - >-
+      Closed-loop control via PLC/SCADA (Modbus/BACnet/OPC UA) to stage
+      compressors, schedule defrost, and manage ice charging/discharging; safe
+      interlocks and manual override.
+    - >-
+      DR integration (OpenADR 2.0b or aggregator APIs) with automated baseline
+      calculation, telemetry, and underperformance protection; event response
+      <60 seconds.
+    - >-
+      Real-time KPI dashboards (kWh/ton, $/ton, peak kW, inventory hours of
+      cover) and ISO-compliant M&V to verify savings.
+    - >-
+      Anomaly detection (e.g., rising kWh/ton, short cycling, valve issues) and
+      maintenance-aware scheduling to balance run-hours.
+    - >-
+      OT gateway with secure, store-and-forward messaging; fail-safe reverts to
+      last safe schedule if connectivity is lost.
+  uniqueValueProp: >-
+    Reduce ice plant energy cost 15–30% and earn $15–50/kW-year in DR revenue by
+    automatically scheduling compressors, defrost, and ice inventory against
+    tariffs and events—while guaranteeing production targets and providing
+    audit-ready M&V.
+  unfairAdvantage: >-
+    Purpose-built digital twin and optimizer for ice plants (inventory + defrost
+    + compressor staging) with pre-certified PLC integrations and DR adapters;
+    growing proprietary dataset enabling superior forecasts; OEM/aggregator
+    partnerships to reduce sales friction; performance-guarantee contracts and
+    audit-grade M&V that de-risk adoption for operators subject to food safety
+    and production SLAs.
+  customerSegments:
+    - >-
+      Packaged ice manufacturers (food-grade bagged ice) with peak demand >200
+      kW and production targets >50 tons/day.
+    - >-
+      Seafood processing facilities operating on-site flake/tube ice plants
+      (200–1,500 TR).
+    - >-
+      Concrete cooling/ready-mix producers with seasonal ice production and
+      large thermal storage.
+    - >-
+      Multi-site ice operators (e.g., national/regional brands) seeking
+      fleet-level optimization and DR revenue.
+    - >-
+      Refrigeration contractors/OEMs wanting an optimization layer to bundle
+      with control upgrades.
+    - >-
+      Utilities/DR aggregators looking for reliable, dispatchable industrial
+      load participants.
+  channels:
+    - >-
+      Direct sales to top 10 North American packaged ice and seafood processors
+      (account-based outreach to plant ops, engineering, finance).
+    - >-
+      Co-sell with DR aggregators (Enel X, CPower, Voltus, Leap) bundling
+      enrollment and revenue share; use their customer base for lead flow.
+    - >-
+      Partner with refrigeration contractors/OEMs to bundle optimization with
+      control system upgrades and service contracts.
+    - >-
+      Utility-sponsored pilots in CAISO, ERCOT, PJM, ISO-NE, NYISO; leverage
+      incentive budgets for M&V-verified peak reductions.
+    - >-
+      Industry associations and events: IPIA, IIAR, AHR Expo, Seafood
+      Expo—present case studies and host workshops.
+    - >-
+      Content marketing: ROI calculator, whitepapers on kWh/ton reduction,
+      webinars featuring pilot customers; targeted LinkedIn ads to Plant
+      Managers/VP Ops.
+    - >-
+      90-day pilot offer with performance guarantee (e.g., minimum 10% bill
+      reduction or fee credit); references and site visits.
+    - >-
+      Referral program for contractors (finder’s fee or margin uplift) and
+      multi-site discounts to accelerate land-and-expand.
+  revenueStreams:
+    - >-
+      Annual SaaS per site, tiered by peak kW (typical): 0–250 kW: $12k; 250–750
+      kW: $25k; >750 kW: $45k.
+    - >-
+      One-time integration/commissioning fee: $15k–$40k/site depending on PLC
+      complexity and metering needs.
+    - 'Optional managed M&V and compliance reporting: $3k/year/site.'
+    - >-
+      DR revenue share (if aggregator channel): 10–20% of net DR payments; or
+      fixed per-kW dispatch fee.
+    - Hardware margin on OT gateways/meters (pass-through + ~10%).
+    - >-
+      Professional services: custom analytics, data migration, operator
+      training; enterprise SSO/security add-ons.
+    - >-
+      Enterprise fleet module (multi-site optimization, DR portfolio bidding)
+      with volume discounts and multi-year contracts.
+  costStructure:
+    - >-
+      R&D: optimization/forecasting, digital twin templates, UI/UX; ongoing
+      model improvement.
+    - >-
+      Cloud operations: compute for optimizations, data storage, monitoring;
+      target COGS <20% ARR with autoscaling and off-peak runs.
+    - >-
+      Integration and field engineering for PLC/SCADA, metering, gateway
+      deployment; travel and commissioning costs.
+    - >-
+      Sales/marketing: enterprise reps, partner enablement, events, content;
+      demos and pilots.
+    - >-
+      Customer success and M&V analysts producing monthly savings reports and
+      audits.
+    - 'Data licensing: tariffs (e.g., Genability/UtilityAPI) and weather APIs.'
+    - >-
+      Security/compliance: SOC 2, pentests, incident response tooling; cyber
+      insurance and liability coverage.
+    - >-
+      Hardware procurement and logistics for gateways/power meters (inventory or
+      drop-ship).
+  keyMetrics:
+    - >-
+      Energy cost reduction 15–30% within 90 days, verified by ISO-compliant M&V
+      (IPMVP Option C).
+    - Peak demand reduction 15–40% (kW) with 98% production target adherence.
+    - kWh/ton reduction 10–20% versus 12-month baseline.
+    - >-
+      DR performance factor ≥90% and response time <60 seconds; DR revenue
+      $15–50/kW-year depending on ISO.
+    - >-
+      Schedule adherence ≥95% (runtime within planned bounds); defrost off-peak
+      rate ≥90%.
+    - >-
+      System availability ≥99.5%; failover to manual in <30 seconds; mean time
+      to recover <10 minutes.
+    - >-
+      Commissioning time ≤30 calendar days from contract to first optimized
+      schedule.
+    - Pilot-to-paid conversion ≥60%; average site savings ≥$50k/year.
+    - >-
+      Net revenue retention ≥120% in year 1 (expansion via multi-site and
+      modules); CAC payback ≤9 months.
+    - >-
+      Safety: zero incidents attributable to control; audit log completeness
+      100%.
+storyBrand:
+  character: >-
+    Ice manufacturing plant operators and energy managers who must hit daily ice
+    production targets at the lowest possible energy cost.
+  problem: >-
+    External: volatile tariffs, demand charges, DR events, and rigid/manual
+    scheduling. Internal: constant worry about stockouts, blown budgets, and
+    after-hours alarms. Philosophical: making ice shouldn’t force you to
+    overspend on energy or compromise reliability.
+  guide: >-
+    We understand industrial refrigeration and grid programs. Our team blends
+    plant operations, ML optimization, and tariff/DR expertise, translating your
+    real constraints (production, inventory, equipment limits) into a schedule
+    you can trust.
+  plan: >-
+    1) Connect: meters, compressor/evaporator data, ice inventory, tariffs and
+    DR feeds. 2) Optimize: AI schedules compressor/defrost cycles and inventory
+    draw to meet targets while avoiding peaks; you review and approve. 3)
+    Orchestrate: push setpoints/alerts to PLC/SCADA, adapt in real time, and
+    receive weekly performance reports.
+  callToAction: >-
+    Direct: Start a 30-day pilot at one plant. Transitional: Get a free
+    tariff/DR opportunity assessment and ROI estimate.
+  success: >-
+    Lower energy bills and peak demand, capture DR revenue, maintain 100% of
+    required ice availability, smooth equipment cycles for longer life, cut
+    emissions, and gain audit-ready transparency across every event and shift.
+  failure: >-
+    Without this, you keep paying peak tariffs and demand charges, miss DR
+    payouts, scramble during events, risk stockouts or overproduction, stress
+    equipment with erratic cycling, and keep firefighting with spreadsheets.
+landingPage:
+  hero:
+    title: AI Energy Optimization & Demand Response for Ice Manufacturing
+    subtitle: >-
+      Plan compressor/defrost cycles and ice inventory to avoid peak tariffs and
+      monetize DR—without missing production targets.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - Peak tariffs and demand charges erode margins.
+    - 'Manual schedules can’t react to price spikes, weather, or DR notices.'
+    - Defrost and compressor overlap creates costly demand peaks.
+    - Balancing ice inventory with curtailment risks missed orders.
+    - DR participation is complex and penalty-prone.
+    - Limited visibility into true cost drivers and savings.
+  solution:
+    - >-
+      AI builds the optimal hourly plan for compressors, defrost, and ice
+      drawdown.
+    - 'Forecasts tariffs, DR signals, weather, and orders to schedule ahead.'
+    - Meets production targets while enforcing temperature and equipment limits.
+    - >-
+      Generates curtailment plans for DR events with controlled pre-cool and
+      rebound.
+    - Executes via SCADA/PLC with real-time adjustments and manual override.
+    - 'Tracks savings and DR revenue with clear, auditable reports.'
+  features:
+    - 'Load, price, and weather forecasting'
+    - Ice inventory and thermal storage modeling
+    - Compressor staging and VFD setpoint optimization
+    - Defrost sequencing that flattens peaks
+    - 'Automated DR detection and response (pre-cool, shed, rebound)'
+    - Demand-charge and TOU-aware scheduling
+    - 'Safety constraints: temps, pressures, runtimes, anti-short-cycle'
+    - 'SCADA/PLC integration (OPC UA, Modbus, BACnet)'
+    - What-if simulation and scenario planning
+    - 'Live KPIs: kW, kWh, peak demand, $/ton, DR revenue, CO2e'
+    - 'Alerts, manual overrides, and safe fallback schedules'
+    - Multi-site portfolio management
+    - Automated utility and management reporting
+    - Role-based access and secure deployment
+  steps:
+    - 'Connect meters, SCADA/PLC tags, tariffs, and DR program details.'
+    - >-
+      Set production targets, shift windows, inventory limits, and safety
+      constraints.
+    - 'Run a simulation and review costs, peaks, and DR impact.'
+    - Approve and deploy; closed-loop control adapts to real-time signals.
+    - Monitor KPIs and savings; export reports and continuously refine.
+---
+# GlacierShift — AI Energy & DR Scheduler for Ice Plants
+
+Industry: Ice Manufacturing
+Service: Energy Optimization & Demand Response Scheduler

@@ -1,0 +1,307 @@
+---
+name: QuarryQuant AI
+slug: quarryquant
+service:
+  title: Drone-based Stockpile Volumetrics & Inventory Reconciliation
+  description: >-
+    Process drone/LiDAR data to compute stockpile volumes, convert to tonnage,
+    and reconcile against ERP inventory.
+  targetUsers:
+    - Ops managers
+    - Inventory controllers
+    - Finance
+  triggers:
+    - Month-end inventory
+    - Large storm/event
+    - Significant load-out period
+  inputs:
+    - Orthomosaic/point cloud (LAS/LAZ)
+    - Site/pile polygons
+    - Bulk densities by product
+    - ERP inventory extract
+  steps:
+    - Receive/upload imagery and site CAD/polygons
+    - Generate DSM/DTM and segment piles
+    - Compute volumes and convert to tonnage via densities
+    - Reconcile vs ERP counts and flag variances
+    - Publish dashboard/report; optional ERP update via API
+  tools:
+    - Pix4D/Agisoft Metashape/OpenDroneMap
+    - PDAL/CloudCompare
+    - QGIS
+    - AWS S3/Batch
+    - Python
+  outputs:
+    - CSV of volumes/tonnage by pile
+    - Variance report with root-cause hints
+    - Change-detection heatmaps
+    - API/webhook to ERP (optional)
+  pricingModel:
+    - One-time setup
+    - Per-flight processing fee
+    - Per-site monthly subscription for dashboard/storage
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 9
+    overall: 9
+  risks:
+    - Poor imagery or lack of ground control
+    - Incorrect densities skew tonnage
+    - Privacy/airspace compliance
+  dependencies:
+    - Drone pilot/data provider
+    - Site permissions and safety policy
+    - ERP integration credentials
+leanCanvas:
+  problem:
+    - >-
+      Inventory shrinkage and write-offs: 2–8% monthly variance between ERP book
+      inventory and actual stockpile tonnage leads to unplanned adjustments at
+      financial close.
+    - >-
+      Manual measurement is slow, risky, and inaccurate: climbing piles with GPS
+      rods or eyeballing faces introduces 5–15% error and safety hazards (MSHA
+      recordables).
+    - >-
+      Closing the books drags: cycle counts and quarterly audits create 2–5 day
+      delays in period close for multi-site operators.
+    - >-
+      Regulatory and customer audit pressure: insufficient audit trails for how
+      volumes were measured, densities chosen, and variances handled.
+    - >-
+      Fragmented data: flight data, densities, moisture, production tickets, and
+      ERP records live in silos, preventing timely reconciliation and variance
+      root-cause analysis.
+    - >-
+      Limited in-house UAV capacity: sites lack standardized SOPs, GNSS/RTK
+      workflows, and trained pilots for consistent, repeatable measurements.
+  solution:
+    - >-
+      Automated data processing pipeline: ingest RGB drone imagery or LiDAR,
+      apply RTK/PPK corrections, generate dense point clouds/orthos, and compute
+      volumes with ±1–2% error on typical quarry piles.
+    - >-
+      AI pile detection and segmentation: auto-identify individual stockpiles,
+      boundaries, and base planes; handle irregular faces and adjacent piles.
+    - >-
+      Tonnage conversion engine: apply product-specific bulk densities and
+      real-time or modeled moisture to convert cubic volume to tons with
+      traceable assumptions.
+    - >-
+      ERP reconciliation: map SKUs/products and locations to ERP items; post
+      cycle count adjustments or journal entries via connectors (SAP, Oracle,
+      Command Alkon/Apex) with approvals and audit trails.
+    - >-
+      Variance analytics: highlight deltas vs ERP by pile/product/date; provide
+      root-cause suggestions using production tickets, scale-house data, and
+      historical shrinkage patterns.
+    - >-
+      Scheduling and SOPs: standardized, MSHA-safe flight plans and checklists;
+      support in-house pilots or certified partner DSPs; auto-reminders for
+      monthly/quarterly counts.
+    - >-
+      Compliance and audit: immutable logs, versioned density tables, signed-off
+      surveys, exportable reports for internal/external auditors.
+    - >-
+      Change detection: time-series comparisons to detect theft, sloughing,
+      compaction, or misallocations; alert thresholds (e.g., >2% variance or
+      >500 tons).
+  uniqueValueProp: >-
+    Accurate drone/LiDAR stockpile volumes automatically reconciled to ERP
+    inventory within 24 hours—cutting write-offs by 30–70%, eliminating unsafe
+    manual measurements, and delivering audit-ready, density- and moisture-aware
+    tonnage with seamless ERP sync.
+  unfairAdvantage: >-
+    Purpose-built reconciliation engine for aggregates that marries volumetrics
+    with ERP, density, and moisture—trained on a large, labeled dataset of
+    quarry piles—plus certified workflows, high ERP integration depth, and an
+    audit trail already accepted by finance teams and external auditors at early
+    lighthouse customers.
+  customerSegments:
+    - >-
+      Primary: Plant Managers and Inventory Controllers at crushed and broken
+      stone quarries (NAICS 212319), 1–20 sites per operator.
+    - >-
+      Finance Controllers/VP Finance at regional and national aggregate
+      producers seeking inventory accuracy, faster close, and audit-readiness.
+    - >-
+      Operations VPs and Area Managers responsible for production planning and
+      stock availability.
+    - >-
+      Third-party surveyors and drone service providers serving quarries who
+      need a processing/reconciliation backend.
+    - >-
+      Enterprise IT/ERP teams (SAP, Oracle, Command Alkon/Apex, Infor,
+      Viewpoint) seeking reliable connectors and data governance.
+  channels:
+    - >-
+      Direct sales to regional/national aggregate producers; land-and-expand via
+      2–3 site pilots.
+    - >-
+      Partnerships with drone service providers (DSPs) and surveying firms to
+      bundle data capture + processing.
+    - >-
+      Alliances with ERP/scale-house vendors (Command Alkon/Apex, SAP
+      integrators) and GNSS/UAV dealers.
+    - >-
+      Industry events and associations: NSSGA, AGG1/World of Asphalt, MINExpo;
+      publish case studies with quantified ROI.
+    - >-
+      Content and PLG: ROI calculator, demo datasets, 14–30 day trial on a pilot
+      site; webinars on inventory accuracy and safety.
+    - >-
+      Referral program for operations managers and DSPs (e.g., 1 free
+      survey/commission).
+  revenueStreams:
+    - >-
+      SaaS subscription per site: tiered by survey frequency and features.
+      Example: Lite (Quarterly) $499/site/month; Standard (Monthly)
+      $1,250/site/month; Enterprise (Weekly + advanced analytics)
+      $2,500/site/month.
+    - >-
+      Per-survey processing fee (if not on unlimited tier): $400–$900 depending
+      on dataset size and LiDAR vs RGB.
+    - >-
+      Implementation and ERP integration: $5k–$25k per enterprise (covers
+      mappings, testing, SSO).
+    - 'Onboarding and training: $3k per site (can be waived with annual prepay).'
+    - >-
+      Data archiving/compliance add-on: $0.01–$0.03/GB/month for long-term
+      retention beyond included quota.
+    - >-
+      Professional services: moisture/density studies, SOP creation, custom
+      reports ($150–$250/hr).
+    - Partner revenue share with DSPs for bundled data capture.
+  costStructure:
+    - >-
+      Cloud compute and storage: photogrammetry/LiDAR processing ($30–$80 per
+      survey COGS) + long-term storage.
+    - >-
+      Data labeling/R&D for AI segmentation and density modeling; ML infra
+      costs.
+    - 'Engineering for ERP connectors, security (SOC 2), and QA automation.'
+    - 'Customer success and support (onboarding, training, variance analysis).'
+    - 'Sales and marketing: field demos, trade shows, content, pilots.'
+    - >-
+      Partner network enablement: DSP certifications, co-marketing, revenue
+      share.
+    - Insurance and compliance (aviation liabilities if operating drones).
+    - 'GNSS/RTK subscriptions, GCP kits, and demo fleet maintenance.'
+  keyMetrics:
+    - 'Volumetric accuracy error (MAE/MAPE), target ≤2% on validated test piles.'
+    - 'Survey-to-ERP turnaround time, target median <12 hours.'
+    - >-
+      Variance reduction: % decrease in write-offs vs baseline over 3–6 months
+      (target 30–70%).
+    - >-
+      Period close time improvement: days saved per month/quarter (target 1–3
+      days at multi-site operators).
+    - >-
+      Adoption: surveys per site per month (target ≥1.2 for monthly tier),
+      active sites, pilot-to-paid conversion rate (target ≥60%).
+    - ERP reconciliation success rate without manual intervention (target ≥95%).
+    - >-
+      Safety: reduction in at-risk exposures (climb events) per site (target
+      100% elimination for inventory counts).
+    - >-
+      Financial: Gross margin ≥75%, NRR ≥115%, CAC payback ≤9 months, churn ≤8%
+      annual logo/≤3% revenue.
+    - 'Data quality: % of surveys passing QC checks on first pass (target ≥90%).'
+storyBrand:
+  character: >-
+    Quarry and plant leaders in crushed and broken stone mining (Ops Managers,
+    Controllers, Mine Engineers) who need trustworthy stockpile inventory
+    without halting production or risking crews.
+  problem: >-
+    External — Stockpiles change daily; manual surveys are slow, unsafe, and
+    inconsistent, causing ERP variances and auditor scrutiny. Internal — They’re
+    tired of guesswork and month‑end stress from numbers no one fully trusts.
+    Philosophical — Production and finance deserve the same, single source of
+    truth for inventory.
+  guide: >-
+    We understand the cost, safety, and credibility hits caused by inventory
+    variance in quarries. Our AI service processes drone/LiDAR data to compute
+    volumes, converts to tonnage with material‑specific densities/moisture, and
+    reconciles against your ERP—producing audit‑ready results with clear QA and
+    method statements.
+  plan: >-
+    Process: 1) Fly piles with a drone or LiDAR (we provide flight plans/ground
+    control guidance). 2) Upload data; we run photogrammetry/LiDAR processing,
+    QA, volume calc, and tonnage conversion by material. 3) Reconcile to ERP
+    movements; deliver variance report, audit pack, and trend dashboards.
+    Agreement: transparent pricing, no heavy IT lift, secure data handling,
+    start with a single‑site pilot and expand.
+  callToAction: >-
+    Direct: Schedule a 30‑minute demo or book a pilot survey. Transitional:
+    Download a sample audit report and ROI calculator.
+  success: >-
+    Accurate, audit‑ready inventory; faster month‑end close; fewer write‑offs;
+    safer crews (no walking piles); better cash flow and production planning;
+    shared confidence between finance and operations.
+  failure: >-
+    Ongoing guesswork and risk: unsafe manual counts, disputed numbers, surprise
+    write‑offs, auditor findings, margin leakage, and working capital trapped in
+    miscounted inventory.
+landingPage:
+  hero:
+    title: Drone-Based Stockpile Volumetrics & ERP Reconciliation for Quarries
+    subtitle: >-
+      Turn drone/LiDAR flights into auditable tonnage and instant inventory
+      true-ups. Faster closes, fewer write-offs, zero boots on piles.
+    ctaText: Book a Demo
+    ctaHref: /demo
+  problem:
+    - 'Manual tape/rod or dozer-top shots are risky, slow, and inconsistent'
+    - Month-end true-ups drag on and still leave unexplained variance
+    - >-
+      ERP on-hand rarely matches the ground; reconciliation is manual and
+      error-prone
+    - Densities and moisture assumptions vary by site and person
+    - Third-party surveys are costly and infrequent; decisions lag reality
+    - 'No defensible audit trail for finance, auditors, or regulators'
+    - 'Data is scattered across photos, spreadsheets, point clouds, and ERP'
+  solution:
+    - Single pipeline from drone/LiDAR capture to reconciled ERP inventory
+    - >-
+      AI segments individual stockpiles and excludes conveyors, vehicles, and
+      walls
+    - 'Survey-grade volumes with RTK/PPK and GCP support, including breaklines'
+    - >-
+      Convert volumes to tonnage using per-material density and moisture
+      profiles
+    - Variance analysis vs ERP with thresholds and suggested journal entries
+    - Push approved adjustments back to ERP with a full audit trail
+    - 'Dashboards for period-over-period change, depletion trends, and shrinkage'
+    - Multi-site management with role-based access and SSO
+  features:
+    - >-
+      Ingest imagery and LiDAR: orthos, LAS/LAZ, GeoTIFF; automatic quality
+      checks
+    - 'Auto pile segmentation, toe-line detection, and surface reconstruction'
+    - Obstruction masking and undercut/overhang handling for accurate volumes
+    - 'Scale calibration via RTK/PPK, GCPs, and known-object checks'
+    - Density libraries by rock type; moisture factors and per-pile overrides
+    - Per-pile confidence intervals and error bands
+    - Variance alerts when ERP vs physical exceeds tolerance
+    - >-
+      One-click ERP sync via API: SAP, Oracle NetSuite, Microsoft Dynamics,
+      Infor, Sage
+    - 'Audit-ready approvals, change logs, and exportable PDF/CSV reports'
+    - Change detection and trend lines across cycles and sites
+    - 'Role-based permissions, SSO/SAML, encryption in transit and at rest'
+    - Resumable uploads; optional edge pre-processing for low-bandwidth sites
+  steps:
+    - 'Fly: Capture the pit and stockyards with RTK/PPK drone or mobile LiDAR'
+    - 'Upload: Drag-and-drop imagery/point clouds; automated QC and processing'
+    - >-
+      Validate: Review auto-mapped piles; confirm densities/moisture; tweak toe
+      lines
+    - 'Approve: Generate volumes, tonnage, and variance; route for sign-off'
+    - 'Reconcile: Sync adjustments to ERP and lock the inventory cycle'
+    - 'Track: Monitor trends, set variance alerts, and schedule the next count'
+---
+# QuarryQuant AI
+
+Industry: Other Crushed and Broken Stone Mining and Quarrying
+Service: Drone-based Stockpile Volumetrics & Inventory Reconciliation

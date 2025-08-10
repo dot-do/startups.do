@@ -1,0 +1,350 @@
+---
+name: Planting Window Optimizer (PWO)
+slug: planting
+service:
+  title: Planting Window Optimizer
+  description: >-
+    Ranks daily planting windows using forecast, soil temperature/moisture, and
+    crop-specific thresholds; pushes alerts.
+  targetUsers:
+    - Farm managers
+    - Custom planting crews
+    - Advisors
+  triggers:
+    - Daily during pre-plant
+    - Soil temperature crosses threshold
+    - Grower sets target start date
+  inputs:
+    - Field location/lat-long
+    - Soil type/drainage
+    - Crop/hybrid maturity
+    - Equipment capacity
+  steps:
+    - Ingest short- and medium-range forecasts
+    - Model soil temperature and moisture trajectory
+    - Compute GDD and cold/wet risk scores
+    - Rank feasible planting windows
+    - Send alerts and calendar entries
+    - Update continuously as weather changes
+  tools:
+    - NOAA NWS/HRRR API
+    - Open-Meteo/ECMWF (where licensed)
+    - PRISM normals
+    - State Mesonets (soil temp)
+    - GDD calculators
+    - FAO-56 evapotranspiration (for moisture proxy)
+  outputs:
+    - Ranked calendar of planting days
+    - SMS/email/app alerts
+    - Risk summary PDF
+  pricingModel:
+    - Seasonal subscription per farm
+    - Per-crop per-field add-on
+  humanInLoop: false
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 9
+    overall: 9.5
+  risks:
+    - Forecast uncertainty
+    - Sparse soil temp data in some areas
+    - Overreliance vs local field checks
+  dependencies:
+    - Reliable weather APIs
+    - Soil temp data (sensor or modeled)
+    - Field locations
+leanCanvas:
+  problem:
+    - >-
+      Weather and soil variability create narrow, hard-to-predict windows for
+      soil prep and planting, leading to missed opportunities, replanting, and
+      yield loss.
+    - >-
+      Farmers rely on generic forecasts and rules of thumb; field-level soil
+      temperature/moisture and crop-specific thresholds are rarely integrated
+      into a simple, daily decision-support workflow.
+    - >-
+      Poor timing drives compaction, seedling disease risk, crusting, and uneven
+      emergence, causing 2–6% yield penalties and 2–10% replant rates in row
+      crops.
+    - >-
+      Scheduling people and equipment without clear, ranked windows causes idle
+      time or rushed operations, elevating cost per acre and overtime.
+    - >-
+      Existing tools send weather data but do not convert it into field-specific
+      “go/no-go” ratings or quantified risk scores with alerts.
+    - >-
+      Connectivity constraints (poor cell coverage) and multi-language crews
+      limit adoption of complex, app-only tools.
+  solution:
+    - >-
+      Ingest hyperlocal forecast (nowcast + 14-day) and historical weather, soil
+      temperature/moisture (sensors + modeled), and crop-specific thresholds
+      (e.g., GDU for emergence, soil trafficability, disease risk).
+    - >-
+      Generate field-level readiness and risk scores for soil preparation,
+      planting, and early cultivation windows; rank days and intra-day slots
+      (AM/PM) with confidence intervals.
+    - >-
+      Deliver proactive alerts (SMS, push, email) when a window opens/closes or
+      crosses user-defined thresholds; offline-friendly SMS for low-connectivity
+      fields.
+    - >-
+      Offer a scheduling board that turns windows into task assignments by
+      field, crew, and implement; integrates with operations software (e.g.,
+      John Deere Operations Center, Trimble).
+    - >-
+      Provide post-event analysis that compares actual outcomes (emergence rate,
+      replant incidents) vs. suggested windows for continuous model calibration
+      and ROI tracking.
+    - >-
+      Enable calibration by crop/variety, soil type, drainage, tillage practice,
+      and planting depth/row unit downforce to tailor thresholds to each
+      operation.
+  uniqueValueProp: >-
+    Field-specific, daily-ranked planting and soil prep windows with quantified
+    risk scores and alerts that integrate forecast, soil temp/moisture, and
+    crop-specific thresholds—reducing replant by 20–40%, improving stand
+    uniformity, and increasing planted-on-time acres while simplifying crew and
+    equipment scheduling.
+  unfairAdvantage: >-
+    A feedback loop linking predicted windows to measured field outcomes at
+    scale, building a unique, labeled dataset by crop/soil/region; embedded
+    distribution via OEMs and retailers; and an offline-first alerting workflow
+    that fits real-world field operations better than app-only competitors.
+  customerSegments:
+    - >-
+      Primary: Row-crop growers (corn/soy/wheat/cotton) operating 500–10,000
+      acres in North America and Europe; decision-maker: farm owner/operations
+      manager.
+    - >-
+      Secondary: Specialty/vegetable growers (50–2,000 acres) where timing is
+      critical and replanting is costly.
+    - >-
+      Agronomy advisors/seed dealers/co-ops offering advisory services and
+      seeking value-add differentiation.
+    - >-
+      Custom planting and field service providers needing to optimize route
+      planning and uptime.
+    - >-
+      OEMs and AgTech platforms (equipment manufacturers, farm management
+      software) seeking embedded decision intelligence via API/white-label.
+  channels:
+    - >-
+      Ag retailer/co-op partnerships: bundle PWO with seed/chem programs;
+      revenue share 15–25%; target 25 partners in Year 1 to access 3,000–5,000
+      growers.
+    - >-
+      OEM and platform integrations: John Deere Operations Center, Climate
+      FieldView, Trimble, Ag Leader; co-marketing and app marketplace listings;
+      target 3 integrations in first 12 months.
+    - >-
+      Soil sensor vendors (Arable, Sentek, CropX, Davis, Teralytic): co-sell
+      bundles with 90-day PWO trial; MDF-supported demos at farm shows.
+    - >-
+      Targeted digital: geofenced ads and lookalike audiences around corn/soy
+      regions; CPL goal <$60; webinar-to-trial funnels with agronomist case
+      studies.
+    - >-
+      Field trials with university extension and top 100 farms per region;
+      publish seasonal results (replant reduction, emergence uniformity) to
+      drive credibility and PR.
+    - >-
+      Events: Commodity Classic, Farm Progress Show, Agritechnica booths and
+      speaker slots; capture 1,000+ MQLs/year; demo stations showing field
+      scoring.
+    - >-
+      Referral program: $200 account credit for farm-to-farm referrals; dealer
+      spiff $10/acre for first-year conversions.
+    - >-
+      Outbound to custom planters and service providers; package: dispatch
+      optimization + alerts; aim for 100 service providers onboarding 500k acres
+      by Year 2.
+  revenueStreams:
+    - >-
+      Subscriptions (farm): Starter $299/farm/year up to 500 acres; Pro
+      $0.75/acre/year (min $750); Enterprise volume pricing $0.50–$0.70/acre
+      with API and SSO.
+    - >-
+      Advisory/retailer seats: $79/user/month for multi-farm oversight;
+      white-label portal $15k/year.
+    - >-
+      API licensing for OEMs/platforms: $50k–$200k/year depending on MAU and
+      call volume; per-1,000 calls overage at $15.
+    - >-
+      Professional services: integrations and on-farm calibration packages
+      $3k–$25k per engagement.
+    - >-
+      Data-enhanced bundle with soil sensors: margin on hardware 10–20% plus
+      $10/month per sensor data fee pass-through.
+    - >-
+      Premium communications: high-volume SMS add-on $0.005–$0.02/message
+      blended after 10k messages/month.
+  costStructure:
+    - >-
+      Weather and satellite data: $30k–$150k/year across providers (tiered by
+      call volume and regions).
+    - >-
+      Cloud/compute/storage: $8k–$20k/month at 5M acres under management;
+      scalable down to $3k/month at pilot stage.
+    - >-
+      SMS/notifications: ~$0.0075/SMS US blended; assume 15–30
+      messages/user/season; budget $0.50–$1.50/user/month.
+    - >-
+      R&D and agronomy science team: 4–6 FTEs ($700k–$1.2M/year) to maintain
+      models, thresholds, and validations.
+    - >-
+      Sales/CS: 2–6 FTEs ($400k–$900k/year) plus 10–20% partner commissions;
+      event budgets $100k–$250k/year.
+    - >-
+      Liability/E&O and data privacy/compliance: $25k–$80k/year; legal and
+      patent filings $30k–$100k.
+    - >-
+      Device/QA field kits and trial plots: $50k–$200k/year to run multi-region
+      validation.
+    - 'General overhead: $200k–$500k/year (admin, tools, offices, travel).'
+  keyMetrics:
+    - >-
+      North Star: Acres planted within recommended windows (% of total planted
+      acres) – target 55% in Year 1 pilots, 70% by Year 3.
+    - >-
+      Agronomic outcomes: replant rate reduction vs. customer baseline – target
+      20–40%; emergence uniformity improvement (CV reduction) – target 10–20%.
+    - >-
+      Economic impact: modeled yield lift (corn +1–3 bu/acre; soy +0.5–1.5
+      bu/acre) and cost-to-benefit ratio >5:1; customer ROI $8–$20/acre.
+    - >-
+      Alert engagement: open rate >60% (SMS/push), actioned-alert rate >35%,
+      median response time <6 hours.
+    - >-
+      Product adoption: Acres onboarded, WAU/MAU >45%, active fields per
+      account, integrations per account (goal ≥2).
+    - >-
+      Churn and retention: logo churn <8% annually; net revenue retention >115%
+      via expansion and add-ons.
+    - >-
+      Model accuracy: Brier score/ROC AUC for window classification; calibration
+      error <10% for moisture/trafficability predictions at field level.
+    - >-
+      Sales efficiency: CAC payback <12 months; LTV:CAC >4:1; partner-sourced
+      ARR share >40%.
+    - >-
+      Support: time-to-first-value <14 days; NPS >45; CSAT >4.6/5 after first
+      season.
+    - >-
+      Data coverage: % of fields with sensor fusion vs. model-only; target 30%
+      sensor-enhanced by Year 2.
+storyBrand:
+  character: >-
+    Farm managers, growers, and agronomists who must choose the best day and
+    field to prep soil, plant, and cultivate—maximizing emergence and timing
+    while minimizing risk and wasted passes.
+  problem: >-
+    - External: Volatile forecasts, cold/wet soils, and logistics make the
+    “right window” a moving target.
+
+    - Internal: Decision fatigue and second-guessing threaten narrow planting
+    windows.
+
+    - Philosophical: With good data available, farmers shouldn’t have to gamble
+    on timing.
+  guide: >-
+    We understand one bad timing call can cost a season. Planting Window
+    Optimizer combines hyperlocal forecasts, soil temperature/moisture, and
+    crop-specific thresholds to rank daily windows across soil prep, planting,
+    and cultivating. Built with agronomists, explains why a day scores high/low,
+    and learns from your field history.
+  plan: >-
+    Process plan:
+
+    1) Connect your fields, crops, and data sources (weather, probes, stations).
+
+    2) Set thresholds or use crop templates; choose operations
+    (prep/plant/cultivate).
+
+    3) Receive daily ranked windows and push alerts with clear reasoning.
+
+    Agreement plan:
+
+    - Your data stays yours; private and exportable.
+
+    - You control thresholds and notifications.
+
+    - Recommendations support—never replace—your judgment.
+  callToAction: >-
+    Direct: Start a free trial and onboard your first field in 15 minutes.
+
+    Transitional: Download a sample window report and subscribe for localized
+    tips.
+  success: |-
+    - Plant on the best days for even emergence and strong stands.
+    - Reduce compaction and replant risk; optimize fuel, labor, and equipment.
+    - Hit maturity targets more consistently; schedule crews with confidence.
+    - Sleep better knowing you won’t miss the window.
+  failure: >-
+    Avoid mudding in, seed rot after a cold rain, crusting, stand loss from late
+    frost, wasted fuel/overtime, prevent-plant acreage, and costly rework due to
+    poorly timed operations.
+landingPage:
+  hero:
+    title: Planting Window Optimizer
+    subtitle: >-
+      AI timing for soil prep, planting, and cultivation. Rank the best hours by
+      field, crop, and forecast—so you hit the window, not the risk.
+    ctaText: Start Free Trial
+    ctaHref: /get-started
+  problem:
+    - Weather swings flip fields from ready to unworkable overnight.
+    - Planting too wet or too cold drives poor emergence and replant costs.
+    - >-
+      Generic weather apps ignore soil temperature, moisture, and crop-specific
+      needs.
+    - Narrow windows make crew and equipment scheduling guesswork.
+    - Alerts arrive late or are too noisy to act on.
+  solution:
+    - 'Hour-by-hour suitability scores for soil prep, planting, and cultivation.'
+    - >-
+      Combines forecast, soil temperature/moisture, and crop thresholds to rank
+      windows.
+    - 'Smart alerts when a window opens, narrows, or turns risky.'
+    - >-
+      Field-level plans that align labor, equipment, and inputs to the best
+      windows.
+    - >-
+      What-if tools to tune thresholds, varieties, and residue settings for your
+      farm.
+  features:
+    - Field- and crop-specific window ranking (0–100 suitability).
+    - >-
+      Soil readiness checks: moisture, temperature, trafficability, compaction
+      risk.
+    - >-
+      Weather intelligence: rain, frost, heat, wind, evapotranspiration and
+      drying trends.
+    - 7–10 day lookahead with confidence bands and risk flags.
+    - >-
+      Crop threshold templates for major row crops and vegetables; fully
+      customizable rules.
+    - >-
+      Integrations with on-farm sensors and local weather stations; satellite
+      soil moisture optional.
+    - Map and timeline views plus a multi-field scheduler to resolve conflicts.
+    - >-
+      Alerts via SMS, push, and email with configurable lead time and quiet
+      hours.
+    - Daily offline brief for low-connectivity fields.
+    - 'Team sharing, roles, and field permissions.'
+    - API and exports to popular farm management platforms.
+    - Plan vs. outcome audit trail to refine thresholds over time.
+  steps:
+    - Import or draw field boundaries; select crops and target dates.
+    - Pick a crop template or set custom soil and temperature thresholds.
+    - 'Connect weather sources and sensors, or use built-in local data.'
+    - Review ranked windows by field and task; schedule crews and equipment.
+    - 'Enable alerts for openings, narrowing windows, and risk flips.'
+    - Track outcomes and adjust thresholds to continuously improve.
+---
+# Planting Window Optimizer (PWO)
+
+Industry: Soil Preparation, Planting, and Cultivating
+Service: Planting Window Optimizer

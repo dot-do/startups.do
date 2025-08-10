@@ -1,0 +1,355 @@
+---
+name: ForgeQuote AI
+slug: forgequote
+service:
+  title: RFQ-to-Quote Costing Agent
+  description: >-
+    Automatically converts RFQs (drawings + CAD) into cycle time, press
+    selection, yield, and costed quotes with DFM notes.
+  targetUsers:
+    - Estimating Engineer
+    - Sales/Program Manager
+    - Plant Manager
+  triggers:
+    - New RFQ email/upload
+    - ECN that changes geometry or tolerance
+    - Customer asks for cost-down
+  inputs:
+    - RFQ PDFs and emails
+    - 2D drawings (PDF/DXF)
+    - 3D CAD (STEP/IGES)
+    - Material grade and price table
+    - 'Shop rates, die shop rates, energy rates'
+    - Historical yields and cycle times
+  steps:
+    - 'Parse RFQ documents and extract quantities, tolerances, specs'
+    - 'Analyze CAD for volume, projected area, draft, flash allowance candidates'
+    - >-
+      Estimate forging route (upset/preform/finish) and press tonnage via
+      empirical models
+    - >-
+      Compute billet size, material yield, energy per part, cycle time, die cost
+      amortization
+    - 'Generate multi-quantity quote with assumptions, lead-time, risk notes'
+    - >-
+      Optional: prepare input deck for forming CAE and ingest results to refine
+      tonnage/yield
+  tools:
+    - LLM for document extraction
+    - OpenCascade/Trimesh for CAD
+    - Python cost model
+    - XGBoost for cycle-time/yield prediction
+    - 'Optional: DEFORM/QForm/Simufact via client license API'
+  outputs:
+    - Costed quote (per quantity tier)
+    - Press selection and load estimate
+    - Estimated cycle time and yield
+    - 'DFM/redline report (draft angles, fillets, flash)'
+    - Risk/assumption list
+  pricingModel:
+    - 'Per-RFQ (USD 300–1,200)'
+    - Monthly subscription with volume tier (USD 2k–8k)
+    - Optional success fee on awarded work
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 7
+    overall: 8
+  risks:
+    - Underquoting due to missing tolerances or surface finish
+    - CAD parsing variability
+    - Liability for cost accuracy
+  dependencies:
+    - Access to RFQ inbox or portal
+    - CAD/drawing files
+    - Current rate tables and material prices
+    - Historical jobs for calibration
+leanCanvas:
+  problem:
+    - >-
+      RFQs for forged iron/steel parts arrive as mixed formats (PDF drawings,
+      STEP/IGES/CATIA files) making triage and quoting slow (1–5 days) and
+      error‑prone.
+    - >-
+      Estimators spend 1–3 hours per RFQ extracting geometry, sizing billet,
+      selecting press/hammer, approximating sequences, and calculating yield;
+      knowledge is tribal and varies by estimator.
+    - >-
+      Inconsistent and slow quoting hurts win rates against faster shops; buyers
+      increasingly expect 24–48 hour turnaround and DFM feedback up front.
+    - >-
+      Cost estimates often deviate 10–25% from actuals due to poor yield/cycle
+      assumptions, missing draft/fillet info, and unmodeled secondary operations
+      (heat treat, trim, shot blast, NDT).
+    - >-
+      Press/hammer capacity and die-life impacts aren’t quantified early,
+      causing late re-quoting or missed capacity constraints.
+    - >-
+      Security/ITAR concerns limit use of generic cloud AI; many shops need
+      on‑prem or controlled cloud with strict data isolation.
+  solution:
+    - >-
+      Automated RFQ ingestion from email/portals; parses PDFs (OCR + GD&T), 2D
+      drawings, and 3D CAD (STEP/IGES/SolidWorks/NX/CATIA) to extract features
+      and material callouts.
+    - >-
+      Physics-informed ML models estimate forming force, number of
+      blows/strokes, cycle time, and select feasible press/hammer based on
+      tonnage, stroke, die size, and envelope.
+    - >-
+      Yield and buy-to-fly calculator using volume, flash allowance, draft,
+      trim, and preform assumptions calibrated to historical runs.
+    - >-
+      Comprehensive cost model: material + energy + labor + overhead + tooling
+      amortization + heat treat + machining + surface finishing + inspection/NDT
+      + scrap/rework factors.
+    - >-
+      DFM rule engine flags issues (insufficient draft, sharp internal corners,
+      thin webs, parting line conflicts, deep blind holes) and proposes
+      alternatives (radii/draft changes, material substitutions, split-line
+      options).
+    - >-
+      Quote generator with traceability: line-item breakdowns, confidence
+      scores, and annotated DFM notes; exports to ERP/CPQ (Epicor, Infor, Plex,
+      SAP) and CRM.
+    - >-
+      Human-in-the-loop review workflow for estimators to adjust assumptions,
+      add vendor quotes (heat treat, machining), and lock pricing.
+    - >-
+      Deployment options: secure SaaS (SOC 2) and on‑prem/GovCloud for ITAR/EAR
+      with per-tenant data isolation.
+  uniqueValueProp: >-
+    From RFQ to a defensible, costed quote with press selection, cycle time,
+    yield, and DFM notes in under 60 minutes at ±10% cost accuracy, securely
+    integrated with your ERP—standardizing tribal knowledge and increasing quote
+    throughput 2–3x.
+  unfairAdvantage: >-
+    A continuously growing, cross-shop dataset of CAD geometries linked to
+    actual press cycles, yields, and costs—combined with physics-informed models
+    and a DFM rule engine specific to steel/iron forging—deployed in ITAR-ready
+    environments with strict data isolation and customer-controlled learning
+    loops.
+  customerSegments:
+    - >-
+      Mid-sized closed-die and impression-die forging shops (50–500 employees)
+      serving industrial, off-highway, oil & gas, rail, and automotive Tier-2.
+    - >-
+      Large multi-plant forges with engineering/estimating teams and ERP/PLM
+      infrastructure needing standardization and scale.
+    - >-
+      Job shops expanding from open-die/rolled ring into closed-die who need
+      faster quoting to compete.
+    - >-
+      OEM captive forging divisions seeking internal costing standardization and
+      faster should-cost feedback to design teams.
+    - >-
+      Independent manufacturer reps and contract manufacturers aggregating RFQs
+      for multiple forges (as influencers/secondary users).
+  channels:
+    - >-
+      Direct sales to forging shops (VP Ops/Estimating Manager/GM) with ROI
+      calculator and 30–90 day pilot.
+    - >-
+      Partnerships with Forging Industry Association (FIA) and
+      EUROFORGE—webinars, technical papers, and Forge Fair/Euroforge events.
+    - >-
+      Alliances with ERP/PLM vendors and system integrators (Epicor, Infor,
+      Plex, SAP) to co-sell and list on marketplaces.
+    - >-
+      Integration with RFQ marketplaces/portals used by buyers (e.g., Thomasnet)
+      for streamlined intake; optional.
+    - >-
+      Content marketing: DFM-for-forging guides, benchmark reports on quoting
+      speed/accuracy, case studies showing cycle time/yield accuracy and
+      win-rate uplift.
+    - >-
+      Referral program for tooling shops and heat treaters who benefit from
+      standardized quotes.
+  revenueStreams:
+    - >-
+      SaaS subscription (tiered by seats and sites): Starter $1,500/month
+      (single site, 3 users), Pro $4,000/month (multi-user, ERP integration),
+      Enterprise custom (multi-plant, on‑prem/ITAR).
+    - >-
+      Usage-based fee per processed RFQ above tier quota (e.g., $5–$15/RFQ
+      depending on volume and CAD complexity).
+    - >-
+      One-time onboarding/integration fee ($10k–$50k) covering equipment library
+      setup, cost templates, and ERP/PLM connectors.
+    - >-
+      Premium modules: on‑prem/GovCloud, advanced simulation calibration
+      (DEFORM/QForm link), custom DFM rule packs, multi-plant capacity module.
+    - >-
+      Professional services: historical data backfill/cleansing, estimator
+      training, should-cost workshops for OEMs.
+  costStructure:
+    - >-
+      R&D: ML engineers, manufacturing/process engineers, and data scientists
+      for physics-informed models and rule engine.
+    - >-
+      Cloud/infra: compute for parsing/inference (GPUs/CPUs), storage, secure
+      VPC/GovCloud; estimated variable COGS $0.05–$0.25 per RFQ (without FEA).
+    - >-
+      Licensing: CAD kernels (Parasolid/HOOPS), OCR/GD&T libraries, material
+      databases.
+    - >-
+      Implementation and support: solutions engineers for integrations, customer
+      success managers, and domain experts; travel for plant discovery.
+    - >-
+      Security/compliance: SOC 2 Type II audit, penetration testing, ITAR/EAR
+      controls, insurance.
+    - >-
+      Sales/marketing: events (Forge Fair, FABTECH), content, partner
+      commissions (10–20%).
+    - >-
+      General & administrative: legal, finance, office, tooling/sample
+      procurement for validation.
+  keyMetrics:
+    - >-
+      Time-to-first-quote: median under 60 minutes from RFQ receipt; 90th
+      percentile under 4 hours.
+    - >-
+      Automation rate: ≥70% of RFQs require <15 minutes human edits within 6
+      months of go-live; target 85% by month 18.
+    - >-
+      Cost accuracy: Mean Absolute Percentage Error (MAPE) of total cost within
+      ±10% versus post-job actuals; material yield prediction within ±5% by
+      weight.
+    - >-
+      Press/hammer selection accuracy: ≥95% match with senior estimator choice
+      given constraints; flag capacity conflicts 100% of the time.
+    - >-
+      Estimator productivity: hours per RFQ reduced from baseline (e.g., 2.0 hrs
+      to 0.6 hrs); quote throughput +2–3x.
+    - >-
+      Win-rate uplift: +3–7% absolute on comparable opportunities due to faster
+      response and DFM clarity.
+    - >-
+      DFM impact: average of 2–5 issues flagged per RFQ; >30% of accepted quotes
+      include at least one DFM change adopted by buyer.
+    - >-
+      Integration KPI: >98% successful quote handoffs to ERP with full cost
+      breakdown; <2% data mapping errors.
+    - >-
+      Adoption/retention: weekly active estimator rate >70%; NPS >40; gross
+      revenue retention >95%, net revenue retention >115%.
+    - >-
+      Security/compliance: SOC 2 Type II achieved by month 12; ITAR-compliant
+      deployments with data residency controls where required.
+storyBrand:
+  character: >-
+    Forging estimators and sales engineers at iron and steel forging shops who
+    need fast, accurate quotes.
+  problem: >-
+    RFQs arrive as drawings/CAD and turn into hours of manual routing, press
+    sizing, yield calcs, and pricing guesses—causing slow responses, margin
+    risk, and missed DFM issues.
+  guide: >-
+    RFQ-to-Quote Costing Agent: a forging-savvy AI that turns RFQs into cycle
+    time, press selection, yield, and costed quotes with clear DFM notes, tuned
+    to your machines, materials, and rates.
+  plan: >-
+    1) Connect RFQ sources and set labor, machine, and material rates. 2)
+    Calibrate with a few past jobs. 3) Auto-generate quotes and DFM notes, then
+    review and export to ERP/CRM.
+  callToAction: >-
+    Start a 2-week pilot with 5 past RFQs to benchmark accuracy and time
+    savings.
+  success: >-
+    Quotes in minutes, right-sized presses, predictable yields and margins,
+    fewer iterations, higher win rate, and a repeatable, auditable quoting
+    process that captures tribal knowledge.
+  failure: >-
+    Keep quoting slowly, oversizing presses, missing scrap drivers, eroding
+    margins, and losing bids to faster competitors.
+landingPage:
+  hero:
+    title: RFQ-to-Quote Costing Agent for Iron & Steel Forging
+    subtitle: >-
+      Convert drawings and CAD into cycle time, press selection, yield, and
+      fully costed quotes—with DFM notes—in minutes.
+    ctaText: Book a Demo
+    ctaHref: /demo
+  problem:
+    - RFQs pile up; quoting is a bottleneck and delays revenue.
+    - Manual estimates vary by estimator; tribal knowledge isn’t scalable.
+    - Extracting geometry from PDFs and CAD consumes hours.
+    - Press tonnage and blow count selection is error-prone.
+    - 'Missed DFM issues lead to scrap, dies rework, and late changes.'
+    - Cost breakdowns are inconsistent; pricing rules aren’t enforced.
+    - Hand-off to ERP/CRM is manual and slow; no audit trail.
+  solution:
+    - >-
+      Ingest RFQs (PDF drawings + STEP/IGES) and auto-extract geometry and
+      tolerances.
+    - >-
+      Recommend press/hammer and route; calculate tonnage, blows, projected
+      area, and energy.
+    - >-
+      Model cycle time end-to-end (heat, forge, trim, blast, heat treat,
+      inspection).
+    - 'Compute material buy weight, flash/trim yield, and scrap recovery.'
+    - >-
+      Generate a costed quote with material, energy, labor, overhead, tooling
+      amortization, and margin.
+    - >-
+      Attach DFM notes with risk flags (thin webs, draft, fillets, radii, die
+      fill).
+    - Export branded customer quote and internal cost sheet; sync to ERP/CRM.
+  features:
+    - 'Upload PDFs, STEP, IGES; OCR + GD&T/feature extraction.'
+    - >-
+      Press/hammer selection with tonnage, energy, and stroke checks for carbon,
+      alloy, and stainless grades.
+    - 'Projected area, volume, and parting line inference; flash design guidance.'
+    - >-
+      Cycle time engine covering furnace soak, transfer, blows, trim, blast,
+      heat treat, and inspection.
+    - >-
+      Yield modeling for flash/trim; buy weight and recovery with material price
+      curves.
+    - >-
+      Secondary ops: drilling, machining allowance, NDT; costed per
+      feature/tolerance.
+    - >-
+      Tooling estimation: cavities, die life, setup time, and amortization
+      rules.
+    - 'Configurable pricing: markups, freight, surcharges, and customer tiers.'
+    - 'Learning loop: calibrate with won jobs and actuals to improve accuracy.'
+    - >-
+      DFM/risk flags: draft angles, thin ribs, sharp corners, underfills, die
+      locking, tolerance hotspots.
+    - >-
+      One-click outputs: customer PDF, internal breakdown, DFM checklist, and
+      routing card.
+    - Approvals and versioning with audit trail; compare revisions and margins.
+    - >-
+      Integrations: SAP, Epicor, Infor, Oracle, Microsoft Dynamics, Salesforce,
+      HubSpot.
+    - >-
+      Security: SSO, role-based access, on‑prem or private cloud; ITAR-ready
+      data isolation.
+    - 'Multi-unit, currency, and language support; branded templates.'
+    - 'Interactive explainability: ask why a press or cost driver was chosen.'
+  steps:
+    - >-
+      Upload RFQ: drop PDFs and CAD; select material and annual volume (or let
+      AI infer).
+    - >-
+      AI parse: extract geometry, tolerances, and critical features; detect
+      parting and draft.
+    - >-
+      Process plan: recommend press/hammer, blows, and route; estimate cycle
+      time and yield.
+    - >-
+      Costing: compute material, energy, labor, overhead, and tooling; apply
+      pricing rules.
+    - 'Review: see DFM notes, risks, and sensitivity; adjust assumptions in-line.'
+    - >-
+      Export: generate customer-ready quote and internal cost sheet; push to
+      ERP/CRM and email.
+---
+# ForgeQuote AI
+
+Industry: Iron and Steel Forging
+Service: RFQ-to-Quote Costing Agent

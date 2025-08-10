@@ -1,0 +1,333 @@
+---
+name: FieldShield AI — Early Warning for Ag OEM Warranty/Recall
+slug: fieldshield
+service:
+  title: Field Telematics Early Warning for Warranty/Recall
+  description: >-
+    Scores in-field machines for emerging faults using CAN/telematics to preempt
+    warranty spikes and recalls.
+  targetUsers:
+    - Warranty/After-Sales
+    - Quality Engineering
+    - Product Engineering
+  triggers:
+    - Daily telematics batch available
+    - New DTC pattern frequency exceeds baseline
+    - New model/year launch
+  inputs:
+    - 'Telematics data (CAN parameters, DTCs, GPS, engine hours)'
+    - Warranty claims and repair orders
+    - Parts returns data
+    - 'Fleet/master data (model, S/N, region)'
+  steps:
+    - Ingest telematics and align to assets; parse DTCs and CAN with DBC files
+    - >-
+      Label past failures from claims; build risk features (DTC bursts, derates,
+      temp spikes)
+    - Train gradient boosting classification for 7/30/90-day failure risk
+    - Detect clusters/anomalies by model/region; generate early-warning briefs
+    - Publish high-risk asset lists to dealers; track outcomes
+  tools:
+    - Databricks/Snowflake
+    - LightGBM/XGBoost
+    - Geospatial tools (H3/Kepler)
+    - 'OEM telematics API (e.g., Azure IoT, custom)'
+    - BI dashboard + alerting
+  outputs:
+    - Asset-level risk scores and cohorts
+    - Emerging issue signals by model/region
+    - Dealer action lists and scripts
+    - Monthly warranty risk forecast
+  pricingModel:
+    - Platform fee + per-active-asset fee
+    - Add-on for dealer engagement workflow
+    - Optional success fee tied to avoided warranty cost
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Incomplete/lagged telematics feeds
+    - Label leakage/selection bias in claims
+    - Privacy/consent in location data
+    - False positives causing unnecessary visits
+  dependencies:
+    - Telematics API access + DBC files
+    - Claims/parts return datasets
+    - Dealer contact routing
+leanCanvas:
+  problem:
+    - >-
+      Warranty and recall risks surface late because issues are discovered via
+      lagging indicators (claims, dealer calls) 4–12 weeks after field onset.
+    - >-
+      CAN/telematics signals are noisy and inconsistent across models and
+      suppliers (J1939/ISO 11783 variations, proprietary SPNs), making
+      cross-fleet analytics hard.
+    - >-
+      Current rule-based diagnostics miss compound or intermittent failure
+      precursors; emerging spikes go undetected until claim volumes surge.
+    - >-
+      Claims costs concentrate in a small set of failure modes; without early
+      detection, average cost/repair is 15–30% higher due to collateral damage
+      and logistics.
+    - >-
+      Dealers face alert fatigue from high false-positive diagnostic trouble
+      codes (DTCs), leading to low action rates and missed true emergent issues.
+    - >-
+      Quality, warranty, and engineering systems (PLM/ERP/Warranty DB) are
+      siloed, slowing root-cause analysis and recall decisions.
+    - >-
+      Supply-chain planning lacks early signals, causing parts stockouts and
+      extended downtime when spikes hit.
+  solution:
+    - >-
+      Ingest and normalize machine telematics (CAN, GPS, duty cycles) across
+      mixed OEM/model years via connectors for J1939/ISO 11783 and proprietary
+      PGNs/SPNs.
+    - >-
+      Fuse signals with parts/BOM, build history, and warranty claim data to
+      create labeled failure-mode datasets (FMECAs).
+    - >-
+      Run streaming anomaly and population-spike detection that clusters
+      co-occurring signals and operating context (load, ambient, implement
+      used).
+    - >-
+      Score machines daily for failure likelihood and cost severity; generate
+      risk-ranked watchlists and service bulletins with recommended
+      diagnostics/parts kits.
+    - >-
+      Detect emerging spikes (e.g., week-over-week incidence rate rises) and
+      escalate to Quality/Legal with recall risk indicators and affected VIN
+      ranges.
+    - >-
+      Integrate with PLM/ERP/Warranty systems (e.g., SAP, Oracle) and dealer DMS
+      to close the loop on actions and outcomes.
+    - >-
+      Continuously retrain models with outcome feedback (claims, dealer fixes)
+      and monitor drift; A/B test alert thresholds to balance precision and
+      recall.
+  uniqueValueProp: >-
+    Proactive, population-scale early warning that detects emerging failure
+    modes 2–4 weeks earlier than claims data, prioritizes by cost-of-failure
+    risk, and routes actionable fixes to dealers — cutting warranty cost per
+    unit by $30–$80 in year one and reducing recall exposure with measurable
+    precision/recall guarantees.
+  unfairAdvantage: >-
+    Proprietary cross-OEM failure-mode taxonomy and labeled dataset built from
+    multi-OEM pilots, enabling earlier and more precise spike detection than
+    single-OEM models; closed-loop linkage of telematics patterns to claim
+    outcomes and BOM/lot data; and operational playbooks that drive dealer
+    action, not just alerts.
+  customerSegments:
+    - >-
+      Primary: Agricultural equipment OEMs (tractors, combines, sprayers,
+      balers) — heads of Warranty/Quality/Reliability, Aftersales, Legal/Recall,
+      Data/Connected Services.
+    - >-
+      Primary: Tier-1 suppliers (engines, transmissions, hydraulics,
+      electronics) seeking component-level early warning and shared savings with
+      OEMs.
+    - >-
+      Secondary: OEM dealer networks (service directors) for actioning alerts
+      and service bulletins.
+    - 'Secondary: Extended warranty providers/insurers underwriting OEM programs.'
+    - >-
+      Influencers: Large fleets/custom harvesters and ag retailers that value
+      uptime; can support OEM pilots.
+  channels:
+    - >-
+      Design-partner program with top 6 global ag OEMs; 2–3 paid pilots (6
+      months) focused on top 10 failure modes per OEM with shared-savings
+      contracts.
+    - >-
+      Direct enterprise sales to Warranty/Quality VPs and Reliability leads;
+      land-and-expand via component domain wins (engine/transmission) to full
+      machine.
+    - >-
+      Partnerships with telematics platform providers and gateway OEMs for
+      bundled resale; cloud marketplace listings (AWS/Azure) for procurement
+      ease.
+    - >-
+      Dealer enablement: webinars, TSB co-creation, and co-op programs that pay
+      dealers per completed early-warning intervention.
+    - >-
+      Industry presence and case studies: Agritechnica, AEM/Agricultural
+      conferences; peer-benchmark whitepapers showing warranty savings.
+    - >-
+      Co-marketing with Tier-1 suppliers to fund joint analytics for their
+      components across multiple OEMs.
+  revenueStreams:
+    - >-
+      Per-machine subscription (SaaS): $12/machine/month (<10k units), $9
+      (10–50k), $6 (>50k). Enterprise minimum annual commitment: $500k.
+    - >-
+      Implementation/integration fee: $100k–$500k depending on data interfaces
+      and number of components/models.
+    - >-
+      Shared-savings option for pilots: 10–20% of verified reduction in warranty
+      spend vs. baseline.
+    - >-
+      Premium add-ons: Recall Risk Suite (+$2/machine/month), Edge SDK
+      (+$1/machine/month), Dealer Portal seats ($60/user/month).
+    - >-
+      Professional services: FMECA workshops, data quality remediation, and TSB
+      playbook creation ($150–$250/hr).
+  costStructure:
+    - >-
+      Cloud and data infrastructure: $1,500–$3,000 per 1,000 machines per month
+      (stream processing, storage ~5 MB/machine/day, inference, data egress).
+    - 'Data science/engineering team: 6–10 FTE in year 1 ($1.5M–$2.8M annually).'
+    - >-
+      Integrations and support: 3–5 FTE for OEM onboarding and dealer enablement
+      ($600k–$1M).
+    - 'Security/compliance (SOC 2, ISO 27001, VDP): $150k–$300k/year.'
+    - >-
+      Sales/marketing (enterprise): $400k–$800k/year; CAC target $350k–$600k per
+      OEM.
+    - >-
+      Liability insurance and legal (recall advisory exposure):
+      $100k–$250k/year.
+    - 'Contingency for data labeling/claim matching services: $100k–$300k/year.'
+  keyMetrics:
+    - >-
+      Detection performance: precision ≥ 0.85 and recall ≥ 0.65 for top 20
+      failure modes within 30 days lead time; median lead time ≥ 21 days
+      pre-failure.
+    - >-
+      False positive control: ≤ 1.5 non-actionable alerts per 100 machines per
+      month at steady state.
+    - >-
+      Warranty impact: reduce claim frequency for targeted modes by 10–20%; cut
+      average cost/claim by 15–25%; net warranty cost per unit down $30–$80 in
+      year 1.
+    - >-
+      Recall risk: detect emerging spikes ≥ 4 weeks before legal threshold;
+      reduce affected population by 20–40% vs. baseline recall scope.
+    - >-
+      Dealer execution: ≥ 60% of prioritized alerts actioned within 7 days;
+      first-time fix rate ≥ 80% for bulletin-guided interventions.
+    - >-
+      Operational SLAs: P95 data freshness < 15 minutes; alert delivery uptime ≥
+      99.9%; model drift detection time < 24 hours.
+    - >-
+      Business: pilot-to-production conversion ≥ 60%; gross margin ≥ 65%; net
+      revenue retention ≥ 115% via expansion.
+storyBrand:
+  character: >-
+    Ops, quality, reliability, and product support leaders at farm machinery
+    OEMs who need trustworthy early signals of emerging field failures.
+  problem: >-
+    External: Emerging component faults hide in noisy CAN/telematics until
+    warranty spikes or recalls hit. Internal: Teams lack a clean, prioritized
+    signal and confidence to act across engineering, service, and dealers.
+    Philosophical: Operators deserve uptime—OEMs should fix issues before
+    customers feel them.
+  guide: >-
+    Empathy: We know surprise warranty curves and recall risk drain margin and
+    trust. Authority: Built by ex-OEM reliability/data teams; proven on mixed
+    J1939/CAN fleets; secure, compliant data ingestion and dealer-safe
+    workflows.
+  plan: >-
+    1) Connect: ingest CAN/telematics + warranty/service data; 2) Score: train
+    and validate AI risk models by platform/component; 3) Watch: real-time
+    cohort alerts and thresholds; 4) Act: push service bulletins, parts kits,
+    and dealer tasks; 5) Learn: closed-loop outcomes improve models.
+  callToAction: >-
+    Schedule a 30-minute demo and data readiness check; or download the Early
+    Warning Playbook and ROI model.
+  success: >-
+    Predictable warranty curve, avoided recalls, faster root-cause isolation,
+    proactive field actions, higher uptime and dealer satisfaction, protected
+    brand and margin.
+  failure: >-
+    Missed early signals become field campaigns and recalls, warranty accruals
+    spike, parts shortages grow, dealers firefight, and customer trust erodes.
+landingPage:
+  hero:
+    title: Early Warning for Warranty & Recall Risk
+    subtitle: >-
+      AI scores in-field farm machines from CAN/telematics to spot emerging
+      faults—prevent warranty spikes and avoid recalls.
+    ctaText: Schedule a Demo
+    ctaHref: /demo
+  problem:
+    - Warranty costs spike after peak season with no early signal
+    - Latent component faults spread across fleets unnoticed
+    - Raw fault codes are noisy; service teams chase false alarms
+    - Recall scope is hard to bound; decisions are slow and costly
+    - Disparate telematics/CAN formats block a unified view
+    - 'No forward-looking risk to plan parts, labor, and field actions'
+  solution:
+    - >-
+      Continuous risk scoring of each machine and component from CAN, DTCs, duty
+      cycles, and environment
+    - >-
+      Early cohort detection to flag affected models/serial ranges weeks in
+      advance
+    - >-
+      Actionable alerts with likely root causes and guided checks for
+      dealers/techs
+    - Automated parts and labor forecasting tied to predicted failure loads
+    - 'Seamless integration with telematics, warranty, CRM, and ERP systems'
+    - Closed-loop learning from repair outcomes to improve precision
+  features:
+    - >-
+      Fleet Risk Heatmap — See which models, regions, and serial ranges trend
+      toward failure
+    - >-
+      Component Health Scores — Predict pump, gearbox, hydraulic, DEF, and
+      electrical risks
+    - >-
+      Pattern Mining — Detect abnormal temperatures, pressures, RPM load
+      profiles, and duty cycles
+    - >-
+      Cohort Clustering — Group machines by fault signature to bound recall
+      scope fast
+    - >-
+      Early Warning Alerts — SLA-driven notifications to engineering, quality,
+      and dealer networks
+    - >-
+      Technician Playbooks — Step-by-step diagnostics linked to each fault
+      signature
+    - >-
+      Warranty Exposure Forecast — Quantify likely claims by week, region, and
+      component
+    - >-
+      Recall Scope Simulator — Test serial cut-lines and remedy options before
+      you announce
+    - >-
+      Parts & Service Readiness — Auto-generate stocking and staffing
+      recommendations
+    - >-
+      Data Connectors — Ingest OEM telematics, CAN gateways, and data lakes via
+      secure APIs
+    - >-
+      Governance & Audit — Traceable models, versioning, and evidence for
+      compliance
+    - Security & Privacy — Field-safe anonymization and least-privilege access
+  steps:
+    - >-
+      Connect — Securely link telematics, CAN streams, warranty claims, and
+      service history
+    - >-
+      Calibrate — Backtest on your history to tune models and set alert
+      thresholds
+    - >-
+      Score — Start live risk scoring and route alerts to engineering and
+      service teams
+    - >-
+      Validate — Run a pilot on selected models and measure avoided failures and
+      costs
+    - >-
+      Operationalize — Integrate with workflows, dealer portals, and parts
+      planning
+    - >-
+      Scale — Expand coverage across product lines and regions; monitor and
+      improve
+---
+# FieldShield AI — Early Warning for Ag OEM Warranty/Recall
+
+Industry: Farm Machinery and Equipment Manufacturing
+Service: Field Telematics Early Warning for Warranty/Recall

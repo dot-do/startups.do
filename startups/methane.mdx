@@ -1,0 +1,313 @@
+---
+name: Methane & Ventilation Early Warning (MVEW) AI
+slug: methane
+service:
+  title: Methane and Ventilation Early Warning
+  description: >-
+    Forecast and detect abnormal methane/CO/airflow patterns and advise checks
+    before thresholds are breached.
+  targetUsers:
+    - Control room operators
+    - Ventilation engineers
+    - Safety
+  triggers:
+    - Real-time stream anomaly
+    - Hourly forecast run
+    - Threshold breach in historian
+  inputs:
+    - Fixed gas sensors (CH4/CO/O2) via PI/OPC UA
+    - Airflow sensors and regulators/fan states
+    - Barometric pressure
+    - 'Ventilation model topology (e.g., Ventsim Live)'
+  steps:
+    - Secure API connection to historian/SCADA
+    - Sensor QC and fault detection
+    - Short-horizon forecasting (15–120 min) and anomaly scoring
+    - Root-cause hints (sensor cluster and topology context)
+    - Generate advisory with recommended verifications
+    - Push alerts to Teams/Email/SMS and create ticket
+    - Post-incident backtesting to refine thresholds
+  tools:
+    - OSIsoft PI Web API
+    - OPC UA/MQTT
+    - Python (tsfresh/Prophet/LSTM)
+    - Ventsim Live API
+    - Grafana/Power BI
+    - Teams/Slack webhooks
+  outputs:
+    - Risk score and 60-min forecast per sensor/airway
+    - 'Advisory checklist (e.g., inspect regulator/fan zone)'
+    - Alert/ticket with traceable evidence
+    - Dashboard and CSV/JSON export
+  pricingModel:
+    - Setup fee (data mapping + models)
+    - Per site per month
+    - Optional per-alert overage
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 7
+    overall: 8
+  risks:
+    - Sensor miscalibration/latency
+    - False positives/negatives
+    - Network outages underground
+    - Regulatory acceptance—advisory only
+  dependencies:
+    - Historian/SCADA access and tag map
+    - Validated ventilation model topology
+    - Alerting channel integration
+leanCanvas:
+  problem:
+    - >-
+      Methane and CO excursions in underground coal mines cause evacuations,
+      stoppages, and fatalities; current systems are largely threshold-based and
+      reactive, not predictive.
+    - >-
+      Alarm fatigue from hundreds of threshold alarms/day leads to
+      desensitization and slow response; root-cause correlations across methane,
+      CO, airflow, barometric pressure, and equipment status are rarely analyzed
+      in real time.
+    - >-
+      Ventilation networks are dynamic (door positions, fan speed, stoppings,
+      regulator changes, longwall moves), making fixed thresholds unreliable and
+      causing frequent nuisance trips.
+    - >-
+      Manual trend review by ventilation officers is time-consuming (often 2–4
+      hours/week per panel) and misses fast-evolving precursors (e.g.,
+      barometric dips, shearer cutting zones, drainage variability).
+    - >-
+      Regulatory compliance (e.g., MSHA 30 CFR Part 75, AU Coal Mining Safety
+      and Health Regulation) requires documented monitoring and responses;
+      generating auditable evidence is cumbersome and often after-the-fact.
+    - >-
+      Unplanned gas-related stoppages can cost USD 30k–150k per hour in lost
+      production and re-entry delays; even a single quarterly event materially
+      impacts mine EBITDA.
+    - >-
+      Existing OEM monitoring systems (SCADA/PLC/AMS) provide data but limited
+      predictive analytics, cross-sensor correlation, or actionable advisory
+      playbooks.
+  solution:
+    - >-
+      Ingest real-time sensor streams (methane, CO, airflow, pressure, fan
+      speed, equipment states) via OPC UA/Modbus/MQTT from existing AMS/SCADA.
+    - >-
+      Edge AI anomaly detection with physics-informed models and
+      digital-ventilation context, delivering 10–60 minute early warnings and
+      ranked probable causes.
+    - >-
+      Actionable advisories mapped to site SOPs (e.g., inspect goaf seals,
+      adjust regulator, verify methane drainage flow, check water sprays), with
+      one-click acknowledgment and guided checklists.
+    - >-
+      Explainability dashboards showing contributing sensors, trend deltas,
+      barometric influence, and ventilation topology overlays for rapid triage.
+    - >-
+      Offline-capable edge gateway (IECEx/ATEX certified enclosure) ensuring
+      on-site inference with <10 s alert latency; cloud for fleet learning and
+      benchmarking.
+    - >-
+      Alarm management aligned to ISA 18.2: deduplication, suppression by state,
+      dynamic thresholds by panel state/production phase.
+    - >-
+      Automated compliance logging: event timelines, actions taken, response
+      time, and export to MSHA/Inspector reports.
+    - >-
+      Model lifecycle management: site-specific calibration, drift detection,
+      and assisted labeling using incident reviews; human-in-the-loop for
+      continuous improvement.
+  uniqueValueProp: >-
+    Predict and explain abnormal methane/CO/airflow patterns 10–60 minutes
+    before thresholds are breached, with clear, site-specific checklists that
+    reduce nuisance alarms 40–60%, cut gas-related stoppages 20–40%, and
+    generate audit-ready compliance records without replacing existing sensors
+    or SCADA.
+  unfairAdvantage: >-
+    Proprietary multi-variable, ventilation-aware models trained on diverse mine
+    conditions; validated advisory playbooks co-developed with leading
+    ventilation engineers; edge-first architecture certified for hazardous
+    environments; growing dataset and incident labels that compound model
+    accuracy over time; OEM and insurer partnerships that reduce sales friction
+    and create defensible distribution.
+  customerSegments:
+    - >-
+      Primary: Underground coal mine operators with longwall or gassy
+      bord-and-pillar sections (HSE Manager, Ventilation Officer/Engineer,
+      Control Room Supervisors).
+    - >-
+      Economic Buyer: Mine Manager/GM, COO/Operations Director, Head of Health &
+      Safety, Digital Transformation Lead.
+    - >-
+      Secondary: OEMs/integrators of gas monitoring and VoD systems (SCADA
+      vendors, gas sensor OEMs) seeking analytics differentiation.
+    - >-
+      Influencers: Insurers, regulators/inspectors, union safety reps, corporate
+      EHS leaders across multi-mine portfolios.
+    - >-
+      Early adopters: High-gas category mines, operations using
+      Ventilation-on-Demand (VoD), mines with frequent nuisance alarms or recent
+      methane-related stoppages.
+  channels:
+    - >-
+      Direct enterprise sales to mining majors and mid-tier operators targeting
+      HSE and Ventilation leads.
+    - >-
+      OEM/Integrator partnerships bundling analytics with AMS/SCADA or VoD
+      projects (rev-share 15–25%).
+    - >-
+      Insurer partnerships offering premium credits for verified adoption and
+      KPIs.
+    - >-
+      Industry networks and pilots via research bodies (e.g., ACARP, CSIRO,
+      NIOSH collaborations) and mine safety conferences (SME, QMIHS, AIMEX).
+    - >-
+      Reference-site led expansion: land-and-expand from one panel to full mine
+      and multi-mine rollouts.
+    - >-
+      Government grants for mine safety tech and
+      decarbonization/energy-efficiency (ventilation optimization).
+  revenueStreams:
+    - >-
+      Annual SaaS subscription per monitored section/panel: USD
+      60k–120k/site/year depending on number of sensors and panels (typical
+      mid-size site 80k ARR).
+    - >-
+      Edge gateway rental or purchase: USD 5k–12k per gateway (1–3 per mine),
+      with optional managed service at USD 500/month/gateway.
+    - >-
+      Professional services: onboarding and model calibration package USD
+      25k–60k/site; change management and SOP mapping USD 10k–30k.
+    - 'Premium support and 24/7 on-call: USD 15k–30k/year/site.'
+    - >-
+      Enterprise license for multi-mine portfolios with volume discounts (up to
+      25%) and corporate analytics add-on USD 100k/year.
+    - >-
+      Optional ventilation energy optimization module (post-year-1): USD
+      30k–80k/year/site based on demonstrated savings.
+  costStructure:
+    - >-
+      COGS: Edge hardware (USD 1.5k–3k BOM each) and secure enclosure; cloud
+      compute/storage per site USD 300–800/month; data egress minimal due to
+      edge inference.
+    - >-
+      R&D: Data science, mining engineering, and software team salaries (USD
+      2–4M/year in early scale).
+    - >-
+      Field engineering and onboarding travel/PPE/training: USD 10k–25k/site in
+      year 1.
+    - >-
+      Certifications and compliance: SOC 2/ISO 27001, IECEx/ATEX enclosure
+      certification, site inductions, and safety training (USD 150k–300k/year).
+    - >-
+      Sales and partner commissions: 10–20% of ARR for channel deals; direct
+      sales team OTEs.
+    - >-
+      Liability and cyber insurance: USD 100k–250k/year depending on coverage
+      and fleet size.
+    - Support and SRE for high-availability SLAs (99.9% service target).
+  keyMetrics:
+    - >-
+      Safety leading indicators: percent of methane/CO threshold breaches
+      predicted ≥10 minutes in advance (target ≥85% after 90 days), median early
+      warning lead time (target 20 minutes), and near-miss rate reduction
+      (target 25% in 6 months).
+    - >-
+      Alarm performance: false alarms per 24 hours per panel (target ≤0.5),
+      precision/recall of anomaly alerts (target ≥0.8/≥0.85), deduplication rate
+      (≥50%).
+    - >-
+      Operational impact: reduction in gas-related stoppage hours per
+      panel/month (target 20–40%), mean time to acknowledge (MTTA) < 2 minutes,
+      mean time to resolution (MTTR) < 20 minutes for advisory checks.
+    - >-
+      Financial ROI: avoided downtime value per quarter (target ≥3×
+      subscription), ventilation energy savings (target 5–10% where VoD is
+      present).
+    - >-
+      Adoption: % shifts with advisories acknowledged (>90%), checklist
+      completion rate (>95%), number of trained operators and ventilation
+      officers per site (≥8).
+    - >-
+      Model health: drift alerts/month (<1), retrain cycle time (<2 weeks),
+      labeled incident coverage (>70% of events labeled).
+    - >-
+      Availability and latency: edge inference uptime ≥99.5%, alert latency <10
+      s P95.
+storyBrand:
+  character: >-
+    Underground mine leaders—ventilation officers, control room supervisors, and
+    managers—responsible for keeping crews safe, compliant, and productive.
+  problem: >-
+    External: Methane/CO spikes and airflow anomalies escalate quickly, and
+    static thresholds miss early warning patterns. Internal: Teams worry about
+    blind spots and reacting too late. Philosophical: No miner should be at risk
+    because warning signals were buried in the data.
+  guide: >-
+    We understand high-stakes underground ventilation. Our team blends mining
+    safety expertise with industrial AI, integrates with your existing
+    gas/airflow sensors and SCADA, and aligns alerts with your SOPs.
+  plan: >-
+    1) Connect: Ingest methane, CO, airflow, and operational data; map tags and
+    layouts. 2) Calibrate: Baseline normal patterns and co-design alert
+    thresholds and playbooks with your SMEs. 3) Deploy: Real-time early warnings
+    plus recommended checks before limits are breached; weekly trend reviews and
+    continuous tuning.
+  callToAction: >-
+    Direct: Schedule a ventilation risk review and start a site pilot.
+    Transitional: Request a sample alert playbook and trend report.
+  success: >-
+    Fewer exceedances and evacuations, earlier interventions, safer crews,
+    sustained production, clearer compliance evidence, and more confident shift
+    decisions.
+  failure: >-
+    Unexpected gas events, emergency evacuations, regulatory citations,
+    production losses, and preventable harm to people and reputation.
+landingPage:
+  hero:
+    title: Methane & Ventilation Early Warning
+    subtitle: >-
+      AI that forecasts and detects abnormal methane, CO, and airflow patterns
+      in underground coal mines—advising checks before thresholds are breached.
+    ctaText: Request a Demo
+    ctaHref: /demo
+  problem:
+    - Methane spikes escalate quickly—risking ignition and evacuations.
+    - 'Manual trend checks miss subtle, multi-sensor patterns.'
+    - False alarms disrupt output; late alerts halt production.
+    - 'Noisy, fragmented telemetry clouds real risk.'
+    - Rising compliance burden and audit scrutiny.
+  solution:
+    - Predict issues 15–120 minutes before thresholds are breached.
+    - 'Cut false alarms with sensor fusion across methane, CO, and airflow.'
+    - Pinpoint affected panels and priority checks to act faster.
+    - Reduce unplanned stoppages and improve ventilation stability.
+    - Create audit-ready incident timelines and reports.
+    - Augment statutory gas monitoring—never replace it.
+  features:
+    - Real-time anomaly detection across methane/CO/airflow.
+    - Short-term forecasts with confidence bands and lead-time targets.
+    - 'Adaptive baselines by panel, section, and shift schedule.'
+    - 'Explainable alerts: top contributing sensors and patterns.'
+    - 'Sensor health checks to flag drift, faults, and stale data.'
+    - >-
+      Role-based notifications for control room, deputies, and ventilation
+      officers.
+    - 'Checklists auto-suggested by risk, location, and SOPs.'
+    - Shadow mode to validate alerts before go-live.
+    - 'SCADA/PLC integration (OPC UA, Modbus, MQTT) and API connectors.'
+    - Edge-ready with store-and-forward for low-bandwidth links.
+    - 'Audit logs, replay, and compliance mappings.'
+  steps:
+    - Connect SCADA and gas/airflow sensors via secure gateway.
+    - Import 60–180 days of historical data for model training.
+    - 'Configure panels, zones, and site-specific thresholds/SOPs.'
+    - Run in shadow mode to compare alerts vs. ground truth.
+    - Go live with role-based notifications and dashboards.
+    - Review weekly risk summaries and tuning suggestions.
+    - Scale to additional panels and integrate with work orders.
+---
+# Methane & Ventilation Early Warning (MVEW) AI
+
+Industry: Underground Coal Mining
+Service: Methane and Ventilation Early Warning

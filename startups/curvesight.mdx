@@ -1,0 +1,300 @@
+---
+name: CurveSight AI
+slug: curvesight
+service:
+  title: Pump Performance Curve Digitization & Validation
+  description: >-
+    Convert OEM pump curves from PDFs into structured data and validate against
+    test-bench results to flag deviations.
+  targetUsers:
+    - Engineering QA
+    - Test Lab Lead
+    - Product Manager
+  triggers:
+    - New/updated curve PDFs
+    - Completion of test runs
+    - Pre-release quality gate
+  inputs:
+    - 'Curve PDFs (Q-H, Q-η, Q-P, NPSHr)'
+    - Units/standards settings
+    - Test bench raw data (CSV)
+    - 'Model metadata (impeller dia, speed)'
+  steps:
+    - OCR and vectorize curves from PDF
+    - Extract curve points; unit normalization
+    - Fit smooth functions and publish as CSV/JSON
+    - Align with test data; compute deviations/tolerances
+    - Generate validation report and update PLM
+  tools:
+    - Tesseract/AWS Textract
+    - OpenCV/pdfplumber
+    - 'Python (numpy, scipy, pandas)'
+    - 'PLM APIs (Arena, Windchill)'
+  outputs:
+    - Digitized curve CSV/JSON
+    - Deviation and tolerance report (PDF)
+    - PLM record updates/attachments
+  pricingModel:
+    - Per-page/per-curve processing
+    - Bundle discounts
+    - Optional monthly QA validation add-on
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 8
+    overall: 9
+  risks:
+    - Poor PDF quality/skewed scans
+    - Scaling or unit misinterpretation
+    - Curve extraction edge cases (multi-axis)
+  dependencies:
+    - Access to curve PDFs
+    - Test data export
+    - PLM integration credentials
+leanCanvas:
+  problem:
+    - >-
+      Pump OEMs store decades of pump performance curves (Q-H/Q-P/Q-η) as PDFs,
+      scans, and images, making them unusable by selection tools, PLM/ERP, and
+      CPQ without manual re-entry.
+    - >-
+      Manual digitization is slow (8–15 minutes/curve), error-prone (2–5%
+      transcription/scale errors), and inconsistent (units, axis scales, NPSH(R)
+      handling, viscosity corrections), causing downstream design and quotation
+      mistakes.
+    - >-
+      Validation of OEM curves against test-bench results is manual (30–60
+      minutes/test), not standardized to ANSI/HI 14.6 or API 610 tolerances, and
+      often skipped under time pressure, risking non-conforming shipments and
+      warranty exposure.
+    - >-
+      Version control is weak; superseded curves remain in circulation, causing
+      misquotes, rework, and non-conformances during audits (traceability gaps).
+    - >-
+      Engineering teams lack a system-of-record for pump curve data with audit
+      trails, confidence scores, and change history compliant with ISO 9001 and
+      API 610 QA expectations.
+    - >-
+      Integration friction: test-bench PLC/SCADA/DAQ data (e.g., PI, Ignition,
+      Wonderware, LabVIEW) is siloed from engineering data; pump selection
+      software and PLM cannot consume raw PDFs.
+  solution:
+    - >-
+      AI-powered curve extraction from PDFs/scans: detect axes, scales, units,
+      legends; de-skew and digitize Q-H, Q-P, efficiency, NPSH(R) curves; output
+      JSON/CSV.
+    - >-
+      Validation engine overlays test-bench data, computes tolerance bands (per
+      ANSI/HI 14.6 acceptance grades, API 610 references), flags deviations, and
+      generates pass/fail reports.
+    - >-
+      Confidence scoring and human-in-the-loop QA workflow for low-confidence
+      fields; continuous learning from corrections.
+    - >-
+      Versioning and audit trails: immutable history, comparison of curve
+      revisions, traceability to product codes/test IDs and standards acceptance
+      class.
+    - >-
+      Integrations: connectors to PLM (Teamcenter/Windchill/3DEXPERIENCE), ERP
+      (SAP), selection software, DAQ/SCADA (Ignition, Wonderware), PI
+      historians, and lab file formats (CSV, TDMS).
+    - >-
+      Deployment options: secure SaaS, private cloud VPC, or on-prem appliance
+      for ITAR/export-controlled facilities.
+  uniqueValueProp: >-
+    From PDF to validated, standard-compliant pump performance data in minutes.
+    CurveSight AI auto-extracts curves, normalizes units, validates against
+    test-bench data to ANSI/HI 14.6/API 610 tolerances, and delivers API-ready
+    datasets with confidence scores and an audit trail.
+  unfairAdvantage: >-
+    A standards-aware, domain-specific AI with a proprietary labeled dataset of
+    pump curves and test runs, combined with integrated validation to ANSI/HI
+    14.6/API 610 and production-grade connectors to PLM/ERP/selection tools.
+    Human-in-the-loop corrections continuously retrain models, compounding
+    accuracy and reducing manual touch over time. Early partnerships with
+    test-bench and PLM vendors create switching costs.
+  customerSegments:
+    - >-
+      Primary: Industrial pump OEMs (centrifugal, positive displacement,
+      metering/dispensing, sanitary, chemical process) with in-house test
+      benches.
+    - >-
+      Secondary: Third-party pump test labs and certification bodies performing
+      acceptance tests to ANSI/HI 14.6 and API 610.
+    - >-
+      Tertiary: System integrators/EPCs and large OEM distributors who maintain
+      pump selection databases and need validated data for CPQ/quotation.
+    - >-
+      Early adopters profile: 200–2,000 employees, 5,000+ SKUs, 2+ test benches,
+      annual volume 1,000–10,000 tests, PLM/ERP in place (Windchill, Teamcenter,
+      SAP).
+  channels:
+    - >-
+      Direct enterprise sales to OEMs (target roles: Director of Engineering,
+      QA/Test Lab Manager, Product Data/PLM Manager).
+    - >-
+      Partnerships with test-bench instrumentation/DAQ vendors and
+      SCADA/historian providers to bundle validation connectors.
+    - >-
+      Alliances with PLM/CPQ/selection-software vendors and systems integrators
+      to embed export/import plugins.
+    - >-
+      Industry associations and events: Hydraulic Institute, Europump, ACHEMA,
+      WEFTEC, IFAT, AHR Expo (technical talks, live demos, workshops).
+    - >-
+      Content-led growth: case studies quantifying time/error reduction;
+      webinars on ANSI/HI 14.6 compliance automation; ROI calculators.
+    - >-
+      Land-and-expand pilots: 6–8 week paid pilots with a single product line
+      and one test bench, followed by multi-plant rollout.
+  revenueStreams:
+    - >-
+      SaaS subscription (tiered by users, curves processed, validations/month):
+      Starter $499/month (1,000 curves + 100 validations), Pro $2,499/month
+      (10,000 curves + 1,500 validations), Enterprise custom SLAs.
+    - >-
+      Usage-based overages: $0.75/curve (Starter), $0.35/curve (Pro),
+      $1.50/validation (Starter), $1.00/validation (Pro).
+    - >-
+      One-time onboarding/integration: $5k–$25k per site for connectors, SSO,
+      and PLM/selection software mapping.
+    - >-
+      Professional services: historical backlog digitization at $2–$6/curve
+      depending on scan quality and metadata enrichment.
+    - >-
+      Private cloud/on-prem license uplift: +25–40% over SaaS list; optional
+      dedicated support/SLA tiers.
+    - >-
+      Compliance reporting module add-on: $300–$900/month for certificate
+      templates and audit packs.
+  costStructure:
+    - >-
+      R&D: ML/vision engineers, data scientists, MLOps (~45–55% of costs in
+      first 24 months).
+    - Data labeling/QA ops for human-in-the-loop validation (~10–20%).
+    - >-
+      Cloud infrastructure: GPU training, CPU inference, storage, secure
+      networking (~10–15%).
+    - Integrations and connectors maintenance; PLM/ERP/SCADA adapters (~5–10%).
+    - >-
+      Sales and marketing: field engineers for pilots, events, content
+      (~10–15%).
+    - >-
+      Security/compliance: SOC 2 audits, penetration testing, logging/monitoring
+      (~3–5%).
+    - 'Customer success and support, solution engineering (~5–10%).'
+  keyMetrics:
+    - >-
+      Curve extraction performance: ≥99.5% axis detection accuracy; RMSE ≤1.5%
+      of max head on Q-H fits; unit inference accuracy ≥99%.
+    - >-
+      Operational efficiency: median processing time ≤60 seconds/curve
+      (auto-accept ≥85%); manual touch rate ≤15% with <2 minutes/touch.
+    - >-
+      Validation efficacy: deviation detection recall ≥95% and precision ≥97%
+      against labeled test runs; false positive rate ≤3%.
+    - >-
+      Standards compliance: 100% of validations mapped to a selected HI 14.6
+      acceptance grade with certificate generated.
+    - >-
+      Customer ROI: time saved ≥7 minutes/curve vs manual; ≥30 minutes/test
+      validation; payback period <3 months for Pro tier.
+    - 'Adoption: pilot-to-paid conversion ≥60%; logo churn <5% annually; NPS ≥45.'
+    - >-
+      Sales funnel: MQL→SQL conversion ≥25%; sales cycle ≤90 days; average
+      contract value (ACV) ≥$35k for Enterprise.
+    - 'Reliability: service uptime ≥99.9%; P1 incident MTTR ≤2 hours.'
+storyBrand:
+  character: >-
+    Engineering, quality, and product teams at pump OEMs (measuring, dispensing,
+    dosing, and industrial) who need accurate, machine-readable performance
+    curves validated against real test data.
+  problem: >-
+    External: Curves are trapped in PDFs with inconsistent axes/units; manual
+    digitization is slow and error-prone; test-bench drift hides deviations.
+    Internal: Teams lack confidence in specs, waste time on rework, and risk
+    late changes. Philosophical: Performance data should be trustworthy,
+    traceable, and instantly usable across PLM/ERP and customer docs.
+  guide: >-
+    We understand pump testing and certification. Our computer-vision + physics
+    models extract H-Q, P2, efficiency, and NPSHr from OEM PDFs, normalize by
+    speed/viscosity, and cross-check with your bench results using ISO 9906/HI
+    14.6 tolerances. Secure API and on-prem/VPC options; built with pump
+    manufacturers for real-world workflows.
+  plan: >-
+    1) Upload sample PDFs and test-bench exports (CSV). 2) We auto-extract and
+    normalize curves, fit models, and validate vs. test data; deviations and
+    root-cause hints are flagged. 3) Receive a clean dataset (JSON/CSV/API) with
+    a validation report and dashboard; integrate to PLM/ERP and enable
+    continuous lot-by-lot checks.
+  callToAction: >-
+    Primary: Book a 20-minute demo to see your own curves digitized.
+    Transitional: Start a pilot—send 25 PDFs + test files and get a validation
+    report within 5 business days.
+  success: >-
+    Accurate, validated pump curves as a single source of truth; faster
+    approvals and datasheets; automated conformity reports; fewer customer
+    complaints and warranty claims; smoother audits; confident teams and happier
+    OEM customers.
+  failure: >-
+    Continue shipping pumps with unverified performance, chasing inconsistencies
+    across PDFs and spreadsheets; delays, rework, audit findings, and damaged
+    trust.
+landingPage:
+  hero:
+    title: AI Curve Digitization & Validation for Pump Manufacturers
+    subtitle: >-
+      Turn OEM pump curves from PDFs into structured data and auto-validate
+      against test-bench results to catch deviations before shipment.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - 'Manual curve digitization is slow, error-prone, and hard to scale.'
+    - 'OEM PDFs are inconsistent in axes, units, speeds, and annotations.'
+    - Scanned or low-quality drawings defeat standard OCR tools.
+    - >-
+      Test-bench data is hard to align with spec curves; deviations slip
+      through.
+    - >-
+      Quality audits (ISO/API) demand traceable evidence you can’t produce
+      quickly.
+    - 'Late NCRs, rework, and warranty exposure increase costs.'
+    - 'Legacy catalogs remain locked in PDFs, slowing quoting and engineering.'
+  solution:
+    - 'Extract H-Q, efficiency, power, and NPSHr curves from PDFs automatically.'
+    - >-
+      Normalize units, speed, viscosity, and duty points for apples-to-apples
+      comparison.
+    - Link curves to SKUs/BOMs and build a searchable spec database.
+    - Validate bench results in real time with pass/fail and deviation heatmaps.
+    - Alert when results drift beyond ISO 9906/API tolerances.
+    - Export structured data (CSV/JSON) and sync to PLM/MES/ERP.
+    - Maintain full audit trail with versioning and approvals.
+  features:
+    - High-accuracy PDF and scan parsing with axis/scale recognition.
+    - 'Handles multiple trims, speeds, and fluids per file.'
+    - Confidence scoring and human-in-the-loop review queue.
+    - 'Tolerance libraries: ISO 9906, API 610/674, plus custom rules.'
+    - 'Bench adapters: OPC UA, Modbus, REST, CSV (streaming or batch).'
+    - 'Unit and condition normalization (flow, head, Δp, viscosity, temperature).'
+    - 'BEP, duty-point, and operating envelope calculations.'
+    - Viscosity corrections and affinity-law adjustments.
+    - Deviation dashboards with SPC/Cpk for QA teams.
+    - 'Role-based access, SSO, and complete audit logs.'
+    - On‑prem or private cloud deployment options.
+    - Bulk ingestion for legacy catalogs via drag‑and‑drop or SFTP.
+    - Multilingual OCR; recognizes engineering notation and symbols.
+    - REST API and webhooks for automated workflows.
+  steps:
+    - Upload OEM PDFs or point to a repository.
+    - 'AI extracts curves, axes, units, and metadata for quick review.'
+    - Map to product codes and assign tolerance profiles by model/project.
+    - Connect your test bench or upload result files.
+    - Auto-validate and flag deviations with recommended actions.
+    - 'Export, generate certificates, and sync to your systems.'
+    - Monitor trends and receive alerts on drift or out-of-spec results.
+---
+# CurveSight AI
+
+Industry: Measuring, Dispensing, and Other Pumping Equipment Manufacturing
+Service: Pump Performance Curve Digitization & Validation

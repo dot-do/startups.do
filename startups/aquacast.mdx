@@ -1,0 +1,307 @@
+---
+name: AquaCast AI — SKU-level Demand & Production Plan Orchestrator
+slug: aquacast
+service:
+  title: SKU-level Demand Forecast + Production Plan Orchestrator
+  description: >-
+    Generates weekly SKU/channel forecasts and converts them into a feasible
+    master production plan by line and shift with scenario options (heat waves,
+    promos).
+  targetUsers:
+    - Supply Chain Manager
+    - Plant Planner
+    - Sales Ops
+  triggers:
+    - Weekly planning cycle
+    - New POS/EDI orders arrive
+    - Weather heatwave alert
+  inputs:
+    - Historical shipments by SKU/channel/region
+    - Retail POS/scan data
+    - EDI 850/852/867
+    - Promo/price calendar
+    - Line capacities and calendars
+    - Changeover matrix (format/flavor)
+    - Lead times and inventory policies
+    - Weather by region
+  steps:
+    - Ingest/clean data from ERP/WMS/EDI/POS
+    - >-
+      Train hierarchical ML forecast per SKU-channel-region; overlay
+      promo/weather features
+    - Bias-correct with human input and lock critical SKUs
+    - Translate forecast to constrained MPS by line/shift minimizing changeovers
+    - 'Run what-if scenarios (promo on/off, overtime, subcontract)'
+    - Publish forecast/MPS to ERP and share dashboard
+  tools:
+    - 'Python (pandas, scikit-learn, LightGBM, Prophet)'
+    - OR-Tools/Pyomo for planning
+    - OpenWeatherMap API
+    - Snowflake/BigQuery/Postgres connectors
+    - Power BI/Looker Studio dashboards
+    - SAP B1/NetSuite/Odoo API or CSV export/import
+  outputs:
+    - 12–52 week SKU forecast CSV/API
+    - Weekly MPS by line/shift
+    - Capacity utilization and changeover KPIs
+    - Scenario comparison report
+  pricingModel:
+    - One-time setup + data onboarding
+    - Monthly subscription per SKU or per plant
+    - Optional scenario sandbox add-on
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 9
+    overall: 9
+  risks:
+    - Poor master data/duplicate SKUs
+    - Forecast error during shocks
+    - Mismatch with real plant constraints
+    - Change management and planner trust
+  dependencies:
+    - Access to ERP/EDI/POS data
+    - Capacity and changeover data
+    - Weather API key
+    - User sign-off workflow
+leanCanvas:
+  problem:
+    - >-
+      Bottled water demand is highly weather- and promo-sensitive, causing
+      20–40% WMAPE at SKU-week-channel in many plants and frequent stockouts
+      during heat waves.
+    - >-
+      Planning tools rarely bridge demand forecasts and executable line/shift
+      schedules; schedulers manually stitch plans in Excel, leading to low
+      schedule adherence (<75%) and excess changeovers.
+    - >-
+      Promo lifts are inconsistently captured across retailers and regions;
+      planners lack a fast way to test event scenarios (heat waves, BOGOs) and
+      convert them into feasible production plans.
+    - >-
+      Capacity constraints (line speeds, blow-mold vs. filler, tank capacities,
+      labor rosters, CIP, maintenance) aren’t modeled together, causing
+      overtime, premium freight, and lost sales.
+    - >-
+      Data fragmentation (ERP, MES/SCADA, WMS, distributor portals, retailer
+      POS) yields slow, error-prone S&OP handoffs and limited traceability.
+    - >-
+      Inventory buffers are set crudely, driving 10–20% excess finished goods
+      and packaging materials while still missing service-level targets during
+      peaks.
+  solution:
+    - >-
+      Probabilistic demand forecasting at SKU–channel–region–week with exogenous
+      signals (temperature anomalies, humidity/heat index, holidays,
+      price/promos, events), producing prediction intervals and promo-lift
+      factors.
+    - >-
+      MILP-based production plan orchestrator that transforms forecasts into
+      feasible master schedules by plant, line, and shift, honoring speeds,
+      changeover matrices, tank/storage, blow-mold vs. filler coupling, labor
+      rosters, CIP/maintenance, packaging constraints.
+    - >-
+      Scenario studio: simulate heat waves by region, retailer promos, price
+      changes, supply disruptions, and labor limits; compare service, cost,
+      capacity utilization, and inventory outcomes side-by-side.
+    - >-
+      Dynamic safety-stock and buffer recommendations using service-level
+      targets and forecast uncertainty; pushes targets to ERP/MRP.
+    - >-
+      Closed-loop execution: integrate plan adherence (schedule adherence, OTIF,
+      changeover actuals) to continuously recalibrate models and constraints.
+    - >-
+      Rapid integration layer with ERP/MES/WMS and retailer/distributor feeds;
+      data quality scoring and automated anomaly resolution workflow.
+  uniqueValueProp: >-
+    From forecast to feasible plan: weekly SKU/channel probabilistic forecasts
+    automatically converted to a constraint-aware master production schedule by
+    line and shift—purpose-built for bottled water’s weather spikes and promo
+    volatility—delivering higher service with lower inventory and fewer
+    changeovers in under 8 weeks.
+  unfairAdvantage: >-
+    Beverage-specific forecasting features fused with a constraint library for
+    bottled water (heat-index lift models, blow-molder/filler coupling, tank and
+    CIP constraints) and a rapid deployment method that produces an auditable,
+    feasible line/shift plan in under 60 minutes—bridging the common gap between
+    demand forecasts and executable schedules. Continuous learning from plan
+    adherence and promo outcomes further sharpens accuracy over time.
+  customerSegments:
+    - >-
+      Mid-to-large bottled water manufacturers (3–40 plants), including branded
+      and private-label producers.
+    - Co-packers serving major retailers and CPG brands.
+    - >-
+      Roles: VP Supply Chain, Director of Planning/S&OP, Plant Manager, Master
+      Scheduler, Demand Planning Manager, CFO (working capital focus).
+  channels:
+    - >-
+      Direct enterprise sales targeting VP Supply Chain and S&OP leaders at
+      regional and national bottled water producers.
+    - >-
+      System integrator partnerships with SAP, Microsoft, and boutique beverage
+      SIs for co-sell and delivery.
+    - >-
+      Cloud marketplaces (AWS/Azure/GCP) with private offers to streamline
+      procurement.
+    - >-
+      ABM and content-led marketing: heat-wave demand playbooks, ROI
+      calculators, and case studies; targeted LinkedIn to planners and plant
+      managers.
+    - >-
+      Industry events and associations: IBWA, BevNET Live, PACK EXPO, Gartner
+      Supply Chain Symposium; speaking slots and demos.
+    - >-
+      Pilot-led land-and-expand motion: start with 1–2 plants, expand to network
+      and adjacent beverages (sparkling/flavored water, sports drinks).
+  revenueStreams:
+    - >-
+      SaaS subscription per plant, tiered by line count and SKU complexity:
+      $8k–$25k per plant per month (average $10k–$15k).
+    - >-
+      Add-ons: scenario seats ($100–$200/user/month), premium data bundles
+      (high-resolution weather, retail POS), additional environments (sandbox).
+    - >-
+      Implementation and integration fees: $60k–$250k per customer depending on
+      footprint and systems complexity.
+    - >-
+      Optional success-based bonus tied to inventory reduction or service-level
+      improvements.
+    - >-
+      Training and change management packages; dedicated support SLAs for 24x7
+      ops.
+  costStructure:
+    - >-
+      COGS: cloud compute and storage ($2k–$5k per plant per month for
+      forecasting + optimization), solver licensing (if commercial), data
+      licensing (weather $300–$1,000 per plant per month; POS where applicable).
+    - >-
+      R&D: data science, optimization engineering, connectors team, MLOps;
+      continuous model/feature updates.
+    - >-
+      Implementation/CS: solution architects, SI partners, onboarding and change
+      management.
+    - 'Sales & marketing: enterprise AEs, SEs, events, content.'
+    - 'G&A: security/compliance (SOC 2), legal, finance.'
+    - >-
+      Target gross margin: 70–80% at scale; Year-1 CAC payback target <12
+      months.
+  keyMetrics:
+    - >-
+      Forecast accuracy: WMAPE at SKU–channel–week (<20% steady-state; promo
+      weeks <30%); bias within ±5%.
+    - >-
+      Service: Case fill rate/CSL from production plan (baseline +1–3 pts), OTIF
+      ≥98%.
+    - >-
+      Inventory: Finished goods reduction 10–20%; turns +10–25%; safety-stock
+      accuracy within ±10% of policy target.
+    - >-
+      Production efficiency: schedule adherence ≥90%; changeover hours −15–30%;
+      overtime −20%; capacity utilization 80–90% without service loss.
+    - >-
+      Planning agility: scenario run time <15 minutes for 10,000 SKUs across 10
+      plants; plan generation <60 minutes including optimization.
+    - >-
+      Business outcomes: premium freight −20%; promo forecast error −15–25% vs.
+      baseline; stockout events −30–50% during heat waves.
+    - >-
+      Adoption: weekly active planners >80%; override rate <10% of demand lines
+      after 8 weeks; data quality score >95%.
+    - >-
+      Sales metrics: pilot-to-production conversion >60%; average initial ARR
+      per logo $250k+ including services; expansion to 2× plants within 12
+      months.
+storyBrand:
+  character: >-
+    Bottled water plant managers, schedulers, and supply chain leaders who want
+    accurate weekly SKU/channel demand and a feasible plan by line and shift.
+  problem: >-
+    Volatile SKU/channel demand, heat-wave spikes, promos, and capacity
+    constraints cause stockouts, overproduction, costly changeovers, and missed
+    OTIF; leaders feel stuck firefighting with low confidence in the plan—water
+    should be on shelf without waste.
+  guide: >-
+    We understand high-volume beverage operations and hot-week chaos. Our AI,
+    trained on CPG seasonality, weather, and retail calendars, delivers
+    trustworthy SKU/channel forecasts and finite-capacity production plans,
+    validated in real plants.
+  plan: >-
+    1) Connect ERP, POS, weather, and line data. 2) Auto-generate weekly
+    SKU/channel forecasts with scenarios (heat waves, promos). 3) Convert to an
+    executable master plan by line and shift with constraints and changeover
+    logic; review, approve, and export to MES/ERP. Start with a pilot, keep
+    humans-in-the-loop, and rely on SOC 2–grade security.
+  callToAction: >-
+    Book a 30-minute demo and start a 4-week pilot; or download the sample
+    forecast/plan pack.
+  success: >-
+    Reliable on-shelf availability, calm weekly schedules, higher OTIF, fewer
+    changeovers and overtime, better capacity utilization, and confident S&OP
+    decisions.
+  failure: >-
+    Ongoing firefighting: empty shelves during heat spikes, excess inventory
+    after promos, overtime burnout, expediting costs, missed SLAs, and eroded
+    margins.
+landingPage:
+  hero:
+    title: AI Demand Forecast & Production Plan Orchestrator for Bottled Water
+    subtitle: >-
+      Turn weekly SKU/channel forecasts into a capacity-feasible plan by line
+      and shift. Model heat waves and promos in seconds.
+    ctaText: Book a 20‑min demo
+    ctaHref: '#demo'
+  problem:
+    - Weather and promos swing demand; spreadsheets can’t keep up.
+    - SKU mix doesn’t match line capability—wasted changeovers and missed OTIF.
+    - >-
+      Plans ignore shift labor and maintenance windows, driving overtime and
+      late orders.
+    - 'No fast, trusted way to test heat-wave or promo scenarios.'
+    - Excess inventory on slow movers; stockouts on fast movers; cash tied up.
+  solution:
+    - 'AI forecasts at SKU/channel using weather, POS, and promo calendars.'
+    - >-
+      Optimized master production schedule by line, shift, and day—changeovers
+      minimized and constraints honored.
+    - >-
+      Scenario sandbox for heat waves and promos with side-by-side service,
+      cost, and utilization KPIs.
+    - >-
+      Automatic alignment of materials and labor; alerts for bottlenecks and
+      stockout risk.
+    - One-click publish to ERP/MES with planner-in-the-loop approvals.
+  features:
+    - 'Weather-aware uplift models (heat index, humidity) by market/DC.'
+    - >-
+      Channel-specific demand curves for grocery, convenience, club, and
+      foodservice.
+    - >-
+      Pack-size aware: singles, multipacks, gallon jugs; case/pallet constraints
+      included.
+    - >-
+      Line capability matrix: bottle sizes, labelers, speeds; min runs and CIP
+      rules.
+    - Changeover optimization to cut setup time and resin/color changes.
+    - 'Shift planner with crew rules, overtime caps, and maintenance calendars.'
+    - Safety stock optimization with target service levels per SKU/channel.
+    - >-
+      Raw material sync for preforms, caps, labels, shrink, and pallets with
+      lead-time alerts.
+    - >-
+      KPI cockpit: OTIF, forecast accuracy, utilization, changeover hours,
+      inventory days.
+    - >-
+      ERP/MES connectors (SAP, Oracle, Infor), secure APIs, SSO, and audit
+      trails.
+  steps:
+    - 'Connect ERP, POS, weather, and plant data.'
+    - Generate the weekly baseline forecast per SKU/channel.
+    - Optimize the master production plan by line and shift.
+    - Run heat-wave/promo scenarios and approve the best plan.
+    - Publish to ERP/MES and monitor KPIs with proactive alerts.
+---
+# AquaCast AI — SKU-level Demand & Production Plan Orchestrator
+
+Industry: Bottled Water Manufacturing
+Service: SKU-level Demand Forecast + Production Plan Orchestrator

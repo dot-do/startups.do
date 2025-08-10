@@ -1,0 +1,301 @@
+---
+name: CoatWeld Vision QA
+slug: coatweld
+service:
+  title: Vision QA for Powder Coat and Weld Quality
+  description: >-
+    Camera-based inspection to detect powder coat defects (orange peel,
+    fisheyes, thin film) and weld issues; provides pass/fail and heatmaps.
+  targetUsers:
+    - Quality
+    - Production Supervisors
+  triggers:
+    - New image/video batch dropped to cloud
+    - End-of-shift QA run
+    - In-line RTSP stream threshold events
+  inputs:
+    - Reference ‘golden’ images and acceptable ranges
+    - Labeled defect samples (if available)
+    - Camera calibration and lighting parameters
+  steps:
+    - Collect baseline images; auto-augment dataset
+    - Train/transfer-learn defect models
+    - Deploy inference; score frames and localize defects
+    - Push alerts/dashboards; route suspicious lots for rework
+    - Continuous learning from human dispositions
+  tools:
+    - OpenCV/YOLOv8/Roboflow
+    - AWS Lookout for Vision or custom inference
+    - RTSP camera ingestion
+    - Grafana dashboards
+  outputs:
+    - Per-part defect score and heatmap overlays
+    - Trend dashboard (defect rates by shift/line/finish)
+    - Rework lists
+  pricingModel:
+    - Per line/month subscription
+    - One-time model setup
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 7
+    modelCapability: 7.5
+    overall: 7.3
+  risks:
+    - Lighting variability causing false positives
+    - Insufficient labeled data
+    - Network reliability on shop floor
+  dependencies:
+    - Cameras and mounting
+    - Consistent lighting
+    - Secure network access to streams
+leanCanvas:
+  problem:
+    - >-
+      High cost of rework and scrap from powder coat and weld defects (typical
+      rework 3–7% of units; scrap 0.5–2%).
+    - >-
+      Manual visual inspection is inconsistent and labor-constrained; inspector
+      agreement on subtle defects (orange peel, thin film) is often <70%.
+    - >-
+      Late detection (post-cure or post-assembly) multiplies cost by 3–10x
+      versus detection at line-out.
+    - >-
+      Customer returns harm brand and dealer relationships; finish/weld defects
+      drive 15–30% of quality complaints in metal office furniture.
+    - >-
+      No digital traceability of finish/weld quality by part/serial; weak
+      feedback loops to upstream processes (pretreatment, oven, weld
+      parameters).
+    - >-
+      Existing machine vision is rule-based, brittle to product mix and color
+      changes; high maintenance by integrators; poor explainability.
+    - >-
+      Powder coat thin film and texture defects are hard to quantify inline;
+      current gauges are spot checks, not 100% coverage.
+  solution:
+    - >-
+      Camera-based inspection stations for powder coat line-out (pre- or
+      post-cure, depending on defect mode) and for manual/robot weld cells.
+    - >-
+      Domain-trained AI models for powder coat defects (orange peel, fisheyes,
+      thin film, runs/sags, contamination) and weld quality (porosity, undercut,
+      underfill/overlap, spatter, bead geometry).
+    - >-
+      Explainable outputs: per-part pass/fail, defect class, severity scores,
+      and heatmaps; weld dimensional measurements (leg length, throat, bead
+      width) and continuity checks.
+    - >-
+      Edge inference appliance for sub-300 ms decision latency; optional sensor
+      fusion with inline DFT thickness sensors and laser profile sensors for
+      weld geometry.
+    - >-
+      Integration to PLCs, andon, MES/QMS (e.g., Plex, Epicor, Tulip, Ignition)
+      for automated divert to rework, eKanban, and traceability.
+    - >-
+      Operator UI with guided rework instructions, live images, and defect
+      libraries; continuous learning via human-in-the-loop labeling workflow.
+    - >-
+      Analytics dashboards: FPY, defect Pareto by SKU/shift/booth/welder,
+      oven/powder parameter correlations, and ROI tracking.
+  uniqueValueProp: >-
+    AI-powered, explainable, retrofit vision QA that detects powder coat and
+    weld defects in real time, delivering pass/fail plus heatmaps and
+    dimensional checks, cutting rework/scrap by 30–50% and boosting first-pass
+    yield without slowing the line.
+  unfairAdvantage: >-
+    A domain-specific dataset and pre-trained models for office furniture powder
+    coat and weld defects, plus validated mounting/lighting recipes and
+    integration templates that enable rapid deployment with explainable results
+    and documented MSA performance—hard for generalist vision vendors or one-off
+    integrators to replicate.
+  customerSegments:
+    - >-
+      Tier-1 office furniture OEMs with in-house metal fabrication and powder
+      coat lines (e.g., metal desks, cabinets, lockers, shelving).
+    - >-
+      Mid-market contract manufacturers supplying metal subassemblies to office
+      furniture brands.
+    - Job shops specializing in powder coating for office furniture components.
+    - >-
+      Automation system integrators serving the category (paint lines, weld
+      cells).
+    - >-
+      Quality leaders and operations teams in plants with 1–3 powder lines and
+      5–30 weld cells.
+  channels:
+    - >-
+      Direct sales to operations/quality leaders at OEMs and large contract
+      manufacturers.
+    - >-
+      Partnerships with paint line OEMs (Nordson, Gema) and integrators to
+      bundle during line upgrades.
+    - >-
+      Welding robot/fixture integrators (FANUC, Yaskawa, Lincoln Electric
+      integrators) for retrofit packages.
+    - >-
+      MES/QMS/SCADA partners (Plex, Epicor, Ignition, Tulip) to co-sell with
+      traceability/value dashboards.
+    - >-
+      Industry events and associations: FABTECH, Powder Coating Week, METALCON,
+      NeoCon/BIFMA; targeted demos in mobile pilot rig.
+    - >-
+      Content-led growth: defect detection benchmarks, ROI calculators, and case
+      studies; webinars with OEM partners.
+    - >-
+      Land-and-expand: start with 1 line or 2 weld cells, expand to all
+      lines/cells and plants.
+  revenueStreams:
+    - >-
+      SaaS subscription per inspection point: powder line station
+      $2,000–$3,000/month; weld cell $1,200–$2,000/month (includes software
+      updates, model improvements, basic support).
+    - >-
+      Edge appliance rental or purchase: $6,000–$10,000 per node;
+      camera/lighting kit per station $8,000–$15,000 (powder) and $4,000–$8,000
+      (weld) with leasing options.
+    - >-
+      Professional services: installation, integration, MSA validation, and
+      operator training ($8,000–$25,000 per site).
+    - 'Premium support/SLA (24/7, <1 hr response) at 15–20% of ARR.'
+    - >-
+      Analytics add-ons: enterprise dashboards, long-term image retention, and
+      multi-site benchmarking $500–$1,000/month/site.
+    - >-
+      Model customization packages for new defect types or parts $5,000–$20,000
+      per project.
+  costStructure:
+    - >-
+      COGS: cameras/industrial lenses/lighting/enclosures
+      ($5,000–$10,000/station), edge GPU hardware ($2,500–$6,000),
+      mounts/rigging ($1,000–$3,000).
+    - >-
+      Deployment labor: application engineering 3–6 days/station; travel and
+      on-site commissioning.
+    - >-
+      Cloud costs: image storage/retention ($100–$400/month/station depending on
+      retention), model training compute ($200–$1,000/month/site during active
+      improvement).
+    - >-
+      Software R&D: CV/ML engineers, data ops, QA, MLOps; ongoing dataset
+      curation and model maintenance.
+    - >-
+      Sales and marketing: field demos, trade shows, partner enablement,
+      technical content.
+    - >-
+      Customer success and support: remote monitoring, retraining cycles,
+      quarterly business reviews.
+    - >-
+      Gross margin targets: subscription 80–85%; blended (with hardware) 65–75%;
+      payback on CAC <12 months.
+  keyMetrics:
+    - >-
+      Detection performance: recall ≥95% for critical defects; precision ≥95%
+      (false positive rate ≤5%) sustained in production.
+    - >-
+      First-pass yield improvement: +5–15 percentage points within 90 days on
+      targeted product families.
+    - >-
+      Rework/scrap reduction: 30–50% decrease vs. baseline within 3–6 months;
+      cost savings $150k–$500k/year per line typical.
+    - >-
+      Throughput impact: ≤5% cycle-time overhead (target 0%); decision latency
+      <300 ms per camera view.
+    - >-
+      Uptime: ≥99% system availability; mean time to resolve issues <4 hours;
+      model drift detection time <24 hours.
+    - >-
+      Pilot success criteria: achieve ≥90% of agreed recall/precision on top 3
+      defect types; reduce rework by ≥25%; operator adoption NPS ≥8/10; convert
+      to production.
+    - >-
+      Commercial: pilot-to-production conversion ≥60%; net revenue retention
+      ≥120% via add-on stations; churn <5% annually.
+    - >-
+      Unit economics: gross margin ≥70% blended; CAC payback <12 months; LTV:CAC
+      ≥4:1.
+storyBrand:
+  character: >-
+    Quality and Operations leaders at metal office-furniture manufacturers who
+    must deliver consistent powder-coat and weld quality to hit first-pass yield
+    and on-time delivery.
+  problem: >-
+    Manual inspection varies and misses defects—powder coat issues (orange peel,
+    fisheyes, thin film) and weld problems slip through—driving rework, scrap,
+    chargebacks, and late shipments. Quality shouldn’t depend on tired eyes and
+    guesswork.
+  guide: >-
+    Vision QA is your AI inspection partner. Built by manufacturing and
+    vision/NDT engineers, tuned for office furniture lines, and proven to
+    deliver clear pass/fail decisions with heatmaps your team can trust.
+  plan: >-
+    1) Line assessment and data capture. 2) Pilot: install cameras and edge AI;
+    train on your parts. 3) Go-live: pass/fail gating, heatmaps,
+    dashboards/alerts; optional PLC/MES tie-in. 4) Ongoing tuning and support.
+    Simple monthly subscription; minimal disruption to current workflow.
+  callToAction: >-
+    Book a 30-minute line walkthrough and start a 2-week pilot. Or get the QA
+    readiness checklist and ROI estimate.
+  success: >-
+    Raise first-pass yield, cut rework/returns 30–60%, speed root-cause with
+    heatmaps, gain traceable QA records for audits, protect brand, and ship on
+    time with confidence.
+  failure: >-
+    If nothing changes, defects keep escaping, costs climb from scrap and
+    rework, customers escalate chargebacks, lines slow for manual checks, and
+    teams stay stuck firefighting quality issues.
+landingPage:
+  hero:
+    title: Vision QA for Powder Coat and Weld Quality
+    subtitle: >-
+      Camera-based AI for metal office furniture. Catch orange peel, fisheyes,
+      thin film, and weld defects in real time. Pass/Fail decisions with
+      heatmaps—right on the line.
+    ctaText: Book a Demo
+    ctaHref: /demo
+  problem:
+    - Manual inspection misses subtle coating and weld flaws
+    - Inconsistent quality across shifts and suppliers
+    - 'Rework, scrap, and warranty claims erode margins'
+    - QC bottlenecks delay shipments and cash flow
+    - Visible finish defects drive customer rejections
+    - Limited traceability and proof of quality
+  solution:
+    - >-
+      Real-time vision QA for powder coat and weld quality on metal office
+      furniture
+    - Immediate Pass/Fail with heatmaps to guide operators and rework
+    - 'Drop-in integration with conveyors, booths, cells, and sort gates'
+    - >-
+      Models trained on your SKUs; robust to lighting, colors, and part
+      variation
+    - Analytics pinpoint top defect sources to cut scrap and downtime
+    - Edge deployment for low latency; optional cloud reporting and alerts
+    - 'Recipe-based changeovers for fast, repeatable setups'
+  features:
+    - 'Detects powder coat issues: orange peel, fisheyes, thin film (low DFT)'
+    - >-
+      Weld defect detection: porosity, undercut, spatter, misalignment, lack of
+      fusion
+    - 'Multi-camera 360° coverage for frames, legs, pedestals, and panels'
+    - Heatmap overlays on HMI; export annotated images for training and audits
+    - 'PLC/MES integration via digital I/O, OPC UA, MQTT, and REST API'
+    - Sub-second cycle time; keeps up with high-throughput lines
+    - Auto-calibration with fiducials; recipe-based part recognition
+    - Industrial IP65 enclosures and glare-controlled lighting
+    - 'Model versioning, audit trail, and role-based access control'
+    - 'Dashboards: FPY, scrap rate, defect Pareto by SKU/shift/line'
+    - 'Supports conveyors, racks, and batch processes; color and gloss adaptive'
+    - 24/7 monitoring and remote model updates; on-site and remote support
+  steps:
+    - 'Discovery: goals, parts, and defect library'
+    - 'Pilot: install cameras, lighting, and edge compute on one station'
+    - >-
+      Training: collect images, label, and set pass/fail thresholds with your
+      team
+    - 'Integrate: connect PLC/MES, configure gates/alerts, deploy operator UI'
+    - 'Go live: monitor KPIs, refine models, and scale to additional lines'
+---
+# CoatWeld Vision QA
+
+Industry: Office Furniture (except Wood) Manufacturing
+Service: Vision QA for Powder Coat and Weld Quality

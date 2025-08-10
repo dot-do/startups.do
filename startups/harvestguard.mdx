@@ -1,0 +1,332 @@
+---
+name: HarvestGuard AI
+slug: harvestguard
+service:
+  title: Telemetry-Based Combine Loss & Anomaly Alerts
+  description: >-
+    Monitors combine telemetry to detect excessive losses or mechanical
+    anomalies and suggests corrective actions.
+  targetUsers:
+    - Operations managers
+    - Combine operators
+    - Dealers supporting fleets
+  triggers:
+    - During harvesting when telemetry is streaming
+    - Upon loss sensor spike or engine load anomalies
+  inputs:
+    - >-
+      Real-time CAN bus/telematics (grain loss sensor, rotor/fan/sieve speeds,
+      engine load, fuel rate)
+    - GPS speed and slope
+    - Moisture and yield (if available)
+    - Current machine settings
+  steps:
+    - Stream and buffer telemetry
+    - Learn baseline patterns per machine/field
+    - 'Detect anomalies (loss spikes, choking, overload, misadjustments)'
+    - Classify likely causes and generate recommended setting changes
+    - Notify operator/manager; log events and outcomes
+  tools:
+    - 'OEM APIs (JD Operations Center Events/Stream, CNH AFS, CLAAS TELEMATICS)'
+    - Kafka/WebSockets for streaming
+    - Anomaly detection models (Isolation Forest/LSTM)
+    - Rule-based recommender from OEM manuals
+    - Twilio/WhatsApp/SMS; Email
+  outputs:
+    - Real-time alert with probable cause and severity
+    - Suggested setting changes and safety notes
+    - Event log and post-shift summary
+  pricingModel:
+    - Per-machine per month + setup
+    - Fleet discounts
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 7
+    modelCapability: 7
+    overall: 7
+  risks:
+    - Limited real-time access via OEM APIs
+    - False positives causing alert fatigue
+    - Safety/liability if suggestions are misapplied
+    - Sensor calibration issues
+  dependencies:
+    - Telemetry data sharing consent
+    - Model per-brand signal mapping
+    - Operator training on guidance use
+leanCanvas:
+  problem:
+    - >-
+      Hidden grain loss from suboptimal combine settings routinely costs
+      0.5–2.0% of yield per field, often unnoticed until post-harvest analysis.
+    - >-
+      Operator skill and field conditions vary hour-to-hour (moisture, slope,
+      residue load, crop variety), making manual tuning slow and error-prone.
+    - >-
+      Mechanical anomalies (bearing wear, belt slip, chopper imbalance, sieve
+      overload) are detected late, leading to unplanned downtime during critical
+      harvest windows.
+    - >-
+      Existing OEM loss monitors and automation are siloed by brand, often
+      heuristic-based, and rarely provide cross-fleet benchmarking or quantified
+      ROI per field.
+    - >-
+      Farm managers lack a unified, actionable view across mixed-brand fleets to
+      understand loss hot-spots, operator performance, and machine health in
+      real time.
+  solution:
+    - >-
+      Ingest and normalize combine CAN/ISOBUS telemetry (rotor speed, concave,
+      fan, sieve, ground speed, header speed/height, engine load, grain flow,
+      return volume, loss sensors, moisture, slope, temps, vibration).
+    - >-
+      AI models estimate instantaneous and rolling loss risk by component
+      (header, rotor, separation, shoe) using crop and condition context;
+      provide confidence scores.
+    - >-
+      Anomaly detection (supervised + unsupervised) for early signs: bearing
+      vibration patterns, belt slip (speed deltas vs load), sieve overload
+      (return vs loss), chopper imbalance (vibration harmonics), engine/drive
+      anomalies (temp and load correlations).
+    - >-
+      Action recipes: “Increase fan +50 rpm,” “Tighten concave 2 mm,” “Reduce
+      ground speed 0.3 mph,” “Raise header 1.5 cm on slope,” prioritized by
+      ROI/minute and safety constraints.
+    - >-
+      Operator UX: in-cab mobile app and browser with low-latency alerts (<5 s),
+      haptic/voice prompts, offline caching; fleet dashboard for managers with
+      per-field benchmarking and automated end-of-day harvest report.
+    - >-
+      Calibration workflows: optional drop-pan test and sample weigh-ins to
+      align model to each machine/crop; continuous learning tightens
+      recommendations during the season.
+    - >-
+      Integrations: JDLink/Operations Center, AFS Connect, CLAAS TELEMATICS,
+      AGCO Connect via APIs where available; CSV/API export to farm management
+      tools.
+    - >-
+      Edge option: small plug-in telematics module for older/air-gapped
+      machines; stores and syncs when back on network.
+  uniqueValueProp: >-
+    Real-time, cross-brand AI that converts raw combine telemetry into
+    quantified loss and anomaly alerts with step-by-step corrective actions,
+    cutting harvest losses by 0.5–1.0 percentage points and reducing unplanned
+    downtime by 10–20%, delivered on the devices operators already use.
+  unfairAdvantage: >-
+    A cross-brand, crop-specific dataset of labeled loss and anomaly events tied
+    to precise corrective actions, collected through multi-OEM pilots and
+    calibration protocols; proprietary normalization of settings across brands;
+    closed-loop learning that links recommendation, operator action, and
+    measured outcome to continuously outperform OEM heuristics.
+  customerSegments:
+    - >-
+      Primary: Mid-to-large grain growers (1,500–50,000 acres) harvesting
+      corn/soy/wheat/canola/barley; decision-maker is farm owner/operations
+      manager.
+    - >-
+      Primary: Custom harvesters contracting 5,000–100,000+ acres across
+      multiple clients and geographies.
+    - >-
+      Primary: Mixed-brand fleets using JD, Case IH, CLAAS, New Holland, AGCO;
+      value real-time cross-OEM insights.
+    - >-
+      Secondary: Equipment dealers and independent service providers seeking
+      proactive maintenance differentiators.
+    - >-
+      Secondary: Ag insurers and lenders interested in risk reduction, uptime,
+      and proof of best practices.
+    - >-
+      Secondary: Agronomy/precision ag consultants integrating loss analytics
+      into harvest strategy.
+  channels:
+    - >-
+      OEM and dealer partnerships: co-sell add-on for JD, Case IH, CLAAS, New
+      Holland, AGCO dealers; bundle with pre-season inspection packages.
+    - >-
+      Precision-ag VARs and integrators; rev-share for installation and
+      first-season onboarding.
+    - >-
+      Targeted pilots with top custom harvesters (50–200 machines) to generate
+      multi-brand case studies; offer performance-based pricing in pilots.
+    - >-
+      Ag insurer programs: premium credits for enrolled fleets with verified
+      adoption and anomaly compliance.
+    - >-
+      Digital demand gen: geotargeted ads and webinars by crop/region; ROI
+      calculator using customer’s acreage/yields; retarget visitors during
+      harvest season.
+    - >-
+      Trade shows and field demos: Farm Progress Show, Husker Harvest Days,
+      Commodity Classic, Agritechnica; run live “loss challenge” demos with
+      weigh-outs.
+    - >-
+      Marketplaces: OEM app stores (e.g., John Deere Operations Center), ag
+      software marketplaces, and connectivity platforms (Trimble, Raven).
+    - >-
+      Referral program for dealers and consultants with tiered incentives tied
+      to activation and retention.
+  revenueStreams:
+    - >-
+      Subscription per machine per harvest season: Basic $900, Pro $1,800,
+      Enterprise $3,000 (API, SSO, priority support).
+    - >-
+      Volume discounts for fleets; enterprise agreements for custom harvesters
+      and large growers.
+    - >-
+      Alternative pricing: $0.80–$1.50 per harvested acre with minimums; useful
+      for custom harvesters.
+    - >-
+      Hardware kit (optional) for non-connected machines: $350–$600 one-time;
+      $10–$20/month cellular if required.
+    - >-
+      Professional services: on-site calibration, dealer training, workflow
+      integration.
+    - >-
+      Data insights/benchmarks (opt-in, anonymized) for
+      OEMs/insurers/consultancies; annual licenses with strict privacy controls.
+  costStructure:
+    - >-
+      Cloud compute and storage: $20–$45 per machine per season (assumes 1–5 Hz
+      ingestion of 30–80 signals, 150–600 MB/day during active harvest, 30–60
+      days).
+    - >-
+      Data pipeline and integrations (OEM API costs, egress): $5–$15 per machine
+      per season.
+    - >-
+      Edge hardware COGS (optional kit): $180–$300 unit cost; logistics and
+      returns +$30/unit.
+    - >-
+      ML model development/annotation: $400k–$700k/year; field trials and data
+      labeling (drop-pan, sample weigh).
+    - >-
+      Customer success and dealer enablement: $150–$250 per machine first
+      season; $60–$120 subsequent seasons.
+    - 'Sales/marketing (shows, demos, content): 15–25% of ARR in growth phase.'
+    - General & administrative; security/compliance (SOC 2/ISO 27001).
+    - >-
+      Gross margin target: 70–80% on software after year 2; blended margin
+      60–70% with hardware kits.
+  keyMetrics:
+    - >-
+      Loss reduction per field: target 0.5–1.0 percentage points vs. baseline
+      (verified by weigh-outs/drop-pan).
+    - >-
+      Uptime improvement: +1–2 hours/week/machine during peak harvest due to
+      earlier anomaly detection.
+    - >-
+      Alert precision/recall: >85% precision and >80% recall for top 10 anomaly
+      classes; <5 s median alert latency.
+    - >-
+      Operator engagement: >65% of alerts acknowledged; >50% of recommended
+      adjustments actioned within 10 minutes.
+    - >-
+      ROI per machine: payback <20 engine hours; customer-level ROI >4x
+      subscription cost.
+    - Churn <10% annual; NRR >115% via seat expansion and upsells.
+    - >-
+      Installation time: <90 minutes on connected machines; <2 hours with edge
+      kit; first-calibration <30 minutes.
+    - 'Support tickets: <0.3 tickets/machine/season; CSAT >4.5/5; NPS >45.'
+    - >-
+      Model drift control: recalibration needed on <20% of machines mid-season;
+      MAPE on loss estimate <15% after calibration.
+storyBrand:
+  character: >-
+    Harvest managers, custom operators, and fleet leads who want every bushel in
+    the bin and combines running without surprises.
+  problem: >-
+    - External: Unknown grain loss and hidden mechanical anomalies during
+    harvest.
+
+    - Internal: Frustration with guesswork adjustments and firefighting
+    breakdowns.
+
+    - Philosophical: It’s wrong to leave profit in the field when data can
+    prevent it.
+  guide: >-
+    We understand the pressure of tight weather windows, labor gaps, and
+    high-stakes harvest decisions. Our AI monitors OEM combine telemetry in real
+    time to spot loss patterns and mechanical signals, delivering machine-driven
+    recommendations validated in the field with growers and technicians.
+  plan: |-
+    Process:
+      1) Connect via CAN/API or plug-in telematics device.
+      2) Set crops, thresholds, alert channels, and permissions.
+      3) Harvest: receive real-time loss/anomaly alerts with recommended corrective actions (primarily machine-driven).
+      4) Review post-run reports to refine settings and train operators.
+    Agreement:
+      - Transparent alerts and recommendations.
+      - Data privacy with revoke-anytime access.
+      - Start with a single-machine, single-field pilot.
+  callToAction: >-
+    Direct: Start a pilot this season; Schedule a live demo.
+
+    Transitional: Download the Harvest Loss Checklist and ROI Calculator; Get a
+    sample alert pack.
+  success: |-
+    - Measurable loss reduction and more grain in the bin.
+    - Fewer surprise failures and more uptime.
+    - Optimized speed/fan/concave settings with less fuel per bushel.
+    - Confident operators and calmer harvest days.
+    - Fleet-wide benchmarks for continuous improvement.
+  failure: |-
+    - Grain left in the field and profit lost.
+    - Unplanned downtime from undetected issues.
+    - Missed weather windows and overtime costs.
+    - Wasted fuel and accelerated wear.
+    - Ongoing stress and finger-pointing.
+landingPage:
+  hero:
+    title: Telemetry-Based Combine Loss & Anomaly Alerts
+    subtitle: >-
+      AI watches your combine in real time to flag excessive grain loss or
+      mechanical issues—and gives clear, step-by-step fixes. Save yield. Cut
+      downtime. Keep rolling.
+    ctaText: Request a Demo
+    ctaHref: /demo
+  problem:
+    - Hidden grain loss adds up fast during tight harvest windows.
+    - Operators can’t track every gauge while pushing productivity.
+    - Generic alarms lack context; manuals don’t match field conditions.
+    - Mixed fleets and changing crops make consistent setup hard.
+    - Unplanned stops and guesswork drive downtime and costs.
+  solution:
+    - >-
+      Continuously analyzes combine telemetry to detect loss and mechanical
+      anomalies.
+    - Turns complex signals into plain-language alerts with prioritized actions.
+    - 'Adapts recommendations to crop, moisture, header, and ground speed.'
+    - Delivers in-cab and mobile alerts; manager dashboards for fleet oversight.
+    - Integrates with major OEM telematics and standard CAN/ISOBUS.
+  features:
+    - >-
+      Real-time loss detection from shoe, sieve, rotor, fan, elevator, and
+      header signals.
+    - >-
+      Anomaly detection across vibration, temps, pressures, slip, RPM, and fuel
+      rate.
+    - >-
+      Actionable playbooks: speed, fan, concave, sieve, rotor, header height,
+      and calibration.
+    - 'Auto-prioritization of safety, machine health, and yield.'
+    - 'Crop-aware profiles for corn, soybeans, wheat, canola, and more.'
+    - Weather and moisture context to refine thresholds and alerts.
+    - >-
+      Operator-friendly alerts: what happened, why it matters, and what to do
+      next.
+    - Works online or offline with store-and-forward syncing.
+    - 'Fleet view: live status, loss hotspots, and anomaly timelines.'
+    - 'Post-run reports to benchmark fields, operators, and machines.'
+    - 'Role-based access, data ownership controls, and audit trails.'
+    - API for integrating with farm management and OEM platforms.
+  steps:
+    - Connect combines via OEM telematics or a plug-in CAN device.
+    - 'Select crops, headers, and target loss thresholds.'
+    - 'Choose alert channels: in-cab, mobile, SMS, or radio gateway.'
+    - Start harvesting—receive real-time alerts with recommended fixes.
+    - Review post-run summaries to fine-tune settings and train operators.
+    - Compare fields and machines to optimize next-day setup.
+---
+# HarvestGuard AI
+
+Industry: Crop Harvesting, Primarily by Machine
+Service: Telemetry-Based Combine Loss & Anomaly Alerts

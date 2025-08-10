@@ -1,300 +1,297 @@
 ---
-name: Haul Cycle & Dispatch Advisor
+name: Haul‑Cycle Analytics & Dispatch Recommendations
 slug: haul
-naics:
-  primary: '212321'
-  occupations: []
 service:
-  title: Haul Cycle & Dispatch Advisor
+  title: Haul-Cycle Analytics & Dispatch Recommendations
   description: >-
-    Creates shift plans for loader–truck assignments and haul routes to meet
-    tonnage targets with minimal idle time.
+    Analyze telematics to reduce queue times, optimize haul routes, and improve
+    fleet utilization.
   targetUsers:
-    - Operations Managers
+    - Quarry superintendent
     - Dispatchers
-    - Superintendents
+    - Continuous improvement
   triggers:
-    - Start of shift
-    - Equipment availability changes
-    - Road condition changes
+    - Weekly ops review
+    - Observed queues at shovel/primary
+    - Route or ramp changes
   inputs:
-    - Truck/loader counts and capacities
-    - Segmented haul routes with distances/grades
-    - Historical/estimated cycle times by segment
-    - 'Shift length, breaks, production targets'
-    - Fuel costs/constraints
+    - 'Haul truck GPS/telematics (timestamps, speed, payload)'
+    - Road network map/shapefile
+    - Shift schedule
+    - Fuel consumption logs
   steps:
-    - Estimate cycle times per route under current conditions
-    - Run discrete-event simulation and assignment optimization
-    - Generate recommended assignments and sequence
-    - Produce what-if scenarios for breakdowns/traffic
-    - Push plan and updates via Slack/Email
+    - Connect to telematics API and ingest data
+    - Segment cycles (load–haul–dump–return) and compute KPIs
+    - 'Identify bottlenecks (queue, bunching, overspeed/underspeed)'
+    - Simulate route or speed policy changes
+    - Generate prioritized actions and ROI estimate
   tools:
-    - SimPy (discrete-event)
+    - Cat VisionLink/Komatsu Komtrax/Trimble/Wenco APIs
+    - Python/Pandas
     - OR-Tools
-    - Mapbox/OSRM for distances
-    - Google Sheets + Slack/Email
+    - Kepler.gl/Power BI
   outputs:
-    - Shift plan with truck–loader assignments
-    - Projected tons/hour and idle times
-    - Route priorities and staging sequence
-    - Sensitivity scenarios
+    - Cycle-time dashboard
+    - Bottleneck report with heatmaps
+    - What-if scenario CSVs
+    - Weekly action list
   pricingModel:
-    - Monthly subscription per site
-    - Optional telematics integration add-on
+    - One-time data integration
+    - Per-site monthly subscription
+    - Optional performance bonus tied to fuel/time savings
   humanInLoop: true
   feasibility:
-    remoteOnLaptop: 8
-    modelCapability: 7
-    overall: 7
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8.5
   risks:
-    - Garbage-in if cycle inputs are guesses
-    - Rapid on-site changes reduce usefulness without live data
-    - Labor/union rules not modeled by default
+    - API access limits/data gaps
+    - Operator acceptance of changes
+    - GPS accuracy in pits/tunnels
   dependencies:
-    - Accurate site map/route distances
-    - Cycle-time estimates or telematics feed
+    - OEM telematics access/keys
+    - Map of active roads and dump points
+    - Ops policy approval for changes
 leanCanvas:
   problem:
     - >-
-      High idle time and queuing at loaders and dumps cause 5–15% productivity
-      losses per shift at construction sand and gravel pits.
+      Unproductive queues at primary crusher, load-out, and scales add 15–40%
+      non‑value time per cycle; typical haul truck idle time >30% during shift
+      peaks.
     - >-
-      Dispatching is largely manual (radio + spreadsheets), making it hard to
-      hit hourly tonnage targets when haul road conditions, weather, or staffing
-      change mid-shift.
+      Static or ad‑hoc dispatching can’t react to moving faces/stockpiles;
+      routes remain suboptimal as conditions change, increasing average cycle
+      time by 8–20%.
     - >-
-      Mismatched loader–truck assignments and suboptimal routes increase fuel
-      burn by 5–10% and accelerate equipment wear.
+      Poor truck–loader match and uneven payloads cause underutilization
+      (tons/truck-hour 10–25% below benchmark) and higher cost/ton.
     - >-
-      Limited site connectivity and fragmented data (telematics, scale house,
-      maintenance logs) prevent data-driven adjustments during the shift.
+      Limited visibility across mixed fleets (Cat, Komatsu, Volvo, Deere) and
+      contract haulers; siloed telematics, payload, and scale data hinder
+      actionable decisions.
     - >-
-      Overtime and missed customer delivery windows increase costs and erode
-      margins in tight-competition markets.
+      Operator variability (speed choice, queue behavior) creates safety and
+      efficiency issues; near-miss hotspots around intersections and ramps are
+      not quantified.
+    - >-
+      High fuel burn and emissions intensity due to idling and inefficient
+      routes; fuel/ton often 5–10% above best-in-class.
+    - >-
+      Connectivity constraints (pit coverage, private LTE gaps) prevent
+      consistent real-time insights at many quarries.
   solution:
     - >-
-      Pre-shift plan: Optimize loader–truck assignments, staging, and initial
-      haul routes to achieve hourly tonnage targets, respecting constraints
-      (loader capacity, truck payload, haul road grades, cycle distances,
-      HOS/shift limits).
+      Real-time cycle analytics: auto-segmentation of haul cycles (load, travel
+      loaded, queue, dump, travel empty, idle) from telematics and payload/scale
+      data.
     - >-
-      In-shift dynamic rebalancing: Predict queue lengths and reassign trucks
-      when bottlenecks, breakdowns, or weather affect cycle times.
+      Dynamic dispatch recommendations: assign trucks to
+      faces/loaders/stockpiles and route options based on predicted
+      queue/congestion, loader availability, and haul profiles.
     - >-
-      Predictive cycle model: Fuse telematics (speed, payload, fuel, location),
-      scale/weight tickets, and road condition inputs to forecast cycle times
-      and tons/hr with confidence intervals.
+      Haul route optimization: geofenced routes with grade, surface condition,
+      and intersection risk; speed advisories and time windows for
+      scale/load-out.
     - >-
-      Operator guidance: Simple tablet/MTB interface with next task, route, and
-      queue instructions; dispatcher dashboard with what-if scenarios.
+      Predictive congestion and bottleneck forecasts (5–30 min horizon) using
+      historical cycles, current telemetry, and shift plans.
     - >-
-      Edge-resilient deployment: On-site edge device runs the optimizer in
-      low/no connectivity; cloud sync for reporting and learning.
+      Digital twin & what‑if simulation: test shift plans, equipment moves, and
+      truck counts before changes go live.
     - >-
-      Post-shift analytics: Variance analysis vs. plan, root causes (queue,
-      loader underutilization, road condition), and recommendations for road
-      maintenance or staging changes.
+      Operator & dispatcher tools: lightweight mobile/web app; radio/announcer
+      integrations; optional ruggedized in-cab prompts for recommendations.
+    - >-
+      KPI and cost/ton dashboards: tons/hour, queue minutes, utilization,
+      fuel/ton, CO2/ton, loader wait, scale wait; A/B test reporting to prove
+      impact.
+    - >-
+      Connectivity-aware edge mode: local buffering and on‑device inference when
+      pit coverage is intermittent; syncs when back online.
   uniqueValueProp: >-
-    Increase tons-per-operating-hour and reduce idle time with an AI planner
-    that creates and continuously adapts loader–truck assignments and haul
-    routes to meet shift tonnage targets—working reliably even with poor
-    connectivity and minimal operator workflow change.
+    Reduce queue time 25% and lift tons per truck-hour 10–15% in under 60 days
+    via AI-driven, closed-loop dispatch and haul-route optimization that works
+    with your existing telematics, payload scales, and radios—no
+    rip-and-replace.
   unfairAdvantage: >-
-    A purpose-built optimizer for short-haul construction aggregate pits that
-    combines physics-informed cycle simulation with learned queue dynamics, runs
-    reliably at the edge with poor connectivity, and ships with pre-built
-    integrations to the most common scale house, telematics, and payload
-    systems—reducing time-to-value to weeks rather than quarters. Accumulated
-    cross-site cycle datasets and templates for typical pit configurations
-    further accelerate accuracy and deployment.
+    Closed-loop dispatch specifically tuned for quarry-scale operations (not
+    just large mines), powered by a growing proprietary dataset and
+    out-of-the-box integrations with the most common telematics, payload, and
+    scale systems—delivering measurable ROI in weeks without new hardware.
   customerSegments:
     - >-
-      Large national and super-regional aggregate producers with owned or
-      dedicated truck fleets (e.g., 10–50+ pits).
+      Quarry Operations Managers and Pit Supervisors (5–50 mobile assets per
+      site)
+    - Fleet/Dispatch Managers (internal haul + contract haulers)
+    - Plant/Crusher Managers and Maintenance Leads (bottleneck owners)
+    - Regional Performance/Continuous Improvement Leaders (multi-site ROI)
+    - 'CFO/VP Operations (cost/ton, throughput, asset utilization KPIs)'
     - >-
-      Mid-market independent producers with 1–10 pits and mixed fleets
-      (company-owned + third-party haulers).
-    - >-
-      On-site production managers, dispatchers, and loader operators responsible
-      for meeting hourly tonnage targets and reducing idle time.
-    - >-
-      Contract hauling firms serving aggregate pits that need predictable queue
-      times and turnarounds to maximize billable hours.
+      Early adopters: North American aggregate producers with mixed OEM fleets
+      and existing telematics/payload/scale data
   channels:
     - >-
-      Direct enterprise sales to national and super-regional producers;
-      land-and-expand from 1–2 pilot pits to multi-site rollouts.
+      Direct sales to top 50 North American aggregate producers; land-and-expand
+      from one pilot site to regional rollouts.
     - >-
-      OEM/ISV partnerships with telematics, scale house, and payload vendors as
-      referral/reseller channels.
+      OEM/dealer partnerships (Cat/Komatsu/Volvo/Deere dealers) bundling with
+      telematics or productivity services; referral revenue share.
     - >-
-      Industry events and associations: NSSGA/AGG1, CONEXPO-CON/AGG, state
-      aggregate associations (e.g., TACA in Texas).
+      Alliances with scale-house and payload vendors (Command Alkon, Libra,
+      Loadrite/Trimble) to co-sell into existing install base.
     - >-
-      Field marketing and demo days at customer pits with side-by-side baseline
-      vs. optimized shift trials.
+      Industry events and associations (NSSGA AGG1, CONEXPO/CON-AGG, MINExpo);
+      live ROI demos and case studies.
     - >-
-      Targeted digital campaigns on LinkedIn and trade publications (Pit &
-      Quarry, Rock Products), offering ROI calculators and case studies.
+      Targeted LinkedIn and trade media campaigns aimed at Operations and
+      Fleet/Dispatch leaders; ROI calculator and downloadable shift-report
+      templates.
     - >-
-      Outbound to operations leaders using region-specific datasets
-      (weather/haul conditions) to estimate potential gains.
-    - >-
-      Customer success-driven upsell (advanced features, multi-site analytics)
-      after proving ROI within 6–8 weeks.
+      Performance-based pilots: 6–8 weeks with clear baseline and target KPIs;
+      pilot fee credited to rollout upon success.
   revenueStreams:
     - >-
-      SaaS subscription per active pit: tiered by fleet size and integrations
-      (e.g., $2,000–$8,000/site/month).
+      Core SaaS: $80–$150 per mobile asset per month (haul trucks, loaders,
+      excavators); average $120/asset/month.
     - >-
-      One-time onboarding/integration fee per site: $8,000–$25,000 depending on
-      system connections and edge hardware.
+      Site platform fee: $1,000 per site per month (includes dashboards,
+      connectors, support up to asset threshold).
     - >-
-      Premium add-ons: multi-site command center, predictive maintenance
-      tie-ins, and custom scenario modeling ($500–$2,000/site/month).
+      Implementation/onboarding: $8,000 per site one-time (data integration,
+      mapping, training, baseline study).
+    - 'Digital Twin Simulator add-on: $750 per site per month.'
     - >-
-      Professional services: on-site optimization audits, haul road studies, and
-      operator training packages.
+      Enterprise support/SLA (99.9%): +10% of subscription; dedicated CSM and
+      quarterly optimization reviews.
     - >-
-      Revenue-share or co-selling agreements with OEM/ISV partners (referral
-      fees 10–20% of first-year ARR).
+      Optional outcome-based pricing for select customers: 15% of verified fuel
+      or cost/ton savings for first 12 months, capped at 1.5x subscription.
+    - >-
+      Professional services: custom reports, data lake integration, operator
+      coaching days ($1,500/day).
   costStructure:
-    - 'R&D: optimization/ML engineers, mining engineers, and product design.'
     - >-
-      Cloud and edge infrastructure: model training/inference, data pipelines,
-      monitoring (~$75–$200/site/month COGS).
+      Engineering and data science team (cycle segmentation, forecasting,
+      optimization): $2.5–3.5M/year at scale.
     - >-
-      Device and installation costs for optional edge appliance and ruggedized
-      tablets ($1,500–$4,000/site CapEx or rental).
+      Cloud/data costs: $3–$5 per asset per month (compute, storage, streaming)
+      at 95th percentile usage.
     - >-
-      Integrations and customer success/onboarding teams; travel for field
-      trials and training.
+      Integration development and maintenance for OEM/scale APIs:
+      $250k–$500k/year plus $10k–$20k per new connector.
     - >-
-      Sales and marketing: AE/SE staffing, events, paid media, and partner
-      enablement.
+      Field deployment and travel: $2k average per site; rugged device rentals
+      optional ($50/device/month).
     - >-
-      Support and maintenance: 24/5 ops coverage aligned with typical shift
-      schedules; security/compliance (SOC 2).
+      Sales/marketing (enterprise motion + events): $1.2–2.0M/year; CAC target
+      $12k–$25k per multi-site customer.
+    - >-
+      Customer success and support (training, quarterly business reviews):
+      $200–$400/site/year marginal.
+    - >-
+      Security/compliance (SOC 2 Type II, MSHA-aligned safety workflows):
+      $150k–$300k/year.
+    - >-
+      Liability and cyber insurance; legal for data-sharing agreements and
+      enterprise MSAs.
   keyMetrics:
     - >-
-      Operational KPIs (per site): average truck idle time at loader and dump
-      (target: reduce 10–25% within 8 weeks); average truck utilization (target:
-      +8–15%); tons per operating hour (target: +5–12%); cycle time variance
-      (target: -20–30%); fuel per ton moved (target: -5–10%); on-time shipments
-      (target: ≥95%).
+      Operational impact (per site): average queue time reduction ≥25% within 60
+      days; cycle time reduction 8–12%; tons per truck-hour +10–15%; loader wait
+      ≤5% of cycle time; scale wait ≤3 min at p95.
     - >-
-      Planning accuracy: forecast vs. actual hourly tonnage MAPE (target: <10%
-      after week 4).
+      Utilization: moving time ≥65% of shift; idle ≤22%; truck–loader match
+      factor within ±10% of target.
+    - 'Fuel and emissions: fuel/ton −5–8%; CO2/ton −5–8% within 90 days.'
     - >-
-      Adoption metrics: dispatcher adherence to recommendations (>80%), operator
-      acknowledgment latency (<60 seconds).
+      Recommendation system: adherence rate ≥70%; dispatch acceptance decision
+      latency ≤30 sec; forecast MAPE for queue ≤15%.
     - >-
-      Safety metrics: near-miss reports linked to queuing reduced; no increases
-      in speeding/unsafe events after optimization.
+      Data quality/availability: data completeness ≥98%; system uptime ≥99.5%;
+      integration error rate <0.5% of messages.
     - >-
-      Business KPIs: payback period (<4 months), NRR (>120%), gross margin
-      (>75%), logo churn (<8% annually), CAC payback (<12 months).
+      Safety leading indicators: near-miss hotspot dwell −20%; speeding events
+      in advisory zones −30%.
+    - 'Time-to-value: go‑live ≤30 days from kickoff; pilot payback ≤90 days.'
+    - >-
+      Business metrics: ARR, NRR ≥120%, logo churn <6% annually, CAC payback <12
+      months, gross margin ≥70%.
 storyBrand:
   character: >-
-    Plant managers, dispatchers, and foremen at construction sand & gravel pits
-    who must hit daily tonnage with fixed fleets and crews.
+    Quarry operations leaders (managers, dispatchers, foremen) in crushed and
+    broken stone mining who need to move more rock per shift safely and
+    profitably.
   problem: >-
-    - External: Unbalanced loader–truck pairing, bottlenecks at
-    face/hopper/scale, idle time, missed tonnage, and fuel waste.
-
-    - Internal: Frustrated by guesswork, radio firefighting, and constantly
-    reworking plans mid‑shift.
-
-    - Philosophical: Moving rock shouldn’t require guesswork—every cycle should
-    add value.
+    Haul trucks idle in queues at loaders/crushers, routes aren’t optimized, and
+    dispatching is reactive—driving up cost per ton and missing TPH targets.
   guide: >-
-    - Empathy: We understand every minute of idle costs money, morale, and
-    safety.
-
-    - Authority: Purpose-built AI for NAICS 212321; uses telematics, loader
-    scales, haul distances, and shift constraints to optimize assignments and
-    routes with transparent rationale; integrates with common weighbridge and
-    telemetry sources.
+    Haul‑Cycle Analytics & Dispatch Recommendations is an AI service built for
+    stone quarries that turns telematics into clear, trustworthy actions—backed
+    by mining operations expertise.
   plan: >-
-    1) Import site map, fleet roster, targets, and rules (breaks, speed limits,
-    stockpiles).
-
-    2) Connect optional data (scale tickets, GPS/telematics) or enter estimates.
-
-    3) Generate shift plan: loader–truck assignments, haul routes, and cycle
-    targets.
-
-    4) Run live: see predicted queues; accept suggested tweaks as conditions
-    change.
-
-    5) Review outcomes and capture learnings for the next shift.
+    1) Connect fleet and plant telematics (trucks, loaders, weighbridge/GPS). 2)
+    Benchmark cycles and pinpoint bottlenecks (queue, spot, load, dump). 3) Get
+    real‑time dispatch and route recommendations plus weekly optimization
+    reports.
   callToAction: >-
-    - Direct: Schedule a 30‑minute demo using your pit layout and fleet list for
-    a tailored shift plan.
-
-    - Transitional: Download the haul-cycle planning checklist and ROI
-    estimator.
+    Start a 30‑day pilot—connect your data this week and receive route and
+    dispatch optimization within 14 days.
   success: >-
-    Reliable tonnage attainment; balanced loader–truck utilization; reduced idle
-    and fuel burn; fewer radio emergencies; clear, auditable shift plans; safer,
-    calmer shifts; predictable cost per ton.
+    Shorter queues, faster cycles, higher TPH, better loader and truck
+    utilization, lower cost per ton, and safer, smoother shifts with confident,
+    data‑backed dispatching.
   failure: >-
-    Persistent idle time and fuel burn, oscillating queues, overtime, unsafe
-    congestion, frustrated operators, missed deliveries, and lost revenue.
+    Keep burning fuel in lines, underutilizing the fleet, missing production
+    goals, increasing wear and risk, and leaving profit on the pit floor.
 landingPage:
   hero:
-    title: Haul Cycle & Dispatch Advisor for Sand & Gravel
+    title: Haul‑Cycle Analytics & Dispatch Recommendations
     subtitle: >-
-      AI shift plans that hit tonnage with minimal idle—optimize loader–truck
-      assignments and haul routes in minutes.
-    ctaText: Get a demo
-    ctaHref: /demo
+      AI for stone quarries to cut queue time, optimize haul routes, and boost
+      fleet utilization.
+    ctaText: Book a Demo
+    ctaHref: '#book-demo'
   problem:
-    - Missed daily tons from manual dispatch and guesswork
-    - Trucks idling at loaders; loaders waiting on trucks
-    - Inefficient routes and queue bottlenecks
-    - Late-day overtime to catch up targets
-    - Excess fuel burn and CO2 from empty or slow hauls
-    - Inconsistent plans across supervisors and shifts
-    - 'No single view of cycle times, queues, and stockpile levels'
-    - 'Slow replans during breakdowns, weather, or road changes'
+    - Truck hours lost in crusher/plant queues
+    - Empty-haul congestion and route conflicts
+    - Uneven loader and plant feed; starved or overrun crushers
+    - Manual dispatching with limited real-time visibility
+    - Underutilized trucks and high cost per ton
+    - Siloed telematics data with no single source of truth
+    - Safety risks from congestion and stop‑start traffic
   solution:
-    - Auto-generate shift plans for loader–truck pairing and haul routes
-    - 'Predict cycle times, queues, and payloads from telemetry and scale data'
-    - 'Balance fleet across faces, crushers, and stockpiles to meet tons/hour'
-    - 'Dynamic rebalancing as conditions change (breakdowns, weather, delays)'
-    - Clear dispatch lists for each truck and loader operator
-    - Live tracking of tons vs target with ETA to goal
-    - 'What-if scenarios: add/remove trucks, adjust routes, change speed limits'
-    - 'Shift reports with tons, idle %, utilization, and fuel per ton'
-  features:
-    - Optimizer that minimizes idle and empty haul time
-    - Grade- and speed-zone–aware route selection
-    - 'Real-time ingest from GPS, OEM telematics, onboard scales, and weighbridge'
-    - 'Target-driven planning by day, shift, and product mix'
-    - Queue time prediction and congestion control at loaders and dumps
-    - Downtime- and maintenance-aware scheduling
+    - Unified telematics ingestion with automatic haul‑cycle detection
     - >-
-      Operator dispatch via in-cab app or printable lists; radio-friendly
-      instructions
-    - Stockpile and crusher feed-rate constraints built in
-    - 'Safety rules: speed caps, one-way roads, and no-go zones'
-    - Fuel and emissions per ton analytics
-    - Offline-first design with sync for low-connectivity sites
-    - Simple CSV import/export and secure API
-    - Role-based permissions and audit trails
-    - Multi-site and multi-pit support
+      Real‑time queue prediction and slotting at loaders, crushers, and
+      weighbridges
+    - >-
+      Dynamic haul route optimization by load/empty, gradient, and road
+      condition
+    - AI dispatch recommendations to rebalance trucks at the true constraint
+    - 'Live KPIs: cycle breakdown, utilization, payload, and tons per hour'
+    - 'Proactive alerts for build‑ups, delays, and off‑route behavior'
+    - Operator prompts via in-cab app; supervisor and dispatcher dashboards
+    - 'Works with major OEM telematics, FMS, and GIS systems'
+  features:
+    - Auto geofencing and haul‑road mapping
+    - 'Cycle segmentation: load, travel loaded, queue, dump, travel empty'
+    - Queue‑time heatmaps and accurate ETAs to plant and loader
+    - Constraint‑aware dispatch with priority rules and slot management
+    - Payload‑aware routing and loader match recommendations
+    - 'What‑if simulation for fleet size, shift plans, and pit moves'
+    - 'Fuel, idle, and emissions per ton tracking'
+    - Downtime detection with reason codes and annotations
+    - 'APIs and webhooks for FMS, maintenance, and ERP integration'
+    - Offline‑tolerant mobile app for low‑signal pits
+    - 'Role‑based access, audit trails, and SSO'
   steps:
-    - 'Connect GPS/telematics, onboard scales, weighbridge, and plant feed data'
-    - 'Set targets, shift hours, product mix, and site constraints'
-    - 'Generate the plan: loader–truck assignments and haul routes'
-    - Dispatch to operators via app or radio-ready lists
-    - Monitor live KPIs; auto-rebalance as conditions change
-    - Close the shift with a report and export to ERP/BI
-    - Continuously learn from cycles to improve the next plan
+    - Connect telematics/FMS via API or edge gateway
+    - 'Import site map: haul roads, dumps, crushers, loaders, speed zones'
+    - Calibrate models with recent shift data and validate against logs
+    - 'Go live: real‑time dispatch recommendations and operator prompts'
+    - Monitor KPIs and weekly optimization reports; tune rules and targets
 ---
-# Haul Cycle & Dispatch Advisor
+# Haul‑Cycle Analytics & Dispatch Recommendations
 
-Generated for NAICS 212321 — Construction Sand and Gravel Mining.
-Service: Haul Cycle & Dispatch Advisor
+Industry: Other Crushed and Broken Stone Mining and Quarrying
+Service: Haul-Cycle Analytics & Dispatch Recommendations

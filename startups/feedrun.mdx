@@ -1,0 +1,326 @@
+---
+name: FeedRun.AI
+slug: feedrun
+service:
+  title: Feeder Settings and Process Run-Card Generator
+  description: >-
+    Derives feeder rates, barrel temperatures, and startup settings per
+    formulation and machine, generating printable/ERP-linked run-cards.
+  targetUsers:
+    - Process Engineers
+    - Line Supervisors
+  triggers:
+    - New formulation approved
+    - Material substitution
+    - Quality drift requiring setpoint reset
+  inputs:
+    - Formulation with bulk density and pellet size
+    - 'Extruder model, L/D, screw design, die'
+    - Feeder types/capacities and calibration factors
+    - Target throughput and melt temperature
+  steps:
+    - Compute feeder setpoints (kg/hr or %/PPH) and alarms based on capacities
+    - >-
+      Recommend barrel temperature profile and screw speed from rules and prior
+      runs
+    - Generate startup/shutdown checklist and purge guidance
+    - Output run-card and push to document control/ERP
+  tools:
+    - Rules engine + prior run database
+    - OEM manuals/curves (imported)
+    - Excel/CSV import
+    - Doc/PDF generator
+    - ERP DMS integration
+  outputs:
+    - Run-card PDF/ERP record
+    - Feeder calibration sheet
+    - Startup/purge checklist
+  pricingModel:
+    - Per-run-card generation
+    - Monthly subscription
+    - One-time setup for equipment master data
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 7
+    overall: 8
+  risks:
+    - Wrong feeder assumptions causing off-ratio dosing
+    - Operator non-compliance with settings
+    - Machine-to-machine variability
+  dependencies:
+    - Accurate equipment master data
+    - Feeder calibration history
+    - Access to prior successful runs
+leanCanvas:
+  problem:
+    - >-
+      Start-up scrap during changeovers is high (typically 2–6% of run volume),
+      driven by incorrect initial feeder rates and temperature profiles.
+    - >-
+      Setups are slow and variable (60–120 minutes typical for multi-additive
+      jobs) due to trial-and-error dialing-in and tribal knowledge gaps.
+    - >-
+      Run-cards/instructions are inconsistent and often outdated, causing
+      operator confusion and quality drift; revision control and sign-off are
+      manual.
+    - >-
+      Scaling learned settings from one line to another (different L/D, screw
+      design, feeders) is error-prone, leading to off-spec lots and rework.
+    - >-
+      Material property variability (e.g., MFR ±10–20%, moisture content) is not
+      translated into dynamic settings, causing instability early in the run.
+    - >-
+      Quality KPIs (FPY, color delta E, tensile/impact) drift because settings
+      are not tied to measurable outputs like torque, melt pressure, or specific
+      energy input (SEI).
+    - >-
+      Feeder capacity/accuracy constraints (min rate, turn-down ratio, refill
+      spikes) aren’t accounted for in planning, causing rate oscillations and
+      surging.
+    - >-
+      ERP/MES/LIMS systems store recipes but don’t compute machine-specific
+      settings, leaving a gap between formulation and executable process.
+  solution:
+    - >-
+      AI engine translates formulations and material properties (MFR, density,
+      moisture, Tm/Tg) plus machine data (screw/L-D, vents, feeders, zone count)
+      into optimal feeder rates and barrel/die temperature profiles.
+    - >-
+      Constraint-aware optimizer respects feeder min/max, turn-down ratios,
+      refill logic, and desired total throughput; flags infeasible recipes
+      pre-run.
+    - >-
+      Start-up playbooks: ramp schedule for temperatures and screw RPM, vacuum
+      timing, purge material usage, and stabilization criteria (torque, melt
+      pressure, SEI).
+    - >-
+      Feedback loop ingests actuals (throughput, torque, melt temp/pressure, QC
+      data) to refine next-run recommendations per formulation-machine pair.
+    - >-
+      Printable/ERP-linked run-cards with QR codes, e-sign, and revision control
+      (ISO 9001/IATF 16949 ready); pushes instructions to MES/ERP work orders.
+    - >-
+      What-if and line-porting tools to adapt a recipe from Line A to Line B
+      considering different screws/feeders with expected output and risk score.
+    - >-
+      Anomaly and risk alerts: predicts likelihood of surging, feeder
+      starvation, or color drift; suggests corrective adjustments with
+      guardrails.
+    - >-
+      Compliance pack: auditable change history, operator acknowledgment, and
+      specification linkage to LIMS for COA traceability.
+  uniqueValueProp: >-
+    Right-first-time compounding. FeedRun.AI turns your formulation, resin
+    properties, and machine constraints into validated feeder rates, zone
+    temperatures, and start-up sequences—then generates ERP-linked,
+    revision-controlled run-cards. Cut start-up scrap 25–40%, reduce setup time
+    15–30%, and lift first-pass yield by 2–5 percentage points within 90 days.
+  unfairAdvantage: >-
+    Polymer-specific optimization models with embedded physics/constraints plus
+    federated learning across non-competing plants to generalize without
+    exposing proprietary recipes. Deep OEM integrations to feeder/extruder
+    controllers and a validated run-card compliance workflow that most analytics
+    vendors lack.
+  customerSegments:
+    - >-
+      Custom compounders (2–20 extrusion lines) producing masterbatch, filled,
+      and reinforced compounds.
+    - >-
+      Captive compounders at OEMs (automotive, appliances, wire & cable) with
+      internal compounding lines.
+    - >-
+      Recyclate/upcycling compounders needing tighter control over variable
+      feedstock.
+    - >-
+      Engineering thermoplastics producers with many SKUs (PA, PBT, PC/ABS, PPS,
+      PEEK) and stringent specs.
+    - Toll compounders running frequent small lots and high mix/low volume.
+    - >-
+      Primary buyers: VP Operations, Plant Manager, Process/Manufacturing
+      Engineer, Quality Manager; Economic buyer: COO/CFO; Influencers:
+      Maintenance/Controls Lead, IT/ERP Lead.
+  channels:
+    - >-
+      Direct sales to mid-market compounders (3–20 lines): target Plant Managers
+      and Process Engineers; offer ROI calculator and 90-day paid pilot with
+      money-back SLA.
+    - >-
+      OEM/channel partnerships: extruder (Coperion, Leistritz, Davis-Standard,
+      KraussMaffei) and feeder vendors (K-Tron, Brabender, Schenck) to
+      resell/attach during new line sales or retrofits; rev-share on
+      implementations.
+    - >-
+      ERP/MES integrator alliances (Plex/DelmiaWorks, Deacom, Epicor, SAP
+      partners) to bundle run-card generation with work-instruction projects.
+    - >-
+      Product-led growth: free run-card designer for one line and five SKUs;
+      upsell to AI recommendations and ERP connectors.
+    - >-
+      Events and associations: NPE, K-Fair, Compounding World Expo, Fakuma, SPE
+      ANTEC; run workshops on AI for faster changeovers; publish case studies
+      with quantified savings.
+    - >-
+      Account-based marketing: list of 500 target plants in NA/EU; outbound
+      sequences with benchmark metrics (scrap %, setup min, FPY) and onsite line
+      studies.
+    - >-
+      Customer referrals: discount for publishing a case study (before/after
+      metrics) and for partner webinar participation.
+  revenueStreams:
+    - >-
+      SaaS subscription per active extrusion line: $600–$1,200/line/month;
+      typical mid-market at $900/line/month billed annually.
+    - >-
+      Enterprise tier for multi-site governance and SSO: add $2–$4 per ton
+      processed or $5,000–$25,000/site/year.
+    - >-
+      Implementation/onboarding: $25,000–$150,000 per site depending on data
+      ingestion, connectors, and validation runs.
+    - >-
+      Premium modules: closed-loop control $300/line/month; compliance pack
+      $200/line/month; advanced LIMS integration $150/line/month.
+    - >-
+      Training & certification: $2,000 per user for process engineer
+      certification; $500 per operator class.
+    - >-
+      Advisory services: screw/feeder selection studies, recipe porting, and
+      process audits at $200–$300/hour.
+    - >-
+      Optional on-prem/edge appliance for restricted sites: hardware + support
+      $10,000 upfront + $2,000/year.
+  costStructure:
+    - 'R&D (data science + polymer process engineers): ~35–40% of spend.'
+    - 'Implementation/CS and field engineering: ~20–25%.'
+    - 'Cloud/edge infrastructure and data storage: ~8–12%.'
+    - 'Sales and marketing (events, content, channel): ~15–20%.'
+    - 'Partner commissions/rev-share: ~5–10%.'
+    - 'G&A, security/compliance, insurance: ~8–10%.'
+    - 'Trade show booths, demo rigs, and test materials for validation runs.'
+  keyMetrics:
+    - >-
+      Customer outcomes: start-up scrap reduction (% and lbs/job), setup time
+      reduction (minutes/job), FPY improvement (percentage points), OEE uplift
+      (%).
+    - >-
+      Model quality: recommendation acceptance rate (%), average absolute error
+      vs. target throughput/SEI, number of manual adjustments per run,
+      time-to-stability (minutes to spec).
+    - >-
+      Adoption/usage: run-cards generated per week, % of runs using AI settings,
+      operator e-sign compliance rate, active lines per site.
+    - >-
+      Financial: ARR, gross margin %, CAC payback (months), net revenue
+      retention (NRR) %, services attach rate, average revenue per line.
+    - >-
+      Implementation velocity: time from contract to first validated run (days),
+      connector setup time (hours), data ingestion throughput (SKUs/day).
+    - >-
+      Support and reliability: P95 API latency to return recommendations, system
+      uptime %, mean time to resolution (MTTR), open Sev-1 incidents.
+    - >-
+      Pipeline: pilot-to-paid conversion %, average deal cycle (days),
+      partner-sourced revenue %.
+storyBrand:
+  character: >-
+    Process engineers, production managers, and compounding operators at
+    plastics processors who need fast, repeatable setups for custom blends on
+    specific machines.
+  problem: >-
+    Villain: guesswork and tribal knowledge. External: manual calculations,
+    inconsistent parameters, ERP/MES disconnects. Internal: pressure to hit
+    rates without scrap or delays. Philosophical: setting up a run shouldn’t be
+    trial-and-error.
+  guide: >-
+    We understand the pain of dialing in feeders and zone temps while the line
+    waits. Our AI, trained on your formulations, machines, and historical runs,
+    recommends validated feeder rates, barrel temperatures, and startup
+    settings—integrated with your ERP/MES and backed by audit trails.
+  plan: >-
+    1) Connect data and define formulations/machines. 2) Auto-generate
+    recommended feeder rates, zone temps, and startup steps. 3) Approve and
+    publish printable/ERP-linked run-cards. 4) Capture results; models learn and
+    improve every run.
+  callToAction: >-
+    Direct: Schedule a 30‑minute demo or start a pilot on one line.
+    Transitional: Download a sample run-card and ROI worksheet.
+  success: >-
+    Faster startups, reduced scrap, stable quality, and higher throughput.
+    Standardized run-cards, confident operators, faster training, and
+    audit-ready traceability across formulations and machines.
+  failure: >-
+    Ongoing trial-and-error, wasted resin, missed shipments, and dependence on a
+    few experts. Inconsistent parameters, slow onboarding, audit risks, and
+    eroding margins.
+landingPage:
+  hero:
+    title: AI Run‑Cards for Custom Compounding
+    subtitle: >-
+      Instant feeder rates, barrel temperatures, and startup settings per
+      formulation and machine—printable and ERP‑linked.
+    ctaText: Start Free Pilot
+    ctaHref: /get-started
+  problem:
+    - 'Trial‑and‑error setups waste resin, time, and capacity.'
+    - Tribal knowledge is hard to scale and easy to lose.
+    - Inconsistent run‑cards cause quality drift and rework.
+    - Changeovers stall while teams hunt for specs and approvals.
+    - 'Manual calculations for feeders, liquids, and regrind invite errors.'
+    - Outdated PDFs break traceability across ERP and the floor.
+  solution:
+    - >-
+      AI generates machine‑specific feeder rates, zone temp profiles, and
+      startup recipes in seconds.
+    - >-
+      Auto‑validates against machine limits, materials, moisture targets, and
+      safety constraints.
+    - 'Publishes print‑ready, QR‑coded run‑cards linked to ERP/MES work orders.'
+    - Learns from historical runs to tighten windows and reduce scrap.
+    - Locks versions with approvals and digital traceability for audits.
+    - 'Drives faster, repeatable changeovers with operator‑friendly checklists.'
+  features:
+    - >-
+      Machine‑aware settings for twin‑screw and single‑screw extruders, side
+      feeders, and liquid pumps.
+    - >-
+      Feeder rate calculation by target throughput, bulk density, and
+      loss‑in‑weight calibration.
+    - >-
+      Automatic zone temperature profiles by polymer family, additives, and
+      screw design.
+    - >-
+      Startup playbooks: preheat, purge, ramp rates, vacuum/venting, and
+      first‑article checks.
+    - Regrind and masterbatch handling with color/density compensation.
+    - Moisture targets with dryer time/temperature recommendations.
+    - >-
+      Quality windows: melt pressure/torque/amps and SPC limits embedded on the
+      run‑card.
+    - >-
+      Constraint checks: feeder turndown, pump min flow, screw speed, torque,
+      and motor load.
+    - 'Version control, e‑sign approvals, and change history.'
+    - 'ERP/MES connectors (SAP, Oracle, Plex, Epicor, Infor, Dynamics, Odoo).'
+    - Shop‑floor connectivity via OPC UA/MTConnect/Ignition for live validation.
+    - 'Print, PDF, and QR codes; mobile‑friendly operator view.'
+    - Unit conversions and localization; metric/imperial ready.
+    - 'Role‑based access for engineering, QA, and operators.'
+  steps:
+    - Upload or select formulation and target throughput.
+    - >-
+      Choose machine, screw profile, feeders/pumps in use, and available
+      materials.
+    - >-
+      Review AI‑proposed feeder rates, temps, and startup sequence with
+      auto‑validation.
+    - >-
+      Approve and publish: print the run‑card and push to ERP/MES work order
+      with QR code.
+    - >-
+      Run and learn: capture results, feed back to refine settings for the next
+      job.
+---
+# FeedRun.AI
+
+Industry: Custom Compounding of Purchased Resins
+Service: Feeder Settings and Process Run-Card Generator

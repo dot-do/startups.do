@@ -1,0 +1,366 @@
+---
+name: PumpPulse AI
+slug: pumppulse
+service:
+  title: Installed-Base Telemetry Anomaly Detection & Warranty Triage
+  description: >-
+    Detect abnormal pump behavior from field telemetry, classify likely causes,
+    and auto-create service/warranty tickets with recommended actions.
+  targetUsers:
+    - Aftermarket/Service Manager
+    - Quality Manager
+    - Warranty Admin
+  triggers:
+    - New telemetry batch landed in cloud bucket
+    - Daily/weekly scheduled run
+    - Manual on-demand investigation
+  inputs:
+    - Timeseries (pressure/flow/VFD speed/current/temperature) CSV/JSON
+    - Asset registry with model and duty point
+    - Event logs/alarms
+    - Warranty policy and limits
+    - Service history
+  steps:
+    - Ingest and normalize telemetry by model/duty
+    - Detect anomalies (statistical + ML) and classify probable failure modes
+    - Estimate severity and warranty eligibility vs misuse/installation issues
+    - Summarize per-asset findings; generate recommended next actions
+    - Open or update tickets in CMMS/CRM; notify owners
+  tools:
+    - AWS IoT/Azure IoT Hub/InfluxDB
+    - 'Python (pandas, scikit-learn, prophet, ruptures)'
+    - Grafana/Power BI
+    - 'CMMS/CRM APIs (Salesforce, ServiceNow, Zendesk)'
+  outputs:
+    - Per-asset anomaly report with root-cause likelihoods
+    - Warranty triage decisions and rationale
+    - Ticket(s) with recommended actions and parts
+    - 'KPI dashboard (MTBF, incident rate by model)'
+  pricingModel:
+    - Setup fee (data/connectors)
+    - Monthly subscription by active asset
+    - Per-incident triage add-on
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Telemetry quality/coverage gaps
+    - Misclassification leading to false warranties or missed failures
+    - Data privacy/customer consent
+  dependencies:
+    - Access to telemetry store and asset master
+    - Warranty policy rules
+    - Ticketing/CMMS API credentials
+leanCanvas:
+  problem:
+    - >-
+      OEMs and Tier-1 distributors lack real-time visibility into installed-base
+      pump health, causing reactive service and escalations.
+    - >-
+      Warranty costs average 1–3% of equipment revenue; 20–40% of returned units
+      are “no-fault-found” due to poor triage.
+    - >-
+      Telemetry exists (PLC/SCADA/IIoT) but is underused: data heterogeneity and
+      lack of labeled failure modes impede actionable insights.
+    - >-
+      Service triage is slow and manual (often 1–5 days), delaying corrective
+      actions and increasing downtime penalties and customer dissatisfaction.
+    - >-
+      Field technicians lack clear probable-cause and parts lists, driving
+      repeat truck rolls (10–25% of cases) and inflated logistics costs.
+    - >-
+      End customers expect predictive maintenance; OEMs risk losing aftermarket
+      revenue to third-party monitoring providers.
+    - >-
+      Disconnected systems (IoT, FSM, ERP/CRM) create swivel-chair workflows and
+      lost warranty eligibility data.
+  solution:
+    - >-
+      Unified data ingestion: connectors for OPC UA, MQTT, Modbus-TCP, PI
+      System/AVEVA, AWS IoT SiteWise, Azure IoT Hub; schema normalization for
+      common pump signals (flow, pressure, current, vibration, temp, speed).
+    - >-
+      Domain feature library: cavitation, dry-run, seal wear, clogging, bearing
+      degradation, air entrainment, blocked suction, power-quality anomalies;
+      engineered features (NPSH proxies, vibration envelopes, spectral kurtosis,
+      pressure pulsation indices).
+    - >-
+      Hybrid ML: semi/weakly-supervised anomaly detection (isolation forest,
+      autoencoders) + supervised fault classifiers using OEM fault taxonomy;
+      adaptive baselining by site/operating regime; concept-drift monitoring.
+    - >-
+      RUL and severity scoring: estimate lead time to failure (hours/days),
+      confidence intervals, and business impact (downtime/penalty risk).
+    - >-
+      Warranty intelligence: eligibility scoring (usage pattern, install date,
+      duty cycles), probable cause (workmanship vs. misuse), and policy rules to
+      qualify/deny claims with evidence snapshots.
+    - >-
+      Auto-triage workflows: create tickets in ServiceMax, Salesforce Service
+      Cloud, SAP FSM, or Oracle with recommended actions, checklists, and parts
+      kits; route by SLA/region.
+    - >-
+      Closed-loop learning: update models with ticket outcomes, parts replaced,
+      and NFF results to reduce false positives over time.
+    - >-
+      Edge options: on-prem/edge agents for low-latency detection and bandwidth
+      reduction; periodic cloud sync and fleet benchmarking.
+    - >-
+      Dashboards and APIs: fleet health, anomaly heatmaps, top failure modes by
+      model/region, warranty cost leakage, and ROI tracking.
+  uniqueValueProp: >-
+    Reduce warranty spend 20–30% and cut triage time 70% by turning pump
+    telemetry into automatic anomaly detection, cause classification, and
+    service/warranty tickets with recommended actions—deployed in 90 days and
+    integrated with your FSM/ERP.
+  unfairAdvantage: >-
+    Closed-loop warranty triage specifically for pumps: a proprietary fault
+    taxonomy and labeled dataset tying telemetry patterns to verified warranty
+    outcomes, plus deep FSM/ERP integrations that most horizontal IoT/AI
+    platforms lack—delivering faster time-to-value and measurable warranty
+    savings.
+  customerSegments:
+    - >-
+      Primary buyers: OEMs of measuring, dispensing, and other industrial
+      pumping equipment (Aftermarket/Service leaders, Warranty managers, VP
+      Digital/IoT, Reliability engineering).
+    - >-
+      Economic influencers: CFO/COO (warranty reserves, service margins), CIO/OT
+      leads (integration/security).
+    - >-
+      Users: Reliability engineers, warranty analysts, technical support, field
+      service technicians, channel service partners.
+    - >-
+      Secondary: Large fleet operators (water/wastewater utilities, food &
+      beverage, chemicals, pharma, mining) for co-selling via OEMs.
+  channels:
+    - >-
+      Direct enterprise sales to OEMs’ Aftermarket/Service leadership with a
+      90-day pilot program tied to warranty KPIs.
+    - >-
+      Co-sell partnerships with IIoT platforms (AWS, Azure, PTC, AVEVA) and
+      system integrators focused on water/chemicals/F&B.
+    - >-
+      OEM bundling into extended warranties and service contracts (upsell at
+      point-of-sale and retrofit campaigns).
+    - >-
+      Integrations marketplace listings (ServiceMax, Salesforce AppExchange, SAP
+      Store) to capture inbound demand from service teams.
+    - >-
+      Distributor/service partner enablement: white-labeled dashboards and
+      revenue share on connected assets.
+    - >-
+      Content-led growth: fault-mode playbooks, benchmark studies (NFF
+      reduction, cavitation incidence), and ROI calculators.
+    - >-
+      Targeted events: WEFTEC, ACHEMA, Pack Expo, SPS, Hannover Messe; webinars
+      with early adopters.
+  revenueStreams:
+    - >-
+      SaaS per connected asset: $15–$40 per asset/month depending on feature
+      tier and telemetry rate; volume discounts.
+    - >-
+      Enterprise subscription: annual license for OEM-branded portal + unlimited
+      viewer seats; priced by active assets and modules.
+    - >-
+      Implementation/integration fee: $25k–$150k per OEM (connectors, taxonomy
+      mapping, FSM/ERP workflows).
+    - >-
+      Premium support and model tuning SLAs: $0.50–$2 per asset/month add-on
+      (24/7, quarterly model reviews).
+    - >-
+      Success-based fee: optional 10–20% of verified warranty savings after
+      baseline period.
+    - >-
+      Professional services: data onboarding, change management, technician
+      training, custom analytics.
+  costStructure:
+    - >-
+      Cloud infrastructure (ingest, storage, compute, monitoring): ~$0.50–$2.00
+      per asset/month at 1–10 Hz across 10–20 tags; optimized by edge filtering
+      and compression.
+    - >-
+      Data science/engineering headcount (model dev, MLOps, connectors) and
+      domain experts (pump reliability).
+    - >-
+      Integration and customer success teams (FSM/ERP workflows, training, KPI
+      reviews).
+    - >-
+      Sales and partnerships (OEM enterprise cycles, channel enablement,
+      industry events).
+    - >-
+      Security/compliance (SOC 2 Type II, ISO 27001), pen testing, cyber
+      insurance.
+    - Support operations and 24/7 incident response for high-SLA customers.
+    - 'R&D for feature library expansion, digital twins, and edge acceleration.'
+    - >-
+      Legal and warranty-policy advisory (terms, data sharing, success-fee audit
+      mechanisms).
+  keyMetrics:
+    - >-
+      Detection precision ≥0.85 and recall ≥0.70 for top-5 failure modes within
+      90 days; FPR <0.3 false alerts per asset-month.
+    - >-
+      Average anomaly lead time ≥48 hours before failure for critical modes
+      (cavitation, seal failure, bearing wear).
+    - >-
+      Warranty KPIs: 20–30% reduction in warranty cost per shipped unit within
+      12 months; NFF returns reduced 30–50%; triage time reduced 70%.
+    - >-
+      Service efficiency: first-time-fix rate +15–25%; repeat truck rolls -20%;
+      average ticket handle time -30%.
+    - >-
+      Business outcomes: ARR growth, gross margin >75%, logo retention >95%, net
+      revenue retention >120%.
+    - >-
+      Adoption: ≥70% of tickets auto-created with recommended actions accepted
+      by service teams; ≥60% of end customers onboarded within 6 months of OEM
+      launch.
+    - >-
+      Model health: drift score thresholds with retrain cadence (e.g., PSI >0.2
+      triggers retrain), label latency <21 days.
+    - >-
+      Data quality: ≥90% assets with healthy telemetry (uptime >95%, tag
+      completeness >85%).
+    - >-
+      Time-to-value: pilot to ROI report ≤90 days; payback period ≤6 months
+      post-deployment.
+storyBrand:
+  character: >-
+    Service, aftermarket, and warranty leaders at measuring, dispensing, and
+    other pump OEMs who need to maximize uptime, reduce warranty leakage, and
+    scale support across a growing connected installed base.
+  problem: >-
+    External: noisy/missing telemetry, manual triage, slow root-cause analysis,
+    and reactive truck rolls inflate warranty costs. Internal: teams are
+    overwhelmed and blind to emerging failures. Philosophical: field data should
+    prevent downtime—not create busywork.
+  guide: >-
+    Empathy: we know alarm fatigue and NFF returns. Authority: AI built on pump
+    physics plus labeled service history; deployed across large installed bases;
+    secure (SOC 2) with OEM-ready integrations. Proof: measurable cuts in MTTR
+    and warranty spend in pilots and rollouts.
+  plan: >-
+    1) Connect: ingest telemetry (SCADA/MQTT/OPC UA/cloud) and service/warranty
+    data (CMMS/ERP/CRM). 2) Learn: train anomaly + cause-classification models
+    with your history and domain rules. 3) Monitor: detect abnormal behavior and
+    assign likely cause and warranty disposition. 4) Act: auto-create tickets
+    with recommended actions/parts/priority, routed to the right queue. 5)
+    Improve: human-in-the-loop feedback closes the loop and updates models.
+  callToAction: >-
+    Direct: book a 30-minute demo to scope a 4–6 week pilot on a subset of your
+    installed base. Transitional: download a sample anomaly report and ROI
+    calculator.
+  success: >-
+    Proactive service at scale: 20–40% faster triage, 30–50% fewer emergency
+    dispatches, 10–20% lower warranty costs, higher uptime and CSAT, cleaner
+    cause codes for engineering, and new predictive service offerings.
+  failure: >-
+    Without it: ongoing unplanned downtime, warranty leakage and NFF truck
+    rolls, missed recalls, eroding margins, technician burnout, and lost
+    customers.
+landingPage:
+  hero:
+    title: AI Anomaly Detection & Warranty Triage for Pumping Equipment
+    subtitle: >-
+      Spot abnormal pump behavior from field telemetry, pinpoint likely causes,
+      and auto-create service/warranty tickets with recommended actions—cut
+      downtime, false returns, and warranty spend across your installed base.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - >-
+      Failures are detected late; alarm floods and static thresholds miss
+      evolving conditions.
+    - Manual triage consumes experts’ time and doesn’t scale across the fleet.
+    - 'Warranty claims lack evidence—good units get replaced, bad actors persist.'
+    - >-
+      Telemetry is siloed (PLC/SCADA/IoT); no fleetwide view of health or
+      failure modes.
+    - Inconsistent diagnostics drive repeat truck rolls and high MTTR.
+    - Sensor drift and duty-cycle variation break one-size-fits-all rules.
+  solution:
+    - >-
+      Ingest PLC/SCADA/IoT telemetry (pressure, flow, vibration, temperature,
+      current) into a unified model.
+    - >-
+      Detect multivariate anomalies in real time with adaptive thresholds and
+      pump-specific patterns.
+    - >-
+      Classify likely causes: cavitation, seal wear, clogging, bearing wear, air
+      entrainment, suction blockage, leaks, motor overload, calibration drift.
+    - >-
+      Score warranty eligibility and cost impact; recommend fix vs. replace vs.
+      no-fault-found.
+    - >-
+      Auto-create tickets in CMMS/ERP/CRM with recommended actions, parts kits,
+      and urgency.
+    - >-
+      Provide confidence, explainability, and evidence snapshots for every
+      alert.
+    - Deploy in cloud or at the edge; online/offline with store-and-forward.
+    - Close the loop with work-order feedback to continuously improve models.
+  features:
+    - >-
+      Connectors: OPC UA, Modbus/TCP, MQTT, REST, CSV/S3; historian support
+      (OSIsoft PI, Ignition).
+    - >-
+      Integrations: SAP, Maximo, ServiceNow, Salesforce, Oracle, Infor, Dynamics
+      for ticketing and parts.
+    - >-
+      Real-time anomaly detection across
+      pressure–flow–vibration–temperature–current signatures.
+    - >-
+      Domain-tuned pattern library for pump failure modes; configurable rules
+      and thresholds.
+    - >-
+      Warranty triage engine with eligibility scoring, policy rules, and
+      evidence packaging.
+    - >-
+      Recommended actions: on-site checks, parameter resets, cleaning,
+      lubrication, seal kit, impeller, bearing, motor, firmware.
+    - >-
+      Parts and labor estimation with BOM lookup; auto-RMA suggestions when
+      appropriate.
+    - >-
+      Fleet dashboards: risk ranking, failure heatmaps, recurring issue
+      detection, cost leakage.
+    - >-
+      Explainability: feature contributions, trend plots, before/after
+      comparisons.
+    - 'Model governance: drift monitoring, versioning, A/B testing, audit logs.'
+    - >-
+      Security: SSO/SAML, role-based access, encryption in transit/at rest; SOC
+      2–ready.
+    - >-
+      Edge agent: containerized, low-footprint, offline buffering, over-the-air
+      updates.
+  steps:
+    - >-
+      Connect: Link PLC/SCADA/IoT data via OPC UA/MQTT/Modbus; map tags and
+      units.
+    - >-
+      Learn: Train on historical runs; calibrate by model, fluid, and duty
+      cycle; import known events.
+    - >-
+      Detect: Run real-time multivariate anomaly detection with adaptive
+      thresholds.
+    - >-
+      Diagnose: Classify likely causes; compute warranty eligibility and cost
+      impact.
+    - >-
+      Triage: Auto-create CMMS/ERP tickets with recommended actions, parts kits,
+      and SLA/urgency.
+    - >-
+      Act & Verify: Technicians execute steps; attach evidence; verify fix via
+      signal normalization.
+    - >-
+      Improve: Feed outcomes back to models; track trends and drive design or
+      process changes.
+---
+# PumpPulse AI
+
+Industry: Measuring, Dispensing, and Other Pumping Equipment Manufacturing
+Service: Installed-Base Telemetry Anomaly Detection & Warranty Triage

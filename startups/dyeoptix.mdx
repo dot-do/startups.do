@@ -1,0 +1,386 @@
+---
+name: DyeOptix FPY Assistant — AI for Knit Fabric Dyehouses
+slug: dyeoptix
+service:
+  title: Dye Recipe Optimization & First-Pass Yield (FPY) Assistant
+  description: >-
+    Recommend starting dye recipes and process setpoints to improve FPY and
+    reduce re-dyeing/overuse of chemicals.
+  targetUsers:
+    - Dye house managers
+    - Process engineers
+    - Lab technicians
+  triggers:
+    - New dye order or lab dip request
+    - Repeat shade with low historical FPY
+    - Change in yarn supplier or water chemistry
+  inputs:
+    - 'Historical recipes with results (ΔE, pass/fail)'
+    - 'Fiber content, yarn lot properties, GSM/width'
+    - 'Machine type, liquor ratio, temperature profiles'
+    - 'Water hardness/pH, chemicals inventory'
+    - Customer color standards and tolerances
+  steps:
+    - Ingest historical LIMS/ERP data and clean
+    - Cluster similar shades/fibers and learn response surfaces
+    - Use Bayesian optimization to propose starting recipe and setpoints
+    - Estimate FPY probability and ΔE risk
+    - Draft SOP-style instructions and safety notes
+    - Capture outcomes for continuous learning
+  tools:
+    - Python+pandas
+    - LightGBM/XGBoost
+    - Bayesian optimization (Optuna)
+    - OpenAI for SOP drafting
+    - CSV/Excel or LIMS API
+  outputs:
+    - Recommended recipe and process curve
+    - Predicted FPY and chemical usage estimate
+    - SOP document with checks and safety notes
+  pricingModel:
+    - Setup + model calibration
+    - Per-order recommendation or monthly tiered plan
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 3.5
+    overall: 4
+  risks:
+    - Unmeasured variables (water chemistry drift)
+    - Safety/compliance must be validated by chemist
+    - Limited data for rare shades/fibers
+  dependencies:
+    - Export from LIMS/ERP
+    - Access to color standards/tolerances
+    - Approval workflow with dyehouse chemist
+leanCanvas:
+  problem:
+    - >-
+      Low first-pass yield (FPY): typical 60–75% for knit cotton/reactive
+      dyeing; re-dye rate 15–35% by lots, causing schedule slippage and cost
+      overruns.
+    - >-
+      Overuse of chemicals due to conservative recipes: salt/alkali/dye dosing
+      often 10–25% above needed, raising chemical cost by $0.03–$0.08 per kg and
+      effluent load (COD/BOD).
+    - >-
+      Lab-to-bulk mismatch: 1–3 extra lab dips and 1–2 bulk corrections per
+      shade; ΔE00 variance driven by fiber lot, liquor ratio, machine
+      differences, and water quality.
+    - >-
+      Operator variability: setpoint adherence and dosing profiles inconsistent;
+      lack of closed-loop guidance increases re-runs.
+    - >-
+      Data silos: spectrophotometer QC data, lab recipes, machine PLC logs,
+      ERP/MES orders not joined; no recipe-to-outcome learning.
+    - >-
+      Capacity loss: re-dyeing ties up jets; OEE hit 5–15%; missed OTIF targets
+      and emergency air-freight penalties.
+    - >-
+      Sustainability pressure: brands target reductions in water/chem/energy;
+      mills lack quantified, parameter-level pathways to comply.
+    - >-
+      Skills gap: senior dye masters retiring; onboarding new chemists takes
+      6–12 months; tacit knowledge not codified.
+  solution:
+    - >-
+      Ingest and link historical data: recipes, QC ΔE results, lab dips, machine
+      PLC logs (temperature/time profiles, liquor ratio, dosing curves),
+      fiber/lot info, water quality, chemical batch data.
+    - >-
+      Build a mill-specific digital shade book: model recipe→outcome
+      relationships per substrate, shade category, machine, and water profile
+      using probabilistic ML with physics-informed constraints.
+    - >-
+      Generate first-pass starting recipes and process setpoints: salt/alkali
+      curves, temperature ramps, hold times, pH windows, leveling agent amounts,
+      liquor ratio guidance, with predicted pass probability and expected ΔE00.
+    - >-
+      Lab optimization: suggest minimal DOE (1–2 lab dips) to converge on
+      bulk-ready recipe; automatic scale-up adjustments per machine and load
+      size.
+    - >-
+      In-bath guidance: real-time alerts for deviations and prescriptive
+      micro-doses/holds; auto-generate correction recipes if ΔE risk rises.
+    - >-
+      Post-run learning: capture outcome metrics to continuously retrain;
+      per-operator coaching insights to standardize best practice.
+    - >-
+      Sustainability and cost dashboard: quantify savings in chemicals (kg/kg),
+      water (L/kg), steam/kWh, and CO2e; produce audit-ready reports for brands.
+    - >-
+      Secure deployment: on-prem edge gateway or private cloud; role-based
+      access; recipe IP protection with per-mill data segregation.
+    - >-
+      Standard 6-week paid pilot: pick 2–3 machines and 3 shade families; A/B
+      200–300 lots; M&V plan agreed upfront; success criteria include FPY uplift
+      ≥10pp, re-dye reduction ≥30%, and payback under 6 months.
+  uniqueValueProp: >-
+    Increase FPY to 85%+ within 90 days by recommending starting dye recipes and
+    machine setpoints with pass-probability, cutting re-dyes 30–50% and
+    chemicals 8–15%, with measurable ROI and brand-compliant color accuracy.
+  unfairAdvantage: >-
+    A continuously growing, structured recipe-to-outcome dataset and
+    transfer-learning models tuned specifically for knit dyehouses, plus deep
+    integrations with dyeing PLCs and spectrophotometer QC systems. This enables
+    mill-specific accuracy from day one, rapid lab-to-bulk scaling, prescriptive
+    in-bath corrections, and measurable FPY gains that generic LIMS, recipe
+    libraries, machine-only optimizers, or standalone color-matching tools
+    cannot deliver.
+  customerSegments:
+    - >-
+      Primary: Medium-to-large knit fabric dyehouses (cotton, CVC, PC blends,
+      polyester) with 10–60 jet/overflow machines, 2,000–12,000 tons/year
+      throughput.
+    - >-
+      Integrated knit garment manufacturers with in-house dyeing targeting
+      export brands.
+    - >-
+      Dye-chemical suppliers seeking value-added digital services to defend
+      share and lock-in.
+    - >-
+      Mill personas: Owners/MDs, Production Director, Chief Chemist/Dyeing
+      Manager, Quality Head, Sustainability Lead, CI/Industrial Engineering
+      Lead, IT/OT Manager.
+    - >-
+      Early adopters: Export-focused Tier-1 mills in Bangladesh, India
+      (Tirupur), Vietnam, Turkey, Pakistan with spectrophotometers
+      (Datacolor/X-Rite) and MES/ERP in place.
+  channels:
+    - >-
+      Direct enterprise sales to target mills in Bangladesh, India (Tirupur),
+      Vietnam, Turkey, Pakistan through local industry experts.
+    - >-
+      Co-sell partnerships with dye/chemical suppliers (Archroma, DyStar,
+      Huntsman) during product trials and conversions.
+    - >-
+      OEM alliances with dyeing machine makers (Thies, Fong’s, Sclavos) for
+      bundled pilots and controller integrations.
+    - >-
+      Spectrophotometer vendors (Datacolor, X-Rite) referral partnerships and
+      marketplace listings.
+    - >-
+      System integrators for textile MES/ERP and regional OT integrators for
+      onsite deployment.
+    - >-
+      Industry events/demos: ITMA, DTG Dhaka, Knit Show Tirupur, Gartex India,
+      ITM Istanbul; live A/B demo with anonymized mill data.
+    - >-
+      Content-led growth: FPY case studies with verified M&V, webinars with
+      chief chemists, and technical whitepapers.
+    - >-
+      Pilot-led land-and-expand: start with 1–3 machines and top 3 shade
+      families; expand to full site post-ROI.
+    - >-
+      Brand/retailer programs: co-sponsored improvements tied to sustainability
+      KPIs; preferred mill lists and scorecards.
+    - >-
+      Local reseller/agent networks in clusters (Gazipur, Narayanganj, Tirupur,
+      Ho Chi Minh, Bursa, Faisalabad) with shared revenue.
+  revenueStreams:
+    - >-
+      Subscription (SaaS) per-site: tiered by machines/throughput — Starter (up
+      to 10 machines or 2,000 t/yr): $3,000/month; Growth (up to 25 machines or
+      6,000 t/yr): $7,500/month; Enterprise (26–60 machines or >6,000 t/yr):
+      from $12,000/month.
+    - >-
+      Per-ton usage alternative: $8 per ton processed, billed monthly, with a
+      $30,000 annual minimum per site.
+    - >-
+      Performance-based add-on: 10–20% of verified first-year savings (chemical
+      + re-dye + energy), capped at 2× subscription.
+    - >-
+      One-time onboarding/integration fee: $15,000–$50,000 depending on
+      connectors and data cleanup.
+    - 'Edge gateway rental/support: $300/month per site or $3,000 to purchase.'
+    - >-
+      Professional services: process audits, operator training, recipe migration
+      — $1,500/day.
+    - >-
+      Multi-site enterprise license for groups with centralized governance
+      (custom pricing).
+    - >-
+      Optional anonymized benchmarking insights for brands/chem suppliers (with
+      mill opt-in).
+  costStructure:
+    - >-
+      R&D: data scientists, ML engineers, dye chemists, process engineers
+      (salaries, tools, experimentation).
+    - >-
+      Product engineering: PLC/OPC-UA connectors, spectrophotometer APIs,
+      MES/ERP integrations, UI/UX.
+    - >-
+      Onsite deployment and customer success teams in key geographies; travel
+      and per-diem.
+    - >-
+      Cloud/edge infrastructure, monitoring, and data security/compliance (SOC
+      2/ISO 27001).
+    - >-
+      Pilot program costs: historical data cleanup, mapping, instrument
+      calibration kits and procedures.
+    - >-
+      Sales and marketing: enterprise reps, partner commissions (10–20%), trade
+      shows, demo labs.
+    - Support and training content localization; multilingual helpdesk.
+    - >-
+      Hardware: edge gateways, industrial PCs, networking for machine
+      connectivity.
+    - >-
+      Legal, IP, and data privacy protections for recipe/IP confidentiality;
+      insurance.
+    - 'G&A: finance, HR, admin, facilities.'
+  keyMetrics:
+    - >-
+      FPY uplift: +10 to +25 percentage points within 90 days (FPY_after −
+      FPY_before).
+    - 'Re-dye rate reduction: 30–50% decrease (re-dyed lots/total lots).'
+    - >-
+      Average ΔE00 at bulk approval: reduce by 0.3–0.6 units vs. baseline, per
+      shade family.
+    - 'Lab dips to approval: decrease from 3–5 to 1–2 per shade.'
+    - 'Chemical intensity: 8–15% reduction (kg chemicals/kg fabric).'
+    - 'Water intensity: 10–20% reduction (L/kg).'
+    - 'Energy/steam intensity: 8–15% reduction (kWh or kg steam/kg).'
+    - 'Throughput/OEE: +5–10% productive machine-hours via fewer re-runs.'
+    - 'OTIF: +5–10% improvement due to fewer shade delays.'
+    - 'Model adoption: >80% of lots started with AI recommendations by month 3.'
+    - >-
+      Recipe accuracy: >70% of AI starts pass within ΔE00 spec without
+      correction by month 3.
+    - 'Corrective action success: >60% of in-bath recommendations avoid re-dye.'
+    - >-
+      Payback period: <6 months to cumulative savings ≥ onboarding + 6 months
+      subscription.
+    - >-
+      Pilot conversion: ≥60% pilots to paid rollouts; sales cycle 2–4 months;
+      CAC payback <9 months.
+    - >-
+      Platform reliability: >99.5% uptime; <2 seconds to render recommendations;
+      data latency <1 minute from PLCs.
+storyBrand:
+  character: >-
+    Dyehouse and operations managers at knit fabric mills who need
+    right-first-time shades, predictable costs, and on-time deliveries.
+  problem: >-
+    External: Low first-pass yield from lot variability, imperfect starting
+    recipes, and operator-dependent trial-and-error; re-dyes drive chemical,
+    water, steam, and energy waste; machines tied up while tweaking.
+
+    Internal: Constant firefighting, pressure from buyers and QA, and low
+    confidence in starting recipes.
+
+    Philosophical: Getting color right the first time shouldn’t rely on
+    guesswork—it should be data-driven and sustainable.
+  guide: >-
+    Empathy: We know the stress of drifting shades, stalled machines, and costly
+    re-dyes.
+
+    Authority: Dye/process experts with an AI platform trained on your dye
+    cards, lab-dips, spectro data, and machine logs; integrates with common
+    dyehouse systems; proven in production environments with secure,
+    mill-controlled data.
+  plan: >-
+    Process plan:
+
+    1) Connect: Import historical recipes, setpoints, delta E, lot attributes;
+    integrate spectro/PLC/ERP.
+
+    2) Calibrate: Model by fabric type, dye class, and machine; encode chemistry
+    limits, cost, and sustainability constraints.
+
+    3) Run: Get starting dye recipes and process setpoints per lot, plus
+    confidence ranges; track FPY and continuously improve.
+
+    Agreement plan:
+
+    - Start on a pilot line/SKU with clear KPIs.
+
+    - Human-in-the-loop approvals; no change to approved dyestuffs unless you
+    choose.
+
+    - Data privacy and opt-out at any time.
+  callToAction: >-
+    Direct: Book a pilot or schedule a dyehouse assessment.
+
+    Transitional: Download a sample optimization report or try the FPY ROI
+    calculator.
+  success: |-
+    - Higher FPY and right-first-time shade hits
+    - Fewer re-dyes and shade corrections
+    - Lower chemical, water, steam, and energy use
+    - Shorter cycle times, more capacity, and better on-time delivery
+    - Lower cost per kg and reduced margin erosion
+    - Consistent quality across shifts and machines
+    - Stronger brand trust and measurable sustainability gains
+  failure: |-
+    - Ongoing re-dyes, wasted utilities, and chemical overuse
+    - Bottlenecked machines and missed ship dates
+    - Margin erosion and price pressure
+    - Operator burnout and inconsistent quality
+    - Increased claims/chargebacks and lost orders
+    - Falling behind on sustainability and compliance expectations
+landingPage:
+  hero:
+    title: AI Dye Recipe & FPY Assistant for Knit Fabric Mills
+    subtitle: >-
+      Start right‑first‑time dyeing. Data‑backed recipes and setpoints to raise
+      FPY, cut re‑dyes, and reduce chemical use.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - Low first‑pass yield from shade variation and batch inconsistency
+    - 'Expensive, slow re‑dyes and over‑corrections'
+    - 'Overuse of salt, alkali, and auxiliaries to “play safe”'
+    - Trial‑and‑error from lab to bulk transfer
+    - 'Outcomes vary by machine, lot, and operator'
+    - Limited visibility into root causes and best practices
+  solution:
+    - >-
+      AI‑recommended starting dye recipes and process windows per style, color,
+      fiber blend, and machine
+    - >-
+      Setpoints for salt/alkali dosing, temperature curve, time, M:L, and dosing
+      schedule
+    - FPY risk prediction with proactive adjustments before bulk dyeing
+    - Standardized lab‑to‑bulk transfer with fewer trials
+    - Continuous learning from every batch to keep improving
+    - 'Clear KPIs: FPY, re‑dye rate, chemical and water per kg, cycle time'
+  features:
+    - >-
+      Recipe recommender: dye % blend, salt/alkali profile, pH, temp ramp/soak,
+      time, liquor ratio, dosing steps
+    - FPY predictor with confidence scores and off‑shade risk flags
+    - >-
+      Constraint‑aware recommendations (machine limits, shade tolerance,
+      fastness targets)
+    - >-
+      What‑if simulations: see cost, time, and sustainability impact before you
+      run
+    - 'Root‑cause and outlier analysis across colors, machines, and operators'
+    - Auto‑generated spec sheets and SOPs for lab and bulk
+    - 'Feedback loop: learn from spectro results and bulk outcomes'
+    - 'Integrations: LIMS/ERP/MES, spectrocolorimeters, machine PLCs (via API)'
+    - 'Role‑based approvals, audit trail, and recipe version control'
+    - Multi‑plant support with local units and languages
+    - Shop‑floor friendly UI for quick adoption
+    - Enterprise‑grade security and data privacy
+  steps:
+    - >-
+      Connect data: import shade standards, lab trials, bulk runs, machine
+      parameters, and chemical lists
+    - 'Map dyes, auxiliaries, machines, and color libraries to a unified model'
+    - >-
+      Train on your history (or start with a starter model) and validate on
+      recent runs
+    - >-
+      Pilot on selected styles/colors; compare FPY, cost, and re‑dyes vs
+      baseline
+    - Roll out to lab and bulk; lock recipes and setpoints; enable approvals
+    - >-
+      Monitor KPIs in real time; capture feedback; retrain monthly for
+      continuous gains
+---
+# DyeOptix FPY Assistant — AI for Knit Fabric Dyehouses
+
+Industry: Knit Fabric Mills
+Service: Dye Recipe Optimization & First-Pass Yield (FPY) Assistant

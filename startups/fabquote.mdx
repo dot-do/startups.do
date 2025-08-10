@@ -1,0 +1,337 @@
+---
+name: FabQuote Agent
+slug: fabquote
+service:
+  title: RFQ-to-Quote Automation Agent
+  description: >-
+    Parse incoming RFQs and drawings to generate costed quotes, draft emails,
+    and create ERP quote entries.
+  targetUsers:
+    - Estimators
+    - Sales/Customer Service
+    - Owners
+  triggers:
+    - New RFQ email received
+    - Files dropped into RFQ folder
+    - Customer portal RFQ
+  inputs:
+    - RFQ email/PDF
+    - Drawings (PDF/DXF/DWG)
+    - 3D models (STEP/IGES)
+    - BOM/specs
+    - Historical job cost data
+    - Material/finish price lists
+    - Shop rates and margin rules
+  steps:
+    - Monitor RFQ inbox/folders and ingest files
+    - 'OCR/parse RFQ package; extract part count, due date, terms'
+    - >-
+      Extract features from CAD (thickness, bends, pierces, tap sizes, weld
+      length, finish)
+    - Pull historical analogs and update cost priors
+    - Estimate material usage (pre-nesting) and machine cycle times by process
+    - Apply pricing logic by customer/urgency and margin rules
+    - Generate quote PDF and ERP quote; draft cover email
+    - Human review/adjustment and approval
+    - 'Send quote and log KPIs (turnaround time, hit rate)'
+  tools:
+    - Gmail/Outlook API
+    - SharePoint/Drive/Dropbox API
+    - AWS Textract or Azure Form Recognizer
+    - OpenCascade/pyOCCT for STEP/DXF parsing
+    - OR-Tools for quick material pre-nesting estimate
+    - OpenAI/Anthropic LLM for summaries
+    - ERP API (JobBOSS/E2/ProShop/Odoo/NetSuite)
+  outputs:
+    - Quote PDF and itemized cost breakdown
+    - ERP quote/sales order draft
+    - Quote email draft
+    - Win/loss and turnaround KPIs
+  pricingModel:
+    - One-time setup/integration fee
+    - Usage-based per RFQ processed
+    - Monthly subscription tiered by RFQ volume
+    - Optional success fee tied to increased win rate
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - CAD parsing misses critical features leading to misquotes
+    - Material/finish price volatility
+    - Customer-specific terms misinterpreted
+    - Data security for customer prints
+  dependencies:
+    - Access to RFQ inbox/shared storage
+    - CAD file availability
+    - ERP API access
+    - Accurate shop rate and material price tables
+leanCanvas:
+  problem:
+    - >-
+      RFQs arrive by email with mixed attachments (PDFs, STEP/DXF, BOM
+      spreadsheets). Estimators spend 20–45 minutes per RFQ re-keying data,
+      extracting dimensions, materials, and tolerances, leading to quoting
+      backlogs.
+    - >-
+      Slow quotes lose jobs: buyers often award to first acceptable quote. Many
+      shops respond in 24–72 hours; target buyers expect <12 hours, especially
+      for repeat/low-complexity parts.
+    - >-
+      Inconsistent costing and manual errors (missed finishes, incorrect
+      quantities, outdated material/labor rates) cause 2–5% margin leakage and
+      occasional loss-making orders.
+    - >-
+      Fragmented systems: Outlook/Shared Drive + CAD + ERP/Excel. Double entry
+      into ERP (JobBOSS2, ProShop, E2, Global Shop Solutions) creates 10–15%
+      data errors and low quote traceability.
+    - >-
+      Capacity constraints: experienced estimators are scarce. Shops cap growth
+      because quote volume cannot scale without hiring, with fully burdened
+      estimator cost at $85k–$120k/year.
+  solution:
+    - >-
+      Email and portal ingestion: monitor RFQ inboxes and procurement portals;
+      auto-collect attachments and metadata.
+    - >-
+      Technical parsing: OCR + CAD/geometry parsing (PDF, STEP, DXF) to extract
+      dimensions, material/specs, tolerances (GD&T), finishes, quantities, and
+      due dates.
+    - >-
+      Cost modeling: configurable process models (laser/waterjet, press brake,
+      machining, welding, finishing) using shop-specific labor/machine rates,
+      setup/run times, scrap, yield, and material price feeds.
+    - >-
+      Risk and DFM flags: highlight missing tolerances, ambiguous notes, edge
+      cases; suggest clarifying questions.
+    - >-
+      Quote generation: price recommendations with rationale, lead-time
+      estimates, and tiered pricing by quantity breaks.
+    - >-
+      Communication: draft buyer-facing quote email and PDF; attach terms,
+      certifications, and sales notes; log in CRM if present.
+    - >-
+      ERP write-back: create/update quote records, BOM, routings, and costing in
+      ERP via secure connectors.
+    - >-
+      Human-in-the-loop: estimator reviews/edits in a web UI; feedback loops
+      retrain models to the shop’s norms.
+  uniqueValueProp: >-
+    Generate costed, accurate quotes from messy RFQs and drawings in minutes,
+    not hours—auto-drafting buyer-ready emails and creating clean ERP quote
+    entries—so shops quote more, win more, and protect margins without adding
+    headcount.
+  unfairAdvantage: >-
+    A domain-specific dataset and models for fabricated metal RFQs and drawings,
+    enriched by feedback loops from live estimator edits across many shops
+    (privacy-preserving), combined with prebuilt deep ERP integrations and a
+    human-in-the-loop bench for high-complexity parts—delivering provable ROI
+    within 60–90 days that generic LLM or generic quoting tools struggle to
+    match.
+  customerSegments:
+    - >-
+      Primary: US/Canada SMB fabricated metal product manufacturers (NAICS
+      332999) with 20–250 employees, 50–400 RFQs/month, using ERPs like
+      JobBOSS2, ProShop ERP, E2 Shop System, MIE Trak Pro, Global Shop
+      Solutions.
+    - >-
+      Secondary: Larger multi-plant metal fabrication enterprises (250–1000+
+      employees) with centralized estimating teams seeking standardization and
+      governance.
+    - >-
+      Tertiary: Contract manufacturers adjacent to 332999 (general machine
+      shops, sheet-metal job shops) with high mix/low volume RFQ flow.
+  channels:
+    - >-
+      Direct sales to shops via targeted outbound (LinkedIn + email) to
+      Estimating Managers/Owners with personalized video demos using their
+      public RFQs.
+    - >-
+      Partnerships with ERP vendors (JobBOSS2, ProShop, E2, Global Shop
+      Solutions) and regional VARs; revenue-sharing referral agreements and
+      co-marketing webinars.
+    - >-
+      Industry associations/events: NTMA, PMA, AMT; booths and speaking at
+      FABTECH, EASTEC/WESTEC, and IMTS; live quoting challenges to showcase
+      speed/accuracy.
+    - >-
+      Content and SEO: RFQ-to-quote benchmarking reports, ROI calculators, and
+      DFM guides; rank for “RFQ automation,” “fabrication quoting software,”
+      “JobBOSS quoting.”
+    - >-
+      Customer evidence: lighthouse pilots (60–90 days) with hard before/after
+      metrics; case studies and peer referrals within regional clusters.
+    - >-
+      Freemium/POC motion: limited tier that parses RFQs and drafts quotes for
+      30 days with capped volume to accelerate adoption.
+  revenueStreams:
+    - >-
+      SaaS subscription: tiered by RFQ volume and features. Example: Starter
+      $750/month (up to 150 RFQs), Growth $1,800/month (up to 500 RFQs), Scale
+      custom pricing.
+    - >-
+      Usage overage: $1.00–$2.50 per RFQ over plan cap; $0.05–$0.25 per page for
+      heavy OCR/CAD processing beyond baseline.
+    - >-
+      Implementation/integration: $3,000–$12,000 one-time depending on ERP
+      connectors and on-prem requirements.
+    - >-
+      Human QA add-on: $0.75–$2.00 per RFQ for off-hours coverage or complex
+      parts review SLAs.
+    - >-
+      Enterprise: SSO, private cloud, custom costing models, dedicated
+      support—+20–40% uplift on base subscription.
+  costStructure:
+    - >-
+      R&D and engineering: ML/CV engineers, full-stack, integrations
+      (~$250k–$400k/month at scale).
+    - >-
+      Cloud infrastructure: compute/storage/network; GPU inference for
+      OCR/CAD/LLM. Target COGS ≤ 20% of ARR; benchmark $0.15–$0.60 per RFQ
+      average.
+    - >-
+      Third-party APIs and licenses: CAD parsers, material indices, OCR/LLM APIs
+      where applicable ($10k–$50k/month depending on volume).
+    - >-
+      Implementation and support: solutions engineers/CSMs, onboarding playbooks
+      (goal: <$2k per new customer in delivery cost).
+    - >-
+      Sales and marketing: events, ads, partner MDF ($50k–$150k/quarter
+      early-stage).
+    - >-
+      Security/compliance: SOC 2 audits, pen tests, cyber insurance
+      ($75k–$150k/year).
+    - Data labeling and expert estimators for model tuning ($10k–$40k/month).
+  keyMetrics:
+    - >-
+      Operational: median RFQ-to-first-quote time (target <15 minutes for simple
+      parts, <60 minutes for moderate assemblies); auto-quotable rate without
+      edits (target 60% in 90 days, 80% in 12 months).
+    - >-
+      Accuracy: pricing error vs. approved estimator price (target within ±5%);
+      post-job margin variance vs. estimate (target within ±3% on average).
+    - >-
+      Throughput: quotes per estimator per day (baseline +200–400%); backlog
+      aged >24 hours (target <5%).
+    - >-
+      Sales outcomes: win-rate lift from faster responses (target +3–7
+      percentage points); revenue influenced by quotes sent within 12 hours vs.
+      later.
+    - >-
+      Quality: ERP sync success rate (target >99.5%); parsing success for
+      drawings/BOMs (precision/recall >95% on key entities).
+    - >-
+      Financial: CAC payback <6 months; net revenue retention >110%; logo churn
+      <8% annually; gross margin >70%.
+    - >-
+      Adoption: weekly active estimator users; % of quotes generated via agent;
+      number of custom cost rule changes accepted into baseline models.
+storyBrand:
+  character: >-
+    Estimators and operations leads at fabricated metal shops who want to turn
+    RFQs and drawings into accurate quotes in minutes—without adding headcount
+    or risking margin.
+  problem: >-
+    - External: RFQs arrive as emails/PDFs/CAD; manual parsing and costing are
+    slow and error-prone.
+
+    - Internal: Teams feel buried, miss deadlines, and worry about inconsistent
+    pricing and lost margin.
+
+    - Philosophical: Good shops shouldn’t lose work because paperwork beats
+    production.
+  guide: >-
+    - Empathy: We’ve lived the quoting grind—late nights, messy spreadsheets,
+    and last‑minute RFQs.
+
+    - Authority: Built by manufacturing + AI engineers; tuned to your materials,
+    routings, and shop rates; integrates with leading ERPs.
+
+    - Trust: Private-by-design, audit trails on every estimate, and configurable
+    approval gates.
+  plan: >-
+    - Connect: Link your RFQ inbox, preferred CAD/PDF formats, and ERP quoting
+    module.
+
+    - Configure: Import sample quotes, cost rules, and routing libraries; set
+    approval thresholds and email templates.
+
+    - Run: Agent parses RFQs/drawings, builds costed quotes, drafts reply
+    emails, and creates ERP quote entries for your review and send.
+
+    (Optional) Start with a low-risk pilot on recent RFQs and iterate.
+  callToAction: >-
+    Primary: Book a 30‑minute demo to see your RFQs flow end‑to‑end.
+    Transitional: Start a 14‑day pilot with your real parts and cost rules.
+  success: |-
+    - Quote 3–5x more RFQs per day with consistent pricing.
+    - Faster responses win more jobs at target margins.
+    - Auto-generated emails and ERP entries cut admin time.
+    - Clear traceability from drawing to line‑item cost to sent quote.
+  failure: |-
+    - Continue missing RFQ deadlines and losing winnable bids.
+    - Over/under‑quoting erodes margin and trust.
+    - Estimators burn out on manual data entry instead of value‑add work.
+landingPage:
+  hero:
+    title: AI RFQ‑to‑Quote Agent for Fabricated Metal Shops
+    subtitle: >-
+      Turn RFQs and drawings into costed quotes, customer‑ready emails, and ERP
+      entries—in minutes.
+    ctaText: Book a Demo
+    ctaHref: '#demo'
+  problem:
+    - 'RFQs scatter across inboxes, portals, and PDFs—hard to track.'
+    - Manual drawing review slows quotes and creates errors.
+    - Tribal knowledge drives routings and pricing—hard to standardize.
+    - Double entry into ERP wastes hours and causes mismatches.
+    - 'Missed finishes, hardware, and outside services cut margins.'
+    - Inconsistent pricing hurts credibility and profits.
+    - Slow response loses jobs to faster competitors.
+  solution:
+    - Centralized RFQ intake with automatic parsing and classification.
+    - 'AI reads PDFs/CAD to extract BOM, materials, thickness, GD&T, and revs.'
+    - >-
+      Auto‑build routings for laser, press brake, machining, weld, and
+      finishing.
+    - >-
+      Cost engine applies shop rates, setup/run time, nesting, scrap, and price
+      breaks.
+    - 'Auto‑draft customer email with lead time, terms, and exceptions.'
+    - Push approved quotes directly to your ERP with item and routing detail.
+    - 'Role‑based review, approvals, and full audit trail.'
+    - 'Dashboards for cycle time, hit rate, and margin insights.'
+  features:
+    - 'RFQ intake via email alias, portal uploads, and shared folders'
+    - 'PDF, STEP, DXF/DWG drawing parsing with rev and quantity detection'
+    - GD&T and tolerance extraction with manufacturability flags
+    - Material and thickness recognition (sheet/plate/tube/bar)
+    - Nesting‑aware laser/plasma/waterjet cut‑time estimates
+    - 'Press brake/forming time from bend count, length, angle, tonnage'
+    - 'CNC machining time from features; setup, tool changes, and workholding'
+    - 'Weld, grinding, and assembly labor estimation'
+    - Finishing (powder coat/anodize/plate) and outside‑process buyouts
+    - BOM explode for hardware/fasteners with supplier pricing hooks
+    - 'Multi‑quantity price breaks; markups, margins, and target profit controls'
+    - 'Quote templates with lead times, terms, and validity dates'
+    - Customer‑ready email drafts with attachments and exceptions noted
+    - 'ERP connectors (JobBOSS2, E2, Epicor, Global Shop, NetSuite, Odoo)'
+    - 'Approval workflows, permissions, and change tracking'
+    - Complete audit log for compliance and traceability
+    - 'Secure deployment options: private cloud or on‑prem; encrypted data'
+    - Open API and Zapier for custom integrations
+    - 'Analytics on win/loss, RFQ aging, and bottlenecks'
+  steps:
+    - Connect your RFQ inbox and file sources.
+    - 'Sync machine and labor rates, overhead, and pricing rules.'
+    - 'Import routing templates, finish options, and quote terms.'
+    - Link your ERP and map quote/item fields.
+    - Run a pilot on historical RFQs and calibrate estimates.
+    - Enable approvals and go live with selected customers.
+    - Monitor analytics and refine rules over time.
+---
+# FabQuote Agent
+
+Industry: All Other Miscellaneous Fabricated Metal Product Manufacturing
+Service: RFQ-to-Quote Automation Agent

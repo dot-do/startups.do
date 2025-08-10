@@ -1,0 +1,367 @@
+---
+name: ForgeQuoter AI
+slug: forgequoter
+service:
+  title: RFQ-to-Quote Automation for Nonferrous Forgings
+  description: >-
+    Automates parsing of RFQs/drawings to produce cycle-time, material yield,
+    routing, and a priced quote with risks.
+  targetUsers:
+    - Estimators
+    - Sales Engineers
+    - Program Managers
+  triggers:
+    - New RFQ email received
+    - CAD/drawing uploaded to portal
+  inputs:
+    - RFQ email and attachments
+    - 2D drawings (PDF)
+    - 3D CAD (STEP/IGES)
+    - 'Alloy/spec (e.g., AMS/ASTM)'
+    - Annual volumes and delivery terms
+    - Internal rate cards and machine list
+  steps:
+    - Ingest email/portal submission and store artifacts
+    - 'OCR drawings and extract callouts, tolerances, surface finish, quantities'
+    - >-
+      Parse CAD to detect draft, fillets, boss/rib features; compute envelope
+      and projected parting line candidates
+    - >-
+      Estimate billet size and material yield by alloy and geometry; compute
+      trim allowance
+    - >-
+      Estimate forging strokes, press time, die changeover, furnace time, NDT
+      and HT routing
+    - >-
+      Apply parametric cost model (material, labor, machine, overhead, tooling
+      amortization)
+    - >-
+      Generate risk notes (tight tolerances, thin webs, extreme aspect ratios)
+      and alternates (near-net vs finish-forge)
+    - Create quote PDF and push to CRM for approval
+  tools:
+    - Microsoft Graph/Gmail API
+    - Azure Form Recognizer or AWS Textract
+    - Autodesk Forge or CADExchanger SDK
+    - Python cost model (pandas)
+    - Salesforce/HubSpot API
+    - S3/Azure Blob for storage
+  outputs:
+    - Quote PDF/Docx with cost breakdown
+    - Routing sheet and cycle-time estimate
+    - Material yield and billet size
+    - Risk/assumption register
+  pricingModel:
+    - Monthly subscription
+    - Per-RFQ processing fee
+    - One-time setup for cost model calibration
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 7
+    overall: 8
+  risks:
+    - Misread dimensions/tolerances from PDFs
+    - Edge-case geometry causing yield errors
+    - Commercial liability for mispriced quotes
+  dependencies:
+    - Access to historical quotes/wins-losses
+    - 'Machine capability database (tonnage, bed size)'
+    - Alloy price feeds or internal price list
+    - CRM integration
+leanCanvas:
+  problem:
+    - >-
+      RFQs arrive as mixed-format PDFs/STEP files with incomplete or ambiguous
+      specs, requiring 2–6 hours of skilled engineer time per quote and creating
+      bottlenecks during peaks.
+    - >-
+      Cycle-time, material yield, and routing estimates rely on tribal
+      knowledge; variability leads to margin leakage (2–5 pts) and inconsistent
+      pricing across estimators.
+    - >-
+      Quoting backlogs delay responses; slow turnaround (>48 hours) reduces win
+      rates in high-velocity segments (industrial, automotive).
+    - >-
+      Existing ERP/CPQ tools capture prices, not process physics (flash
+      allowance, reductions, die life, press availability), making cost models
+      simplistic or manual.
+    - >-
+      High compliance burden (ITAR/EAR, customer NDAs, AMS/ASTM specs) increases
+      risk of non-compliant quotes and missed adders (FAI/PPAP/NDT/HT).
+    - >-
+      Manual extraction of dimensions, tolerances, and alloy specs from drawings
+      is error-prone (missed radii, draft angles, datums), leading to rework and
+      renegotiation.
+    - >-
+      Lack of closed-loop learning from won/lost quotes and actuals prevents
+      systematic improvement of estimates and pricing strategy.
+  solution:
+    - >-
+      AI parsing of RFQs/drawings (PDF/2D/3D CAD) extracts geometry, tolerances,
+      alloy/specs; flags missing/ambiguous data.
+    - >-
+      Physics- and rules-based engine estimates stock size, flash allowance,
+      material yield, die complexity, cycle times (preform, forging hits, trim,
+      HT, NDT, machining).
+    - >-
+      Automated routing suggestion by process (closed-die, open-die, upset, ring
+      rolling) with press/hammer selection and queue-time heuristics.
+    - >-
+      Quote pricing module applies labor, burden, material, scrap recovery, tool
+      amortization, quality/compliance adders (FAI/PPAP/NADCAP), and target
+      margin logic.
+    - >-
+      Risk scoring highlights drawing gaps, tolerance outliers, special
+      processes, export control, and capacity conflicts; recommends questions to
+      customer.
+    - >-
+      Human-in-the-loop review UI with version control; one-click generation of
+      quote package (cover letter, terms, lead time, risk notes).
+    - >-
+      Integrations with ERP/CPQ/MES (Epicor, JobBOSS/ECI, Infor) to sync items,
+      routings, costs, and won/lost outcomes for model retraining.
+    - >-
+      Security/compliance: tenant isolation, on-prem/private cloud option, ITAR
+      workflows (access controls, logging, data retention).
+  uniqueValueProp: >-
+    Turn RFQs and drawings into accurate, auditable, risk-scored quotes in
+    minutes, not days—combining forging-specific AI vision, physics-aware cost
+    models, and closed-loop learning to boost win rates and protect margins.
+  unfairAdvantage: >-
+    Closed-loop, forging-specific models trained on proprietary shop data and
+    actuals, combined with a validated rules engine and ITAR-capable
+    deployments; hard to replicate without deep domain datasets, SME know-how,
+    and compliance posture.
+  customerSegments:
+    - >-
+      Nonferrous forging job shops (aluminum, titanium, nickel, copper,
+      bronze/brass) doing closed-die, open-die, upset, and ring rolling.
+    - >-
+      Tier 1/Tier 2 aerospace and defense forging suppliers requiring ITAR/EAR
+      controls and traceability.
+    - >-
+      Industrial and oil & gas ring/shaft forgers needing faster quote cycles
+      for MRO and project-based demand.
+    - >-
+      Automotive/EV aluminum forging suppliers managing high RFQ volumes and
+      tight margins.
+    - >-
+      Medical implant forgers (titanium) with stringent quality/FAI
+      requirements.
+    - >-
+      Engineering service providers/estimators supporting multiple forging
+      shops.
+  channels:
+    - >-
+      Founder-led and direct sales to forging shops in US/EU with pilot programs
+      (3–6 months).
+    - >-
+      Partnerships with ERP vendors/integrators (Epicor/JobBOSS/Infor) to access
+      installed base.
+    - >-
+      Industry associations and events (e.g., forging trade shows, webinars,
+      regional plant tours) with ROI case studies.
+    - >-
+      Strategic pilots with Tier 1 aerospace for reference credibility and ITAR
+      validation.
+    - >-
+      Content-led growth: technical papers on yield/cycle-time estimation, risk
+      checklists, ROI calculators; LinkedIn outreach to estimators/VP Ops.
+    - >-
+      Referral program for tooling houses and material suppliers; rev-share for
+      warm intros.
+    - >-
+      Listing on manufacturing marketplaces and directories to capture RFQ-heavy
+      SMBs.
+  revenueStreams:
+    - >-
+      SaaS subscription: Starter $1,500/month (up to 200 RFQs/mo), Pro
+      $4,000/month (1,000 RFQs/mo, multi-user), Enterprise from $8,000/month
+      (SAML, private cloud/on‑prem, ITAR).
+    - >-
+      Usage overage: $3 per additional RFQ parsed beyond plan; volume discounts
+      at >5,000 RFQs/mo.
+    - >-
+      Implementation/integration fee: $10,000–$50,000 depending on ERP/CAD
+      connectors and data migration.
+    - >-
+      Premium data packs: alloy/compliance libraries, customer-specific
+      templates ($500–$1,500/month add-on).
+    - >-
+      Professional services: model calibration, historical quote backfill,
+      custom risk rules ($200–$300/hr).
+    - >-
+      Training/certification: estimator onboarding, advanced pricing workshops
+      ($5,000 per cohort).
+  costStructure:
+    - >-
+      R&D/Engineering 40–50% of spend: ML/vision team, forging SMEs, simulation
+      integration.
+    - >-
+      Cloud/compute 10–15%: secure storage, GPU inference for CAD/vision, audit
+      logging; scales with usage.
+    - 'Go-to-market 15–25%: sales engineers, events, content, partner MDF.'
+    - >-
+      Customer success/support 8–12%: onboarding, calibration, SLAs (ITAR
+      customers premium support).
+    - >-
+      Compliance/security 5–8%: SOC 2/ISO 27001, ITAR controls, pen tests, DLP
+      tooling.
+    - 'General/admin 8–12%: finance, legal (export control), HR.'
+    - >-
+      Cogs per RFQ: $0.50–$1.50 variable compute + storage; target gross margin
+      >75% at scale.
+  keyMetrics:
+    - >-
+      RFQ parse accuracy by field (alloy/spec >98%, critical dims >97%, GD&T
+      extraction >95%).
+    - >-
+      Quote cycle time reduction (baseline hours vs post-implementation): target
+      60–80% reduction.
+    - 'Estimator throughput: RFQs per estimator per day; target +3–5x.'
+    - >-
+      Gross margin estimate error vs actual: mean absolute error <2.5 pts after
+      90 days.
+    - 'Win rate uplift vs baseline: +5–15% in segments with responsive quoting.'
+    - 'Risk detection precision/recall: >90% for missing dims/spec flags.'
+    - >-
+      Adoption: % of quotes touched by platform (>85% by month 3),
+      time-to-first-value <14 days.
+    - 'Financial: ARPA, NRR >120%, churn <8% annualized, CAC payback <9 months.'
+    - Data drift alerts/month and Model recalibration cycle time (<2 weeks).
+    - >-
+      SLA uptime (99.9%), P0 incidents (<1/quarter), average support response
+      (<2 hours).
+storyBrand:
+  character: >-
+    Estimators and sales engineers at nonferrous forging shops who need to turn
+    messy RFQs and drawings into accurate, defensible quotes fast while
+    protecting margins and capacity.
+  problem: >-
+    - External: RFQs arrive as PDFs and drawings with inconsistent specs,
+    tolerances, and volumes
+
+    - Internal: Manual parsing, tribal knowledge bottlenecks, and deadline
+    pressure create quoting drag and risk
+
+    - Philosophical: Great shops should win on process expertise, not on data
+    re-entry speed
+  guide: >-
+    - Empathy: We have lived tight quote windows, press constraints, and
+    customer change churn
+
+    - Authority: Purpose-built AI for nonferrous forging, validated by SMEs,
+    explains assumptions and flags risks; integrates with common ERPs;
+    enterprise-grade security; supports aluminum, copper/brass/bronze, titanium,
+    and nickel alloys
+  plan: >-
+    - Connect: Share recent RFQs, define alloys, press limits, work centers, and
+    cost rates
+
+    - Calibrate: Confirm routing templates, yield curves, die life, setup and
+    cycle-time logic
+
+    - Launch: Auto-ingest RFQs; AI produces cycle-time, material yield, routing,
+    priced quote, and risk notes; reviewer approves and exports to ERP
+
+    - Improve: Close the loop with wins and losses to continuously tune models
+  callToAction: >-
+    - Direct: Book a demo and start a 2-week pilot with 10 real RFQs
+
+    - Transitional: Download a sample quote pack, RFQ readiness checklist, and
+    ROI benchmark
+  success: |-
+    - 5-10x faster quote turnaround with consistent, margin-protecting pricing
+    - Higher win rates on target parts and fewer no-bids
+    - Standardized routings and yields with explicit risk visibility
+    - Reduced dependency on single experts; scalable quoting capacity
+    - Clean handoff to ERP and audit-ready cost breakdowns
+  failure: |-
+    - Missed deadlines and lost orders to faster competitors
+    - Margin leakage from guesswork on yield, cycle-time, and routing
+    - Rework, scrap, and strained customer relationships from misquoted risks
+    - Estimator burnout and knowledge silos that stall growth
+    - Opaque assumptions that lead to disputes and chargebacks
+landingPage:
+  hero:
+    title: RFQ-to-Quote Automation for Nonferrous Forgings
+    subtitle: >-
+      Turn RFQs and drawings into cycle time, material yield, routing, and a
+      priced quote—with quantified risks—in minutes.
+    ctaText: Book a Demo
+    ctaHref: /demo
+  problem:
+    - RFQs stall while engineers manually parse drawings and specs.
+    - >-
+      Cycle-time and yield estimates rely on tribal knowledge and vary by
+      estimator.
+    - Missed tolerances or alloy details lead to rework and margin leakage.
+    - Slow quoting loses fast-turn business to competitors.
+    - >-
+      Manual costing overlooks scrap credits, surcharges, and energy
+      variability.
+    - No clear risk assessment to protect delivery dates and die life.
+    - 'Data scattered across emails, PDFs, and spreadsheets with no audit trail.'
+  solution:
+    - 'Ingest RFQs from email or portal; parse PDFs, 2D/3D CAD, and BOMs.'
+    - >-
+      Extract geometry, material, tolerances, quantity; auto-classify part
+      family.
+    - >-
+      Estimate forging weight, flash/trim loss, scale, and buy-to-fly for
+      aluminum, copper, brass/bronze, titanium, and nickel alloys.
+    - Recommend press/hammer and die set based on tonnage and work envelope.
+    - >-
+      Compute operation-level cycle times: heat, forge, reheat, trim, heat
+      treat, machine.
+    - 'Auto-build routings with resources, cycle rates, and transfer/queue times.'
+    - >-
+      Cost material, labor, energy, tooling/die amortization, freight, scrap
+      credit, and alloy surcharges.
+    - >-
+      Price with margin targets and market guidance; flag risks with confidence
+      scores.
+    - Generate customer-ready quote packages and export to ERP/CRM.
+    - >-
+      Continuously learn from won/lost quotes and production actuals to
+      calibrate models.
+  features:
+    - >-
+      Drawing and model parsing (PDF, STEP, DXF) with tolerance and GD&T
+      extraction.
+    - >-
+      Alloy-aware yield model for nonferrous stock sizes, flash/trim, and scale
+      loss.
+    - Press/hammer feasibility and tonnage margin checks with setup guidance.
+    - 'Route builder across forge, trim, heat treat, machining, and inspection.'
+    - >-
+      Cycle-time engine including setups, reheats, tool changes, and transfer
+      times.
+    - >-
+      Cost model with live metal pricing, energy rates, scrap credits, and
+      surcharges.
+    - >-
+      Risk scoring for thin webs, low draft, deep ribs, die life, and heat-treat
+      distortion.
+    - >-
+      Quote composer with multi-quantity breaks, lead time, and
+      terms/conditions.
+    - Version control and diffs across RFQ revisions with full audit trail.
+    - One-click export to ERP/CRM and automatic quote pack assembly.
+    - Role-based approvals and margin guardrails with override workflow.
+    - 'Security and compliance: SSO, encryption, ITAR/CMMC-ready, SOC 2 options.'
+    - 'Deployment flexibility: secure cloud or on-prem with API integration.'
+  steps:
+    - Connect your inbox/portal and ERP/CRM.
+    - Upload or forward an RFQ with drawings and models.
+    - Review extracted specs and geometry; adjust assumptions if needed.
+    - 'Confirm routing and resource selections (press/hammer, dies, cells).'
+    - 'Generate costs, risks, and pricing; set margins and quantity breaks.'
+    - Publish and send the quote; sync details and attachments to ERP/CRM.
+    - 'Track wins and actuals to auto-calibrate time, yield, and costing.'
+---
+# ForgeQuoter AI
+
+Industry: Nonferrous Forging
+Service: RFQ-to-Quote Automation for Nonferrous Forgings

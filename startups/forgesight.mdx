@@ -1,0 +1,315 @@
+---
+name: ForgeSight AI — NDT Indication Triage (UT/PT/ET) for Nonferrous Forging
+slug: forgesight
+service:
+  title: NDT Indication Triage (UT/PT/ET)
+  description: >-
+    Computer vision triage of NDT results to pre-classify and prioritize
+    indications for human review.
+  targetUsers:
+    - NDT Level II/III
+    - Quality Engineers
+  triggers:
+    - New UT C-scan or PT image set uploaded
+    - Completion of inspection station run
+  inputs:
+    - UT C-scan images or arrays (DICONDE/CSV)
+    - PT/DPI photo sets
+    - ET traces
+    - Drawing tolerances and acceptance criteria
+  steps:
+    - Normalize and denoise images/traces
+    - 'Segment and measure indications (length, area, depth proxies)'
+    - 'Classify likely defect types (laps, cracks, porosity)'
+    - Map indications to drawing zones and tolerances
+    - Rank severity and create review queue
+    - Export annotated artifacts to QA system
+  tools:
+    - PyTorch/OpenCV
+    - DICONDE-compatible parsers
+    - S3/Azure Blob
+    - 'Quality system API (e.g., InspectionXpert, custom)'
+  outputs:
+    - Annotated images/C-scans
+    - Indication table with locations and severities
+    - Disposition suggestions for reviewer
+  pricingModel:
+    - Per-scan/part fee
+    - Monthly subscription for storage and models
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 7
+    overall: 8
+  risks:
+    - False negatives and over-reliance on AI
+    - Diverse data formats and poor image quality
+    - Customer approval for AI-assisted NDT
+  dependencies:
+    - Representative labeled datasets
+    - Access to drawings/tolerances
+    - Secure data transfer and retention policy
+leanCanvas:
+  problem:
+    - >-
+      High false-positive rate and inconsistent human interpretation in PT/UT/ET
+      lead to excessive review time and rework.
+    - >-
+      Level II/III technician shortages and overtime cause throughput
+      bottlenecks and rising inspection cost-per-part.
+    - >-
+      Current review tools are vendor-specific (UT/ET instruments) and not
+      optimized for triage/prioritization across modalities; C-scans, impedance
+      plots, and PT images are time-consuming to screen.
+    - >-
+      Defects can be discovered late (post-processing), increasing scrap and
+      rework costs; prioritization of likely-critical indications is ad hoc.
+    - >-
+      Compliance demands (NADCAP/AS9100/ASTM) require full traceability and
+      documented decision rationale, which is manual and error-prone.
+    - >-
+      Plants operate in air-gapped or restricted environments; most AI offerings
+      aren’t deployable on-prem with required cybersecurity and validation
+      evidence.
+  solution:
+    - >-
+      Computer vision and signal-processing models pre-classify indications from
+      UT (A/B/C/SAFT/PAUT), PT (visible/fluorescent images/video), and ET
+      (impedance-plane/time series) into severity/likelihood bands.
+    - >-
+      Queue and prioritization engine ranks indications for human review with
+      configurable rules (e.g., alloy, geometry, customer spec, historical
+      risk).
+    - >-
+      Human-in-the-loop review workstation that overlays bounding
+      boxes/heatmaps, suggested call (reject/rework/monitor), and confidence
+      with quick-accept/quick-escalate.
+    - >-
+      Automated documentation: store decisions, screenshots, and model
+      inferences to create audit-ready records (traceability to part, operator,
+      instrument settings, calibration).
+    - >-
+      Seamless ingestion from common NDT systems via SDKs/file drops; supports
+      vendor formats and open standards where available (e.g., DICONDE for
+      applicable modalities) and produces structured outputs to QMS/MES.
+    - >-
+      On-prem edge inference server supporting air-gapped plants (Windows/Linux
+      GPU), with optional private cloud for multi-site model management.
+    - >-
+      Validation pack: statistically powered performance studies and MSA/Gage
+      R&R to support internal approval and customer qualification.
+  uniqueValueProp: >-
+    Reduce NDT review time by 40–60% while maintaining or improving detection
+    performance. Vendor-agnostic AI triage prioritizes critical UT/PT/ET
+    indications for faster human disposition, with full auditability and
+    on-prem/air-gapped deployment aligned to NADCAP/AS9100 requirements. Typical
+    payback < 6 months on a single high-throughput line.
+  unfairAdvantage: >-
+    A curated, alloy- and geometry-specific dataset and model library for
+    nonferrous forgings across UT/PT/ET, combined with pre-built OEM connectors
+    and audit-ready validation packs for NADCAP/AS9100 environments. Ability to
+    deploy air-gapped with vendor-agnostic triage that preserves existing
+    instruments and procedures, reducing change friction.
+  customerSegments:
+    - >-
+      Primary: Nonferrous forging manufacturers (aluminum, titanium, nickel
+      alloys) in aerospace, defense, energy, medical, and e-mobility components.
+    - >-
+      Quality/NDT leaders at Tier-1/Tier-2 suppliers (responsible for NADCAP
+      AC7114, AS9100, PPAP/FAI compliance).
+    - Independent NDT service labs serving forging houses.
+    - >-
+      NDT equipment OEMs and system integrators seeking AI capabilities (UT
+      phased array, ET, PT imaging).
+    - >-
+      Prime OEMs (aerospace/energy/automotive) mandating supplier quality
+      improvements and digital traceability.
+  channels:
+    - >-
+      Direct enterprise sales to aerospace/energy/medical forging houses
+      starting with 90-day pilots tied to documented ROI.
+    - >-
+      Partnerships with NDT OEMs/integrators for co-selling and embedded
+      connectors; revenue share for bundled deployments.
+    - >-
+      Alliances with QMS/MES vendors common in regulated manufacturing (e.g.,
+      ETQ/Intelex/Siemens Opcenter) to integrate triage data into quality
+      workflows.
+    - >-
+      Industry events and technical societies: ASNT Annual, AeroDef,
+      Farnborough/Paris supplier forums, NADCAP supplier symposia; application
+      notes and case studies.
+    - >-
+      Referral program for independent NDT service labs and third-party
+      inspectors.
+    - >-
+      Content-led demand gen: webinars on “Reducing NDT Backlogs in Forging,”
+      white papers on validation methods, and benchmark data by modality.
+  revenueStreams:
+    - >-
+      SaaS subscription per station/line: $1,500–$4,000/month depending on
+      modality bundle and volume.
+    - >-
+      Usage-based add-on: $0.005–$0.03 per scan/image or per indication
+      processed (tiered).
+    - >-
+      Enterprise on-prem license: annual contract per site (e.g., $50k–$250k)
+      with maintenance and support (18–22%/yr).
+    - >-
+      Professional services: integration, connector development, and validation
+      studies ($20k–$150k per project).
+    - >-
+      Training and certification for operators/quality engineers ($3k–$10k per
+      cohort).
+    - Premium support/SLA and multi-site model governance add-ons.
+  costStructure:
+    - >-
+      R&D: computer vision/ML engineers, NDT Level II/III SMEs for data labeling
+      and procedure mapping.
+    - >-
+      Data operations: secure labeling environment, QA of annotations, synthetic
+      data generation (e.g., physics-based UT simulations) to augment sparse
+      classes.
+    - >-
+      Deployment/field engineering: integrations, on-site validation, change
+      management, documentation.
+    - >-
+      Infrastructure: GPUs for training/inference, on-prem appliances, CI/CD and
+      MLOps stack.
+    - >-
+      Compliance and security: SOC 2/ISO 27001 audits, secure SDLC, penetration
+      testing, export control/legal.
+    - >-
+      Sales and partnerships: technical marketing, trials/pilots, partner
+      enablement.
+    - >-
+      Liability insurance and reserves for quality-related claims (aligned with
+      contractual limits).
+  keyMetrics:
+    - >-
+      Technical detection performance by modality and class: target AUROC ≥ 0.95
+      on critical crack-like indications; recall ≥ 0.98 for criticals with ≤ 3%
+      false-negative allowance on validation sets; precision at top-20% triage ≥
+      0.85.
+    - >-
+      Throughput: median reviewer time per part reduced by 40–60%; auto-clear
+      rate (no-human-needed for clearly clean) ≥ 25% where process allows; queue
+      wait time reduction ≥ 50%.
+    - >-
+      Quality outcomes: reduce late-found defects (post-processing escapes) by ≥
+      30%; scrap/rework cost reduction ≥ 10% on targeted part families within 6
+      months.
+    - >-
+      Adoption: ≥ 80% of NDT reviewers using triage UI daily; user satisfaction
+      (CSAT) ≥ 4.3/5; changeover training < 4 hours/operator.
+    - >-
+      Reliability: system uptime ≥ 99.5%; inference latency < 500 ms per
+      image/scan slice (batch-friendly for UT/ET).
+    - >-
+      Pilot ROI: demonstrate ≥ 3x annualized ROI in first 90 days on at least
+      one line (document time savings and reduced rework).
+    - >-
+      Validation: complete statistically powered MSA/Gage R&R showing improved
+      repeatability/reproducibility vs baseline reviewers.
+storyBrand:
+  character: >-
+    NDT leaders in nonferrous forging (Level II/III, Quality/Manufacturing
+    Engineering) who must clear UT/PT/ET backlogs fast without missing critical
+    indications or failing audits.
+  problem: >-
+    - External: Manual triage is slow, inconsistent, and buried in UT/PT/ET
+    images and scan data.
+
+    - Internal: Teams are stretched; overtime and fatigue increase risk.
+
+    - Philosophical: Safety‑critical forgings deserve objective, timely NDT
+    decisions.
+  guide: >-
+    An NDT‑aware AI partner. We blend computer vision and signal analysis with
+    forging‑domain expertise. We understand NADCAP/AS9100, work across UT/PT/ET,
+    and deliver secure, audit‑ready workflows with human oversight.
+  plan: >-
+    1) Connect: Stream or upload UT/PT/ET results; map to parts and specs.
+
+    2) Calibrate: Train to your indications and acceptance criteria; validate on
+    historical lots and set thresholds.
+
+    3) Deploy: Triage dashboard/API that pre‑classifies and prioritizes
+    indications with confidence and rationale for human review.
+
+    4) Improve: Monitor drift, tune models, and export traceable records for
+    audits.
+  callToAction: >-
+    Book a 30‑minute demo and start a two‑week pilot on your data. Or download
+    the validation and compliance brief.
+  success: >-
+    Inspectors focus on true risk; review time drops; backlogs shrink; fewer
+    false calls; earlier feedback to forging; higher on‑time delivery; reduced
+    cost per part; consistent, auditable NDT decisions.
+  failure: >-
+    Backlogs grow; inspectors burn out; critical indications are missed or
+    over‑called; late shipments; audit findings; scrap and rework; lost trust
+    and contracts.
+landingPage:
+  hero:
+    title: AI NDT Triage for Nonferrous Forgings (UT • PT • ET)
+    subtitle: >-
+      Computer vision pre-classifies and prioritizes indications so Level II/III
+      focus where it matters—faster, more consistent dispositions for aluminum,
+      titanium, and nickel alloy forgings.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - NDT backlogs slow shipments and tie up high-value forgings.
+    - Human fatigue and variability lead to missed calls or overcalls.
+    - Mixed UT/PT/ET outputs make cross-modality review cumbersome.
+    - 'Inconsistent call rates create rework, scrap, and customer churn.'
+    - Traceability and audit readiness consume engineering time.
+    - Shortage of certified inspectors strains throughput.
+  solution:
+    - 'Unified AI triage that ingests UT C-scans, PT images, and ET signals.'
+    - Automatic pre-classification and severity scoring of indications.
+    - Priority queues route the highest-risk parts to human review first.
+    - Part- and zone-aware thresholds mirror customer drawing criteria.
+    - >-
+      Human-in-the-loop verification tightens consistency without changing your
+      workflow.
+    - 'Complete, audit-ready trails with images, metadata, and decisions.'
+  features:
+    - >-
+      Multi-modality support: UT, PT (fluorescent/visible), ET strip charts and
+      impedance plots.
+    - >-
+      Real-time triage with severity scores and heatmaps for quick visual
+      confirmation.
+    - 'Configurable rules by part number, zone, and acceptance class.'
+    - >-
+      Defect-type cues trained for common forging indications (laps, folds,
+      porosity, cracks, inclusions).
+    - 'Reviewer worklists with SLA timers, batching, and disposition templates.'
+    - One-click export to QMS/MES/ERP and digital traveler attachments.
+    - 'Traceable versioning: model, threshold, and user action history.'
+    - 'Metrics dashboard: throughput, false-call trend, detection consistency.'
+    - >-
+      Deploy on-prem or VPC; role-based access and encrypted data at rest/in
+      transit.
+    - >-
+      APIs and file watchers for easy integration with existing NDT stations and
+      archives.
+  steps:
+    - Connect your UT/PT/ET data sources or drop files into a watched folder.
+    - >-
+      Configure parts, zones, and acceptance thresholds to match your
+      specifications.
+    - >-
+      Calibrate with a small labeled set to align scoring with your call
+      philosophy.
+    - >-
+      Go live: AI triages new scans and builds prioritized review queues in real
+      time.
+    - Continuously improve with feedback loops and periodic performance reviews.
+---
+# ForgeSight AI — NDT Indication Triage (UT/PT/ET) for Nonferrous Forging
+
+Industry: Nonferrous Forging
+Service: NDT Indication Triage (UT/PT/ET)

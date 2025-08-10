@@ -1,0 +1,284 @@
+---
+name: TerraGrid AI — Soil Sampling Plan Optimizer
+slug: terragrid
+service:
+  title: Soil Sampling Plan Optimizer (Grid/Zone)
+  description: >-
+    Designs efficient, stratified soil sampling plans and routes to reduce lab
+    costs and increase representativeness.
+  targetUsers:
+    - Farm managers
+    - Agronomy consultants
+    - Custom samplers
+  triggers:
+    - New field added
+    - 8–12 weeks before planting
+    - Soil tests older than 3 years
+  inputs:
+    - Field boundaries (shapefile/GeoJSON)
+    - Previous soil test results (CSV/PDF)
+    - Yield or EC maps (optional)
+    - Sampling budget and lab preferences
+  steps:
+    - Ingest boundaries and historical layers
+    - Stratify field into zones via clustering
+    - Place representative sample points and density
+    - Generate turn-by-turn sampling route
+    - Create sample labels and chain-of-custody
+    - Export mapping files for mobile/GPS use
+    - Optionally sync work order to FMS
+  tools:
+    - USDA SSURGO API
+    - ISRIC SoilGrids
+    - GDAL/QGIS
+    - scikit-learn (k-means/stratified sampling)
+    - Google Earth KML
+    - Agworld/FieldView task export (optional)
+  outputs:
+    - Sampling point map (GeoJSON/KML/shp)
+    - Sampler route GPX
+    - Sample labels CSV
+    - Work order PDF
+  pricingModel:
+    - Per-field flat fee
+    - Add-on per sample point
+    - Seasonal subscription for unlimited plans
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 8
+    overall: 9
+  risks:
+    - Noisy historical data skewing zones
+    - Inaccurate field boundaries
+    - Sampler deviates from plan
+  dependencies:
+    - Boundary data access
+    - Soil database access
+    - Lab submission format and account
+leanCanvas:
+  problem:
+    - >-
+      Growers and agronomists overspend on soil lab analyses due to inefficient,
+      uniform grid sampling that ignores within-field variability.
+    - >-
+      Sampling plans are time-consuming (1–3 hours/field) to design and hard to
+      audit; routes are inefficient, increasing labor and travel time by 25–50%.
+    - >-
+      Zone delineation is often subjective and inconsistent year to year,
+      degrading trend analysis and variable-rate recommendations.
+    - >-
+      Budgets are fixed, but sample counts are not optimized for statistical
+      confidence, leading to under- or over-sampling.
+    - >-
+      Data is fragmented across yield maps, EC layers, satellite imagery, and
+      soil surveys; integrating these for stratified sampling is complex.
+    - >-
+      Labs and retailers need standardized sample IDs and chain-of-custody;
+      manual paperwork increases errors and turnaround time.
+  solution:
+    - >-
+      AI-driven stratified sampling: fuse yield histories, EC, soil survey,
+      topography, and spectral indices to delineate stable management zones and
+      place sampling points.
+    - >-
+      Budget-aware optimization: dynamically recommend sample counts per zone to
+      meet user-defined precision (e.g., target CV or margin of error) under a
+      cost ceiling.
+    - >-
+      Route optimization: multi-field, multi-vehicle routing that respects field
+      boundaries, entry points, and terrain; exportable to mobile navigation.
+    - >-
+      QA/QC and auditability: uncertainty maps, coverage metrics, repeatable
+      zone definitions, and versioned plans for year-over-year comparability.
+    - >-
+      Workflow automation: sample ID barcoding, chain-of-custody forms, LIMS
+      integration, and exports (Shapefile/GeoJSON/ISOXML/Operations Center).
+    - >-
+      Offline-capable mobile app: turn-by-turn to sampling points, scan-and-log
+      samples, photo proof, and automatic sync when online.
+  uniqueValueProp: >-
+    Cut soil testing costs by 20–40% while improving representativeness and
+    consistency. Generate defensible, stratified grid/zone sampling plans and
+    optimized routes in minutes, with auditable uncertainty metrics and
+    one-click lab workflows.
+  unfairAdvantage: >-
+    Closed-loop learning from executed plans and lab results builds a
+    proprietary representativeness model per crop/region that competitors
+    without routed field execution data cannot replicate; combined with deep
+    LIMS and farm platform integrations that create switching costs.
+  customerSegments:
+    - >-
+      Agronomy retailers and independent crop consultants serving 50k–500k
+      acres.
+    - >-
+      Row-crop operations (corn/soy/wheat/cotton) managing 1,000–100,000+ acres
+      with in-house agronomy teams.
+    - >-
+      High-value specialty crops (vineyards, orchards, vegetables) that require
+      tighter sampling control.
+    - >-
+      Soil testing labs seeking to reduce resubmissions and to upsell planning
+      to clients.
+    - >-
+      Farm management software platforms seeking embedded sampling planning via
+      API.
+    - University/extension research plots needing statistically robust designs.
+  channels:
+    - >-
+      Direct sales to agronomy retailers and large growers in the US Midwest and
+      Canadian Prairies.
+    - >-
+      Channel partnerships with soil labs to bundle planning with lab services
+      (10–20% revenue share).
+    - >-
+      Integrations and marketplace listings with John Deere Operations Center,
+      Trimble, and Climate FieldView.
+    - >-
+      Co-marketing with EC mapping providers (Veris, SoilOptix) and ag data
+      platforms.
+    - >-
+      Extension/university pilots and case studies; conference demos (Commodity
+      Classic, Tech Hub LIVE, Manitoba Agronomists).
+    - >-
+      Content marketing: ROI calculators, field trial whitepapers, and webinars
+      focused on reducing lab spend and improving precision.
+    - >-
+      Targeted digital ads to geographies with high sampling intensity; outbound
+      to top 200 agronomy retailers.
+  revenueStreams:
+    - >-
+      Per-acre SaaS: $0.25–$0.75 per planned acre per year (volume tiers), $300
+      annual minimum per client.
+    - 'Per-field plan fee for ad hoc users: $0.50–$2.00/acre one-time.'
+    - >-
+      Enterprise subscription for retailers/labs: $15k–$150k/year depending on
+      seats and managed acres.
+    - >-
+      API access for platforms/labs: $0.02–$0.05 per optimized point + route
+      compute fees.
+    - >-
+      Professional services: historical data cleaning, custom zone model
+      training, onboarding workshops.
+    - Referral fees from equipment/EC mapping partners and lab bundles (5–15%).
+  costStructure:
+    - >-
+      Team: geospatial/ML engineers, agronomists, mobile/web devs, customer
+      success, sales (largest cost).
+    - >-
+      Cloud compute and storage (geospatial processing, model training, map
+      tiles, telemetry).
+    - >-
+      Data licensing where needed (high-res elevation, commercial imagery in
+      some regions).
+    - >-
+      Partner integrations and certification costs (e.g., Operations Center,
+      LIMS).
+    - 'Sales and marketing: conferences, travel, content, pilots, and demos.'
+    - >-
+      Support and field validation (sampling rigs, GPS equipment, safety,
+      insurance).
+    - >-
+      General and administrative: legal (data privacy, SLAs), accounting, and
+      office expenses.
+  keyMetrics:
+    - Acres planned per month and per active customer.
+    - >-
+      Average samples per acre vs. baseline; lab cost per acre reduction (%)
+      target: 20–40%.
+    - >-
+      Representativeness: % variance captured and average kriging variance
+      reduction per field (target: 15–25% improvement).
+    - >-
+      Route efficiency: average route time/distance reduction (target: 30–50%)
+      and cost/hour saved.
+    - >-
+      Plan generation time: median <5 minutes/field; 95th percentile <15
+      minutes.
+    - 'Plan adoption: % of generated plans executed in-field (>80%).'
+    - >-
+      Lab resubmission/error rate: <1% of samples flagged due to
+      labeling/chain-of-custody errors.
+    - >-
+      Customer acquisition cost (CAC) and payback (<9 months); gross margin
+      (>80%).
+    - Net revenue retention (>110%) and logo retention (>90%).
+    - >-
+      Enterprise penetration: % of top 200 retailers onboarded; average seats
+      per enterprise.
+storyBrand:
+  character: >-
+    Farm managers, agronomists, and co-ops who need reliable, cost-efficient
+    soil data to drive fertility and planting decisions.
+  problem: >-
+    Conventional grid/zone sampling wastes time and lab dollars, misses
+    variability, and leaves plans built on noisy, unrepresentative data.
+  guide: >-
+    Soil Sampling Plan Optimizer is an AI guide that understands field
+    variability and constraints, designing stratified grid/zone plans and
+    optimized routes to cut lab costs and boost data confidence.
+  plan: >-
+    1) Upload field boundaries and history (yield, soil tests, imagery). 2) Set
+    targets: nutrients, confidence, budget. 3) AI proposes stratified sample
+    locations, counts, and routes. 4) Export to sampler app, labels, and lab
+    sheets. 5) Sync lab results to refine future plans.
+  callToAction: Upload a field to generate a free draft plan or book a 15-minute setup call.
+  success: >-
+    Representative samples at lower cost; faster field time; clearer
+    variable-rate recommendations; confident fertility and planting decisions;
+    improved yield and input ROI.
+  failure: >-
+    Overspending on labs, inefficient routing, unrecognized variability, weak
+    recommendations, and missed yield potential.
+landingPage:
+  hero:
+    title: Soil Sampling Plan Optimizer (Grid/Zone)
+    subtitle: >-
+      AI-designed, stratified sampling plans and routes that cut lab costs and
+      boost representativeness for soil prep, planting, and cultivation.
+    ctaText: Generate a Plan
+    ctaHref: /get-started
+  problem:
+    - Guesswork sampling wastes budget and misses variability.
+    - Inefficient field routes burn time and fuel.
+    - One-size grids overlook management zones and micro-variability.
+    - Labeling and batching errors raise lab costs and delays.
+    - 'Plans are hard to document, repeat, and compare year over year.'
+  solution:
+    - >-
+      AI stratifies fields using your data layers to target samples where they
+      matter most.
+    - >-
+      Optimized grid/zone layouts deliver right-density sampling at the lowest
+      lab cost.
+    - Turn-by-turn routes reduce overlaps and walking/driving time.
+    - >-
+      Auto-generated maps, labels, and chain-of-custody keep labs and crews
+      aligned.
+    - 'Smooth exports to GIS, equipment platforms, and lab systems.'
+  features:
+    - Grid or zone-based planning with variable density controls.
+    - 'Multi-layer stratification: yield, EC, elevation, imagery, soil surveys.'
+    - Budget or sample-count lock to control lab spend.
+    - 'Route optimization with gateways, obstacles, and equipment paths.'
+    - Sample compositing and pooling rules by zone or depth.
+    - 'Auto barcoded labels, bag counts, and field packets (PDF).'
+    - Lab-ready submissions and batching; chain-of-custody included.
+    - 'Exports: Shapefile, GeoJSON, KML, CSV, PDF map books.'
+    - 'Integrations: John Deere Ops Center, FieldView, ArcGIS, major soil labs.'
+    - >-
+      Mobile offline GPS navigation and point check-in; audit trail for
+      repeatability.
+  steps:
+    - Import or draw field boundaries.
+    - Choose Grid or Zone strategy; set density or budget target.
+    - 'Add data layers to stratify (yield, EC, NDVI, elevation).'
+    - Review AI-generated zones and points; tweak if needed.
+    - Create optimized route and print packets with labels.
+    - Navigate and collect using the mobile app; sync progress.
+    - Export files and submit to lab; track samples and results.
+---
+# TerraGrid AI — Soil Sampling Plan Optimizer
+
+Industry: Soil Preparation, Planting, and Cultivating
+Service: Soil Sampling Plan Optimizer (Grid/Zone)

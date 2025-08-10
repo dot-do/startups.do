@@ -1,0 +1,339 @@
+---
+name: Spec2Compound AI
+slug: spc2cmpnd
+service:
+  title: Spec-to-Formulation Candidate Generator
+  description: >-
+    Generates candidate polymer compound recipes from customer specs, inventory,
+    and regulatory constraints, with predicted properties and process settings.
+  targetUsers:
+    - R&D/Technical Service
+    - Formulators
+    - Application Engineers
+  triggers:
+    - New RFQ/spec received
+    - Customer complaint needing reformulation
+    - Raw material substitution required
+  inputs:
+    - 'Customer performance/spec sheet (mechanical, thermal, regulatory, color)'
+    - Available base resins/additives inventory and approved vendor list
+    - Historical formulations and test results
+    - 'Regulatory constraints (RoHS, REACH, UL94, ISO 10993 etc.)'
+    - 'Machine capability limits (extruder, feeders, screw)'
+  steps:
+    - Parse spec and extract constraints and target properties
+    - Screen compatible base resin families and additives from inventory/AVL
+    - >-
+      Run constrained optimization (property models + rules) to propose 3–10
+      candidate BOMs at target cost ranges
+    - Estimate properties using ML/rule-based predictors and flag confidence
+    - >-
+      Suggest initial process settings (barrel temp profile, screw speed, feeder
+      rates) per machine class
+    - Package candidate set with risks/assumptions; route for human approval
+  tools:
+    - OpenAI/Azure OpenAI for spec parsing and report generation
+    - Material property DBs (MatWeb/UL Prospector; client data)
+    - Optimization libs (Pyomo/OR-Tools)
+    - Pandas/NumPy
+    - 'ERP/MRP API (SAP B1, Epicor, Infor CSI) for inventory/costs'
+  outputs:
+    - Ranked candidate formulations (BOM with %/PPH)
+    - Predicted property table with confidence bands
+    - Suggested process run-card for each candidate
+    - Assumptions/risks summary PDF
+  pricingModel:
+    - One-time setup for data ingest/modeling
+    - Per-generated candidate set
+    - Monthly subscription for continuous use
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 6
+    overall: 7
+  risks:
+    - Property prediction error leading to failed trials
+    - IP leakage of proprietary recipes if data governance is weak
+    - Regulatory compliance gaps if databases are stale
+  dependencies:
+    - Access to historical batch/test data
+    - Inventory/cost data
+    - Regulatory databases or supplier declarations
+leanCanvas:
+  problem:
+    - >-
+      Lengthy, expensive formulation cycles: 4–8 weeks from spec to validated
+      recipe; 6–10 lab iterations per program; $5k–$20k in testing per
+      formulation.
+    - >-
+      Knowledge trapped in experts/spreadsheets; hard to scale or transfer. New
+      engineer ramp-up 6–12 months.
+    - >-
+      Supply volatility forces recipe rework; difficulty substituting
+      resins/additives while meeting specs, cost, and regulatory constraints.
+    - >-
+      Slow RFQ/quote response times (2–10 days) results in lost business or
+      margin give-up.
+    - >-
+      Inconsistent property prediction; trial-and-error process settings cause
+      scrap/rework; first-pass success often <35%.
+    - >-
+      Regulatory/compliance complexity (REACH, RoHS, UL 94, FDA, Prop 65) adds
+      manual checks, late-stage failures, and documentation burden.
+    - >-
+      Fragmented data across ERP/LIMS/PLM/COAs; poor data quality hinders
+      modeling and traceability.
+  solution:
+    - >-
+      Generative formulation engine that proposes candidate recipes from target
+      specs (mechanical/thermal/flame/color), constraints (regulatory, cost,
+      density), and available inventory.
+    - >-
+      Physics-informed ML models predict properties (e.g., tensile, flexural,
+      Izod/Charpy, HDT/Vicat, MFI, CTI, UL 94), with uncertainty quantification
+      and sensitivity to lot variability.
+    - >-
+      Constraint solver enforces multi-region compliance (REACH, RoHS, PFAS
+      watchlists, SVHC), customer blacklists/whitelists, and cost/CO2 targets.
+    - >-
+      Process-setting recommender outputs extruder temperature profile, screw
+      speed, feeder rates, die temp, and cooling profile based on formulation
+      rheology and equipment capability.
+    - >-
+      ERP/LIMS/PLM connectors ingest inventory, COAs, historical run data;
+      auto-cleaning and material normalization with ontology mapping to supplier
+      catalogs.
+    - >-
+      Rapid DOE plan generator (2–4 candidates + confirmation runs) and
+      integrated lab work orders; seamless results capture to close the loop and
+      retrain models.
+    - >-
+      Quoting assistant produces costed BOMs, predicted yield, compliance
+      statements, and risk flags for customer-ready proposals.
+    - >-
+      What-if simulation: alternative additives/resins, price shocks, and
+      regional compliance changes.
+  uniqueValueProp: >-
+    From spec to manufacturable, compliant polymer formulation options in hours,
+    not weeks—ranked by cost, performance, and availability—complete with
+    predicted properties, uncertainty bounds, and line-ready process settings,
+    all tailored to your inventory and equipment.
+  unfairAdvantage: >-
+    Federated, privacy-preserving learning across multiple customers yields
+    superior, line-calibrated models and material equivalence maps without
+    exposing proprietary recipes; combined with integrated regulatory
+    intelligence and equipment-OEM process models, this creates a feedback moat
+    that improves with every run.
+  customerSegments:
+    - >-
+      Mid-size custom compounders (10k–100k t/yr) in automotive, E&E,
+      appliances, building products.
+    - >-
+      Captive compounding operations at OEMs/Tier-1s (automotive, consumer
+      electronics, medical devices).
+    - Resin distributors with blending/compounding and technical services.
+    - Toll compounders and contract manufacturers.
+    - >-
+      Materials and process engineering teams at filament/AM materials
+      providers.
+  channels:
+    - >-
+      Direct enterprise sales to compounders and captive OEM labs; land with
+      8–12 week pilots tied to RFQs.
+    - >-
+      Partnerships with compounding equipment OEMs (e.g., twin-screw extruder
+      vendors) to bundle as a smart-compounding solution.
+    - >-
+      Alliances with resin/additive suppliers and distributors to access
+      material data and co-market to their customer base.
+    - >-
+      Integrations/marketplaces with LIMS/PLM/MES vendors to become the
+      formulation intelligence layer.
+    - >-
+      Industry events and technical papers (SPE ANTEC, NPE, K, Fakuma, UL
+      events); live demos using anonymized datasets.
+    - >-
+      Targeted ABM campaigns at VP Ops/CTO/Head of R&D; offer a Spec Feasibility
+      Checker as a lead magnet.
+    - Regulatory database/content partners for co-branded compliance insights.
+    - >-
+      Customer advisory board and lighthouse case studies to drive referrals in
+      verticals (automotive, E&E, appliances).
+  revenueStreams:
+    - >-
+      SaaS subscription per site plus role-based seats (e.g., $120k/site/year
+      base + $1.5k/user/year).
+    - >-
+      Usage-based compute for formulation generations and retraining beyond
+      included tier ($/run bundle).
+    - >-
+      Premium modules: advanced compliance pack, AM/filament pack, multi-line
+      optimization, carbon accounting.
+    - >-
+      Integration and onboarding services (data cleaning, connector setup,
+      ontology mapping) with fixed-fee SOWs.
+    - >-
+      Model customization/transfer learning per customer line/tooling
+      ($50k–$250k per line).
+    - Premium support/SLA and dedicated TAM.
+    - >-
+      Outcome-based bonuses tied to agreed KPIs (e.g., share of savings on
+      testing costs or scrap reduction) for select accounts.
+    - Training and certification for process engineers.
+  costStructure:
+    - >-
+      Core team payroll (polymer scientists, ML engineers, data engineers,
+      regulatory experts, integration engineers, PM/QA/CS): $6–9M/year at scale.
+    - >-
+      Cloud compute and storage (training/inference, secure VPCs, on-prem
+      packages): $400k–$1.2M/year.
+    - >-
+      Regulatory data/content licensing and UL standards access:
+      $150k–$400k/year.
+    - >-
+      Data acquisition and lab partnerships for ground-truth testing:
+      $250k–$700k/year.
+    - 'Sales/marketing (events, ABM, demos, trials): $800k–$1.5M/year.'
+    - >-
+      Security/compliance (SOC 2/ISO 27001 audits, pen tests, tooling):
+      $150k–$300k/year.
+    - 'Professional services bench and travel for deployments: $300k–$800k/year.'
+    - 'R&D prototyping equipment access and test materials: $100k–$300k/year.'
+  keyMetrics:
+    - >-
+      Time-to-quote: target reduction from median 5 days to <24 hours for
+      qualified RFQs.
+    - >-
+      Lab iterations per formulation: reduce from 6–10 to 2–4; track per
+      program.
+    - >-
+      First-pass success (meets all specs in first plant run): increase from
+      ~30–35% to >60%.
+    - >-
+      Prediction accuracy: MAE targets—Tensile ±6%, Izod ±10%, MFI ±8%, HDT
+      ±3°C; 90% coverage within uncertainty bounds.
+    - >-
+      Compliance escape rate: <1% of released formulations failing later
+      compliance checks.
+    - 'Scrap/rework rate on first three runs: reduce by 30%.'
+    - >-
+      Quote win rate: +10–15% relative increase; margin uplift +2–4 pts on won
+      quotes via better costing.
+    - >-
+      Model adoption: weekly active technical users >70% of licensed; >3
+      formulation generations/user/week by Q3 post go-live.
+    - >-
+      Data health: >95% of active SKUs with normalized material records and COA
+      linkage; <2% missing critical fields.
+    - 'Uptime/SLA: 99.9% cloud; on-prem support tickets MTTR <8 business hours.'
+    - >-
+      Customer ROI: payback <6 months; >3x ROI within 12 months measured by
+      saved testing cost and cycle time.
+storyBrand:
+  character: >-
+    Compounding and formulation managers at plastics processors who must turn
+    customer specs and available resins into compliant, on-cost compounds—fast.
+  problem: >-
+    - External: Converting vague specs into workable formulations is slow and
+    iterative; lab time is scarce; inventory and regulatory constraints shrink
+    options; data lives in silos (ERP/LIMS/PLM). 
+
+    - Internal: Pressure to hit spec on the first pass, protect margins, and
+    avoid compliance surprises creates stress and late nights. 
+
+    - Philosophical: Engineers shouldn’t have to guess—data they already own
+    should make formulation smarter, safer, and faster.
+  guide: >-
+    - Empathy: We know the scramble—balancing targets, machine limits, changing
+    supply, and evolving regulations while customers expect speed. 
+
+    - Authority: Built by polymer scientists and ML engineers; grounded in
+    validated material-property data; integrates with your inventory and
+    compliance sources; provides explainable predictions and traceable
+    recommendations.
+  plan: |-
+    - Process Plan:
+      1) Connect inventory, specs, and regulatory constraints
+      2) Enter targets (properties, cost, compliance, process limits)
+      3) Generate ranked formulation candidates with predicted properties and process settings
+      4) Select top candidates, validate in lab, and iterate
+      5) Approve to production; feedback loops continuously improve accuracy
+    - Agreement Plan:
+      - Your data stays private; you own your formulations and IP
+      - Transparent inputs, feature importance, and confidence ranges
+      - Enterprise-grade security with private deployment options
+      - Easy export to ERP/LIMS and audit-ready reports
+  callToAction: >-
+    - Direct: Book a demo; Start a pilot on one product family. 
+
+    - Transitional: Download a sample candidate report; Try with sandbox data;
+    Get an ROI worksheet.
+  success: |-
+    - Hit target properties with fewer iterations and faster cycle times
+    - First-pass yield increases; scrap and rework decrease
+    - Automated compliance screening (e.g., REACH, RoHS, FDA, UL) reduces risk
+    - Optimized BOM cost and process windows protect margins
+    - Faster RFQ turnaround with defensible, traceable recommendations
+    - Institutionalized know-how that scales beyond individual experts
+  failure: |-
+    - Continued trial-and-error drives long lead times and missed deadlines
+    - Over-formulated, over-cost compounds erode margins
+    - Compliance gaps create recalls and reputational risk
+    - Lost RFQs to faster competitors; tribal knowledge walks out the door
+landingPage:
+  hero:
+    title: Spec-to-Formulation Candidate Generator
+    subtitle: >-
+      Turn customer specs, your inventory, and regulations into ready-to-run
+      compound recipes with predicted properties and process settings.
+    ctaText: Generate Candidates
+    ctaHref: /start
+  problem:
+    - 'Formulation from specs is slow, iterative, and expert-dependent.'
+    - >-
+      Specs, inventory, and regulatory data are siloed—causing rework and
+      delays.
+    - 'Trial-and-error wastes resin, time, and machine capacity.'
+    - Compliance gaps create risk and late-stage failures.
+    - Property and processing outcomes are hard to predict pre-run.
+    - Quoting and lead times slip due to formulation bottlenecks.
+  solution:
+    - >-
+      Instantly generates viable compound recipes from specs, inventory, and
+      constraints.
+    - Predicts key properties with confidence ranges before you mix.
+    - Recommends extruder and molding settings tailored to your equipment.
+    - 'Ranks candidates by performance, cost, and compliance.'
+    - Flags regulatory issues early and suggests compliant substitutes.
+    - 'Exports BOMs, batch sheets, and process setpoints in one click.'
+  features:
+    - 'Spec intake: targets, tolerances, and test methods (ASTM/ISO).'
+    - >-
+      Inventory-aware engine using your purchased resins, additives, and
+      colorants.
+    - 'Regulatory rules: REACH, RoHS, Prop 65, food-contact, and OEM lists.'
+    - Property prediction models trained on your historical runs.
+    - Confidence ranges and sensitivity to ingredient changes.
+    - 'Process settings recommender per line, extruder, and tooling.'
+    - >-
+      Multi-objective optimization: performance, cost, density, recyclate %,
+      compliance.
+    - What-if scenarios and alternative ingredient suggestions.
+    - 'Auto-generated lab sheets, batch tickets, and COA targets.'
+    - BOM export to ERP/MES/LIMS; API and CSV connectors.
+    - 'Role-based approvals, audit trail, and version control.'
+    - Private cloud or on-prem deployment; data isolation and encryption.
+  steps:
+    - Enter or upload the customer spec and required standards.
+    - Sync inventory and select allowed ingredients and price bands.
+    - Choose compliance regimes and any customer/OEM blacklists.
+    - >-
+      Click Generate to get ranked candidate formulations with predicted
+      properties and settings.
+    - 'Compare, tweak targets or constraints, and lock the winning recipe.'
+    - Export the BOM and process sheet; schedule trial and feed back results.
+---
+# Spec2Compound AI
+
+Industry: Custom Compounding of Purchased Resins
+Service: Spec-to-Formulation Candidate Generator

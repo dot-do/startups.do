@@ -1,0 +1,321 @@
+---
+name: 'TerraTrac AI: Trafficability & Compaction Risk Mapper'
+slug: terratrac
+service:
+  title: Trafficability & Compaction Risk Mapper
+  description: >-
+    Predicts whether fields can support harvest traffic and highlights low-risk
+    entry paths and time windows.
+  targetUsers:
+    - Farm managers
+    - Custom harvesters
+    - Advisors
+  triggers:
+    - After rainfall or thaw events
+    - Night-before harvest plan
+    - Machine transport scheduling
+  inputs:
+    - Field boundaries
+    - Soil texture/organic matter (SSURGO/SoilGrids)
+    - Topography/DEM and drainage tiles (if available)
+    - Sentinel-1 SAR soil moisture
+    - Weather forecast (precipitation/evaporation)
+    - Machine axle loads and tire/track config
+  steps:
+    - Fetch SAR and weather; compute surface moisture index
+    - Estimate soil bearing capacity by soil unit
+    - Model daily drying curve given forecast
+    - Classify zones by trafficability risk and compaction likelihood
+    - Propose time windows and entry/exit paths
+  tools:
+    - Sentinel Hub (S1 SAR)
+    - NASA SMAP (optional)
+    - USDA SSURGO/SoilGrids
+    - GDAL/GRASS/QGIS
+    - Custom risk model; map server (GeoServer)
+    - Slack/Twilio alerts
+  outputs:
+    - Trafficability map (go/caution/no-go)
+    - Recommended harvest windows by field
+    - Suggested low-risk ingress/egress routes
+  pricingModel:
+    - Per-field per season
+    - Bundle with scheduling service
+  humanInLoop: false
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 8
+    overall: 9
+  risks:
+    - SAR resolution may miss micro-variability
+    - Unknown tile drainage patterns
+    - Liability if guidance is wrong
+    - Rapid local weather changes
+  dependencies:
+    - Accurate boundaries
+    - Machine specs (axle loads/tires)
+    - Weather and SAR access
+leanCanvas:
+  problem:
+    - >-
+      Unplanned harvest delays from wet fields reduce harvestable days by 10–30%
+      in wet seasons, causing grain losses, quality downgrades, and higher
+      drying costs.
+    - >-
+      Getting machinery stuck costs $1,000–$5,000 per incident in tow fees, lost
+      time, and damage, with safety risks for operators.
+    - >-
+      Soil compaction from ill-timed traffic can reduce next-season yields by
+      5–20% and raise fuel use by 10–15%, yet timing decisions are made with
+      coarse weather data and gut feel.
+    - >-
+      Existing tools show rainfall/soil moisture but don’t translate them into
+      machine-specific trafficability or safe entry paths and windows.
+    - >-
+      Large farms and custom harvesters need coordinated routing for combines,
+      grain carts, and trucks; current workflows are ad-hoc and fragmented
+      across apps.
+    - >-
+      Regulatory and sustainability pressures (e.g., EU soil protection) demand
+      documented risk mitigation and compaction-avoidance practices, which most
+      farms cannot evidence today.
+  solution:
+    - >-
+      High-resolution trafficability and compaction risk maps (10–20 m grid)
+      updated daily, using fused SAR/optical satellite, weather forecasts, soil
+      maps, DEM, drainage layers, and optional in-field sensors.
+    - >-
+      Machine-aware recommendations: model bearing capacity vs. axle loads, tire
+      pressure, tracks vs. tires, and grain cart weights to output go/no-go
+      guidance by machine.
+    - >-
+      Dynamic path planning: suggest low-risk field entry points, headland
+      approaches, grain cart staging, and in-field haul routes to minimize wet
+      spots and slopes.
+    - >-
+      Time-window optimization: 0–120 hour forecast of safe operating windows
+      per field, confidence scored, with alerts as conditions change.
+    - >-
+      Integrations and data import/export: John Deere Operations Center, Climate
+      FieldView, Trimble, AgLeader; shapefile/GeoJSON/KML support;
+      mobile/offline use.
+    - >-
+      Evidence and audit: exportable logs of decisions, routes, and risk levels
+      for insurers, sustainability programs, and regulatory compliance.
+  uniqueValueProp: >-
+    Make every harvest day count. TerraTrac AI predicts field trafficability and
+    compaction risk by machine and load, pinpoints low-risk entry points and
+    paths, and recommends optimal time windows—reducing stuck events by up to
+    50%, increasing safe harvestable days by 10–20%, and protecting yields next
+    season.
+  unfairAdvantage: >-
+    A continuously growing, proprietary dataset that pairs machine telemetry and
+    outcomes with SAR/weather/soil features, enabling physics-informed ML models
+    that outperform generic moisture maps. OEM integrations and insurer
+    partnerships create switching costs and evidence-based incentives. Regional
+    calibration and routing tuned by real-world stuck-event logs become hard to
+    replicate.
+  customerSegments:
+    - >-
+      Primary: Large row-crop farms (5,000–100,000+ acres) in the US Corn Belt,
+      Canadian Prairies, Northern Europe, and UK.
+    - >-
+      Primary: Custom harvesters/contractors managing multi-farm, multi-county
+      runs under tight weather windows.
+    - >-
+      Secondary: Agronomy service providers/co-ops offering decision-support to
+      member farms.
+    - >-
+      Secondary: Machinery OEMs and precision ag platforms seeking
+      differentiated features (integrations/API).
+    - >-
+      Secondary: Insurers and lenders offering discounts for risk-mitigating
+      practices; sustainability/ESG programs for CPGs sourcing grains.
+  channels:
+    - >-
+      Direct sales to large farms and custom harvesters via regional reps in the
+      Midwest US and Northern Europe.
+    - >-
+      Partnerships with equipment dealers and precision ag consultants as
+      value-added resellers (10–25% commission).
+    - >-
+      OEM marketplaces/integrations (e.g., John Deere Ops Center, Trimble Ag) to
+      tap existing customer bases.
+    - >-
+      Agronomy co-ops and input retailers bundling as a premium advisory
+      service.
+    - >-
+      Insurance partnerships offering premium credits for adoption and
+      documented risk avoidance.
+    - >-
+      Seasonal pilots with state extension programs and farmer networks; publish
+      case studies with quantified ROI.
+    - >-
+      Targeted digital campaigns around harvest season (Aug–Nov, Feb–Apr
+      southern hemisphere); webinars, field demos, and show presence (Farm
+      Progress, Agritechnica).
+    - >-
+      Freemium/Trial: free field risk preview on 1–3 fields for 30 days; upsell
+      to whole-farm coverage and machine-aware features.
+  revenueStreams:
+    - >-
+      Per-acre seasonal subscription: $1.25/acre/season (tiered: $0.80 at >50k
+      acres), includes forecasts, maps, and alerts.
+    - >-
+      Per-machine seat: $1,500/machine/season for machine-aware recommendations
+      and routing; includes 5 operator accounts.
+    - >-
+      Enterprise/API licensing for OEMs/platforms: $50k–$300k/yr depending on
+      usage and territory.
+    - >-
+      Premium data add-ons: on-demand commercial SAR tasking or hyperspectral
+      passes at cost-plus pricing.
+    - >-
+      Professional services: onboarding, custom model calibration, and field
+      mapping at $150–$250/hr.
+    - >-
+      Insurance/rebate programs: revenue share on verified risk-reduction
+      outcomes where available.
+  costStructure:
+    - >-
+      Cloud compute and storage: $20k–$40k/month at scale for SAR processing,
+      forecasting, vector tiles, and inference; scalable with acres covered.
+    - >-
+      Third-party data: commercial weather APIs ($0.002–$0.01/acre/month),
+      optional SAR tasking fees, DEM/licensing where needed.
+    - >-
+      R&D and product: ML/DS team (4–8 FTE), geospatial engineers (3–5 FTE),
+      agronomy specialists (2–3 FTE).
+    - >-
+      GTMM/sales: regional reps and partner commissions; marketing budget
+      $200k–$500k/yr initially.
+    - >-
+      Customer success and support: 1 CSM per 200k acres; training and
+      onboarding content.
+    - >-
+      Liability, E&O insurance, and legal/compliance costs, especially for
+      international markets.
+    - Telemetry/integration maintenance and certification with OEM platforms.
+    - >-
+      Field pilots and equipment for validation (penetrometers, moisture probes,
+      data loggers).
+  keyMetrics:
+    - >-
+      Operational impact: reduction in stuck incidents per 1,000 acres (target
+      ≥50%); increase in safe harvestable days (target +10–20% vs. baseline).
+    - >-
+      Financial ROI: cost savings per acre from avoided delays and tows (target
+      $3–$10/acre), fuel savings (target 5–10%), and next-season yield
+      protection (target +2–5%).
+    - >-
+      Forecast/model performance: trafficability classification F1 score ≥0.80;
+      soil moisture RMSE ≤0.04 m3/m3; calibration error on bearing capacity
+      ≤15%.
+    - >-
+      User engagement: weekly active operators per farm; alert open rate ≥60%;
+      route adoption rate ≥70% on flagged fields.
+    - >-
+      Coverage and scale: acres mapped per month; fields with 0–120 hr forecasts
+      refreshed hourly; average tile generation latency <2 minutes/field.
+    - >-
+      Commercial metrics: net revenue retention ≥115%; logo retention ≥90%; CAC
+      payback <9 months; LTV/CAC >4.
+    - >-
+      Integration success: % of customers connected to at least one OEM platform
+      (target ≥70%).
+    - >-
+      Evidence/Compliance: number of exported audit reports; insurance credits
+      earned per customer.
+storyBrand:
+  character: >-
+    Farm operations managers, custom harvesters, and agronomists who need to
+    move heavy machines into fields at the right time to harvest on schedule,
+    protect soil, and keep crews productive.
+  problem: >-
+    External: variable soil moisture, wet spots, and heavy equipment create
+    trafficability and compaction risk.
+
+    Internal: uncertainty and stress about where to enter and when to roll.
+
+    Philosophical: farmers shouldn’t have to gamble with soil health to get the
+    crop off.
+  guide: >-
+    Empathy: we know one bad call at harvest can cost days and years of yield.
+
+    Authority: Trafficability & Compaction Risk Mapper blends weather, soil,
+    topography, drainage, and machine loads; validated with producers and
+    agronomists; integrates with farm maps and telematics.
+  plan: >-
+    - Connect fields and machines via simple upload/API; set axle loads and
+    tires/tracks.
+
+    - View live trafficability scores, low‑risk entry paths, and recommended
+    time windows on web or in-cab.
+
+    - Harvest with alerts and capture a post-harvest audit to prove decisions
+    and refine zones.
+
+    - Data respect: your data stays yours; clear pricing; responsive agronomy
+    support.
+  callToAction: >-
+    Direct: start a pilot or book a 15‑minute demo.
+
+    Transitional: download a sample risk map, ROI worksheet, and
+    Compaction-Ready Field Checklist.
+  success: >-
+    On‑time harvest with fewer stuck machines and detours; reduced ruts and
+    long-term compaction; lower fuel and repair costs; preserved yield and
+    smoother planting; confident, data-backed crew decisions with an audit trail
+    for landlords and insurers.
+  failure: >-
+    Missed weather windows and blown schedules; stuck equipment and safety
+    incidents; rutted fields and years of yield loss from compaction; strained
+    landowner relationships and higher operating costs.
+landingPage:
+  hero:
+    title: Trafficability & Compaction Risk Mapper
+    subtitle: >-
+      Know where and when machines can roll. Predict trafficability, avoid
+      compaction, and harvest on time.
+    ctaText: Start Free Trial
+    ctaHref: /get-started
+  problem:
+    - 'Stuck machines, ruts, and rescue costs during wet harvests'
+    - Yield loss from soil compaction that lingers for years
+    - 'Guesswork on entry points, routes, and timing'
+    - Scattered weather and soil data slow decision-making
+    - Missed harvest windows and contractor overruns
+    - Operator safety risks and equipment wear
+  solution:
+    - 'AI trafficability index for every field, updated continuously'
+    - Low-risk entry paths and optimized in-field routes
+    - Best time windows by hour and day to hit your target moisture
+    - 'Single map to align managers, operators, and contractors'
+    - 'Fewer ruts, lower fuel burn, and faster harvest cycles'
+    - Protect yield by reducing compaction events
+  features:
+    - Live Trafficability Index with red/amber/green risk scoring
+    - >-
+      Compaction Risk Map layered with SAR moisture, rain, soils, slope, and
+      drainage
+    - 'Suggested entry/exit routes sized for your header, tires, and axles'
+    - Hourly harvestability windows 1–7 days out with confidence bands
+    - 'Auto-ingest: JD Ops Center, CNH AFS, AgLeader, shapefile, GeoJSON'
+    - 'In-cab app with offline tiles, GPS snap-to, and blue-line guidance'
+    - Alerts and webhooks when risk drops below your threshold (SMS/email)
+    - 'Multi-machine profiles for weight, tire pressure, tracks, and duals'
+    - 'What-if planning for axle load, tire pressure, and number of passes'
+    - Outcome logging to retrain models on your fields
+    - 'API/SDK, SSO, and role-based access for enterprise workflows'
+    - Export maps to PDF or share secure links with contractors
+  steps:
+    - Connect fields and boundaries or sync your farm platform
+    - 'Set machine weights, tires, and compaction thresholds'
+    - 'Open a field to view risk map, entry paths, and time windows'
+    - Share the plan; sync guidance to in-cab devices
+    - Harvest with confidence and log outcomes to improve predictions
+---
+# TerraTrac AI: Trafficability & Compaction Risk Mapper
+
+Industry: Crop Harvesting, Primarily by Machine
+Service: Trafficability & Compaction Risk Mapper

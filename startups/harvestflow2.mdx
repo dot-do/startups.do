@@ -1,0 +1,318 @@
+---
+name: HarvestFlow AI
+slug: harvestflow2
+service:
+  title: Harvest Readiness & Scheduling Agent
+  description: >-
+    Optimizes which fields to harvest on which days using crop readiness,
+    weather, soil trafficability, and machine capacity.
+  targetUsers:
+    - Farm managers
+    - Custom harvesters
+    - Ag retailers/advisors
+  triggers:
+    - 'Daily at 05:00 local'
+    - Rain/freeze forecast crosses threshold
+    - Client requests replan
+  inputs:
+    - Field boundaries (GeoJSON/Shapefile)
+    - Crop type/variety and target moisture
+    - Machine list and availability
+    - Historical maturity dates
+    - Satellite NDVI/EVI time series
+    - Weather forecast (7–14 days)
+    - Soil moisture/trafficability layers
+    - Grain elevator hours/constraints
+  steps:
+    - Ingest fields and machine availability
+    - Pull NDVI/EVI and compute phenology and dryness indicators
+    - Fetch 7–14 day weather and trafficability risk
+    - Estimate daily harvestable acres per machine
+    - >-
+      Solve field-day-machine assignment to maximize throughput and minimize
+      weather risk
+    - Publish daily plan and calendar invites; notify via SMS/WhatsApp
+    - Auto-replan on weather changes; version and log decisions
+  tools:
+    - Sentinel Hub API (Sentinel-2)
+    - Copernicus S1 SAR (via Sentinel Hub)
+    - NASA SMAP soil moisture
+    - Tomorrow.io or Meteomatics weather API
+    - Google OR-Tools (optimization)
+    - GeoPandas/GRASS/QGIS for geoprocessing
+    - Slack/Twilio/WhatsApp for notifications
+    - Google Calendar API
+  outputs:
+    - Daily prioritized field list with assigned machines
+    - Per-field target start/stop times
+    - Risk notes (rain/freeze/trafficability)
+    - ICS calendar invites/CSV plan
+  pricingModel:
+    - Setup fee + per-acre per season
+    - or Tiered subscription by number of machines/fields
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Cloud cover affecting NDVI
+    - Phenology variance by hybrid/variety
+    - Telematics or calendar data gaps
+    - Rapid weather shifts
+  dependencies:
+    - Accurate field boundaries
+    - API keys and data sharing to weather/satellite services
+    - Machine list and availability inputs
+    - 'Client-preferred constraints (e.g., elevator hours)'
+leanCanvas:
+  problem:
+    - >-
+      Growers and custom harvesters lose 5–15% of potential profit due to
+      suboptimal harvest sequencing, weather delays, and soil trafficability
+      issues.
+    - >-
+      Combine fleets average 55–70% utilization during harvest; idle time from
+      rain, soft fields, and logistics causes missed optimal maturity windows.
+    - >-
+      Harvesting at suboptimal grain moisture increases drying costs
+      ($0.02–$0.05 per bushel per percentage point moisture) or shatter losses
+      (1–3+ bu/ac for soy/canola when too dry).
+    - >-
+      Soil compaction from operating on wet fields reduces next year yield by
+      1–5% and increases fuel use; operators lack a reliable, field-specific
+      trafficability forecast.
+    - >-
+      Coordinating machines, grain carts, trucks, and elevator/storage capacity
+      is error-prone, especially across non-contiguous fields and multiple
+      growers.
+    - >-
+      Existing tools show weather and basic field status but don’t generate a
+      daily, capacity-aware harvest schedule that adapts to real-time
+      conditions.
+    - >-
+      Seasonal labor and tight windows create high cognitive load; managers need
+      a plan they can explain, adjust, and execute quickly with crews.
+  solution:
+    - >-
+      Predict crop readiness windows using phenology, accumulated heat units,
+      remote sensing, and moisture models for each field.
+    - >-
+      Forecast soil trafficability (go/no-go and risk score) from soil maps,
+      recent precipitation, evapotranspiration, drainage class, and forecast
+      rain—minimizing compaction risk.
+    - >-
+      Optimize daily harvest schedule considering machine throughput, header
+      widths, road distances, crew shifts, grain cart/truck availability,
+      elevator hours, and storage capacity.
+    - >-
+      Provide “Plan-A/Plan-B” scenarios with weather risk bands (e.g., 30%, 60%,
+      90% rain probability) and clear triggers for switching plans.
+    - >-
+      Live re-optimization with telematics data (combine location, engine hours,
+      throughput) and operator feedback from mobile devices.
+    - >-
+      ROI dashboard quantifying saved drying costs, reduced shatter loss,
+      avoided compaction, and increased machine utilization.
+    - >-
+      Simple interfaces: web for planners, offline-capable mobile for operators
+      with turn-by-turn to next field and priority list.
+  uniqueValueProp: >-
+    Daily, field-by-field harvest plans that maximize yield and machine uptime
+    by fusing crop readiness, soil trafficability, weather risk, logistics, and
+    machine capacity—delivered with integrations to your existing equipment and
+    farm software.
+  unfairAdvantage: >-
+    Closed-loop dataset combining field-level readiness, soil trafficability,
+    telematics-derived capacity, and economic outcomes—improving models each
+    season; deep OEM/FMS integrations that reduce onboarding friction and enable
+    real-time re-optimization during harvest.
+  customerSegments:
+    - >-
+      Primary: Mid-to-large row-crop growers (1,000–50,000 acres) of corn, soy,
+      wheat, canola, barley, sorghum in North America and Europe.
+    - >-
+      Primary: Custom harvesting businesses managing 2–25 combines across
+      multiple clients and geographies.
+    - >-
+      Secondary: Agronomy service providers and co-ops offering managed
+      operations to member farms.
+    - >-
+      Secondary: Large plantations and corporate farms (e.g., sugar beet,
+      potatoes, rice, oilseeds) with mechanized harvest.
+    - >-
+      Influencers/Channels: Equipment OEMs (John Deere, CNH, AGCO), farm
+      management platforms (Trimble, Climate FieldView, Granular), grain
+      elevators/handlers.
+  channels:
+    - >-
+      Direct sales to progressive growers and custom harvesters via pre-harvest
+      webinars (July–September in Northern Hemisphere, Jan–Mar in Southern
+      Hemisphere).
+    - >-
+      Partnerships with equipment dealers and OEMs to co-sell and bundle
+      seasonal licenses with telematics packages.
+    - >-
+      Integration listings/marketplaces (John Deere App Center, Climate
+      FieldView Partner, Trimble Ag Software Marketplace).
+    - >-
+      Ag retailers/co-ops: revenue-share to package as a managed harvest
+      planning service.
+    - >-
+      Events: Commodity Classic, Farm Progress Show, Agritechnica, local
+      extension field days; demos with local case studies.
+    - >-
+      Targeted digital campaigns to combine owners and custom harvester groups;
+      offer free “Harvest Readiness Outlook” report for their fields to capture
+      leads.
+    - >-
+      Referral program for agronomists and custom harvesters (credits per
+      onboarded client).
+  revenueStreams:
+    - >-
+      Per-acre seasonal subscription (Growers): Lite $0.75/acre/season
+      (readiness + weather + basic scheduling), Pro $1.50/acre (adds
+      trafficability, logistics, integrations, alerts), Enterprise volume
+      pricing $0.90–$1.20/acre over 25k acres.
+    - >-
+      Per-machine seasonal subscription (Custom harvesters): $1,200 per
+      combine/season + $0.25/acre processed; discounts at 10+ combines.
+    - >-
+      Professional services: Onboarding and data prep $2,000–$10,000 per
+      enterprise; custom integrations $5,000+.
+    - >-
+      Premium data add-ons (optional): High-cadence satellite (Planet)
+      $0.20–$0.40/acre/season; hyperlocal weather $0.10/acre/season.
+    - >-
+      Managed service via partners (co-ops/retailers): revenue share 20–30% on
+      list price.
+    - >-
+      Long-term: aggregated, anonymized benchmarking reports for
+      OEMs/insurers/elevators (opt-in), $50k–$250k/yr per enterprise contract.
+  costStructure:
+    - >-
+      R&D headcount: 6–12 engineers/data scientists/agronomists in year 1–2
+      ($1.5M–$3M/yr).
+    - 'Go-to-market: 2–4 AEs + 2 CSMs + seasonal support ($800k–$1.5M/yr).'
+    - >-
+      Cloud/compute: $10k–$40k/month early; target < $0.10/acre/season variable
+      cost (caching forecasts, batching optimizations).
+    - >-
+      Data: Weather APIs $0.02–$0.06/acre/season; satellite free
+      (Sentinel/Landsat) with optional Planet licenses; geospatial basemaps
+      $50k/yr enterprise.
+    - Integrations/partner fees and certifications $50k–$150k/yr.
+    - 'Insurance, legal, compliance, SOC2 over time $100k–$250k/yr.'
+    - 'Sales/marketing: events, travel, digital ads $150k–$500k/yr.'
+    - >-
+      Customer success and seasonal support staffing (Aug–Nov, Jan–Mar)
+      $150k–$300k/yr.
+  keyMetrics:
+    - >-
+      Machine utilization during harvest (% time cutting vs total available),
+      target +10–20% over baseline.
+    - >-
+      Percent of acres harvested within target moisture band (e.g., corn 18–22%,
+      soy 12–13%), target ≥75%.
+    - >-
+      Drying cost reduction ($/acre) and shatter loss avoidance (bu/acre) vs
+      prior year or control fields, target $8–$25/acre benefit depending
+      crop/region.
+    - >-
+      Weather downtime reduction (hours/season) and avoided stuck/compaction
+      incidents, target ≥25% reduction.
+    - >-
+      Schedule adherence: % of daily plan executed without risk threshold
+      violations, target ≥80%.
+    - >-
+      ROI per client: total savings and added margin per acre; aim 5–10x
+      subscription cost within first season.
+    - >-
+      Active users during harvest (weekly), planning actions per week, alert
+      acknowledgment time.
+    - Churn rate <8% annually; NPS ≥45 among Pro/Enterprise users.
+    - >-
+      Onboarding time from field boundary import to first optimized plan, target
+      <72 hours.
+    - >-
+      Data latency: readiness/trafficability refresh cadence; target daily
+      baseline with sub-hourly updates during active harvest windows.
+storyBrand:
+  character: >-
+    Farm operations managers and custom harvesters who need a daily, data-driven
+    plan for which fields to harvest to protect yield and keep machines
+    productive.
+  problem: >-
+    External - Unpredictable weather; uneven crop maturity; variable soil
+    trafficability; limited machine capacity; scattered data. Internal - Stress
+    and second-guessing each call; fear of rutting fields or missing the optimal
+    window. Philosophical - Harvest decisions should be as precise as your
+    equipment, not a gamble.
+  guide: >-
+    We understand the pressure of calling the right field each day. The Harvest
+    Readiness & Scheduling Agent analyzes crop readiness, weather, soil
+    trafficability, and machine capacity to recommend the best fields and
+    sequence. Built with agronomy and fleet-ops best practices; integrates with
+    your maps and machine telemetry.
+  plan: >-
+    1) Connect field boundaries, crops and targets, machines, and work windows.
+    2) Set priorities and constraints (e.g., avoid wet soils, finish contracts
+    first). 3) Receive a daily plan—field order, timing, machine allocation, and
+    routes—adjust and publish to crews. Privacy-first; no new hardware required.
+  callToAction: >-
+    Direct - Book a demo and start a pilot on your fields. Transitional -
+    Download the Harvest Readiness Checklist and ROI calculator.
+  success: >-
+    Confident, calm harvest days—maximize yield and quality, minimize compaction
+    and downtime, hit moisture and delivery targets, improve machine
+    utilization, align crews, and finish before weather closes the window.
+  failure: >-
+    Missed optimal windows; rutted fields and yield loss; idle or misallocated
+    machines; overtime and fuel waste; contract penalties; chaotic, reactive
+    days.
+landingPage:
+  hero:
+    title: AI Harvest Readiness & Scheduling
+    subtitle: >-
+      Pick the right fields, on the right day, with the right machines—using
+      crop readiness, weather, soil trafficability, and capacity.
+    ctaText: Request a Demo
+    ctaHref: /demo
+  problem:
+    - Guesswork scheduling causes lost yield and quality penalties.
+    - Weather swings and wet soils derail plans and damage fields.
+    - Machines are over/under-utilized; crews wait or rush.
+    - Late harvest spikes moisture and lowers market price.
+    - 'Logistics aren’t synced—trucks, bins, and plant windows misalign.'
+    - 'Data lives in silos (maps, weather, telematics) with no unified plan.'
+  solution:
+    - Continuous field readiness scoring to time harvest windows.
+    - '10-day plan that balances yield, trafficability, and machine capacity.'
+    - Live replan when weather shifts; alerts before windows close.
+    - 'Automatic machine, crew, and truck assignments with optimized routes.'
+    - Simple imports for fields and telematics; one-tap share to operators.
+    - 'Clear KPIs: acres/day, utilization, lateness risk, projected quality.'
+  features:
+    - 'Field Readiness Index combining maturity, moisture, imagery, and history.'
+    - Soil Trafficability Score from soil moisture and rain/evap forecasts.
+    - 'Capacity-aware scheduling for machines, headers, crews, and shifts.'
+    - 'Multi-objective optimization: yield, quality window, risk, and compaction.'
+    - Auto assignments and turn-by-turn routing to field entries and orders.
+    - 'Real-time replan with alerts for storms, breakdowns, or access issues.'
+    - 'Integrations and API: fields, telematics, sensors, and ERP/ops systems.'
+    - >-
+      Operator app with offline maps, task lists, notes, and proof-of-harvest
+      logs.
+  steps:
+    - 'Connect your fields, machines, and boundaries.'
+    - 'Set harvest rules, shifts, and capacity limits.'
+    - Sync weather and soil data sources.
+    - Review the 10-day plan and key KPIs.
+    - Assign crews and share the plan to mobile.
+    - Run harvest—get live updates and instant replans.
+    - Measure results and refine rules for the next window.
+---
+# HarvestFlow AI
+
+Industry: Crop Harvesting, Primarily by Machine
+Service: Harvest Readiness & Scheduling Agent

@@ -1,0 +1,306 @@
+---
+name: AeroOptiSurrogate (AOS)
+slug: arptsrrgt
+service:
+  title: CFD Surrogate Design Optimization for Impellers/Housings
+  description: >-
+    Run DOE and cloud CFD to train a surrogate model; optimize for efficiency,
+    pressure rise, and noise under constraints.
+  targetUsers:
+    - R&D engineers
+    - Product development
+  triggers:
+    - New design brief
+    - Performance gap identified
+  inputs:
+    - 'CAD parameterization (blade angles, chord, volute)'
+    - Historical CFD/test data
+    - Target duty points and constraints
+  steps:
+    - Define param space and DOE
+    - Automate cloud CFD runs and collect performance
+    - Train surrogate (Gaussian process/NN)
+    - Run multi-objective optimization
+    - Return Pareto-optimal geometries and verify with CFD
+  tools:
+    - OpenFOAM on AWS Batch/Spot
+    - SimScale API (optional)
+    - Optuna/pygmo
+    - CAD via Onshape/Parasolid export
+    - ML frameworks (PyTorch/sklearn)
+  outputs:
+    - Pareto front plots
+    - Ranked parameter sets
+    - Validated CFD summaries and recommendations
+  pricingModel:
+    - Per-study fee + compute pass-through
+    - Block of simulation hours
+    - Quarterly R&D retainer
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 7
+    modelCapability: 6.5
+    overall: 6.8
+  risks:
+    - Surrogate mismatch to real physics
+    - Compute cost overruns
+    - IP sensitivity of CAD and test data
+  dependencies:
+    - CAD access and parameter bounds
+    - Material/BC definitions
+    - Acceptance criteria and KPIs
+leanCanvas:
+  problem:
+    - >-
+      Fan/blower and air-purification OEMs face 8–12 week design cycles per
+      iteration due to CFD setup, meshing, and multipoint validation.
+    - >-
+      Prototyping and lab tests (AMCA 210/ISO 5801) are costly ($30k–$150k per
+      build/test) and slow, limiting iteration speed and innovation.
+    - >-
+      Engineering teams struggle to jointly optimize efficiency, pressure rise,
+      and noise (dB) under constraints (geometry envelopes, manufacturability,
+      structural limits, motor curves).
+    - >-
+      CFD compute/licensing bottlenecks and limited optimization expertise
+      prevent full-factor DOE and robust design exploration.
+    - >-
+      Generic optimization tools lack fan-specific parameterizations, acoustics
+      integration, and AMCA/ISO correlation workflows, producing low trust and
+      adoption.
+    - >-
+      Data/IP security concerns and complex CAD/CAE toolchains reduce
+      willingness to externalize or automate workflows.
+  solution:
+    - >-
+      Audit and scope: Collect duty points, constraints, CAD parameters, and
+      target KPIs; define operating envelope and lab-test correlation targets.
+    - >-
+      Parametric setup: Build reusable parametric CAD/mesh templates
+      (backward-curved/forward-curved/radial/axial impellers and scroll
+      housings) with manufacturability rules.
+    - >-
+      DOE + active learning: Run 150–500 cloud CFD cases (RANS/URANS; optional
+      LES for acoustics seeds) using Latin Hypercube + adaptive sampling to
+      minimize runs.
+    - >-
+      Surrogate training: Fit Gaussian Processes/Polynomial
+      Chaos/physics-informed NNs with uncertainty quantification; target ±2–3%
+      error in pressure rise, ±1–2 percentage points in efficiency, ±1.5–2 dB in
+      SPL at key operating points.
+    - >-
+      Multi-objective optimization: Use NSGA-II/gradient-enhanced methods to
+      maximize efficiency and pressure rise while minimizing noise and mass;
+      enforce constraints (geometry envelopes, stress, fan laws, motor curves).
+    - >-
+      Validation: Confirm top candidates with high-fidelity CFD; optional lab
+      test (AMCA 210/ISO 5801, ISO 5136 duct acoustics) for correlation reports.
+    - >-
+      Handoff and deployment: Deliver CAD deltas, performance maps, surrogate
+      model/API for reuse, and a validation dossier; integrate with customer
+      PLM/CAE for ongoing use.
+  uniqueValueProp: >-
+    Cut design iteration time 50–80% and deliver 2–5 percentage-point efficiency
+    gains and 1–3 dB noise reductions by training physics-informed surrogate
+    models on cloud CFD and optimizing multi-objective performance under
+    real-world constraints—validated to AMCA/ISO standards.
+  unfairAdvantage: >-
+    Verticalized, AMCA/ISO-correlated surrogate pipelines with pre-validated
+    fan/impeller parameterizations and integrated aeroacoustics, enabling
+    trustworthy multi-objective optimization in days; combined with secure
+    deploy-anywhere options and a growing proprietary dataset that improves
+    active-learning efficiency over time.
+  customerSegments:
+    - >-
+      Primary: Industrial and commercial fan/blower OEMs (centrifugal/axial,
+      HVAC, AHU, cleanrooms, dust collection, fume extraction).
+    - >-
+      Primary: Air purification/filtration equipment OEMs (HEPA units,
+      industrial scrubbers, air cleaners).
+    - 'Secondary: Engineering service bureaus serving above OEMs.'
+    - >-
+      Early adopters: Mid-market OEMs with 5–30 CAE seats and 5–20k units/year
+      product volumes; high pressure to improve energy efficiency and reduce
+      noise.
+    - >-
+      Champions/buyers: VP Engineering, R&D Directors, CAE/CFD Managers, Product
+      Line Managers.
+  channels:
+    - >-
+      Direct sales to VP Eng/CFD Managers via account-based outreach
+      (LinkedIn/email) with ROI calculators and case studies.
+    - >-
+      Partnerships with CAE vendors (Siemens/Ansys) and resellers for co-selling
+      and services attach.
+    - >-
+      Cloud HPC partner marketplaces (AWS/Azure/GCP) for discoverability,
+      credits, and joint marketing.
+    - >-
+      Industry events and associations: AMCA meetings, AHR Expo, ASME
+      FEDSM/Turbo Expo; technical talks with benchmark results.
+    - >-
+      Content marketing: White papers on efficiency/noise trade-offs; webinars
+      on surrogate-driven design; sample datasets and reproducible notebooks.
+    - >-
+      Pilot-led GTM: 6–8 week fixed-scope pilots with performance improvement
+      guarantees; expand to enterprise subscriptions post-pilot.
+    - >-
+      Regional VARs/integrators in EU and APAC for language/local support and
+      compliance.
+  revenueStreams:
+    - >-
+      Pilot projects: $50k–$120k per product line (6–8 weeks; includes DOE,
+      surrogate, optimization, validation report).
+    - >-
+      Subscription (SaaS): $3k–$6k/user/month or $8k–$20k/model/month for
+      ongoing optimization and reuse; volume discounts.
+    - >-
+      Enterprise license (private deployment): $180k–$400k/year plus support;
+      BYO compute/licenses; optional dedicated cluster management.
+    - >-
+      Compute pass-through with 10–15% margin (if we host) or BYO-cloud;
+      optional OpenFOAM stack to avoid license fees.
+    - >-
+      Training and integration services: $15k–$60k per team for onboarding, CAD
+      parameterization, and workflow integration.
+    - >-
+      Premium support/SLAs: 24/7, ITAR-ready enclave, model escrow:
+      $25k–$75k/year.
+  costStructure:
+    - >-
+      COGS per pilot: cloud compute $2k–$12k (20–120k vCPU-hrs at
+      $0.03–$0.10/vCPU-hr), storage/egress $200–$1k, optional solver licensing
+      (BYO to reduce).
+    - 'Engineering delivery: 2–3 FTE-months per pilot ($40k–$90k fully loaded).'
+    - >-
+      Platform R&D: ML/CFD engineers, DevOps/HPC, QA/security ($250k–$400k per
+      engineer/year).
+    - >-
+      Sales/marketing: AE+SE pairing, events, content production; CAC target
+      $50k–$120k for $150k+ first-year revenue.
+    - >-
+      Partnerships and certifications: AMCA sponsorships, cloud partner
+      programs, SOC 2/ISO 27001 ($50k–$150k/year).
+    - 'General & admin: Legal (IP/NDAs), finance, office, management overhead.'
+  keyMetrics:
+    - >-
+      Technical KPIs: surrogate MAE targets (pressure rise ±2–3%, efficiency
+      ±1–2 pts, SPL ±1.5–2 dB); design cycle time reduction (baseline vs.
+      post-pilot); DOE efficiency (improvement per CFD run).
+    - >-
+      Business KPIs: win rate on qualified pilots (>35%), pilot-to-subscription
+      conversion (>60%), ARR/customer ($120k–$300k), gross margin (>65%).
+    - >-
+      Product KPIs: time-to-first-model (<10 business days), active users/month,
+      models reused per program (>2), pipeline success rate (>90% automated
+      runs).
+    - >-
+      Quality/Trust KPIs: AMCA/ISO correlation error (<3% pressure rise; <2 pts
+      efficiency), validation pass rate (>85% of projects within targets).
+    - >-
+      Operations KPIs: compute utilization (>60%), job success rate (>98%), SLA
+      adherence (>99.5% uptime).
+    - >-
+      Customer value KPIs: achieved performance gains (≥2 pts efficiency median;
+      ≥1 dB noise reduction), prototypes avoided (≥1 per program), payback
+      period (<6 months).
+storyBrand:
+  character: >-
+    Engineering leaders and design teams at industrial/commercial fan, blower,
+    and air purification OEMs who must deliver quieter, more efficient impellers
+    and housings faster and with confidence.
+  problem: >-
+    Traditional CFD and prototyping loops are slow and costly; balancing
+    efficiency, pressure rise, and noise under tight size/speed constraints
+    strains limited CAE/HPC bandwidth and schedules, risking delays and missed
+    specs.
+  guide: >-
+    An AI/CFD partner with turbomachinery expertise that combines DOE,
+    cloud-scale CFD, and validated surrogate modeling to cut iterations, de-risk
+    trade-offs, and make performance predictable.
+  plan: >-
+    1) Scope: align targets (efficiency, pressure rise, noise), constraints, and
+    design ranges under NDA. 2) Build: run DOE with cloud CFD; train/validate a
+    surrogate; calibrate acoustics. 3) Optimize & deliver: multi-objective
+    optimization; deliver optimal geometries, response surfaces, and a
+    deployable model/API plus a concise report.
+  callToAction: >-
+    Direct: Book a 30-minute scoping call. Transitional: Request a free
+    feasibility screen and sample optimization report.
+  success: >-
+    Shorter cycles (weeks vs. months), fewer prototypes and CFD hours, confident
+    trade-offs, quieter and more efficient products, on-time launches, and a
+    reusable digital surrogate that accelerates future designs.
+  failure: >-
+    Prolonged iteration, budget overruns, missed efficiency/noise targets, late
+    compliance surprises, lost bids, and knowledge locked in ad hoc workflows.
+landingPage:
+  hero:
+    title: AI Surrogate Optimization for Fan & Blower Designs
+    subtitle: >-
+      Train a physics‑grounded surrogate from DOE + cloud CFD to optimize
+      impellers and housings for efficiency, pressure rise, and noise—within
+      your constraints.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - 'Slow, costly CFD loops to balance efficiency, pressure rise, and noise'
+    - Limited DOE coverage due to compute/licensing bottlenecks
+    - Conflicting objectives stall decisions and inflate development time
+    - Late prototype and test insights drive rework
+    - Tribal knowledge locked in spreadsheets and analyst notebooks
+    - Tight timelines for custom variants and bids
+  solution:
+    - >-
+      Automated DOE + cloud CFD builds a high‑fidelity surrogate of your design
+      space
+    - Explore thousands of variants instantly with multi‑objective optimization
+    - >-
+      Optimize efficiency, pressure rise, and broadband noise under hard
+      constraints
+    - Validate top candidates with high‑accuracy CFD before tooling
+    - Share interactive Pareto fronts and design reports across teams
+    - Scale compute on demand with clear cost control and security
+  features:
+    - >-
+      Parametric workflows for impellers, volutes/housings, inlets, and
+      diffusers
+    - >-
+      Automated meshing, solver setup, and DOE planning tailored to your
+      geometry
+    - Multi‑point optimization across duty curve/AMCA‑ISO operating points
+    - >-
+      Aero + acoustics metrics: pressure rise, efficiency, flow uniformity, SPL
+      proxies
+    - >-
+      Constraint engine for geometry, manufacturability, speed, diameter, mass,
+      and cost
+    - >-
+      Surrogate with uncertainty estimates and active learning to refine weak
+      regions
+    - 'Interactive Pareto charts, sensitivities, and design traceability reports'
+    - >-
+      CAD‑connected: parameter tables, scripted geometry, export optimized
+      shapes
+    - >-
+      Cloud HPC autoscaling with job queueing and cost tracking; private/VPC
+      options
+    - API for integrating with PLM/CPQ and internal design tools
+  steps:
+    - Upload baseline CAD and define geometry parameters and operating points
+    - >-
+      Set objectives (efficiency, pressure rise, noise) and design/manufacturing
+      constraints
+    - Run automated DOE; cloud CFD generates high‑quality training data
+    - >-
+      Train the surrogate and auto‑refine via active learning where uncertainty
+      is high
+    - Execute multi‑objective optimization to produce Pareto‑optimal designs
+    - >-
+      Validate top candidates with high‑fidelity CFD, then export CAD and a
+      decision report
+---
+# AeroOptiSurrogate (AOS)
+
+Industry: Industrial and Commercial Fan and Blower and Air Purification Equipment Manufacturing
+Service: CFD Surrogate Design Optimization for Impellers/Housings

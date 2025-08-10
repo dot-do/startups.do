@@ -1,0 +1,309 @@
+---
+name: AquaRoute AI — Distribution Route & Load Optimization for Bottled Water
+slug: aquaroute
+service:
+  title: Distribution Route & Load Optimization Agent
+  description: >-
+    Optimizes daily delivery routes and trailer loading from depots to customers
+    with time windows, reducing miles and chargebacks.
+  targetUsers:
+    - Logistics/Dispatch
+    - Customer Service
+  triggers:
+    - Daily order cut-off
+    - Carrier capacity update
+    - Weather/traffic alerts
+  inputs:
+    - Ship-to addresses and time windows
+    - Order weights/volumes/pallets
+    - Fleet capacities and driver rules
+    - Depot constraints and dock schedules
+    - Traffic/road constraints
+  steps:
+    - Geocode and validate addresses; flag errors
+    - Build VRP with time windows and load constraints
+    - Optimize routes and stop sequence; build pack/stack plan
+    - 'Check compliance (retailer windows, axle weights)'
+    - Publish driver manifests and EDI/TMS loads
+  tools:
+    - Google/Here/Mapbox Distance Matrix
+    - OpenRouteService/OSRM
+    - OR-Tools VRP
+    - 'TMS API (Project44, FourKites, Sonar)'
+    - SPS/TrueCommerce EDI for 856/214
+  outputs:
+    - Optimized route plans and ETAs
+    - Driver manifests and BOLs
+    - Trailer load diagrams and pick sequence
+  pricingModel:
+    - Per-route fee or per-vehicle/month
+    - One-time geocoding/address cleanup
+    - Optional live re-optimization add-on
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 9
+    overall: 9
+  risks:
+    - Bad address master/time windows
+    - Driver/union constraints not modeled
+    - Weather or closures post-plan
+  dependencies:
+    - Address master and fleet rules
+    - TMS/EDI integration
+    - Traffic API access
+leanCanvas:
+  problem:
+    - >-
+      High miles per stop due to manual routing and limited multi-depot
+      optimization (typical baseline: 1.2–1.6 miles per case-stop vs 0.9–1.1
+      achievable)
+    - >-
+      Time-window compliance issues (retailer/DC appointments) causing
+      chargebacks and lost preferred vendor scores (chargebacks often $150–$500
+      per late/early delivery, detention $50–$100 per hour)
+    - >-
+      Suboptimal trailer utilization (cube and weight) resulting in extra runs;
+      frequent breaches of axle/weight limits for water loads (risk of DOT
+      fines)
+    - >-
+      Planning takes multiple hours daily across planners, limiting scenario
+      analysis for spikes (heat waves, promos)
+    - >-
+      Lack of integrated load building with routing leads to infeasible plans at
+      the dock (rework/delay)
+    - >-
+      Poor visibility and dynamic re-optimization when orders change or
+      traffic/ELD constraints shift mid-day
+    - >-
+      Fragmented data across ERP/TMS/WMS/ELD causes stale constraints (time
+      windows, dock capacities, live appointment slots) and inaccurate ETAs
+  solution:
+    - >-
+      End-to-end optimizer that jointly solves multi-depot VRP with time windows
+      (VRPTW), driver HOS, and 3D load/weight/axle constraints for 53’ dry vans
+      and pups
+    - >-
+      Retailer compliance engine encoding appointment rules, ASN cutoffs, and
+      chargeback policies; risk scoring and automatic sequencing to minimize
+      penalties
+    - >-
+      Dynamic re-optimization using live traffic and ELD/telematics to adjust
+      routes and ETAs; dispatcher approval workflow
+    - >-
+      Automated appointment scheduling/integration (e.g., Opendock) with soft
+      and hard window handling
+    - >-
+      What-if simulator for promos, heat spikes, and plant downtime; scenario
+      comparisons with savings estimates
+    - >-
+      Data integrations: ERP/OMS (orders), WMS (inventory/pallets), TMS
+      (tenders), ELD/telematics (HOS/geo), mapping (ETAs), EDI (retailer
+      portals)
+    - >-
+      Planner cockpit (web) + driver app/driver API for stop sequence, notes,
+      and POD; multilingual support
+    - >-
+      Implementation playbook: 8-week proof-of-value (baseline capture, A/B day
+      routing, weekly ops reviews, savings audit)
+  uniqueValueProp: >-
+    AI-driven daily routing + 3D trailer load building built specifically for
+    bottled water. Reduce truck miles 8–15%, cut chargebacks 20–40%, lift OTIF
+    by 3–6 pts, and boost trailer utilization to 90%+ cube/weight—all in under
+    10 minutes of planning per depot.
+  unfairAdvantage: >-
+    Domain-specific constraints library for bottled water (heavy loads, axle
+    limits, common pallet configs, club-store/DC appointment patterns) + a
+    compliance rules engine tuned to major retailers’ chargeback policies.
+    Trained on seasonal water demand spikes and promo behaviors, enabling more
+    accurate ETAs, dwell forecasts, and penalty avoidance than generalist
+    routing tools.
+  customerSegments:
+    - >-
+      Mid-market bottled water manufacturers (2–20 depots, 50–400 trucks):
+      operations, distribution, and transportation leaders
+    - >-
+      Large enterprises (20+ depots, 400–2,000 trucks) with in-house fleets or
+      dedicated 3PLs
+    - Private-label/co-packers supplying retailers and club stores
+    - >-
+      Regional beverage distributors with significant bottled water volume (DSD
+      and RDC deliveries)
+    - >-
+      3PLs specializing in beverage and retail deliveries seeking optimization
+      for dedicated contracts
+  channels:
+    - >-
+      Direct sales to VP/Director of Transportation/Distribution and Plant Ops
+      at bottled water companies
+    - >-
+      Partnerships with TMS/ELD/mapping providers (referrals, co-sell):
+      MercuryGate, Oracle TMS, Blue Yonder, Samsara, Geotab, HERE
+    - >-
+      3PL channel for dedicated fleet contracts in beverage; rev-share for
+      embedding optimization
+    - >-
+      Industry associations/events: IBWA, BevNET, CSCMP EDGE; speaking slots +
+      live ROI demos
+    - >-
+      Account-based marketing to top 200 bottled water and co-packer targets;
+      case studies and ROI calculator
+    - >-
+      Pilot-first GTM: 8-week proof-of-value at 1–2 depots with shared success
+      criteria (≥8% miles reduction or ≥25% chargeback reduction)
+    - >-
+      Outbound targeted to regions with high heat-season volatility; time-bound
+      offers pre-summer peak
+  revenueStreams:
+    - >-
+      Subscription: per-depot pricing (e.g., $2,000–$4,000 per depot/month)
+      tiered by stops/vehicles
+    - >-
+      Usage: $0.10–$0.35 per completed stop beyond tier; API calls at metered
+      rates for large enterprises
+    - >-
+      Implementation/onboarding: $15k–$75k one-time depending on integrations
+      and number of sites
+    - >-
+      Premium modules: dynamic re-optimization, appointment automation,
+      emissions reporting ($500–$1,500 per depot/month each)
+    - >-
+      Outcome-based option: 10–20% of verified savings for first 6 months
+      (capped), then standard subscription
+    - >-
+      Professional services: network redesign studies, custom constraints, data
+      cleansing
+  costStructure:
+    - 'R&D: engineering (routing/optimization), data science, domain experts'
+    - 'Cloud infrastructure: compute for optimization runs, storage, monitoring'
+    - >-
+      Third-party licenses: maps/traffic (HERE/Google), geocoding, address
+      validation
+    - >-
+      Integrations and support: solution architects, customer success, 24/7
+      incident response
+    - 'Sales and marketing: AE/SE teams, events, content, partner enablement'
+    - 'Security/compliance: SOC 2, ISO 27001, penetration tests, cyber insurance'
+    - >-
+      General and administrative: finance, legal (retailer EDI/ASN compliance),
+      HR
+  keyMetrics:
+    - 'Miles per stop (target: 8–15% reduction from baseline)'
+    - >-
+      Trailer utilization: cube and weight (target: ≥90% cube, weight within
+      legal/axle limits)
+    - 'OTIF to time windows (target: +3–6 percentage points)'
+    - 'Chargebacks per 1,000 stops and $/stop (target: 20–40% reduction)'
+    - 'Planning time per depot per day (target: 50–70% reduction)'
+    - 'Detention hours per 100 stops (target: 15–30% reduction)'
+    - 'Failed appointments/reschedules (target: 30–50% reduction)'
+    - 'CO2e per delivered case (target: 8–15% reduction proportional to miles)'
+    - >-
+      Dynamic replan adoption (≥80% of disruptions handled without manual
+      rebuild)
+    - >-
+      Algorithm performance: solve 500 stops/150 vehicles in <10 minutes with
+      <2% optimality gap
+storyBrand:
+  character: >-
+    Operations and distribution leaders at bottled water manufacturers who must
+    hit tight delivery windows, maximize trailer utilization, and protect
+    margins.
+  problem: >-
+    External — Volatile orders, strict customer time windows, limited
+    drivers/trailers, and complex load sequencing create excess miles, misloads,
+    and chargebacks.
+
+    Internal — Planners are stuck in spreadsheets late at night, worried about
+    penalties, rework, and unhappy customers.
+
+    Philosophical — Delivering clean water shouldn’t waste fuel, time, or
+    goodwill; efficient, on-time service should be standard.
+  guide: >-
+    We understand the pressure of daily cutoffs, retailer SLAs, and chargebacks.
+    Our team blends beverage distribution know‑how with an AI optimization
+    engine built for multi-stop routes and trailer loading. Secure, integrable
+    with ERP/TMS/WMS, and supported by experts who stay with you from pilot to
+    scale.
+  plan: >-
+    Process plan:
+
+    1) Connect orders, customers, depots, assets, and constraints (time windows,
+    HOS, trailer capacity, loading rules).
+
+    2) Run the AI agent daily to propose optimized routes, stop sequences, and
+    pallet-by-pallet load plans.
+
+    3) Dispatch to drivers, monitor execution, and auto-adjust for late orders
+    or changes.
+
+    Agreement plan:
+
+    - Low-risk pilot, clear pricing, no long-term lock-in.
+
+    - Data security and SLA-backed support.
+
+    - Success criteria defined up front.
+  callToAction: |-
+    Direct: Book a route and load audit or start a pilot.
+    Transitional: Get the ROI checklist and a sample load-plan/route report.
+  success: >-
+    Fewer miles and fuel spend; higher on-time performance; fewer chargebacks;
+    maximized trailer utilization with accurate load maps; faster planning
+    (minutes, not hours); happier drivers and customers; predictable days and
+    healthier margins.
+  failure: >-
+    Avoid late deliveries, penalties, empty miles, overtime, misloads, retailer
+    deductions, and eroded margins that damage customer relationships and
+    growth.
+landingPage:
+  hero:
+    title: AI Route & Load Optimization for Bottled Water
+    subtitle: >-
+      Plan OTIF‑compliant routes and stop‑sequenced trailer loads in minutes.
+      Fewer miles. Fewer chargebacks. Happier customers.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - Manual route planning takes hours and breaks with late orders and traffic.
+    - Missed retailer time windows trigger costly chargebacks.
+    - Inefficient loads waste cube/weight and cause rehandles at stops.
+    - 'Too many miles, trucks, and overtime for the same volume.'
+    - 'No fast way to test waves, delivery days, or depot assignments.'
+    - Limited live visibility from depot to store drives escalations.
+  solution:
+    - >-
+      Autogenerates daily routes that honor time windows, service times, and
+      driver hours.
+    - >-
+      Builds legal, stop‑sequenced trailer loads with clear 3D load plans and
+      pick lists.
+    - Cuts total miles and fuel while maintaining or improving OTIF.
+    - Reduces chargebacks by keeping appointments and retailer rules.
+    - Absorbs late orders and disruptions with real‑time reoptimization.
+    - 'Runs instant what‑if scenarios for spikes, promos, and seasonality.'
+  features:
+    - Time‑window aware multi‑depot VRP (single/multi‑day)
+    - 'Trailer constraints: cube, weight, axles, pallets, layers, stackability'
+    - Stop‑sequenced 3D load diagrams and load‑by‑stop pick lists
+    - 'Retailer compliance rules (appointments, ASN, case/pallet, dwell)'
+    - 'Driver constraints: HOS, breaks, start/end sites, pay rules'
+    - Service times by account; dock calendars and blackout dates
+    - Live traffic and telematics ETA reforecasting
+    - Dynamic order insert and reroute with disruption alerts
+    - Backhauls and empty return optimization (optional)
+    - ERP/WMS/TMS integrations via API/EDI
+    - 'KPI dashboard: miles, OTIF, chargebacks, utilization, CO₂'
+    - 'Auto‑generated dispatch packets, ePOD, and geofenced arrival/dwell'
+  steps:
+    - 'Connect orders, depots, fleet, and calendars via API/EDI.'
+    - 'Set constraints, retailer rules, and optimization goals.'
+    - Click Optimize to generate routes and load plans in minutes.
+    - 'Review exceptions, tweak if needed, and approve.'
+    - Dispatch to drivers and warehouse; sync with WMS/TMS.
+    - 'Monitor live ETAs, reopt as needed, and track savings.'
+---
+# AquaRoute AI — Distribution Route & Load Optimization for Bottled Water
+
+Industry: Bottled Water Manufacturing
+Service: Distribution Route & Load Optimization Agent

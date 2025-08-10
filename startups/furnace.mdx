@@ -1,328 +1,318 @@
 ---
-name: Furnace Energy & Pull Advisor (FEPA) — AI for Flat Glass (NAICS 327211)
+name: >-
+  Furnace Recipe Optimizer (Heat Treat/Austenitize) — AI service for Iron and
+  Steel Forging
 slug: furnace
-naics:
-  primary: '327211'
-  occupations: []
 service:
-  title: Furnace Energy & Pull Advisor
+  title: Furnace Recipe Optimizer (Heat Treat/Austenitize)
   description: >-
-    Combines heat-balance and data-driven models to recommend actions that
-    reduce energy/ton at target pull and quality.
+    Optimizes soak times/temps to reduce energy and scale loss while meeting
+    hardness/microstructure targets.
   targetUsers:
-    - Melting/furnace engineers
-    - Energy managers
+    - Heat Treat Supervisor
+    - Process Engineer
+    - Energy Manager
   triggers:
-    - Weekly energy KPI review
-    - Fuel spike or pull change
-    - Batch composition change
+    - Rising gas/electric costs
+    - New steel grade/section size
+    - Quality drift in hardness or microstructure
   inputs:
-    - Fuel flow/O2/CO flue data
-    - Crown/port temperatures
-    - Pull rate and batch chemistry
-    - Ambient and regenerator temps
+    - Furnace T profiles and TUS/SAT results
+    - Part geometry/mass and load density
+    - Alloy grade and prior deformation history
+    - 'Historical hardness/microstructure, quench type'
+    - Scale-loss data
   steps:
-    - Ingest and reconcile energy and pull data
-    - Estimate heat balance and key losses
-    - Detect inefficiencies vs benchmarks
-    - Simulate impact of O2 setpoints/pull/batch moisture
-    - Issue prioritized recommendations with savings range
+    - >-
+      Fit physics-informed/empirical models relating recipe to
+      hardness/microstructure/scale loss
+    - Search feasible recipes under quality constraints
+    - Simulate impact on energy and takt time
+    - Generate recommended recipe and control limits
+    - Monitor outcomes and auto-tune
   tools:
-    - PI Web API/OPC UA
-    - Python/pandas
-    - Cantera/thermo calcs or custom
-    - sklearn for residual modeling
-    - Report via email/Teams
+    - Python optimization
+    - 'Domain rules (ASM, CQI-9) embedded'
+    - Historian connectors
+    - Reporting/dashboard
   outputs:
-    - Weekly energy-savings actions
-    - Estimated savings and risk notes
-    - 'Trend dashboards (kWh/ton, O2 balance)'
+    - Recommended temperature/soak/load limits
+    - Projected energy savings and scale reduction
+    - Recipe change log and control plan updates
   pricingModel:
-    - Monthly subscription per furnace
-    - Setup fee
-    - Gainshare on measured energy reduction
+    - Per furnace monthly (USD 1k–3k) + setup (USD 5k–15k)
+    - Optional savings share
   humanInLoop: true
   feasibility:
-    remoteOnLaptop: 7
-    modelCapability: 6
-    overall: 6.5
+    remoteOnLaptop: 8
+    modelCapability: 7
+    overall: 7
   risks:
-    - Safety/quality risk if misapplied
-    - Instrumentation gaps
-    - Confounding raw material variability
+    - Quality risk if recipe too aggressive
+    - Non-uniform loads invalidating assumptions
+    - Operator override leading to drift
   dependencies:
-    - Access to validated sensors
-    - Operating constraints & SOPs
-    - Change management approval
+    - Furnace data access
+    - 'QA results (hardness, microstructure)'
+    - Quench media data
 leanCanvas:
   problem:
     - >-
-      Specific energy consumption (SEC) is high and variable (typical 4.5–6.5
-      GJ/ton; 4.3–6.2 MMBtu/ton), with 5–15% performance gap vs. technical best
-      due to drift, leakage, and inconsistent practices.
+      Over-conservative austenitize/soak recipes waste 8–20% energy per ton due
+      to excessive temperatures and dwell times.
     - >-
-      Operators face trade-offs: hitting target pull without triggering energy
-      spikes, foam, seeds/bubbles, or NOx excursions; rules of thumb vary by
-      shift.
+      Scale loss (oxidation) during austenitize commonly runs 1–3% of part mass;
+      poor control leads to rework, machining allowance loss, and scrap.
     - >-
-      Limited actionable visibility: plant historians store thousands of tags,
-      but real-time heat balance, regenerator efficiency, or true air/gas ratios
-      are not directly visible.
+      Inconsistent load size/geometry and furnace condition cause variability in
+      hardness and microstructure, forcing wider safety margins and higher
+      scrap/rework (1–5%).
     - >-
-      Inefficient changeovers/startups: pull changes and product mix shifts
-      cause long stabilization, wasted fuel, and higher defect rates.
+      Limited metallurgical bandwidth and tribal knowledge make it hard to
+      rapidly tune recipes for new grades or part geometries.
     - >-
-      Inadequate measurement and verification (M&V) for energy projects; hard to
-      attribute savings and secure incentives or internal capital.
-    - >-
-      Skills gap/turnover: loss of furnace domain knowledge leads to suboptimal
-      settings and slower troubleshooting.
-    - >-
-      Emissions and compliance pressure (NOx, CO2/kg glass) require optimization
-      without CapEx-heavy rebuilds.
+      Audit and compliance (CQI-9, AMS 2750G, Nadcap) require traceability; most
+      plants lack automated, data-backed recipe justification and change
+      management.
   solution:
     - >-
-      Hybrid digital twin: dynamic heat-balance model of furnace, regenerators,
-      and boost fused with ML models trained on plant historian and QA data.
+      Deploy an edge gateway to ingest furnace data (PLC/SCADA/historian), load
+      attributes, alloy grade, and spec targets.
     - >-
-      Real-time advisor: prescriptive setpoint recommendations (e.g., port fuel
-      splits, air/gas ratio, O2 targets, checker/damper adjustments, boost MW
-      distribution, doghouse covers, batch depth) to hit energy, pull, and
-      quality constraints.
+      Build a digital twin: physics-informed ML models combining heat transfer,
+      austenitization kinetics, CALPHAD-based phase predictions, and
+      oxidation/scale growth models.
     - >-
-      What-if simulations: forecast effect of cullet %, batch moisture, redox
-      modifiers, oxygen enrichment, or pull changes on SEC, NOx, and defect
-      risk.
+      Optimization engine proposes recipe adjustments (setpoints, ramp rates,
+      dwell) per load, subject to metallurgical constraints (e.g., carburization
+      risk, grain growth, decarb limits).
     - >-
-      Soft sensors and diagnostics: infer unmeasured states (e.g., leakage,
-      checker fouling, effective emissivity, melt temp uniformity) to detect
-      degradations early.
+      Closed-loop or advisory mode: write setpoints to PLC or present operator
+      recommendations; capture operator acceptance and results for continuous
+      learning.
     - >-
-      M&V and reporting: baselines normalized for cullet, ambient, product mix,
-      and pull; automated savings, CO2, and NOx reporting suitable for internal
-      audits and utility incentives.
+      Quality assurance and compliance: automatic traceability of recipe
+      versioning, rationale, and outcomes; SPC dashboards for hardness and
+      microstructure; audit-ready reports for CQI-9/Nadcap.
     - >-
-      Edge + cloud deployment: sub-minute inference on-prem with secure sync to
-      cloud for model updates; no control-write required (human-in-the-loop).
-    - >-
-      Operator workflows: ranked actions with confidence intervals, expected
-      savings ($/day), and quality risk score; A/B testing and rollback.
+      What-if and offline simulation: evaluate new grades/parts pre-production
+      to reduce PPAP and trial runs.
   uniqueValueProp: >-
-    Reduce fuel per ton by 5–10% while maintaining target pull and first-quality
-    yield, using a hybrid heat-balance + AI advisor that delivers operator-ready
-    setpoint actions with predicted impact, guardrails, and auditable
-    M&V—without major CapEx.
+    Physics-informed AI that automatically sets and adapts austenitize times and
+    temperatures to minimize energy use and scale loss while guaranteeing
+    hardness and microstructure targets with full auditability—typical payback
+    <6 months.
   unfairAdvantage: >-
-    A domain-tuned hybrid model that translates furnace physics into
-    prescriptive, guardrailed actions with quantified impacts and
-    uncertainty—validated against multi-plant datasets and packaged with
-    auditable M&V. Competitors offer either generic analytics or black-box APC;
-    FEPA bridges physics and AI for operator-ready decisions, deployable
-    edge-first without control write access.
+    A validated, physics-informed AI stack for austenitization and oxidation
+    with grade-specific kinetics—trained on multi-plant datasets and embedded
+    with CQI-9/AMS 2750G auditability—and OEM/integrator partnerships enabling
+    plug-in deployment and rapid, savings-backed pilots.
   customerSegments:
     - >-
-      Primary: Flat (float) glass manufacturers operating melting furnaces and
-      lehrs (Plant/Operations Directors, Furnace Superintendents, Process
-      Engineers, Energy Managers, Corporate Sustainability).
+      Tier-1/Tier-2 forging plants (automotive, off-highway, rail, oil & gas,
+      general industrial) with batch or continuous austenitizing furnaces.
     - >-
-      Target geographies for initial GTM: U.S. and Canada (NAICS 327211), then
-      EU and MENA float lines.
+      Captive heat treat (OEMs with forging operations) needing throughput and
+      energy wins without risking metallurgical outcomes.
     - >-
-      Secondary: Furnace/combustion OEMs (SORG, HORN, Fives, FlammaTec),
-      combustion gas suppliers (Linde, Air Products), integrators (AVEVA/OSIsoft
-      partners), and ESCOs seeking performance-based offerings.
+      Commercial heat treaters processing forged steels (4140/4340/8620 tool
+      steels, bearing steels, ductile iron) under customer specs.
     - >-
-      Corporate Centers of Excellence at multi-plant producers (Guardian, Vitro,
-      AGC, NSG).
+      Furnace OEMs and controls integrators seeking value-added optimization
+      offerings for installed base and new builds.
+    - >-
+      Energy-intensive plants pursuing ISO 50001/Decarbonization targets and
+      utility incentive programs.
   channels:
     - >-
-      Direct enterprise sales to top 10 North American float producers (target:
-      3–5 executive sponsors, 10–15 plant champions).
+      Direct enterprise sales to top-500 forging and heat-treat sites by
+      estimated energy spend; value engineering-led discovery with
+      plant/quality/metallurgy.
     - >-
-      OEM/partner channel: bundle with furnace/combustion retrofits (SORG, HORN,
-      FlammaTec) and with gas suppliers’ efficiency programs (Linde/Air
-      Products).
+      Pilot-led motion: 8–12 week pilots on 1–2 furnaces with savings-backed
+      proposal and utility incentive alignment.
     - >-
-      System integrator alliances (OSIsoft/AVEVA partners) for rapid historian
-      integration.
+      Partnerships with furnace OEMs (e.g., Ipsen, SECO/WARWICK, AFC-Holcroft,
+      Nitrex, CAN-ENG) and controls integrators to bundle in new projects and
+      retrofits.
     - >-
-      Utility/ESCO programs: performance-based pilots co-funded via industrial
-      efficiency incentives (where available).
+      Alliances with utilities/ESCOs to classify as a custom measure for
+      incentives; joint marketing on decarbonization and energy efficiency.
     - >-
-      Flagship case studies and ROI calculators; technical whitepapers with
-      GMIC/NGA; conference demos at Glassman, glasstec, GMIC Symposium.
+      Industry channels: FIA, ASM Heat Treat Society, AIST,
+      conferences/webinars; case studies and technical notes (e.g., scale-loss
+      reduction on 4140 forgings).
     - >-
-      Targeted ABM: outreach to Plant Managers, Energy Managers on LinkedIn,
-      trade journals (Glass International).
+      Content and tools: ROI calculator, digital twin demo, whitepapers on
+      oxidation kinetics and CQI-9 compliance.
+    - >-
+      Land-and-expand: start with austenitize furnaces; expand to quench/temper,
+      normalizing, induction austenitizing, and adjacent lines.
   revenueStreams:
     - >-
-      Annual SaaS subscription per furnace line: $120k–$240k/year (features,
-      support, updates).
+      Annual subscription per furnace: $18k–$60k/furnace/year based on features
+      (advisory vs closed-loop), with volume discounts.
     - >-
-      One-time implementation/integration fee per line: $50k–$150k (site survey,
-      connectors, model calibration, training).
+      One-time setup/integration fee: $20k–$75k per site depending on number of
+      furnaces and systems integration complexity.
     - >-
-      Performance fee (optional): 10–20% share of verified energy savings above
-      a guaranteed threshold (e.g., >3% SEC reduction).
+      Performance-based option: 15–25% of verified net savings for 12 months
+      post go-live (utility M&V compatible).
     - >-
-      Professional services: advanced studies (what-if CAPEX, oxy-fuel
-      scenarios, cullet optimization), $200–$300/hour or fixed-scope packages.
-    - Enterprise license discounts for multi-plant agreements (5–15%).
+      Professional services: recipe validation studies, CQI-9/Nadcap audit prep,
+      lab microstructure/hardness validation packages.
+    - >-
+      Premium SLA and cybersecurity/compliance add-ons (24/7 support, on-prem
+      only, restricted networks).
+    - Hardware margin on edge gateways and industrial PCs when supplied.
   costStructure:
     - >-
-      Personnel: domain experts (glass furnace), data scientists/ML, solution
-      architects, field engineers, customer success; fully loaded
-      $2.0–$3.0M/year for initial team.
+      R&D: metallurgists, data scientists, and software engineers to develop
+      physics-informed ML and oxidation models.
     - >-
-      Cloud/edge infrastructure: $1.5k–$5k/month per line (compute, storage,
-      monitoring, security).
+      Cloud/edge infrastructure: compute for training/inference, data storage,
+      CI/CD, security and monitoring.
     - >-
-      Hardware (optional): flue O2/CO sensors or thermal imagers $10k–$40k per
-      line; edge gateway $3k–$7k.
+      On-site integration and customer success: travel, commissioning, training,
+      and ongoing optimization services.
     - >-
-      Sales & marketing (CAC): $80k–$150k per closed line (travel, pilots,
-      conferences, integration PoC).
+      Hardware: edge gateway procurement, spares, and certification for
+      industrial environments.
     - >-
-      Insurance, cybersecurity audits (SOC 2/ISO 27001), and legal:
-      $150k–$300k/year.
-    - 'Partner commissions for OEM/SI channel: 10–20% of first-year ARR.'
+      Sales and marketing: industry events, pilots, demos, and technical
+      collateral.
+    - >-
+      Compliance and certifications: SOC 2/ISO 27001, OT security testing,
+      legal/insurance (product liability, E&O).
   keyMetrics:
     - >-
-      Customer outcome KPIs: SEC reduction 5–10% within 90–180 days; sustained
-      within ±2% over 12 months.
+      Customer outcomes: energy intensity (kWh or MMBtu per ton) reduced by
+      8–15% within 90 days; scale loss reduced by 15–35%; hardness Cpk ≥ 1.33 on
+      target spec; scrap/rework reduction ≥ 25%.
     - >-
-      Energy savings: MMBtu/ton and $/ton; targeted $300k–$1M/year per 700 tpd
-      line at $6–$9/MMBtu fuel cost.
+      Throughput: average soak time per load reduced by 10–25% without quality
+      penalties; furnace availability impact ≤ 0.5% negative (target
+      neutral/positive).
     - >-
-      CO2 intensity: -0.25 to -0.6 tCO2 per 100 tons; target 3–8% reduction
-      year-over-year normalized for pull/cullet.
+      Model accuracy: predicted hardness within ±2 HRC for 90% of loads;
+      microstructure phase fraction error ≤ 10% absolute vs lab; virtual TC
+      temperature MAE ≤ 7°C.
     - >-
-      Pull stability: time-to-steady-state after pull change reduced by 20–40%;
-      unplanned pull drops <1 per quarter.
+      Monetary: verified savings per furnace $60k–$250k/year (energy, material
+      yield, scrap); customer payback < 6 months.
     - >-
-      Quality: maintain or improve first-quality yield; defect rate
-      (seeds/bubbles/cord) no increase; target -5–10% defects over 6–12 months.
+      Adoption: pilot-to-subscription conversion ≥ 60%; time-to-first-savings ≤
+      30 days post integration; operator acceptance rate ≥ 85%.
     - >-
-      Advisor adoption: >60% operator suggestion acceptance in first 90 days;
-      >75% by 6 months.
+      Reliability and security: system uptime ≥ 99.5%; change-approval lead time
+      ≤ 24 hours; zero critical security incidents.
     - >-
-      Accuracy: prediction MAE for SEC <0.15 MMBtu/ton; recommendation realized
-      vs. predicted impact within ±25% in 80% of cases.
-    - 'Uptime: >99.5% advisor availability; data latency <60 seconds on-prem.'
-    - >-
-      Sales KPIs: pilot-to-subscription conversion >60%; net revenue retention
-      >115% with feature upsells.
+      Business: ARR growth rate, gross margin ≥ 70%, net revenue retention ≥
+      120% via expansions.
 storyBrand:
   character: >-
-    Flat glass operations leaders (plant managers and furnace/process engineers
-    in NAICS 327211) who must hit daily pull and quality specs while lowering
-    specific energy and emissions.
+    Heat treat and forging engineers who must hit hardness and microstructure
+    specs while lowering energy use, scale loss, and cycle time.
   problem: >-
-    They face volatile fuel costs, cullet and batch variability, aging furnace
-    constraints, and tightening CO2/NOx limits; decisions are manual and risky,
-    causing over‑firing, instability, and wasted MMBtu/ton.
+    - External: Conservative recipes cause over-soak, energy waste,
+    scale/decarb, and capacity bottlenecks; variable loads and furnace zones
+    drive inconsistency.
+
+    - Internal: Constant firefighting, audit pressure, and fear of missing
+    hardness/microstructure targets.
+
+    - Philosophical: You shouldn’t have to waste energy and metal to meet spec.
   guide: >-
-    Furnace Energy & Pull Advisor is a trusted copilot that blends heat‑balance
-    physics with live plant data—empathetic to production realities, proven in
-    flat glass, and aligned to KPIs (pull, specific energy, defect rate, furnace
-    health).
+    - Empathy: We understand mixed loads, hot/cold spots, alloy variability, and
+    customer audits in real forge shops.
+
+    - Authority: Metallurgy + furnace-control experts; AI grounded in TTT/CCT,
+    oxidation/diffusion kinetics, and furnace telemetry; traceable, validated
+    recommendations.
   plan: >-
-    1) Connect: secure data links to furnace, emissions, quality, and fuel
-    meters. 2) Calibrate: site‑specific hybrid model validated on historical
-    runs and audits. 3) Advise & verify: daily setpoint/recipe recommendations
-    with guardrails; operators accept/decline; results tracked and tuned.
+    Process:
+
+    1) Connect & baseline: ingest recipes, furnace/pyro data, and QA results.
+
+    2) Model: build a furnace + part digital twin and learn load-specific heat
+    transfer.
+
+    3) Optimize pilot: generate guarded soak time/temperature profiles for a
+    target part/alloy.
+
+    4) Validate: run trials; confirm hardness, microstructure, decarb; sign off.
+
+    5) Roll out: integrate to SCADA/MES; monitor, learn, and continuously
+    improve.
+
+    Agreement:
+
+    - Human-in-the-loop approvals and spec limits enforced.
+
+    - Traceability for audits; secure IT/OT integration; easy rollback.
   callToAction: >-
-    Direct: Launch a 90‑day pilot on one furnace. Transitional: Request a free
-    energy‑per‑ton benchmark and opportunity map.
+    Direct: Book a 30-minute demo; start a 4-week pilot on a critical part
+    family.
+
+    Transitional: Download the ROI calculator and technical brief; request a
+    sample optimization report.
   success: >-
-    3–8% lower energy/ton at target pull and quality; stable temperature
-    profiles; fewer defect excursions; 5–15% CO2 reduction; documented savings
-    with payback <90 days; institutionalized best practices and audit‑ready
-    reporting.
-  failure: >-
-    Status quo guesswork persists—higher MMBtu/ton, missed pull or quality,
-    rising CO2/NOx costs, accelerated furnace wear, and lost margin in a tight
-    market.
+    - Reduce energy per load, cut scale/decarb, and shorten cycles while meeting
+    spec.
+
+    - Improve yield and Cpk; unlock capacity without new furnaces.
+
+    - Fewer re-tempers and scrap; lower CO2 and stronger audit readiness.
+
+    - Stable, predictable recipes across shifts and seasons.
+  failure: |-
+    - Continued over-soaking, high energy bills, and metal loss.
+    - Inconsistent hardness/microstructure, rework, and scrap.
+    - Missed ship dates, audit findings, and stalled capacity growth.
 landingPage:
   hero:
-    title: Furnace Energy & Pull Advisor
+    title: Furnace Recipe Optimizer
     subtitle: >-
-      AI optimization for flat glass furnaces—cut energy per ton while holding
-      target pull and quality.
+      AI-tuned heat-treat/austenitize recipes that hit hardness and
+      microstructure targets while cutting energy and scale.
     ctaText: Request a demo
     ctaHref: /demo
   problem:
-    - 'Energy costs, carbon pricing, and NOx limits squeeze margins.'
-    - Pull changes and batch variability cause energy drift and instability.
-    - Manual tuning risks defects when pushing pull or cutting fuel.
-    - 'Data is fragmented across PLC/SCADA/LIMS—slow, guesswork decisions.'
-    - 'Regenerator aging, leakage, and port imbalance drive up specific energy.'
-    - >-
-      Hard to quantify which adjustments truly save fuel without hurting
-      quality.
-    - Electric boost usage is opaque and expensive to optimize.
+    - Over-soaking to be safe wastes energy and increases scale loss.
+    - Hardness and microstructure vary across loads and furnaces.
+    - Tribal knowledge and spreadsheets slow cycles and limit capacity.
+    - Rework and scrap risk grows when furnace conditions drift.
+    - Specs demand traceable documentation you don’t have time to compile.
+    - Energy and gas costs are rising and unpredictable.
   solution:
-    - Hybrid AI blends heat‑balance physics with plant data to guide setpoints.
-    - Actionable recommendations to lower GJ/ton at current or target pull.
     - >-
-      Quality guards protect optical, thickness, and defect KPIs as you
-      optimize.
-    - 'Ranked actions with expected savings, risk, and constraint checks.'
-    - 'What‑if scenarios for pull ramps, cullet changes, and planned maintenance.'
-    - Seamless integration with PI/SCADA via OPC UA and APIs—no rip‑and‑replace.
-    - Operator‑first UI with clear rationale and playbooks for execution.
+      AI recommends soak temps/times by alloy, section size, and furnace
+      condition.
+    - Predicts hardness and microstructure before the run.
+    - Minimizes energy use and scale loss while meeting spec windows.
+    - 'Auto-adjusts for load mass, racking, atmosphere, and quench parameters.'
+    - Live monitoring with alerts and in-spec recipe corrections.
+    - 'Digital recipes with versioning, approvals, and traceable outcomes.'
+    - 'Easy integrations with SCADA/OPC-UA, pyrometry, and lab systems.'
   features:
-    - 'Heat‑balance digital twin per furnace, calibrated to your line.'
-    - >-
-      Data‑driven models learn effects of cullet %, batch chemistry, ambient,
-      regenerator health, and leakage.
-    - >-
-      Recommendation engine for air/fuel ratio, O2 trim, port fuel split,
-      furnace pressure, regenerator switching time, electric boost, and
-      preheater setpoints.
-    - >-
-      Constraints engine honors crown/casing temperature limits, refractory
-      life, NOx caps, glass level stability, and fan capacities.
-    - >-
-      Quality protectors using predictors for seeds/bubbles, cords, surface
-      defects, and thickness variation.
-    - >-
-      Drift detection on excess O2, flue temperature, ΔP, port imbalance, and
-      checker performance with targeted alerts.
-    - >-
-      Savings estimator: energy/ton, $/day, CO2/day with confidence bands and
-      traceability.
-    - >-
-      A/B trial mode to validate actions; automatic before/after reports and
-      shift handover notes.
-    - >-
-      Live KPIs: specific energy, pull (t/d), flue T, excess O2, NOx, boost kWh,
-      batch moisture, cullet %.
-    - >-
-      Secure deployment options: on‑prem edge or private cloud; role‑based
-      access and audit trail.
-    - >-
-      Works with air‑fuel, oxy‑fuel, and hybrid furnaces; supports float and
-      patterned lines.
-    - >-
-      Vendor‑neutral connectors for PI, Ignition, Wonderware, DCS/PLC, LIMS, and
-      CMMS.
+    - 'Alloy-aware models for carbon, alloy, and tool steels.'
+    - 'Target-driven optimization (HRC, microstructure, case depth).'
+    - 'What-if simulator for cycle time, energy, and scale trade-offs.'
+    - Scale loss estimator per load and per part.
+    - Energy per kg and per cycle dashboards.
+    - Automated statistical quality analytics and run-to-run learning.
+    - 'Recipe versioning, approvals, and audit trails.'
+    - Compliance-ready reports and data retention.
+    - 'Multi-furnace and multi-plant support, cloud or on‑prem.'
+    - 'Role-based access, SSO, and secure APIs.'
   steps:
-    - 'Connect: onboard historian tags, lab data, and specs via OPC UA/APIs.'
-    - >-
-      Calibrate: fit the heat‑balance and data models to recent runs; review
-      with operations.
-    - 'Baseline: define target pull and quality guardrails; lock KPIs and limits.'
-    - 'Go live: enable ranked recommendations with expected impact and playbooks.'
-    - 'Operate: accept/reject actions, capture outcomes, and auto‑report savings.'
-    - >-
-      Improve: retrain with new data, refine constraints, and lock in best
-      practices.
-    - >-
-      Scale: roll out to additional furnaces and shifts; integrate with
-      energy/ESG reporting.
+    - 'Connect furnaces, lab data, and historical runs.'
+    - 'Select alloy, section thickness, and target properties.'
+    - Generate an optimized recipe; review and approve.
+    - Run with live monitoring and alerts for deviations.
+    - 'Capture results, auto-learn, and roll out to more parts and furnaces.'
 ---
-# Furnace Energy & Pull Advisor (FEPA) — AI for Flat Glass (NAICS 327211)
+# Furnace Recipe Optimizer (Heat Treat/Austenitize) — AI service for Iron and Steel Forging
 
-Generated for NAICS 327211 — Flat Glass Manufacturing.
-Service: Furnace Energy & Pull Advisor
+Industry: Iron and Steel Forging
+Service: Furnace Recipe Optimizer (Heat Treat/Austenitize)

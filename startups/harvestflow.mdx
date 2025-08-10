@@ -1,0 +1,325 @@
+---
+name: HarvestFlow Dispatch AI
+slug: harvestflow
+service:
+  title: Yield & Truck Dispatch Forecaster
+  description: >-
+    Forecasts hourly harvest output and creates a truck/bin dispatch schedule to
+    reduce wait and idle time.
+  targetUsers:
+    - Farm managers
+    - Logistics coordinators
+    - Custom harvesters
+  triggers:
+    - Night-before planning
+    - Midday reforecast
+    - When elevator hours/queues change
+  inputs:
+    - Historical yield maps and harvested acres
+    - Crop type and area per field
+    - Header width/speed and combine throughput
+    - Moisture readings
+    - Truck fleet capacity and locations
+    - Elevator hours/target destinations
+    - Road distances/drive times
+    - Weather (wind/rain constraints)
+  steps:
+    - Calibrate yield/throughput model per machine/field
+    - Forecast hourly loads and moisture by field
+    - Compute truck round-trip times and capacity
+    - Optimize truck assignments and load sequence
+    - Generate dispatch plan and operator messages
+    - Ingest telemetry to compare actual vs planned; reforecast
+  tools:
+    - >-
+      OEM APIs (John Deere Operations Center, CNH AFS Connect, AGCO Fuse) for
+      telemetry
+    - Google Maps Distance Matrix API
+    - Google OR-Tools (VRP with time windows)
+    - Pandas/Prophet/XGBoost for forecasting
+    - Twilio/WhatsApp/Telegram for driver messages
+  outputs:
+    - Per-hour load forecast by field
+    - Truck dispatch schedule with ETAs
+    - Bin/elevator allocation plan
+    - Deviation alerts and replan suggestions
+  pricingModel:
+    - Per-machine per harvest day
+    - Seasonal subscription with usage cap
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 7
+    overall: 8
+  risks:
+    - Elevator queue variability not captured by APIs
+    - Telemetry latency/availability
+    - Uncertain yields at field edges
+    - Driver adherence to plan
+  dependencies:
+    - Access to telemetry and yield history
+    - Truck fleet inventory and driver roster
+    - Destination constraints and contracts
+leanCanvas:
+  problem:
+    - >-
+      Combines, carts, and trucks are rarely synchronized; 15–35% of truck time
+      and 10–25% of combine time is idle during harvest due to misaligned
+      dispatching and variable yield rates.
+    - >-
+      Hourly harvest output fluctuates with crop conditions (moisture, variety),
+      micro-weather, terrain, and machine settings—manual radio/text
+      coordination cannot predict these shifts in real time.
+    - >-
+      Under/over-dispatch causes costly queues at field edges and elevators
+      (10–45 minutes typical per load), overtime, and missed delivery
+      appointments.
+    - >-
+      Current tools (spreadsheets, radios, generic TMS) lack ag-specific
+      forecasting, field access constraints, and offline operation; they don’t
+      optimize for moisture thresholds, bin capacities, or elevator line times.
+    - >-
+      Larger farms and custom harvesters must juggle multiple combines across
+      different fields and receivers, with different distances and access roads,
+      driver HOS constraints, and variable unloading speeds.
+    - >-
+      Data is siloed across OEM telematics, ELD/GPS, weather, and elevator
+      systems; there’s no unified real-time planning layer specialized for
+      harvest logistics.
+  solution:
+    - >-
+      Data integration: ingest combine/cutterbar throughput, grain flow,
+      moisture, GPS, telematics from OEMs (Deere, CNH, AGCO, CLAAS), truck
+      GPS/ELD, elevator queue APIs, weather/micro-forecasts, field boundaries,
+      road speeds, and bin capacities.
+    - >-
+      Forecasting: ML models predict hourly cut rate (tons/bushels per hour) per
+      combine and per field, adjusting for moisture, slope, operator behavior,
+      and weather nowcasts; goal: <12% MAE on hourly output.
+    - >-
+      Optimization: a field-aware dispatch engine solves vehicle routing with
+      time windows, driver HOS, private farm roads, elevator capacity, and
+      moisture/quality constraints; updates schedules continuously as conditions
+      change.
+    - >-
+      Operational apps: mobile, tablet, and web apps for dispatchers, combine
+      operators, and drivers—offline-first with automatic resync; voice prompts
+      and large-button UI for in-cab use.
+    - >-
+      What-if planning: simulate adding/removing trucks, changing receiver,
+      splitting fields, or shifting start times to visualize queues, throughput,
+      and overtime impact before committing.
+    - >-
+      Safety and compliance: consider HOS where applicable; geofenced speed
+      limits and access; alerts for unsafe staging or predicted night operations
+      beyond policy.
+    - >-
+      Integration and APIs: connectors to John Deere Operations Center, CNH AFS,
+      AGCO FUSE, Trimble, Raven; ELDs (Samsara, Motive, Geotab); elevator/scale
+      systems (Bushel, Agris) where available; CSV/manual fallback.
+    - >-
+      Change management: onboarding playbooks, field-level SOP templates, radio
+      call scripts, and real-time “coach” tips (e.g., suggest staging at
+      different headland) to drive adoption.
+  uniqueValueProp: >-
+    Predict hourly harvest output per machine and auto-dispatch trucks/bins to
+    cut wait and idle time by 30–50%, increase combine utilization by 8–15%, and
+    deliver an ROI within the first harvest season—without changing your
+    existing equipment or workflows.
+  unfairAdvantage: >-
+    Harvest-specific optimization and a growing proprietary dataset of
+    combine-throughput-to-dispatch outcomes and elevator queues enable more
+    accurate short-horizon forecasts than generic fleet or farm software.
+    Offline-first, voice-guided workflows and field-road-aware routing are
+    tailored to real-world harvest conditions, backed by ROI-verified case
+    studies and deep OEM/ELD integrations.
+  customerSegments:
+    - >-
+      Mid-to-large row crop farms (corn, soy, wheat, canola, sorghum) with 2+
+      combines or >1,500 harvested acres per season.
+    - >-
+      Custom harvesters/contractors operating fleets across multiple clients and
+      regions.
+    - >-
+      Potato, sugar beet, and specialty crop growers with high-volume haulage
+      and strict time windows.
+    - >-
+      Grain elevators/receiving sites coordinating inbound loads and yard
+      queues.
+    - >-
+      Farm management companies and producer groups/co-ops coordinating shared
+      fleets.
+    - >-
+      Equipment dealers and precision ag consultants bundling software with
+      telematics and support.
+  channels:
+    - >-
+      Direct sales to farms and custom harvesters during off-season (Jan–May)
+      via demos at Farm Progress Show, Commodity Classic, Canada’s Outdoor Farm
+      Show, and regional grower meetings.
+    - >-
+      Partnerships with equipment dealers and precision ag consultants to bundle
+      with telematics and service contracts.
+    - >-
+      OEM and platform marketplaces (John Deere Operations Center, CNH Developer
+      Network, AGCO Digital) for visibility and single sign-on integrations.
+    - >-
+      Referrals and case-study-driven marketing featuring quantified ROI from
+      pilot customers.
+    - >-
+      Targeted digital campaigns to ag fleets (LinkedIn, Facebook groups,
+      YouTube farm channels), webinars, and SMS lists during pre-harvest
+      planning windows.
+    - >-
+      Co-op and elevator pilots: offer receiver-side queue visibility to recruit
+      member farms.
+    - >-
+      ROI-based offers: 60-day pilot with performance guarantee (e.g., 20%+
+      reduction in truck wait time or discounted fees).
+  revenueStreams:
+    - >-
+      Seasonal subscription: $1,200 per combine per harvest month; $400 per
+      truck/bin per month; 2-month minimum per season; minimum $5,000 per
+      operation per season.
+    - >-
+      Annual enterprise license for multi-region operators/elevators starting at
+      $50,000/year with premium SLAs and integrations.
+    - >-
+      Onboarding/integration fee: $2,000–$10,000 depending on systems and data
+      complexity.
+    - >-
+      Add-ons: elevator appointment API module ($0.50 per scheduled load),
+      satellite data enrichment ($2/field/month), SMS/voice notifications
+      ($0.02/message; usage-based).
+    - >-
+      Professional services: route rule customizations, SOP design, and on-site
+      training billed at $150–$220/hour.
+    - >-
+      Data insights package: post-season benchmarking reports ($3,000/season per
+      operation).
+  costStructure:
+    - >-
+      Cloud compute and storage (forecasting + optimization): $4–$8 per active
+      machine-day; annualized COGS target <20% of revenue.
+    - >-
+      Third-party data: weather and traffic APIs ($0.002–$0.01 per request),
+      satellite imagery ($0.50–$2/field/month avg), telematics partner fees
+      ($1–$3/device/month).
+    - >-
+      R&D: ML/optimization team salaries; model training infra; field testing
+      equipment and travel.
+    - >-
+      Sales and marketing: trade shows, dealer SPIFs, content; target 25–30% of
+      revenue in early years, trending to 15–20%.
+    - >-
+      Customer success and support: onboarding, harvest hotlines; budget
+      $1,000–$2,500 per customer per season.
+    - >-
+      Liability/insurance, legal (data-sharing agreements), and compliance
+      (driver HOS rules where applicable).
+    - 'General & administrative: finance, HR, tools.'
+  keyMetrics:
+    - 'Forecast accuracy: hourly harvest output MAE ≤ 12%; bias within ±5%.'
+    - >-
+      Operational efficiency: average truck wait time < 8 minutes/load; combine
+      idle time < 12% of cutting window; loads/hour increase ≥ 10%.
+    - >-
+      Schedule adherence: ≥ 85% of loads arrive within ±10 minutes of ETA;
+      replan latency < 30 seconds.
+    - >-
+      Business metrics: logo retention ≥ 90% YoY; NRR ≥ 115%; CAC payback ≤ 12
+      months; gross margin ≥ 70%.
+    - >-
+      Adoption: ≥ 80% of drivers/combine operators active daily during harvest;
+      median onboarding time ≤ 10 days; NPS ≥ 45.
+    - >-
+      Financial impact: documented cost savings ≥ $150 per truck-day and ≥ $300
+      per combine-day; ROI ≥ 1.5x in first season.
+    - >-
+      Resilience: offline uptime ≥ 99.9% of field hours; data sync success ≥
+      99%.
+    - >-
+      Safety/compliance: near-miss events related to staging reduced ≥ 25%
+      (self-reported); HOS violation risk flags < 1% of trips (when applicable).
+storyBrand:
+  character: >-
+    Operations managers, harvest coordinators, and custom harvesters who must
+    move crops fast with limited trucks, bins, and drivers across multiple
+    fields.
+  problem: >-
+    External: Hourly yield swings cause truck lines, idle combines, and missed
+    weather windows; Internal: Stress of guessing dispatch and wasting time;
+    Philosophical: Harvest shouldn’t be a waiting game—data should keep machines
+    and trucks moving.
+  guide: >-
+    Empathy: We know harvest is a race against weather and hours, not a
+    spreadsheet; Authority: Built by ag engineers and dispatch pros for
+    machine-harvest ops, with field-proven cuts to wait and idle time.
+  plan: >-
+    Process: 1) Connect machine, field, bin/elevator, and weather data; 2)
+    Forecast hourly output and auto-build truck/bin dispatch; 3) Execute with
+    live updates and easy overrides. Agreement: clear per-acre pricing, data
+    privacy, hands-on onboarding.
+  callToAction: >-
+    Direct: Schedule a harvest-readiness call or start a field pilot;
+    Transitional: Download the Harvest Bottleneck Playbook or request a sample
+    forecast.
+  success: >-
+    Smooth, predictable flow—trucks loaded on arrival, bins balanced, minimal
+    lines and overtime, happier crews, fuel saved, more grain delivered at peak
+    quality, finishing before the storm.
+  failure: >-
+    Another season of guesswork—trucks idling, combines waiting, weather
+    shutouts, overtime and fuel burn, frustrated teams, quality loss, and missed
+    revenue.
+landingPage:
+  hero:
+    title: Yield & Truck Dispatch Forecaster
+    subtitle: >-
+      AI that predicts hourly harvest output and auto-schedules trucks and bins
+      to cut wait and idle time for machine-harvest operations.
+    ctaText: Book a Demo
+    ctaHref: /demo
+  problem:
+    - Trucks and bins sit idle while machines wait on logistics.
+    - Uncertain yields lead to over- or under-dispatching.
+    - Manual radio/clipboard dispatching can’t react in time.
+    - Receiver/bin capacity bottlenecks cause queues and overtime.
+    - Weather and breakdowns shift output; plans go stale.
+    - 'Data is scattered across machines, fields, and fleets.'
+  solution:
+    - 'Forecast hourly yield by field and machine, updated in real time.'
+    - Auto-build a truck/bin dispatch plan to match output and capacity.
+    - 'Balance routes, turn-times, and unload rates to prevent queues.'
+    - Live mobile updates keep drivers and operators synchronized.
+    - Spot bottlenecks early with alerts and actionable insights.
+    - 'Measure gains with idle time, cycle time, and throughput analytics.'
+  features:
+    - >-
+      Live yield forecasting from machine telemetry, historical yield maps,
+      moisture, and weather.
+    - >-
+      Dynamic dispatching with time windows, priorities, and re-optimization on
+      change.
+    - 'Fleet sizing recommendations by hour: trucks needed now and next.'
+    - Receiver/bin capacity modeling with unload rate and queue constraints.
+    - >-
+      Driver app with offline mode, turn-by-turn, and one-tap acknowledgements
+      (iOS/Android).
+    - 'Integrations: JD Operations Center, CNH, Trimble, scale houses, and APIs.'
+    - 'What-if planning for storms, shift changes, and field switches.'
+    - 'Multi-farm, multi-crop support (corn, soy, wheat, beets, and more).'
+    - 'Auto reports: idle minutes, cycle times, utilization, cost per ton/acre.'
+    - 'Role-based access, audit trails, and geofenced road restrictions.'
+  steps:
+    - Connect equipment and fields; import boundaries and historical yields.
+    - 'Set truck capacities, receiver sites, unload rates, and shift windows.'
+    - Start harvesting; the system predicts hourly output by field and machine.
+    - Dispatch plan goes live; drivers receive assignments and updates.
+    - Monitor the dashboard; resolve bottlenecks with one tap.
+    - Export performance reports and share ROI with your team.
+---
+# HarvestFlow Dispatch AI
+
+Industry: Crop Harvesting, Primarily by Machine
+Service: Yield & Truck Dispatch Forecaster

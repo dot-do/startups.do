@@ -1,0 +1,281 @@
+---
+name: FrostCast Planner for Ice
+slug: frostcast
+service:
+  title: Ice Demand Forecasting & Production Planning
+  description: >-
+    Forecast SKU-level demand (bags/blocks) and generate daily/shift production
+    plans that respect capacity, labor, and storage constraints.
+  targetUsers:
+    - Operations Manager
+    - Plant Scheduler
+    - COO
+  triggers:
+    - 'Daily at 14:00 local'
+    - Weather forecast changes >2°F day-ahead
+    - Large event added to calendar
+    - Order book change >10%
+  inputs:
+    - 2+ years sales by SKU/channel/site
+    - Current WIP and storage capacity
+    - Shift/labor availability
+    - Weather forecast (temp/humidity)
+    - Holiday/event calendars
+    - Lead times and changeover times
+  steps:
+    - Ingest and clean data from ERP/WMS/Sheets
+    - Build causal time-series models with weather/events
+    - Forecast by SKU/site/channel
+    - Convert forecast to feasible line/shift plan with changeover minimization
+    - 'Simulate constraints (storage, labor, maintenance)'
+    - Publish plan to calendar/ERP and notify stakeholders
+    - Track actuals vs plan; auto-adjust next run
+  tools:
+    - Python (Prophet/XGBoost)
+    - Google BigQuery/Sheets
+    - OpenWeather/NOAA API
+    - OR-Tools for scheduling
+    - Slack/Teams
+    - ERP API (NetSuite/Odoo/QuickBooks)
+  outputs:
+    - SKU-level demand forecast (csv/dashboard)
+    - Shift-by-shift production schedule
+    - Picklists and changeover plan
+    - Variance report vs actuals
+  pricingModel:
+    - One-time setup fee
+    - Monthly subscription per plant
+    - Optional per-additional SKU/site tier
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 4.5
+    overall: 4.7
+  risks:
+    - Poor historical data quality or short history
+    - Sudden demand spikes from unlisted events
+    - Over/underproduction if constraints are mis-specified
+  dependencies:
+    - API/CSV access to sales/WMS/ERP
+    - OpenWeather API key
+    - Defined line capacities and changeover matrix
+leanCanvas:
+  problem:
+    - >-
+      Highly seasonal and weather-driven demand causes frequent stockouts during
+      heat spikes and overproduction during cool spells, leading to melt loss
+      and wasted energy.
+    - >-
+      Most ice manufacturers plan production with spreadsheets and tribal
+      knowledge, making it difficult to coordinate bagger lines, freezer
+      capacity, labor rosters, and delivery schedules across SKUs and plants.
+    - >-
+      SKU/outlet-level forecasting is hard because orders are lumpy, retailers
+      change planograms, and local events can swing demand by 2–5x within 24–48
+      hours.
+    - >-
+      Poor visibility into near-term demand and capacity leads to overtime,
+      emergency runs, and missed deliveries that damage retailer relationships
+      and incur penalties.
+    - >-
+      Energy and labor costs rise during reactive planning; plants can’t easily
+      pre-freeze inventory ahead of heat waves while respecting storage
+      constraints and shrink risk.
+    - >-
+      Data is siloed (ERP, route tickets, POS, telematics, weather) and not
+      modeled together to produce actionable, constraint-aware daily/shift
+      plans.
+  solution:
+    - >-
+      High-frequency demand forecasts at SKU x outlet x day horizon (1–21 days)
+      using ensemble models with weather, events, and route signals.
+    - >-
+      Constraint-aware production planning optimizer that allocates volume to
+      lines/shifts, sequences SKUs, and proposes pre-freeze strategy within
+      freezer limits.
+    - >-
+      Automated data ingestion from ERP/orders, route tickets, POS feeds,
+      weather APIs, telematics, and event calendars; data quality checks and
+      anomaly alerts.
+    - >-
+      What-if scenario planning for heat waves, promotions, outages, and line
+      downtime; compare service levels, costs, and labor impact.
+    - >-
+      Live dashboards for plant managers: forecast heat maps, stockout risk by
+      outlet, freezer utilization, shift plans, and pick/load suggestions.
+    - >-
+      APIs and flat-file connectors to push plans to ERP/route-planning systems;
+      audit trails and explainable drivers of forecast changes.
+  uniqueValueProp: >-
+    AI forecasts SKU/outlet demand and auto-builds daily/shift production plans
+    that respect bagger capacity, labor, and freezer constraints—cutting
+    stockouts and melt waste while lowering overtime within 4–6 weeks.
+  unfairAdvantage: >-
+    Domain-tuned weather/event uplift models and constraint library specific to
+    ice manufacturing (bagger speeds, freeze/thaw loss, freezer aging) plus
+    OEM/integrator partnerships enabling 4–6 week go-live and rapid ROI.
+  customerSegments:
+    - >-
+      Packaged ice manufacturers (regional and national) with 1–50+ plants,
+      serving C-stores, groceries, mass merchandisers, and events.
+    - >-
+      Vertical integrated distributors that manufacture and distribute ice to
+      owned routes and third-party retailers.
+    - >-
+      Large retailers with in-house or captive ice operations seeking better
+      demand sensing and replenishment planning.
+    - >-
+      Cold storage/logistics providers supporting ice manufacturers who need
+      demand-driven space and route planning.
+  channels:
+    - >-
+      Direct sales to operations/supply chain leaders at ice manufacturers;
+      target lists built from IPIA membership and public plant directories.
+    - >-
+      Industry partnerships with equipment OEMs (baggers/freezers) and ERP/route
+      software integrators who co-sell/implement.
+    - >-
+      Presence at IPIA and cold-chain trade shows; host heat-wave preparedness
+      workshops with case studies and ROI calculators.
+    - >-
+      Content-led growth: seasonal demand playbooks, weekly “Heat Surge Outlook”
+      emails to ops leaders, webinar series before peak summer.
+    - >-
+      Pilot-led motion: 6–8 week paid pilots at 1–2 plants with clear success
+      criteria and executive review.
+    - >-
+      Referral program for route managers and plant supervisors; spiffs for
+      qualified intros that convert.
+  revenueStreams:
+    - >-
+      SaaS subscription per plant: $2,500–$5,000 per month including
+      forecasting, dashboards, and standard integrations.
+    - >-
+      Optimizer add-on (production planning): $1,000–$2,000 per plant per month
+      depending on constraints/volume.
+    - >-
+      Implementation fee: $8,000–$25,000 per plant (data integration, model
+      tuning, training).
+    - >-
+      Premium data add-ons: high-resolution weather/events packages ($300–$700
+      per plant per month).
+    - >-
+      Professional services: custom reports, advanced what-if models, and
+      integration to bespoke systems ($150–$220 per hour).
+    - Enterprise tier discounts for 10+ plants and multi-year commitments.
+  costStructure:
+    - >-
+      R&D: data science, optimization engineering, and product development (5–8
+      FTE initially).
+    - >-
+      Cloud costs: compute for training/inference, optimization solver
+      licensing, storage, monitoring ($2k–$8k per plant per year at scale).
+    - 'Third-party data: weather/events APIs and telematics/POS connectors.'
+    - 'Sales and marketing: SDRs, AEs, trade shows, content, pilots.'
+    - Customer success and implementation (2–4 FTE initially).
+    - 'Security and compliance: SOC 2 Type II, pen tests, audit tooling.'
+    - 'General and administrative: legal, finance, insurance.'
+  keyMetrics:
+    - >-
+      Forecast accuracy: weighted MAPE by SKU/outlet/day (<15% in-season, <20%
+      shoulder seasons), forecast bias within ±5%.
+    - >-
+      Service level: case fill rate >98% for A SKUs; stockouts reduced 30–50% vs
+      baseline.
+    - >-
+      Operational efficiency: overtime hours down 15–30%; emergency runs down
+      25–40%; changeover time loss down 10–20%.
+    - >-
+      Waste/shrink: melt loss reduction 10–25%; freezer utilization 75–90% with
+      <5% overcapacity days.
+    - >-
+      Financial impact: planning-driven gross margin uplift 2–5%; ROI >5x within
+      12 months; payback <4 months.
+    - >-
+      Adoption: planner override rate <15% after 60 days; on-time plan
+      acceptance >95%; weekly active planner users >90%.
+    - >-
+      Data health: <1% missing key feeds per week; forecast stability
+      week-over-week variance within target bands.
+storyBrand:
+  character: >-
+    Ice manufacturers (bags and blocks) who need precise daily SKU-level
+    production plans to meet demand without waste.
+  problem: >-
+    Weather-driven demand swings cause stockouts, overtime, and melt-induced
+    loss because planners lack accurate forecasts and capacity-aware schedules.
+  guide: >-
+    We understand summer spikes and freezer limits. Our AI blends sales and
+    weather with factory constraints to deliver reliable, actionable plans—built
+    by experts in CPG cold-chain and production planning.
+  plan: >-
+    1) Connect sales, weather, and production data. 2) Calibrate SKU-level
+    forecasts. 3) Auto-generate daily/shift plans that respect line capacity,
+    labor, changeovers, and storage, with alerts and easy overrides.
+  callToAction: Book a 30-minute assessment or start a 4-week pilot.
+  success: >-
+    Make the right ice in the right quantities, hit service levels, reduce
+    overtime and waste, stabilize shifts, and protect margins—even on heat
+    spikes.
+  failure: >-
+    Keep guessing—overproduce on cool days, short hot days, pay rush costs, lose
+    retailer confidence, and erode profit.
+landingPage:
+  hero:
+    title: Ice Demand Forecasting & Production Planning
+    subtitle: >-
+      Forecast SKU-level demand (bags/blocks) and auto-build daily/shift plans
+      that respect capacity, labor, and storage.
+    ctaText: Book a Demo
+    ctaHref: /demo
+  problem:
+    - 'Weather swings make demand unpredictable by day, route, and SKU.'
+    - 'Spreadsheets miss delivery windows, seasonality, and line constraints.'
+    - >-
+      Overproduction melts; underproduction loses sales and triggers
+      chargebacks.
+    - Freezer space is tight; the wrong mix clogs storage.
+    - Bagging and block lines have different rates and changeovers.
+    - Staffing and overtime rarely match true demand.
+    - Late re-forecasting forces emergency runs and reschedules.
+    - 'Data is scattered across POS, ERP, and dispatch systems.'
+  solution:
+    - 'Daily forecasts by plant/route/SKU using weather, holidays, and events.'
+    - >-
+      Shift-by-shift plans optimized for line rates, changeovers, labor, and
+      freezer limits.
+    - Inventory targets and safety stock per SKU/site to curb melt loss.
+    - Auto-replan when orders or weather change; proactive spike alerts.
+    - One-click export to ERP/WMS; printable floor schedules for operators.
+    - 'What-if simulations for heatwaves, downtime, and staffing scenarios.'
+    - 'Plan vs actual dashboard for stockouts, shrink, OT, and service level.'
+  features:
+    - 'Weather-aware forecasting (temperature, humidity, heat index).'
+    - SKU granularity for bags and blocks across sizes.
+    - Route/day-of-week seasonality and delivery windows.
+    - 'Multi-plant, multi-line capacity modeling.'
+    - Separate bagging vs block line rates and changeover times.
+    - 'Freezer capacity, dwell time, and pick-path constraints.'
+    - 'Labor shifts, skills, and overtime rules built in.'
+    - Safety stock and reorder points per SKU/site.
+    - Explainable forecasts with confidence intervals.
+    - Real-time alerts for forecast variance and heat triggers.
+    - 'API, SFTP, and CSV connectors for POS/ERP/dispatch.'
+    - 'Exports to Excel, PDF, and machine-readable plan files.'
+    - Mobile floor view for operators with start/stop checkpoints.
+    - Role-based access and audit trail.
+    - Scenario planning and saved what-ifs.
+    - Plan vs actual tracking with continuous model tuning.
+  steps:
+    - 'Connect data: POS/shipments, inventory, weather; optional orders.'
+    - 'Configure assets: SKUs, plants, lines, rates, freezer limits, shifts.'
+    - 'Review forecast: per SKU/plant/route with confidence bands.'
+    - 'Generate plan: daily/shift schedule with labor and capacity constraints.'
+    - 'Publish: send to ERP/WMS and print floor schedules.'
+    - 'Monitor: receive spike alerts and auto-replan on change.'
+    - 'Improve: track KPIs and refine parameters with ops feedback.'
+---
+# FrostCast Planner for Ice
+
+Industry: Ice Manufacturing
+Service: Ice Demand Forecasting & Production Planning
