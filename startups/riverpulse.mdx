@@ -1,0 +1,330 @@
+---
+name: RiverPulse AI
+slug: riverpulse
+naics:
+  primary: '483212'
+  occupations: []
+service:
+  title: Real-time Disruption Monitor & Passenger Communications Agent
+  description: >-
+    24/7 agent that detects disruptions (weather, lock/bridge delays, mechanical
+    issues) and pushes accurate ETAs and advisories to crew and passengers.
+  targetUsers:
+    - Dispatcher
+    - Customer service lead
+    - Captains
+  triggers:
+    - Severe weather alerts
+    - AIS geofence/slowdown events
+    - USACE/USCG notices to mariners updates
+    - Manual incident flag by crew
+  inputs:
+    - AIS/VHF-derived vessel positions (MarineTraffic/VesselFinder API)
+    - NOAA/NWS weather alerts
+    - USACE Navigation Status/Lock Queue feeds
+    - USCG Local Notice to Mariners
+    - Current timetable and bookings
+    - Predefined message templates/SOPs
+  steps:
+    - Monitor feeds and score disruption likelihood/impact
+    - Compute new ETAs and feasible reroutes
+    - Draft comms for crew and passengers with localized impact
+    - Route approval to human if high-severity; auto-send for low/medium
+    - Update website banner/GTFS-RT alerts
+    - Post-incident summary and data capture
+  tools:
+    - MarineTraffic/VesselFinder APIs
+    - 'NOAA/NWS API, OpenWeatherMap'
+    - USACE lock data (where available)
+    - GTFS-RT Alerts
+    - 'Twilio SMS/WhatsApp/Voice, SendGrid email'
+    - 'Web CMS banner API, Slack/Teams'
+  outputs:
+    - Passenger-facing SMS/WhatsApp/email updates
+    - Updated GTFS-RT alert feed
+    - Ops dashboard with ETAs and reason codes
+    - Post-mortem report (PDF)
+  pricingModel:
+    - Monthly fee + per-message cost
+    - Higher tier for 24/7 monitoring/SLA
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - API latency/outages
+    - Over/under-notification causing customer dissatisfaction
+    - Liability if advice is unsafe—must defer to captain/dispatch
+  dependencies:
+    - AIS data subscription
+    - Messaging sender IDs (SMS/WhatsApp)
+    - Website/GTFS write access
+    - SOPs for escalation and approval
+leanCanvas:
+  problem:
+    - >-
+      Passengers lack timely, accurate disruption information (weather,
+      lock/bridge queues, mechanical issues), leading to confusion, crowding,
+      and poor satisfaction.
+    - >-
+      Operators rely on manual monitoring (phone calls to lockmasters, radio,
+      disparate apps), causing delayed decisions and inconsistent ETAs.
+    - >-
+      Crew spends significant time fielding “where is my boat?” inquiries,
+      distracting from safe operations.
+    - >-
+      Refunds, chargebacks, and negative reviews rise during disruption spikes;
+      operators lack tools to proactively manage expectations.
+    - >-
+      Existing AIS/weather tools aren’t tuned to inland passenger ops
+      (locks/bridges/rivers), and generic mass-notification tools lack live ETA
+      integration.
+    - >-
+      Regulators and authorities expect robust passenger communications during
+      incidents; compliance is ad hoc and hard to audit.
+  solution:
+    - >-
+      Ingest and fuse real-time data: USACE lock status/lockage logs, USCG Local
+      Notices to Mariners, DOT bridge opening schedules, NOAA/NWS hydrology and
+      weather alerts, lightning, AIS/positioning, operator schedules, and
+      optional engine/telemetry.
+    - >-
+      Predictive models estimate lock and bridge delays, weather-related
+      slowdowns, and mechanical impact on schedule adherence; continuous ETA
+      recalculation with confidence intervals.
+    - >-
+      Autonomous passenger communications: condition-based triggers push
+      SMS/WhatsApp/email/app/web updates (e.g., “Departing 12:10, ETA 12:32;
+      bridge delay +7 min”).
+    - >-
+      Crew decision support: suggested departure holds, speed adjustments within
+      safe limits, route alternates (where permitted), and pre-approved
+      announcement scripts via mobile/radio PA integration.
+    - >-
+      Live disruption dashboard for ops centers and dock signage integration
+      (QR-enabled web boards) with ADA-accessible, multilingual messaging.
+    - >-
+      Audit trail and compliance reporting: who was notified, when, with what
+      content; exportable for internal QA and regulators.
+  uniqueValueProp: >-
+    A 24/7 AI agent purpose-built for inland passenger waterways that predicts
+    disruptions (lock/bridge queues, river weather, mechanical impacts),
+    generates accurate ETAs, and automatically communicates clear, multilingual
+    advisories to crew and passengers—reducing delays, support load, and refunds
+    while improving safety and satisfaction.
+  unfairAdvantage: >-
+    Purpose-built inland disruption models (lock/bridge prediction) trained on
+    fused authority data and operator telemetry, combined with deep ticketing
+    integrations that enable targeted, automated passenger updates—difficult for
+    generic AIS/weather or mass-notification vendors to replicate quickly.
+  customerSegments:
+    - >-
+      Mid-size inland ferry and water taxi operators (5–30 vessels; commuter or
+      mixed-use routes).
+    - >-
+      Sightseeing, dinner-cruise, and excursion operators on rivers and lakes
+      (seasonal demand, multiple departures/day).
+    - >-
+      Public agencies and concessionaires operating inland passenger services
+      (state DOTs, port authorities).
+    - >-
+      Large multi-route operators seeking standardized passenger comms and ETA
+      accuracy across fleets.
+    - >-
+      Ticketing/booking platforms serving inland passenger operators (for
+      OEM/embedded offering).
+  channels:
+    - >-
+      Direct sales to operators via Passenger Vessel Association (PVA) events,
+      webinars, and targeted outbound to top 300 inland operators by
+      departures/year.
+    - >-
+      Partnerships with ticketing/booking platforms to embed ETA and messaging
+      (OEM revenue share).
+    - >-
+      Referral and co-marketing with maritime insurers and brokers by
+      demonstrating reduced incident claims and refunds.
+    - >-
+      Pilots with state DOTs/port authorities (public RFPs) and demonstration
+      projects funded by maritime innovation grants.
+    - >-
+      Content marketing: quarterly Inland Disruption Index report by
+      region/waterway; case studies showing delay-minute reduction and CSAT
+      lift.
+    - >-
+      Systems integrators and display vendors for dock signage and control
+      rooms.
+    - >-
+      Onboarding incentives: 60–90 day pilot with ROI guarantee; bundle pricing
+      for multi-vessel fleets.
+  revenueStreams:
+    - >-
+      SaaS subscription per active vessel: Basic $150/vessel/month, Pro $300,
+      Enterprise $450 (SLAs, APIs, SSO).
+    - >-
+      Usage-based messaging: pass-through + margin (e.g., $0.009–$0.02 per SMS)
+      with volume tiers.
+    - >-
+      Route/terminal add-ons: dock display integration $100/location/month;
+      white-label passenger web/app $0.05 per passenger trip.
+    - >-
+      Professional services: setup/integration packages ($2,500–$10,000), data
+      onboarding, SOP/playbook design.
+    - >-
+      Enterprise/site license for public agencies covering all contracted
+      operators (custom pricing).
+    - >-
+      Data/API licensing to authorities/partners for aggregated disruption
+      analytics (privacy-preserving).
+  costStructure:
+    - >-
+      Cloud compute and storage for data fusion and model inference
+      (~$30–$70/vessel/month at scale).
+    - >-
+      Data acquisition: AIS feeds, lightning/nowcast weather, bridge data
+      aggregation (mix of free + commercial sources).
+    - >-
+      Telecom: SMS/WhatsApp/email delivery costs (variable; target gross margin
+      35–55% on messaging).
+    - >-
+      24/7 operations (NOC) and maritime analysts for incident triage and
+      customer support.
+    - >-
+      Engineering (data/ML/backend/mobile), product, and QA; security/compliance
+      (SOC 2).
+    - >-
+      Sales/marketing (events, content), partner success,
+      onboarding/professional services.
+    - >-
+      Insurance (E&O), legal, and certifications; device/test equipment for
+      integrations.
+  keyMetrics:
+    - >-
+      ETA accuracy: Mean Absolute Error (MAE) <3 min on short-haul routes; <6
+      min on longer excursions; 90th percentile error <8 min.
+    - >-
+      Disruption detection latency: <120 seconds from data signal to alert
+      generation; target 99% within SLA.
+    - 'Reduction in delay-related refunds/credits: 15–30% within 6 months.'
+    - >-
+      Reduction in inbound “where is my boat?” contacts: 30–50% after full
+      rollout.
+    - >-
+      Passenger message delivery rate: >98%; open rate: >70% for pre-departure
+      changes; opt-out rate <2%.
+    - 'On-time performance improvement: +8–15% trips within +/−5 min vs baseline.'
+    - 'Crew acknowledgment compliance: >95% within 3 minutes for critical alerts.'
+    - >-
+      System reliability: 99.9% platform uptime; messaging pipeline success
+      >99.5%.
+    - >-
+      Gross margin: SaaS >80%; blended >65% at scale; CAC payback <9 months;
+      LTV:CAC >3:1.
+    - 'Churn: <1.5% monthly logo churn; Net Revenue Retention >110% with upsells.'
+storyBrand:
+  character: >-
+    Inland water passenger operators—ferries, tours, and river cruises—who must
+    keep schedules tight and passengers informed despite unpredictable river
+    conditions.
+  problem: >-
+    Disruptions from weather, lock/bridge queues, and mechanical issues derail
+    ETAs and flood crew/dispatch with calls; passengers feel kept in the dark,
+    trust erodes, and small delays cascade into costly operations. People
+    deserve timely, accurate updates and safe journeys.
+  guide: >-
+    We understand live river operations and the stress of uncertain ETAs. Our
+    24/7 AI agent monitors weather, lock and bridge status, AIS/positioning, and
+    asset health to detect disruptions early and compute trustworthy ETAs and
+    advisories for crew and passengers.
+  plan: >-
+    1) Connect data: routes, schedules, vessel feeds, and status sources. 2) Set
+    policies: notification rules, channels (SMS, PA, screens, web), and
+    escalation. 3) Go live: the agent watches continuously and pushes updates
+    automatically, with human override when needed.
+  callToAction: >-
+    Primary: Start a 30-day pilot on one route. Secondary: Schedule a 20-minute
+    demo and route readiness check.
+  success: >-
+    Crew focus on safe operations while passengers get real-time ETAs and clear
+    advisories on their preferred channels; fewer inbound calls, smoother
+    turnarounds, better reviews, protected revenue on disrupted days, and a
+    verified timeline for post-mortems and compliance.
+  failure: >-
+    Without it: silent delays, misinformation at docks, angry queues and
+    refunds, stressed crews juggling calls, social backlash, and avoidable
+    safety and compliance risks as small disruptions snowball.
+landingPage:
+  hero:
+    title: Real-time Disruption Monitor & Passenger Communications Agent
+    subtitle: >-
+      For Inland Water Passenger Transportation (NAICS 483212). Detects weather,
+      lock and bridge delays, and mechanical issues. Pushes accurate ETAs and
+      advisories to crew and passengers—24/7.
+    ctaText: Start a pilot
+    ctaHref: /request-demo
+  problem:
+    - 'Unpredictable delays from weather, currents, locks, and bridges'
+    - Manual updates tie up crew and dispatch
+    - 'Passengers left guessing, leading to complaints and refunds'
+    - 'Fragmented data across AIS, lock notices, and vessel systems'
+    - Missed connections and cascading schedule impacts
+    - Regulatory and safety communications are inconsistent
+    - No single source of truth for ETAs across channels
+  solution:
+    - >-
+      Always-on monitoring of weather, lock/bridge status, AIS, and vessel
+      telemetry
+    - AI ETA engine tuned for river conditions and lock dwell times
+    - 'Automatic, plain-language advisories to passengers and crew'
+    - 'Unified status across SMS, email, web, and terminal displays'
+    - Crew console with disruption playbooks and one-tap updates
+    - Audit-ready logs of all alerts and messages
+    - APIs and webhooks to sync ETAs with ticketing and partners
+  features:
+    - >-
+      Disruption detection: NOAA weather, river levels, fog, wind, Notices to
+      Mariners, lock/bridge APIs, AIS, onboard sensors
+    - >-
+      ETA engine: route-specific models with lock queues, currents, and dwell
+      time learning
+    - >-
+      Passenger comms: SMS, email, WhatsApp, web status page, QR-linked trip
+      tracker, kiosk/display feed
+    - >-
+      Crew tools: live map, incident timeline, suggested advisories, PA script
+      generator, two-way messaging
+    - >-
+      Smart templates: multilingual, ADA-friendly, time-boxed, and role-based
+      variants
+    - >-
+      Playbooks: mechanical issue, crew shortage, high water, fog, lock delay,
+      bridge opening
+    - 'Escalation: route to human dispatcher when thresholds or confidence drop'
+    - >-
+      Partner integrations: ticketing, dispatch, CRM, and public transit feeds
+      via API/webhooks
+    - >-
+      Data and compliance: message archiving, export, and permissioned access
+      controls
+    - >-
+      Resilience: 24/7 monitoring, configurable SLAs, offline fallback with
+      last-known ETA
+    - >-
+      Analytics: on-time performance, causes of delay, passenger comms reach and
+      engagement
+    - >-
+      Onboarding support: route ingestion, data connections, template setup,
+      training
+  steps:
+    - 'Share routes, schedules, and operating windows'
+    - 'Connect data sources (AIS, lock/bridge feeds, weather, telemetry)'
+    - Configure channels and message templates
+    - Pilot on one route with shadow alerts
+    - Train crew and dispatch; set escalation rules
+    - Go live system-wide and monitor KPIs
+---
+# RiverPulse AI
+
+Generated for NAICS 483212 — Inland Water Passenger Transportation.
+Service: Real-time Disruption Monitor & Passenger Communications Agent

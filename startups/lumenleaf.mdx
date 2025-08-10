@@ -1,0 +1,318 @@
+---
+name: LumenLeaf DLI Planner
+slug: lumenleaf
+naics:
+  primary: '111419'
+  occupations: []
+service:
+  title: Lighting & DLI Planner (LED/HPS)
+  description: >-
+    Plans supplemental lighting schedules to meet crop DLI/photoperiod targets
+    at lowest energy cost given forecast irradiance and tariffs.
+  targetUsers:
+    - Head growers
+    - Energy managers
+  triggers:
+    - 'Daily at 17:00 for next day'
+    - Tariff/DR event posted
+    - Fixture outage detected
+  inputs:
+    - Fixture map and max µmol/s
+    - Target DLI/photoperiod by crop stage
+    - Irradiance forecast
+    - Tariffs and demand limits
+    - Greenhouse zone shading/screens schedule
+  steps:
+    - Estimate natural PAR for each zone
+    - Compute required supplemental PAR to hit DLI target
+    - Optimize on/off/dimming schedule within demand caps
+    - Export per-zone schedule and projected kWh/cost
+    - Track realized DLI and adjust same-day if underperforming
+  tools:
+    - Solcast/NREL irradiance API
+    - Pandas/OR-Tools
+    - Vendor lighting APIs or CSV
+    - Grafana dashboard
+    - Slack alerts
+  outputs:
+    - Per-zone lighting schedule (JSON/CSV)
+    - Projected vs. achieved DLI
+    - Cost and demand summary
+    - Exception list (zones at risk)
+  pricingModel:
+    - Monthly per hectare or per fixture
+    - Optional DR participation bonus share
+  humanInLoop: false
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 9
+    overall: 9
+  risks:
+    - Inaccurate PAR forecast near storms
+    - Fixture control API limitations
+    - Crop stress if DLI targets mis-set
+  dependencies:
+    - Fixture capability data
+    - Accurate target DLI by cultivar/stage
+leanCanvas:
+  problem:
+    - >-
+      Growers must hit crop-specific DLI and photoperiod targets despite highly
+      variable natural irradiance, or yields and quality suffer.
+    - >-
+      Supplemental lighting (LED/HPS) is often run on fixed schedules, wasting
+      energy during sunny periods and missing targets during cloudy periods.
+    - >-
+      Electricity tariffs (TOU, demand charges, RTP) are complex; most growers
+      lack tools to shift lighting to lower-cost hours without risking plant
+      stress or flowering errors.
+    - >-
+      HPS lighting adds heat; failing to coordinate lighting with heating, CO2,
+      and shading can increase total energy costs and cause climate instability.
+    - >-
+      Existing controllers are vendor-specific, not tariff-aware, and rarely
+      provide verifiable M&V of savings or agronomic impact.
+    - >-
+      Labor-constrained teams need simple, automated schedules with override
+      safety and compliance with light-curfew rules and light trespass concerns.
+  solution:
+    - >-
+      Ingest hourly/detailed irradiance forecasts (global and diffuse), on-site
+      PAR sensors, and tariff schedules (TOU/RTP/demand).
+    - >-
+      Compute crop-specific targets (DLI, photoperiod, intensity ceilings, ramp
+      rates) with grower-configured constraints by zone/bench.
+    - >-
+      Optimize lighting plans day-ahead and intra-day: when to dim, switch, or
+      curtail to meet DLI at the lowest energy cost, factoring HPS heat
+      substitution for heating load.
+    - >-
+      Dispatch control setpoints to climate computers/lighting controllers
+      (Priva, Hoogendoorn, Argus, Autogrow, Signify/Fluence) via secure gateway;
+      fail-safe to last known safe schedule.
+    - >-
+      Continuously re-forecast every 5–15 minutes using sensor feedback;
+      maintain DLI compliance with risk buffers under cloud uncertainty.
+    - >-
+      Provide M&V dashboard: kWh, $ saved vs baseline, achieved DLI/photoperiod,
+      $/mol delivered, yield KPIs; export reports for utility rebates and DR
+      programs.
+  uniqueValueProp: >-
+    AI-driven lighting schedules that guarantee crop DLI/photoperiod while
+    minimizing $/mol via irradiance and tariff forecasts—validated by automated
+    M&V.
+  unfairAdvantage: >-
+    Proprietary $/mol optimization that fuses irradiance and tariff forecasts
+    with crop physiology and HPS heat substitution, delivered via cross-vendor
+    integrations and backed by utility-grade M&V and field trials—difficult for
+    single-vendor controllers to replicate.
+  customerSegments:
+    - >-
+      Mid- to large-scale greenhouse vegetable and herb producers (tomato,
+      cucumber, pepper, lettuce, basil) using supplemental lighting
+      (US/Canada/EU).
+    - >-
+      Regional clusters with TOU pricing and winter lighting: Ontario (CA), U.S.
+      Northeast/Midwest, Nordics, Benelux.
+    - >-
+      Greenhouse integrators/consultants who specify lighting and climate
+      systems.
+    - >-
+      Lighting manufacturers (LED/HPS) seeking differentiated, tariff-aware
+      control for their fixtures.
+    - >-
+      CEAs with mixed fleets (LED + legacy HPS) needing cross-vendor
+      optimization.
+  channels:
+    - >-
+      Direct sales to greenhouse operators in Ontario, Great Lakes, U.S.
+      Northeast/Midwest; pilot-first motion.
+    - >-
+      Partnerships with lighting OEMs (Signify, Fluence, Hortilux), greenhouse
+      integrators, and climate computer vendors to bundle control software.
+    - >-
+      Utility energy-efficiency programs and implementers; approved M&V enables
+      incentive-aligned deployments.
+    - >-
+      Trade shows and associations: Canadian Greenhouse Conference, Cultivate,
+      Indoor Ag-Con, GreenTech; agronomy webinars and case studies.
+    - >-
+      Targeted outreach to clusters (Leamington-Kingsville, Niagara, Holland
+      Marsh, Quebec, Pennsylvania) via local consultants and co-ops.
+    - >-
+      Content/ROI tools: online calculator using local tariffs and historical
+      irradiance; whitepapers with peer-reviewed agronomy references.
+    - >-
+      DR aggregators for revenue-sharing propositions where growers can curtail
+      lighting with minimal DLI impact.
+  revenueStreams:
+    - >-
+      SaaS subscription per area: $0.40–$0.90 per m² per year
+      ($4,000–$9,000/ha/yr), tiered by features and zones.
+    - >-
+      One-time setup/integration fee: $3,000–$15,000 per site depending on
+      system complexity and connectors.
+    - >-
+      Optional managed gateway hardware (industrial PC with field protocols):
+      $2,000–$5,000 per site plus $300/yr support.
+    - >-
+      Performance-based upside: 10–20% share of verified energy cost savings
+      beyond baseline (optional plan).
+    - >-
+      Consulting/training packages for crop-specific parameterization and SOPs:
+      $150–$250/hr or $5,000/package.
+    - DR revenue share with aggregators where applicable (OpenADR/curtailment).
+    - >-
+      OEM/API licensing to lighting manufacturers and climate computer vendors
+      for embedded optimization.
+  costStructure:
+    - >-
+      R&D and payroll: optimization/ML engineers, horticultural scientists,
+      controls engineers, full-stack developers, QA.
+    - >-
+      Cloud infrastructure: compute for optimization, databases, monitoring;
+      $0.50–$2.00 per controlled zone per month at scale.
+    - >-
+      Third-party data: irradiance/weather APIs, tariff data (Genability/Energy
+      Toolbase), mapping/licensing.
+    - >-
+      Field integration and customer success: commissioning, support, travel for
+      pilots; 24/7 on-call during critical seasons.
+    - >-
+      Gateway hardware COGS and provisioning for sites needing on-premise
+      control.
+    - >-
+      Compliance and certifications: cybersecurity audits, vendor integrations,
+      insurance (product and errors/omissions).
+    - >-
+      Sales and marketing: pilots, trade shows, case studies, partner
+      enablement.
+    - >-
+      M&V and analytics tooling; data storage for historical performance and
+      audits.
+  keyMetrics:
+    - >-
+      Agronomic: DLI hit rate ≥ 95% per zone per day; photoperiod deviation < 5
+      minutes/day; PPFD ceiling violations < 0.5% of intervals.
+    - >-
+      Energy economics: kWh/μmol delivered; $/mol; % cost reduction vs baseline
+      (target 12–25%); demand charge reduction; DR revenue per event.
+    - >-
+      Forecast quality: irradiance forecast MAE (W/m²) and bias; schedule
+      adherence rate; reoptimization success rate.
+    - >-
+      System reliability: control uptime > 99.5%; fail-safe activations; mean
+      time to recover from comms loss.
+    - >-
+      Adoption/retention: acres (ha) under management; ARR; NRR > 110%; logo and
+      dollar churn; payback < 6 months for customers.
+    - >-
+      Sales efficiency: CAC payback < 12 months; pilot-to-conversion rate > 60%;
+      average setup time < 4 weeks/site.
+    - >-
+      Impact: verified MWh saved per year; CO2e avoided; yield/quality KPI
+      changes where available (e.g., kg/m², Brix, uniformity).
+storyBrand:
+  character: >-
+    Greenhouse and indoor farm managers (NAICS 111419) who must deliver
+    consistent yields by meeting crop DLI and photoperiod targets while
+    controlling lighting costs.
+  problem: >-
+    - External: Variable sunlight, complex TOU tariffs and demand charges, mixed
+    LED/HPS fixtures, multiple crops with different light targets.
+
+    - Internal: Uncertainty about over/under-lighting and overspending; manual
+    spreadsheets and late-night adjustments.
+
+    - Philosophical: Growers shouldn’t have to choose between crop quality and
+    energy bills.
+  guide: >-
+    - Empathy: We understand the pressure to hit DLI and photoperiod without
+    blowing the energy budget.
+
+    - Authority: Built by agronomy and energy-optimization engineers; applies
+    forecast irradiance, PAR data, and tariff models; compatible with LED/HPS
+    and hybrid setups.
+  plan: >-
+    - Process plan: 1) Connect location, crops, fixtures, meters/tariffs. 2)
+    Review AI lighting plan using forecast irradiance to meet DLI/photoperiod.
+    3) Auto-run schedules with live monitoring, alerts, and one-click overrides.
+
+    - Agreement plan: Protect crops (photoperiod/DLI safeties), protect spend
+    (optimize for cost and demand limits), protect data (privacy, no lock-in).
+  callToAction: |-
+    - Direct: Start free trial; Book a 20‑minute demo.
+    - Transitional: Download the DLI Playbook; Get a savings estimate.
+  success: |-
+    - Reliable DLI/photoperiod compliance across crops
+    - Lower energy spend and fewer demand peaks
+    - Predictable harvest windows and higher uniformity
+    - Utility rebate and demand-response readiness
+    - Automated lighting logs for audits/certifications
+    - Team freed from manual planning and guesswork
+  failure: |-
+    - Over/under-lighting causing yield loss or crop stress
+    - Paying peak prices and incurring demand penalties
+    - Missed harvest windows and inconsistent quality
+    - Wasted labor on spreadsheets and trial-and-error
+    - Shortened fixture life from inefficient run patterns
+landingPage:
+  hero:
+    title: AI Lighting & DLI Planner for Greenhouse Food Crops
+    subtitle: >-
+      Hit DLI and photoperiod targets at the lowest energy cost. Forecast-aware
+      schedules for LED and HPS in Other Food Crops Grown Under Cover (NAICS
+      111419).
+    ctaText: Start free trial
+    ctaHref: /signup
+  problem:
+    - >-
+      Sunlight and utility rates change daily; manual schedules miss DLI or
+      waste kWh.
+    - Overlighting triggers demand charges and peak pricing.
+    - 'Underlighting risks yield, quality, and uniformity.'
+    - LED vs HPS run time is guesswork without heat and cost tradeoffs.
+    - No forward view of DLI shortfalls to plan supplemental light.
+    - Sensors and controllers are siloed; data goes unused.
+    - Hard to quantify savings or prove ROI.
+  solution:
+    - >-
+      AI plans supplemental lighting to meet DLI and photoperiod targets at
+      lowest cost.
+    - 'Uses irradiance forecasts, on-site PAR sensors, and your utility tariff.'
+    - Optimizes LED dimming and HPS run time by zone and hour.
+    - Avoids peak price windows and demand spikes while protecting yield.
+    - Pushes schedules to greenhouse controllers and auto-adjusts with weather.
+    - 'Clear savings, DLI compliance, and traceable decisions.'
+  features:
+    - DLI optimizer (targets in umol/m2/day per crop and phase)
+    - Photoperiod and flowering control
+    - LED/HPS mix and dimming optimization
+    - 'Forecast-driven scheduling (weather, cloud cover, sun angle)'
+    - 'Tariff-aware engine (TOU, tiered, demand, real-time pricing)'
+    - Demand response and curtailment rules
+    - Max kW and circuit limit constraints
+    - 'Sensor integration (PAR, PPFD, pyranometer)'
+    - Controller integrations with major greenhouse systems
+    - Curtain and blackout coordination
+    - Heat balance and lamp heat utilization options
+    - 'Multi-zone, multi-crop blocks'
+    - 'What-if simulation: cost vs yield risk'
+    - 'Alerts on DLI risk, peak price, and outages'
+    - 'Savings, DLI, and carbon reporting'
+    - API and web app with role-based access
+  steps:
+    - 'Connect zones, sensors, and controllers'
+    - 'Set crop recipes: DLI and photoperiod targets per stage'
+    - Import your utility tariff and demand charge details
+    - 'Enable site location, sensor calibration, and weather forecast'
+    - 'Choose strategy (cost-min, yield-guard, or balanced) and set constraints'
+    - Generate schedule and review projected cost and DLI
+    - Deploy to controllers or export schedule
+    - Monitor live DLI progress; auto-adjust or approve changes
+    - Track savings and performance; refine per season
+---
+# LumenLeaf DLI Planner
+
+Generated for NAICS 111419 — Other Food Crops Grown Under Cover.
+Service: Lighting & DLI Planner (LED/HPS)

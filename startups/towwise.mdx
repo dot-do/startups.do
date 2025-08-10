@@ -1,0 +1,343 @@
+---
+name: TowWise AI
+slug: towwise
+service:
+  title: Tow/Barge Assignment and Fleet Schedule Optimizer
+  description: >-
+    Optimizes which barges to assemble into each tow and sequence of moves to
+    meet orders, constraints, and ETAs at minimal cost.
+  targetUsers:
+    - Dispatchers
+    - Fleet planners
+    - Commercial managers
+  triggers:
+    - New or changed cargo orders
+    - Asset availability change (barge ready/repair)
+    - River condition change
+    - Daily planning cycle
+  inputs:
+    - 'Orders (origin, destination, commodity, tonnage, due dates)'
+    - 'Fleet inventory (barge class, draft limits, condition)'
+    - Towboat availability/power/HP
+    - Lock restrictions and outages
+    - Crew hours and company constraints
+    - Terminal windows and travel time matrices
+  steps:
+    - Ingest orders and asset status via CSV/EDI/API
+    - 'Build constraints (draft, horsepower, lock dimensions, windows)'
+    - Run mixed-integer optimization to assign barges/tows and sequence moves
+    - Simulate feasibility vs. ETA/lock forecasts
+    - 'Generate plan, Gantt, and what-if scenarios'
+    - Publish plan for dispatcher approval and export to TMS
+  tools:
+    - Google Sheets/Excel connectors
+    - OR-Tools or Pyomo
+    - 'Python, pandas'
+    - USACE LPMS for restrictions
+    - Simple REST API
+    - PowerBI/Tableau for Gantt
+  outputs:
+    - Tow/barge assignment list
+    - Movement sequence and ETAs
+    - Resource utilization and conflicts
+    - Change log for re-plan
+  pricingModel:
+    - Per optimization run
+    - Monthly subscription with run credits
+    - Setup/integration fee
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 7.5
+    overall: 7.8
+  risks:
+    - Missing constraints cause infeasible plans
+    - Labor/union rules complexity
+    - Planner adoption and trust
+    - Data freshness for assets
+  dependencies:
+    - Accurate asset master and constraints
+    - Order feed (CSV/EDI)
+    - Access to dispatcher calendar/windows
+leanCanvas:
+  problem:
+    - >-
+      Dispatchers still build tows and schedules manually using spreadsheets,
+      phone calls, and experience, leading to inconsistent decisions and limited
+      ability to replan during disruptions.
+    - >-
+      High variability in lock congestion, river stages, tow-size limits by
+      segment, horsepower and draft constraints, crew hours, and berth
+      availability makes optimal assignment computationally complex and
+      error-prone.
+    - >-
+      Late arrivals and poor ETA accuracy trigger demurrage, penalties, and
+      strained shipper relationships.
+    - >-
+      Deadhead miles, idle barges in fleeting areas, and suboptimal tow
+      composition drive up fuel and charter costs.
+    - >-
+      Data is siloed across AIS feeds, lock reports, terminal schedules,
+      ERPs/TMS, and maintenance systems, preventing a single source of truth for
+      planning.
+    - >-
+      No easy way to run what-if scenarios (e.g., lock outage, high water) or
+      quantify the cost vs on-time trade-offs before committing to a plan.
+    - >-
+      Existing marine software tracks assets and voyages but rarely optimizes
+      tow composition and move sequencing for inland constraints at network
+      scale.
+  solution:
+    - >-
+      Unified data layer integrating AIS, USACE lock data, NOAA river forecasts,
+      terminal berths, ERP/TMS orders, and fleet constraints into a live network
+      model.
+    - >-
+      Optimization engine (mixed-integer/constraint programming plus ML
+      forecasts) to recommend tow composition, routing by segment, lockage
+      strategy, and sequencing of picks/drops.
+    - >-
+      Realtime re-optimization and exception management when river levels
+      change, lock queues spike, or assets go down.
+    - >-
+      Scenario planning sandbox to compare cost, ETA, and risk impacts of
+      alternatives before execution.
+    - >-
+      User workflows for dispatchers: suggested plan, explainable trade-offs,
+      hard/soft constraint controls, and one-click plan publishing to crew
+      apps/APIs.
+    - >-
+      KPIs dashboard quantifying savings vs baseline: deadhead miles, idle
+      hours, fuel/ton-mile, on-time, demurrage, and barge turns.
+  uniqueValueProp: >-
+    TowWise AI automatically assembles optimal tows and sequences moves across
+    river segments to meet ETAs and constraints at minimal cost, with real-time
+    re-optimization during disruptions—delivering measurable reductions in fuel,
+    demurrage, and deadhead while improving on-time performance and asset turns.
+  unfairAdvantage: >-
+    A purpose-built inland waterways optimizer combining a continuously updated
+    river digital twin, probabilistic lock congestion forecasts, and explainable
+    MIP/CP models—trained on multi-year AIS and lock data—plus deep integrations
+    to inland ERPs and dispatcher workflows. Early adopter datasets enable
+    lock-specific performance tuning that generic routing vendors cannot easily
+    replicate.
+  customerSegments:
+    - >-
+      Large inland barge operators (dry bulk, tank) with 10+ towboats and 300+
+      barges
+    - >-
+      Mid-size regional operators on the Mississippi, Ohio, Illinois,
+      Tennessee-Tombigbee, and GIWW systems
+    - >-
+      Shipper-owned or dedicated fleets (ag, petrochemicals, aggregates) seeking
+      tighter schedule control
+    - >-
+      Fleeting services and terminal operators needing berth, cut, and lockage
+      coordination
+    - 3PLs/brokers coordinating barge charters and schedules
+    - >-
+      Operations roles: VP of Operations, Dispatch/Logistics Managers, Fleet
+      Schedulers, Port Captains, Network Planning Analysts
+  channels:
+    - >-
+      Direct enterprise sales to top 50 US operators; ROI-led pitches to VP Ops
+      and Dispatch Managers.
+    - >-
+      Pilot-led selling: 8–12 week corridor pilots with shared success criteria
+      and baseline measurement.
+    - >-
+      Industry associations and events: AWO, Inland Marine Expo (IMX), Waterways
+      Council forums; sponsored panels on lock delay mitigation.
+    - >-
+      Partnerships with AIS/river data providers (Spire, exactEarth, ShipTracks)
+      and marine software vendors for co-selling and integrations.
+    - >-
+      Targeted account-based marketing: case studies, whitepapers on lock
+      congestion forecasting, webinars with early adopters.
+    - >-
+      Referrals via engine OEMs and insurers focused on safety/fuel efficiency;
+      co-marketing around fuel/emissions savings.
+    - >-
+      Government/agency relationships for data access (USACE districts) and
+      pilot cooperation on lock scheduling data.
+  revenueStreams:
+    - >-
+      SaaS subscription per towboat: USD 15k–50k per vessel per year based on
+      features and corridors covered.
+    - >-
+      Enterprise platform fee: USD 100k–300k per operator per year for data
+      layer, integrations, and analytics.
+    - >-
+      Usage-based optimization runs beyond included quota (e.g., per replan
+      after disruption) for high-variability ops.
+    - >-
+      Professional services: implementation/integration (USD 50k–250k) and
+      change management/training packages.
+    - >-
+      Premium data add-ons (enhanced AIS, advanced river and weather ensembles)
+      pass-through with margin.
+    - >-
+      Performance-linked bonus option: shared savings on measurable KPIs (e.g.,
+      demurrage reduction) where customers prefer opex-neutral models.
+    - >-
+      Consulting studies: network design, fleet sizing, lock outage contingency
+      playbooks.
+  costStructure:
+    - >-
+      R&D: optimization researchers, ML engineers, full-stack devs (largest
+      fixed cost).
+    - >-
+      Cloud infrastructure: scalable compute for solver clusters, data lake,
+      streaming ingestion, monitoring.
+    - >-
+      Data licensing: AIS, weather ensembles, high-resolution charts; USACE data
+      normalization.
+    - >-
+      Customer success and support: solution architects, onboarding, training,
+      24x7 tiered support SLAs.
+    - >-
+      Sales and marketing: enterprise sales, industry events, ABM campaigns,
+      travel for onsite pilots.
+    - 'Professional services delivery: integrations and custom rules/constraints.'
+    - >-
+      Security, compliance, and insurance: SOC 2/ISO 27001, cyber insurance,
+      maritime liability coverage.
+    - >-
+      Legal and regulatory: data-sharing agreements, export controls for mapping
+      data.
+  keyMetrics:
+    - >-
+      On-time arrival rate: baseline vs post-deployment; target +8–15% within 6
+      months.
+    - 'Fuel cost per ton-mile: target reduction 3–7% on matched corridors.'
+    - 'Deadhead miles as % of total miles: target reduction 10–15%.'
+    - >-
+      Average lock wait hours per transit: target reduction 10–20% at congested
+      locks.
+    - 'Barge idle hours in fleeting: target reduction 12–25%.'
+    - 'Demurrage and penalties: target reduction 15–30%.'
+    - >-
+      Planner adoption: % of suggested plans accepted or partially accepted;
+      target >70% by month 6.
+    - >-
+      ETA accuracy: mean absolute error; target <45 minutes on primary
+      corridors, <60 minutes systemwide.
+    - >-
+      Replan latency: time from disruption detection to published new plan;
+      target <2 minutes 95th percentile.
+    - 'Barge turns per month: target increase 5–10% for selected commodities.'
+    - 'Charter avoidance: reduction in ad-hoc charter days 10–20%.'
+    - 'Time-to-value: pilot ROI payback <90 days; enterprise rollout <6 months.'
+storyBrand:
+  character: >-
+    Operations leaders at inland waterway carriers (dispatchers, fleet managers,
+    port captains) who must assemble tows and schedule moves to hit ETAs, meet
+    constraints, and minimize cost.
+  problem: >-
+    External: Changing river conditions, lock queues, tow-size rules, crew
+    hours, and barge availability make manual planning slow and costly.
+    Internal: Teams are stuck firefighting with spreadsheets and radio calls,
+    unsure if today’s plan is the best plan. Philosophical: River freight should
+    be predictable, safe, and efficient—not a daily guess.
+  guide: >-
+    We understand the pressure of keeping promises to shippers while juggling
+    locks, drafts, crews, and fleeting points. Our team combines river ops
+    veterans and optimization engineers; the AI engine integrates with your
+    systems, ingests AIS/lock data, and has proven in pilots to cut delays and
+    fuel while improving on-time performance.
+  plan: >-
+    1) Connect orders, fleet, constraints, and AIS/lock data. 2) Run
+    optimization to assign barges to tows and sequence moves at minimal cost. 3)
+    Review, adjust, and approve recommendations. 4) Publish to crews and monitor
+    execution. 5) Re-optimize as conditions change. Clear SLA, security, and ROI
+    goals agreed up front.
+  callToAction: >-
+    Direct: Book a 30-minute demo or start a 4-week pilot on a subset of your
+    fleet. Transitional: Download the Tow Optimization Playbook and request a
+    free ROI estimate using your last 90 days of moves.
+  success: >-
+    Higher fleet throughput and utilization, fewer lock delays and demurrage,
+    lower fuel and overtime, reliable ETAs, compliant tows and rested crews,
+    happier shippers, and a calm, confident dispatch room.
+  failure: >-
+    Idle or misassigned barges, missed ETAs and penalties, noncompliant or
+    unsafe tows, last-minute reshuffles, blown fuel budgets, crew overtime, and
+    lost contracts.
+landingPage:
+  hero:
+    title: AI Tow/Barge Assignment & Fleet Schedule Optimizer
+    subtitle: >-
+      Assemble the right tow, sequence every move, and hit ETAs—at the lowest
+      cost.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - 'Manual planning is slow, brittle, and dependent on a few experts.'
+    - Costly empty repositioning and low barge turns.
+    - Wrong barge mixes drive excess fuel burn and missed lock windows.
+    - Unreliable ETAs with changing river stages and lock queues.
+    - 'Demurrage, laytime penalties, and overtime stack up.'
+    - Crew/rest rules and vessel availability force last‑minute reshuffles.
+    - >-
+      Poor visibility into maintenance, fleeting yard capacity, and dock
+      windows.
+    - 'Hard to run scenarios for surges, outages, low water, or weather.'
+  solution:
+    - >-
+      AI assembles optimal barge sets per tow based on cargo, draft, horsepower,
+      and segment limits.
+    - >-
+      Plans end‑to‑end move sequences to meet ETAs, lock/bridge constraints, and
+      dock windows.
+    - 'Minimizes total cost: fuel, hire, penalties, overtime, and demurrage.'
+    - Cuts empty miles and lifts barge turns with smarter repositioning.
+    - 'Predictive ETAs using AIS, USACE lock data, and river forecasts.'
+    - Live re‑optimization when conditions change; clear recommended actions.
+    - Transparent constraint checks and cost breakdowns for every plan.
+    - Easy integration with TMS/ERP/dispatch; APIs and data connectors.
+    - >-
+      Typical impact: −10–25% fuel/ton‑mile, −15–30% demurrage, +10–20% barge
+      turns.
+  features:
+    - >-
+      Tow build optimizer with horsepower, draft, and segment rules by river
+      reach.
+    - Cargo compatibility and hazmat contamination rules (hopper/tank/covered).
+    - >-
+      Lock and bridge constraints, tow‑size and air‑draft limits, fleeting yard
+      capacity.
+    - 'Dock windows, laytime rules, berth conflicts, and port cutoffs.'
+    - 'Crew hours/rest, pilotage, and compliance baked into plans.'
+    - Maintenance/inspection calendars and vessel downtime modeling.
+    - >-
+      Digital twin of fleet, ports, fleeting areas, and assets with real‑time
+      status.
+    - >-
+      Predictive ETAs with AIS, USACE lock queues, NOAA river stage and weather
+      feeds.
+    - What‑if scenarios with side‑by‑side costed alternatives.
+    - Auto‑dispatch to captains and yards; mobile acknowledgments and updates.
+    - Fuel and carbon optimization with speed profiles and slow‑steaming tips.
+    - 'Exception alerts for lock delays, low water, and schedule risk.'
+    - 'Audit trail, versioned plans, and explainable optimization rationale.'
+    - 'Role‑based access, SSO, encryption, and detailed permissions.'
+    - Cloud or on‑prem deployment; REST/GraphQL APIs and webhooks.
+  steps:
+    - >-
+      Connect your data: AIS, orders, fleet, locks/river feeds, maintenance, and
+      TMS/ERP.
+    - >-
+      Set constraints and goals: ETAs, cost weights, crew rules, and service
+      levels.
+    - 'Run the optimizer: get tow builds and a cost‑minimized move sequence.'
+    - >-
+      Review and publish: compare scenarios, lock in the plan, auto‑dispatch
+      assignments.
+    - >-
+      Monitor and adapt: live ETA tracking and one‑click re‑optimize on
+      disruption.
+---
+# TowWise AI
+
+Industry: Inland Water Freight Transportation
+Service: Tow/Barge Assignment and Fleet Schedule Optimizer

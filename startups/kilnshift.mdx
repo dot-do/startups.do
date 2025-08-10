@@ -1,0 +1,317 @@
+---
+name: KilnShift AI
+slug: kilnshift
+naics:
+  primary: '327120'
+  occupations: []
+service:
+  title: Energy Cost Optimization and Peak Load Management
+  description: >-
+    Forecast plant load, align kiln starts/soaks with tariffs, and issue
+    day-ahead shift/curtail recommendations.
+  targetUsers:
+    - Energy Managers
+    - Production Planners
+  triggers:
+    - Day-ahead prices published
+    - Weekly production plan issued
+    - Demand charge season start
+  inputs:
+    - 15–60 min energy meter data
+    - Kiln/dryer schedules and constraints
+    - 'Tariffs (TOU, demand charges)'
+    - Weather (if HVAC significant)
+  steps:
+    - Forecast next-day plant load
+    - Enumerate feasible schedule shifts within process constraints
+    - Optimize for cost and demand peak
+    - Issue operator schedule and alerts
+    - Post-mortem comparing planned vs actual; refine
+  tools:
+    - Nixtla NeuralForecast/Prophet
+    - Pyomo/OR-Tools for optimization
+    - Tariff APIs (OpenEI/EIA/ENTSO-E)
+    - Slack/Teams alerting
+  outputs:
+    - Day-ahead shift plan with cost impact
+    - Peak alerts and curtailment windows
+    - Weekly savings report
+  pricingModel:
+    - Monthly subscription
+    - Optional gain-share on realized savings
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 4.2
+    overall: 4.6
+  risks:
+    - Operational infeasibility of proposed shifts
+    - Tariff misinterpretation
+    - Data latency from meters
+  dependencies:
+    - Accurate process constraints
+    - Access to meter data and schedule
+    - Agreement on change/approval workflow
+leanCanvas:
+  problem:
+    - >-
+      Energy cost volatility and high demand charges: Electricity prices and
+      demand charges account for 20–50% of plant utility bills; demand charges
+      can be $10–30/kW-month and transmission charges (e.g., ERCOT 4CP) can add
+      $60–90/kW-year. Plants lack tools to consistently avoid coincident peaks.
+    - >-
+      Manual, siloed scheduling: Kiln starts/soaks are planned around production
+      and maintenance, not tariffs. Operators cannot easily simulate trade-offs
+      between on-time delivery, soak profiles, and on-peak penalties, resulting
+      in avoidable cost and peak spikes.
+    - >-
+      Inadequate forecasting: Plants often lack reliable day-ahead load
+      forecasts (MAPE >15%), limiting their ability to pre-cool/pre-heat and
+      shift auxiliary loads, or to participate in DR/curtailment with
+      confidence.
+    - >-
+      Quality and safety constraints: Any schedule change must respect ramp
+      rates, soak times, refractory material specs, and environmental compliance
+      limits (e.g., NOx permitting). Fear of quality risks leads to missed
+      savings opportunities.
+    - >-
+      Fragmented data and limited IT/OT resources: Tariffs, ISO/RTO signals,
+      weather, and plant historians (OPC UA/Modbus/CSV) are not unified;
+      engineering teams cannot sustain day-to-day optimization.
+  solution:
+    - >-
+      Plant-level day-ahead and intraday load forecasting (hourly, 5–15 min
+      granularity) with adaptive models tuned to kiln cycles, ambient
+      conditions, and production plans.
+    - >-
+      Tariff co-optimization engine that schedules kiln starts/soaks and
+      auxiliary loads against TOU, demand charges, and coincident peak
+      predictors (e.g., ERCOT 4CP, PJM/NISO peaks).
+    - >-
+      Operator-ready day-ahead recommendations delivered by 13:00 local time,
+      with auto-updates on price/peak alerts; includes what to start, delay, or
+      curtail, by how much and for how long.
+    - >-
+      Quality- and safety-aware constraints library (ramp rates, soak durations,
+      max temp differentials, emissions/permit limits) to ensure process
+      integrity.
+    - >-
+      M&V module using IPMVP Option C to quantify savings and avoided demand
+      charges, with finance-grade reporting and audit trail.
+    - >-
+      Integrations with SCADA/EMS (OPC UA, Modbus, Rockwell/Siemens historians),
+      tariff APIs, weather, and DR platforms; optional closed-loop dispatch for
+      non-critical loads.
+    - >-
+      Portfolio view to coordinate across multiple plants; scenario planning to
+      test production changes, maintenance windows, or new tariffs.
+  uniqueValueProp: >-
+    Reduce total electricity spend 8–15% within 90 days by forecasting plant
+    load, aligning kiln schedules with tariffs and grid peaks, and issuing
+    day-ahead, constraint-aware shift/curtail recommendations—without
+    compromising product quality.
+  unfairAdvantage: >-
+    A kiln-specific optimization library and dataset built from refractory and
+    clay operations, enabling fast, safe deployment (2–6 weeks) and
+    constraint-aware recommendations that general EMS tools cannot provide;
+    pre-built 4CP/peak predictors and utility program pre-qualification
+    streamline incentive capture and reduce customer risk via performance
+    guarantees.
+  customerSegments:
+    - >-
+      Primary: Plant managers, energy managers, and operations directors at clay
+      building material and refractories manufacturers (NAICS 327120) with
+      electric demand >2 MW.
+    - >-
+      Secondary: Corporate sustainability/finance leaders seeking cost and Scope
+      2 emissions reductions across multi-plant portfolios.
+    - >-
+      Tertiary: Kiln OEMs and system integrators looking to add
+      energy-optimization capabilities; DR aggregators/utilities seeking
+      reliable industrial load flexibility.
+  channels:
+    - >-
+      Direct sales to priority regions with high demand/peak exposure: TX
+      (ERCOT), CA (CAISO), Midwest (PJM/MISO), Northeast (NYISO/ISO-NE). Target
+      titles: Plant Manager, Energy Manager, VP Ops.
+    - >-
+      OEM/SI partnerships with kiln manufacturers and control system integrators
+      (Rockwell, Siemens, Honeywell channel partners) bundling optimization with
+      kiln upgrades/retrofits.
+    - >-
+      Utility and DR aggregator partnerships (Enel X, CPower, Voltus) to co-sell
+      optimization plus DR enrollment; share DR revenue.
+    - >-
+      Industry associations and events: Brick Industry Association (BIA), The
+      Refractories Institute (TRI), Ceramics Expo, IEEE IAS; case-study talks
+      and plant tours.
+    - >-
+      Content-led outreach: calculator for plant savings (inputs: MW demand,
+      TOU, tariff), whitepapers on kiln-aware optimization, and 90-day pilot
+      offer.
+    - >-
+      Paid pilots via utility industrial efficiency programs and state
+      incentives; pre-qualification with program implementers to reduce customer
+      capex.
+  revenueStreams:
+    - >-
+      Subscription per site: $3,500–$10,000/month based on peak MW and module
+      set.
+    - >-
+      Performance fee: 10–20% of verified savings (energy + demand + peak
+      avoidance).
+    - >-
+      Implementation/onboarding: $15,000–$50,000 per site (data integration,
+      model tuning, operator training).
+    - >-
+      Enterprise/portfolio pricing with volume tiers and centralized analytics
+      add-on (+$2,000–$5,000/month).
+    - >-
+      Optional managed service (Peak Season): $5,000/month/site for hands-on
+      daily scheduling support and DR event management.
+    - >-
+      Add-ons: battery/generator co-optimization, emissions-intensity
+      minimization, ISO market bidding tool ($1,000–$3,000/month each).
+  costStructure:
+    - >-
+      R&D and engineering salaries (data science, optimization, OT integration):
+      majority of fixed costs.
+    - Customer success/industrial energy engineers for onboarding and M&V.
+    - >-
+      Cloud and data costs: $300–$1,200/site-month (compute, storage,
+      tariff/weather data).
+    - 'Edge hardware/gateway (optional): $2,000–$8,000 one-time per site.'
+    - >-
+      Sales and marketing: field visits, conferences, partner enablement
+      ($10k–$30k per acquired site).
+    - >-
+      Security/compliance/audit costs (ISA/IEC 62443 assessments, pen tests) and
+      insurance (E&O/cyber).
+    - 'Data licenses/APIs (tariff, weather, ISO feeds): $200–$600/site-month.'
+  keyMetrics:
+    - >-
+      Plant metrics: peak demand reduction (kW and %); avoided demand charges
+      ($/month); on-peak to off-peak MWh shifted; DR event performance (% of
+      committed kW delivered).
+    - >-
+      Forecast accuracy: day-ahead MAPE ≤8% hourly; 5-min nowcast RMSE trending
+      down month-over-month.
+    - >-
+      Optimization execution: recommendation adoption rate ≥70%; schedule
+      adherence ±10 minutes; % of recommendations auto-executed without operator
+      override.
+    - >-
+      Financial impact: verified savings (monthly/annual), savings per MWh,
+      payback period (<6 months target for pilots).
+    - >-
+      Reliability: data pipeline uptime ≥99.5%; alert delivery latency <60
+      seconds during peak events.
+    - >-
+      Customer success: pilot-to-subscription conversion rate ≥60%; site
+      expansion rate ≥30% within 12 months; gross revenue retention ≥95%, net
+      retention ≥115%.
+    - >-
+      Safety/quality: zero kiln curve violations attributable to
+      recommendations; NCRs related to quality ≤ baseline.
+storyBrand:
+  character: >-
+    Operations and energy leaders at clay building materials and refractories
+    plants (NAICS 327120) responsible for kiln throughput and energy spend.
+  problem: >-
+    Unpredictable kiln demand collides with peak tariffs, causing demand
+    charges, ratchets, and imbalance penalties; manual scheduling lacks
+    foresight and risks missed firing windows.
+  guide: >-
+    An AI energy co‑pilot purpose‑built for high‑heat ceramics and refractories,
+    combining load forecasting, tariff intelligence, and kiln‑cycle expertise to
+    optimize without compromising quality.
+  plan: >-
+    1) Connect interval meters, kiln PLCs, and tariff data; 2) Run day‑ahead
+    forecasts and optimization to align starts/soaks with lowest‑cost windows;
+    3) Act on shift/curtail recommendations with real‑time alerts and weekly
+    savings reviews.
+  callToAction: >-
+    Book a 30‑minute demo or start a 30‑day pilot using your last 90 days of
+    interval data.
+  success: >-
+    Flatten peaks, cut energy costs and demand charges, maintain on‑time firing,
+    and document CO2 and EBITDA improvements with auditable savings.
+  failure: >-
+    Keep overpaying for energy with peak penalties and ratchets, scramble around
+    grid events, and risk missed deliveries or quality issues.
+landingPage:
+  hero:
+    title: Kiln‑Smart Energy Optimization for Clay & Refractory Plants
+    subtitle: >-
+      Forecast plant load, align kiln ramps/soaks with tariffs, and get
+      day‑ahead shift/curtail plans—cut cost without risking quality. Built for
+      NAICS 327120.
+    ctaText: Request a Demo
+    ctaHref: "\x02/demo"
+  problem:
+    - One mistimed kiln heat‑up can set the month’s peak demand charge.
+    - 'TOU, RTP, and coincident peaks make energy spend unpredictable.'
+    - 'Manual scheduling ignores tariffs, grid alerts, and plant constraints.'
+    - >-
+      Kiln recipes (ramps/soaks) limit flexibility; operators guess under
+      pressure.
+    - 'No clear plant‑wide forecast across presses, dryers, mills, and fans.'
+    - Production and energy targets clash; overtime and rework creep in.
+    - Missed demand response revenue and CO2 reduction opportunities.
+  solution:
+    - '7‑day plant load forecast by kiln, line, and site—updated daily.'
+    - >-
+      Tariff‑aware kiln start/soak scheduler that respects recipes and QA
+      limits.
+    - Day‑ahead and intra‑day shift/curtail recommendations with $/kW impact.
+    - Dynamic peak caps with early warnings and auto‑generated action plans.
+    - Operator worklists and safe sequences; push schedules to SCADA/PLC/MES.
+    - DR participation plans with guaranteed guardrails for product quality.
+    - 'Transparent M&V reports proving savings, peak avoidance, and uptime.'
+  features:
+    - 'Kiln cycle optimizer: align ramps/soaks with TOU, RTP, and peak windows.'
+    - 'Line‑level forecasting for presses, dryers, grinders, fans, auxiliaries.'
+    - >-
+      Dynamic peak management: forecasted max kW, soft/hard caps, pre‑peak
+      alerts.
+    - 'Scenario planning: test start times, shift patterns, and order mixes.'
+    - 'Recipe guardrails: ramp rates, soak durations, max temps, cooldown limits.'
+    - 'Operator worklists: start/stop windows, setpoint nudges, safe sequences.'
+    - >-
+      Auto‑scheduling API: write‑back to PLCs/kiln controllers (OPC
+      UA/Modbus/REST).
+    - 'Utility & market data: tariffs, day‑ahead/real‑time prices, DR notices.'
+    - >-
+      Multi‑fuel optimization: electricity and gas cost/CO2 intensity
+      trade‑offs.
+    - 'Portfolio view: multi‑site benchmarking and demand charge aggregation.'
+    - 'Alerts & notifications: email/SMS/SCADA tags for upcoming peaks.'
+    - 'Audit & M&V: baselines, savings attribution, event logs per kiln/shift.'
+    - >-
+      Cybersecurity & permissions: role‑based access, read‑only or write‑back
+      modes.
+    - 'Easy integrations: PI/AVEVA, Siemens, Honeywell, OPC UA, Modbus, REST.'
+  steps:
+    - >-
+      Discovery (30 min): confirm goals; share 90 days of meter and production
+      data.
+    - >-
+      Connect: tie into power meters, kiln controllers/SCADA; ingest tariffs and
+      DR calendars.
+    - >-
+      Calibrate (1–2 weeks): train models; validate plant/kiln forecasts and
+      guardrails.
+    - >-
+      Pilot (2–4 weeks): run on 1–2 kilns and a dryer; operators use day‑ahead
+      plans.
+    - >-
+      Rollout: plant‑wide scheduling, peak caps, alerts; optional write‑back
+      automation.
+    - >-
+      Prove value: monthly M&V, savings reports, and performance‑based pricing
+      option.
+---
+# KilnShift AI
+
+Generated for NAICS 327120 — Clay Building Material and Refractories Manufacturing.
+Service: Energy Cost Optimization and Peak Load Management

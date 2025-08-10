@@ -1,0 +1,326 @@
+---
+name: PoultryPlan AI
+slug: poultryplan
+service:
+  title: SKU-week Demand Forecasting and Buy-Plan Assistant
+  description: >-
+    Forecast customer/SKU demand and generate vendor buy recommendations that
+    respect lead times, MOQs, and market price swings.
+  targetUsers:
+    - VP/Director of Operations
+    - Procurement Manager
+    - Demand Planner
+  triggers:
+    - Daily 5am schedule
+    - New large order posts
+    - Market price feed update
+  inputs:
+    - ERP/WMS order history (24+ months)
+    - On-hand and in-transit inventory
+    - Lead times/MOQs/yields by supplier
+    - Promotions/seasonality calendar
+    - 'Market price data (e.g., Urner Barry—licensed)'
+  steps:
+    - Ingest order/inventory data from ERP/WMS (API or CSV)
+    - 'Clean and map SKUs, customers, and units; fill missing values'
+    - 'Train/refresh per SKU-customer-week models (seasonality, promo flags)'
+    - Forecast 8–12 weeks; convert to buys factoring lead time/MOQ/safety stock
+    - Simulate margin given current/forecast market prices and freight
+    - Draft PO recommendations; route to buyer for approval (human in loop)
+    - Write approved POs to ERP or export PO CSV; notify via Slack/Email
+  tools:
+    - 'Python (pandas, statsmodels/Prophet/XGBoost)'
+    - Postgres/BigQuery
+    - Google Sheets/Excel
+    - Slack/Teams
+    - ERP APIs (NetSuite/SAP B1/QuickBooks Enterprise)
+    - Market data API/CSV (Urner Barry—license required)
+  outputs:
+    - Weekly forecast CSV by SKU-customer
+    - Buy-plan sheet by SKU-supplier-week
+    - Draft POs (ERP records or CSV)
+    - Exception summary (stockouts/risks)
+  pricingModel:
+    - One-time setup/integration fee
+    - Monthly subscription tiered by SKU count
+    - 'Optional usage: per approved PO'
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Volatility from disease outbreaks distorts forecasts
+    - 'Poor master data (units, mappings)'
+    - Supplier MOQs/allocations override recommendations
+  dependencies:
+    - ERP/WMS read/write access
+    - 'Market data license (e.g., Urner Barry)'
+    - Promo/seasonality inputs from sales
+leanCanvas:
+  problem:
+    - >-
+      Demand volatility at SKU-week level leads to 3–8% spoilage/shrink for
+      fresh poultry and 1–3% for frozen due to short shelf life and inaccurate
+      forecasts.
+    - >-
+      Price swings (often ±10–30% month-to-month on key cuts) are not embedded
+      into buy decisions, causing purchase price variance and margin erosion.
+    - >-
+      Manual planning (spreadsheets/ERP extracts) does not enforce vendor
+      constraints (lead times, MOQs, truck/pallet mix, catch-weight), resulting
+      in stockouts (service level gaps of 2–6 pts) or excess inventory.
+    - >-
+      Limited visibility to promotions, seasonality (e.g., wings pre-Super
+      Bowl), weather, holidays, and foodservice calendar introduces forecast
+      bias and reactive buying.
+    - >-
+      Fragmented data (EDI, ERP, WMS, spreadsheets, Urner Barry/USDA price
+      feeds) prevents timely buy plans; planners spend 8–15 hours/week on data
+      wrangling instead of analysis.
+    - >-
+      Working capital is tied up: 10–25% more inventory than needed; days
+      inventory outstanding (DIO) 5–10 days above optimal.
+    - >-
+      Expedited freight and split-load penalties rise 10–20% due to last-minute
+      purchases and missed MOQs/lead times.
+  solution:
+    - >-
+      Data ingestion and harmonization from ERP/WMS/EDI (orders, shipments,
+      on-hand, open POs, vendor lead times/MOQs, pack sizes, catch-weight, shelf
+      life).
+    - >-
+      SKU-week demand forecasting blending time-series, seasonality/holiday
+      effects, promotions, price elasticity, and exogenous factors (weather,
+      school calendars, sports events).
+    - >-
+      Commodity price-aware buying: integrate market price feeds and supplier
+      quotes; simulate buy timing across lead times to balance price risk and
+      service.
+    - >-
+      Constraint-aware buy recommendation engine: respects lead times, MOQs,
+      truck/pallet optimization, vendor calendars, lot/batch and shelf-life
+      constraints, substitutions/grades.
+    - >-
+      What-if simulation: promotions, price changes, supplier delays, influenza
+      supply shocks; scenario comparison with margin and service impact.
+    - >-
+      Automated PO suggestions with approval workflows; ERP/EDI write-back via
+      API.
+    - >-
+      Dashboards: forecast accuracy (MAPE/WAPE/bias), service level/fill rate,
+      spoilage, inventory turns/DIO, PPV, margin per lb, expedite costs, planner
+      productivity.
+    - >-
+      Change management: 8–12 week pilot, KPI baselines, user training, S&OP
+      cadence templates tailored to poultry.
+  uniqueValueProp: >-
+    SKU-week demand forecasts and constraint-aware buy plans purpose-built for
+    poultry wholesalers—improving service levels and margins while reducing
+    spoilage and working capital, with measurable ROI in 90 days.
+  unfairAdvantage: >-
+    A poultry-specific forecasting and constraint engine (catch-weight, shelf
+    life, grade/size substitutions) combined with commodity price integration
+    and pre-built ERP/EDI connectors—enabling faster time-to-value and
+    measurable margin/spoilage improvement versus generic planning tools.
+  customerSegments:
+    - >-
+      Primary: Poultry and Poultry Product Merchant Wholesalers (NAICS 42444),
+      $50M–$1B revenue, 1–5 DCs, 1,000–5,000 active SKUs (fresh, frozen,
+      value-added, eggs).
+    - >-
+      Buyer personas: VP/Director of Procurement, Demand Planning Manager,
+      Inventory Manager, CFO/COO, IT/ERP Lead.
+    - >-
+      Secondary: Integrated poultry processors with wholesale arms; regional
+      foodservice distributors with high poultry mix; ethnic/halal-focused
+      wholesalers with seasonal surges.
+    - >-
+      Early adopters: Multi-warehouse operations with high fresh mix (>40%),
+      frequent promotions/contract pricing, and exposure to commodity
+      volatility.
+  channels:
+    - >-
+      Direct sales to mid-market wholesalers via targeted outreach to
+      Procurement/Inventory leaders; 1:many demos with real sample data.
+    - >-
+      Partnerships with ERP/EDI/WMS providers and VARs common in food
+      distribution (e.g., Microsoft Dynamics 365 BC/FO, SAP Business One,
+      NetSuite, Sage X3, Infor; EDI networks); co-selling and marketplace
+      listings.
+    - >-
+      Industry associations and trade shows: NPFDA, IPPE, IFDA; speaking slots,
+      workshops on price-aware planning.
+    - >-
+      Content-led inbound: poultry forecast accuracy benchmarks, buy-plan ROI
+      calculators, whitepapers on commodity-aware planning; SEO targeting NAICS
+      42444 keywords.
+    - >-
+      Pilot-led GTM: 12-week paid pilot (2 DCs, 1,000–2,000 SKUs) with clear
+      success criteria; convert to annual contract on KPI attainment.
+    - >-
+      Customer referrals and case studies highlighting spoilage reduction and
+      margin lift.
+    - >-
+      Webinars with market-price data providers (e.g., Urner Barry/USDA AMS) on
+      integrating price signals into procurement.
+  revenueStreams:
+    - >-
+      SaaS subscription: platform + module tiers. Reference price: $3,000/month
+      base + $1.00 per active SKU-month + $500/DC/month.
+    - >-
+      Implementation/onboarding: $25k–$75k one-time depending on integrations
+      and number of DCs.
+    - >-
+      Premium data add-ons: commodity price feeds, weather, event calendars
+      ($500–$2,000/month).
+    - >-
+      Professional services: S&OP design, promo modeling, custom reports
+      ($150–$250/hour or fixed-scope packages).
+    - >-
+      Optional value-based pricing/gainshare for margin uplift or spoilage
+      reduction after baseline is established.
+  costStructure:
+    - >-
+      Cloud infrastructure (compute for training/inference, storage),
+      ~$15k–$40k/month at 50 customers; scales with SKU count and DCs.
+    - >-
+      Third-party data licensing (commodity prices, weather), $2k–$10k/month
+      depending on coverage.
+    - >-
+      Engineering, data science, and domain SMEs; initial team 8–12 FTEs,
+      scaling with customers.
+    - >-
+      Implementation/customer success and support; travel for onsite
+      discovery/training as needed.
+    - 'Sales and marketing (events, content, partner commissions 10–20%).'
+    - 'Security/compliance (SOC 2 Type II), penetration testing, cyber insurance.'
+    - 'General & administrative (legal, accounting).'
+  keyMetrics:
+    - 'Forecast accuracy: WMAPE ≤18–22% at SKU-week; bias within ±5%.'
+    - 'Service level/fill rate: +2–4 pts within 3 months.'
+    - >-
+      Spoilage/shrink: reduce by 1–3% of COGS for fresh; 0.5–1% for frozen
+      within 6 months.
+    - 'Inventory turns: +1–2 turns; DIO reduction 5–10 days.'
+    - 'Working capital freed: 10–20% inventory value reduction vs baseline.'
+    - >-
+      Purchase price variance (PPV): improve by 1–3% via price-aware buy timing
+      and vendor mix.
+    - 'Expedite/split-load costs: reduce by 20–40%.'
+    - >-
+      Planner productivity: 30–50% time saved; ≥50% PO lines auto-suggested and
+      approved.
+    - 'Time-to-value: pilot ROI within 90 days; full payback <6 months.'
+    - >-
+      Adoption: weekly active planners >85%, exception queue burn-down within
+      SLA (48 hours).
+    - >-
+      Customer success: NPS >40, gross retention >95%, net revenue retention
+      >110%.
+storyBrand:
+  character: >-
+    Poultry & poultry-product merchant wholesalers—buyers, planners, and ops
+    leaders who must decide each week what to order at the customer/SKU level to
+    hit service levels without overbuying perishable inventory.
+  problem: >-
+    external: Volatile demand, short shelf life, vendor lead times/MOQs, and
+    fast-moving market prices make SKU-week buying risky and complex.
+
+    internal: Teams juggle spreadsheets, chase data, fear stockouts and
+    spoilage, and lack confidence in the weekly buy.
+
+    philosophical: Keeping customers supplied with fresh product at fair margins
+    shouldn’t require guesswork.
+  guide: >-
+    empathy: We know one bad perishable buy hurts margins, cash, and
+    relationships.
+
+    authority: Built by supply-chain and poultry pricing veterans; AI forecasts
+    at SKU-week granularity; buy plans that honor lead times, MOQs, shelf-life,
+    and price swings; transparent assumptions and audit trails.
+  plan: >-
+    process: 1) Connect sales/ERP/vendor/pricing data. 2) Configure
+    constraints—lead times, MOQs, shelf-life, service targets, customer rules.
+    3) Review weekly SKU-level forecasts and buy recommendations (with price
+    scenarios), approve/override, push POs.
+
+    agreement: Pilot in a sandbox with your data; clear ROI tracking;
+    human-in-the-loop overrides; security-first; no long-term lock-in.
+  callToAction: >-
+    direct: Schedule a demo or start a 4-week pilot with your data.
+
+    transitional: Download the SKU-week Forecasting Playbook and sample accuracy
+    report.
+  success: >-
+    Hit target fill rates with less waste; fewer rush buys; buy smart against
+    price swings; free cash from slow movers; steadier vendor relations;
+    planners trust the weekly cadence and focus on exceptions.
+  failure: >-
+    Keep guessing in spreadsheets; miss service levels; overbuy perishables and
+    write off product; pay peak prices in panic; tie up cash; erode margins and
+    risk losing key accounts.
+landingPage:
+  hero:
+    title: SKU‑Week Demand Forecasting & Buy‑Plan Assistant
+    subtitle: >-
+      AI built for Poultry and Poultry Product Merchant Wholesalers. Forecast
+      customer/SKU demand and auto‑generate vendor buys that honor lead times,
+      MOQs, case‑packs, yields, and market price swings.
+    ctaText: Start a pilot
+    ctaHref: '#get-started'
+  problem:
+    - 'Volatile weekly demand across customers, channels, and SKUs'
+    - 'Manual spreadsheets miss seasonality, promotions, and holidays'
+    - 'Lead times, MOQs, and case‑packs force overbuying or stockouts'
+    - Fresh/frozen mix and shelf‑life drive spoilage risk
+    - Price swings compress margins and complicate buys
+    - Fragmented ERP/WMS/EDI data slows decisions
+    - No fast way to run what‑if scenarios before committing POs
+    - Buyers spend hours building orders instead of managing suppliers
+  solution:
+    - AI SKU‑week forecasts at customer and channel level
+    - >-
+      Vendor‑aware buy recommendations that respect lead times, MOQs,
+      case‑packs, and truck mins
+    - Dynamic safety stock tuned to perishables and target service levels
+    - Market‑aware planning that responds to price changes and substitutions
+    - >-
+      Scenario planning for promos, new accounts, lead‑time slips, and price
+      volatility
+    - Explainable drivers with confidence bands for each SKU‑week
+    - One‑click PO drafts and approvals pushed to ERP/EDI
+    - 'Proactive alerts for stockout risk, overstock/expiry, and margin leaks'
+  features:
+    - >-
+      Data connectors for ERP/WMS/EDI and spreadsheets; optional market price
+      feeds
+    - >-
+      Perishables modeling: shelf‑life, thaw vs fresh flows, yields, weight
+      variance
+    - 'Vendor calendars with lead times, cutoff days, holidays, and ship days'
+    - Case‑pack/MOQ/truckload optimization with fill‑rate targets
+    - Customer‑level demand signals by ship‑to/DC/channel
+    - Automatic reforecasting daily or weekly with 26–52 week horizon
+    - 'Forecast explainability: seasonality, trend, promo uplift contributions'
+    - 'Scenario sandbox with side‑by‑side volume, cost, and margin impact'
+    - 'Guardrails for gross margin, cash, and storage capacity'
+    - 'Role‑based access, approvals, and audit history'
+  steps:
+    - >-
+      Connect data: SKUs, customers, sales history, vendor catalogs, lead times,
+      MOQs, and price history
+    - >-
+      Configure business rules: shelf‑life, case‑packs, yields, truck mins,
+      service levels
+    - 'Backtest and calibrate: validate accuracy by SKU/customer and lock targets'
+    - 'Pilot in shadow mode: compare recommendations to current process'
+    - 'Go live: nightly forecasts and buy‑plan drafts with approvals to ERP/EDI'
+    - >-
+      Continuously improve: review alerts, tune policies, and refine scenarios
+      weekly
+---
+# PoultryPlan AI
+
+Industry: Poultry and Poultry Product Merchant Wholesalers
+Service: SKU-week Demand Forecasting and Buy-Plan Assistant

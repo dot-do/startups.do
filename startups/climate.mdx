@@ -1,0 +1,311 @@
+---
+name: Climate–Energy Setpoint Optimizer (CESO)
+slug: climate
+naics:
+  primary: '111419'
+  occupations: []
+service:
+  title: Climate–Energy Setpoint Optimizer
+  description: >-
+    AI proposes 24–72h greenhouse temperature/VPD/CO2/ventilation/light
+    setpoints to balance yield vs. energy cost for leafy greens, herbs,
+    cucumbers, peppers, strawberries under cover.
+  targetUsers:
+    - Greenhouse managers
+    - Head growers
+    - Energy managers
+  triggers:
+    - 'Daily at 04:30 local'
+    - Utility price update
+    - Weather forecast update
+    - Crop stage change
+  inputs:
+    - 'Historical climate logs (temp, RH, CO2, vents, screens)'
+    - Energy tariff (TOU/CPP/demand charges)
+    - Weather/irradiance forecast
+    - 'Crop stage and targets (yield, quality)'
+    - 'Equipment constraints (min/max setpoints, ramp limits)'
+  steps:
+    - Ingest climate and energy data; clean and gap-fill
+    - Estimate crop response functions (energy vs. climate vs. yield proxy)
+    - Forecast outside conditions and internal load
+    - >-
+      Run optimization (multi-objective: yield proxy and cost) with equipment
+      constraints
+    - Generate setpoint schedule and savings/yield deltas
+    - >-
+      Optionally push to climate computer sandbox or export CSV; notify team for
+      approval
+  tools:
+    - OpenWeather/Solcast API
+    - Pandas/Prophet
+    - Google OR-Tools/SciPy optimize
+    - Grafana/Retool dashboard
+    - Email/Slack/MS Teams webhooks
+    - 'Vendor climate APIs (e.g., Priva/Hoogendoorn/Argus) if available'
+  outputs:
+    - 24–72h setpoint schedule (JSON/CSV)
+    - 'Projected kWh, CO2 use, cost, and yield proxy'
+    - Change log with rationale
+    - Alerts for constraint violations
+  pricingModel:
+    - Setup fee (data integration)
+    - Monthly subscription per greenhouse or per hectare
+    - Optional performance fee (% of verified energy savings)
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 7
+    overall: 8
+  risks:
+    - Limited API access to climate computers
+    - Model mis-specification causing yield risk if auto-applied
+    - Weather forecast error reduces savings
+  dependencies:
+    - Export/API access to climate data
+    - Utility tariff details
+    - Crop targets and constraints approval
+leanCanvas:
+  problem:
+    - >-
+      Energy costs are volatile and often >30–50% of total operating expenses in
+      heated greenhouses; growers lack tools to proactively co-optimize climate
+      and energy under day-ahead price uncertainty.
+    - >-
+      Manual setpoint selection (temperature, VPD, CO2, ventilation, light)
+      relies on grower heuristics and siloed software, leading to inconsistent
+      outcomes and setpoint drift across zones and shifts.
+    - >-
+      Growers must balance competing objectives: yield, quality, and energy
+      cost—without a transparent, quantified way to trade these off over 24–72
+      hours.
+    - >-
+      Limited integration between climate computers, weather forecasts, and
+      energy price signals prevents dynamic schedules that pre-heat/pre-cool or
+      shift loads to cheaper periods.
+    - >-
+      CO2 dosing and VPD management are under-optimized; over-ventilation dumps
+      CO2, while under-ventilation harms disease risk and transpiration balance.
+    - >-
+      Lack of standardized KPIs (kWh per kg, cost per kg, CO2e per kg) and M&V
+      methods makes it hard to prove ROI or qualify for utility incentives.
+    - >-
+      Staffing constraints—fewer experienced growers per hectare—create a need
+      for decision support that is fast, explainable, and safe.
+  solution:
+    - >-
+      Integrate to existing climate computers and sensors; ingest weather and
+      day-ahead energy prices to produce optimized temperature, VPD, CO2,
+      ventilation, and light setpoints for the next 24–72 hours.
+    - >-
+      Site-specific digital twin calibrated per crop, greenhouse construction,
+      and equipment (heating pipes, curtains, ventilation, CO2 dosing,
+      LEDs/HPS).
+    - >-
+      Model predictive control (MPC)-inspired optimizer with safety constraints,
+      disease-risk guards, and grower-defined priorities (yield, quality, cost,
+      carbon).
+    - >-
+      Human-in-the-loop workflow—suggested setpoints are explainable, editable,
+      and schedulable; lockouts for critical phases (flowering, harvest).
+    - >-
+      Scenario planner compares baseline vs. optimization vs. different
+      price/forecast scenarios, quantifying expected kWh, m³ gas, kg CO2, and
+      €/$ savings.
+    - >-
+      Automated measurement and verification (M&V) to attribute savings against
+      weather- and production-normalized baselines and support utility
+      incentives.
+    - >-
+      A/B and gradual rollout tooling—apply in specific zones/periods and expand
+      as confidence grows.
+  uniqueValueProp: >-
+    Forecast-aware, human-in-the-loop setpoint optimization that co-optimizes
+    yield vs. energy cost over the next 24–72 hours—integrated with your climate
+    computer—targeting 10–25% energy cost reduction with 0–5% yield lift,
+    deployable in 2–4 weeks with auditable savings.
+  unfairAdvantage: >-
+    A calibrated, cross-crop digital-twin and optimizer library plus certified
+    integrations with major climate computers, enabling fast deployment and
+    transparent M&V. The growing, multi-region dataset of price-aware climate
+    responses creates compounding model advantages that new entrants cannot
+    quickly replicate.
+  customerSegments:
+    - >-
+      Owner-operated heated greenhouses (1–20 ha) growing leafy greens,
+      cucumbers, peppers, strawberries in temperate regions.
+    - >-
+      Enterprise greenhouse operators and cooperatives (>20 ha across multiple
+      sites) with climate computers and supplemental lighting.
+    - >-
+      Greenhouse integrators and consultants who deploy climate computers,
+      sensors, and controls and seek analytics upsell.
+    - >-
+      Energy managers/ESCOs and utilities operating demand-response or
+      load-shifting programs for agricultural customers.
+    - >-
+      High-tech covered agriculture in North America, EU, UK, and select
+      LATAM/APAC regions using Priva, Hoogendoorn, Ridder, Argus, Autogrow, etc.
+  channels:
+    - >-
+      Direct sales to growers in NL, CA, US, UK, ES via targeted outreach and
+      referrals from integrators.
+    - >-
+      Partnerships and reseller agreements with climate-computer vendors and
+      greenhouse integrators to bundle with installations and upgrades.
+    - >-
+      Utility/ESCO partnerships to offer the optimizer as a qualified measure
+      for demand response and energy efficiency incentives.
+    - >-
+      Presence at key trade shows and associations: GreenTech Amsterdam,
+      GreenTech Americas, Fruit Logistica, Cultivate, Canadian Greenhouse
+      Conference.
+    - >-
+      Content-led growth: case studies reporting verified kWh and cost savings;
+      calculator tools; webinars with growers and energy experts.
+    - >-
+      Regional distributor network in Spain/Mexico/Turkey for mid-tech houses
+      seeking price-aware scheduling without full autonomy.
+  revenueStreams:
+    - >-
+      SaaS subscription per hectare per month—typical range $400–$1,000 per ha
+      per month depending on crop complexity and features.
+    - >-
+      Tiered plans—Essentials (advisory only), Pro (advisory + schedule export +
+      M&V), Enterprise (bi-directional control, SSO, SLA).
+    - >-
+      One-time onboarding/integration fee per site—$3,000–$15,000 depending on
+      systems and number of zones.
+    - >-
+      Optional managed service—weekly performance reviews with a horticulture
+      specialist: $1,500–$5,000 per site per month.
+    - >-
+      Shared-savings or DR revenue-share contracts with utilities/ESCOs where
+      available.
+    - >-
+      Professional services—custom reports, carbon accounting support, and
+      training workshops.
+  costStructure:
+    - >-
+      Staff—AI/controls engineers, horticulture scientists, integrations team,
+      customer success; blended loaded cost per FTE assumed $160k–$220k.
+    - >-
+      Cloud compute and storage—training and inference; target <$25 per ha per
+      month COGS at scale.
+    - >-
+      Third-party data—weather and price feeds: $0.02–$0.06 per ha per day
+      depending on vendor/volume.
+    - >-
+      Integration and certification costs with climate-computer partners; lab
+      greenhouses for R&D and validation.
+    - >-
+      Sales and marketing—partner commissions (10–20%), events, and content
+      production.
+    - >-
+      Field support and travel for onboarding/pilots; optional sensor retrofits
+      for missing measurements.
+    - >-
+      Security, compliance, and insurance (professional liability) to meet
+      enterprise requirements.
+  keyMetrics:
+    - >-
+      Core outcome—energy cost reduction versus baseline: target 10–25% with 90%
+      confidence intervals reported monthly.
+    - >-
+      Yield and quality impact—maintain or improve yield by 0–5% and maintain
+      quality grade; track kg/m²/week and defect rates.
+    - >-
+      Operational KPIs—kWh/m²/day, m³ gas/m²/day, cost per kg, kg CO2e per kg,
+      DLI attainment, CO2-use efficiency (g biomass per kg CO2 dosed).
+    - >-
+      AI performance—setpoint acceptance rate >70% after 60 days; forecast MAE
+      for temp/humidity <1.0°C/5% RH over 24h; optimizer feasibility rate >98%.
+    - >-
+      Financial—payback <6 months; gross margin >80%; LTV:CAC >4:1; logo churn
+      <8% annually.
+    - >-
+      Adoption—number of hectares live, number of zones scheduled per day,
+      time-to-first-value <14 days post-integration.
+    - >-
+      Safety/quality—zero violation of grower-defined safety bounds; incident
+      rate 0; automated rollback verified.
+storyBrand:
+  character: >-
+    Greenhouse growers and operations managers (NAICS 111419) producing leafy
+    greens, herbs, cucumbers, peppers, and strawberries who want reliable yields
+    at the lowest possible energy cost.
+  problem: >-
+    Energy prices swing and climate control is complex; guessing
+    temperature/VPD/CO2/ventilation/light setpoints risks either wasted energy
+    or lost yield, causing stress, missed orders, and thin margins—growing food
+    shouldn’t require burning extra energy to ‘hope’ the climate is right.
+  guide: >-
+    We understand the pressure of hitting yield windows under volatile energy
+    costs; our team blends horticulture, control systems, and AI to propose
+    data-driven setpoints, built with commercial growers and compatible with
+    leading climate computers.
+  plan: >-
+    1) Connect climate computer, meters, tariffs, weather, and crop targets; 2)
+    Set goals and guardrails (yield window, comfort bands, equipment limits); 3)
+    Approve the AI’s 24–72h setpoint plan and auto-apply with override and
+    fail-safe to your current strategy.
+  callToAction: >-
+    Book a 30‑minute demo to see your crops’ setpoint plan; start a 4‑week pilot
+    in one zone; optionally download a sample schedule and run an ROI estimate.
+  success: >-
+    Hit target yields with less energy per kg, steadier orders, fewer alarms,
+    and a smaller CO2 footprint—freeing your team from constant tweaking and
+    strengthening margins.
+  failure: >-
+    Keep overpaying for heat and power, stressing crops, missing harvest
+    windows, wasting CO2, and losing sleep over setpoints while more efficient
+    growers pull ahead.
+landingPage:
+  hero:
+    title: Climate–Energy Setpoint Optimizer for Greenhouses
+    subtitle: >-
+      AI setpoints (24–72h) for temperature, VPD, CO2, ventilation, and light to
+      boost yield and cut energy for leafy greens, herbs, cucumbers, peppers,
+      and strawberries.
+    ctaText: Request a Demo
+    ctaHref: /demo
+  problem:
+    - Energy prices and weather swing hourly; manual setpoints waste money.
+    - Uniform setpoints ignore crop and growth-stage needs.
+    - CO2 dosing fights ventilation; losses spike on windy days.
+    - Lighting misses DLI or pays peak tariffs.
+    - Humidity control risks disease or over-venting.
+    - Data is scattered; tuning consumes grower time.
+    - No clear ROI from climate decisions.
+  solution:
+    - Optimal 24–72h setpoints per zone and crop stage.
+    - 'Uses forecasts, tariffs, DLI, and CO2 cost.'
+    - Slider to balance yield vs. energy spend.
+    - Auto-sync to controllers with safety guardrails.
+    - 'Clear estimates: yield, kWh, cost, and CO2e saved.'
+    - Learns from outcomes and adapts weekly.
+    - Demand-response ready without quality loss.
+  features:
+    - 'Multi-crop templates: greens, herbs, cucumbers, peppers, strawberries.'
+    - VPD-led humidity targets with disease-risk bounds.
+    - CO2 optimization with smart vent scheduling.
+    - Light planning to hit DLI at lowest cost.
+    - Forecast-aware heat/vent setpoints for radiation and wind.
+    - 'Zone constraints respected: temp, RH, vent, shade, pipe limits.'
+    - Integrations with leading greenhouse controllers via API.
+    - Explainable recommendations with confidence and rationale.
+    - 'What-if scenarios for price, weather, and objectives.'
+    - ROI and sustainability reports per crop and site.
+    - 'Alerts, overrides, and safe fallback modes.'
+  steps:
+    - 'Connect controllers, sensors, energy tariffs, and weather.'
+    - 'Define crops, stages, zones, and constraints.'
+    - 'Set your objective: yield, cost, or balanced.'
+    - Review recommended 24–72h setpoints and outcomes.
+    - Approve and sync; choose auto or manual apply.
+    - Monitor KPIs; adjust objectives; export reports.
+---
+# Climate–Energy Setpoint Optimizer (CESO)
+
+Generated for NAICS 111419 — Other Food Crops Grown Under Cover.
+Service: Climate–Energy Setpoint Optimizer

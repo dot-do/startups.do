@@ -1,0 +1,293 @@
+---
+name: TowIQ Dynamic Quotes & Pay
+slug: towiq
+service:
+  title: Dynamic Quote & Instant Payment Links
+  description: >-
+    Real-time price generation factoring distance, terrain, time-of-day,
+    equipment, and surcharges; sends instant pay links.
+  targetUsers:
+    - Owners
+    - Front office
+    - Dispatchers
+  triggers:
+    - Quote request via web/phone
+    - Club out-of-pocket request
+    - Texted estimate request
+  inputs:
+    - Pickup/drop-off addresses or pins
+    - Vehicle info (VIN/make/model)
+    - Service type and constraints
+    - Time/day/traffic
+    - Photos (optional)
+  steps:
+    - Validate locations and compute loaded miles/time
+    - >-
+      Infer complexity from photos and rules (e.g., winch, dollies, low
+      clearance)
+    - >-
+      Apply pricing matrix and taxes/fees; produce options
+      (standard/rush/membership)
+    - Generate itemized quote with terms and disclaimers
+    - Send payment link; hold deposit; convert to job on payment
+  tools:
+    - Google Maps Distance Matrix
+    - NHTSA VIN Decoder
+    - Stripe/Adyen
+    - Pricing rules engine (Airtable/Sheets + logic)
+    - Twilio/Email
+  outputs:
+    - Itemized quote PDF/SMS
+    - Payment link/receipt
+    - Created job in CRM/dispatch
+  pricingModel:
+    - $0.20–$0.50 per quote or $49–$149/month
+    - Optional % fee on successful payments (0.3–0.8%)
+  humanInLoop: false
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Under/over-pricing vs market norms
+    - Chargebacks/disputes on scope
+    - Local fee regulations/tariffs
+  dependencies:
+    - Pricing policy tables and surcharges
+    - Tax rules by jurisdiction
+    - Payment gateway
+leanCanvas:
+  problem:
+    - >-
+      Manual quoting is slow (3–7 minutes/lead), error-prone, and inconsistent
+      across dispatchers, causing 15–30% lead drop-off before a price is given.
+    - >-
+      Under/over-pricing leads to margin leakage and lost jobs; operators report
+      5–12% revenue variability by dispatcher and time-of-day.
+    - >-
+      Payment friction (waiting for card-on-arrival or invoicing) delays cash
+      flow (DSO 3–7 days) and increases no-shows/cancellations.
+    - >-
+      After-hours coverage is weak; many small operators miss calls or give
+      ballpark prices without context (terrain, traffic, equipment), reducing
+      win rate.
+    - >-
+      Existing tools either handle dispatch or payments, but few connect
+      real-time price intelligence with instant, mobile-friendly pay links.
+    - >-
+      Chargebacks and disputes arise from unclear scope-of-work (winch-out vs.
+      tow, low-clearance, mileage), lacking itemized quotes and consent capture.
+  solution:
+    - >-
+      AI-powered quote engine that ingests pickup/drop-off, vehicle type,
+      incident type, terrain/elevation, traffic, time-of-day, and equipment
+      needs to output a firm, itemized price with confidence bands.
+    - >-
+      Instant pay links via SMS/email/WhatsApp with Apple Pay/Google Pay
+      support; pre-authorization and upfront deposits to reduce cancellations.
+    - >-
+      Smart rules engine for surcharges (after-hours, winch-out, low-clearance,
+      mud/snow), municipality fees, and tolls with geo-fenced logic.
+    - >-
+      Two-click website widget and call-center console to turn inbound calls/web
+      leads into quotes and payment links without leaving the screen.
+    - >-
+      Integrations with tow management systems (e.g., Towbook/Traxero) and
+      payment processors (Stripe/Square) for dispatch sync and automated
+      receipts.
+    - >-
+      Closed-loop learning: outcomes (accepted/declined, time-to-arrival,
+      refunds) continuously retrain the pricing model per locale and partner.
+    - >-
+      Fraud and dispute reduction: itemized scope, GPS-stamped locations,
+      before/after photos, terms acceptance, and digital signature capture.
+    - >-
+      Analytics dashboard: quote-to-close rate, AOV, response time, margin
+      impact, cash flow, and surcharge performance by agent and time block.
+  uniqueValueProp: >-
+    Under 30 seconds from inquiry to firm, itemized quote and instant mobile pay
+    link—priced by local market conditions, distance, terrain, time-of-day, and
+    equipment—boosting close rate 10–25% and reducing DSO from days to minutes.
+  unfairAdvantage: >-
+    Closed-loop, locale-specific acceptance and margin data tied to itemized
+    quotes and outcomes, creating a pricing flywheel competitors without
+    operator integrations can’t easily replicate; embedded workflows in dispatch
+    and communications reduce switching and create defensibility.
+  customerSegments:
+    - >-
+      Independent light-duty towing companies (1–20 trucks) seeking faster
+      quoting and faster cash collection.
+    - >-
+      Mid-sized multi-depot tow operators (20–100 trucks) needing consistent
+      pricing across teams and shifts.
+    - >-
+      Heavy-duty and specialty tow/recovery operators requiring equipment-aware
+      quotes and surcharges.
+    - >-
+      Roadside assistance providers and call centers (white-label) needing
+      standardized quotes at scale.
+    - >-
+      Auto repair shops, dealerships, and fleet managers that coordinate tows
+      and want transparent, upfront pricing with instant payment collection.
+  channels:
+    - >-
+      Direct outreach to towing business owners via phone/email with a 15-minute
+      ROI demo and local price audit.
+    - >-
+      Partnerships and integrations with tow software vendors (marketplace
+      listings, co-selling, rev-share).
+    - >-
+      Payment processor partnerships (Stripe/Square) as an add-on to accelerate
+      instant pay adoption.
+    - >-
+      Industry associations and trade shows (TRAA, American Towman, Tow Expo)
+      with live quoting challenges and case studies.
+    - >-
+      Local SEO/content for operators: templates for ‘Tow near me’ sites with
+      embedded quote widget; webinars on dynamic pricing.
+    - >-
+      Resellers: call centers/BPOs that handle after-hours for small operators;
+      white-label for roadside assistance networks.
+    - >-
+      Referral program: 1 free month per referred operator; multi-location
+      discounts for roll-ups/MSOs.
+  revenueStreams:
+    - >-
+      SaaS subscriptions: Starter $99/mo (1–2 trucks), Growth $199/mo (up to 5
+      trucks), Pro $499/mo (multi-location, priority support).
+    - >-
+      Usage fees: $0.25–$0.75 per generated quote beyond plan quota; $0.10/SMS
+      beyond included bundle.
+    - >-
+      Payment processing markup: +0.5%–0.9% above base interchange/processor
+      rate on collected payments.
+    - >-
+      Implementation/onboarding: $299–$1,999 one-time for custom rules,
+      integrations, and data migration (waived for annual).
+    - >-
+      White-label/API licensing for call centers/roadside networks: $0.05–$0.20
+      per inquiry + volume-based platform fee.
+    - >-
+      Premium add-ons: chargeback protection pack, advanced analytics, geofenced
+      municipal fee library ($29–$99/mo).
+  costStructure:
+    - Engineering and data science (3–6 FTE initially; $600k–$1.5M/yr).
+    - >-
+      Cloud infrastructure (compute, storage, inference): $4k–$25k/mo scaling
+      with quotes/min.
+    - >-
+      APIs and data: mapping/elevation/traffic ($1k–$10k/mo), SMS ($0.0075–$0.02
+      per message), email.
+    - Payment processing pass-through fees and chargeback reserves.
+    - >-
+      Sales/marketing: SDRs, conferences, digital ads, content ($15k–$60k/mo
+      early-stage).
+    - >-
+      Customer success and support (business hours + after-hours on-call)
+      $15k–$40k/mo.
+    - >-
+      Legal, compliance (PCI via partners, SOC 2 audit prep), insurance
+      (cyber/E&O).
+    - Partnership rev-share (5–20%) with software vendors/resellers.
+  keyMetrics:
+    - 'Median time-to-quote: target <15 seconds (lead to price shown).'
+    - >-
+      Quote-to-accept rate: target 35–55% for direct inbound; improve 10–25% vs.
+      baseline.
+    - >-
+      Payment link conversion: >80% of accepted quotes paid within 5 minutes;
+      DSO reduction to <1 day.
+    - >-
+      Average order value uplift: +8–15% via optimized surcharges and correct
+      equipment pricing.
+    - 'Cancellation/no-show rate: <5% when deposits enabled (vs. 10–15% without).'
+    - >-
+      Dispute/chargeback rate: <0.5% with consent artifacts attached to
+      invoices.
+    - >-
+      MRR growth rate and net revenue retention (NRR >110% with usage and
+      add-ons).
+    - 'Customer acquisition cost (CAC) payback: <6 months; LTV:CAC >3:1.'
+    - >-
+      Active users per account (dispatchers/drivers), feature adoption (deposit
+      usage, A/B price tests).
+    - 'System reliability: 99.9% uptime; p95 quote API latency <1.5 seconds.'
+storyBrand:
+  character: >-
+    Towing company owners and dispatchers who need to win jobs fast, price
+    accurately, and get paid before rolling.
+  problem: >-
+    External - Pricing varies by distance, terrain, time-of-day, equipment, and
+    surcharges; manual math is slow and error-prone. Internal - Stress and
+    second-guessing lead to lost jobs and undercharging. Philosophical - Towing
+    pros shouldn’t lose revenue or time because quoting and payments are manual.
+  guide: >-
+    Empathy - We understand dispatch is chaotic and every minute and mile
+    matters. Authority - AI-driven pricing factors distance, terrain,
+    time-of-day, equipment, and fees to produce clear, fair quotes with instant,
+    secure pay links; configurable rules and itemized line items build trust.
+  plan: >-
+    1 - Configure pricing rules, service area, and payment processor. 2 -
+    Generate a dynamic quote and auto-send a secure SMS/email pay link. 3 -
+    Customer pays or pre-authorizes; you dispatch with confidence and funds flow
+    automatically.
+  callToAction: >-
+    Direct - Start free trial or book a demo. Transitional - Try the live quote
+    simulator, see a sample pay link, or download the pricing checklist.
+  success: >-
+    Win more jobs with instant, transparent quotes; reduce disputes with
+    itemized pricing; improve cash flow with upfront payment or
+    pre-authorization; save dispatcher time; protect margins with automatic
+    surcharges; deliver a smoother customer experience.
+  failure: >-
+    Keep losing jobs to faster competitors; continue undercharging; face delayed
+    payouts and no-shows; chase payments and handle chargebacks; suffer manual
+    errors and price disputes.
+landingPage:
+  hero:
+    title: Dynamic Tow Quotes. Instant Pay Links.
+    subtitle: >-
+      AI-powered pricing that factors distance, terrain, time-of-day, equipment,
+      and surcharges—then sends a secure payment link in seconds.
+    ctaText: Get Started
+    ctaHref: /signup
+  problem:
+    - 'Slow, manual quoting loses jobs to faster competitors.'
+    - Under/over-charging from guesswork hurts margins and trust.
+    - After-hours calls and edge cases stall approvals.
+    - 'Dispatchers juggle complex fees (mileage, terrain, equipment).'
+    - 'Delayed payments, no-shows, and chargeback risk.'
+    - Confusing invoices create disputes and callbacks.
+  solution:
+    - 'Real-time, AI-generated tow quotes in seconds.'
+    - >-
+      Automatic adjustments for distance, terrain, time, equipment, and
+      surcharges.
+    - 'Send secure pay links via SMS, email, or QR—customer pays instantly.'
+    - 'Pre-auths, deposits, or full payment before roll-out.'
+    - Transparent line-item breakdown reduces disputes.
+    - Seamless handoff to dispatch and instant receipts for customers.
+  features:
+    - 'Live route pricing: distance, zones, tolls, and terrain factors.'
+    - 'Time-of-day, weekend, and holiday rules with custom surcharges.'
+    - 'Equipment matrix: flatbed, wheel-lift, dolly, winch-out, heavy-duty.'
+    - 'Minimums, fuel fees, taxes, and wait-time handled automatically.'
+    - 'Instant pay links: SMS, email, or QR; cards, Apple Pay, Google Pay.'
+    - 'Pre-auth, deposit, or full-charge flows; auto-capture cancellation fees.'
+    - Customer-facing quote breakdown with ETA and terms.
+    - One-tap dispatch after payment; driver notes and job IDs included.
+    - Brandable invoices/receipts; export to CSV and PDF.
+    - Fraud checks (AVS/CVV/3D Secure) and dispute-ready records.
+    - Team roles and approvals; audit trail for every quote.
+    - API & webhooks to integrate with your TMS/accounting.
+  steps:
+    - 'Set up your rates, equipment, surcharges, and service area.'
+    - Enter pickup/drop-off or receive a web/call request.
+    - AI generates a precise quote with all fees in seconds.
+    - Send the payment link; customer pays or leaves a deposit.
+    - 'Job is auto-confirmed, dispatched, and receipt sent.'
+---
+# TowIQ Dynamic Quotes & Pay
+
+Industry: Motor Vehicle Towing
+Service: Dynamic Quote & Instant Payment Links

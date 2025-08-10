@@ -1,0 +1,358 @@
+---
+name: AviSet Optimize
+slug: aviset
+naics:
+  primary: '112320'
+  occupations: []
+service:
+  title: Barn Environment Setpoint Optimizer (Ventilation/Heating/Humidity)
+  description: >-
+    Advises optimal setpoints and schedules to meet integrator curves while
+    minimizing energy and maintaining welfare, with guardrails and human
+    confirmation.
+  targetUsers:
+    - Growers
+    - Flock supervisors
+    - Energy managers
+  triggers:
+    - Daily optimization run
+    - Weather forecast change
+    - Age/batch milestone
+    - Ammonia/CO2 threshold breach
+  inputs:
+    - 'Controller logs: temp, humidity, static pressure, fan/heater runtime'
+    - Breed/age target curves and integrator standards
+    - Weather forecast (next 72 hours)
+    - Energy tariffs (TOU)
+    - NH3/CO2 sensors if available
+  steps:
+    - Ingest last 7–14 days of runtime and climate data
+    - Calibrate house-specific thermal model
+    - Forecast internal conditions against weather and bird growth
+    - Optimize setpoints and staging (OR-Tools/RL with safety limits)
+    - >-
+      Simulate outcomes and produce a plan with expected energy and welfare
+      impact
+    - Send recommended changes for approval; log applied actions
+  tools:
+    - OpenWeather API
+    - OR-Tools or RLlib
+    - Rotem/Munters/Big Dutchman/Fancom API connectors where available
+    - Power BI/Looker for visualization
+  outputs:
+    - Daily setpoint plan with rationale and expected savings
+    - “If-then” playbook for cold/hot snaps
+    - Energy use forecast and KPI deltas
+    - Change log for audits
+  pricingModel:
+    - Subscription per house per month
+    - Performance bonus tied to achieved kWh savings or reduced condemnations
+    - Optional integration fee for controller APIs
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 4.5
+    modelCapability: 3.8
+    overall: 4.1
+  risks:
+    - Bad recommendations could harm birds if applied blindly—kept advisory-only
+    - Controller API access variability
+    - Weather forecast errors
+  dependencies:
+    - Historical controller data access
+    - Weather API key
+    - Integrator target curves
+    - Grower review/approval process
+leanCanvas:
+  problem:
+    - >-
+      Growers and integrators must hit temperature/humidity/air quality curves
+      to meet live production targets, but setpoints are tuned manually and
+      inconsistently by house, shift, and weather.
+    - >-
+      Energy is the second-largest controllable cost in broiler grow-out;
+      propane/natural gas and ventilation fans are often run inefficiently,
+      causing 10–30% avoidable energy spend.
+    - >-
+      Out-of-range conditions (RH > 70%, NH3 > 25 ppm, CO2 > 3,000 ppm, temp
+      ±3°F from curve) increase mortality, worsen FCR, and risk welfare audit
+      findings and settlement penalties.
+    - >-
+      Existing controllers automate basic curves but don’t optimize across
+      external weather, bird age, litter moisture, energy prices, and equipment
+      performance—nor do they learn house-level behavior.
+    - >-
+      Complex managers lack a unified, auditable way to ensure hundreds of
+      houses adhere to integrator setpoints while minimizing energy and
+      maintaining welfare.
+    - >-
+      Data is siloed across controller OEMs; service techs and growers lack an
+      actionable, verified “daily plan” with guardrails and M&V of savings.
+  solution:
+    - >-
+      House-level digital twin that learns thermal response, litter moisture
+      dynamics, and equipment behavior (fans, inlets, heaters, pads) per barn
+      and season.
+    - >-
+      Continuous optimization of setpoints (target temp, RH window, minimum
+      ventilation rate, static pressure, heater staging, pad usage,
+      variable-speed fan bands) against integrator curves, weather forecasts,
+      energy prices, and house constraints.
+    - >-
+      Human-in-the-loop workflow: daily plan sent to grower/service tech;
+      single-tap confirm/apply on compatible controllers; exceptions require
+      confirmation; instant rollback and safe modes.
+    - >-
+      Welfare and safety guardrails: hard limits on temp, RH, NH3, CO2, and
+      static pressure; automatic fail-safe to OEM controller curve on
+      sensor/controller fault.
+    - >-
+      Cross-OEM integration via gateway/API (e.g., Rotem/Munters, Cumberland
+      EDGE, Chore-Time, Big Dutchman, AP). Adds CO2/NH3/RH sensors if absent.
+    - >-
+      Enterprise cockpit for complex managers: adherence dashboards, alerts,
+      audit trails, and benchmarking across farms/houses.
+    - >-
+      M&V module: baseline modeling (pre/post and matched-weather cohorts)
+      producing verified energy and welfare KPIs for settlements, rebates, and
+      sustainability reporting.
+  uniqueValueProp: >-
+    Hit your integrator’s environment curves with fewer clicks and lower energy.
+    AviSet Optimize delivers AI-recommended setpoints/schedules with welfare
+    guardrails and human confirmation—cutting energy 10–20% per lb while
+    reducing out-of-range time by 40–60%, with auditable M&V and enterprise
+    oversight.
+  unfairAdvantage: >-
+    House-specific digital twins trained across diverse geographies and
+    equipment, combined with cross-OEM integrations and welfare guardrails that
+    produce auditable, M&V-backed savings. Early utility rebate alignments and
+    university-validated trials create defensible credibility and switching
+    costs.
+  customerSegments:
+    - >-
+      Primary economic buyer: Broiler integrators (live production VPs, complex
+      managers, energy/sustainability leads).
+    - >-
+      Primary user: Contract growers (house operators) and service techs
+      responsible for setpoints and daily checks.
+    - >-
+      Influencers: Welfare/compliance teams (PAACO/NCC alignment), veterinary
+      services, quality assurance, and utility energy-efficiency program
+      managers.
+    - >-
+      Secondary market: International integrators and large independent growers
+      with modern controllers; equipment OEMs seeking value-added optimization.
+  channels:
+    - >-
+      Enterprise sales to integrators (top 10 cover >60% of US broiler volume).
+      Land-and-expand via complex-level pilots.
+    - >-
+      OEM partnerships (Munters/Rotem, Cumberland, Chore-Time, Big Dutchman) for
+      distribution, co-selling, and embedded integrations.
+    - >-
+      Utility energy-efficiency programs: secure custom rebates for
+      sensors/gateway and performance incentives based on verified savings.
+    - >-
+      University/Extension pilots (Auburn, UGA, Mississippi State) to validate
+      welfare and energy results; publish case studies.
+    - >-
+      Grower associations and contract meetings: demos and limited-time pilot
+      offers via integrator endorsement.
+    - >-
+      Digital: targeted outreach to complex managers/engineering via webinars,
+      case studies, and ROI calculators; retargeting based on NAICS 112320
+      intent data.
+  revenueStreams:
+    - >-
+      SaaS per house: $50–$120 per house per month depending on features and
+      volume; typical $75/house/month.
+    - >-
+      Enterprise license for integrators (analytics + API + SSO): $0.02–$0.05
+      per bird placed or negotiated flat.
+    - >-
+      Hardware/Gateway kit (if needed): $900–$1,500 per house one-time or
+      $35–$55 per house per month on 36-month lease (includes sensors and LTE).
+    - >-
+      Performance-based upside: 10–20% share of verified energy savings beyond a
+      threshold or milestone bonuses for welfare/out-of-range reductions.
+    - >-
+      Professional services: installation, training, and custom integrations;
+      $200–$600 per house initial setup.
+    - >-
+      Data/benchmarking (optional, anonymized): premium analytics for
+      integrators’ continuous improvement teams.
+  costStructure:
+    - 'Hardware COGS per house: gateway + sensors $600–$1,050 (volume-dependent).'
+    - >-
+      Installation and commissioning: $250–$500 per house (contracted tech
+      network).
+    - 'Connectivity: $4–$7 per house per month for LTE/LoRa backhaul.'
+    - >-
+      Cloud/compute/data: $3–$8 per house per month (inference + storage +
+      monitoring).
+    - >-
+      Support and success: $8–$15 per house per month (Tier 1/2, training,
+      on-site visits).
+    - 'R&D: model development, integrations, QA (fixed).'
+    - >-
+      Sales and marketing: enterprise reps, channel MDF, industry events (fixed
+      + variable).
+    - 'Insurance, warranties, and certification/compliance (fixed).'
+  keyMetrics:
+    - >-
+      Core performance KPIs: energy intensity (kWh + BTU per lb live weight) —
+      target 10–20% reduction vs. baseline; % time within ±1.5°F of curve —
+      target >85%; RH time-in-range (50–70%) — target >80%; NH3 exposure < 25
+      ppm for >95% of occupied hours; CO2 < 3,000 ppm for >95%.
+    - >-
+      Production KPIs: mortality reduction 0.2–0.5 percentage points; FCR
+      improvement 1–2 points (0.01–0.02); condemnations reduction 5–10%
+      relative.
+    - >-
+      Adoption/usage: houses onboarded; monthly active barns >95%; daily plan
+      acceptance rate >80%; median time-to-approve <5 minutes; manual overrides
+      per house per week <3.
+    - >-
+      Reliability/safety: guardrail breach rate <0.1% of hours; sensor uptime
+      >98%; auto-fallback success 100% on detected faults.
+    - >-
+      Financial: verified savings per house per year $800–$2,500 (season/climate
+      dependent); gross margin >60% on SaaS; payback <6 months with rebates.
+    - >-
+      Sales: pilot-to-rollout conversion >60%; expansion within integrator >2.5x
+      houses in 12 months; logo retention >95% annually; NRR >120%.
+storyBrand:
+  character: >-
+    Broiler growers and integrator field techs (NAICS 112320) who want to hit
+    the integrator’s environment curve, protect welfare, and control energy
+    costs.
+  problem: >-
+    External: Weather swings, volatile fuel prices, and complex equipment make
+    setpoints hard to manage across flocks and hours.
+
+    Internal: Stress about missing the curve, chargebacks, and overnight alarms.
+
+    Philosophical: Good bird welfare shouldn’t require wasteful energy or
+    constant manual tweaking.
+  guide: >-
+    Empathy: We’ve managed and audited broiler barns—every degree matters and
+    alarms don’t wait.
+
+    Authority: Built with poultry science, HVAC, and data engineering; validated
+    against historical flock outcomes and integrator targets. Includes
+    guardrails, audit trails, and human-in-the-loop approvals.
+  plan: >-
+    Process plan:
+
+    1) Connect barn sensors/controllers and import integrator curves.
+
+    2) AI proposes setpoints and schedules for ventilation, heating, and
+    humidity within welfare and safety limits.
+
+    3) You review/confirm; the system monitors outcomes, auto-adjusts, and
+    alerts on exceptions.
+
+    Agreement plan:
+
+    - You approve every change.
+
+    - Guardrails prevent welfare or equipment-risk moves.
+
+    - Data remains yours; roles and permissions are clear.
+
+    - No-risk pilot; cancel anytime.
+  callToAction: |-
+    Direct: Start a two-house pilot this flock or book a 20-minute demo.
+    Transitional: Download a sample flock report and ROI worksheet.
+  success: |-
+    - Consistently meet the integrator curve with fewer alarms.
+    - Lower energy use and improved litter quality.
+    - Reduced ammonia and heat/cold stress risk.
+    - Better uniformity and welfare indicators.
+    - Clear, auditable decisions for you and your integrator.
+    - Time back in your day and peace of mind.
+  failure: |-
+    - Over/under-ventilation, wet litter, and ammonia spikes.
+    - Heat stress, chilled chicks, and avoidable mortality.
+    - Missed targets, chargebacks, and compliance issues.
+    - Wasted fuel and unnecessary fan runtime.
+    - Middle-of-the-night emergencies and guesswork.
+landingPage:
+  hero:
+    title: Barn Environment Setpoint Optimizer
+    subtitle: >-
+      AI for broiler houses that sets ventilation, heating, and humidity to hit
+      integrator curves, cut energy, and protect welfare—always with guardrails
+      and human confirmation. For Broilers and Other Meat-Type Chicken
+      Production (NAICS 112320).
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - >-
+      Energy spend swings with weather; manual setpoints over-ventilate or waste
+      heat.
+    - >-
+      Meeting integrator temperature/RH curves across ages and houses is
+      time-consuming and inconsistent.
+    - >-
+      Crew turnover and shift-to-shift changes cause performance drift and
+      animal stress.
+    - >-
+      Humidity and airflow mismanagement leads to wet litter, ammonia, and paw
+      issues.
+    - Reactive alarms replace proactive planning; issues are caught late.
+    - Limited audit trail for integrators and welfare documentation.
+  solution:
+    - >-
+      Hour-by-hour setpoint and schedule recommendations by flock age and local
+      weather to track integrator curves.
+    - >-
+      Optimizes for target performance and energy savings while maintaining
+      welfare envelopes.
+    - >-
+      Built-in guardrails for minimum ventilation, temperature bands, RH
+      targets, and air quality; you approve every change.
+    - >-
+      Learns each house’s equipment capacity and historical response for
+      practical, precise settings.
+    - >-
+      Pushes approved schedules to supported controllers or provides printable
+      crew checklists.
+    - Real-time monitoring with deviation alerts and suggested corrections.
+    - 'Automatic, shareable reports for integrators and welfare audits.'
+  features:
+    - Integrator curve import and seasonal adjustments.
+    - 'Multi-objective optimization: performance vs energy spend.'
+    - Live weather and energy price integration.
+    - >-
+      Equipment-aware control: fan stages, inlet positions, heaters,
+      dehumidification.
+    - Age/weight-based minimum ventilation guardrails.
+    - Humidity and litter moisture risk management.
+    - Ammonia/CO2 risk modeling using airflow and sensor data.
+    - What-if simulation before applying changes.
+    - 'Human-in-the-loop approvals, change history, and rollbacks.'
+    - Cross-house templates and benchmarking to standardize best practices.
+    - 'Exception dashboard: hot/cold spots, wet litter risk, high ammonia risk.'
+    - APIs/connectors for common barn controllers and IoT sensors.
+    - Role-based access with crew-ready task lists and shift handoffs.
+    - Offline-safe operation with clear fallbacks and safe-state defaults.
+  steps:
+    - >-
+      Connect your houses: link controllers/sensors and select integrator
+      curves.
+    - >-
+      Set constraints and preferences: welfare limits, minimum ventilation,
+      equipment capacities, and energy pricing.
+    - Review the AI’s first schedule per house and flock; adjust and approve.
+    - Sync approved setpoints to controllers or export printable checklists.
+    - >-
+      Monitor performance and accept suggested tweaks as weather and flock
+      conditions change.
+    - >-
+      Share automated reports with your integrator and track outcomes across
+      flocks.
+---
+# AviSet Optimize
+
+Generated for NAICS 112320 — Broilers and Other Meat Type Chicken Production.
+Service: Barn Environment Setpoint Optimizer (Ventilation/Heating/Humidity)

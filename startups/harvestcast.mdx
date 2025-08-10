@@ -1,0 +1,303 @@
+---
+name: HarvestCast AI
+slug: harvestcast
+naics:
+  primary: '111419'
+  occupations: []
+service:
+  title: Yield & Harvest Forecasting (Vision + Climate)
+  description: >-
+    Predicts marketable yield by SKU over 1–6 weeks using fruit/head counts from
+    images and time-to-harvest models using DLI/GDD.
+  targetUsers:
+    - Sales/operations planners
+    - Head growers
+  triggers:
+    - New image count pass
+    - Weekly operations meeting
+    - Large climate change (cloudy week)
+  inputs:
+    - Periodic aisle-walk photos/videos
+    - Historical yields by bay/SKU
+    - 'Climate logs (temp, DLI, CO2)'
+    - Crop stage and planting dates
+  steps:
+    - Count fruit/heads via CV and estimate size class distribution
+    - Model maturation speed from climate (GDD/DLI)
+    - Produce weekly forecast per bay/SKU with confidence intervals
+    - Compare to open orders; flag gaps/surplus
+    - Continuously recalibrate with actuals
+  tools:
+    - YOLOv8/SAHI for counting
+    - Time-series models (LightGBM/Prophet)
+    - Retool/Power BI dashboard
+    - CSV/ERP export
+  outputs:
+    - 1–6 week harvest forecast (SKU x week)
+    - Confidence bands and drivers
+    - Exception list (shortfalls/surplus)
+  pricingModel:
+    - Monthly per hectare or per SKU
+    - Optional per-ton-forecasted usage fee
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 7
+    overall: 8
+  risks:
+    - Occlusion/lighting impact on counts
+    - Cultivar differences
+    - Label noise
+  dependencies:
+    - Image capture cadence
+    - Access to historical yields
+leanCanvas:
+  problem:
+    - >-
+      Short-term (1–6 week) yield forecasts are highly inaccurate (often 20–40%
+      MAPE), leading to frequent over/under-supply.
+    - >-
+      Lack of SKU-level forecasts by cultivar, block, and grade makes it hard to
+      match contracts and retail programs.
+    - >-
+      Labor scheduling for harvest crews is reactive, increasing overtime costs
+      and missed windows for marketable quality.
+    - >-
+      Mismatch between expected and actual volume creates order penalties,
+      rushed logistics, and margin erosion.
+    - >-
+      Excess shrink from overmature or unharvested product (2–8% typical) due to
+      poor visibility of ripening/marketability.
+    - >-
+      Data silos between imaging, climate computer, and ERP prevent a single
+      source of truth for planning.
+    - >-
+      Manual scouting and counting are labor-intensive, inconsistent, and do not
+      scale across multiple bays/greenhouses.
+    - >-
+      Weather/light variability (DLI) and temperature (GDD) shifts harvest
+      timing unpredictably without robust models.
+  solution:
+    - >-
+      Computer vision counts: Fixed or mobile cameras capture fruit/head counts,
+      size distribution, and maturity/ripeness cues per bay/row; models trained
+      per cultivar and canopy architecture.
+    - >-
+      Time-to-harvest modeling: DLI- and GDD-based phenology models estimate
+      maturation/harvest windows and integrate short-term solar and temperature
+      forecasts to adjust timing daily.
+    - >-
+      Marketability classification: Detects defects, size class, color stage,
+      and pack-grade likelihood to forecast marketable yield by SKU, not just
+      biological yield.
+    - >-
+      Forecast engine: SKU/block-level forecasts aggregated to daily/weekly
+      buckets with confidence intervals, bias correction, and exception
+      handling.
+    - >-
+      Integrations: Two-way integrations with climate computers (Priva,
+      Hoogendoorn, Argus, Ridder), ERP/production planning (e.g., Microsoft
+      D365/Agriware, SAP, custom), and order systems via REST API.
+    - >-
+      Planner tools: Scenario planning (e.g., light/temperature setpoint
+      changes), harvest labor scheduling, heatmaps by bay, and contract coverage
+      tracking.
+    - >-
+      Onboarding & calibration: 4–6 week calibration per crop/cultivar using
+      existing historical yield/climate data; ongoing model drift monitoring and
+      automatic recalibration.
+  uniqueValueProp: >-
+    Accurate, SKU-level 1–6 week harvest forecasts that combine computer vision
+    fruit/head counts with DLI/GDD-driven time-to-harvest models—reducing
+    forecast error to <12–15% MAPE, cutting shrink by 20–40%, and aligning
+    labor, logistics, and sales in one system.
+  unfairAdvantage: >-
+    Cultivar-specific, multimodal dataset linking image-derived counts and
+    quality signals to DLI/GDD-driven harvest timing, integrated directly with
+    climate computers and ERPs—creating a closed-loop planning system that
+    continuously learns from outcomes. This data network effect and embedded
+    workflow integration are difficult to replicate.
+  customerSegments:
+    - >-
+      Primary ICP: Mid-to-large controlled-environment growers in NAICS 111419
+      (greenhouse vegetables/fruits/herbs), 2–100+ acres under cover.
+    - >-
+      Crop focus (initial): Tomatoes (cluster/TOV, beefsteak), cucumbers
+      (English/Mini), peppers, head lettuce, basil; expansion to strawberries
+      and leafy greens heads.
+    - >-
+      Buyer personas: Head Grower, Production Manager, Sales/Planning Director,
+      COO; influencers include ERP/IT and post-harvest QC.
+    - >-
+      Geographies: USA (NAICS 111419), near-term expansion to Canada
+      (Ontario/Quebec/BC) and EU (NL/ES).
+    - >-
+      Secondary: Produce marketers/handlers with integrated greenhouse supply
+      who require reliable supply plans.
+  channels:
+    - >-
+      Direct sales to medium/large greenhouse operators; account-based marketing
+      targeting top 200 US/CA producers.
+    - >-
+      Strategic partnerships: climate computer vendors (Priva, Hoogendoorn,
+      Argus, Ridder), greenhouse integrators, and ERP implementers (Agriware
+      365/CEG, D365/SAP partners).
+    - >-
+      Co-marketing with seed companies/breeders (e.g., Rijk Zwaan, Enza Zaden,
+      De Ruiter) to run cultivar-specific pilots and publish case studies.
+    - >-
+      Industry associations/events: GreenTech Amsterdam, Indoor Ag-Con,
+      Cultivate, Canadian Greenhouse Conference; speak on forecasting ROI.
+    - >-
+      Pilot-led GTM: 12-week paid pilots with clear success criteria and ROI
+      guarantees; convert to annual subscriptions.
+    - >-
+      Content and proof: yield planning playbooks, ROI calculators, and case
+      studies quantifying error reduction and shrink savings.
+    - >-
+      Channel resellers in regions with fragmented growers; produce marketers
+      who sponsor deployment across their grower networks.
+  revenueStreams:
+    - >-
+      Annual SaaS subscription priced by covered area and modules: $3,000–$8,000
+      per hectare per year depending on crop complexity and features.
+    - >-
+      One-time onboarding/integration fee: $15,000–$50,000 per site (covers data
+      integration, calibration, and training).
+    - >-
+      Hardware: Camera kits at cost plus margin or lease ($60–$120 per camera
+      per month) if customer lacks compatible imaging.
+    - >-
+      Premium modules: Scenario optimizer, multi-site balancing, advanced
+      QC/quality grading ($0.5k–$2k per hectare per year add-on).
+    - >-
+      Enterprise API access for produce marketers/retailers (per-call or tiered
+      $10k–$100k/yr depending on scale).
+    - >-
+      Professional services: Custom analytics, cultivar model development, and
+      in-season agronomic advisory.
+  costStructure:
+    - >-
+      COGS: Camera hardware ($250–$800 per unit) with typical density 1 camera
+      per 8,000–12,000 sq ft; mounting and networking kits.
+    - >-
+      Cloud compute/storage: $250–$600 per site per month depending on camera
+      volume and retention; model training cycles.
+    - >-
+      Data operations: Annotation and QA ($0.02–$0.08 per image) plus expert
+      agronomist labeling for edge cases.
+    - >-
+      Personnel: ML/vision engineers, data engineers, agronomists, integrators,
+      and customer success; initial team burn $250k–$400k/month.
+    - >-
+      Sales and marketing: Industry events, travel for pilots, partner MDF;
+      $5k–$20k per pilot for on-site support.
+    - >-
+      R&D: Ongoing model improvements (cultivar-specific phenology),
+      integrations with climate computers and ERPs.
+    - >-
+      Liability/insurance and compliance (food safety and data security), and
+      overhead (support, admin).
+  keyMetrics:
+    - >-
+      Forecast accuracy by crop/SKU/horizon: MAPE, WAPE, and bias; target ≤12%
+      MAPE at 1–2 weeks, ≤15% at 3–6 weeks; bias ≤3%.
+    - >-
+      Coverage: % of production volume with confidence intervals within
+      acceptable bounds (e.g., 80% of SKUs within ±15%).
+    - >-
+      Shrink reduction: target 20–40% reduction vs baseline (measure as % of
+      marketable product discarded or downgraded).
+    - >-
+      Order fulfillment: decrease underfills/overfills by ≥30%; reduce
+      penalties/expedites by ≥25%.
+    - >-
+      Labor efficiency: reduce unplanned overtime by ≥20%; improve picker
+      utilization by ≥10%.
+    - 'Planning cycle time: cut weekly planning/forecasting time by ≥50%.'
+    - >-
+      Adoption: weekly active planner users, % of sites with API integration
+      into ERP, # of SKUs under management.
+    - >-
+      Commercial: pilot-to-annual conversion rate ≥60%, logo retention ≥90%, net
+      revenue retention ≥115%, gross margin ≥70%.
+    - >-
+      Deployment: time-to-value ≤6 weeks from kickoff; model drift alerts ≤48
+      hours from detection.
+storyBrand:
+  character: >-
+    Ops and sales managers at protected‑culture farms (NAICS 111419) who must
+    plan harvest, labor, and orders by SKU.
+  problem: >-
+    Volatile light and temperature swing yields; without trustworthy 1–6‑week,
+    SKU‑level visibility, teams over/under‑harvest, miss orders, and waste
+    product.
+  guide: >-
+    We understand greenhouse variability. Our AI blends fruit/head counts from
+    images with DLI/GDD time‑to‑harvest models to forecast marketable yield by
+    SKU—built with growers for practical, on‑the‑ground decisions.
+  plan: >-
+    1) Connect climate data and capture weekly crop images. 2) Receive rolling
+    1–6‑week, SKU‑level marketable yield and harvest‑date forecasts. 3) Sync to
+    ERP/CRM to schedule labor, packing, and sales; refine via weekly reviews.
+  callToAction: >-
+    Start a 30‑day pilot or book a 20‑minute demo (optional: download a sample
+    forecast).
+  success: >-
+    Reliable, SKU‑level forecasts boost fill rate, cut dumps and overtime,
+    stabilize schedules, and secure better contracts by turning climate
+    variability into predictable output.
+  failure: >-
+    Keep flying blind—missed commitments, excess shrink, costly labor swings,
+    and eroding buyer trust.
+landingPage:
+  hero:
+    title: Yield & Harvest Forecasting for Covered Crops
+    subtitle: >-
+      Vision + Climate AI predicts marketable yield by SKU 1–6 weeks out. Built
+      for Other Food Crops Grown Under Cover (NAICS 111419).
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - Weekly plans swing with light and temperature—forecasts are guesswork.
+    - 'Manual fruit/head counts are slow, costly, and inconsistent.'
+    - 'Over/under-harvest drives waste, stockouts, and missed sales.'
+    - Packhouse and labor scheduling lack reliable forward visibility.
+    - Sales contracts aren’t aligned with actual pack-out.
+    - 'Data sits in silos across climate systems, scouting apps, and ERP.'
+  solution:
+    - >-
+      AI counts fruits/heads from images and predicts time-to-harvest using
+      DLI/GDD.
+    - SKU-level marketable yield forecast (1–6 weeks) by house/zone/bed.
+    - Confidence bands to protect service levels and reduce risk.
+    - 'Auto-updated pack, labor, and logistics plans from live forecasts.'
+    - Exception alerts when supply deviates from plan.
+    - 'Dashboards and API unify growing, sales, and operations.'
+  features:
+    - 'Computer vision counts from fixed cameras, mobile scans, or drone images.'
+    - 'Climate ingestion: DLI, GDD, temp, VPD from leading greenhouse systems.'
+    - Cultivar- and phenology-specific time-to-harvest models.
+    - Marketable vs cull prediction using size/color/defect signals.
+    - 'SKU/grade mapping by size, pack, and customer program.'
+    - Zone/bed/house hierarchy with heatmaps and forecast calendars.
+    - 'Daily-updated pack plan, crew hours, and truckload forecast.'
+    - What-if scenarios for light/temperature shifts and crop actions.
+    - Contract coverage tracking with shortage/surplus alerts.
+    - 'REST API and CSV export; integrates with climate, ERP, and BI tools.'
+    - 'Accuracy reporting: MAPE, bias, and coverage by crop/SKU.'
+    - >-
+      Multi-crop support: leafy greens, herbs, cucumbers, peppers, tomatoes,
+      berries, specialty greens.
+  steps:
+    - Connect climate controller and production data (read-only in minutes).
+    - Capture calibration images across representative zones and SKUs.
+    - 'Map crops to SKUs, packs, and customer programs.'
+    - Train and validate models using your historical picks and climate.
+    - Go live—forecasts refresh daily with confidence bands and alerts.
+    - 'Sync forecasts to ERP/BI; drive pack, labor, and sales plans.'
+---
+# HarvestCast AI
+
+Generated for NAICS 111419 — Other Food Crops Grown Under Cover.
+Service: Yield & Harvest Forecasting (Vision + Climate)

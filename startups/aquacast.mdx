@@ -1,0 +1,360 @@
+---
+name: >-
+  AquaCast AI — Demand Forecasting & Dispatch Optimizer for Inland Passenger
+  Waterways (NAICS 483212)
+slug: aquacast
+naics:
+  primary: '483212'
+  occupations: []
+service:
+  title: Demand Forecasting & Schedule/Dispatch Optimizer
+  description: >-
+    Forecast route-level demand and generate vessel assignments and departure
+    frequencies that meet demand and crew/asset constraints.
+  targetUsers:
+    - Operations manager
+    - Dispatcher
+    - General manager
+  triggers:
+    - 'Daily at 04:00 local'
+    - When booking load factor crosses thresholds
+    - Manual what-if request from ops
+  inputs:
+    - Historical bookings/tickets by departure
+    - No-show/cancellation rates
+    - GTFS or static timetable
+    - Vessel capacities and speed profiles
+    - Crew availability and rules (hours-of-service)
+    - Weather/river current outlook
+  steps:
+    - Ingest bookings and calendar events; clean and align to departures
+    - Forecast pax per departure (short- and mid-term)
+    - >-
+      Optimize frequency, vessel assignment, and deadhead moves under
+      constraints
+    - Generate proposed GTFS updates and captain briefings
+    - Push dispatch plan to ops (Slack/Email) and update internal calendars
+    - Monitor same-day demand and recommend add/cancel trips
+  tools:
+    - Python + OR-Tools (assignment/knapsack)
+    - Time series models (Prophet/LightGBM)
+    - OpenWeatherMap/NOAA forecasts
+    - USGS river discharge/tide APIs (region-specific)
+    - GTFS Manager/Transitland
+    - 'Slack/Teams, Google Calendar API'
+  outputs:
+    - Daily dispatch plan (CSV/Sheet)
+    - GTFS/GTFS-RT updates
+    - Crew and vessel assignment table
+    - Risk flags (over/under capacity)
+  pricingModel:
+    - One-time setup for data pipes/modeling
+    - Monthly SaaS fee per route/fleet size
+    - Optional performance bonus for on-time/load-factor KPIs
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Bad booking data → wrong frequency suggestions
+    - Union/crew rules not modeled correctly
+    - Weather/shoaling changes invalidate plan mid-day
+  dependencies:
+    - API access to ticketing/POS
+    - Vessel roster and maintenance calendar
+    - Crew rules and availability data
+    - Permission to publish GTFS updates
+leanCanvas:
+  problem:
+    - >-
+      Demand is highly variable by season, weekday, weather, special events, and
+      school/work calendars; manual planning leads to chronic
+      over/under-capacity at route/time-slot level.
+    - >-
+      Crew constraints (USCG manning, hours-of-service/rest rules, union
+      agreements) are difficult to respect while meeting peak demand, causing
+      overtime and compliance risk.
+    - >-
+      Vessel assignment is typically static; assets are not re-optimized for
+      river levels, dock constraints, maintenance windows, or fuel efficiency,
+      resulting in low asset utilization and higher costs.
+    - >-
+      Short booking windows and walk-up ridership make it hard to forecast
+      near-term demand; lack of reliable forecasts reduces revenue capture and
+      service quality.
+    - >-
+      On-time performance is impacted by congestion at docks, weather and
+      current, and suboptimal headways; there is no fast, data-driven way to
+      re-time departures intra-day.
+    - >-
+      Operations teams rely on spreadsheets and legacy tools not designed for
+      inland ferry constraints (draft, bridge openings, tidal/current impacts,
+      wake limits, COI crew requirements).
+    - >-
+      Inadequate visibility of true load factors and missed turns leads to
+      missed revenue opportunities and customer dissatisfaction.
+    - >-
+      Regulatory and safety constraints (COI-required crew composition,
+      life-saving appliance capacity, maximum passengers, navigation limits) are
+      not embedded into optimization logic, increasing compliance risk.
+    - >-
+      Fuel and emissions reduction targets are rising; operators need to
+      minimize fuel per passenger-km without degrading service.
+    - >-
+      Fragmented data (ticketing, AIS/GPS, maintenance, weather, events)
+      prevents integrated planning and continuous improvement.
+  solution:
+    - >-
+      Ingest multimodal data: ticketing/POS, AFC, reservations, AIS/GPS tracks,
+      dock turn times, weather/river stage, events, school/work calendars,
+      maintenance schedules.
+    - >-
+      ML demand forecasting at route x stop-pair x time-slice (5–15 min bins)
+      with seasonality, holiday/event and weather features; produces short-term
+      (0–72h) and medium-term (1–12 weeks) forecasts with confidence bands.
+    - >-
+      Optimization engine (mixed-integer programming + heuristics) generates
+      vessel assignments, headways, and crew rosters honoring constraints: COI
+      manning, hours-of-service/rest, vessel capacity/draft, dock slotting,
+      maintenance, fuel caps, union rules.
+    - >-
+      Scenario planner/digital twin: run what-if analyses (e.g., special events,
+      vessel out-of-service, river level changes) and compare cost, OTP, load
+      factor, emissions.
+    - >-
+      Real-time dispatcher assist: intraday demand sensing and re-optimization
+      with push suggestions to add/cancel trips, up/down-gauge vessels, or swap
+      crews within constraints.
+    - >-
+      Compliance guardrails: embedded USCG rules templates and configurable
+      local/union rules; pre-deployment validation reports.
+    - >-
+      Integrations: APIs/connectors to ticketing (e.g., Masabi,
+      Square/FareHarbor-class), maritime ops (e.g., Helm CONNECT-class),
+      CAD/AVL, weather (NOAA-class), AIS providers; export GTFS-Flex/GTFS-RT for
+      public info systems.
+    - >-
+      Operational dashboards: forecast accuracy, OTP, load factor by trip, crew
+      overtime, deadhead time, fuel per passenger-km, CO2e.
+    - >-
+      Closed-loop learning: post-day reconciliation of actuals vs plan to
+      auto-tune models and update cost parameters (turn times, dwell, speed
+      profiles).
+  uniqueValueProp: >-
+    Purpose-built AI that forecasts route- and departure-level demand and
+    auto-generates compliant vessel, crew, and frequency plans—reducing overtime
+    and fuel 10–20%, improving load factors 5–10 points, and boosting on-time
+    performance 2–5 points within 90 days.
+  unfairAdvantage: >-
+    A domain-specific optimization and forecasting stack encoded with inland
+    passenger maritime constraints (COI/crew rest, draft/river stage, dock
+    slotting), reinforced by proprietary route-level elasticities and turn-time
+    profiles gathered through pilots—creating a data and model moat that
+    generalist transit tools and legacy maritime ERPs lack.
+  customerSegments:
+    - >-
+      Municipal/Regional transit agencies operating inland ferries and water
+      taxis (e.g., river/canal/lake commuter services). Economic buyer: Director
+      of Marine Operations/Chief of Transit Innovation.
+    - >-
+      Private ferry operators serving island communities, resorts, campuses, and
+      industrial sites. Economic buyer: COO/Operations Manager.
+    - >-
+      Sightseeing/day-cruise operators with scheduled services on rivers/lakes
+      where frequency and vessel mix impact revenue and cost. Economic buyer:
+      GM/Revenue Manager.
+    - >-
+      Contracted service providers to public agencies (operate-under-contract).
+      Economic buyer: VP of Operations/Proposal teams for RFPs.
+    - >-
+      System integrators/prime contractors bidding on smart mobility/transit
+      modernization projects who need forecasting/dispatch modules.
+    - >-
+      Port authorities/dock operators needing coordinated slotting and berth
+      utilization optimization.
+  channels:
+    - >-
+      Direct sales to municipal agencies and mid/large private operators; focus
+      on top 100 North American inland passenger operators by ridership.
+    - >-
+      Partnerships with ticketing/AFC vendors (e.g., Masabi-class) to co-sell
+      into existing ferry customers; revenue-share on joint deals.
+    - >-
+      Alliances with maritime ops software (e.g., Helm CONNECT-class) and
+      AIS/telematics providers for bundled integrations.
+    - >-
+      System integrators/consultancies bidding on smart mobility/transit RFPs;
+      offer AquaCast as a white-label module.
+    - >-
+      Industry associations and events: Passenger Vessel Association (PVA), APTA
+      waterborne sessions, Inland Marine Expo; thought leadership, case studies,
+      workshops.
+    - >-
+      Pilot-first GTM: 8–12 week paid pilots with ROI targets; convert to 3-year
+      SaaS with performance-based adders.
+    - >-
+      Grants and public funding: support FTA, MARAD, USDOT SMART grants and
+      state innovation funds; offer grant-writing assistance.
+    - >-
+      Content/digital: route-level benchmarking reports, ROI calculators,
+      operator roundtables, and webinars.
+    - >-
+      Reference marketing: secure lighthouse accounts (e.g., major city river
+      ferry, large sightseeing fleet) and expand network effects.
+  revenueStreams:
+    - >-
+      Annual SaaS subscription priced by active vessels and routes (e.g.,
+      $1,000–$2,500 per vessel/month; volume discounts).
+    - >-
+      Module add-ons: Crew Rostering Pro (+$3–$5k/yr per operator),
+      Sustainability/CO2e analytics (+$2–$4k/yr), Real-time Dispatch Assist
+      (+$5–$15k/yr depending on scale).
+    - >-
+      One-time onboarding/integration fee ($15k–$75k depending on data
+      complexity).
+    - 'Premium support/SLA (24x7, dedicated TAM) at 12–18% of ARR uplift.'
+    - >-
+      Professional services: bespoke scenarios, data quality remediation, RFP
+      support ($150–$220/hr or fixed-scope).
+    - >-
+      Performance-based bonuses tied to agreed KPIs (e.g., share of documented
+      fuel/overtime savings beyond baseline).
+  costStructure:
+    - >-
+      R&D: data science and optimization engineers (4–8 FTE Year 1), maritime
+      SMEs, product/design.
+    - >-
+      Cloud infrastructure: compute for training/inference/optimization,
+      storage, monitoring ($6k–$18k/month at 50-vessel scale; scales with fleet
+      size and optimization cadence).
+    - >-
+      Third-party data/services: weather, AIS/telematics, optimization solvers
+      (Gurobi/CPLEX licensing) or managed OR-Tools.
+    - >-
+      Implementation/CS: integration engineers and solution architects; field
+      visits for time-and-motion/dock studies.
+    - >-
+      Sales and marketing: account execs, conferences, pilots, proposal
+      development for RFPs.
+    - >-
+      Security/compliance: SOC 2 Type II, penetration tests, insurance
+      (cyber/E&O), legal.
+    - 'General/admin: finance, HR, office/travel, contractor management.'
+    - >-
+      Contingency for grant compliance reporting and public procurement
+      overhead.
+  keyMetrics:
+    - >-
+      Forecast MAPE by horizon and route (target: ≤12% short-term; ≤18%
+      medium-term).
+    - >-
+      On-time performance (arrival within 0–5 minutes of schedule) improvement
+      vs baseline (target: +2–5 percentage points).
+    - >-
+      Average passenger load factor improvement (target: +5–10 points at peak;
+      reduce overload events by ≥80%).
+    - 'Crew overtime hours per 1,000 service hours (target: −15–30%).'
+    - 'Fuel consumption per passenger-km (target: −5–15%).'
+    - 'Deadhead and non-revenue hours as % of total (target: −10–20%).'
+    - >-
+      Schedule adherence and dispatch acceptance rate (operator overrides <15%
+      after stabilization).
+    - >-
+      Integration time to value (goal: pilot live in ≤6 weeks; full rollout ≤90
+      days).
+    - >-
+      Commercial: pilot-to-subscription conversion rate (≥60%), ACV, net revenue
+      retention (≥115%), CAC payback (<12 months).
+    - >-
+      System: platform uptime ≥99.9%, optimization runtime for daily plan ≤15
+      minutes for 50-vessel fleet; intraday replan ≤3 minutes.
+storyBrand:
+  character: >-
+    Operations leaders at inland water passenger transport services (NAICS
+    483212) who want reliable demand forecasts and schedules that align vessels,
+    crews, and departures to real ridership.
+  problem: >-
+    External: Demand swings by route, season, weather, and events while assets
+    and crews are constrained. Internal: Planners juggle spreadsheets and
+    last‑minute changes, risking delays, empty runs, or crowding. Philosophical:
+    Riders and crews deserve right‑sized, reliable service—not waste or
+    frustration.
+  guide: >-
+    Empathy: We understand ferry ops pressures—oversold boats, idle capacity,
+    and tight crew rules. Authority: Our AI forecasts route‑level demand and
+    optimizes assignments and frequencies within vessel, crew, and regulatory
+    constraints; integrates with ticketing/AIS/ERP; secure and auditable.
+  plan: >-
+    Process: 1) Connect data and define constraints; 2) Forecast demand by route
+    and time; 3) Optimize vessels, frequencies, and crew; 4) Review in sandbox
+    and approve; 5) Deploy, monitor, and refine. Agreement: clear SLA, privacy
+    by design, pilot-first with success criteria.
+  callToAction: >-
+    Primary: Request a 30‑day pilot and route assessment. Secondary: Download
+    the forecasting and dispatch optimization playbook.
+  success: >-
+    Right‑sized departures, higher load factors, fewer crowding incidents and
+    cancellations, lower fuel and overtime, predictable crew utilization,
+    improved on‑time performance, happier riders, and defensible plans for
+    regulators and boards.
+  failure: >-
+    Overstaffed or under‑served routes, missed revenue, long lines and delays,
+    crew burnout, budget overruns, reactionary dispatch, and avoidable
+    complaints or penalties.
+landingPage:
+  hero:
+    title: AI Demand & Dispatch Optimizer for Inland Water Passenger Transport
+    subtitle: >-
+      Forecast route-level demand and auto-build vessel and crew schedules that
+      meet demand, constraints, and service targets.
+    ctaText: Start a pilot
+    ctaHref: /demo
+  problem:
+    - Overcrowded peaks and underfilled off-peak sailings
+    - Manual planning can’t keep up with seasonal and event spikes
+    - Complex crew/COI/HOS and union rules drive overtime risk
+    - 'Vessel draft, speed, and capacity complicate assignments'
+    - 'Lock, tide, weather, and fog disrupt static timetables'
+    - 'Fragmented data: ticketing, AIS/AVL, GTFS, maintenance'
+    - Missed connections and long waits hurt rider satisfaction
+    - Fuel and emissions rise with inefficient headways
+  solution:
+    - >-
+      Predict demand by route, stop, and hour using ridership, weather, tides,
+      and events
+    - Generate optimal departure times and headways that match policy and demand
+    - 'Assign vessels by capacity, draft, speed, and fueling/charging windows'
+    - 'Build compliant crew rosters honoring COI, HOS, union rules, and rest'
+    - 'Protect maintenance, inspection, and layup windows automatically'
+    - 'Re-optimize in real time for delays, outages, or demand surges'
+    - Publish to GTFS/GTFS-RT and dispatch tools; push rider alerts
+    - 'Plan scenarios for seasonals, detours, and special events'
+    - 'Track KPIs: load factor, OTP, fuel, emissions, cost per passenger'
+  features:
+    - ML demand forecasting at 15‑minute to daily granularity
+    - 'Connectors for ticketing/APC, AIS/AVL, weather, tides/river stage, events'
+    - 'Constraint solver for vessels, crews, terminals, locks, and turnarounds'
+    - Headway and capacity targets by time of day and direction
+    - Crew certification/COI validation and HOS compliance checks
+    - Overtime and cost minimization with budget and labor caps
+    - Battery charging/fueling optimization and berth resource limits
+    - 'ADA, bike, stroller, and luggage capacity controls'
+    - Terminal dwell/transfer modeling and connection protection
+    - 'GTFS, GTFS-RT, and GTFS-Flex exports and APIs'
+    - 'Live dispatch dashboard with ETAs, load estimates, and alerts'
+    - Playbooks for disruptions; one-click replan and communicate
+    - 'Scenario versioning, audit trail, and approval workflow'
+    - 'SSO, RBAC, and REST API for integrations'
+  steps:
+    - 'Connect data sources (ticketing/APC, AIS/AVL, weather/tides, maintenance)'
+    - 'Define routes, fleet, crew rules, and service policies'
+    - 'Auto-generate forecasts, schedules, vessel assignments, and crew rosters'
+    - Review and adjust with drag-and-drop and live compliance checks
+    - 'Publish to dispatch, operators, and rider channels'
+    - Monitor KPIs and re-optimize as conditions change
+---
+# AquaCast AI — Demand Forecasting & Dispatch Optimizer for Inland Passenger Waterways (NAICS 483212)
+
+Generated for NAICS 483212 — Inland Water Passenger Transportation.
+Service: Demand Forecasting & Schedule/Dispatch Optimizer

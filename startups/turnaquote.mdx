@@ -1,0 +1,326 @@
+---
+name: TurnaQuote AI — Quote & TAT Estimator for Testing Labs
+slug: turnaquote
+service:
+  title: Quote and Turnaround Time Estimator
+  description: >-
+    Generates itemized quotes and realistic TAT forecasts using method BOMs,
+    staff/equipment calendars, and historical throughput.
+  targetUsers:
+    - Sales/BD
+    - Lab managers
+    - Finance
+  triggers:
+    - Approved test plan
+    - New RFQ requiring pricing
+  inputs:
+    - Test plan with methods and volumes
+    - 'Resource calendars (instruments, analysts)'
+    - Consumable costs and markups
+    - Historical job durations and failure rates
+  steps:
+    - Lookup method-specific cost drivers and consumables
+    - 'Estimate run time with setup/cleanup, QC overhead'
+    - Check capacity and schedule constraints to compute TAT scenarios
+    - Generate quote variants (standard/expedite) with confidence intervals
+    - Route to human for pricing override and approval
+    - Send quote and TAT to client; log in CRM
+  tools:
+    - LIMS/ERP/CMMS APIs
+    - Scheduling API/Calendars
+    - Forecasting/statistics library
+    - CRM API (Salesforce/HubSpot)
+    - PDF quote generator/e-signature
+  outputs:
+    - Itemized quote with terms
+    - TAT forecast with P80/P90 intervals
+    - Resource load impact report
+  pricingModel:
+    - Per-quote fee
+    - '% of won contract (success fee)'
+    - Monthly subscription for continuous quoting
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 7
+    overall: 8
+  risks:
+    - Underestimated TAT causing SLA misses
+    - Stale cost data
+    - Integration complexity with legacy LIMS/ERP
+  dependencies:
+    - Up-to-date cost lists and BOMs
+    - Calendar access for instruments/staff
+    - Historical cycle-time data
+leanCanvas:
+  problem:
+    - >-
+      Slow, manual, and inconsistent quoting: complex quotes often take 1–3
+      hours to assemble (BOM lookup, method steps, capacity checks), creating
+      0.5–1.5 FTE of quoting overhead for mid-size labs (20–40 quotes/week) and
+      causing delays in customer response.
+    - >-
+      Unreliable TAT promises: 15–30% of orders miss quoted TATs due to capacity
+      blind spots (instrument downtime, staff scheduling, sample surges),
+      leading to rework, fee waivers, and lower NPS.
+    - >-
+      Margin erosion from mispricing: quotes rarely reflect real-time consumable
+      costs, re-test probabilities, and overtime/rush impacts; many labs see
+      ±5–10 percentage-point variance between quoted vs. realized gross margin.
+    - >-
+      Capacity not priced-in: identical prices offered regardless of current
+      load undercut margins and extend backlogs; no systematic approach to
+      dynamic rush surcharges or capacity-aware scheduling.
+    - >-
+      Tribal knowledge risk: method-specific BOMs and realistic step durations
+      live in spreadsheets and the heads of senior staff, making quotes fragile,
+      error-prone, and hard to scale.
+    - >-
+      Lost deals from slow or non-itemized quotes: enterprise buyers
+      increasingly require itemized quotes and realistic TAT windows; slow or
+      opaque quotes lose to faster competitors even at higher prices.
+    - >-
+      Poor forecastability: managers lack forward visibility into instrument and
+      staff utilization based on pending quotes, preventing proactive staffing,
+      overtime, or subcontracting decisions.
+  solution:
+    - >-
+      Ingest method BOMs and standardized workflows; map to resource
+      requirements (instruments, staff roles, consumables).
+    - >-
+      Integrate with LIMS/ELN/ERP and calendars to capture current WIP,
+      maintenance windows, and staff availability.
+    - >-
+      ML models predict step-level and end-to-end TAT distributions by method
+      and sample type using historical throughput, seasonality, re-test rates,
+      and downtime patterns.
+    - >-
+      Dynamic, capacity-aware pricing that applies rush surcharges, overtime
+      costs, and subcontracting options when load is high.
+    - >-
+      Automated, itemized quote generation (PDF/HTML) with line items, TAT
+      window, assumptions, and terms; approval workflows and margin guardrails.
+    - >-
+      Scenario planning: simulate what-if schedules (rush vs. standard, split
+      batches, alternate instruments, subcontract) to pick best cost/TAT
+      trade-off.
+    - >-
+      Feedback loop: compare quoted vs. actuals (cost, TAT) to continuously
+      recalibrate BOMs, durations, buffers, and pricing rules.
+    - >-
+      APIs and connectors for LIMS (LabWare, LabVantage, SampleManager,
+      STARLIMS), ERPs (NetSuite, SAP), and CPQ (Salesforce) for seamless
+      workflow.
+  uniqueValueProp: >-
+    Instant, itemized quotes with capacity-aware, ML-predicted TATs using your
+    method BOMs, staff/instrument calendars, and historical throughput—cut quote
+    turnaround by 80%, reduce TAT misses by 30–50%, and add 2–5 margin points
+    while improving win rate and customer trust.
+  unfairAdvantage: >-
+    Cross-lab, opt-in anonymized performance data enables transfer learning by
+    method and instrument, producing more accurate TAT predictions than any
+    single-lab dataset; combined with deep LIMS integrations and a curated
+    method/BOM library, this creates a defensible accuracy and time-to-value
+    moat that generic CPQ or LIMS add-ons cannot match.
+  customerSegments:
+    - >-
+      Independent environmental testing labs (water, air, soil) with 50–500
+      employees generating 200–2,000 quotes/month.
+    - >-
+      Food and agriculture testing labs (microbiology, residues, allergens)
+      serving CPG and growers.
+    - >-
+      Materials and product testing labs (metals, polymers, textiles,
+      electronics reliability).
+    - >-
+      Bioanalytical and small-to-mid CRO labs (GLP/GCP) offering assay, PK/PD,
+      and method validation services.
+    - >-
+      Regional laboratories within large TIC groups (e.g., SGS, Eurofins, Bureau
+      Veritas, Intertek) seeking site-by-site rollouts before group
+      standardization.
+    - >-
+      Specialty labs (e.g., forensics, mining/mineral assay, oil & gas) that
+      invoice itemized methods and need reliable TAT windows.
+  channels:
+    - >-
+      Direct sales to mid-market labs (initial ICP: 100–500 employees, 500–3,000
+      quotes/month), targeting NA/EU with a named-account list of 200–300
+      prospects; goal: 10–15 qualified demos/month/AE.
+    - >-
+      Partnerships with LIMS vendors (LabWare, LabVantage, Thermo SampleManager,
+      STARLIMS) for co-selling, marketplace listings, and joint webinars;
+      integration certification to reduce sales friction.
+    - >-
+      Alliances with system integrators specializing in lab informatics to
+      deliver implementations and source deals (10–20% rev share).
+    - >-
+      Industry events and associations: Pittcon, SLAS, Analytica, AOAC, NEMC;
+      booth + workshop on capacity-aware quoting; KPI giveaway (TAT benchmark).
+    - >-
+      Content/SEO/ABM: publish a quarterly “Lab TAT Benchmark Report,”
+      calculators for ROI and TAT accuracy, and case studies targeting method
+      families (EPA 500/600, ISO 17025).
+    - >-
+      Pilot-led GTM: 8-week paid pilots with 1–2 high-volume methods; KPI-based
+      success criteria and executive business review to drive conversion.
+    - >-
+      Customer advocacy and referrals: formal program with discounts for
+      reference calls and case studies (aim for 1 referenceable site per 3 new
+      logos).
+  revenueStreams:
+    - >-
+      Annual SaaS subscription by site and quote volume: Starter ($24k/yr up to
+      3 users, 500 quotes/mo), Growth ($60k/yr up to 15 users, 2,000 quotes/mo),
+      Enterprise ($120k+/yr unlimited users, 5,000+ quotes/mo).
+    - >-
+      Usage-based overage: $0.10–$0.35 per additional quote beyond plan
+      thresholds.
+    - >-
+      Implementation/integration fee: $15k–$50k per site depending on LIMS/ERP
+      complexity and method library size.
+    - >-
+      Premium modules: What-if Optimizer and Subcontracting Planner
+      ($15k/yr/module), Advanced SSO/SLA tier (+10% of subscription).
+    - >-
+      Professional services: BOM curation, method templating, and change
+      management ($200–$250/hr).
+    - Partner marketplace revenue share from LIMS channels (when applicable).
+  costStructure:
+    - >-
+      R&D and engineering (ML, optimization, integrations): 8–12 FTEs initial
+      team; $1.8M–$3.0M/yr.
+    - >-
+      Cloud infrastructure (training + inference + storage):
+      $400–$1,500/customer/month; variable cost roughly $0.02–$0.05/quote
+      depending on model complexity and attachments.
+    - >-
+      Sales and marketing: AEs, SEs, content, events; target CAC payback <14
+      months; $12k–$20k per closed/won mid-market deal.
+    - >-
+      Implementation/Customer success: 1 CSM per 15–25 customers; onboarding
+      40–120 hours/site.
+    - >-
+      Compliance and security: SOC 2 Type II/ISO 27001, pen tests, cybersecurity
+      insurance ($100k–$300k/yr).
+    - 'Partner and referral fees: 10–20% of first-year ACV for sourced deals.'
+    - >-
+      General & administrative: legal (data processing agreements, DPAs),
+      finance, HR.
+  keyMetrics:
+    - >-
+      Quote cycle time: median time from request to quote; target <30 minutes
+      for standard methods, <2 hours for complex multi-method quotes.
+    - >-
+      TAT accuracy: Mean Absolute Error (MAE) in days and WAPE%; target WAPE
+      <10% per method family within 90 days of deployment.
+    - >-
+      TAT adherence: % of orders delivered within quoted window (P80); target
+      >85% adherence within 6 months.
+    - >-
+      Quote win rate: baseline vs. post-implementation uplift; target +8–12%
+      relative improvement.
+    - >-
+      Gross margin variance: difference between quoted and realized; target
+      within ±2–3 percentage points after calibration.
+    - >-
+      Capacity utilization balance: keep key instrument families between 70–85%
+      average utilization; warnings >90% for >3 consecutive days.
+    - >-
+      Pilot conversion rate: target ≥60% pilot-to-annual subscription with
+      measured ROI >3x within pilot.
+    - >-
+      Time-to-first-value: achieve first accurate quotes within 30 days and
+      first TAT accuracy report by day 45.
+    - >-
+      Net revenue retention (NRR): target >115% via expansions and add-ons; logo
+      churn <6% annually.
+    - >-
+      Model monitoring: data freshness <24h; retraining cadence monthly; feature
+      drift alerts <2 per month requiring intervention.
+storyBrand:
+  character: >-
+    Lab managers, operations leaders, and client services at testing labs who
+    must issue accurate, fast quotes and dependable turnaround times.
+  problem: >-
+    Manual quoting and TAT promises are slow and unreliable; capacity and method
+    constraints hide in spreadsheets and calendars—causing missed deadlines,
+    margin erosion, and churn. You shouldn’t have to guess.
+  guide: >-
+    We understand regulated lab workflows and bottlenecks; our AI blends method
+    BOMs, staff/equipment calendars, and historical throughput to price
+    precisely and forecast TAT you can trust.
+  plan: >-
+    1) Connect method BOMs, resource calendars, and historical data; 2) Set
+    pricing, SLAs, and constraints; 3) Generate itemized quotes and realistic
+    TATs via web or API, with CRM/LIMS sync.
+  callToAction: Book a 30-minute demo or start a pilot on sample data.
+  success: >-
+    Quotes in minutes, reliable TAT commitments, higher win rates, protected
+    margins, on-time delivery, clear capacity visibility, and happier clients
+    and staff.
+  failure: >-
+    Continued firefighting with broken promises, opaque schedules, costly rush
+    work, lost deals, and burned-out teams.
+landingPage:
+  hero:
+    title: Quote & Turnaround Time Estimator for Testing Labs
+    subtitle: >-
+      Instant, itemized quotes and accurate TAT forecasts—driven by your method
+      BOMs, calendars, and historical throughput.
+    ctaText: Get a demo
+    ctaHref: /demo
+  problem:
+    - Manual quoting is slow and inconsistent.
+    - Promised TATs ignore real capacity constraints.
+    - Margins leak due to opaque costing and ad‑hoc discounts.
+    - 'Sales, scheduling, and lab ops are siloed.'
+    - Clients expect instant answers; teams drown in spreadsheets.
+    - Complex methods and BOM variations are hard to price accurately.
+  solution:
+    - 'AI builds itemized quotes from method BOMs, matrices, and volumes.'
+    - >-
+      Realistic TAT forecasts from staff/instrument calendars and historical
+      throughput.
+    - Capacity-aware slotting and rush premiums to protect margins.
+    - 'Versioned price books, approval workflows, and audit trails.'
+    - 'Self-serve portal for instant quotes, acceptance, and PO/payment capture.'
+    - 'APIs/CSV to LIMS, CRM, and ERP for zero re-keying.'
+  features:
+    - 'Method-aware cost engine (reagents, consumables, instrument time, setup).'
+    - 'Capacity-aware TAT estimator (shifts, maintenance, batching, changeover).'
+    - >-
+      What-if scenarios: rush vs. standard, batch size, method variant,
+      outsourcing.
+    - 'Automated margin guardrails, discount rules, and approvals.'
+    - >-
+      Calendar sync with instruments and staff; blackout and maintenance
+      windows.
+    - Historical throughput modeling with seasonality and learning curves.
+    - Multi-site routing and resource pooling.
+    - >-
+      Industry templates: environmental, materials, food, pharma/CRO, clinical
+      research.
+    - 'Client portal with instant quote, TAT, and order intake.'
+    - 'E-sign, PO capture, and payment links; auto reminders.'
+    - >-
+      Integrations: LIMS (LabWare, STARLIMS, LabVantage), CRM (Salesforce), ERP
+      (NetSuite, SAP).
+    - 'Exports: PDF, CSV, and API webhooks.'
+    - Compliance-ready audit logs and immutable quote history.
+    - 'Role-based access, SSO/SAML, and least-privilege controls.'
+    - Sandbox mode for pricing experiments without impacting live rates.
+  steps:
+    - 'Connect price books, methods/BOMs, and lab calendars.'
+    - Import historical run data or connect your LIMS.
+    - 'Set margin guardrails, SLAs, and approval rules.'
+    - Generate a quote from a request or via the client portal.
+    - Review capacity and TAT; run what-if scenarios and finalize pricing.
+    - >-
+      Send for e-sign; on acceptance, push the job to LIMS and schedule
+      automatically.
+---
+# TurnaQuote AI — Quote & TAT Estimator for Testing Labs
+
+Industry: Testing Laboratories and Services
+Service: Quote and Turnaround Time Estimator

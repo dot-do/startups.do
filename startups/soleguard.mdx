@@ -1,0 +1,309 @@
+---
+name: SoleGuard GMC AI
+slug: soleguard
+naics:
+  primary: '458210'
+  occupations: []
+service:
+  title: Google Merchant Center Feed QA & Auto-Fix Agent
+  description: >-
+    Monitors GMC diagnostics, fixes common feed issues (titles, GTINs, images),
+    and resubmits items.
+  targetUsers:
+    - Performance Marketing Lead
+    - Ecommerce Manager
+  triggers:
+    - Daily cron or GMC alert
+    - Policy/suspension events
+  inputs:
+    - Product feed (Content API)
+    - GMC diagnostics and disapprovals
+    - Brand naming rules and GTIN mappings
+  steps:
+    - Pull diagnostics and categorize errors
+    - Rewrite titles/descriptions to meet policies; fill GTIN/MPN when available
+    - 'Fix image issues (size, background, watermarks where possible)'
+    - Validate and resubmit via Content API
+    - Report resolution rates and remaining exceptions
+  tools:
+    - Google Merchant Center + Content API
+    - OpenAI/Claude (rewrite)
+    - Basic image processing (Pillow/Cloudinary)
+  outputs:
+    - Reduced disapprovals
+    - Updated feed entries
+    - Exception list needing human review
+  pricingModel:
+    - Monthly tier by SKU count
+    - One-time clean-up project
+    - Optional bonus for recovery of impressions
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 8
+    overall: 9
+  risks:
+    - Policy misinterpretation causing suspensions
+    - Incomplete GTINs block fixes
+    - Image edits may not meet policy
+  dependencies:
+    - GMC admin access
+    - Content API credentials
+    - Brand rules/GTIN sources
+leanCanvas:
+  problem:
+    - >-
+      Shoe retailers lose revenue when 10–30% of SKUs are disapproved or limited
+      in Google Merchant Center (GMC) due to missing GTINs, policy violations,
+      or image/price mismatches.
+    - >-
+      Manual feed QA is time-consuming (5–20 hrs/week per 10k SKUs) and
+      error-prone, delaying reactivation and shrinking impression share.
+    - >-
+      Generic feed tools are rules-based and do not read/act on live GMC
+      Diagnostics, leaving gaps between detection and resolution.
+    - >-
+      Footwear-specific data complexity (sizes, gender, color, variants,
+      seasonal drops) increases title and attribute errors, compressing CTR and
+      conversion.
+    - >-
+      Retailers struggle to keep up with Google policy changes (e.g., image
+      overlays, inaccurate availability), leading to repeat suspensions and
+      wasted ad spend.
+  solution:
+    - >-
+      Directly ingest GMC Diagnostics and Alerts via API and webhooks; detect
+      disapprovals/limitations within 5 minutes (MTTD).
+    - >-
+      Auto-fix common issues using footwear-tuned rules + AI: normalize titles
+      (Brand + Model + Gender + Size + Color), fill missing variant attributes,
+      validate availability/price, and enrich GTINs via catalog lookups.
+    - >-
+      Run image QA (background, size, text overlays, watermarks) and auto-swap
+      to compliant images or request retakes via workflow.
+    - >-
+      Resubmit corrected items through Content API with audit trail, rollback,
+      and versioning; escalate to human-in-the-loop when confidence <0.8.
+    - >-
+      Continuously A/B test title/attribute variants to improve CTR and query
+      matching for product_type taxonomy.
+    - >-
+      Weekly feed health reports with revenue-at-risk calculations and policy
+      change briefings.
+  uniqueValueProp: >-
+    Always-on GMC diagnostics agent for footwear that auto-fixes 80%+ of feed
+    issues within 15 minutes, reduces disapprovals to <2%, and lifts Shopping
+    CTR 5–15% via title/attribute optimization—without adding headcount.
+  unfairAdvantage: >-
+    Vertical specialization: proprietary footwear GTIN/brand-model mappings and
+    size normalization rules, trained on multi-retailer outcomes. Closed-loop
+    learning from GMC results improves fix precision over time. End-to-end
+    autonomy (diagnose → fix → resubmit) reduces latency vs. rule-only feed
+    tools. Fast SLAs and safety guardrails (confidence thresholds +
+    audit/rollback) de-risk automation.
+  customerSegments:
+    - >-
+      Primary: US and Canada shoe retailers (NAICS 458210) with 1k–100k SKUs,
+      spending $5k–$250k/month on Google Shopping Ads.
+    - >-
+      DTC footwear brands (athletic, fashion, comfort) with Shopify/BigCommerce
+      storefronts and frequent product launches.
+    - >-
+      Multi-brand shoe retailers and marketplaces needing variant-normalization
+      and brand/GTIN completeness.
+    - >-
+      Ecommerce performance agencies managing 5–50 shoe accounts requiring
+      scalable feed maintenance.
+  channels:
+    - >-
+      Shopify App Store and BigCommerce Marketplace listings with a freemium
+      health scanner (scans up to 500 SKUs).
+    - >-
+      Partnerships with Google Premier Partners and ecommerce agencies focused
+      on retail/footwear; revenue share (10–20%) and co-marketing.
+    - >-
+      Account-based marketing on LinkedIn targeting Ecom/Performance Managers at
+      mid-market shoe retailers; case-study-driven outreach.
+    - >-
+      Sponsorships/webinars with vertical communities (e.g., Footwear News
+      Digital, Retail Brew) and appearances at Shoptalk/Etail West.
+    - >-
+      Integration partnerships with DAM/CDN platforms used by brands; joint
+      content on image compliance.
+    - >-
+      Outbound SDR to top 500 US/CA shoe retailers with custom feed health
+      snapshots and revenue-at-risk reports.
+  revenueStreams:
+    - >-
+      Tiered SaaS by active SKU count: Starter (up to 5k SKUs) $299/month;
+      Growth (5k–25k SKUs) $799/month; Scale (25k–100k SKUs) $1,999/month;
+      Enterprise custom.
+    - >-
+      Usage-based add-on: $0.002–$0.01 per AI-assisted fix beyond tier quotas;
+      image QA at $0.0005/image.
+    - >-
+      One-time onboarding ($1,500–$5,000) for mapping, connectors, and GTIN
+      seeding; waived for annual contracts >$20k ARR.
+    - >-
+      Managed service upgrade (hands-on feed ops + policy management):
+      +$2,000–$7,500/month depending on catalog size.
+    - >-
+      Performance bonus option: $0.02 per reactivated SKU sustained >14 days, or
+      revenue-share of incremental Shopping revenue (1–3%) for enterprise
+      pilots.
+  costStructure:
+    - >-
+      Cloud compute (API polling, queues, serverless workers) $3k–$12k/month at
+      100k–1M SKUs under management; GPU inference for vision/LLM
+      $2k–$10k/month.
+    - >-
+      Data licensing: GS1/brand catalog/Icecat-like sources $1k–$5k/month
+      depending on volume; image processing/CDN fees.
+    - >-
+      Engineering and product team (4–8 FTE) $80k–$200k/month total loaded;
+      Customer success (1–3 FTE) $15k–$45k/month.
+    - >-
+      Sales/marketing: paid ads, event sponsorships, content $10k–$40k/month;
+      partner rev-share 10–20%.
+    - >-
+      Security/compliance (SOC 2, pen tests, logging) $2k–$8k/month; error
+      monitoring/observability $1k–$3k/month.
+    - >-
+      Shopify/BigCommerce app fees and marketplace revenue share 10–20% of app
+      revenue if applicable.
+  keyMetrics:
+    - >-
+      Disapproval rate: baseline vs post-implementation; target <2% disapproved
+      items within 30 days.
+    - >-
+      Mean time to detect (MTTD) feed issues: <5 minutes; Mean time to resolve
+      (MTTR) auto-fixed items: <15 minutes; human-reviewed: <24 hours.
+    - >-
+      Auto-fix success rate: >80% of recurring issues (titles, GTINs, images)
+      resolved without human intervention by day 60.
+    - >-
+      Active SKU coverage: % of catalog active; +10–25% uplift within first 30
+      days for problem accounts.
+    - >-
+      CTR uplift on Shopping: +5–15% within 45 days driven by title/category
+      optimizations.
+    - >-
+      Incremental revenue from reactivated SKUs: track GMV attributable to
+      fixes; target 3–10% MoM lift for affected products.
+    - >-
+      Impression share recovery for previously limited products: +10–30% within
+      30 days.
+    - >-
+      False-fix rate (fixes causing new issues): <1% per month; manual override
+      rate <10%.
+    - >-
+      Churn <2% monthly; Net Revenue Retention >110% by month 12; Payback period
+      <4 months.
+    - >-
+      Support SLA adherence: 95% of P1 tickets acknowledged <1 hour and resolved
+      <24 hours.
+storyBrand:
+  character: >-
+    Shoe retail eCommerce leaders (NAICS 458210) who need every SKU active and
+    compliant in Google Merchant Center so Shopping ads can scale profitably.
+  problem: >-
+    external: Items disapproved or suppressed due to missing GTINs, weak titles,
+    image/price mismatches, and policy/category issues; fixes are repetitive and
+    time-sensitive.
+
+    internal: Frustration and anxiety from constant firefighting and manual QA
+    while campaigns stall.
+
+    philosophical: Retailers shouldn’t lose sales because of fixable
+    data-quality problems.
+  guide: >-
+    empathy: We know the pain of waking up to new GMC disapprovals before a big
+    promo.
+
+    authority: Built on proven Shopping feed practices; integrates with GMC
+    APIs; transparent logs, approvals, and rollbacks to keep you in control.
+  plan: >-
+    process: 1) Connect GMC + catalog, 2) Agent monitors diagnostics 24/7, 3)
+    Auto-fix titles/GTINs/images/categories per rules, 4) Approve or
+    auto-approve, 5) Resubmit and verify re-approval, 6) Report impact.
+
+    agreement: No long-term contracts; you control rule scope and auto-fix
+    thresholds; change history with one-click undo; privacy-first data handling.
+  callToAction: >-
+    direct: Start a 14-day trial or book a 15-minute demo.
+
+    transitional: Get a free feed health audit and GMC error-prevention
+    checklist.
+  success: |-
+    - More eligible SKUs and steadier approval rates.
+    - Faster time-to-fix for recurring feed errors.
+    - Cleaner titles and images for clearer Shopping relevance.
+    - Less manual QA; more time for strategy and creative.
+    - Lower risk of account issues during peak seasons.
+  failure: |-
+    - Disapproved products continue shrinking visibility and sales.
+    - Wasted ad spend on partial catalogs and mismatched data.
+    - Team burnout from endless spreadsheet fixes.
+    - Missed revenue during launches and promos.
+    - Higher risk of suspensions from unresolved policy/data errors.
+landingPage:
+  hero:
+    title: Auto‑Fix Google Merchant Center Feeds for Shoe Retailers
+    subtitle: >-
+      Reduce disapprovals, recover impressions, and keep products live. We
+      monitor GMC diagnostics, fix titles/GTINs/images, and resubmit
+      items—automatically.
+    ctaText: Start Free Audit
+    ctaHref: /start-audit
+  problem:
+    - Disapproved or limited items drain Shopping performance
+    - 'Missing/invalid GTINs and messy variant data (size, color, gender)'
+    - 'Low-quality or non‑compliant images (watermarks, collages, wrong aspect)'
+    - Duplicate or spammy titles hurt relevance and CTR
+    - Price/availability mismatches from site vs. feed
+    - >-
+      Manual feed cleanup is slow and never-ending—especially with seasonal
+      drops
+  solution:
+    - Always-on GMC diagnostics monitor with instant alerts
+    - 'Auto-fix common issues: titles, GTINs, images, variant attributes'
+    - >-
+      Shoe-specific normalization: size system (US/UK/EU), size type, gender,
+      age group, color
+    - Automatic item resubmission via Content API when issues are fixed
+    - 'Safe-guarded updates with approvals, rollback, and full audit logs'
+    - 'Works with Shopify, BigCommerce, and custom catalogs'
+  features:
+    - 'GTIN enrichment & validation (check digits, GS1 patterns)'
+    - >-
+      Title optimizer (Brand + Model + Gender + Color + Size) with length and
+      casing rules
+    - >-
+      Variant mapping for shoes (item_group_id, size_system, size_type, gender,
+      age_group)
+    - Color normalization and deduping across variants
+    - >-
+      Image QA: watermark/logo detection, background cleanup, square crops,
+      min-size checks
+    - Price & availability sync with site crawl and auto updates
+    - 'Landing page QA: HTTP status, robots/meta, redirect and UTM sanity checks'
+    - 'Structured data alignment: Product schema vs. feed reconciliation'
+    - Policy guardrails to prevent prohibited wording and formatting
+    - 'Campaign-ready labels: season, clearance, bestseller, margin tier'
+    - 'Alerts & reporting: Slack/email, trend dashboards, weekly digest'
+    - Multi-store and multi-country support with feed rules per market
+  steps:
+    - 'Connect Google Merchant Center and your store (OAuth, no code)'
+    - Run instant feed audit and see a prioritized fix list
+    - Review and approve recommended auto-fixes or set always-on rules
+    - 'We normalize variants, enrich GTINs, clean images, and optimize titles'
+    - Fixed items are resubmitted automatically to GMC
+    - >-
+      Track impact: eligibility restored, impressions recovered, CPA
+      improvements
+    - Stay compliant with ongoing monitoring and proactive alerts
+---
+# SoleGuard GMC AI
+
+Generated for NAICS 458210 — Shoe Retailers.
+Service: Google Merchant Center Feed QA & Auto-Fix Agent

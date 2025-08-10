@@ -1,0 +1,316 @@
+---
+name: RiverDraft Advisor (Stage-Aware)
+slug: riverdraft
+service:
+  title: Draft and Load Plan Advisor (Stage-Aware)
+  description: >-
+    Recommends per-barge loading drafts and trims using river stage forecasts
+    and route bathymetry to maximize tons while avoiding groundings.
+  targetUsers:
+    - Port captains
+    - Terminal loadmasters
+    - Operations planners
+  triggers:
+    - Loading scheduled/confirmed
+    - River stage forecast change
+    - Route or barge assignment change
+  inputs:
+    - Barge dimensions and allowed drafts
+    - Route segments with controlling depths
+    - NOAA/USGS stage/flow forecasts
+    - Commodity densities and target tons
+    - Terminal crane/load rates
+  steps:
+    - Fetch stage forecasts and map to controlling depth by reach
+    - Compute safe drafts per barge along route with safety margins
+    - Optimize tons per barge under draft and density constraints
+    - Generate loading instructions and risk flags
+    - Publish to terminal/crew; log approvals
+  tools:
+    - NOAA AHPS; USGS NWIS
+    - USACE channel notices/NTN
+    - 'Python, linear programming (PuLP/OR-Tools)'
+    - Document generator (PDF)
+    - Slack/Email notifications
+  outputs:
+    - Per-barge target tons/draft/trim
+    - Risk report for shallow segments
+    - Contingency plan if stage drops
+  pricingModel:
+    - Per vessel call or load plan
+    - Monthly subscription for unlimited plans
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8.5
+  risks:
+    - Stage forecast error margins
+    - Local shoaling not captured in public data
+    - Scale measurement or density errors
+  dependencies:
+    - Barge specs
+    - Route library with controlling depths
+    - Terminal schedules
+leanCanvas:
+  problem:
+    - >-
+      Tow operators routinely under-load by 3–12 inches to avoid soft groundings
+      because controlling depths along routes are uncertain and change quickly,
+      leaving millions in foregone revenue annually.
+    - >-
+      Dispatchers and wheelhouse crews stitch together NOAA/USACE stage
+      forecasts, notices to navigation, and anecdotal shoaling reports without a
+      quantitative, route-specific under-keel clearance model.
+    - >-
+      Groundings and near-groundings cause delays, hull/prop damage, and
+      insurance claims; a single soft grounding can cost $50,000–$500,000 in
+      direct and indirect costs.
+    - >-
+      Terminals/elevators must make last-minute re-trims and partial loads due
+      to evolving river stages, causing berth congestion and demurrage.
+    - >-
+      Existing ECS/TMS tools show charts and real-time gages but do not turn
+      forecasted stages and bathymetry into actionable, per-barge draft and trim
+      targets with quantified risk.
+  solution:
+    - >-
+      Route Controlling Depth Forecast: Fuse NOAA/NWS/USACE stage forecasts with
+      latest channel surveys and shoaling reports to predict controlling depths
+      by river mile and time window.
+    - >-
+      Per-barge Load & Trim Optimizer: Given tow makeup, barge types, and cargo,
+      compute target drafts and trims per barge that maximize payload while
+      meeting operator-defined risk tolerance (e.g., P(UKC<0.5 ft) < 1%).
+    - >-
+      Risk-quantified Plans: Output includes expected UKC distribution by reach,
+      time-window routing recommendations, and contingency triggers (e.g., if
+      Cairo stage < X ft, re-trim barge 7 by Y tons).
+    - >-
+      Terminal Assist: Provide terminal-facing targets for initial load,
+      topping-off sequence, and cut timing to minimize berth time and rework.
+    - >-
+      Live Adjust: Update underway as stages and traffic evolve; push alerts for
+      shoaling or forecast deltas that threaten plan validity.
+    - >-
+      APIs & Integrations: Embed into TMS/ECS for one-click plan import,
+      AIS-aware ETA adjustments, and automated audit trails for
+      insurers/regulators.
+  uniqueValueProp: >-
+    Maximize tons per tow while keeping a documented under‑keel clearance
+    buffer: stage-aware, route-specific load plans that convert forecasted river
+    levels and channel bathymetry into per-barge draft and trim targets with
+    probabilistic grounding risk, delivered directly into dispatch and
+    wheelhouse workflows.
+  unfairAdvantage: >-
+    Closed-loop dataset and models that continuously learn from partner fleets’
+    plan-to-actual outcomes and optional onboard sonar, yielding
+    corridor-specific controlling-depth forecasts and UKC risk estimates that
+    competitors without this feedback cannot match; embedded OEM integrations
+    and insurer-backed incentives further raise switching costs.
+  customerSegments:
+    - >-
+      Primary: US inland towboat and barge operators on the
+      Mississippi/Ohio/Tennessee-Tombigbee/Arkansas river systems (fleet sizes
+      from 10 to 500+ barges).
+    - >-
+      Primary: Tank barge operators (petroleum/chemicals) requiring conservative
+      UKC and risk documentation.
+    - >-
+      Secondary: Grain elevators, bulk terminals, and fleeting services needing
+      staged loading targets and appointment planning.
+    - >-
+      Secondary: European inland (Rhine/Danube) convoy operators and
+      self-propelled inland cargo vessels.
+    - >-
+      Influencers: Marine insurers and P&I underwriters seeking verified
+      risk-reduction telemetry; dispatch/TMS vendors (TowWorks, Helm CONNECT,
+      BargeOps) and ECS providers (Rose Point).
+  channels:
+    - >-
+      Direct enterprise sales to top 20 US operators with ROI-backed pilots on
+      defined corridors.
+    - >-
+      Partnerships and OEM integrations with TMS/ECS vendors (TowWorks, Helm
+      CONNECT, Rose Point) to access their installed base.
+    - >-
+      Alliances with marine insurers to offer premium credits/retentions tied to
+      verified usage and incident reduction.
+    - >-
+      Industry associations and events (AWO, Inland Marine Expo) with case-study
+      talks and live demos.
+    - >-
+      Terminal partnerships (ADM, Cargill, CHS, Nucor) to seed terminal-facing
+      features and drive pull from shippers.
+    - >-
+      Freemium corridor viewer (limited features) to generate leads; paid
+      upgrades unlock optimization and API.
+    - >-
+      Content-led marketing: river condition briefs, seasonal outlooks, and ROI
+      calculators by corridor.
+  revenueStreams:
+    - >-
+      SaaS subscription per towboat (tiered by features and tow size), e.g.,
+      $900–$2,500 per vessel per month.
+    - >-
+      Enterprise license for fleets (volume discounts, SSO, custom
+      integrations).
+    - Per-trip optimization credits for occasional users/terminals.
+    - >-
+      Premium add-ons: terminal optimization, insurer audit module, multi-sensor
+      assimilation (onboard echo sounder), and advanced API access.
+    - >-
+      Professional services: corridor calibration, data onboarding, custom
+      reports.
+    - >-
+      Insurance incentive sharing where permitted (revenue share from premium
+      savings driven by verified adoption).
+  costStructure:
+    - >-
+      Core team: hydrographic data scientists, optimization engineers, maritime
+      domain experts, and integrations team (approx. $3.5–$5.5M/year at 20–28
+      FTE by Year 3).
+    - >-
+      Cloud and data: geospatial compute/storage, model training, AIS/licensing
+      ($300k–$700k/year scaling with usage).
+    - >-
+      Data acquisition/partnerships: survey data processing, third-party
+      bathymetry where needed ($100k–$300k/year).
+    - >-
+      Sales/CS/Support: enterprise AE/SE, onboarding, 24/7 support for
+      wheelhouse ops ($1.0–$1.8M/year).
+    - >-
+      Compliance and insurance: SOC 2/ISO 27001, liability/E&O/cyber insurance,
+      audits ($150k–$300k/year).
+    - >-
+      Field pilots and equipment (optional echo sounders, installation grants):
+      $2k–$8k per vessel in targeted programs.
+  keyMetrics:
+    - >-
+      Additional tons loaded per tow vs baseline (target: +800–1,800 short tons
+      for a 15‑barge dry tow; track monthly average).
+    - >-
+      Predicted vs actual UKC exceedance: P(UKC < policy) below threshold
+      (target: <1% of river-miles).
+    - >-
+      Grounding/near-grounding rate per 100 transits (target: 30–50% reduction
+      within 12 months).
+    - >-
+      Plan adherence and replan frequency (target: <1.5 replans per transit;
+      root-cause categorized).
+    - >-
+      Time at berth per load event (target: 10–20% reduction via terminal
+      assist).
+    - >-
+      Net revenue uplift per vessel per month (target: $12k–$40k based on added
+      tons and reduced incidents).
+    - >-
+      Model coverage: % of traffic river-miles with current survey/forecast
+      assimilation (target: >85% on supported corridors).
+    - >-
+      User adoption: % of voyages with plans generated and acknowledged by
+      captain (target: >80% by month 6 of rollout).
+    - Churn < 5% annually; NPS > 40; Gross margin > 75% once at scale.
+storyBrand:
+  character: >-
+    Barge line operators, fleet managers, and loadmasters who want to maximize
+    payload per tow while staying safely off the bottom.
+  problem: >-
+    - Villain: volatile river stages, shifting shoals, and uncertain channel
+    depths
+
+    - External: fluctuating drafts, patchy bathymetry, and changing lock/tow
+    constraints complicate loading
+
+    - Internal: guessing induces stress—fear of grounding or leaving tons on the
+    dock
+
+    - Philosophical: with today’s data, safe, optimal loading shouldn’t be a
+    gamble
+  guide: >-
+    - Empathy: we understand over- or under-loading creates risk, delays, and
+    disputes
+
+    - Authority: Stage-Aware AI built by river engineers and data scientists;
+    leverages NWS stage forecasts, USACE bathymetry, and vessel constraints;
+    aligns with UKC best practices
+  plan: >-
+    - Step 1: connect lanes, gages, and barge specs via API or portal
+
+    - Step 2: we simulate forecast stages against route bathymetry to compute
+    per-barge drafts/trims and tow windows with clear UKC margins
+
+    - Step 3: load with confidence; receive updated plans as forecasts change
+    and export to terminals/dispatch
+  callToAction: |-
+    - Direct: schedule a 30-minute demo and start a 2-week pilot on two lanes
+    - Transitional: request a sample load plan for an upcoming voyage
+  success: |-
+    - Move more tons per trip while reducing grounding risk
+    - Fewer delays, rehandles, and demurrage
+    - Predictable ETAs and policy-aligned UKC margins
+    - Higher asset utilization and revenue per barge
+    - Confident, data-backed decisions for crews and customers
+  failure: |-
+    - Groundings, hull damage, and claims
+    - Light-loading that leaves revenue on the dock
+    - Emergency offloads and missed windows
+    - Eroded customer trust and regulatory scrutiny
+landingPage:
+  hero:
+    title: Stage-Aware Draft & Load Plan Advisor
+    subtitle: >-
+      Maximize tons per tow with AI that sets safe barge drafts and trims using
+      river stage forecasts and route bathymetry.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - River stages change fast; static loading rules leave money on the dock.
+    - >-
+      Conservative blanket drafts underload barges even where the channel is
+      deeper.
+    - 'Groundings and delays cost days, diversions, and customer trust.'
+    - Bathymetry and survey data are fragmented and hard to apply in planning.
+    - Manual spreadsheets can’t optimize per-barge drafts across a full tow.
+    - 'Dispatch, pilots, and dock crews work from different versions of the plan.'
+  solution:
+    - >-
+      AI recommends safe, reach-by-reach drafts and trims per barge using stage
+      forecasts and bathymetry.
+    - 'Maximizes tons while honoring hull, cargo, and regulatory constraints.'
+    - >-
+      Generates tow-level load plans with configurable safety buffers by
+      segment.
+    - >-
+      Continuously updates with new gage forecasts; alerts before risk
+      increases.
+    - >-
+      Runs what-if scenarios for ETD, route, and cargo mix to capture peak
+      windows.
+    - Exports loading sheets and pilot guidance to your existing systems.
+  features:
+    - Stage-aware depth model combining gage forecasts and surveys.
+    - 'Per-barge draft, trim, and weight distribution recommendations.'
+    - Controlling-depth detection by river reach and fleeting areas.
+    - Tunable safety margins by fleet policy and pilot preference.
+    - Fleet-level optimizer to allocate tonnage across barges.
+    - Risk heatmaps and grounding probability by segment.
+    - Scenario planner for ETD/route variations and backhaul options.
+    - Live replan with push alerts when conditions shift.
+    - 'Integrations: AIS, TMS/ERP, ECDIS/ENC, dock loading apps.'
+    - Offline packets for wheelhouse with clear segment notes.
+    - 'Audit trail of inputs, decisions, and overrides.'
+    - Secure API and SSO for enterprise deployment.
+  steps:
+    - 'Connect fleet data: barge particulars, hull curves, cargo limits.'
+    - 'Select origin, destination, route, and target ETD.'
+    - Auto-pull latest stage forecasts and bathymetry layers.
+    - Review per-barge draft/trim plan and tow-level tonnage.
+    - Adjust safety margins or constraints; run scenarios.
+    - Export loading sheets and pilot guidance; dispatch to teams.
+    - Monitor alerts and auto-replan as river stages change.
+---
+# RiverDraft Advisor (Stage-Aware)
+
+Industry: Inland Water Freight Transportation
+Service: Draft and Load Plan Advisor (Stage-Aware)

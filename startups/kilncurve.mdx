@@ -1,0 +1,338 @@
+---
+name: KilnCurve Optimizer (KCO)
+slug: kilncurve
+naics:
+  primary: '327120'
+  occupations: []
+service:
+  title: Kiln Firing Curve Optimizer
+  description: >-
+    AI proposes energy- and yield-optimized firing schedules per product and
+    kiln, honoring ramp/soak constraints.
+  targetUsers:
+    - Process Engineers
+    - Production Managers
+    - Energy Managers
+  triggers:
+    - New production run scheduled
+    - Energy tariff update
+    - Observed quality/yield drop
+  inputs:
+    - Historical kiln temp-time profiles
+    - Product/SKU metadata
+    - Moisture content and ambient humidity
+    - Fuel/electricity use by cycle
+    - Defect/yield records
+    - Energy tariffs and demand charges
+  steps:
+    - Securely ingest CSV/API data from MES/ historians
+    - >-
+      Fit surrogate models predicting yield/defects/energy from firing curves
+      and context
+    - >-
+      Constrained optimization to propose adjusted ramp/soak profile per SKU and
+      kiln
+    - >-
+      Simulate cost and quality outcomes; validate against safety and equipment
+      limits
+    - Generate operator-friendly firing recipe and change log
+    - A/B trial on limited batches; track results; refine model weekly
+  tools:
+    - 'Python (pandas, scikit-learn, XGBoost)'
+    - 'Bayesian/black-box optimization (Optuna, BoTorch)'
+    - 'Tariff APIs (OpenEI, EIA, ENTSO-E; utility CSV)'
+    - Dash/Grafana dashboard
+    - SFTP/SharePoint for data exchange
+  outputs:
+    - CSV/PDF firing schedule with ramps/soaks
+    - Predicted yield and energy cost per run
+    - Change log and rollback plan
+    - Weekly performance report
+  pricingModel:
+    - Setup fee (data/model fit)
+    - Monthly subscription (per kiln/SKU)
+    - Optional gain-share on energy savings
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 4.5
+    modelCapability: 4
+    overall: 4.3
+  risks:
+    - Incorrect constraints could risk product/equipment
+    - Operator adoption/override
+    - PLC integration errors if automated
+  dependencies:
+    - Access to historical kiln data and quality records
+    - Documented equipment limits
+    - IT-approved data exchange method
+leanCanvas:
+  problem:
+    - >-
+      Energy costs for firing are volatile and high: natural gas/electricity can
+      represent 15–35% of COGS; many plants lack real-time optimization to
+      reduce MMBtu/ton.
+    - >-
+      First-pass yield (FPY) is sensitive to firing profiles; scrap/rework
+      (cracks, warpage, under/over-fired pieces) often runs 3–10%, driven by
+      non-optimal ramp/soak and kiln loading patterns.
+    - >-
+      Expert recipe tuning is tribal knowledge; when experts retire or product
+      mix changes, performance drifts and is slow to recover.
+    - >-
+      Kiln-to-kiln variability (thermal mass, leakage, instrumentation bias)
+      makes “one recipe fits all” impractical; per-kiln optimization is rarely
+      feasible manually.
+    - >-
+      Constraints (max ramp rate, soak durations, dew point for drying,
+      temperature uniformity, emissions limits) must be honored; most systems
+      lack optimization under hard constraints.
+    - >-
+      Scheduling pressures force suboptimal trade-offs between throughput,
+      energy, and quality, with limited visibility of true cost/yield impact.
+    - >-
+      Limited sensing and data fragmentation (PLC/SCADA logs, QA lab data,
+      maintenance logs) prevent closed-loop learning from historical runs.
+    - >-
+      Plants face increasing GHG and reporting requirements; few have granular,
+      per-kiln CO2e intensity baselines or reduction levers tied to firing
+      curves.
+  solution:
+    - >-
+      Build a physics-informed ML model (digital twin) per kiln-product
+      combination using historical SCADA/PLC traces, QA outcomes, and kiln
+      specs.
+    - >-
+      Use a constrained optimizer (multi-objective: energy, yield, throughput)
+      to generate ramp/soak profiles that respect max/min temperature, ramp
+      rates, dew point limits, soak times, thermal gradients, and emissions
+      constraints.
+    - >-
+      Deploy an edge agent that streams setpoint recommendations or profiles to
+      existing DCS/PLC recipe managers; option for closed-loop MPC or
+      operator-in-the-loop mode.
+    - >-
+      Provide an offline simulator to test proposed firing curves against
+      historical variability before live trials; A/B trial tooling to compare
+      energy/FPY outcomes on controlled batches.
+    - >-
+      Integrate energy pricing (time-of-use gas/electric), production schedule,
+      and product mix to optimize when/how to fire for lowest cost and stable
+      quality.
+    - >-
+      Deliver dashboards with KPIs (MMBtu/ton, kWh/ton, FPY, scrap costs,
+      CO2e/ton), anomaly detection, drift alerts, and automatic re-optimization
+      triggers.
+    - >-
+      Implement governance: hard safety envelopes, operator override, change
+      logs, and sign-off workflows aligned with plant procedures.
+    - >-
+      Offer playbooks and on-site enablement for curve validation, loading
+      pattern adjustments, and thermocouple calibration to lock in gains.
+  uniqueValueProp: >-
+    AI-optimized, constraint-safe firing curves per product and per kiln that
+    cut energy 5–12% and improve FPY 1–2% within 90 days—without replacing
+    existing controls—delivering sub-6‑month payback and auditable CO2e
+    reduction.
+  unfairAdvantage: >-
+    A growing, cross-kiln dataset and physics-informed models specialized for
+    clay and refractories enable faster, safer optimization than generic energy
+    tools; edge integrations with existing DCS/PLCs reduce friction; A/B trial
+    tooling and audited M&V build trust and unlock utility incentives and
+    performance-based pricing.
+  customerSegments:
+    - >-
+      Primary: US and Canada NAICS 327120 manufacturers (clay brick, structural
+      tile, sewer pipe, firebrick, refractory shapes) with continuous tunnel or
+      periodic kilns.
+    - >-
+      Decision-makers: Plant Managers, Process/Quality Engineers,
+      Energy/Utilities Managers, Operations/Continuous Improvement leaders.
+    - >-
+      Influencers/Partners: Kiln OEMs, controls integrators (DCS/PLC), energy
+      utilities/ESCOs, corporate sustainability teams.
+    - >-
+      Secondary (expansion): Global 327120 equivalents; adjacent ceramics (tile,
+      technical ceramics) using similar kiln technologies.
+  channels:
+    - >-
+      Direct enterprise sales to top 150 North American 327120 plants;
+      land-and-expand by kiln.
+    - >-
+      Paid pilot program (8–12 weeks) with performance-based pricing and clear
+      success criteria.
+    - >-
+      Partnerships with kiln OEMs and controls integrators to bundle integration
+      and speed deployments.
+    - >-
+      Utility/ESCO channel leveraging custom efficiency incentives and M&V
+      support to subsidize pilots.
+    - >-
+      Industry associations, webinars, and conference demos (e.g.,
+      ceramics/refractories trade events) with published case studies.
+    - >-
+      Content and tools: ROI calculator, whitepapers on ramp/soak physics,
+      reference firing-curve library.
+    - >-
+      Targeted account-based marketing to plants with high energy intensity and
+      frequent product changeovers.
+    - >-
+      Customer success playbooks to expand from optimization to MPC and
+      multi-kiln rollout.
+  revenueStreams:
+    - >-
+      Annual subscription per kiln: $18k–$30k ARR (tiered by kiln size, data
+      volume, features).
+    - >-
+      Site integration and model commissioning fee: $20k–$80k per site
+      (scope-dependent).
+    - >-
+      Optional performance-based fee: 15–25% of verified first-year energy
+      savings (shared-savings model).
+    - >-
+      Premium add-ons: closed-loop MPC module (+$8k/kiln/yr), advanced analytics
+      and API access (+$3k/site/yr).
+    - >-
+      Professional services: operator training, maintenance optimization, data
+      hygiene projects ($150–$220/hr).
+  costStructure:
+    - >-
+      COGS: cloud compute/storage ($200–$600/kiln/month), edge gateway hardware
+      ($1.5k–$5k per kiln or per line), data egress.
+    - >-
+      Implementation labor: integration engineers and data scientists (8–12
+      weeks/site initial), travel and safety training.
+    - >-
+      Ongoing support and customer success (0.2–0.4 FTE per site in year 1,
+      tapering in year 2).
+    - >-
+      R&D: model development, physics libraries, connectors; MLOps and QA
+      automation.
+    - >-
+      Sales and marketing: enterprise AE/SE teams, pilots, conferences, and
+      content development.
+    - >-
+      Security/compliance: SOC 2, cybersecurity tooling, insurance, penetration
+      testing.
+    - 'G&A: admin, legal (industrial contracts), IP protection.'
+  keyMetrics:
+    - >-
+      Energy intensity: MMBtu/ton (gas) and kWh/ton (electric) reduced by 5–12%
+      median within 90 days of go-live.
+    - >-
+      First-pass yield: +1.0–2.0 percentage points; scrap rate reduction
+      quantified in $/month.
+    - >-
+      Throughput: cycle time reduced 2–5% without quality loss; schedule
+      adherence >95%.
+    - >-
+      Constraint adherence: zero violations; model recommendations within safety
+      envelope 100% of runs.
+    - >-
+      Pilot success rate: ≥70% pilots convert to subscriptions; time-to-value ≤8
+      weeks.
+    - >-
+      Net savings per kiln: target $50k–$200k/year (energy + scrap), with
+      detailed M&V.
+    - >-
+      Adoption: ≥80% of eligible loads use optimized curves after 60 days;
+      operator override rate <10%.
+    - >-
+      Model accuracy: temp/soak prediction MAE within target; recommendation
+      acceptance rate ≥85%.
+    - >-
+      Customer NPS ≥40; logo retention >95% annually; net revenue retention
+      >115% with expansions.
+    - 'CO2e reduction: 5–12% per-ton emissions drop, auto-reported monthly.'
+storyBrand:
+  character: >-
+    Plant managers, process engineers, and kiln supervisors in clay building
+    materials and refractories (NAICS 327120) who want stable quality, lower
+    energy per ton, and predictable throughput from every kiln.
+  problem: >-
+    - External: Energy volatility, raw mix/moisture variability, kiln-to-kiln
+    differences, manual curve tuning, and strict ramp/soak and emissions limits.
+
+    - Internal: Constant firefighting and fear of scrapping a firing; reliance
+    on tribal knowledge; night-shift guesswork.
+
+    - Philosophical: You shouldn’t have to choose between quality, cost, and
+    delivery—firing curves should be data-driven, safe, and repeatable.
+  guide: >-
+    We’ve run kilns and built controls—we know one missed soak can crack a
+    month’s production. Our team blends kiln engineering with AI, proven across
+    tunnel, shuttle, and periodic kilns. We honor safety and compliance
+    (ramp/soak, change control) and integrate with your SCADA/MES/ERP.
+  plan: >-
+    1) Connect: Import kiln logs, product specs, and constraints via API/CSV;
+    set safety limits and approvals.
+
+    2) Optimize: AI proposes kiln- and product-specific curves that minimize
+    energy and defects while honoring ramp/soak; simulate and review together.
+
+    3) Deploy & learn: Trial on a line, push to operators/PLC with rollback,
+    monitor KPIs, and continuously improve.
+  callToAction: >-
+    Direct: Start a pilot on one kiln. Transitional: Book a 30-minute demo or
+    upload last month’s logs for a free firing audit and ROI estimate.
+  success: |-
+    • 5–12% lower energy per fired ton and reduced CO2
+    • 10–25% fewer defects (cracks, warpage, over/underfire)
+    • Tighter cycles and predictable throughput; less operator tweaking
+    • Standardized, documented curves that retain tribal knowledge
+    • Confident delivery performance and happier customers
+  failure: >-
+    Without this, you keep overpaying for energy, chasing variability with
+    manual tweaks, scrapping batches, missing ship dates, risking compliance
+    issues, and losing know-how as veterans retire.
+landingPage:
+  hero:
+    title: AI Kiln Firing Curve Optimizer
+    subtitle: >-
+      Cut energy, boost yield, and shorten cycles with AI-crafted firing
+      schedules per product and kiln, within your ramp/soak limits. For Clay
+      Building Material & Refractories (NAICS 327120).
+    ctaText: Request a demo
+    ctaHref: '#demo'
+  problem:
+    - One-size-fits-all curves waste energy and constrain throughput
+    - 'Trial-and-error tuning drives scrap, warpage, and color/strength variation'
+    - Schedules rarely adapt to changing energy prices or load patterns
+    - 'Balancing ramp/soak, zone limits, and product mix is complex'
+    - Expert know-how is tribal and hard to scale across shifts and plants
+    - Weak feedback loop between defects and curve design
+    - Thermal risks at burnout and quartz inversion phases are easy to miss
+  solution:
+    - >-
+      Generate optimized ramp/soak profiles per SKU and kiln (tunnel, shuttle,
+      roller)
+    - 'Honor equipment limits, safety envelopes, and compliance constraints'
+    - 'Predict energy, yield, and cycle time; pick the trade-offs you want'
+    - 'Learn from historical traces, recipes, stacking, and defect tags'
+    - Simulate and A/B test before production runs
+    - Deploy setpoints to SCADA/PLC and monitor drift in real time
+    - Continuously improve with every batch and season
+  features:
+    - 'Multi-objective optimization (energy, yield, throughput)'
+    - Per-zone setpoint curves with ramp/soak enforcement
+    - 'Load- and density-aware models (size, stacking, moisture)'
+    - Safeguards for binder burnout and quartz inversion
+    - 'Supports tunnel, periodic/shuttle, and roller hearth kilns'
+    - Energy price-aware scheduling (peak/off-peak)
+    - Defect prediction and root-cause insights
+    - Digital twin simulation and what-if scenarios
+    - Approval workflows with change history and rollbacks
+    - 'API and connectors for PLC/SCADA/MES (e.g., OPC UA)'
+    - 'KPI dashboard: kWh/ton, yield %, cycle time, CO2e'
+    - 'Secure deployment: cloud or on-prem, role-based access'
+  steps:
+    - 'Connect kiln data, thermocouples, and energy tariffs'
+    - 'Import products, recipes, and operational constraints'
+    - 'Select objectives and guardrails (ramp/soak, max rates, temps)'
+    - 'Run simulations; review risk, savings, and expected yield'
+    - Approve and deploy schedules; start with a pilot batch
+    - Monitor results; auto-learn and roll out across lines
+---
+# KilnCurve Optimizer (KCO)
+
+Generated for NAICS 327120 — Clay Building Material and Refractories Manufacturing.
+Service: Kiln Firing Curve Optimizer

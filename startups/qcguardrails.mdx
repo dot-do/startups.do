@@ -1,0 +1,346 @@
+---
+name: QC Guardrails AI
+slug: qcguardrails
+service:
+  title: Instrument Data QC and Auto-Release Guardrails
+  description: >-
+    Parses instrument output files, applies QC rules (blanks, spikes,
+    duplicates, control charts), flags anomalies, and prepares release packages.
+  targetUsers:
+    - Analytical chemists
+    - QA/QC leads
+    - Lab managers
+  triggers:
+    - New result files uploaded
+    - Batch completion event in LIMS
+  inputs:
+    - 'Raw data files (e.g., LC/GC/HPLC, ICP-MS, PCR, tensile)'
+    - Calibration/verification data
+    - QC rule set (SOP/ISO 17025)
+    - Instrument status and calibration history
+  steps:
+    - Securely ingest raw files; harmonize to a common schema
+    - Validate calibration curves; compute uncertainties and LOD/LOQ
+    - Apply Westgard or method-specific QC rules and control charts
+    - Detect outliers/carryover; recommend re-runs if needed
+    - Assemble batch summary; push status back to LIMS
+    - Prepare human-readable QC report for sign-off
+  tools:
+    - File parsers/ETL
+    - 'Stats/QA libraries (e.g., SciPy, statsmodels)'
+    - Control chart engine
+    - LIMS API
+    - PDF/HTML report generator
+  outputs:
+    - QC decision (pass/conditional/reject) per analyte/batch
+    - Annotated plots and control charts
+    - Re-run recommendations
+  pricingModel:
+    - Per-batch processed
+    - Tiered monthly subscription by instrument count
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 7
+    overall: 8
+  risks:
+    - Incorrect parsing from proprietary formats
+    - Edge-case QC rules not encoded
+    - Data integrity/traceability requirements
+  dependencies:
+    - Access to instrument data exports
+    - QC/SOP rule definitions
+    - Time-synced instrument calibration logs
+leanCanvas:
+  problem:
+    - >-
+      Manual QC review of instrument outputs (chromatography, mass spec, ICP,
+      PCR, ELISA, etc.) consumes 20–40% of analyst time per batch, delaying
+      turnaround by 0.5–2 days.
+    - >-
+      Inconsistent application of QC rules (blanks, LCS/MS/MSD spikes,
+      duplicates, control charts) leads to 1–3% release errors and frequent
+      rework, risking client dissatisfaction and regulatory findings.
+    - >-
+      Heterogeneous instrument ecosystems (Agilent, Waters, Thermo, Shimadzu,
+      PerkinElmer, Sciex) produce varied file formats that are hard to
+      standardize and integrate into LIMS/ELN workflows.
+    - >-
+      QA documentation burden for ISO 17025/GxP requires auditable,
+      version-controlled QC logic, but most labs rely on Excel/R scripts with
+      limited traceability and change control.
+    - >-
+      Scaling sample volume (seasonal spikes, new contracts) is constrained by
+      QA throughput, not instrument time; adding analysts is costly and
+      onboarding takes months.
+    - >-
+      Regulated environments need 21 CFR Part 11-compliant e-signatures, audit
+      trails, and validation packages; building and maintaining this in-house is
+      expensive and risky.
+    - >-
+      Control charting and trend monitoring are reactive; labs often miss drift
+      until OOS events occur, leading to CAPA investigations and potential
+      invalidations.
+    - >-
+      Clients increasingly demand structured release packages (PDF + EDD like
+      SEDD/EQuIS), but compiling them manually is error-prone and slow.
+  solution:
+    - >-
+      Parse native instrument outputs and exports (CSV, XML, TXT, vendor result
+      sets) into a normalized schema with method- and instrument-aware metadata.
+    - >-
+      Apply a configurable QC rules engine: blanks/field blanks, LCS/MS/MSD
+      recoveries, RPDs, calibration/verification checks, Levey-Jennings control
+      charts, and Westgard-like rules for applicable assays.
+    - >-
+      Layer anomaly detection to catch pattern-based issues (baseline drift,
+      integration anomalies, carryover, detector saturation, retention time
+      shifts) with tunable sensitivity and explainable flags.
+    - >-
+      Compute batch-level risk scores and determine auto-release eligibility
+      under preapproved guardrails; route exceptions to human reviewers with
+      prioritized queues.
+    - >-
+      Generate complete release packages: PDF report with QC summary, audit
+      trails, raw/derived data lineage; machine-readable EDDs (e.g., SEDD 5.x,
+      EQuIS EDD, XML/JSON) tailored to client/regulator requirements.
+    - >-
+      Integrate with LIMS/ELN (webhooks, REST APIs, file drops) to pull sample
+      metadata and push pass/fail status, CoAs, and final reports; support
+      e-signatures and version control for rule sets.
+    - >-
+      Provide continuous control charting by analyte/instrument/method; alert on
+      trends (EWMA/CUSUM) and recommend preventive maintenance or recalibration
+      windows.
+    - >-
+      Offer deployment options: validated private cloud (single-tenant VPC) or
+      on-premise for air-gapped GxP/regulated sites, with full CSV/Part 11
+      documentation packages.
+  uniqueValueProp: >-
+    Instrument-agnostic, auditable AI QC engine that applies standardized,
+    validated guardrails to laboratory data, cutting review time 30–50%,
+    reducing release errors to <0.5%, and safely auto-releasing compliant
+    batches with full 21 CFR Part 11/ISO 17025 traceability.
+  unfairAdvantage: >-
+    A growing, cross-instrument, cross-method labeled dataset of QC outcomes and
+    anomalies (sourced via design partners) powering explainable models; a
+    validated, standards-mapped QC rule library with versioned change control;
+    and prebuilt, vendor-acknowledged adapters and LIMS integrations that
+    compress time-to-value and reduce validation burden. Early SOC 2/Part 11
+    alignment and audit-ready documentation make replacement by in-house scripts
+    or generic tools unattractive.
+  customerSegments:
+    - >-
+      Environmental testing labs (ISO 17025/NELAP/TNI) performing EPA methods
+      (e.g., 524.2/524.4, 8270, 8260, 200.8 ICP-MS, 6020) for water/soil/air
+      matrices.
+    - >-
+      Pharma/biotech QC and analytical development labs (GxP, 21 CFR Part 11)
+      using HPLC/UPLC, GC, LC-MS, dissolution testing, and bioassays.
+    - >-
+      Food and beverage safety labs (AOAC methods) and agricultural residue
+      testing.
+    - >-
+      Municipal water/wastewater and public health labs requiring rapid,
+      compliant reporting.
+    - >-
+      Materials/chemicals and energy labs (metals, petrochem) with
+      high-throughput ICP/GC/GC-MS workflows.
+    - >-
+      Cannabis/hemp testing labs with strict state reporting and high sample
+      variability.
+    - >-
+      CROs and contract testing organizations seeking standardized, client-ready
+      release packages.
+    - >-
+      Primary users: QA/QC managers, Laboratory Directors, LIMS administrators,
+      Senior Analysts/Reviewers, Compliance/CSV leads.
+  channels:
+    - >-
+      Direct sales to Lab Directors and QA/QC Managers via targeted outreach in
+      environmental, water, and pharma QC verticals; ROI calculators and sample
+      time studies included.
+    - >-
+      Partnerships and integrations with LIMS vendors (LabWare, LabVantage,
+      STARLIMS, Thermo SampleManager) to co-sell and list on marketplaces.
+    - >-
+      Instrument vendor ISV partnerships (Waters, Agilent, Thermo Fisher,
+      Shimadzu) for parser validation and referral programs.
+    - >-
+      Industry conferences/workshops: PITTCON, ASMS, AOAC, TNI/NELAP Forum,
+      AWWA/WEFTEC; live demos using public method datasets.
+    - >-
+      Regulatory/compliance consultants (CSV/ISO 17025) as referral partners
+      bundling validation services.
+    - >-
+      Pilot program: 90-day paid pilots focused on 1–2 high-volume methods per
+      site with clear success criteria (≥30% review time reduction, ≥95%
+      reviewer agreement, ≤2% false positive rate).
+    - >-
+      Content and community: application notes, method-specific QC templates,
+      webinars on control chart best practices, and benchmarking reports.
+    - >-
+      Account expansion play: land with 1–3 instruments in one lab, expand to
+      additional methods/sites after 60–90 days based on achieved KPIs.
+  revenueStreams:
+    - >-
+      SaaS subscription per site: $1,500–$5,000/month base (includes dashboards,
+      QC engine, release builder) depending on compliance tier.
+    - >-
+      Instrument/method connectors: $150–$400/month per active instrument
+      connector, volume-discounted.
+    - >-
+      Usage-based add-on: $0.02–$0.10 per sample/report processed beyond
+      included thresholds (e.g., 25k samples/year included per site).
+    - >-
+      Implementation/onboarding and validation package: $10k–$50k one-time per
+      site, tiered by GxP/ISO rigor and number of integrations.
+    - >-
+      Premium support/SLAs (24x7, <1h response): +20% of subscription; dedicated
+      success manager: +$1,000/month.
+    - >-
+      Professional services: custom parser development, EDD templates, SOP
+      authoring, and method-specific rule tuning ($150–$250/hour).
+    - >-
+      Enterprise/on-prem licensing: annual license with maintenance (e.g.,
+      $75k–$250k/year per site) for air-gapped deployments.
+  costStructure:
+    - >-
+      R&D: software engineers (parsers, integrations), data/ML engineers, and
+      lab QA SMEs (~50–60% of total costs in first 2 years).
+    - >-
+      Cloud infrastructure: compute/storage/networking for data processing,
+      secure VPCs, logging, backup/DR (~10–15%).
+    - >-
+      Compliance and security: SOC 2 Type II audit, Part 11 guidance,
+      penetration tests, privacy/legal (~5–8%).
+    - >-
+      Sales and marketing: AE/SE teams, conferences, demos, partner MDF
+      (~15–20%).
+    - >-
+      Customer success and professional services: onboarding/validation support,
+      training, documentation (~10–15%).
+    - >-
+      Licenses/tools: dev/test instruments data sets, UI/analytics tooling, code
+      quality and CI/CD (~2–4%).
+    - >-
+      Insurance and overhead: E&O, cyber, general liability; office/admin
+      (~3–5%).
+  keyMetrics:
+    - >-
+      Operational: median review time per batch (target: -40% by month 6), %
+      auto-release eligible (target: 40% by month 3; 70% by month 12), analyst
+      hours saved/month.
+    - >-
+      Quality: reviewer agreement with AI flags (target: ≥95%), false positive
+      flag rate (target: ≤2%), false negative rate on seeded defects (target:
+      ≤0.5%), rework rate (target: -50%).
+    - >-
+      Business: MRR/ARR growth, logo retention ≥95% annually, net revenue
+      retention ≥120%, CAC payback ≤6 months, gross margin ≥75%.
+    - >-
+      Adoption: active instruments connected, methods onboarded per site,
+      time-to-first-value (TTFV) ≤14 days, integration time ≤30 days.
+    - >-
+      Coverage: % of common instruments/methods with certified adapters (target:
+      top 10 cover ≥70% of target market volume within 12 months).
+    - >-
+      Compliance: % customers with completed IQ/OQ/PQ, audit findings related to
+      system = 0, change control closure time ≤7 days.
+    - >-
+      Reliability: system uptime ≥99.9%, data processing SLO (95th percentile)
+      ≤5 minutes per batch.
+storyBrand:
+  character: >-
+    QA/QC manager at a testing laboratory who must release accurate results
+    fast, prove compliance, and scale without adding headcount.
+  problem: >-
+    External: Disparate instrument outputs; manual QC of blanks, spikes,
+    duplicates, and control charts; spreadsheet wrangling; slow, error-prone
+    reviews; audit exposure. Internal: Fear of missing anomalies; burnout from
+    after-hours checks; frustration with brittle scripts and inconsistent
+    decisions. Philosophical: Scientists should focus on science—data quality
+    should be systematic, consistent, and auditable, not dependent on heroics.
+  guide: >-
+    Empathy: Built by former lab analysts who know batch reviews, hold times,
+    and audit pressure. Authority: Validated QC engine and rule library aligned
+    with ISO 17025 and 21 CFR Part 11–ready workflows; proven instrument/LIMS
+    integrations; full audit trails and e-signatures.
+  plan: >-
+    Process plan: 1) Connect instruments and LIMS; 2) Configure QC rules or
+    import your SOPs (blanks, spikes, duplicates, control charts); 3) Auto-QC
+    every batch—review only flagged exceptions—then generate a release package
+    with audit trail. Agreement plan: Start with a secure, read-only pilot on
+    your data; fixed-fee onboarding and success criteria; SOC 2, SSO, and
+    role-based access.
+  callToAction: >-
+    Direct: Book a demo; Start a 30-day pilot on your own data. Transitional:
+    Download the QC rules template and sample release package; get an ROI
+    estimate.
+  success: >-
+    Majority of routine batches auto-release within guardrails; faster
+    turnaround and higher throughput; fewer nonconformances; effortless audit
+    responses with complete traceability; real-time control charts across
+    instruments and methods; happier analysts who reclaim nights and weekends;
+    scales as volume grows.
+  failure: >-
+    Manual reviews remain the bottleneck; anomalies slip through, causing
+    rework, client complaints, or recalls; inconsistent QC calls and fragile
+    scripts break with instrument updates; audit findings, lost trust, revenue
+    leakage, and staff turnover.
+landingPage:
+  hero:
+    title: Instrument Data QC & Auto‑Release Guardrails
+    subtitle: >-
+      AI that parses instrument files, enforces QC (blanks, spikes, duplicates,
+      control charts), flags anomalies, and builds release packages—so your lab
+      ships results faster with confidence.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - Manual QC across diverse instrument outputs is slow and error‑prone.
+    - 'Missed anomalies trigger rework, client callbacks, and lost trust.'
+    - SOPs are applied inconsistently across analysts and shifts.
+    - Review bottlenecks delay turnaround times and revenue.
+    - Audit‑ready documentation takes hours to compile.
+    - Legacy parsers break on format drift and new methods.
+  solution:
+    - >-
+      Unified parsing for LC/GC/HPLC/ICP/MS and more—auto‑detect methods and
+      vendors.
+    - >-
+      Built‑in QC rules engine: blanks, spikes/MS/MSD, surrogates,
+      duplicates/RPD, CCV/ICV, control charts.
+    - >-
+      Real‑time anomaly detection with clear, actionable flags and suggested
+      fixes.
+    - 'One‑click release packages: COAs, EDDs, QC summaries, full audit trail.'
+    - Configurable guardrails that block release when criteria fail.
+    - Plug‑and‑play LIMS/ELN/CDS integrations and a robust API.
+  features:
+    - 'Drop‑in adapters for CSV, TXT, XML, and common vendor exports.'
+    - SOP‑aware rule templates with versioning and change control.
+    - Westgard/Shewhart control charts with drift and trend alerts.
+    - Continuing calibration checks and stability monitoring.
+    - 'Duplicates/RPD, spikes/MS/MSD, blanks, surrogates, internal standards.'
+    - Auto unit normalization and LOD/LOQ handling with traceability.
+    - 'Reviewer workflow: assignments, comments, holds, and e‑signatures.'
+    - Audit‑ready logs; supports ISO 17025 and 21 CFR Part 11 practices.
+    - 'Release package builder: PDF, XLSX, EDD, JSON; client‑specific templates.'
+    - Notifications to Slack/Teams/email when guardrails fail.
+    - >-
+      On‑prem, VPC, or air‑gapped deployment; SSO, RBAC, and encryption at
+      rest/in transit.
+    - 'SDK and REST API for custom rules, adapters, and dashboards.'
+  steps:
+    - Connect instruments or drop files—auto‑parse incoming runs.
+    - Select or import method SOPs and apply the QC rule set.
+    - Review flagged items with guided context and evidence links.
+    - Approve results; guardrails auto‑block or pass based on criteria.
+    - Generate and deliver release packages to LIMS/clients in one click.
+    - Monitor control charts and KPIs to continuously improve.
+---
+# QC Guardrails AI
+
+Industry: Testing Laboratories and Services
+Service: Instrument Data QC and Auto-Release Guardrails

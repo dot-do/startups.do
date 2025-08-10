@@ -1,0 +1,357 @@
+---
+name: GrainQuote AI
+slug: grainquote
+naics:
+  primary: '321999'
+  occupations: []
+service:
+  title: AI Quoting from Drawings and Emails
+  description: >-
+    Extracts dimensions and specs from PDFs/photos/CAD, builds BOM/routings, and
+    returns priced quotes with lead times.
+  targetUsers:
+    - Estimator
+    - Sales
+    - Owner/GM
+  triggers:
+    - RFQ email arrives
+    - Web form submission with sketch/photos
+  inputs:
+    - RFQ email threads
+    - 'Drawings (PDF/DXF/DWG), photos with scale references'
+    - 'Material price lists, labor/machine rates, overhead and margin rules'
+    - Historical job actuals (optional)
+  steps:
+    - OCR/parse drawings; detect dimensions/features
+    - Classify product type and materials
+    - Generate draft BOM and routing with time standards
+    - 'Calculate cost, price, and lead time'
+    - Flag uncertainties for human review
+    - Publish quote PDF and CRM entry
+  tools:
+    - 'LLM with vision/OCR (e.g., Textract or Tesseract + LLM)'
+    - DXF/DWG parsers
+    - Cost model in Python/Sheets
+    - 'CRM/ERP API (HubSpot, Zoho, QuickBooks)'
+  outputs:
+    - Quote PDF with terms
+    - 'Cost breakdown, lead time estimate'
+    - CRM opportunity/task
+  pricingModel:
+    - Per-quote fee
+    - Monthly subscription with usage tiers
+    - Optional success fee on accepted quotes
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 7.5
+    overall: 8
+  risks:
+    - Misread drawings or missing tolerances
+    - Underquoting due to hidden operations/finishes
+    - Liability if quote assumptions are unclear
+  dependencies:
+    - Up-to-date material/labor rates
+    - Defined quoting rules and exclusions
+    - Access to historical jobs for calibration
+leanCanvas:
+  problem:
+    - >-
+      Manual quoting from drawings/emails takes 1–3 hours per RFQ and often 1–3
+      days to return a price, causing missed deadlines and lost bids.
+    - >-
+      Input formats are messy (scanned PDFs, hand sketches, phone photos,
+      DXF/DWG) leading to errors, rework, and margin leakage from missing specs
+      (finish type, tolerances, grain direction, edge banding).
+    - >-
+      BOM and routing creation is manual; process steps (ripping, planing, CNC
+      routing, moulding, sanding, finishing, assembly, packaging) are
+      inconsistently captured, hurting repeatability and costing.
+    - >-
+      Lead times are guessed without a capacity-aware schedule, creating
+      overpromising, late deliveries, and credibility loss with customers.
+    - >-
+      Small/mid-sized shops (10–200 employees) rely on spreadsheets/QuickBooks
+      with little integration to CAD/CAM/ERP, making quoting a bottleneck and
+      single-point-of-failure risk (1–2 estimators).
+    - >-
+      Price inconsistency across estimators results in +/-15–25% variance for
+      identical parts/jobs, reducing win rate and/or margins.
+    - >-
+      Sales teams lack visibility into quote status, hit rates, and
+      profitability by customer/part family, limiting continuous improvement.
+  solution:
+    - >-
+      Multi-modal ingestion: parse PDFs, photos, and CAD (DXF/DWG, SketchUp,
+      STEP exports) to extract dimensions, material, grain direction, edge
+      treatments, finish, tolerances.
+    - >-
+      Automated BOM builder: maps parts to material families (hardwood,
+      softwood, plywood/MDF, laminates), sheet/board optimization parameters,
+      hardware, adhesives, packaging.
+    - >-
+      Routing estimator: generates operations (rip, plane, CNC route, mould,
+      drill, sand, spray finish, assemble, pack) with cycle times based on
+      geometry, material, machine libraries, and shop-calibrated speeds/feeds.
+    - >-
+      Pricing rules engine: roll-up COGS (material yield, labor, machine burden,
+      overhead) and apply markups, customer-specific pricing tiers, and
+      minimums; flags low-margin quotes for review.
+    - >-
+      Capacity-aware lead times: finite-capacity model by workcenter; uses
+      current backlog/import from ERP to give realistic promise dates and
+      expedite options.
+    - >-
+      Email-to-quote: monitor RFQ inboxes; auto-draft quotes and route
+      exceptions to human-in-the-loop; log all assumptions.
+    - >-
+      Integrations: QuickBooks, JobBOSS2/E2, Odoo, Cabinet Vision/Microvellum
+      exports, CSV; push BOM/routing to ERP on win.
+    - >-
+      Human-in-the-loop review: fast UI to confirm extracted specs and costs;
+      learn from corrections to improve accuracy per shop.
+    - >-
+      Analytics: quote cycle time, win-rate uplift, margin by customer/part
+      family, hit/miss reasons, estimator throughput.
+    - >-
+      Compliance & security: SOC 2 roadmap; SSO, audit logs, PII/ITAR-like
+      controls for sensitive OEM prints (private deployment option).
+  uniqueValueProp: >-
+    From file to price in minutes: Turn PDFs/photos/CAD and email specs into a
+    clean BOM, routing, and priced quote with a capacity-based lead time. Cut
+    quote time by 70%, standardize pricing, and hit +/-10% cost accuracy on 90%
+    of quotes after 8 weeks of calibration.
+  unfairAdvantage: >-
+    A calibrated, wood-specific quoting brain: a proprietary dataset and machine
+    parameter library for common woodworking equipment, paired with ERP/CAD
+    integrations and human-in-the-loop workflows that continuously learn per
+    shop. This yields faster, more accurate quotes than general-purpose AI or
+    spreadsheet-based systems, and switching costs increase as rules and
+    calibrations compound.
+  customerSegments:
+    - >-
+      Primary: US/Canada ‘All Other Miscellaneous Wood Product Manufacturing’
+      shops (NAICS 321999), 10–250 employees; owner-operators, estimators, sales
+      engineers.
+    - >-
+      Secondary: Contract wood product manufacturers serving OEM brands
+      (fixtures, displays, handles, dowels, specialty components).
+    - >-
+      Tertiary: Adjacent wood categories needing drawing-driven quotes (custom
+      crates, specialty pallets, acoustic panels) where inputs are
+      PDFs/photos/CAD and outputs are BOM/routings.
+  channels:
+    - >-
+      Founder-led outbound to 500 target shops (NAICS 321999) segmented by size
+      (20–200 employees) using D&B/ZoomInfo lists; goal: 60 demos, 20 pilots in
+      90 days.
+    - >-
+      Industry trade shows: IWF Atlanta and AWFS Fair Las Vegas; demo kiosk +
+      workshop on AI quoting. KPI: 150 badge scans/show, 30 POCs started.
+    - >-
+      Partnerships with ERP/CAD vendors (ECI JobBOSS2, Odoo, QuickBooks
+      advisors, Cabinet Vision/Microvellum consultants). KPI: 5 referral
+      partners in first 6 months, 3 co-marketing webinars/quarter.
+    - >-
+      Email/inbound: case studies, ROI calculator, and teardown content ("From
+      PDF to Price in 5 Minutes"); SEO for “wood quoting software,” “BOM from
+      drawing,” “wood ERP quoting.” KPI: 1,000 MQLs/year.
+    - >-
+      Regional distributors/material suppliers (Würth Baer Supply, UFP)
+      co-selling to their shop customer base. KPI: 2 pilots via
+      partners/quarter.
+    - >-
+      Land-and-expand: start with email-to-quote assistant, then upsell ERP
+      integration and capacity module. KPI: 30% upsell rate by month 9.
+  revenueStreams:
+    - >-
+      SaaS subscription: Starter $500/month (up to 50 quotes), Pro $1,200/month
+      (up to 200 quotes), Enterprise from $3,000/month (SAML, private cloud,
+      unlimited quotes tiered).
+    - >-
+      Usage-based overage: $8/quote after plan limit; $0.05/page for heavy PDF
+      parsing beyond fair-use.
+    - >-
+      Implementation/onboarding: $2,000 fixed for standard setup (2 weeks),
+      $10,000–$40,000 for enterprise integrations/training (6–12 weeks).
+    - 'Premium support/SLA: $300–$1,000/month add-on; optional weekend coverage.'
+    - >-
+      Custom model training and feature packs (e.g., finishing library, advanced
+      nesting) $5,000–$25,000.
+    - >-
+      Future: OEM/buyer portal fee for standardized RFQs to participating shops
+      (network effect) 1% quote success fee (opt-in).
+  costStructure:
+    - >-
+      COGS: inference compute $0.03–$0.15 per PDF page; CAD parsing
+      $0.01–$0.05/minute; average $1.50–$3.00 per quote in compute.
+    - >-
+      Human-in-the-loop QA pool for flagged quotes: $4–$10/quote average
+      early-stage; target <$2/quote by month 12 via model improvement.
+    - >-
+      Cloud hosting, storage, security (VPC, encryption, backups):
+      $6k–$10k/month at 100 paying logos.
+    - >-
+      R&D: ML/vision engineers (2–4), full-stack devs (2–3), integrations
+      engineer (1–2), product/design (1), costing SME (1). Burn:
+      $180k–$280k/month early-stage.
+    - >-
+      Sales & marketing: founder-led + 1 AE + 1 SDR by month 6; trade shows
+      ($50k/year), content/ads ($5k–$10k/month).
+    - >-
+      Data labeling and synthetic dataset generation (wood-specific features)
+      $5k–$20k/month first 12 months.
+    - >-
+      Compliance (SOC 2 Type I/II, pentests): $50k–$120k first year; renewals
+      $30k–$60k/year.
+  keyMetrics:
+    - >-
+      Quote cycle time: median < 30 minutes from intake to draft; < 4 hours to
+      approved send. Baseline: 8–24 hours.
+    - >-
+      Accuracy: cost MAPE ≤ 10% on 90% of quotes after 8 weeks; ≤ 7% after 6
+      months for calibrated families.
+    - 'Estimator throughput: +2–3x quotes/estimator/month (e.g., 60 → 150).'
+    - >-
+      Win rate uplift: +5–10 percentage points within 3 months (e.g., 25% →
+      32–35%) driven by faster response and consistency.
+    - >-
+      Auto-quote rate: ≥ 50% of RFQs sent without human edits by month 6; ≥ 70%
+      by month 12 for well-specified inputs.
+    - >-
+      Lead time accuracy: 85% orders ship within ±2 days of quoted promise date
+      (capacity module enabled); target 92% by month 12.
+    - >-
+      Time-to-first-value: first approved quote ≤ 48 hours from kickoff; POC
+      success defined as ≥ 20 production-ready quotes in 30 days.
+    - >-
+      Gross margin (SaaS): ≥ 75%; payback period: ≤ 6 months; NRR: ≥ 115% by
+      month 18.
+    - >-
+      Model coverage: correctly extract 95%+ of required fields (material,
+      dimensions, finish, quantity) across top 10 product families.
+    - >-
+      CSAT/NPS: NPS ≥ 40; support first-response time < 1 business hour (premium
+      SLA).
+storyBrand:
+  character: >-
+    Estimators, production managers, and owners at wood product shops (NAICS
+    321999 – All Other Miscellaneous Wood Product Manufacturing) who need to
+    turn emailed drawings into fast, accurate quotes.
+  problem: >-
+    External: RFQs arrive as PDFs/photos/CAD; manual takeoffs to BOMs and
+    routings are slow and error-prone.
+
+    Internal: Long nights in spreadsheets, guessing pricing and lead times,
+    risking costly misses.
+
+    Philosophical: Skilled shops shouldn’t lose work because quoting takes
+    longer than making.
+  guide: >-
+    Empathy: We’ve lived shop-floor chaos and quoting from incomplete drawings.
+
+    Authority: Built by manufacturing + AI engineers; tuned for wood components,
+    joinery, and hardware; privacy-first; integrates with email, ERP/CRM, and
+    CAD/CAM.
+  plan: >-
+    1) Forward RFQs/drawings or connect your quoting inbox.
+
+    2) AI extracts dimensions/specs, builds BOM and routings, applies your
+    pricing rules, and proposes lead time.
+
+    3) You review/adjust, generate the quote, and sync to ERP/CRM.
+
+    Assurances: human-in-the-loop approval, versioned audit trail, no
+    lock-in—your data stays yours.
+  callToAction: |-
+    Direct: Start a pilot with your RFQs; book a 30‑minute demo.
+    Transitional: Download sample outputs and an ROI worksheet.
+  success: >-
+    Quotes in minutes, consistent margins, reliable lead times, clean
+    production-ready BOMs/routings, fewer re-quotes, happier customers, and more
+    capacity for making.
+  failure: >-
+    Slow or inaccurate quotes, missed bids, margin leakage, overtime and rework,
+    delayed lead times, and lost customer trust.
+landingPage:
+  hero:
+    title: AI Quoting from Drawings and Emails for Wood Manufacturers
+    subtitle: >-
+      Turn PDFs, photos, and CAD into accurate BOMs, routings, priced quotes,
+      and lead times—fast, consistent, and scalable for NAICS 321999.
+    ctaText: Book a Demo
+    ctaHref: /demo
+  problem:
+    - Manual takeoffs from drawings are slow and error-prone.
+    - 'Missed specs (thickness, grain, edge banding, finish) erode margins.'
+    - Inconsistent pricing across estimators and plants.
+    - Quoting delays cause lost orders and rush chaos.
+    - Building BOMs and routings from scratch wastes hours.
+    - 'Lead times are guessed, not capacity-driven.'
+    - Re-entering data into ERP/CRM invites mistakes.
+  solution:
+    - >-
+      AI reads drawings and emails, extracting dimensions and specs
+      automatically.
+    - >-
+      Auto-builds BOMs, cutlists, and routings for millwork, casework, fixtures,
+      and components.
+    - >-
+      Instant costing from live material prices, labor standards, and machine
+      rates.
+    - >-
+      Capacity-aware lead times based on calendars, setup, and vendor lead
+      times.
+    - Consistent pricing rules and margins across teams and sites.
+    - Branded proposals in minutes with alternates and options.
+    - One-click handoff to ERP/MRP/CRM with full audit trail.
+  features:
+    - >-
+      Ingest PDFs, photos, DXF/DWG, and common CAD exports; OCR for sketches and
+      emails.
+    - >-
+      Detects panels, parts, thickness, species, grain direction, edge banding,
+      holes, hardware, and finish notes.
+    - >-
+      Auto-cutlist with yield, kerf, and waste factors; nesting-aware panel
+      optimization.
+    - >-
+      Routing builder for rip/plane, CNC, drill, sand, assemble, finish,
+      pack—configurable by product family.
+    - >-
+      Costing engine: material catalogs, vendor price lists, labor rates,
+      setup/teardown, overhead, markup/margin rules.
+    - >-
+      Capacity-based lead times using work centers, calendars, and queue times;
+      flags bottlenecks.
+    - >-
+      Template library for mouldings, casework, displays, turnings, jigs, and
+      specialty components.
+    - >-
+      Alternates and value-engineering suggestions (species swaps, thickness
+      changes, hardware options).
+    - >-
+      Quote composer: branded PDFs and emails with scope, inclusions/exclusions,
+      terms, and revisions.
+    - Human-in-the-loop review with easy overrides; change logs and versioning.
+    - >-
+      Integrations: export to ERP/MRP/CRM and accounting; CSV/Excel, API, and
+      webhooks.
+    - >-
+      Customer and job history to standardize pricing and improve estimates over
+      time.
+    - Multi-plant support with shared rules and plant-specific rates.
+    - Permissions and approvals to control discounts and margins.
+  steps:
+    - Upload a drawing or forward the RFQ email.
+    - 'Select product type and baseline assumptions (species, finish, hardware).'
+    - 'AI extracts specs and proposes BOM, cutlist, and routing.'
+    - 'Review and adjust materials, yields, work centers, and vendors.'
+    - Generate price and capacity-based lead time instantly.
+    - Send a branded quote with options and alternates.
+    - 'On acceptance, convert to work order or push to ERP/MRP.'
+---
+# GrainQuote AI
+
+Generated for NAICS 321999 — All Other Miscellaneous Wood Product Manufacturing.
+Service: AI Quoting from Drawings and Emails

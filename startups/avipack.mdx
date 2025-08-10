@@ -1,0 +1,371 @@
+---
+name: AviPack Compliance AI
+slug: avipack
+service:
+  title: Compliance Document Assembler (COA/COO/HACCP/FSIS)
+  description: >-
+    Collects and matches supplier/customer-required documents to lots and
+    shipments; produces packs for ASNs or email.
+  targetUsers:
+    - QA/Compliance
+    - Customer Service
+    - Shipping
+  triggers:
+    - New order for customers requiring docs
+    - Shipment scheduled (ASN creation)
+    - Supplier onboarding document drop
+  inputs:
+    - 'Supplier docs (COA, COO, HACCP, spec sheets)'
+    - Lot/SKU mapping and production dates
+    - Customer-specific document requirements
+    - ASN/EDI 856 details
+    - Label/photos
+  steps:
+    - Ingest docs via email inbox or portal upload
+    - OCR/extract key fields; classify by doc type and lot
+    - Validate against requirements; flag missing/expired items
+    - Assemble shipment-specific pack; watermark and index
+    - Route to QA for approval; attach to ASN or email customer
+    - Archive metadata for audits
+  tools:
+    - OCR (AWS Textract/Azure Form Recognizer)
+    - LLM for classification/validation
+    - Template engine (PDF)
+    - SharePoint/Box/Drive storage
+    - EDI/VAN (SPS/TrueCommerce) for ASN attachments
+  outputs:
+    - Complete doc pack PDF per shipment
+    - Validation report and missing items list
+    - Audit-ready archive with metadata
+  pricingModel:
+    - Setup fee
+    - Per document pack ($0.50–$1.00)
+    - Monthly support
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 9
+    overall: 9
+  risks:
+    - Mis-matching doc to lot causes compliance issues
+    - OCR errors on poor scans
+    - Customer-specific nuances missed
+  dependencies:
+    - Access to supplier doc feeds
+    - Lot-level traceability data
+    - Customer requirement library
+leanCanvas:
+  problem:
+    - >-
+      Manual collation of COA/COO/HACCP/FSIS documents per shipment consumes
+      10–30 minutes each, creating overtime costs and shipment delays.
+    - >-
+      Customer-specific requirements (e.g., different retailers/foodservice
+      distributors) vary by SKU/lot and change frequently; teams struggle to
+      keep rules current, causing ASN rejections or chargebacks.
+    - >-
+      Lots often split across multiple pallets/shipments and combine across
+      suppliers; matching documents to the correct lot/shipment is error-prone
+      without system support.
+    - >-
+      Missing or late documents (e.g., COA not received from supplier lab) stall
+      shipments or trigger receiving holds, rework, and detention fees.
+    - >-
+      Document sources are fragmented (email, supplier portals, lab PDFs, ERP
+      attachments, shared drives), making version control and audit trails
+      difficult during FSIS or customer audits.
+    - >-
+      After-hours and weekend shipments lack coverage from key staff who “know
+      the process,” increasing risk of late or incomplete documentation packs.
+    - >-
+      Inconsistent ASN attachments/pack formats create friction with EDI
+      partners and receivers; small errors create outsized penalties.
+    - >-
+      Lack of visibility to compliance status by shipment (ready/not ready,
+      missing docs, exceptions) impairs operations and customer service (ETAs
+      communicated without doc readiness).
+    - >-
+      Retention and traceability obligations (multi-year) are not centralized;
+      responding to audit requests is time-consuming (hours/days).
+  solution:
+    - >-
+      Unified ingestion: Capture documents via email intake, supplier/lab SFTP,
+      EDI attachments, API, and drag/drop portal; auto-associate to supplier,
+      product, and date range.
+    - >-
+      AI extraction/classification: OCR + models tuned for poultry docs (COA
+      micro results, plant numbers, production dates, weights, HACCP plan refs,
+      COO, BOL, temperature logs).
+    - >-
+      Lot-to-shipment matching: Resolve mixed lots, re-boxing, and partial
+      pallets; link COAs to exact lots/line items using ERP/WMS data (SKU, lot,
+      prod date, spec).
+    - >-
+      Customer rule engine: Maintain receiver-specific checklists (which docs,
+      acceptable test ranges, plant approvals, label specs); flag exceptions
+      early and suggest remediation.
+    - >-
+      Pack assembly: Generate standardized, receiver-approved pack PDFs or file
+      sets; attach to EDI 856 ASN or send via templated email; watermark/redact
+      as needed.
+    - >-
+      Exception workflows: Alert suppliers for missing/invalid docs; track SLA
+      to ensure pack-readiness before truck departure; collaborative notes and
+      approvals.
+    - >-
+      Compliance/audit: Immutable audit log, retention policies, full-text
+      search, evidence export by shipment/lot/date range; role-based access.
+    - >-
+      Dashboards and alerts: Live “doc readiness” board by load/ASN; KPIs on
+      auto-match rate, exception types, ASN acceptance, aging.
+    - >-
+      Security and controls: SOC 2-aligned controls, encryption at rest/in
+      transit, PII/PHI redaction, SSO/MFA, granular permissions.
+  uniqueValueProp: >-
+    Zero-touch compliance packs for every poultry shipment. AviPack ingests
+    supplier/lab/customer documents, auto-matches them to lots and shipments,
+    validates against receiver-specific rules, and delivers complete packs via
+    ASN or email—cutting admin time by 80%+, reducing chargebacks by up to 70%,
+    and delivering audit-ready traceability.
+  unfairAdvantage: >-
+    A specialized rules and template library for poultry receivers, combined
+    with models trained on high-volume poultry document corpora and a growing
+    network of pre-enabled suppliers/labs. The more customers onboard, the
+    richer the receiver rule mappings and supplier validation feedback—improving
+    auto-match accuracy and reducing time-to-value in ways horizontal DMS/OCR or
+    generic EDI tools cannot easily replicate.
+  customerSegments:
+    - >-
+      Primary ICP: US poultry and poultry product merchant wholesalers (NAICS
+      42444), especially mid-market firms handling 50–2,000 shipments/week with
+      mixed products (fresh, frozen, further-processed).
+    - >-
+      Sub-segments: Export/import-focused poultry wholesalers requiring COO and
+      special certifications; wholesalers serving large retailers/foodservice
+      (e.g., Sysco/US Foods) with strict ASN/label/doc rules.
+    - >-
+      Secondary ICP: Poultry processors with in-house distribution; cold storage
+      3PLs assembling document packs on behalf of wholesale clients; specialized
+      brokers aggregating supply lots.
+    - >-
+      Influencers/Stakeholders: Quality/compliance managers, EDI/IT leads,
+      warehouse/operations managers, customer service, finance (chargebacks),
+      and supplier quality managers.
+  channels:
+    - >-
+      Direct sales to ICP via targeted outbound (LinkedIn/email) grounded in
+      operational ROI and chargeback reductions.
+    - >-
+      Partnerships with ERP/WMS/EDI resellers & integrators specializing in food
+      distribution; referral rev-share and co-marketing.
+    - >-
+      Alliances with EDI networks (e.g., SPS Commerce, TrueCommerce, Cleo) to
+      list on marketplaces and co-sell where ASN quality is a pain point.
+    - >-
+      Industry events: International Production & Processing Expo (IPPE), NPFDA
+      Annual Convention, IFDA, and regional distributor meetings; live demos
+      with customer rule templates.
+    - >-
+      Content and SEO: Compliance checklists by receiver, ROI calculators,
+      templates for COA/COO packs, and “ASN rejection playbooks.”
+    - >-
+      Customer-led referrals: Incentivize suppliers and cold storage 3PLs to
+      onboard; multi-tenant rollout within a supply network.
+    - >-
+      Pilot-to-scale motion: 4–6 week fixed-price pilot with 2–3 receivers and
+      3–5 suppliers; expand by adding receivers, suppliers, and facilities
+      post-pilot.
+  revenueStreams:
+    - >-
+      SaaS subscription: $800–$2,500/month per facility (includes baseline
+      volumes, compliance dashboards, and standard connectors).
+    - >-
+      Usage-based per pack: $0.75–$2.50 per completed document pack (tiered by
+      monthly volume).
+    - >-
+      Implementation/integration: $5,000–$25,000 one-time per facility depending
+      on ERP/EDI complexity and rule library setup.
+    - >-
+      Premium SLA/support: 24/7 support, dedicated CSM, and quarterly compliance
+      reviews at 15–20% of annual subscription.
+    - >-
+      Storage/retention add-on: Archival beyond standard (e.g., 7+ years) at
+      $0.002–$0.01/GB/month.
+    - >-
+      Professional services: Custom receiver templates, complex validation
+      rules, supplier training, and audit preparation packages.
+  costStructure:
+    - >-
+      COGS: Cloud hosting (compute/storage), OCR/LLM API usage, EDI/AS2
+      infrastructure, monitoring/logging (target COGS 18–28% of revenue at
+      scale).
+    - >-
+      Third-party data/services: Certificate validation, plant code databases,
+      address/ID normalization, email delivery.
+    - >-
+      R&D: Engineering for AI models, connectors, rule engine, QA/testing
+      (35–45% of OpEx in early years).
+    - >-
+      Sales and marketing: AE/SDR comp, partner rev-share, trade shows, content
+      (15–25% of OpEx).
+    - >-
+      Customer success/onboarding: CSMs, solution architects, supplier
+      enablement (10–20% of OpEx).
+    - >-
+      Security/compliance: SOC 2 audits, pen tests, legal, cyber insurance
+      (annual fixed + variable).
+    - 'Overhead: G&A, finance, HR, tooling.'
+    - >-
+      Unit economics target: Gross margin >65% by month 18; blended cost per
+      pack <$0.35 at 50k packs/month volume.
+  keyMetrics:
+    - >-
+      Time-to-first-pack: <14 days from kickoff to first automated pack in
+      pilot.
+    - >-
+      Auto-match rate: ≥90% of shipments without manual intervention by day 60;
+      ≥95% by day 180.
+    - >-
+      Pack readiness SLA: ≥98% packs ready ≥1 hour before scheduled truck
+      departure.
+    - >-
+      ASN acceptance rate: ≥99.5% acceptance on ASNs with attached packs for
+      configured receivers.
+    - >-
+      Chargeback reduction: 50–70% reduction in doc/ASN-related chargebacks
+      within 90 days.
+    - >-
+      Manual time saved: 8–20 minutes per shipment; track verified hours saved
+      per user/week.
+    - >-
+      Supplier defect rate: <3% of incoming docs fail validation after supplier
+      enablement; trending down month-over-month.
+    - >-
+      Exception aging: 80% of exceptions resolved within 4 business hours; alert
+      MTTR <30 minutes.
+    - >-
+      Gross margin per pack: Track COGS/pack; maintain >$0.75 gross margin on
+      $1.25 ASP by month 12.
+    - >-
+      Churn/expansion: Net revenue retention >115% via adding
+      receivers/suppliers/facilities; gross logo churn <6% annually.
+    - >-
+      Uptime and latency: 99.9% platform uptime; median pack generation <30
+      seconds once docs complete.
+    - >-
+      Implementation velocity: Average go-live <6 weeks for first site with 2
+      connectors and 5 receiver templates.
+storyBrand:
+  character: >-
+    Compliance, operations, and sales-ops leaders at poultry and poultry product
+    merchant wholesalers who must keep shipments moving while proving every lot
+    meets buyer and regulatory requirements.
+  problem: >-
+    - External: Buyer and regulator-required docs (COA, COO, HACCP, FSIS, specs)
+    are scattered and must be matched to lots and shipments; ASNs or emails need
+    the right pack every time.
+
+    - Internal: Manual chasing, copying, and checking cause delays, errors, and
+    late-night scrambles.
+
+    - Philosophical: Doing the right thing for food safety shouldn’t cost time,
+    revenue, or customer trust.
+  guide: >-
+    - Empathy: We know the pre-cutoff scramble—chasing suppliers, combing
+    inboxes, and rebuilding the same packs under pressure.
+
+    - Authority: Purpose-built for protein supply chains with COA/COO/HACCP/FSIS
+    checklists, robust traceability, and integrations to ERP/EDI/email/SFTP;
+    proven implementation playbooks and change management support.
+  plan: >-
+    - Process: 1) Connect your sources (supplier email/SFTP/portal, ERP) and
+    destinations (ASN/EDI, email). 2) Configure customer- and product-specific
+    doc rules, expirations, and validations. 3) Automate: AI assembles lot- and
+    shipment-level packs and delivers with ASNs or email; exceptions route to
+    your team.
+
+    - Agreement: Secure handling and audit trails, clear roles/permissions,
+    human-in-the-loop on low-confidence matches, start with a low-risk pilot.
+  callToAction: >-
+    - Direct: Book a 20-minute demo; Start a pilot.
+
+    - Transitional: Download the Poultry Compliance Pack Checklist; See a sample
+    ASN-ready document pack.
+  success: >-
+    - Complete, correct packs delivered with every ASN or email.
+
+    - Faster order processing with fewer chargebacks, holds, and rework.
+
+    - Audit-ready traceability and a single system of record for compliance
+    docs.
+
+    - Teams focus on customers instead of paperwork; on-time shipments and
+    stronger account trust.
+  failure: >-
+    - Missing or mismatched docs trigger shipment holds, rejections, and
+    penalties.
+
+    - Constant firefighting, after-hours prep, and costly manual processes.
+
+    - Audit exposure and damaged relationships with key customers.
+landingPage:
+  hero:
+    title: AI Compliance Document Assembler for Poultry Wholesalers
+    subtitle: >-
+      Collect, match, and validate COA/COO/HACCP/FSIS documents to lots and
+      shipments. Auto-build customer-ready packs for ASN or email.
+    ctaText: Start Free Pilot
+    ctaHref: /get-started
+  problem:
+    - >-
+      Chasing COAs, COOs, HACCP plans, and FSIS letters across email, portals,
+      and paper.
+    - Last-minute shipment holds from missing or expired documents.
+    - Inconsistent formats and poor scans slow verification and matching.
+    - Manual lot-to-document matching creates errors and rework.
+    - Customer-specific requirements and ASN rules are hard to keep current.
+    - Audit prep consumes hours; limited traceability risks chargebacks.
+    - Warehouse and office teams duplicate effort compiling PDF packs.
+  solution:
+    - Single inbox and portal to collect supplier and customer documents.
+    - AI classifies COA/COO/HACCP/FSIS and extracts key fields automatically.
+    - >-
+      Auto-matches documents to SKU, lot, EST/plant, kill/pack date, and
+      shipment.
+    - 'Validates completeness, dates, signatures, and customer-specific rules.'
+    - >-
+      One-click pack creation: PDF binder + attachments for EDI 856 ASN or
+      email.
+    - Instant gap detection with automated supplier requests and reminders.
+    - 'Live dashboard and audit trail with search by lot, PO, or shipment.'
+  features:
+    - >-
+      Prebuilt poultry compliance rules: raw/RTE, EST mapping, kill/pack date
+      checks.
+    - OCR with barcode/QR detection; reads lot codes and production dates.
+    - Customer requirement matrices and templates per buyer.
+    - Temperature log and sanitation record parsing with threshold alerts.
+    - 'Document validity tracking: expiry, revision, signatures, page count.'
+    - 'Redaction, watermarking, merge/split, and binder table of contents.'
+    - EDI-ready outputs for 856 Advance Ship Notice with pack links.
+    - >-
+      Integrations: email, SFTP, SharePoint, Google Drive, S3; ERP/WMS
+      connectors.
+    - 'Supplier portal with drag-and-drop, status, and automated reminders.'
+    - Approvals and e-sign attestations with role-based permissions.
+    - Full audit trail with immutable evidence and instant retrieval by PO/lot.
+    - 'Security: SSO, encryption in transit/at rest, SOC 2-ready controls.'
+    - Multi-plant and cross-dock support for mixed-lot shipments.
+    - Fast onboarding with white-glove migration of historical documents.
+  steps:
+    - 'Connect email, storage, and ERP/WMS.'
+    - 'Import items, lots, plants, and customer requirement matrices.'
+    - Upload recent COA/COO/HACCP/FSIS documents to train extraction.
+    - Validate on a few live POs and adjust templates if needed.
+    - 'Go live: auto-build packs per shipment and ASN.'
+    - 'Monitor dashboard, resolve alerts, and export for audits.'
+---
+# AviPack Compliance AI
+
+Industry: Poultry and Poultry Product Merchant Wholesalers
+Service: Compliance Document Assembler (COA/COO/HACCP/FSIS)

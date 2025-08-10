@@ -1,0 +1,299 @@
+---
+name: RiverWise ETA & Lock Advisor
+slug: riverwise
+service:
+  title: River ETA and Lock Delay Advisor
+  description: >-
+    Predicts ETAs for tows/barges and forecasts lock wait times using AIS, river
+    stage/flow, and lock queue data. Pushes reroute/departure timing suggestions
+    and alerts.
+  targetUsers:
+    - Dispatchers
+    - Fleet operations managers
+    - Towboat captains
+  triggers:
+    - New voyage created or updated
+    - Vessel enters a monitored river reach
+    - Lock queue exceeds threshold
+    - Weather/river stage forecast changes
+  inputs:
+    - Fleet AIS positions and tow configuration
+    - Voyage plan and destinations
+    - Historical segment speeds vs. flow/current
+    - USACE lock queue/outage data (LPMS)
+    - NOAA/USGS river stage and flow forecasts (AHPS/NWIS)
+    - Weather (wind/visibility/storms)
+  steps:
+    - 'Ingest AIS, lock, and hydrology feeds; clean and align timelines'
+    - Estimate segment speeds by tow size vs. flow/current from historicals
+    - Predict lock wait times with queue history and outage schedules
+    - Compute ETA distributions and confidence
+    - 'Generate alternatives (departure windows, speed profiles)'
+    - Publish alerts/recommendations via Slack/SMS and update dashboard/API
+  tools:
+    - AIS API (Spire/MarineTraffic/Orbcomm)
+    - USACE LPMS
+    - NOAA AHPS/NWS; USGS NWIS
+    - 'Python, pandas, XGBoost/LightGBM'
+    - Mapbox or Kepler.gl for maps
+    - 'Slack API, Twilio SMS'
+    - PostgreSQL/TimescaleDB
+  outputs:
+    - ETA per waypoint/lock with P50/P90
+    - Forecast lock wait times
+    - Recommended departure/speed adjustments
+    - Alerts (Slack/SMS/email)
+    - CSV/API feed for TMS/BI
+  pricingModel:
+    - SaaS per vessel per month
+    - One-time setup/integration fee
+    - API cost pass-through
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8.5
+  risks:
+    - AIS latency or gaps reduce accuracy
+    - Sparse data for smaller locks
+    - Operational liability if advice is misused
+    - Access to own AIS feed required
+  dependencies:
+    - AIS feed credentials
+    - Voyage plans and lock list
+    - Historical movement data for calibration
+leanCanvas:
+  problem:
+    - >-
+      Unpredictable lock waits (often 2–10+ hours) and river conditions cause
+      missed ETAs, higher fuel burn, and demurrage costs.
+    - >-
+      Dispatchers rely on manual calls, USACE pages, and experience; insights
+      are not standardized or predictive beyond a few hours.
+    - >-
+      Existing AIS-based tracking lacks inland-specific ETA accuracy and rarely
+      incorporates lock queues, river stage/flow, and maintenance windows.
+    - >-
+      Operators lack early-warning signals to shift departure times or reroute
+      before congestion forms at choke-point locks.
+    - >-
+      Shippers and terminals cannot reliably plan labor, berth windows, and
+      cargo readiness; buffers drive idle time and cost.
+    - >-
+      No common, neutral data layer to benchmark lane-level performance and
+      quantify delay risk for contracts and schedules.
+  solution:
+    - >-
+      Ingest multi-source data: terrestrial/satellite AIS, USACE lock
+      queue/lockages, river stage/flow/forecast (USGS/NOAA), Notices to
+      Navigation Interests, maintenance schedules, weather/wind, historical
+      traffic.
+    - >-
+      Train route- and lock-specific ML models that forecast: 1) lock wait times
+      (15-min granularity, up to 72 hours), 2) end-to-end ETA distributions, 3)
+      congestion risk scores at key choke points.
+    - >-
+      Optimize advisory engine to recommend departure-time shifts, speed
+      adjustments, and alternate lock sequences when benefits exceed thresholds
+      (e.g., >45 minutes saved).
+    - >-
+      Deliver alerts and recommendations via: dispatcher web app, pilot
+      mobile/ECdis plugin, and REST/streaming APIs for TMS/FMS integration.
+    - >-
+      Provide analytics layer: post-voyage comparisons vs baseline, savings
+      attribution (fuel, demurrage, crew overtime), and reliability benchmarking
+      by lane/season/lock.
+    - >-
+      Continuously learn from realized arrivals, actual lockages, and operator
+      feedback to improve model accuracy and tailor to fleet behavior.
+  uniqueValueProp: >-
+    Actionable, lock-aware ETAs and wait-time forecasts that cut avoidable delay
+    by 10–20%, with proactive departure/route advice and real-time alerts,
+    delivered via APIs and tools dispatchers and pilots already use.
+  unfairAdvantage: >-
+    A lock- and corridor-specific learning system fed by multi-operator feedback
+    loops and realized outcomes, combined with exclusive integration footprints
+    and historical datasets that competitors without operator partnerships
+    cannot easily replicate.
+  customerSegments:
+    - >-
+      Inland barge/tow operators (small: 5–20 vessels; mid: 21–150; large:
+      150+), operations and dispatch teams.
+    - >-
+      Shippers with consistent river moves (agriculture, chemicals, petroleum,
+      aggregates, steel) needing reliable ETAs to plants/terminals.
+    - >-
+      Terminals/ports on Mississippi/Ohio/Tennessee/Illinois river systems
+      coordinating berth/crew schedules.
+    - >-
+      3PLs/brokers offering multimodal visibility who need inland-optimized ETAs
+      via API.
+    - >-
+      Insurers and P&I clubs assessing delay risk and incident exposure
+      (secondary).
+    - >-
+      International expansion later: EU (Rhine/Danube) and South America
+      (Paraná–Paraguay).
+  channels:
+    - Direct sales to top 50 inland operators; land-and-expand by fleet/region.
+    - >-
+      Partnerships with AIS data providers and inland fleet software vendors to
+      bundle or co-sell.
+    - >-
+      Industry associations and events: AWO, Waterways Council, Inland Marine
+      Expo; webinars with early adopters and USACE reps.
+    - >-
+      Freemium 60–90 day pilots on selected corridors (e.g., Lower Mississippi,
+      Ohio River) with outcome-based success criteria.
+    - >-
+      Developer-first API docs, sample integrations, and sandbox data for
+      3PLs/visibility platforms.
+    - >-
+      Case studies with terminals and shippers demonstrating schedule
+      reliability improvements.
+  revenueStreams:
+    - >-
+      Per-vessel SaaS subscription: $150–$400/vessel/month depending on features
+      and region coverage.
+    - >-
+      Enterprise plan for operators: volume pricing; includes SSO, custom SLAs,
+      and premium support.
+    - >-
+      API consumption for 3PLs/visibility providers: $0.002–$0.01 per call or
+      tiered monthly plans (e.g., $1k/$3k/$8k).
+    - >-
+      Analytics add-on: lane benchmarking, seasonal planning reports:
+      $20k–$60k/year per enterprise.
+    - 'Professional services/integration fees: $5k–$50k per engagement.'
+    - >-
+      Co-branded data licensing to terminals/ports for berth planning
+      dashboards: $10k–$40k/year per site.
+  costStructure:
+    - >-
+      Data acquisition: AIS terrestrial/satellite and weather—$8k–$25k/month
+      scaling with coverage.
+    - >-
+      Cloud infrastructure: data processing, model training/inference,
+      storage—$6k–$30k/month at early scale.
+    - >-
+      Core team: 6–12 FTEs year 1–2 (ML, data engineering, backend, product,
+      sales/CS)—$1.5M–$3M/year.
+    - SMS/push and map services—$500–$3k/month.
+    - 'Sales/marketing: events, travel, sponsorships—$100k–$300k/year.'
+    - Legal/compliance/insurance—$50k–$150k/year.
+  keyMetrics:
+    - >-
+      ETA mean absolute error (MAE) on 24–72h horizon: target ≤1.5 hours; lock
+      wait MAE: ≤0.8 hours.
+    - >-
+      Coverage: % of active locks and river miles with forecasts; target ≥95% of
+      USACE locks in year 1.
+    - >-
+      Alert lead time: median minutes between advisory and congestion onset;
+      target ≥90 minutes.
+    - >-
+      Advice acceptance rate: % of recommendations acted on; target ≥35% after 6
+      months.
+    - >-
+      Operational impact: hours saved per vessel per month; target 3–8 hours;
+      verified demurrage/fuel savings ≥$2,000/vessel/month.
+    - >-
+      Data freshness: end-to-end pipeline latency ≤5 minutes; API p95 response
+      ≤500 ms; uptime ≥99.9%.
+    - 'Customer KPIs: renewal rate ≥90%, logo churn ≤8% annually, NPS ≥40.'
+    - >-
+      Sales efficiency: pilot-to-paid conversion ≥50%, enterprise sales cycle
+      ≤120 days.
+storyBrand:
+  character: >-
+    Towboat captains, dispatchers, and fleet managers moving inland water
+    freight who need reliable ETAs, fewer lock delays, and tighter control of
+    fuel and crew hours.
+  problem: >-
+    Lock queues and river conditions change fast; manual ETA guesses and
+    scattered AIS data lead to missed windows, wasted fuel, crew overtime, and
+    unhappy shippers.
+  guide: >-
+    We understand how idle hours crush margins. Our AI, trained on AIS, USACE
+    lock queues, and river stage/flow data, forecasts ETAs and lock waits—and
+    proactively suggests smarter departures and routes with timely alerts.
+  plan: >-
+    Connect your AIS and choose lanes; receive ETA and lock-delay forecasts with
+    confidence signals; act on reroute/departure alerts via app or API; monitor
+    performance and savings in your ops dashboard.
+  callToAction: >-
+    Book a demo or start a limited pilot to begin receiving forecasts and alerts
+    on your highest-variance lanes.
+  success: >-
+    On-time deliveries with fewer lock waits, lower idle and fuel burn, steadier
+    crew schedules, more turns per tow, and proactive ETAs your shippers can
+    trust.
+  failure: >-
+    Keep guessing ETAs, idling in surprise queues, burning fuel and crew time,
+    missing commitments, and losing loads to better-informed competitors.
+landingPage:
+  hero:
+    title: River ETA & Lock Delay Advisor
+    subtitle: >-
+      AI forecasts for inland tows and barges. Predict ETAs and lock wait times
+      using AIS, river stage/flow, and lock queue data—plus proactive reroute
+      and departure timing suggestions.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - >-
+      Lock queues change hourly; dispatch is forced to rely on stale reports and
+      guesswork.
+    - 'Missed windows create demurrage, idle fuel burn, and crew overtime.'
+    - Multi-lock trips are hard to plan across shifting river stages and flows.
+    - No single view to compare routes or optimal departure times.
+    - Customers demand reliable ETAs current tools can’t deliver.
+    - Monitoring many data sources manually is slow and error-prone.
+  solution:
+    - 'Unified predictions: vessel ETAs and per-lock wait forecasts in one view.'
+    - >-
+      AI models fuse AIS tracks, river gauges/flow, weather, and lock queue
+      data.
+    - Smart suggestions to shift departure or reroute around peak congestion.
+    - 'Real-time alerts on queue spikes, closures, or ETA slippage.'
+    - Scenario planning to test routes and departure windows before sailing.
+    - APIs and integrations that push updates into your existing tools.
+  features:
+    - Live fleet map with continuously refreshed ETAs and lock delay forecasts.
+    - Per-lock congestion outlook (next 2–48 hours) with confidence indicators.
+    - >-
+      Vessel/tow-specific predictions by speed profile, draft, power, and tow
+      size.
+    - >-
+      Route comparison: travel time, fuel proxy, locks crossed, and risk
+      indicators.
+    - Departure window optimizer to minimize idle and meet laycan/cutoff times.
+    - Automatic hold/go and reroute suggestions when queues spike.
+    - >-
+      Alerts via SMS, email, and in-app: queue thresholds, closures, ETA
+      variance.
+    - 'Fleet dashboard: on-time %, idle-at-lock time, and dwell trends.'
+    - Shareable terminal/customer ETAs and webhook subscriptions.
+    - 'Data sources: AIS, USACE lock queues, river stage/flow, weather, NTNI.'
+    - >-
+      REST API and webhooks; integrates with TMS, ECDIS, dispatch, and crew
+      apps.
+    - 'Role-based access, SSO, audit logs, and enterprise-grade security.'
+    - >-
+      Coverage: U.S. inland waterways (Mississippi, Ohio, Illinois, GIWW) at
+      launch.
+  steps:
+    - Connect your AIS feed and select vessels and river segments.
+    - 'Set destinations, lock sequences, constraints, and alert preferences.'
+    - >-
+      Receive baseline ETAs and lock wait forecasts; share live links with
+      terminals.
+    - >-
+      Monitor the live map, act on suggested departure/route changes, and get
+      alerts.
+    - Review post-voyage analytics to refine schedules and policies.
+---
+# RiverWise ETA & Lock Advisor
+
+Industry: Inland Water Freight Transportation
+Service: River ETA and Lock Delay Advisor

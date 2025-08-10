@@ -1,0 +1,313 @@
+---
+name: GasGuard TARP AI
+slug: gasguard
+service:
+  title: Gas Hazard Forecasting & TARP Assistant
+  description: >-
+    Forecasts methane/CO exceedance risk 1–8 hours ahead and proposes
+    TARP-consistent controls.
+  targetUsers:
+    - Ventilation officers
+    - Control room
+    - Undermanagers
+    - HSE
+  triggers:
+    - Pre-shift forecast
+    - Rapid gas trend change
+    - Changes to gas drainage or ventilation settings
+  inputs:
+    - Methane/CO time series
+    - Ventilation flows/pressures
+    - Production schedule (faces/advance rates)
+    - Gas drainage flows/pressures
+    - Drillhole gas content/permeability
+    - Surface barometric pressure
+    - Historical incidents and TARPs
+  steps:
+    - Aggregate features from historian and schedules
+    - Score short-horizon risk models per district/face
+    - Classify likely TARP levels by time window
+    - 'Recommend controls (cut sequence, sprays, regulator tweaks)'
+    - Explain drivers (SHAP/feature attributions)
+    - Distribute pre-shift brief and live alerts
+  tools:
+    - PI/Historians
+    - Deswik.Sched API
+    - 'Python (LightGBM/XGBoost, SHAP)'
+    - Weather/pressure API
+    - Power BI/Grafana
+  outputs:
+    - Time-stamped risk forecast heatmap
+    - Recommended TARP actions/checklists
+    - Driver explanations and uncertainty bands
+    - Post-shift backtest report
+  pricingModel:
+    - Per-panel monthly subscription
+    - Setup fee (data onboarding)
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 7
+    overall: 7
+  risks:
+    - False negatives/positives impacting trust
+    - Sparse or noisy drainage/ventilation data
+    - Process changes break model assumptions
+  dependencies:
+    - Historian access and data dictionary
+    - Current TARPs
+    - Production schedule integration
+    - Site SME for validation
+leanCanvas:
+  problem:
+    - >-
+      Unplanned methane/CO exceedances trigger production stoppages,
+      evacuations, and ignition/explosion risk; current practice is reactive and
+      often identifies issues only minutes before threshold breaches.
+    - >-
+      TARPs are paper- or PDF-based and rely on operator judgment under time
+      pressure; selecting the right trigger and action is inconsistent across
+      shifts and sites.
+    - >-
+      Critical data (tube-bundle gas, on-board CH4 sensors, ventilation plans,
+      barometric pressure, production rate, stoppages) live in silos (SCADA,
+      historian, dispatch, spreadsheets) with no unified risk picture.
+    - >-
+      High false-alarm rates desensitize control room operators; missing a real
+      exceedance can cause multi-day downtime and regulatory penalties.
+    - >-
+      Regulators and insurers increasingly require evidence of proactive gas
+      hazard management and critical control effectiveness; mines struggle to
+      quantify this proactively.
+    - >-
+      Ventilation and gas behavior are non-linear and site-specific; generic
+      models underperform, while in-house data science is costly and hard to
+      maintain at site level.
+  solution:
+    - >-
+      Multivariate time-series forecasting that fuses gas sensors (tube-bundle,
+      machine-mounted), ventilation states, production telemetry, stoppages, and
+      weather/barometric forecasts to produce probabilistic exceedance risk per
+      location and horizon (1–8 hours).
+    - >-
+      TARP Alignment Engine that maps predicted triggers to site-specific TARP
+      actions with rationale, priority, and estimated risk reduction, ensuring
+      consistent, auditable responses.
+    - >-
+      Explainable AI outputs showing key drivers (e.g., airflow reduction,
+      barometric drop, cut sequence) and confidence intervals to support
+      operator trust and regulator review.
+    - >-
+      What-if simulation to test candidate controls (e.g., increase regulator
+      setting, slow shearer speed, relocate auxiliary fan) and forecast the
+      impact on exceedance probability before acting.
+    - >-
+      Edge-capable deployment for low-latency inference in control rooms, with
+      cloud model training and secure historian/SCADA connectors.
+    - >-
+      Operator workflow with acknowledgement, escalation, and auto-logging to
+      demonstrate TARP compliance and critical control effectiveness.
+    - >-
+      Data quality layer that flags sensor drift/failure, data gaps, and
+      conflicting readings; automated fallbacks to maintain service continuity.
+    - >-
+      Implementation playbook: 90-day pilot with baselined KPIs, site
+      calibration, user training, and regulator engagement to accelerate
+      adoption.
+  uniqueValueProp: >-
+    Predict exceedance risk 1–8 hours ahead and translate it into clear,
+    TARP-consistent actions—reducing exceedances, downtime, and regulatory
+    exposure while standardizing decision-making across shifts and sites.
+  unfairAdvantage: >-
+    Cross-mine, hazard-labeled dataset and a validated TARP mapping engine
+    co-designed with ventilation experts and regulators, plus deep OEM/SCADA
+    integrations that lower deployment friction and establish defensible
+    switching costs.
+  customerSegments:
+    - >-
+      Underground coal mine operators: Longwall and development operations with
+      gassy seams (EHS, Ventilation, Control Room, Production, Mine Manager).
+    - >-
+      Mining majors’ corporate technical services and risk/compliance teams
+      seeking standardization across operations.
+    - >-
+      OEMs and integrators: ventilation-on-demand providers, SCADA vendors, gas
+      monitoring OEMs seeking value-add analytics.
+    - >-
+      Insurers and reinsurers offering premium incentives for demonstrable risk
+      reduction.
+    - >-
+      Regulators and industry bodies interested in demonstrable critical control
+      management and early warning capabilities.
+  channels:
+    - >-
+      Direct sales to target mines (Australia NSW/QLD, US Appalachian longwalls,
+      Poland, South Africa, India) starting with 90-day paid pilots.
+    - >-
+      Co-sell/embedded offerings with ventilation and SCADA vendors (e.g.,
+      Howden Ventsim CONTROL, ABB Ability, Schneider), bundled with VOD
+      projects.
+    - >-
+      Partnerships with gas monitoring OEMs (Strata, Conspec, Maestro, Becker
+      Varis) to ship with their monitoring suites.
+    - >-
+      Insurance partnerships to offer premium credits for verified performance,
+      creating bottom-up demand from finance.
+    - >-
+      Industry conferences (AIMEX, QME, SME, CIM), regulator roundtables, and
+      technical whitepapers with pilot case studies.
+    - >-
+      Account-based marketing to mining majors’ technical services, safety, and
+      productivity leaders; land-and-expand across the portfolio.
+  revenueStreams:
+    - >-
+      SaaS subscription per site: $12k–$25k per month depending on scale and
+      features (edge, simulator, API access).
+    - >-
+      Implementation/integration fee: $100k–$250k per site (data connectors,
+      site calibration, TARP digitization, user training).
+    - >-
+      Professional services: model retraining, scenario studies, regulator
+      submission support ($200–$300/hr or fixed-scope packages).
+    - >-
+      Enterprise license for multi-site portfolios with volume discounts and
+      central governance features.
+    - >-
+      Premium support/SLA tiers (24/7 support, <5 min response, on-site
+      quarterly reviews).
+    - >-
+      Optional hardware rental for edge servers and redundant gateways
+      ($1.5k–$3k/month/site).
+  costStructure:
+    - >-
+      COGS: cloud compute/storage for training/inference ($2k–$6k/site/month),
+      edge hardware amortization, data egress, third-party weather data.
+    - >-
+      Personnel: ML engineers, data engineers, mining ventilation specialists,
+      safety/regulatory advisors, field deployment team, customer success.
+    - >-
+      Sales & marketing: enterprise sales, partner enablement, conference
+      sponsorships, pilot support.
+    - >-
+      Certifications & compliance: ISO 27001, SOC 2, IEC 62443 practices,
+      functional safety assessment (advisory classification), penetration
+      testing.
+    - >-
+      Product development: connectors for SCADA/gas OEMs, UI/UX, simulation
+      engine, TARP management tooling.
+    - >-
+      Insurance, legal (MSA, liability), travel and on-site safety
+      training/inductions for mine access.
+  keyMetrics:
+    - >-
+      Model performance: ROC-AUC ≥ 0.85; recall (sensitivity) ≥ 0.80 at 2h
+      horizon; precision ≥ 0.60; mean lead time before exceedance ≥ 60 minutes.
+    - >-
+      Operational impact: ≥ 30% reduction in methane/CO exceedances within 6
+      months; ≥ 20% reduction in gas-related downtime; < 1 false alarm/shift at
+      operating threshold.
+    - >-
+      Adoption: weekly active users ≥ 80% of control room staff; action
+      acceptance rate ≥ 70%; median time from alert to action ≤ 10 minutes.
+    - >-
+      Compliance: ≥ 95% of gas-related events with TARP-consistent logged
+      actions; complete audit trails for 100% of recommended actions; regulator
+      audit pass rate 100%.
+    - >-
+      Reliability: system uptime ≥ 99.5%; data latency ≤ 60 seconds; data
+      completeness ≥ 98% of expected points; automated failover tested
+      quarterly.
+    - >-
+      Commercial: pilot-to-subscription conversion ≥ 60%; ARR per site
+      $150k–$300k; gross margin ≥ 70% after year 1; payback period ≤ 9
+      months/site.
+storyBrand:
+  character: >-
+    Underground coal mine supervisors, control‑room operators, and ventilation
+    officers who must keep gas within limits while delivering production.
+  problem: >-
+    External — Methane/CO spikes emerge quickly; data is fragmented across
+    monitors, ventilation, and equipment; TARP responses lag, causing
+    withdrawals and downtime. Internal — Constant pressure to decide early with
+    incomplete information; fear of missing a trigger or overreacting.
+    Philosophical — People should go home safe, and safe production shouldn’t
+    rely on guesswork.
+  guide: >-
+    We understand the stakes of underground gas management. Our team blends
+    coal‑mine operations and ML expertise to forecast exceedance risk 1–8 hours
+    ahead and suggest TARP‑consistent controls. Built to fit existing TARP
+    wording and workflows, with transparent rationale and an audit trail to
+    support confidence with crews and regulators.
+  plan: >-
+    1) Connect live gas, ventilation, equipment, and geological data plus your
+    site TARP. 2) View rolling 1–8h risk forecasts by panel/zone with trigger
+    alerts. 3) Apply recommended TARP actions, capture approvals/notes, and
+    review outcomes to tune the site model.
+  callToAction: >-
+    Direct — Schedule a 30‑minute demo or start a 90‑day pilot on one panel.
+    Transitional — Download a sample risk report and TARP action library.
+  success: >-
+    Proactive control of gas; fewer exceedances and withdrawals; faster,
+    defensible decisions; confident TARP compliance; improved production
+    continuity; clear audit trail; stronger safety culture.
+  failure: >-
+    Reactive firefighting; surprise exceedances; costly trips and evacuations;
+    investigations and fines; eroded trust and production losses.
+landingPage:
+  hero:
+    title: Gas Hazard Forecasting & TARP Assistant
+    subtitle: >-
+      Predict methane/CO exceedances 1–8 hours ahead. Get TARP‑aligned
+      actions—before alarms trip.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - >-
+      Gas trips and evacuations strike with little warning, costing production
+      hours.
+    - 'Operators rely on lagging alarms, leaving minimal time to act.'
+    - TARP rules are complex and hard to apply consistently under pressure.
+    - 'Data is siloed across AMS, ventilation, equipment, and geology.'
+    - Barometric swings and panel variability shift risk rapidly.
+    - Regulators expect clear evidence for decisions and TARP compliance.
+  solution:
+    - Continuous 1–8h risk forecasts for methane and CO at panel/section level.
+    - 'Clear, TARP‑consistent controls when risk rises—what to do, when, and why.'
+    - >-
+      Early alerts to control room and supervisors to prevent exceedances and
+      trips.
+    - 'Standardized, auditable actions that support compliance and training.'
+    - Live data integration adapts recommendations in real time.
+  features:
+    - Predictive risk scores with confidence bands for CH4 and CO.
+    - 'Location‑aware heatmaps (panel, gate, face, return).'
+    - 'TARP auto‑mapping: triggers, actions, and responses linked to site rules.'
+    - >-
+      Step‑by‑step control recommendations (e.g., adjust ventilation, slow
+      advance, restrict diesel).
+    - 'Why‑this alert: top drivers and data points behind each forecast.'
+    - >-
+      One‑click notifications to crews and supervisors via radios, SMS, and
+      dashboards.
+    - >-
+      Scenario testing: what‑if for fan settings, stoppings, and equipment
+      scheduling.
+    - >-
+      Integrations: AMS/SCADA, ventilation models, equipment telemetry, geology,
+      and barometric data.
+    - Offline/on‑prem deployment for air‑gapped sites; your data stays on site.
+    - 'Compliance pack: time‑stamped audit trail and regulator‑ready reports.'
+    - 'Trend analytics: hotspots, recurring causes, and avoided downtime.'
+    - Role‑based access and permissions aligned to control room workflow.
+  steps:
+    - 'Connect data sources (AMS/SCADA, ventilation, equipment, barometric).'
+    - Configure your TARP and site‑specific rules in the assistant.
+    - Calibrate models with historical events and current panel conditions.
+    - Run a 4–6 week pilot; validate alerts and recommended actions.
+    - Train control room and deputies; tune thresholds and comms.
+    - Go live across panels with continuous monitoring and weekly reviews.
+---
+# GasGuard TARP AI
+
+Industry: Underground Coal Mining
+Service: Gas Hazard Forecasting & TARP Assistant

@@ -1,0 +1,335 @@
+---
+name: ClaimSentinel AI
+slug: clmsntnl
+naics:
+  primary: '524126'
+  occupations: []
+service:
+  title: Fraud/Anomaly Screening for Claims
+  description: >-
+    Real-time and batch fraud scoring using claim features, network
+    relationships, device/IP signals, and reasoned LLM explanations for SIU.
+  targetUsers:
+    - SIU
+    - Claims Quality
+    - Risk Analytics
+  triggers:
+    - Claim created or updated
+    - Payment authorization event
+    - New participant/provider added
+  inputs:
+    - Claim data and history
+    - Participant/provider network graph
+    - 'External data (CLUE/NICB, device/IP)'
+    - Geospatial and weather context
+  steps:
+    - Feature engineering and entity resolution
+    - Score events with supervised + anomaly models
+    - Network analysis to detect linked entities
+    - Generate human-readable rationale and evidence pack
+    - Create SIU referral/tasks for high-risk cases
+    - Feedback loop with SIU outcomes for retraining
+  tools:
+    - Model ops (Databricks/Vertex AI/SageMaker)
+    - Graph DB (Neo4j/TigerGraph)
+    - LLM for explanations
+    - Device intelligence (fingerprinting)
+    - Data sources (LexisNexis/Verisk/NICB)
+  outputs:
+    - Fraud risk score with reason codes
+    - SIU referral records and queues
+    - Monitoring dashboards and drift alerts
+  pricingModel:
+    - Per-claim scored
+    - Optional managed model tuning subscription
+    - One-time onboarding
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 8
+    overall: 8
+  risks:
+    - False positives impacting CX/indemnity
+    - Regulatory scrutiny and fairness
+    - Third-party data licensing constraints
+  dependencies:
+    - Historical labeled outcomes
+    - Access to claims data feeds
+    - SIU case management integration
+leanCanvas:
+  problem:
+    - >-
+      High false positives in fraud rules create investigator overload and
+      customer abrasion; typical alert precision is often <10–20% in production.
+    - >-
+      Latency constraints at FNOL and during payments: many carriers need
+      sub-200 ms decisions but current tools batch-score overnight, missing
+      real-time interdiction.
+    - >-
+      Limited cross-claim/entity visibility: duplicate identities, organized
+      rings, and staged losses evade single-claim models and siloed data.
+    - >-
+      Opaque black-box models make SIU adoption, regulator reviews, and internal
+      model risk governance difficult.
+    - >-
+      Model drift from seasonality, catastrophe events, vendor data changes, and
+      behavior adaptation reduces lift within months.
+    - >-
+      Integration complexity with core systems (Guidewire/Duck Creek) and legacy
+      claim data slows time-to-value >6–12 months.
+  solution:
+    - >-
+      Data ingestion: pre-built connectors for ClaimCenter/Duck Creek/S3/SQL;
+      stream FNOL, supplements, provider bills, and payment requests.
+    - >-
+      Feature factory: engineered claim, policy, and party features (temporal,
+      geospatial, severity, provider/attorney patterns) refreshed in near
+      real-time.
+    - >-
+      Digital risk layer: device fingerprinting and IP intelligence to identify
+      multi-account devices, proxy/VPN/Tor use, and impossible travel.
+    - >-
+      Entity resolution and graphing: probabilistic identity resolution on
+      names, phones, addresses, devices, providers; build a dynamic claims
+      graph.
+    - >-
+      Model ensemble: gradient-boosted trees for tabular fraud, graph
+      algorithms/GNNs for network risk, and unsupervised anomaly detectors for
+      novel patterns.
+    - >-
+      Calibrated composite score: single 0–1 risk score with reason codes and
+      contributing signals, optimized for precision@k and alert volumes.
+    - >-
+      LLM-generated SIU summaries: structured, evidence-based rationales that
+      cite specific data fields and reason codes; no free-form speculation.
+    - >-
+      Workflow integration: triage queues, auto-hold/payment interdiction, and
+      case creation via APIs; two-way SIU feedback labels.
+    - >-
+      Governance: documentation packs (model cards, data lineage, validation
+      results), challenger models, A/B tests, and drift dashboards.
+    - >-
+      Privacy-preserving collaboration: optional cross-carrier consortium via
+      hashed identifiers/clean rooms to detect multi-carrier rings.
+  uniqueValueProp: >-
+    Real-time and batch fraud/anomaly scoring that merges claim features,
+    network relationships, and device/IP signals into an auditable risk score
+    with concise, regulator-ready explanations—cutting false positives 20–40%,
+    boosting SIU hit rates 2–3x, and reducing claim leakage within 90 days.
+  unfairAdvantage: >-
+    A privacy-preserving cross-carrier claims graph and device intelligence
+    layer that detects organized fraud rings in real time, paired with
+    regulator-ready, evidence-citing explanations and pre-built Guidewire/Duck
+    Creek connectors to deliver measurable ROI in under 90 days.
+  customerSegments:
+    - >-
+      Direct P&C insurance carriers (NAICS 524126), Tier 1–3 (DPW >$1B down to
+      $100M).
+    - >-
+      Personal Auto and Homeowners carriers seeking real-time FNOL scoring and
+      payment interdiction.
+    - >-
+      Commercial Property/SMB and Workers’ Compensation carriers where provider,
+      vendor, and claimant networks matter.
+    - >-
+      Special Investigation Units (SIU) leaders and Claims Operations VPs
+      responsible for loss containment and cycle time.
+    - >-
+      Core platform owners (Guidewire ClaimCenter, Duck Creek Claims) and
+      analytics leaders accountable for model governance.
+  channels:
+    - >-
+      Direct enterprise sales to carriers’ claims/SIU, analytics, and CIO
+      organizations.
+    - >-
+      Core platform marketplaces and partners: Guidewire Marketplace, Duck Creek
+      Content Exchange.
+    - >-
+      System integrators: Accenture, Deloitte, EY, Cognizant for delivery and
+      change management.
+    - >-
+      Industry associations and conferences: IASIU, NICB events, APCIA, NAMIC,
+      InsureTech Connect; SIU training webinars and CE credits.
+    - >-
+      Content-led: fraud ring case studies (de-identified), ROI calculators,
+      model governance templates, and reference architectures.
+    - >-
+      Pilot motion: 60–90 day proof-of-value using 12–24 months of historical
+      claims; success criteria tied to precision@k, lift, and savings.
+    - >-
+      Land-and-expand: start with Auto/Home FNOL+payment interdiction, expand to
+      Commercial Property, Workers’ Comp, subrogation leakage.
+  revenueStreams:
+    - >-
+      Per-transaction pricing: $0.10–$0.40 per real-time score; $0.03–$0.10 per
+      batch score; volume tiers and seasonal CAT allowances.
+    - >-
+      Annual platform subscription: $100k–$500k based on carrier size,
+      environments (prod/non-prod), and features (graph, device risk).
+    - >-
+      Professional services: $75k–$300k for integration, data mapping, and SIU
+      workflow design; optional on-site enablement.
+    - >-
+      Premium add-ons: cross-carrier consortium signals, private model training,
+      and on-prem/private VPC deployments (surcharge).
+    - >-
+      Data pass-through fees: at-cost or margin on third-party device/IP/fraud
+      data, depending on partner agreements.
+    - >-
+      Outcome-linked fees (optional): shared savings or bonus if lift targets
+      and savings thresholds are exceeded in production.
+  costStructure:
+    - >-
+      COGS (20–35% of revenue): cloud compute/storage for streaming and graph,
+      inference costs, observability, and data egress.
+    - >-
+      Third-party data (10–25%): device fingerprinting, IP intelligence,
+      consortium data, sanctions/OFAC where needed.
+    - >-
+      R&D (20–30%): ML engineers, data scientists, graph specialists, MLOps, LLM
+      prompt/tooling engineers.
+    - >-
+      Implementation and customer success (10–20%): solution architects, SIU
+      consultants, support SLAs.
+    - >-
+      Sales & marketing (15–25%): enterprise AEs, solution consultants, partner
+      programs, events.
+    - >-
+      G&A and compliance (8–12%): SOC 2/ISO audits, legal, privacy counsel,
+      insurance, model risk governance.
+  keyMetrics:
+    - >-
+      Model performance: AUC-ROC >0.85 on target LOB, PR-AUC gains vs. baseline,
+      precision@top5% and top10%, lift@k ≥2–4x.
+    - >-
+      Operational: p95 API latency <150 ms; uptime 99.9%; batch throughput >5M
+      records/hour; alert queue SLA adherence.
+    - >-
+      Business impact: reduction in false positives 20–40%; SIU acceptance rate
+      >50% on top-tier alerts; confirmed fraud capture +30–100%.
+    - >-
+      Financial: fraud loss avoided per $1 spent (ROI) ≥5–15x within 12 months;
+      net savings vs. control cohorts.
+    - >-
+      Investigator productivity: cases/adjuster/day +25–50%; time-to-case-open
+      -30%; case closure win rate +15–30%.
+    - >-
+      Drift and stability: PSI <0.25 on key features; weekly delta in
+      calibration <5%; re-train cadence monthly/quarterly depending on drift.
+    - >-
+      Adoption: % of claims scored >95%; % of alerts with explanations >99%; SIU
+      feedback coverage >70% within 90 days.
+    - >-
+      Governance: audit findings 0 criticals; model documentation currency 100%;
+      incident response MTTR <24 hours.
+storyBrand:
+  character: >-
+    Claims and SIU leaders at direct property & casualty carriers (NAICS 524126)
+    who must detect fraud fast without delaying honest policyholders.
+  problem: >-
+    Adaptive fraud hides across claim, network, and device/IP signals; manual
+    rules and siloed tools miss patterns, flood SIU with false positives, slow
+    cycle time, and create leakage and regulatory risk.
+  guide: >-
+    Fraud/Anomaly Screening for Claims pairs carrier-grade ML, graph
+    relationships, and device/IP intelligence with reasoned LLM explanations
+    your SIU can trust. We speak claims, integrate with core systems and FNOL,
+    and deliver transparent, auditable scores in real time or batch.
+  plan: >-
+    1) Proof-of-value: backtest on historical claims to calibrate thresholds and
+    reason codes. 2) Integrate: connect APIs/batch, map queues, and embed
+    explanations in your SIU/claims UI. 3) Operate: deploy to production with
+    monitoring, SIU feedback loops, and periodic retraining.
+  callToAction: Schedule a 30-minute demo or request a 4–6 week proof-of-value.
+  success: >-
+    High-precision triage in seconds; higher SIU hit rates; fewer false
+    positives; reduced loss and LAE; faster, fairer payouts; auditable
+    explanations that build trust; continuous learning that adapts to new fraud
+    rings.
+  failure: >-
+    Without action, organized fraud persists, loss ratios rise, honest customers
+    wait longer, SIU chases low-yield referrals, and opaque models erode trust
+    with regulators and executives.
+landingPage:
+  hero:
+    title: AI Fraud & Anomaly Screening for P&C Claims
+    subtitle: >-
+      Real-time and batch fraud scoring that fuses claim features, network
+      relationships, device/IP signals, and clear LLM explanations for SIU—built
+      for Direct Property & Casualty carriers (NAICS 524126).
+    ctaText: Request a Demo
+    ctaHref: /demo
+  problem:
+    - >-
+      Fraud leakage inflates loss and expenses while manual review can’t keep
+      pace.
+    - Rules-only systems miss subtle patterns and create alert fatigue.
+    - 'Siloed policy, claims, provider, and device data leave blind spots.'
+    - 'Slow, inconsistent SIU referrals reduce recovery and deterrence.'
+    - >-
+      Limited transparency makes it hard to justify actions to regulators and
+      customers.
+    - Integrations are heavy; ROI is hard to prove and monitor.
+  solution:
+    - >-
+      Unified fraud risk scores at FNOL and throughout the claim
+      lifecycle—real-time or batch.
+    - >-
+      Graph analytics links people, providers, vehicles, addresses, devices, and
+      IPs to expose collusion.
+    - 'Device/IP intelligence flags spoofing, velocity, and location anomalies.'
+    - 'Concise, reasoned LLM explanations with evidence for SIU-ready referrals.'
+    - 'Actionable outputs: score, reason codes, confidence, and next-best action.'
+    - >-
+      Simple APIs and streaming for quick integration; deploy in your VPC or
+      on‑prem.
+    - 'Governed models with monitoring, A/B testing, and performance dashboards.'
+  features:
+    - >-
+      Sub‑second API scoring for live triage; scalable batch processing for
+      backlogs and retros.
+    - >-
+      Graph risk indicators: shared entities, claim network centrality, and
+      suspicious clusters.
+    - >-
+      Device/IP analytics: fingerprinting, proxy/VPN/Tor detection, geo
+      anomalies, and velocity checks.
+    - >-
+      Explainability: reason codes plus short LLM narratives tied to facts and
+      policy rules.
+    - >-
+      Configurable thresholds and queues for adjusters, SIU, and automated
+      actions.
+    - >-
+      Case linkage and deduplication to unify related claims across lines and
+      time.
+    - >-
+      Champion/challenger, A/B testing, and lift analysis to quantify impact
+      safely.
+    - >-
+      Human-in-the-loop review notes and feedback loops to continuously improve
+      models.
+    - >-
+      Model monitoring: drift, stability, calibration, and false-positive
+      tracking.
+    - >-
+      Data governance: PII minimization, encryption in transit/at rest,
+      role-based access.
+    - >-
+      Flexible deployment: cloud, private VPC, or on-prem; integrates with core
+      systems and data lakes.
+    - 'Audit-ready logs of inputs, scores, reasons, and decisions for compliance.'
+  steps:
+    - 'Connect claim, policy, party, and device/IP data via API or batch.'
+    - >-
+      Configure score thresholds, queues, and reason codes aligned to SIU
+      policies.
+    - Run in shadow mode to compare against current rules and measure lift.
+    - Tune thresholds and workflows; enable champion/challenger testing.
+    - Go live for FNOL and in-flight claims; auto-route high-risk cases to SIU.
+    - Review dashboards weekly; capture SIU outcomes to retrain and improve.
+---
+# ClaimSentinel AI
+
+Generated for NAICS 524126 — Direct Property and Casualty Insurance Carriers.
+Service: Fraud/Anomaly Screening for Claims

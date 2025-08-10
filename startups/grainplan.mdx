@@ -1,0 +1,309 @@
+---
+name: GrainPlan AI
+slug: grainplan
+naics:
+  primary: '321999'
+  occupations: []
+service:
+  title: Demand Forecasting + Finite-Capacity Scheduling
+  description: >-
+    Forecasts SKU demand and builds capacity-feasible schedules with changeover
+    and labor constraints.
+  targetUsers:
+    - Planner
+    - Operations manager
+    - Owner
+  triggers:
+    - Weekly planning
+    - New seasonal demand signals
+    - Backlog review
+  inputs:
+    - Historical shipments/orders
+    - Resource calendars and capacities
+    - 'Setup/changeover matrices, batching rules'
+    - Supplier lead times and MOQs
+  steps:
+    - Clean and cluster SKUs
+    - Generate forecasts with seasonality/promo flags
+    - Create MRP suggestions and safety stocks
+    - Run CP-SAT for finite scheduling
+    - Publish purchase/work orders and Gantt
+  tools:
+    - sktime/Prophet/XGBoost
+    - Google Sheets/BigQuery
+    - OR-Tools CP-SAT
+    - 'CSV/ERP APIs (Fishbowl, Odoo, Acumatica)'
+  outputs:
+    - SKU forecasts and service levels
+    - MRP buy/make plan
+    - Feasible production schedule (Gantt)
+  pricingModel:
+    - Monthly subscription based on SKU count
+    - Optional setup for data pipelines
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8.5
+  risks:
+    - Data sparsity for custom SKUs
+    - Unmodeled downtime/quality losses
+    - Planner override and trust
+  dependencies:
+    - Clean sales/order history
+    - Accurate routings and capacities
+    - Supplier data
+leanCanvas:
+  problem:
+    - >-
+      Highly volatile SKU demand (seasonality, promotions, retailer programs)
+      creates chronic over/under-stocking; typical WAPE 25–45% and service
+      levels <90% for long-tail SKUs.
+    - >-
+      Schedulers rely on spreadsheets or generic ERP APS that ignore
+      sequence-dependent changeovers, kiln/cure time, and labor skills—leading
+      to excessive setups, overtime, and late orders.
+    - >-
+      Capacity is finite and multi-constraint: dryers/kilns, finishing lines,
+      and skilled labor are bottlenecks; current schedules violate real-world
+      limits, causing expedites and rescheduling churn.
+    - >-
+      Data exists but is siloed (ERP, MES, time clocks, maintenance calendars);
+      planners lack a single, trustworthy plan connecting demand, capacity, and
+      labor.
+    - >-
+      Small/mid plants can’t justify heavy APS implementations; enterprise tools
+      are expensive, slow to implement (6–18 months), and not tailored to
+      wood-specific processes (species/tooling/finish changeovers).
+  solution:
+    - >-
+      Demand forecasting: hierarchical, SKU/customer/channel forecasts with
+      seasonality, promotions, and macro signals; probabilistic outputs for
+      safety stock and service targets.
+    - >-
+      Finite-capacity scheduling: sequence-dependent setup modeling by species,
+      thickness, finish, tooling; kiln/cure and labor skill constraints;
+      rolling-horizon scheduling (2–12 weeks) with daily re-optimization.
+    - >-
+      Integrated S&OE workbench: drag-and-drop schedule with constraint checks,
+      what-if scenarios, and automatic recompute of downstream effects.
+    - >-
+      Changeover minimization: family batching and color/species sequencing to
+      reduce setups while honoring due dates/OTIF.
+    - >-
+      Labor planning: skill matrices, shift calendars, cross-training effects;
+      overtime and temp costs modeled in the objective function.
+    - >-
+      Data connectors: ERP/MES integrations (Epicor, Infor CSI, Dynamics,
+      NetSuite, JobBOSS/ECI, DELMIAworks), CSV/SFTP APIs; built-in data quality
+      diagnostics.
+    - >-
+      Explainability: forecast drivers (seasonality, promo), schedule rationale
+      (critical bottlenecks, setup trade-offs), and KPI impact projections.
+    - >-
+      Secure deployment: SaaS in SOC 2-ready cloud or private VPC; optional
+      on-prem edge scheduler for plants with strict IT policies.
+  uniqueValueProp: >-
+    Forecast accurately and schedule feasibly—one AI that predicts SKU demand
+    and produces capacity- and labor-feasible plans with changeover-aware
+    optimization, cutting lateness, setups, and overtime within 90 days.
+  unfairAdvantage: >-
+    A domain-tuned constraint library for wood manufacturing (kiln/cure,
+    species/finish/tooling changeovers) and a growing anonymized dataset of
+    setup patterns and run rates enabling superior schedules out-of-the-box;
+    coupled with prebuilt ERP connectors and a pilot playbook that proves ROI
+    within 90 days.
+  customerSegments:
+    - >-
+      Primary: US and Canada manufacturers in NAICS 321999 with 50–500
+      employees, 500–10,000 active SKUs, batch processes, and frequent
+      changeovers (e.g., picture frames, handles/dowels, wood household items,
+      specialty components).
+    - >-
+      Decision makers: VP Operations, Plant Manager, Director of Supply
+      Chain/Planning, Master Scheduler.
+    - >-
+      Influencers: IT/ERP managers (Epicor, Infor, Dynamics, NetSuite),
+      Production Supervisors, Finance (cost of overtime/inventory).
+    - >-
+      Early adopters: Multi-line plants with kilns/curing and complex finishing
+      sequences; high customer OTIF penalties; retailer/distributor service
+      commitments.
+  channels:
+    - >-
+      Direct sales to Ops/Supply Chain leaders via targeted outbound (LinkedIn +
+      email) focusing on plants with 50–500 employees.
+    - >-
+      Industry associations and events: WCMA, AWFS Fair, IWF Atlanta,
+      Woodworking Machinery & Supply Conference (WMS), webinars with ERP VARs.
+    - >-
+      ERP/MES integrator partnerships (Epicor, Infor, Dynamics, NetSuite,
+      DELMIAworks) with revenue share and co-marketing.
+    - >-
+      Content-led growth: ROI calculators, case studies, whitepapers on
+      changeover-aware scheduling in wood manufacturing, and benchmark reports.
+    - >-
+      Pilot-led sales: 60–90 day paid pilots for 1–2 lines; clear success
+      criteria tied to OTIF, changeovers, and overtime.
+    - >-
+      Referrals from industrial automation vendors, tooling suppliers, and
+      lumber distributors; incentive program for successful introductions.
+  revenueStreams:
+    - >-
+      SaaS subscription (annual): tiered by sites and active resources
+      (lines/kilns) and SKU count. Typical ARPA: $2k–$8k/month SMB;
+      $10k–$30k/month mid-market/enterprise.
+    - >-
+      One-time implementation fee: $15k–$60k per site depending on data
+      complexity and integrations.
+    - >-
+      Premium solver tier: faster re-optimization and large-instance support
+      ($1k–$5k/month add-on).
+    - >-
+      Professional services: data cleanup, changeover matrix design, and
+      advanced scenario modeling ($150–$250/hour or fixed bundles).
+    - >-
+      Managed Planning-as-a-Service: our planners run weekly S&OE for clients
+      ($6k–$12k/month/site).
+    - Training and certification for in-house superusers ($3k–$10k per cohort).
+  costStructure:
+    - >-
+      R&D: ML engineers, OR scientists, domain SMEs; solver costs (optimize
+      using open-source CP-SAT; optional Gurobi licenses for special cases).
+    - >-
+      Cloud infrastructure: compute for training/optimization, storage, VPC
+      peering, monitoring; average COGS target <25% of ARR.
+    - >-
+      Implementation and customer success teams (solution architects, data
+      engineers, planners).
+    - >-
+      Sales and marketing: direct reps, partner enablement, trade shows/events,
+      content production.
+    - >-
+      Security/compliance: SOC 2 Type II, penetration testing, incident
+      response.
+    - 'General and administrative: finance, legal, insurance, office/remote ops.'
+  keyMetrics:
+    - >-
+      Customer outcome KPIs (tracked before/after): WAPE reduction 15–30%;
+      forecast bias ±3%; OTIF +8–15 pts; changeover hours −10–25%; overtime
+      −10–20%; inventory turns +15–30%; expedite freight cost −20–40%.
+    - >-
+      Scheduling KPIs: schedule adherence >85% within 24 hours; average
+      tardiness hours −30–50%; bottleneck utilization 80–90% without sustained
+      overtime; setup count per week −10–20%.
+    - >-
+      Adoption: weekly active planners/supervisors, number of schedules
+      published, % of orders planned by the system (>90% within 60 days).
+    - >-
+      Product performance: average solve time <8 minutes for 2-week horizon;
+      replan latency <60 seconds for minor changes; uptime 99.9%.
+    - >-
+      Commercial: pilot-to-conversion >60%; logo retention >90%; net revenue
+      retention >115%; CAC payback <12 months; gross margin >70%.
+    - >-
+      Data quality: routings and standard times completeness >95%; forecast
+      coverage >98% of active SKUs; error-free integration jobs >99%.
+storyBrand:
+  character: >-
+    Plant managers and schedulers in All Other Miscellaneous Wood Product
+    Manufacturing (NAICS 321999) who must deliver on-time orders without blowing
+    labor and material budgets.
+  problem: >-
+    Volatile, SKU-heavy demand plus frequent changeovers and labor/kiln
+    constraints make spreadsheet planning unreliable—leading to missed ship
+    dates, overtime, and excess inventory. Making quality wood products
+    shouldn’t require firefighting and guesswork.
+  guide: >-
+    We’re an AI planning partner for wood manufacturing. Our platform forecasts
+    SKU demand and builds capacity-feasible schedules that honor changeover
+    matrices, crew skills, shift calendars, and work-center limits. We integrate
+    with your ERP/MES and coach your team through adoption.
+  plan: >-
+    1) Connect ERP/MES data (orders, routings, changeovers, labor, calendars).
+    2) Calibrate on 12-24 months of history and run a 4-week pilot. 3) Go live
+    with weekly S&OP forecasts and daily finite schedules, with training and KPI
+    reviews.
+  callToAction: >-
+    Book a 30-minute demo to see your demand and a sample finite schedule for
+    one product family. Or request the readiness checklist.
+  success: >-
+    Reliable promise dates and higher OTIF, fewer changeovers and setups,
+    smoother shifts with balanced crews, lower overtime and expediting, leaner
+    inventory, higher throughput and margins.
+  failure: >-
+    Without a better plan, firefighting continues: late orders, premium freight,
+    idle or overworked crews, stockouts and overstock, eroding margins, and
+    frustrated customers.
+landingPage:
+  hero:
+    title: AI Demand Forecasting + Finite‑Capacity Scheduling for Wood Products
+    subtitle: >-
+      Built for NAICS 321999 manufacturers. Forecast SKU demand and build
+      capacity‑feasible schedules that respect changeovers and labor.
+    ctaText: Get a demo
+    ctaHref: /demo
+  problem:
+    - >-
+      Volatile, seasonal demand across many SKUs drives stockouts or excess
+      inventory.
+    - >-
+      Manual spreadsheets can’t model sequence‑dependent changeovers, kiln/press
+      curing, or labor limits.
+    - >-
+      Mixed make‑to‑stock/make‑to‑order orders make trade‑offs and due‑date
+      promises risky.
+    - >-
+      Bottlenecks at planers, CNC routers, finish lines, or kilns ripple across
+      the plant.
+    - 'Rush orders, scrap, and late supplier deliveries blow up static schedules.'
+    - Overtime and frequent changeovers inflate cost per unit.
+    - Low forecast accuracy and poor service levels erode key accounts.
+  solution:
+    - AI forecasting at SKU/customer/channel with seasonality and promotions.
+    - >-
+      Finite‑capacity scheduling across lines and cells with sequence‑dependent
+      setups and family campaigns.
+    - >-
+      Labor‑aware plans by shift and skill; auto‑rebalance for call‑offs and
+      cross‑training.
+    - >-
+      Material‑constrained planning that respects species, dimensions, and
+      drying/curing times.
+    - >-
+      Real‑time rescheduling from ERP/MES events to protect due dates and
+      margins.
+    - >-
+      Clear commit dates (ATP/CTP) and right‑sized lots to hit service levels
+      with less inventory.
+  features:
+    - >-
+      Hierarchical forecasting (SKU → product family → plant) with confidence
+      intervals.
+    - Service‑level targets and dynamic safety stock recommendations.
+    - Changeover matrix and campaign sequencing to cut setups.
+    - >-
+      Capacity calendars for machines, kilns, and tooling with maintenance
+      windows.
+    - 'Labor optimizer with skills, certifications, and shift patterns.'
+    - Material availability checks and substitute rules.
+    - 'What‑if scenarios: demand surges, new shifts, machine downtime.'
+    - 'Auto‑replan on events: rush orders, supplier delays, scrap.'
+    - 'KPIs: OTD, utilization, changeovers, forecast accuracy, inventory.'
+    - 'ERP/MES connectors (Epicor, NetSuite, Dynamics, Sage) plus CSV/API.'
+    - Fast deployment with templates for NAICS 321999 workflows.
+    - 'Cloud or on‑prem, role‑based access, and audit trail.'
+    - Export shop‑ready schedules and visualize bottlenecks.
+    - Alerts for capacity overloads before they hit production.
+  steps:
+    - Connect ERP/MES and historical sales data (hours).
+    - 'Map products, resources, shifts, and changeover rules (day 1–2).'
+    - Train and validate forecasts; set service levels (week 1).
+    - Generate capacity‑feasible schedules; pilot a value stream (week 2).
+    - Go live with auto‑replan and KPI tracking (week 3).
+    - Continuously improve with monthly model refresh and scenario reviews.
+---
+# GrainPlan AI
+
+Generated for NAICS 321999 — All Other Miscellaneous Wood Product Manufacturing.
+Service: Demand Forecasting + Finite-Capacity Scheduling
