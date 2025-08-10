@@ -1,0 +1,312 @@
+---
+name: RailSight Prioritize
+slug: railsight2
+service:
+  title: Wheel/Bearing Predictive Maintenance Prioritization
+  description: >-
+    Ranks railcars for preventive attention using trends from WILD/HBD/acoustic
+    detectors and shop history.
+  targetUsers:
+    - Fleet managers
+    - Mechanical reliability teams
+    - Third-party repair shops
+  triggers:
+    - Daily data refresh
+    - Before shop planning cycle
+    - Pre-block swap planning
+  inputs:
+    - 'Detectors time series per car (WILD peaks, HBD temps, acoustics)'
+    - Shop repair history and parts replaced
+    - Car type from UMLER
+    - Ambient/weather data
+  steps:
+    - Aggregate detector signals per car and engineer features
+    - Train/apply scoring model for failure risk and time-to-attention
+    - Generate prioritized cut lists by terminal/date
+    - Suggest parts kits and estimated labor
+    - Export to CMMS scheduling
+  tools:
+    - Python/Sklearn/XGBoost
+    - PostgreSQL/Parquet lake
+    - Railinc UMLER (metadata)
+    - EAM/CMMS API
+    - LLM for human-readable rationales
+  outputs:
+    - Top-N car attention list by location/date
+    - Risk scores with contributing factors
+    - Draft work packages/parts kits
+  pricingModel:
+    - Per-car per-month
+    - Optional success fee tied to unplanned setout reduction
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 4
+    overall: 4.5
+  risks:
+    - Data sparsity or detector coverage gaps
+    - Model drift and bias by car type
+    - Attribution of avoided failures
+  dependencies:
+    - Historical detector feeds
+    - Repair history access
+    - Fleet metadata alignment
+leanCanvas:
+  problem:
+    - >-
+      Unplanned wheel/bearing setouts cause costly delays, recrews, and service
+      failures; many are preventable with earlier prioritization.
+    - >-
+      Wayside data (WILD/HBD/ABD) sits in silos with inconsistent formats and
+      coverage, making network-wide risk scoring difficult for car owners and
+      smaller railroads.
+    - >-
+      Maintenance is largely threshold- or time-based; it misses degrading
+      trends and produces false positives that waste shop capacity and parts.
+    - >-
+      Leased/private fleets traverse multiple railroads; owners lack end-to-end
+      visibility to detector streams and repair outcomes to learn across
+      networks.
+    - >-
+      Shops and dispatch need actionable ranks and lead times, not raw alerts;
+      current tools don’t translate signals into prescriptive work queues with
+      ROI.
+    - >-
+      Regulators and insurers demand stronger safety leading indicators; current
+      KPIs are lagging (derailments, FRA-reportable failures).
+  solution:
+    - >-
+      Unified data ingestion from WILD (Wheel Impact Load Detectors), HBD (Hot
+      Box Detectors), acoustic bearing detectors (ABD), AEI movement events, and
+      shop/CRB history into a normalized asset timeline.
+    - >-
+      Predictive models (survival analysis + gradient boosting + sequence
+      models) producing per-asset risk scores, estimated distance-to-defect, and
+      confidence intervals.
+    - >-
+      Prioritized worklist at car, truck, axle, and bearing level with
+      recommended action (inspect now, monitor, shop next terminal) and
+      rationale features for explainability.
+    - >-
+      Prescriptive scheduling layer that aligns high-risk assets with shop
+      capacity, train plans, and parts availability to minimize dwell and car
+      hire.
+    - >-
+      Integrations to EAM/CMMS (e.g., SAP/Maximo), car repair billing workflows,
+      and railroad tasking systems; APIs and EDI where needed.
+    - >-
+      Governed feedback loop: every repair outcome updates labels to
+      continuously improve models and reduce false positives.
+  uniqueValueProp: >-
+    A vendor-neutral AI service that fuses WILD/HBD/acoustic detector data with
+    shop history to rank railcars by near-term wheel/bearing risk and
+    recommended action—turning disparate signals into prioritized, ROI-positive
+    work orders that cut unplanned setouts and improve safety KPIs within a
+    single planning cycle.
+  unfairAdvantage: >-
+    Cross-network, vendor-neutral dataset and models tied directly to repair
+    outcomes, combined with prescriptive scheduling embedded in shop
+    workflows—hard for detector OEMs or single-railroad teams to replicate.
+    Early safety validations, integrations to CRB/EAM systems, and
+    insurer-aligned KPIs reinforce defensibility.
+  customerSegments:
+    - >-
+      Class I railroads (safety, network reliability, reduced setouts/slow
+      orders).
+    - >-
+      Regional and shortline railroads lacking large analytics teams but with
+      detector access on host networks.
+    - >-
+      Railcar leasing companies and private fleet shippers wanting to protect
+      assets and reduce car hire/repair bills across multiple carriers.
+    - >-
+      Railcar MRO networks and mobile repair providers seeking higher shop
+      capture, better parts staging, and fewer NFF (no fault found) repairs.
+    - >-
+      Detector network operators/OEMs looking to add value-added analytics to
+      installed WILD/HBD/ABD base.
+  channels:
+    - >-
+      Direct enterprise sales to Class I railroads with safety/reliability
+      business case and co-developed pilots.
+    - >-
+      Partnerships with detector OEMs/operators (WILD/HBD/ABD vendors) to
+      co-sell analytics on top of their networks.
+    - >-
+      Alliances with railcar lessors/MRO networks to embed prioritization into
+      shop scheduling and mobile repair offerings.
+    - >-
+      Industry events and associations: AAR committees, ASLRRA, RSI, Railway
+      Interchange; publish case studies/white papers with pilot results.
+    - >-
+      Targeted outbound to private fleets in chemicals/energy/ag where service
+      failures are costly; offer 90-day paid pilot.
+    - >-
+      Integration listings/marketplaces for EAM/CMMS vendors and Railinc-related
+      ecosystems (for AEI/CRB workflows).
+  revenueStreams:
+    - >-
+      SaaS subscription per monitored car per year (typical $10–$30/car-year
+      depending on coverage, volume, SLAs).
+    - >-
+      Tiered pricing by data coverage and refresh rate (detector-only vs
+      detector+shop history vs prescriptive scheduling).
+    - >-
+      Enterprise licenses for Class I railroads with unlimited cars on host
+      network and dedicated support/SLA.
+    - >-
+      Outcome-aligned fees: bonus/share-of-savings based on verified reduction
+      in unplanned setouts or car hire/dwell avoided.
+    - >-
+      Professional services: data integration, historical backfill/labeling,
+      custom KPI reporting, model validation with safety teams.
+    - Training and change management packages for shops and reliability teams.
+    - >-
+      Optional add-ons: parts demand forecasting, supplier quality analytics,
+      and regulator/insurer reporting modules.
+  costStructure:
+    - >-
+      Data acquisition/licensing fees for detector feeds and movement/AEI data
+      where applicable.
+    - >-
+      Cloud infrastructure (streaming ingestion, storage of time-series, model
+      training/inference, secure APIs).
+    - >-
+      ML/data engineering team, domain experts (AAR rules, car repair billing),
+      and product engineering.
+    - >-
+      MLOps and monitoring: model drift detection, retraining pipelines, label
+      curation from shop outcomes.
+    - >-
+      Security/compliance (SOC 2 audit, penetration tests, incident response),
+      and cyber insurance.
+    - >-
+      Customer success and field support for pilots, integrations, and workflow
+      adoption.
+    - >-
+      Sales and marketing (industry events, case studies, account-based
+      marketing).
+    - 'Legal/regulatory (data sharing agreements, AAR/FRA compliance reviews).'
+    - >-
+      R&D on new modalities (onboard sensors, computer vision), and
+      international expansion adaptations.
+    - 'General and administrative (finance, HR, facilities).'
+  keyMetrics:
+    - >-
+      Safety/operational: reduction in unplanned wheel/bearing setouts (%),
+      setouts per million car-miles, and hot bearing events per million AEI
+      reads.
+    - >-
+      Model performance: precision/recall at top-N prioritized assets, lead time
+      to failure (median days/miles), AUROC/PR AUC, false positive rate, and
+      calibration error.
+    - >-
+      Business impact: cost avoided ($) from prevented setouts and secondary
+      delays, reduction in NFF repairs, increase in shop capture rate (%) for
+      truly at-risk assets.
+    - >-
+      Workflow: percent of prioritized recommendations actioned within target
+      window, average time from alert to work order, dwell impact on shopped
+      cars.
+    - >-
+      Data health: detector coverage (% of fleet/miles), freshness (median
+      detector latency), and outcome labeling rate from shop events.
+    - >-
+      Customer success: pilot-to-production conversion rate, net revenue
+      retention, user adoption (WAU/MAU) among reliability and shop planners.
+    - >-
+      Target benchmarks year 1: 20–35% reduction in unplanned wheel/bearing
+      setouts on monitored lanes, precision@Top5% > 25% vs baseline 2–5%, median
+      7–14 days lead time on bearing risk, >70% of actions within recommended
+      window.
+storyBrand:
+  character: >-
+    Rail mechanical and operations leaders who must prevent wheel/bearing
+    failures, reduce setouts, and allocate scarce shop capacity with confidence.
+  problem: >-
+    - External: Detector alarms are late/isolated; data is siloed (WILD, HBD,
+    acoustic) and shop slots are limited, forcing reactive work.
+
+    - Internal: Teams feel unsure which cars to pull first and worry about
+    missing a failure or over-pulling healthy cars.
+
+    - Philosophical: Safety-critical assets deserve proactive care; data should
+    make decisions clearer, not harder.
+  guide: >-
+    - Empathy: We know the pressure of keeping trains moving while avoiding
+    wheel and bearing surprises and shop bottlenecks.
+
+    - Authority: Built by rail analytics engineers; integrates WILD/HBD/acoustic
+    streams and shop history; delivers explainable risk scoring designed for
+    mechanical teams; secure, standards-aligned.
+  plan: >-
+    1) Connect: Ingest WILD, HBD, acoustic, and shop data via secure feeds. 2)
+    Prioritize: Receive weekly (or on-demand) explainable risk-ranked railcar
+    list with recommended actions and pull windows. 3) Act & improve: Issue work
+    orders, capture outcomes; feedback continuously sharpens the model.
+  callToAction: >-
+    Direct: Schedule a 30-minute demo or launch a 60-day pilot on a subset of
+    your fleet. Transitional: Request a sample risk report and ROI snapshot.
+  success: >-
+    Proactive interventions prevent in-service failures; fewer setouts and slow
+    orders; optimized wheel/bearing shop loading; lower total cost per mile;
+    audit-ready traceability; safer operations and confident planning.
+  failure: >-
+    Without prioritization, scattered detector alerts become noise; missed
+    bearing/wheel degradations trigger setouts, delays, and safety risk; shops
+    stay overrun with reactive work and costs climb.
+landingPage:
+  hero:
+    title: Prioritize Wheel & Bearing Maintenance Before Failure
+    subtitle: >-
+      AI ranks railcars by risk using WILD, HBD, acoustic trends and shop
+      history—so you repair the right car at the right terminal.
+    ctaText: Request a Demo
+    ctaHref: /request-demo
+  problem:
+    - 'Too many detector alerts, not enough triage time.'
+    - Data is scattered across WILD/HBD/acoustic systems and shop records.
+    - 'Reactive repairs cause set-outs, slow orders, and missed service windows.'
+    - 'Shops see the wrong cars at the wrong time, wasting capacity.'
+    - Hard to prove due diligence against AAR/FRA standards with siloed data.
+  solution:
+    - Unified risk score and recommended action for every car and component.
+    - Trends from WILD/HBD/acoustic fused with shop history and movement data.
+    - >-
+      Route- and dwell-aware prioritization to catch cars at the optimal
+      location.
+    - Explainable insights with confidence levels for fast triage.
+    - Seamless push to work orders and alerts in your existing systems.
+  features:
+    - 'Fleet Risk Ranking: continuously updated top-N cars to address today.'
+    - >-
+      Component-Level Insights: wheel vs. bearing risk with axle/side
+      localization.
+    - >-
+      Trend Intelligence: slope and pattern analysis on WILD/HBD/acoustic time
+      series.
+    - 'Maintenance Lead Time: estimated days/miles to action window.'
+    - >-
+      Dwell & Route Awareness: align work with yards, terminals, and planned
+      dwell.
+    - >-
+      Explainability: why flagged (e.g., rising WILD on axle 3R, 90k mi since
+      turn).
+    - 'Policy Controls: encode AAR rules and your thresholds by lane or fleet.'
+    - 'CMMS Integration: push prioritized jobs to SAP/Maximo/Infor via API.'
+    - 'Precision Metrics: track precision/recall, NFF rate, and avoided set-outs.'
+    - 'Audit Trail: compliance-ready logs for each decision and outcome.'
+    - 'Deployment Options: cloud or on-prem with role-based access and SSO.'
+  steps:
+    - >-
+      Connect data: WILD/HBD/acoustic feeds, shop history, movement/consist
+      data.
+    - Calibrate models with your history; set policies and alert thresholds.
+    - Pilot on a corridor or subset; validate against set-outs and NFF rates.
+    - 'Integrate to workflow: push work orders, notifications, and dashboards.'
+    - Scale fleet-wide; review monthly performance and refresh models.
+---
+# RailSight Prioritize
+
+Industry: Support Activities for Rail Transportation
+Service: Wheel/Bearing Predictive Maintenance Prioritization

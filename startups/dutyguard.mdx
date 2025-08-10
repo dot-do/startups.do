@@ -1,0 +1,295 @@
+---
+name: DutyGuard AI
+slug: dutyguard
+naics:
+  primary: '481219'
+  occupations: []
+service:
+  title: Crew Duty & Legality Checker
+  description: >-
+    Computes FDP/duty/rest legality under operator’s rules (Part 135/EASA/OTAR),
+    flags conflicts, and proposes crew swaps.
+  targetUsers:
+    - Ops/dispatch
+    - Chief pilots
+    - Schedulers
+  triggers:
+    - New trip added/changed
+    - Crew sick/aircraft swap
+    - Daily legality sweep
+  inputs:
+    - Planned itinerary with ETDs/ETAs (UTC)
+    - 'Crew rosters, qualifications, bases'
+    - Regulatory rule set and company variations
+    - 'Hotel/rest info, positioning segments'
+  steps:
+    - Normalize schedule and timezones
+    - Apply configured rule engine to compute FDP/ rest
+    - Detect violations and fatigue risks
+    - Generate swap/split-duty/standby options with impact
+    - Notify scheduler and update roster
+  tools:
+    - Custom rule engine
+    - TimezoneDB
+    - 'Scheduling/roster API (Leon, ForeFlight Dispatch, FL3XX, or CSV)'
+    - Slack/Teams/Email
+  outputs:
+    - Legality report per crew/leg
+    - Conflict list with recommended fixes
+    - Updated roster export (CSV/ICS)
+  pricingModel:
+    - Per-aircraft or per-crew monthly
+    - Setup fee for rules configuration
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 4
+    overall: 4
+  risks:
+    - Misinterpreting company-specific variations
+    - Timezone/UTC mistakes
+    - 'Edge cases (split duty, extensions) not configured'
+  dependencies:
+    - Documented duty/rest policy
+    - Roster data access
+    - Change management with schedulers
+leanCanvas:
+  problem:
+    - >-
+      Ops controllers and chief pilots at nonscheduled operators (Part
+      135/EASA/OTAR) must compute complex, variable flight and duty time
+      limitations (FTL) amid pop-up trips, medevac callouts, weather delays, and
+      crew constraints.
+    - >-
+      Manual duty/rest checks using spreadsheets or basic scheduling modules
+      lead to missed infringements, late cancellations, and regulatory findings.
+    - >-
+      Existing tools often lack operator-specific approved variations (FTL
+      schemes), real-time recompute during disruptions, and actionable
+      suggestions (who to swap, where to ferry, when to delay).
+    - >-
+      Crew utilization is suboptimal because legality checks don’t consider
+      currency, training expiries, medical validity, basing, and positioning
+      time in one view.
+    - >-
+      Audit readiness is painful: proving legality requires collating logs
+      across systems; operators risk findings and fines due to incomplete
+      evidence trails.
+  solution:
+    - >-
+      Configurable rule packs for Part 135, EASA ORO.FTL (incl. variations), and
+      OTAR with a rule-compiler that encodes operator-specific approvals and
+      exemptions.
+    - >-
+      Real-time legality computation (FDP, duty, rest, cumulative limits) on
+      each schedule change, disruption, or what-if scenario; results available
+      in <2 seconds via UI and API.
+    - >-
+      Swap recommender that proposes compliant crew substitutions considering
+      type ratings, currency, training expiries, base/positioning, visas, and
+      minimum rest—ranked by operational cost and on-time probability.
+    - >-
+      What-if planning sandbox: simulate delays/diversions and see legality
+      windows, buffer times, and recovery options instantly.
+    - >-
+      Integrated compliance evidence: immutable audit logs, rule versioning
+      aligned to regulatory references, and one-click export for internal QA and
+      regulator audits.
+    - >-
+      Plug-and-play integrations with leading schedulers/EFBs; overnight batch
+      and streaming webhooks to keep legality state synchronized.
+    - >-
+      Optional fatigue risk add-on (integration with FAID/SAFE/FAST) to layer
+      fatigue scoring on top of pure legal minima.
+  uniqueValueProp: >-
+    An AI-driven legality engine purpose-built for nonscheduled ops that
+    computes FTL legality to your approved scheme in real time, flags conflicts
+    before they become findings, and proposes compliant, cost-aware crew
+    swaps—validated against regulatory text and your Operations Manual, with
+    audit-ready evidence at a click.
+  unfairAdvantage: >-
+    A validated rule DSL with clause-level traceability and a large, curated
+    library of nonscheduled edge cases that competitors lack, producing provable
+    accuracy and audit-ready evidence—combined with a swap optimizer tuned for
+    irregular ops that balances legality, currency, and cost in real time.
+  customerSegments:
+    - US Part 135 charter and air ambulance operators (1–50 aircraft)
+    - >-
+      EU/EASA non-scheduled AOC holders operating under ORO.FTL with approved
+      variations
+    - 'OTAR AOCs (Bermuda, Cayman, Aruba, Guernsey) with business jet fleets'
+    - On-demand cargo and ad hoc ACMI providers with irregular schedules
+    - >-
+      Scheduling/dispatch software vendors seeking a best-in-class legality
+      engine via API
+    - >-
+      Crew leasing/contract pilot agencies needing automated legality
+      qualification before assignment
+  channels:
+    - >-
+      Direct sales to ops leaders via NATA/NBAA/EBAA member lists and targeted
+      outbound (Ops Managers, Chief Pilots, DOs).
+    - >-
+      Partnership integrations and co-selling with scheduling/EFB vendors (Leon,
+      FL3XX, Skylegs, myairops, Schedaero, ForeFlight Dispatch).
+    - >-
+      Industry events and demos: NBAA Schedulers & Dispatchers, EBACE, HAI
+      Heli-Expo (for 135 rotor), Regional NATA forums.
+    - >-
+      Content-led growth: legality calculators for Part 135/EASA on the web
+      (free), case studies, and regulatory update webinars with SMEs.
+    - >-
+      Referrals via compliance consultants and DPEs: rev-share for successful
+      onboardings.
+    - >-
+      Pilot program with air ambulance/cargo operators (complex duty) to produce
+      quantified ROI case studies.
+  revenueStreams:
+    - >-
+      SaaS subscription per aircraft per month (Starter $150, Pro $250,
+      Enterprise $400) with volume discounts.
+    - >-
+      Optional per-crew-seat add-on for advanced swap optimizer and fatigue
+      layer ($20–$60 per crew/month).
+    - >-
+      API usage for partner integrations ($0.10–$0.50 per evaluated duty
+      scenario beyond plan).
+    - >-
+      Professional services for rule modeling and validation ($3,000–$25,000
+      fixed, depending on scheme complexity).
+    - 'Premium support/SLA (24/7 medevac tier), SSO/SOC2 add-on for enterprises.'
+    - Implementation/training packages and annual compliance review retainer.
+  costStructure:
+    - >-
+      Engineering (backend optimization, rule engine, integrations) and product
+      (8–12 FTE in year 1).
+    - >-
+      Regulatory SMEs and QA for rule verification (2–4 FTE + contracted
+      auditors).
+    - >-
+      Cloud infrastructure (compute for optimizations, databases, audit log
+      storage) with projected COGS at 12–18% of ARR.
+    - >-
+      Security/compliance (SOC 2 Type II, ISO 27001), penetration tests, secure
+      SDLC tooling.
+    - >-
+      Sales/marketing: events, partner MDF, SDRs; expected blended CAC payback
+      target <12 months.
+    - >-
+      Customer success/onboarding and professional services bench for rule
+      mapping.
+    - >-
+      Legal/insurance (E&O, cyber), data processing addenda across
+      jurisdictions.
+  keyMetrics:
+    - >-
+      Rule accuracy: ≥99.5% agreement with SME-validated baseline across
+      regression suite; false negative rate <0.2%.
+    - >-
+      Mean time to legality result: p95 <2s per change; full roster recompute
+      p95 <10s.
+    - >-
+      Conflicts prevented: number of would-be infringements auto-flagged per
+      1,000 legs; target ≥8/1,000 in first 6 months per customer.
+    - >-
+      Swap acceptance rate: ≥60% of suggested swaps adopted by dispatch in month
+      3+; average time-to-solution <90 seconds.
+    - >-
+      Duty planning time reduction: ≥40% reduction in dispatch planning minutes
+      per trip by month 2.
+    - >-
+      Compliance outcomes: zero regulator findings attributable to FTL in
+      customers using audit trail for 12 months; tracked as % customers.
+    - Churn <8% annual logo churn; NRR >115% via add-ons; NPS ≥45.
+    - >-
+      Sales: average sales cycle ≤75 days; demo-to-pilot conversion ≥35%;
+      pilot-to-paid conversion ≥60%.
+    - >-
+      Uptime ≥99.9%; data latency from source systems <60s; anomaly detection
+      MTTR <30 min.
+    - >-
+      Partner ecosystem: 5 certified integrations in year 1; partner-sourced ARR
+      ≥25% by month 18.
+storyBrand:
+  character: >-
+    Ops directors, dispatchers, and schedulers at nonscheduled/charter operators
+    (NAICS 481219) who need every pop-up leg staffed legally and safely—without
+    slowing the schedule.
+  problem: >-
+    Villain: shifting trip plans and fragmented regulations. External: complex
+    FDP/duty/rest limits across Part 135, EASA, and OTAR plus company policies.
+    Internal: anxiety about missing a constraint under time pressure.
+    Philosophical: crews should fly rested and legal without spreadsheets or
+    guesswork.
+  guide: >-
+    Empathy: we’ve run on-demand ops and know last-minute changes. Authority:
+    built with ex–chief pilots and regulatory SMEs; logic mapped to
+    135/EASA/OTAR; live rule updates, audit trails, and integrations—proven at
+    charter/OCC scale.
+  plan: >-
+    1) Connect schedule and roster (API/CSV). 2) Configure operator rules,
+    bases, acclimatization, and fatigue policies. 3) Get real-time FDP/duty/rest
+    checks with conflict flags and AI-proposed crew swaps. 4) Export decisions
+    and audit logs back to your system.
+  callToAction: >-
+    Direct: Book a demo and start a 30-day pilot. Transitional: Download the
+    legality checklist and mapping guide.
+  success: >-
+    Confident, compliant schedules; faster crew assignments; fewer
+    cancellations; clean audits; reduced violation risk; rested crews; stronger
+    client and insurer trust.
+  failure: >-
+    Missed limits cause violations, delays, fatigued crews, audit findings,
+    reputational damage, and lost revenue from scrubbed flights.
+landingPage:
+  hero:
+    title: Crew Duty & Legality Checker
+    subtitle: >-
+      Instant FDP, duty, and rest validation for Part 135, EASA, and OTAR
+      operations—then fix issues with AI‑proposed crew swaps.
+    ctaText: Start free trial
+    ctaHref: /signup
+  problem:
+    - Manual duty checks are slow and miss edge cases.
+    - Multi‑rule compliance (Part 135/EASA/OTAR) is complex for ad‑hoc flying.
+    - 'Legality surprises cause delays, cancellations, and unhappy customers.'
+    - Crew swaps are guesswork without visibility into downstream impact.
+    - Audits require a clear calculation trail you don’t have.
+  solution:
+    - >-
+      Real‑time legality engine for FDP/duty/rest with operator‑specific
+      variations.
+    - Live roster scan that flags conflicts and explains the reason.
+    - AI‑generated crew swaps ranked by legality and operational impact.
+    - 'What‑if simulator for delays, diversions, added legs, or swaps.'
+    - One‑click compliance reports for audits and management.
+  features:
+    - >-
+      Rule packs: Part 135, EASA FTL, and OTAR with local overrides and
+      exceptions.
+    - >-
+      Operator rule builder: FOM edits, extensions, split duty, standby,
+      augmented crew.
+    - >-
+      Accurate time handling: local/UTC, DST, acclimatization, time‑zone
+      crossings.
+    - >-
+      Min turn, min rest, comp rest, FDP extensions with captain’s discretion
+      capture.
+    - 'Roster watch: continuous monitoring and alerts via email or Slack.'
+    - 'Integrations: API/CSV import from scheduling and crew systems.'
+    - What‑if timeline editor with drag‑and‑drop legs and delays.
+    - 'Swap optimizer honoring base, positioning, rest windows, and duty caps.'
+    - 'Audit trail: stored calculations, versions, and sign‑offs.'
+    - 'Security: role‑based access, SSO, and data residency options.'
+  steps:
+    - Connect your schedule via API or CSV.
+    - Select rule set (Part 135/EASA/OTAR) and add operator variations.
+    - Run a legality scan to surface conflicts.
+    - Accept an AI swap suggestion or simulate alternatives.
+    - Publish the updated roster and export the compliance report.
+---
+# DutyGuard AI
+
+Generated for NAICS 481219 — Other Nonscheduled Air Transportation.
+Service: Crew Duty & Legality Checker

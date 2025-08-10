@@ -1,0 +1,320 @@
+---
+name: ClearResolve Sanctions — False-Positive Resolver for OFAC/SDN
+slug: clearresolve
+service:
+  title: OFAC/SDN Screening False-Positive Resolver
+  description: >-
+    Assists analysts in evaluating sanctions screening hits and documenting
+    final rulings.
+  targetUsers:
+    - Sanctions screening team
+    - Compliance
+  triggers:
+    - New potential match from screening
+    - Periodic re-screening events
+  inputs:
+    - 'Hit record (name, score, source list)'
+    - 'Customer/entity KYC fields (DOB, address, nationality)'
+    - Supporting documents
+  steps:
+    - Parse hit and customer attributes
+    - Run fuzzy/phonetic analyses; assess match strength
+    - Highlight match/dismatch signals
+    - Propose ruling and justification template
+    - Log rationale; update whitelist/suppression per policy
+  tools:
+    - Refinitiv World-Check/Dow Jones Risk & Compliance
+    - Sanctions.io/Treasury SDN data
+    - LexisNexis Bridger/Accuity (integration)
+  outputs:
+    - Disposition memo with rationale
+    - Whitelist/suppression update request
+    - Audit trail with evidence
+  pricingModel:
+    - Per resolved hit
+    - Monthly minimum retainer
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 4.2
+    overall: 4.3
+  risks:
+    - Incorrectly clearing true matches
+    - List update latency
+    - Documentation adequacy for auditors
+  dependencies:
+    - Access to screening platform APIs/exports
+    - Policy thresholds
+    - Document management
+leanCanvas:
+  problem:
+    - >-
+      Sanctions screening generates 95–99% false positives due to fuzzy
+      matching, transliteration, common-name collisions, and incomplete KYC
+      context, inflating workload and costs.
+    - >-
+      Analysts spend 5–12 minutes per alert consolidating data across screening
+      engines, KYC/CRM, core banking, and external sources; backlogs cause SLA
+      breaches on customer onboarding and payments.
+    - >-
+      Documentation of final rulings is inconsistent and time-consuming, leading
+      to repeat work, poor auditability, and regulatory exam findings (e.g.,
+      NYDFS Part 504 filtering program expectations).
+    - >-
+      Existing screening platforms excel at detection but lack policy-aware
+      disambiguation and explainable recommendations, forcing manual,
+      error-prone decisions.
+    - >-
+      Fatigue and high volume create operational risk of missed true positives
+      and inconsistent application of the OFAC 50 Percent Rule and other
+      list-program nuances.
+    - >-
+      Compliance teams face budget pressure: typical fully loaded cost per alert
+      review is $6–$12 and rising with volumes and list complexity.
+  solution:
+    - >-
+      Non-disruptive overlay: ingest alerts from existing screening tools (e.g.,
+      Fircosoft, Actimize, Bridger, Oracle) via connectors or flat-file/API;
+      push outcomes back to current case managers.
+    - >-
+      Entity resolution and policy-aware scoring: combine name-similarity,
+      aliases/transliterations, geo/program context, KYC attributes, and
+      corporate ownership (OFAC 50 Percent Rule) to recommend disposition with
+      confidence bands.
+    - >-
+      Analyst co-pilot: LLM drafts final ruling notes with citations (fields,
+      lists, ownership docs) mapped to internal policies; configurable templates
+      ensure consistency.
+    - >-
+      Auto-triage: safe auto-closure of low-risk matches under strict thresholds
+      and human-in-the-loop guardrails; queue prioritization for likely true
+      positives.
+    - >-
+      Governance and audit: versioned policies, decision logs, rationale
+      traceability, challenger models, and validation reports suitable for
+      internal audit/regulators.
+    - >-
+      Deployment options: SOC 2-ready SaaS in customer-dedicated VPC or
+      on-premises containerized deployment; PII-minimizing data flows and
+      configurable retention.
+  uniqueValueProp: >-
+    Cut false-positive workload by 50–70% and average handling time by 60% while
+    producing regulator-ready, evidence-cited disposition notes—without
+    replacing your existing screening engine.
+  unfairAdvantage: >-
+    Compounding proprietary corpus of regulator-accepted, evidence-cited
+    disposition notes and labeled alerts; deep, pre-built connectors to dominant
+    screening engines; policy-aware explainability designed with ex-OFAC/BSA
+    officers; on-prem/VPC deployment with PII-minimization enabling adoption by
+    risk-averse institutions.
+  customerSegments:
+    - >-
+      Primary beachhead: U.S. savings institutions and community/regional banks
+      with $1B–$50B in assets; BSA/AML and Sanctions Operations teams handling
+      customer and transaction screening.
+    - >-
+      Credit unions ($1B–$25B assets) seeking faster member onboarding and
+      payment release while maintaining sanctions compliance.
+    - >-
+      Adjacencies: mortgage lenders and fintechs with depository operations;
+      correspondent banking units in regional banks; payment processors
+      requiring OFAC/HMT/EU/UN screening.
+  channels:
+    - >-
+      Direct sales to BSA/AML Officers, Sanctions Officers, and Compliance Ops
+      leaders at savings institutions and community/regional banks.
+    - >-
+      Partnerships and OEM: screening vendors (NICE Actimize, LexisNexis
+      Risk/Firco, Oracle, GBG/Loqate, FinScan) for marketplace integrations and
+      co-sell.
+    - >-
+      Core/LOS ecosystems: FIS, Fiserv, Jack Henry, Temenos marketplaces;
+      co-marketing and referrals.
+    - >-
+      System integrators/boutique AML consultancies for implementation and
+      change management.
+    - >-
+      Regtech associations and media: ACAMS, ABA/BAI, NYCE, webinars, benchmark
+      reports, and ROI calculators to drive inbound.
+    - >-
+      Targeted ABM campaigns by asset tier and alert volume; proof-of-value
+      programs using historical alerts.
+  revenueStreams:
+    - >-
+      Annual platform subscription tiered by alert volume (e.g., Small: up to
+      50k alerts/yr; Mid: 50k–250k; Large: 250k–1M+).
+    - >-
+      Usage-based per-alert evaluation fee (e.g., $0.75–$2.00 per alert) with
+      negotiated minimums; discounted enterprise pools.
+    - >-
+      Seat-based add-on for advanced authoring and review workflows (e.g.,
+      $1,200–$1,800 per analyst/year).
+    - >-
+      Professional services: integrations, policy templating, historical
+      back-book remediation, model validation packages.
+    - On-prem/VPC premium and support/maintenance (15–20% of license).
+  costStructure:
+    - >-
+      R&D: ML/LLM engineers, data engineers, compliance SMEs; ongoing model
+      validation and QA.
+    - >-
+      Cloud infrastructure: compute for inference/training, secure storage, WORM
+      logs, monitoring, incident response.
+    - >-
+      Data licensing: premium watchlists (World-Check/Dow Jones), adverse media,
+      transliteration libraries, corporate ownership data (LEI, Orbis).
+    - >-
+      Security and compliance: SOC 2 Type II, ISO 27001, penetration tests, DLP,
+      key management/HSM, privacy program.
+    - >-
+      Sales and marketing: enterprise AE/SE teams, partner enablement, events
+      (ACAMS/ABA), content production.
+    - Partner revenue share and implementation costs for marketplace listings.
+    - 'Customer success and support, onboarding, training, and documentation.'
+    - >-
+      Legal, insurance (cyber/E&O), audit fees; contingency for regulatory
+      engagement.
+  keyMetrics:
+    - >-
+      Operational (customer): False-positive reduction (% of alerts requiring
+      human review); target 50–70% within 90 days.
+    - >-
+      Average handling time (AHT) per alert; target 60% reduction (e.g., from 8
+      min to <3 min).
+    - >-
+      Auto-closure rate under approved policy thresholds; target 20–40% with
+      zero increase in false negatives.
+    - >-
+      Precision/recall at recommended thresholds; target precision >0.9 and
+      recall ≥ baseline engine (no degradation).
+    - >-
+      Documentation completeness score (template adherence, citation coverage);
+      target ≥95%.
+    - SLA adherence for onboarding and payment screening; target ≥98% on-time.
+    - >-
+      Audit/exam exceptions related to screening documentation; target 0 across
+      exam cycle.
+    - >-
+      Business (vendor): PoC win rate (>50%), sales cycle (≤120 days
+      mid-market), initial ACV ($80k–$300k), gross margin (≥75%), logo retention
+      (≥95%), NRR (≥120%).
+    - >-
+      Technical: Model drift alerts/month, data quality incident MTTR (<24h),
+      integration time-to-live (≤8 weeks).
+storyBrand:
+  character: >-
+    BSA/AML leaders and sanctions analysts at savings institutions and other
+    depository credit intermediaries who need to resolve OFAC/SDN alerts quickly
+    and defensibly.
+  problem: >-
+    External: high volumes of noisy sanctions hits and fragmented data;
+    Internal: fear of missing a true match and audit scrutiny, causing slow,
+    inconsistent decisions; Philosophical: compliance teams should focus on real
+    risk, not repetitive triage.
+  guide: >-
+    We understand the pressure of clearing sanctions alerts under tight SLAs and
+    examiner scrutiny. Our explainable AI—built with AML practitioners—aligns to
+    OFAC expectations and produces audit-ready evidence and reason codes so
+    analysts stay in control.
+  plan: >-
+    1) Connect securely to your screening system via API; 2) Triage with
+    explainable scoring, contextual data, and policy-aligned recommendations; 3)
+    One-click final ruling with auto-generated documentation and case notes.
+  callToAction: >-
+    Direct: Start a secure pilot or book a demo. Transitional: Download the
+    model validation and governance pack.
+  success: >-
+    Faster alert clearance, fewer false positives, consistent decisions, instant
+    audit trails, better examiner confidence, and lower cost per alert.
+  failure: >-
+    Backlogs, inconsistent rulings, examiner findings, higher operational costs,
+    and increased risk of true matches slipping through.
+landingPage:
+  hero:
+    title: Resolve OFAC/SDN False Positives in Minutes
+    subtitle: >-
+      AI assistant for Savings Institutions and Depository Credit Intermediaries
+      to assess hits and produce audit-ready rulings.
+    ctaText: Request a Demo
+    ctaHref: /demo
+  problem:
+    - >-
+      Analysts spend hours triaging name-only matches that are overwhelmingly
+      false positives.
+    - Inconsistent dispositions across teams create audit and examiner risk.
+    - >-
+      Manual evidence gathering and write-ups slow investigations and increase
+      errors.
+    - Alert backlogs drive SLA breaches and operational overtime.
+    - Repeat alerts persist due to weak or stale whitelists.
+    - >-
+      Limited explainability from screening engines makes training and QA
+      difficult.
+    - Swivel-chairing between tools wastes time and fragments audit trails.
+  solution:
+    - AI-guided triage cuts handling time and reduces alert backlogs.
+    - >-
+      Standardized, policy-driven decisions improve consistency across
+      reviewers.
+    - >-
+      Auto-generated, examiner-ready disposition memos with citations and
+      artifacts.
+    - Explainable scoring and rationale to support model risk and QA reviews.
+    - Seamless API integration with your screening engine and case manager.
+    - 'Human-in-the-loop controls, dual review, and complete audit trails.'
+    - >-
+      Flexible deployment: private cloud or on-prem with data residency
+      controls.
+  features:
+    - >-
+      Explainable match analysis: fuzzy distance, aliases, transliteration,
+      DOB/ID checks, geography, vessels/aircraft.
+    - >-
+      50 Percent Rule helper: aggregates ownership data to flag indirectly
+      blocked entities.
+    - >-
+      Policy engine: configurable thresholds, risk factors, and escalation
+      workflows aligned to your program.
+    - >-
+      Evidence collector: pulls and snapshots OFAC data and authoritative
+      sources with preserved timestamps.
+    - >-
+      Case memo generator: standardized disposition rationale with references
+      and screenshots.
+    - >-
+      Learning memory: entity-level whitelist/denylist with scope and expiration
+      to prevent repeat alerts.
+    - >-
+      Integrations: Firco, Actimize, Bridger, LexisNexis, Oracle FCCM, Temenos;
+      REST/webhooks and SFTP.
+    - >-
+      Security and governance: SSO/SAML, RBAC, audit logs, encryption at rest/in
+      transit, model versioning.
+    - >-
+      Deployment options: private cloud or on-prem; no PII leaves your boundary
+      if desired.
+    - >-
+      Analytics dashboard: queue reduction, AHT, clearance rate, false-positive
+      ratio, reviewer productivity.
+  steps:
+    - Connect via API or upload alert feeds from your screening engine.
+    - >-
+      AI normalizes names, handles transliteration, enriches context, and scores
+      match likelihood.
+    - >-
+      The system assembles evidence and recommends a disposition aligned to your
+      policy.
+    - >-
+      Analyst reviews, edits, and approves within your case manager or our UI;
+      dual controls supported.
+    - >-
+      Final decision, rationale, and artifacts are pushed back; entity memory
+      updates to prevent repeats.
+    - >-
+      Dashboards and exports track performance, QA outcomes, and audit
+      readiness.
+---
+# ClearResolve Sanctions — False-Positive Resolver for OFAC/SDN
+
+Industry: Savings Institutions and Other Depository Credit Intermediation
+Service: OFAC/SDN Screening False-Positive Resolver

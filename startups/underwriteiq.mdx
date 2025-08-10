@@ -1,0 +1,343 @@
+---
+name: UnderwriteIQ Prefill & Triage
+slug: underwriteiq
+service:
+  title: Underwriting Prefill and Risk Triage (Personal & Commercial P&C)
+  description: >-
+    Extracts data from submissions, enriches with third-party sources, and
+    produces prefilled applications and risk flags.
+  targetUsers:
+    - Underwriters
+    - New Business Ops
+    - Brokers/MGAs
+  triggers:
+    - New submission via email/portal/ACORD
+    - Quote request from agent
+  inputs:
+    - Applications/ACORD PDFs
+    - Business name/FEIN or personal details
+    - Address/vehicle/building details
+  steps:
+    - OCR/parse forms; normalize to internal schema
+    - 'Fetch third-party data (business, property, drivers)'
+    - 'Geospatial peril scoring (flood, wildfire, hail, crime)'
+    - Compute underwriting flags and appetite fit score
+    - Prefill rating inputs and draft UW memo
+  tools:
+    - ACORD parsers
+    - Dun & Bradstreet/Crunchbase/Google Places
+    - CoreLogic/HazardHub/Verisk property data
+    - 'ISO/MVR, RMV, DMV APIs'
+    - GIS (ArcGIS/Mapbox)
+    - LLM for memo generation
+  outputs:
+    - Prefilled submission in PAS/CRM
+    - Risk flags and appetite score
+    - Peril scores and maps
+    - Underwriting memo with clarifying questions
+  pricingModel:
+    - Per submission processed
+    - Volume discounts
+    - Optional enrichment data pass-through fees
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Third-party data licensing limits
+    - Data mismatches/false positives
+    - Appetite nuance loss
+  dependencies:
+    - Access to PAS/rating or CRM
+    - Third-party data provider contracts
+    - Secure file ingestion
+leanCanvas:
+  problem:
+    - >-
+      Manual submission intake and data entry from emails/ACORD PDFs/excels
+      consumes 20–60 minutes per submission and ties up underwriting assistants
+      and junior underwriters.
+    - >-
+      Incomplete or inaccurate data in submissions leads to 1–3 back-and-forth
+      cycles with brokers, delaying quotes by 1–5 days and lowering hit rates
+      (each day delay can reduce bind rate by 10–20% in competitive markets).
+    - >-
+      Low straight-through-processing (STP) in personal lines (<40%) and
+      near-zero in most commercial lines; too many low-value risks reach
+      underwriters while high-value, clean risks are delayed in queues.
+    - >-
+      Fragmented third-party data landscape (Verisk, LexisNexis, D&B, OSHA, DOT,
+      property imagery, geospatial) requires multiple contracts, complex
+      integrations, and cost leakage from redundant lookups.
+    - >-
+      Limited risk triage and weak explainability/audit trails create model
+      governance, compliance, and regulator concerns (GLBA, CCPA, FCRA
+      implications for credit/consumer data; NAIC AI principles).
+    - >-
+      Underwriting cost per submission remains high ($15–$60 for commercial;
+      $2–$10 for personal) and is poorly correlated to bound premium due to lack
+      of early triage.
+  solution:
+    - >-
+      Automated submission ingestion from email watchboxes, portals, SFTP and
+      APIs; OCR/IDP for ACORD, supplements, loss runs, statements of values,
+      COIs, schedules, and free-form broker emails.
+    - >-
+      Prefill mapping to ACORD (125/126/140/130/etc.), ISO forms, and
+      carrier-specific data models; push to core systems/workbenches via APIs or
+      RPA fallback.
+    - >-
+      Orchestrated third-party enrichment (D&B, OSHA/DOT/FMCSA, property
+      imagery/perils, geocoding/flood/wildfire/crime, VIN/business entity
+      resolution, CLUE where permissible) with dedupe, caching, and configurable
+      spend limits.
+    - >-
+      Risk triage scoring and rules: appetite fit, underwriting refer/decline
+      flags, exposure hotspots (roof condition, CAT perils, OSHA violations, DOT
+      safety rating, vacancy), and potential fraud anomalies.
+    - >-
+      Explainability and governance: full data lineage, source-level confidence,
+      model cards, challenger models, and adverse action support when consumer
+      data is used.
+    - >-
+      Human-in-the-loop review UI for low-confidence fields and exceptions;
+      continuous learning from underwriter corrections with carrier-controlled
+      feedback loops.
+  uniqueValueProp: >-
+    AI-powered intake-to-decision layer that turns messy submissions into
+    prefilled applications and explainable risk flags in under 2 minutes,
+    lifting STP 2–3x, cutting time-to-quote by 50–80%, and improving new
+    business hit rate by 5–10 points with audit-ready lineage and configurable
+    cost controls.
+  unfairAdvantage: >-
+    Insurance-native, end-to-end pipeline (documents → prefill → enriched
+    triage) with a large template library, prebuilt core-system connectors, and
+    a governance-grade explainability layer. Cost-aware data orchestration
+    reduces third-party spend while preserving accuracy. Continuous learning
+    from curated underwriter feedback and cross-template generalization
+    accelerates accuracy gains without sharing customer PII or proprietary data.
+  customerSegments:
+    - >-
+      US and Canada P&C carriers (personal and commercial) with >$500M NPW
+      seeking intake automation and triage improvements.
+    - >-
+      MGAs/program administrators and Lloyd’s coverholders handling high
+      submission volumes in small commercial and specialty property.
+    - >-
+      Core-system modernizers on Guidewire, Duck Creek, Majesco, Sapiens seeking
+      prefill and triage accelerators.
+    - >-
+      Digital distributors and embedded insurance providers needing real-time
+      prefill APIs.
+  channels:
+    - >-
+      Direct enterprise sales to CUO/Head of Underwriting Ops, COO, CIO/CTO, and
+      Heads of Small Commercial/Personal Lines.
+    - >-
+      Alliances with core system vendors (Guidewire PartnerConnect, Duck Creek
+      Solution Partner, Majesco/Sapiens marketplaces).
+    - >-
+      System integrators (Accenture, Cognizant, Deloitte, EY, PwC, Capgemini,
+      Exavalu) for implementation scale and change management.
+    - >-
+      Targeted pilots via innovation teams and underwriting workbench programs;
+      conversion to multi-LOB enterprise deals post-pilot.
+    - >-
+      Industry events and communities: InsureTech Connect, RIMS, NAMIC, APCIA;
+      thought leadership and ROI calculators; co-marketing with data providers.
+    - >-
+      Referrals via MGAs/program administrators and reinsurance brokers seeking
+      submission quality improvements.
+  revenueStreams:
+    - >-
+      Annual platform subscription: $100k–$500k based on carrier size and number
+      of LOBs.
+    - >-
+      Usage-based pricing per submission processed: Personal $1.00–$3.50;
+      Commercial $3.00–$12.00; volume-tiered.
+    - >-
+      Data pass-through and orchestration fee: transparent provider costs plus
+      10–25% orchestration margin or fixed per-call bundles.
+    - >-
+      Implementation/professional services: $50k–$300k per rollout depending on
+      connectors/forms onboarded.
+    - >-
+      Premium add-ons: real-time property imagery pack, web-intel pack,
+      MVR/credit gateway, advanced triage models; priced per inquiry or
+      per-user.
+    - >-
+      Enterprise license option for high-volume carriers: committed annual
+      minimum with overage tiers.
+  costStructure:
+    - >-
+      Third-party data licensing and per-call charges (largest variable cost;
+      30–50% COGS in early years).
+    - >-
+      Cloud compute/storage and model serving (GPU/CPU), OCR/vision APIs, and
+      content delivery.
+    - >-
+      Annotation and quality operations for new forms and ground truth labeling
+      (in-house + managed service).
+    - 'Engineering, data science, product management, and DevOps staffing.'
+    - >-
+      Compliance, security, and certifications (SOC 2, penetration tests),
+      legal/privacy counsel (GLBA/CCPA/FCRA considerations), and E&O insurance.
+    - >-
+      Sales and marketing: enterprise reps, solution architects, events, and
+      content.
+    - >-
+      Customer success and support, including change management enablement for
+      underwriting ops.
+  keyMetrics:
+    - >-
+      Automation rate: % fields auto-populated without human review (target 85%+
+      on required fields by LOB).
+    - >-
+      Field accuracy: critical fields 97%+, overall 95%+ (measured against
+      underwriter corrections).
+    - >-
+      STP lift: 2–3x vs baseline for eligible segments (e.g., small BOP/BOP
+      auto).
+    - >-
+      AHT reduction: minutes saved per submission (target 20–45 minutes for
+      commercial, 5–15 minutes for personal).
+    - 'Cycle time: submission-to-quote reduction (target 30–70%).'
+    - >-
+      Triage performance: AUC/Gini for appetite and risk flags (target AUC
+      ≥0.75), precision/recall at operating points agreed with CUO.
+    - >-
+      Data spend efficiency: % of avoided paid lookups via routing/caching
+      (target 20–40%).
+    - >-
+      Adoption: % of total submissions ingested via platform (target 70%+ within
+      6 months of LOB go-live).
+    - >-
+      Business impact: new business hit-rate lift (+5–10 pts), quote-to-bind
+      lift (+3–7 pts), loss ratio improvement (-1 to -3 pts in targeted segments
+      over 12–24 months).
+    - >-
+      Reliability and latency: 99.9% API uptime, p95 enrichment latency <3s for
+      cached responses and <8s for cold calls.
+    - 'Time-to-value: first LOB live in <6 weeks; payback period <9 months.'
+storyBrand:
+  character: >-
+    Underwriting, operations, and product leaders at Other Direct Insurance
+    (non‑life) carriers who want faster, cleaner submissions and confident risk
+    selection across personal and commercial P&C.
+  problem: >-
+    Submissions arrive incomplete and unstructured; underwriters rekey from PDFs
+    and emails; third‑party data is fragmented. Cycle times slip, loss‑ratio
+    pressure rises, and agents get frustrated. Underwriters should
+    underwrite—not hunt, copy, and paste data.
+  guide: >-
+    We understand carrier workflows and regulatory demands. Our team builds
+    production‑grade extraction and enrichment for P&C lines and integrates with
+    common policy admin, intake, and document systems. We provide clear
+    implementation playbooks, secure data handling, and ongoing model
+    governance.
+  plan: >-
+    1) Connect: ingest emails, portals, and broker feeds; map lines and forms.
+    2) Enrich: plug in approved third‑party data and appetite/risk rules. 3)
+    Prefill & triage: deliver structured applications and risk flags into your
+    workbench. 4) Govern: dashboards, QA sampling, lineage, and
+    human‑in‑the‑loop controls. Option: run a low‑risk pilot on one line with
+    clear success criteria.
+  callToAction: >-
+    Direct: Schedule a 30‑minute discovery and launch a pilot. Transitional:
+    Request a sample prefill and risk‑triage report using de‑identified
+    submissions.
+  success: >-
+    Minutes to prefilled, audit‑ready applications; higher submission quality;
+    faster quote turnaround; improved hit/bind ratios; better agent experience;
+    more capacity per underwriter; consistent appetite enforcement; traceable
+    data lineage and cleaner audits.
+  failure: >-
+    Stay stuck with slow, manual intake; missed SLAs and broker frustration;
+    inconsistent selection and leakage; higher E&O exposure and adverse
+    selection; wasted underwriting talent and stalled growth.
+landingPage:
+  hero:
+    title: AI Underwriting Prefill & Risk Triage
+    subtitle: >-
+      Turn unstructured P&C submissions into prefilled applications and instant
+      risk flags—faster quotes, cleaner portfolios.
+    ctaText: Request a demo
+    ctaHref: /request-demo
+  problem:
+    - 'Broker submissions arrive as messy PDFs, spreadsheets, and emails.'
+    - Manual rekeying slows time-to-quote and creates errors.
+    - Missing third-party data causes avoidable referrals and leakage.
+    - Inconsistent risk selection inflates loss ratio volatility.
+    - 'Underwriters lack a single, auditable data source.'
+    - Brokers and MGAs face repetitive questions and delays.
+  solution:
+    - >-
+      Ingests submissions from email, portal, or SFTP and extracts fields with
+      AI OCR/NLP.
+    - >-
+      Enriches with third-party data: property, auto, business, geospatial
+      perils, sanctions, prior loss.
+    - >-
+      Prefills ACORD and carrier-specific applications with confidence scores
+      and rationale.
+    - >-
+      Generates risk scores and flags (protection class, roof age, MVR, loss
+      history, vacancy, fraud).
+    - >-
+      Routes clean risks straight to rating; sends exceptions to a review queue
+      with explainability.
+    - >-
+      Delivers results via API/JSON or prefilled PDFs to policy, rating, and CRM
+      systems.
+  features:
+    - >-
+      Document intake: ACORDs, statements of values, loss runs, schedules, COIs,
+      unstructured emails.
+    - >-
+      Lines supported: Personal Auto, Homeowners, Dwelling Fire; Commercial
+      Auto, Property, Package/BOP, General Liability, Workers Comp, Umbrella,
+      Marine, E&S.
+    - >-
+      Data connectors: MVR/DMV, Verisk/ISO, CoreLogic, Melissa, OFAC/PEP,
+      NAICS/FEIN, USPS, geocoding, wildfire/flood/hail/wind models.
+    - >-
+      Property intelligence: year built, construction, roof, area, protection
+      class, distance to hydrant/station/coast.
+    - >-
+      Vehicle intelligence: VIN decode, garaging, radius, drivers, violations,
+      telematics, loss history.
+    - >-
+      Business entity: FEIN match, legal structure, revenue bands, SIC/NAICS
+      normalization, website signals.
+    - >-
+      Risk triage engine: configurable rules, appetite match, composite risk
+      score, dedupe, fraud and watchlist checks.
+    - >-
+      Human-in-the-loop: field-level confidence, inline edits, comments,
+      versioning, full audit trail.
+    - >-
+      Compliance & security: SOC 2 Type II, encryption in transit/at rest, PII
+      redaction, data residency options.
+    - >-
+      Integration: REST/GraphQL APIs, webhooks, SSO, and connectors for
+      Guidewire, Duck Creek, Sapiens, and data lakes.
+    - >-
+      Performance: sub-60-second prefill on typical submissions; benchmark
+      accuracy above 98%.
+    - >-
+      Analytics: time-to-quote, straight-through rate, referral reasons, data
+      source ROI.
+  steps:
+    - >-
+      Connect submission sources (inbox, portal, SFTP) and select target
+      systems.
+    - Map fields to ACORD and carrier forms; set confidence thresholds.
+    - Choose enrichment data packs and risk rules by line of business.
+    - Pilot on recent submissions; compare speed and accuracy to baseline.
+    - Go live with straight-through routing; monitor analytics and refine rules.
+---
+# UnderwriteIQ Prefill & Triage
+
+Industry: Other Direct Insurance (except Life, Health, and Medical) Carriers
+Service: Underwriting Prefill and Risk Triage (Personal & Commercial P&C)

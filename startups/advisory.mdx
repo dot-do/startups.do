@@ -1,0 +1,343 @@
+---
+name: Advisory Dispatch Pack Generator (OFP‑Lite)
+slug: advisory
+naics:
+  primary: '481219'
+  occupations: []
+service:
+  title: Advisory Dispatch Pack Generator (OFP-lite)
+  description: >-
+    Creates an advisory operations flight pack: route options, winds, fuel
+    calcs, NOTAM/ATIS summaries, alternates, and navlog for pilot validation.
+  targetUsers:
+    - Small ops without full dispatch
+    - Ferry/positioning flights
+    - Scenic/air taxi ops
+  triggers:
+    - Leg confirmed
+    - Significant weather change
+  inputs:
+    - Dep/arr/alternate airports
+    - 'ETD, aircraft type/performance profile'
+    - Weights and reserve policy
+    - Preferred routing constraints (airways vs DCT)
+  steps:
+    - Suggest route options (airways/DCT) and ETAs
+    - Pull winds aloft and compute trip/contingency fuel
+    - 'Summarize NOTAMs (field, enroute, airspace)'
+    - Propose alternates and min fuel per policy
+    - 'Generate navlog, weather brief, and pilot notes'
+    - Deliver PDF/JSON to EFB/email
+  tools:
+    - Flight Plan Database API (routing)
+    - NOAA/NWS GFS winds
+    - AviationWeather.gov (METAR/TAF/SIGMET)
+    - OpenAIP/terrain
+    - PDF generator
+  outputs:
+    - Advisory OFP/navlog
+    - Wx/NOTAM brief
+    - Fuel plan and alternates
+  pricingModel:
+    - Per-flight fee
+    - Bundle with FRAT/crew legality
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 4
+    modelCapability: 3.5
+    overall: 3.5
+  risks:
+    - Not a certified dispatch plan—must be pilot-validated
+    - Incorrect performance inputs
+    - Airspace/route restrictions missed without premium data
+  dependencies:
+    - Accurate aircraft performance and reserve policy
+    - Pilot/dispatcher review SOP
+    - Access to routing/weather data
+leanCanvas:
+  problem:
+    - >-
+      Small/midsize Part 135 operators and air taxis lack dedicated dispatchers;
+      PICs spend 30–60 minutes per leg compiling routes, NOTAMs, weather, fuel,
+      alternates, and a navlog.
+    - >-
+      NOTAM overload: typical IFR city‑pair can surface 80–300 NOTAMs; critical
+      items (RWY/TWY closures, nav aid outages, TFRs, FICON) are buried and easy
+      to miss.
+    - >-
+      Fuel planning inconsistencies across crews and aircraft; applying
+      operator‑specific reserve, contingency, and alternate policies is
+      error‑prone and time‑consuming.
+    - >-
+      Alternate selection often ad‑hoc; pilots may over‑conservatively choose
+      alternates (added cost) or miss better choices given weather windows,
+      NOTAMs, curfews, or customs hours.
+    - >-
+      Fragmented tooling: pilots bounce across FltPlan.com/ForeFlight, NOTAM
+      portals, weather sites, and spreadsheets, increasing error risk and
+      extending turn times.
+    - >-
+      Short‑notice on‑demand flying needs rapid “go/no‑go” advisories; existing
+      enterprise flight planning tools are heavy, expensive, and optimized for
+      scheduled ops, not point‑to‑point charters.
+    - >-
+      Auditability gaps: operators need a retained advisory briefing with data
+      sources/timestamps to satisfy internal QA and customer queries without
+      implying “operational control” in jurisdictions where that’s restricted.
+    - >-
+      Trust and liability: crews want conservative, transparent calculations
+      they can validate and override; many current tools act as black boxes.
+  solution:
+    - >-
+      One‑click advisory flight pack: ingest origin/destination/ETD/aircraft and
+      produce a complete OFP‑lite PDF/JSON packet within 90 seconds.
+    - >-
+      Route options engine: proposes 2–4 wind‑aware, constraint‑compliant routes
+      (preferred/TEC/CCFP‑aware domestically; user‑defined exclusions) with
+      rationale and enroute time/fuel deltas.
+    - >-
+      Fuel calculator: aircraft‑specific burn with taxi, climb/cruise/descent
+      profiles; operator‑configurable reserves (e.g., required to destination,
+      most distant alternate, 45‑min at normal consumption) plus contingency and
+      holding policies.
+    - >-
+      NOTAM summarization: NLP triage ranks critical items first (runway
+      closures, ILS outages, GPS RAIM/ADS‑B, airspace/TFRs, customs/immigration
+      hours, lighting) with links to full text; filters irrelevant
+      administrative NOTAMs while preserving audit view.
+    - >-
+      Weather/ATIS: consolidate METAR/TAF, AIRMET/SIGMET, winds aloft,
+      icing/turbulence forecasts, PIREPs; D‑ATIS summaries displayed where
+      available, else METAR+NOTAM‑derived field condition summary.
+    - >-
+      Alternates recommender: suggests 1–3 alternates meeting operator minima
+      and runway/approach requirements, with forecast windows, NOTAM
+      constraints, and fuel/time implications.
+    - >-
+      Navlog: leg‑by‑leg waypoint listing with winds, ETE, fuel remaining,
+      cruise levels, EET to FIR boundaries, and top‑of‑climb/descent marks.
+    - >-
+      Live updates: if ETD shifts or weather/NOTAMs change materially, push a
+      concise change summary and revised pack via EFB/email/SMS.
+    - >-
+      Pilot validation workflow: red‑flag checks (range vs fuel, required
+      equipment vs MEL/CDL, runway length vs performance assumptions); pilot
+      must accept/override with reason, creating an audit trail.
+    - >-
+      Data lineage: every figure shows source/time (e.g., NOAA ADDS timestamp,
+      NOTAM ID) and policy version so QA can reconstruct the brief.
+    - >-
+      Advisory boundary: no flight plan filing or operational control
+      assertions; language clearly positions outputs as pilot advisory for
+      91.103/135 preflight action.
+  uniqueValueProp: >-
+    Generate a pilot‑validated, advisory OFP in under 2 minutes—route options,
+    weather/winds, fuel per your policy, NOTAM/ATIS summaries, alternates, and a
+    navlog—tuned to your aircraft and SOPs, with transparent calculations, audit
+    trails, and EFB delivery at a fraction of full dispatch cost.
+  unfairAdvantage: >-
+    Operator‑tuned policy engine and NOTAM NLP models trained on 135‑specific
+    significance, coupled with per‑tail performance calibration and an
+    audit‑first design that builds crew trust. The system explains every
+    recommendation and improves from structured pilot feedback, creating a
+    proprietary dataset competitors lack.
+  customerSegments:
+    - >-
+      US Part 135 on‑demand charter and air taxi operators with 3–50 aircraft
+      (turbine and piston).
+    - >-
+      Air ambulance and cargo feeders requiring rapid, repeatable advisory packs
+      for dynamic missions.
+    - >-
+      Part 91K fractional providers and corporate flight departments seeking
+      standardized preflight packs without full dispatch staffing.
+    - >-
+      Charter brokers/management companies needing white‑label advisory packs
+      attached to trip itineraries.
+    - >-
+      Flight schools/advanced training centers for IFR/dispatch training
+      scenarios (secondary segment).
+  channels:
+    - >-
+      Direct outreach to US Part 135 certificate holders (focus on 3–50
+      aircraft) via curated lists and warm intros through NATA/NBAA networks.
+    - >-
+      Partnerships/integrations with scheduling/trip tools (FlightBridge, Leon,
+      Avianis, Schedaero) to be the default “Generate Advisory Pack” button.
+    - >-
+      EFB marketplaces and co‑marketing with ForeFlight and Garmin Pilot
+      developer programs.
+    - >-
+      Industry events/webinars: NBAA‑BACE, NATA, HAI (for air ambulance),
+      focusing on NOTAM fatigue and standardized advisory briefs.
+    - Founder‑led demos and 30‑day trials; land‑and‑expand by fleet/tail.
+    - >-
+      Content marketing: case studies quantifying time saved and on‑time
+      departure improvements; NOTAM classification whitepaper.
+    - >-
+      Referral program: discount for operators referring peers; cross‑sell via
+      management companies.
+    - >-
+      Regulatory and insurer engagement: show conservative defaults and audit
+      trails to reduce perceived risk.
+    - >-
+      Marketplaces/communities: Charter broker networks and operator
+      Slack/Discord/Reddit aviation groups.
+    - >-
+      OEM/maintenance partners: offer pre‑configured performance profiles for
+      popular types via MROs/management firms.
+  revenueStreams:
+    - >-
+      Subscription per aircraft tail per month: Starter $99 (domestic data, 200
+      packs/mo), Pro $199 (unlimited packs, EFB integrations, alerts),
+      Enterprise $299+ (API, SSO, custom SLAs, multi‑region).
+    - >-
+      Pay‑per‑pack for small operators/seasonal use: $9 per advisory pack
+      (volume pricing from $6).
+    - >-
+      Onboarding/performance profiling package: $1,500 one‑time per operator for
+      fleet setup and SOP policy encoding (optional).
+    - >-
+      White‑label for brokers/management companies: starting $25k/yr includes
+      branding and API.
+    - >-
+      International data add‑on (Eurocontrol EAD/NM, global weather providers):
+      $50–$100 per tail/month.
+    - >-
+      Professional services: custom reports, safety analytics, and training
+      ($200/hr).
+  costStructure:
+    - >-
+      Data and licensing: FAA SWIM/NOTAM/METAR (US free), global
+      weather/licensing $30k–$80k/yr, ARINC 424 navdata (if licensed)
+      $50k–$150k/yr, Eurocontrol NM B2B access/compliance costs $10k–$30k/yr.
+    - >-
+      Cloud and AI inference: $0.03–$0.10 per pack at scale; annual $25k–$150k
+      depending on volume and LLM usage; storage for pack retention $5k–$20k/yr.
+    - >-
+      Engineering/product team (6–8 FTE): $1.2M–$1.8M/yr; aviation SMEs and QA:
+      $150k–$300k/yr.
+    - 'Sales/marketing: $200k–$500k/yr (events, content, partnerships).'
+    - >-
+      Security/compliance: SOC 2 readiness and audit $60k–$120k initial,
+      $40k–$80k/yr ongoing; penetration tests $20k/yr.
+    - 'Insurance (E&O/cyber): $50k–$120k/yr.'
+    - 'Customer support/onboarding: $120k–$300k/yr.'
+  keyMetrics:
+    - >-
+      Time to pack: median <90 seconds from submit to downloadable pack; 95th
+      percentile <180 seconds.
+    - >-
+      Pilot time saved: target 25–40 minutes saved per leg (validated via
+      time‑and‑motion studies).
+    - >-
+      Route acceptance rate: ≥80% of suggested primary routes accepted without
+      modification.
+    - >-
+      Fuel accuracy: mean absolute percentage error within ±5% for turbine and
+      ±8% for piston over rolling 90 days (vs actual uplift/FOQA where
+      available).
+    - >-
+      Alternate match rate: ≥70% of suggested alternates match pilot choice;
+      when overridden, capture reason codes.
+    - >-
+      NOTAM triage quality: precision/recall ≥0.90/0.90 on critical classes
+      (runway, approach, navaid, airspace) in weekly test sets.
+    - >-
+      Update effectiveness: ≥90% of material change alerts acknowledged before
+      pushback when ETD slips ≥30 minutes.
+    - >-
+      Reliability: service uptime ≥99.9%; data freshness SLA ≤10 minutes for
+      METAR/TAF/NOTAM feeds.
+    - >-
+      Adoption/retention: logo retention ≥90% annually; net revenue retention
+      ≥110% from fleet expansion/upgrades.
+    - 'Unit economics: gross margin ≥75%; CAC payback ≤6 months; LTV/CAC ≥3.'
+    - >-
+      Support load: <2% of flights generate support tickets; median first
+      response <15 minutes during ops hours.
+storyBrand:
+  character: >-
+    On-demand charter, cargo, medevac, and aerial ops leaders and PICs (NAICS
+    481219) who need fast, reliable advisory flight planning without a full
+    dispatch desk.
+  problem: >-
+    Last-minute legs, shifting weather, and fragmented tools create risk—missed
+    NOTAMs, shaky fuel calcs, delays, and compliance exposure that erode margins
+    and trust.
+  guide: >-
+    Advisory Dispatch Pack Generator (OFP-lite) is your virtual dispatcher: AI
+    that assembles a clear, pilot-ready advisory pack from current sources,
+    aligned to your aircraft profiles and fuel/alternate policies—always for
+    captain validation.
+  plan: >-
+    1) Configure aircraft profiles and policies. 2) Submit leg details
+    (dep/dest/ETD/payload/constraints). 3) Receive an advisory pack—route
+    options, winds, fuel calcs, NOTAM/ATIS summaries, alternates, and
+    navlog—review, validate, export to your EFB.
+  callToAction: >-
+    Start a 14-day trial and generate your next leg’s advisory pack, or book a
+    20-minute demo.
+  success: >-
+    Confident, compliant releases in minutes; standardized packs across crews;
+    more trips accepted; smoother turnarounds; lower workload and stronger
+    client confidence.
+  failure: >-
+    Continue firefighting with manual lookups, miss critical NOTAMs,
+    over/under-fuel, slip ETDs, and risk findings, rework, and lost revenue.
+landingPage:
+  hero:
+    title: Advisory Dispatch Pack Generator (OFP-lite)
+    subtitle: >-
+      AI flight-pack for on-demand and charter ops. Routes, winds, fuel,
+      NOTAM/ATIS, alternates, and navlog—ready for pilot validation in minutes.
+    ctaText: Generate a Sample Pack
+    ctaHref: /demo
+  problem:
+    - Trip prep burns 20–40 minutes per leg across scattered tools.
+    - Short-notice sectors need a clean brief without spinning up full dispatch.
+    - Critical NOTAMs and ATC constraints get buried in noise.
+    - Fuel and alternate decisions vary across crews and shifts.
+    - Manual navlogs and winds updates create errors and rework.
+    - Dispatch and pilots duplicate effort on simple turns.
+  solution:
+    - >-
+      One AI-generated advisory pack consolidating route, weather, fuel,
+      NOTAM/ATIS, alternates, and navlog.
+    - 'Standardized, pilot-validated brief delivered in minutes.'
+    - 'Ranked route options with winds, ETE, and fuel impacts.'
+    - Fuel calculations aligned to operator policy and reserve rules.
+    - High-signal NOTAM and field condition summaries.
+    - Export-ready for EFB and PDF with an audit trail.
+  features:
+    - >-
+      Route engine with preferred/known routes, CDRs, SIDs/STARs, and reroute
+      advisories.
+    - Live winds aloft and temps applied to leg times and fuel burn.
+    - >-
+      Fuel planning: taxi, trip, contingency, reserve, alternate, and holding;
+      configurable policies.
+    - 'Smart alternates with weather minima, runway suitability, and fuel impact.'
+    - >-
+      NOTAM/ATIS summarization highlighting closures, equipment outages, and
+      restrictions.
+    - 'Auto navlog with waypoints, distances, headings, ETE/ETO, FOB, TOC/TOD.'
+    - Policy profiles for Part 135/91 and regional reserve rules.
+    - 'EFB/ops exports: ForeFlight, Garmin Pilot, CSV, and printable PDF.'
+    - Change tracking with timestamps and data sources for audit.
+    - Clear advisory-only labeling to support PIC validation and compliance.
+  steps:
+    - 'Enter origin, destination, ETD/ETA window, and aircraft profile.'
+    - Auto-sync METAR/TAF/NOTAM and traffic constraints.
+    - Review ranked routes with winds and fuel deltas.
+    - >-
+      Select alternates and apply policy presets; adjust payload/fuel
+      trade-offs.
+    - Generate the advisory pack and export to EFB/PDF.
+    - 'PIC reviews, validates, and records acceptance per company procedures.'
+    - Archive the pack with notes for post-flight audit.
+---
+# Advisory Dispatch Pack Generator (OFP‑Lite)
+
+Generated for NAICS 481219 — Other Nonscheduled Air Transportation.
+Service: Advisory Dispatch Pack Generator (OFP-lite)

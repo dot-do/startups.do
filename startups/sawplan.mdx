@@ -1,0 +1,340 @@
+---
+name: SawPlan AI
+slug: sawplan
+naics:
+  primary: '321912'
+  occupations: []
+service:
+  title: Cut List Optimizer and Saw/Crosscut Plan Generator
+  description: >-
+    Parses orders and inventory to produce optimized rip/crosscut/resaw plans,
+    labels, and yield reports.
+  targetUsers:
+    - Sawmill planners
+    - Millwork shops
+    - Shop foremen
+  triggers:
+    - New order or RFQ received
+    - Cut list uploaded to portal/folder
+  inputs:
+    - Cut list (CSV/XLSX/PDF)
+    - Stock inventory by species/grade/dimensions
+    - Kerf per blade/machine constraints
+    - Due dates and priorities
+    - 'Allowances (defect, trim, shrink)'
+  steps:
+    - Ingest files; OCR if PDF
+    - Normalize units/species/grades
+    - Solve stock-cutting optimization (1D/2D as needed)
+    - Simulate yield/waste and validate constraints
+    - Generate step-by-step rip/crosscut/resaw plan and labels
+    - 'Publish PDF/CSV/ZPL to printer, email, or dashboard'
+  tools:
+    - Python + OR-Tools/CP-SAT or PuLP
+    - pandas/numpy
+    - AWS Textract or pdfplumber
+    - OpenAI for schema normalization
+    - Google Sheets/Drive API
+    - ZPL label generator
+    - Slack/Email webhooks
+  outputs:
+    - Optimized cut plan PDF
+    - CSV for saw-stop/stop list
+    - ZPL labels per piece
+    - Yield/waste and board allocation report
+  pricingModel:
+    - Per-optimization run ($/order)
+    - Tiered monthly subscription
+    - One-time onboarding/setup
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 5
+    overall: 5
+  risks:
+    - Bad inventory accuracy skews plans
+    - OCR/parse errors
+    - Real-world kerf/defects not modeled
+    - Operator adherence to plan
+  dependencies:
+    - Access to inventory data (Sheets/ERP)
+    - Defined kerf and constraints per machine
+    - Label printer (optional)
+    - Shared cloud folder or email routing
+leanCanvas:
+  problem:
+    - >-
+      Plants lose 1–5% yield from suboptimal rip/crosscut/resaw patterns due to
+      manual planning in Excel or rules-of-thumb, translating to
+      $50,000–$500,000 waste per $10M of lumber spend.
+    - >-
+      Planners spend 2–6 hours/day consolidating orders, inventory, and
+      constraints; plan turnaround delays limit throughput and on-time delivery.
+    - >-
+      Frequent mislabels and incomplete packs (0.5–2.0% of pieces) create
+      rework, customer chargebacks, and schedule disruption.
+    - >-
+      Machine constraints (kerf, min/max lengths, arbor setups, fence widths,
+      gripper clearance) are not consistently encoded in plans, causing jams,
+      unsafe cuts, and downtime (15–45 min changeovers).
+    - >-
+      Order variability and mixed species/grades complicate rip-first vs.
+      crosscut-first decisions; many plants default to one approach and leave
+      1–2% yield on the table.
+    - >-
+      Resaw and planing allowances (thickness recovery, cupping,
+      moisture-related movement) aren’t modeled precisely, creating off-spec
+      parts and waste.
+    - >-
+      Skill scarcity: senior planners retiring; new hires need 6–12 months to
+      reach proficiency; tribal knowledge isn’t systematized.
+    - >-
+      Lack of integrated feedback loop: realized yields and defects aren’t fed
+      back into planning; no continuous learning to improve patterns by
+      species/mill/machine.
+    - >-
+      Siloed systems: ERP/MES, inventory, and scanners don’t talk; no single
+      source of truth for board footage, grade pulls, and work-in-process.
+    - >-
+      No clear ROI visibility; CFOs want quantified savings linked to yield and
+      labor time, but current tools don’t produce trustworthy reports.
+  solution:
+    - >-
+      Parse orders (PDF, CSV, email, EDI) and live inventory to auto-generate
+      rip-first or crosscut-first sequences with machine-aware constraints.
+    - >-
+      Hybrid optimizer (mixed-integer programming + heuristics + learned
+      patterns) targeting multi-objective goals: yield, throughput, changeovers,
+      due dates.
+    - >-
+      Resaw and planing-aware thickness modeling with configurable allowances by
+      species/grade/moisture and target finish.
+    - >-
+      Automatic label generation (barcodes/QR, human-readable) and pack sheets
+      aligned to customer and NHLA rules.
+    - >-
+      Sequencing and staging plans for cells (ripsaw -> chop -> resaw -> planer)
+      with WIP balancing and minimal tool changes.
+    - >-
+      Closed-loop feedback: ingest realized cut data and scanner/scale outputs
+      to retrain patterns and adjust allowances.
+    - >-
+      Dashboards and yield reports (by order, species, grade, saw, shift) with
+      CFO-ready ROI summaries.
+    - >-
+      Native connectors to ERP/MES (e.g., DMSi Agility, Epicor LumberTrack,
+      NetSuite), scanners (Microtec/USNR), printers (Zebra), and handhelds.
+    - >-
+      Edge deployment option for shop-floor resilient operation; cloud analytics
+      for fleet benchmarking.
+    - >-
+      Safety/compliance checks: enforce machine envelopes, minimum offcut
+      lengths, and anti-kickback rules.
+  uniqueValueProp: >-
+    AI-driven cut planning that turns orders and on-hand inventory into
+    machine-ready rip/crosscut/resaw plans, labels, and yield reports in
+    minutes—boosting yield by 1–3%, cutting planning time 50–80%, and reducing
+    mislabels and changeovers, with closed-loop learning from actual production.
+  unfairAdvantage: >-
+    Closed-loop learning tied to realized yields and machine telemetry across
+    multiple plants, plus a library of validated machine profiles and
+    species/grade recovery tables. The hybrid optimization engine blends MILP
+    with domain-specific heuristics and learned patterns, enabling faster,
+    better plans than OEM-tied or rules-only tools. Deep ERP/MES and OEM
+    integrations reduce switching costs and time-to-value.
+  customerSegments:
+    - >-
+      Primary: NAICS 321912 cut-stock, resaw, and planing mills (20–300
+      employees; 5–80 MMBF/yr throughput).
+    - >-
+      Secondary: wood component suppliers (drawer sides, moldings, S4S, flooring
+      lamellas), millwork and furniture OEMs with in-house rip/crosscut lines.
+    - >-
+      Large sawmills with secondary manufacturing (ripsaw, chop saw, resaw
+      cells) needing order-driven optimization.
+    - >-
+      Cabinet, door, and flooring manufacturers that convert random-width lumber
+      to fixed components.
+    - >-
+      Contract manufacturing shops servicing high-mix, low-volume custom work
+      where planning time is high and yield penalties are frequent.
+  channels:
+    - >-
+      Direct sales to plants via industry events (IWF Atlanta, AWFS Las Vegas,
+      LIGNA Hannover, WMS Toronto).
+    - >-
+      OEM partnerships with machinery/scanner vendors (Weinig/Holz-Her,
+      USNR/Microtec, Wood-Mizer) to bundle planner software.
+    - >-
+      ERP/MES marketplaces and VARs (DMSi, Epicor partners) with revenue share
+      for referrals and integrations.
+    - >-
+      Content-led marketing: case studies with yield deltas, ROI calculators,
+      technical webinars on rip-first vs. crosscut-first.
+    - >-
+      Outbound to targeted lists from WCMA and NHLA membership; LinkedIn ABM
+      campaigns to operations and plant managers.
+    - >-
+      Pilot-led land-and-expand: 60–90 day paid pilots converting to annual
+      contracts; multi-site rollouts post-ROI proof.
+  revenueStreams:
+    - >-
+      SaaS subscription per site: $1,500–$6,000/month depending on number of
+      lines, SKUs, and connectors.
+    - >-
+      Usage add-on for high volume: $0.05–$0.20 per thousand board feet
+      processed beyond plan limits.
+    - >-
+      Implementation/integration fees: $10,000–$50,000 per site (connectors,
+      machine profiles, label setup, training).
+    - 'Premium support/SLA (24/7, 1-hour response): +15–25% of ARR.'
+    - >-
+      Edge appliance rental or sale (industrial PC, scanner/label kits):
+      $2,000–$8,000 per cell (one-time or lease).
+    - >-
+      Consulting packages: yield audit and changeover reduction workshops
+      ($5,000–$20,000).
+  costStructure:
+    - >-
+      Engineering: optimization, integrations, edge app (6–10 FTE initially;
+      $1.5M–$2.5M/year).
+    - >-
+      Cloud infrastructure: compute for optimization, storage, analytics
+      ($8k–$20k/month at 20 sites; scales with usage).
+    - >-
+      Third-party components: OCR/LLM parsing, solver licenses (if not homegrown
+      MILP) ($3k–$10k/month).
+    - >-
+      Sales and marketing: events, travel, demos, content ($200k–$500k/year
+      early stage).
+    - >-
+      Implementation and support: solution engineers, field techs (2–4 FTE;
+      $300k–$600k/year).
+    - Partner commissions/referral fees (10–20% of first-year ARR).
+    - 'Compliance and security (SOC 2, pen tests, insurance): $80k–$150k/year.'
+    - >-
+      Hardware COGS for optional edge kits and label printers (pass-through or
+      small margin).
+  keyMetrics:
+    - >-
+      Yield uplift vs. baseline (%): target +1.0–3.0% within 90 days; verify by
+      species/line.
+    - 'Scrap/offcut reduction (%): target 10–30% reduction within 60 days.'
+    - >-
+      Planner time saved (hours/day): target 2–4 hours/day per planner; measure
+      via time studies.
+    - >-
+      Throughput (board feet/hour) improvement: +5–10% on constrained lines
+      without CAPEX.
+    - >-
+      Changeover time reduction: 15–30% via sequence optimization and
+      standardized setups.
+    - >-
+      Mislabeled/incorrect pack rate: reduce to <0.3% of pieces; track via scan
+      exceptions.
+    - 'Payback period: <6 months; ROI >3x in first year; show CFO dashboard.'
+    - >-
+      Automation rate: % of orders auto-optimized without manual edits; target
+      >70% by month 3.
+    - >-
+      Adoption: weekly active shop-floor users and plan release count; target
+      >85% of planned shifts using app.
+    - >-
+      MRR growth, net revenue retention (>115%), logo and gross churn (<8%
+      annually).
+    - >-
+      System reliability: >99.9% uptime; plan generation success >99.5%; average
+      plan compute time <3 minutes for 10k-piece orders.
+storyBrand:
+  character: >-
+    Operations managers and sawroom leads at cut-stock, resaw, and planing shops
+    who want reliable schedules, maximum yield, and simple, executable cut
+    plans.
+  problem: >-
+    Manual spreadsheets and tribal knowledge create inconsistent yields,
+    miscuts, rework, and overtime; orders and inventory don’t translate into
+    clear rip/crosscut/resaw plans or labels—causing waste and missed ship
+    dates.
+  guide: >-
+    We understand mill-floor chaos and have built AI with wood-products
+    expertise to turn orders and inventory into optimized saw plans, labels, and
+    yield reports—proven to cut waste and boost throughput.
+  plan: >-
+    1) Connect orders and inventory (CSV/API). 2) Run the optimizer to generate
+    rip/crosscut/resaw plans, labels, and machine queues. 3) Print labels,
+    execute cuts, and review yield reports for continuous improvement.
+  callToAction: Start a 14-day pilot with your real orders or book a 30-minute demo.
+  success: >-
+    Consistent high yield and margins, fewer miscuts, faster throughput,
+    accurate labels and traceability, on-time shipments, and confident,
+    data-driven planning.
+  failure: >-
+    Ongoing scrap and overbuying, rework and downtime, shop-floor confusion, and
+    missed ship dates from ad-hoc cut planning.
+landingPage:
+  hero:
+    title: AI Cut List Optimizer & Saw Plan Generator
+    subtitle: >-
+      For Cut Stock, Resawing Lumber, and Planing (NAICS 321912). Turn orders
+      and inventory into optimized rip/crosscut/resaw plans with labels and
+      yield reports.
+    ctaText: Start optimizing
+    ctaHref: /start
+  problem:
+    - Planners spend hours merging orders and still leave yield on the table.
+    - 'Operators guess kerf, allowances, and sequences—causing scrap and rework.'
+    - 'Inventory and offcuts aren’t reflected in plans, so good wood gets wasted.'
+    - Bottlenecks at rip/crosscut/resaw from poor scheduling and changeovers.
+    - Inconsistent labels and job packets cause mix-ups and delays.
+    - 'No clear proof of yield, cost, and on-time performance for customers.'
+    - Last-minute changes derail plans across shifts and machines.
+    - Tribal knowledge walks out when key people are off the floor.
+  solution:
+    - >-
+      One-click optimization across rip, crosscut, and resaw with machine-aware
+      plans.
+    - Uses orders + live inventory + offcuts to maximize yield and margin.
+    - >-
+      Applies kerf, grain, grade, thickness, and planer allowances
+      automatically.
+    - 'Generates sequenced saw plans, cut maps, and safe operator instructions.'
+    - 'Prints barcoded/QR labels tracking pieces, bundles, and remnants.'
+    - Re-optimizes in real time when orders or stock change.
+    - Feeds actuals and yields back to ERP/MES with auditable reports.
+    - 'What-if scenarios to compare yield, cost, and throughput before cutting.'
+  features:
+    - >-
+      Multistage optimizer: rip → resaw → crosscut with changeover-aware
+      sequencing
+    - >-
+      Inventory-aware planning with substitution rules, grade blending, and
+      remnant reuse
+    - 'Kerf/tolerance modeling per blade, species, and moisture content'
+    - Planer pass and shrinkage allowances baked into net/rough sizes
+    - >-
+      Defect and grain-direction control; optional vision-assisted defect
+      mapping
+    - 'Auto labeling: barcodes/QR, piece IDs, bundle IDs, work steps, destination'
+    - Operator tablet mode with visual cut maps and step-by-step guidance
+    - 'Yield, cost, and throughput KPIs; NHLA-grade and FSC/PEFC tracking'
+    - 'ERP/MES connectors (CSV, API); supports Epicor, NetSuite, JobBOSS, custom'
+    - 'Machine profiles for Weinig, SCM, Holzma, Omga, CTS, and custom I/O'
+    - 'Remnant library with dimensions, species, and next-best-use suggestions'
+    - What-if simulation and sandbox before release to the floor
+    - 'Units: inch/mm; volume: board feet/m³; multi-language; offline-capable'
+    - 'Versioned plans, approvals, and e-signatures for compliance'
+    - Role-based access and audit trails; SOC 2–aligned security
+    - 'Alerts for late jobs, shortages, and abnormal yields'
+  steps:
+    - 'Connect orders and inventory (CSV, API, or ERP connector)'
+    - 'Select machines, blades, kerf, and shop rules'
+    - 'Set priorities, due dates, and allowable substitutions'
+    - Run optimization and review saw plans and yield forecast
+    - Print labels and job packets; release to operator tablets
+    - Execute on the floor; scan pieces and capture actuals
+    - Auto-update inventory; publish yield and cost reports
+---
+# SawPlan AI
+
+Generated for NAICS 321912 — Cut Stock, Resawing Lumber, and Planing.
+Service: Cut List Optimizer and Saw/Crosscut Plan Generator

@@ -1,0 +1,320 @@
+---
+name: FluxFleet — Demand Forecasting & Smart Batching Planner
+slug: fluxfleet
+service:
+  title: Demand Forecasting & Smart Batching Planner
+  description: >-
+    Forecast hourly demand by zone and auto-suggest courier shifts and batch
+    sizes to minimize miles per drop and missed SLAs.
+  targetUsers:
+    - Operations planners
+    - Small courier owners
+    - 3PL regional managers
+  triggers:
+    - Daily/weekly planning cycle
+    - Holiday/event periods
+    - Weather shifts
+  inputs:
+    - Historical orders by time/zone
+    - 'Seasonality, holidays, local events'
+    - Weather forecast
+    - Driver availability and costs
+  steps:
+    - 1) Clean and bin historical demand by zone/hour
+    - 2) Train/update forecasting model (XGBoost/Prophet)
+    - 3) Generate zone heatmaps and demand percentiles
+    - 4) Optimize suggested shift counts and start times
+    - '5) Recommend batching rules (cutoffs, max wait)'
+    - 6) Publish plan to scheduling/TMS; notify recruiters
+  tools:
+    - BigQuery/Snowflake
+    - Python (XGBoost/Prophet)
+    - OpenWeather/Visual Crossing API
+    - Looker Studio/Metabase dashboard
+  outputs:
+    - Hourly demand forecast by zone
+    - Suggested shift roster and costs
+    - Batching/cutoff recommendations
+  pricingModel:
+    - Setup + data cleanup
+    - Monthly subscription
+    - Optional performance fee tied to cost/drop
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Data sparsity or bias in new zones
+    - Sudden event spikes not captured
+    - Planner override culture reduces adoption
+  dependencies:
+    - Historical order export
+    - Zone definitions
+    - Access to scheduling/TMS
+leanCanvas:
+  problem:
+    - >-
+      Volatile hourly demand by neighborhood leads to overstaffing in slow hours
+      and shortages in peaks, causing 20–40% higher cost per drop and missed
+      SLAs.
+    - >-
+      Dispatchers rely on spreadsheets, intuition, or daily averages that ignore
+      weather, events, holidays, and promotions, leading to 25–50% WAPE at the
+      hour x zone level.
+    - >-
+      Batching is often static (e.g., cap of 2–3 orders) and doesn’t adapt to
+      courier supply, travel times, or SLA buffers, increasing miles per drop
+      and re-deliveries.
+    - >-
+      COOs lack forward visibility (next 2–6 weeks) to plan hiring, shift bids,
+      and overtime, causing 10–20% avoidable labor spend.
+    - >-
+      Lack of closed-loop feedback between forecast, schedule, and actuals
+      prevents continuous improvement and makes root-cause analysis slow and
+      anecdotal.
+    - >-
+      Integrations between POS/ordering, dispatch/route optimization, and
+      workforce management are brittle, requiring manual data wrangling for
+      planning.
+  solution:
+    - >-
+      Hourly, zone-level demand forecasting incorporating order history,
+      weather, events, promotions, holidays, lead-time mix, and store hours.
+    - >-
+      Auto-suggested courier rosters: shift counts, start times, durations, and
+      skill mix to hit target SLA and cost per drop, respecting labor rules and
+      break policies.
+    - >-
+      Smart batching policy engine that adapts batch size by time/zone based on
+      real-time supply, travel times, and SLA buffers to minimize miles per
+      drop.
+    - >-
+      Rolling re-forecast every 15 minutes that updates staffing gaps and
+      batching rules; alerting to dispatch when variance exceeds thresholds.
+    - >-
+      Scenario planning: simulate promo calendars, weather shocks, or store
+      openings; compare KPI trade-offs (SLA vs utilization vs cost).
+    - >-
+      Closed-loop learning: ingest actuals (orders, ETAs, missed SLAs, courier
+      locations) to retrain and improve zone-hour accuracy weekly.
+    - >-
+      Lightweight web console and API; integrations with dispatch/route
+      optimization and workforce management to push shifts and policies
+      automatically.
+    - >-
+      Analytics and RCA: variance decomposition by zone-hour (forecast error vs.
+      staffing vs. batching), and savings attribution.
+    - >-
+      Safe-guard rails: SLA bands, hot orders prioritization, fairness
+      constraints across couriers, union and city compliance rules.
+    - >-
+      Playbooks and templates for common patterns (lunch/dinner peaks, Sunday
+      slumps, rain-day spikes, stadium events).
+  uniqueValueProp: >-
+    Reduce miles per drop 10–20% and SLA misses 25–50% by forecasting hourly
+    demand at the zone level and auto-suggesting courier shifts and adaptive
+    batch sizes—plugging into your existing dispatch stack and delivering
+    measurable ROI in under 30 days.
+  unfairAdvantage: >-
+    Cross-operator, privacy-preserving dataset and transfer-learning models that
+    generalize to new zones quickly; a closed-loop planner that links forecast →
+    shifts → batching with real-time re-forecasting and attribution, integrated
+    natively with leading dispatch and WFM platforms—resulting in faster
+    time-to-value and compounding accuracy improvements competitors can’t easily
+    replicate.
+  customerSegments:
+    - >-
+      Mid-market local messenger and same-day operators (50–5,000 couriers)
+      serving retail, e-commerce, B2B errands.
+    - >-
+      Grocery, convenience, and pharmacy chains with own-fleet or dedicated
+      courier partners for same-day/2-hour delivery.
+    - >-
+      Restaurant groups and virtual brands operating first-party delivery in
+      dense urban zones.
+    - Quick-commerce/dark store operators (10–100 micro-fulfillment locations).
+    - >-
+      Postal/parcel last-mile units doing same-day/instant delivery in select
+      metros.
+    - >-
+      3PLs offering on-demand local delivery and scheduled routes (including
+      medical and parts logistics).
+    - >-
+      Geographies for initial focus: US and Canada Tier-1 cities, UK, DACH,
+      Benelux; expansion to India and LatAm metros.
+  channels:
+    - >-
+      Direct sales to COOs/Heads of Operations and Dispatch Managers in target
+      metros; 30–45 day pilots with shared KPI scorecards.
+    - >-
+      Integration partnerships and marketplace listings with dispatch/route
+      platforms (Onfleet, Bringg, Routific, OptimoRoute) and WFM vendors
+      (Deputy, When I Work).
+    - >-
+      Co-marketing with POS/ordering platforms (Toast, Square, Lightspeed)
+      targeting first-party delivery restaurants/grocers.
+    - >-
+      Thought leadership: case studies, ROI calculators, city-specific
+      benchmarks (miles per drop, SLA miss rate) to capture inbound.
+    - >-
+      Field marketing: ops roundtables and meetups in NYC, LA, Chicago, London;
+      sponsor logistics conferences (Home Delivery World, Manifest).
+    - >-
+      Outbound SDR program targeting operators with 10k–200k monthly orders;
+      messaging around SLA penalties and fuel/labor savings.
+    - >-
+      Freemium zone: free 2-zone forecast sandbox for 60 days; convert to paid
+      with batching and WFM integrations.
+    - >-
+      Channel partners: regional 3PL consultants and system integrators;
+      performance-based referral fees.
+  revenueStreams:
+    - >-
+      SaaS subscription tiered by monthly orders across active zones: Starter
+      ($499/month up to 30k orders), Growth ($1,999/month up to 200k orders),
+      Scale (custom).
+    - >-
+      Usage fee per optimized order for smart batching and live re-forecasting:
+      $0.01–$0.03 per order depending on volume.
+    - >-
+      Workforce planning add-on (shift optimization + WFM integration): +$0.005
+      per order or $499/month per 100 couriers.
+    - >-
+      Implementation/onboarding fee: $3k–$25k based on integrations and data
+      migration.
+    - >-
+      Premium support/SLA (24x7, dedicated TAM, sub-5 min alert response): 15%
+      of subscription.
+    - >-
+      Data API access for analytics teams and warehouse sync: $0.002 per order
+      or $299/month flat for small teams.
+  costStructure:
+    - >-
+      COGS: cloud compute/storage for model training and inference
+      ($0.0005–$0.002 per order), map/traffic APIs, event/weather data,
+      observability.
+    - >-
+      R&D: ML engineers, data scientists, backend engineers; annual fully loaded
+      cost per senior FTE ~$180k–$240k (US) / $80k–$140k (nearshore).
+    - >-
+      Sales & Marketing: AE/SDR comp, partner MDF, events, content; target CAC
+      payback < 6 months.
+    - >-
+      Customer Success/Support: onboarding, integrations, TAMs; target 10:1
+      customer-to-CSM ratio for mid-market.
+    - >-
+      Security & Compliance: SOC 2 Type II audit, pen tests, data privacy;
+      $50k–$150k annually.
+    - >-
+      General & Administrative: corp ops, legal, insurance (cyber),
+      office/remote tooling.
+    - 'Gross margin target: 75–85% at scale; blended after partner fees ~70–80%.'
+  keyMetrics:
+    - >-
+      Forecast accuracy: zone-hour WAPE ≤ 20% after 2 weeks, ≤ 15% after 8
+      weeks; calibration slope 0.9–1.1.
+    - >-
+      SLA performance: reduce SLA miss rate by 25–50% vs baseline;
+      95th-percentile on-time > 92%.
+    - >-
+      Efficiency: reduce miles per drop 10–20%; increase average batch size by
+      0.2–0.6 orders without increasing miss rate.
+    - >-
+      Labor: 10–20% reduction in idle time; courier utilization 70–80% in peaks;
+      10–15% reduction in overtime hours.
+    - 'Financial: cost per drop down $0.20–$0.60; SLA penalty costs down 30–60%.'
+    - >-
+      Adoption: >80% of suggested shifts accepted weekly; >70% adherence to
+      adaptive batching rules.
+    - >-
+      Product: time-to-first-value < 7 days; onboard to first pilot in < 3
+      weeks; weekly active users in ops console > 5 per 1k daily orders.
+    - >-
+      Commercial: logo churn < 8% annually (mid-market), NRR > 115%, CAC payback
+      < 6 months, Sales cycle 45–75 days.
+storyBrand:
+  character: >-
+    Operations leaders at local messenger and same‑day delivery services who
+    must hit SLAs at the lowest cost.
+  problem: >-
+    - External: Volatile, hyperlocal demand; blind spots by hour and zone;
+    inefficient batching; over/under‑staffing; high miles per drop; missed SLAs.
+
+    - Internal: Tired of spreadsheet guesswork, gut‑feel dispatching, and
+    constant firefighting.
+
+    - Philosophical: Last‑mile planning should be predictable and fair to
+    couriers and customers.
+  guide: >-
+    We’ve run same‑day ops and know the pain of spikes, no‑shows, and late fees.
+    Our AI forecasts demand by hour and zone, then auto‑suggests courier shifts
+    and batch sizes to minimize miles per drop and missed SLAs. Built by
+    last‑mile operators and data scientists; trusted by local fleets to plan
+    with confidence.
+  plan: >-
+    1) Connect data (order history, OMS/POS, zones, SLAs; optional
+    weather/events).
+
+    2) Receive hourly forecasts by zone plus recommended shifts and batch sizes
+    to hit targets.
+
+    3) Publish to dispatch, monitor adherence, and auto‑adjust as demand
+    changes.
+  callToAction: >-
+    Direct: Book a 20‑minute demo or start a 14‑day pilot. Transitional:
+    Download the Last‑Mile Planning Playbook and explore the forecast sandbox.
+  success: >-
+    Confident, data‑backed staffing; fewer miles per drop; fewer late orders;
+    higher courier utilization; smoother shifts; happier clients; and better
+    margins.
+  failure: >-
+    Keep guessing staffing, suffer hot‑zone overloads and idle hours elsewhere,
+    drive long routes, miss SLAs, frustrate customers, burn out couriers, and
+    watch profitability erode.
+landingPage:
+  hero:
+    title: Demand Forecasting & Smart Batching for Local Delivery
+    subtitle: >-
+      Predict hourly orders by zone and auto-plan courier shifts and batch sizes
+      to cut miles per drop and hit every SLA.
+    ctaText: Start free trial
+    ctaHref: /get-started
+  problem:
+    - Coverage swings between idle time and stockouts
+    - Missed SLAs from under-covered zones and poor batching
+    - Manual spreadsheets can’t react to hourly demand
+    - High miles per drop inflate cost and ETAs
+    - No clear view of where/when to staff couriers
+    - Promos and weather spike demand without warning
+  solution:
+    - 'Hourly, zone-level demand forecasts tailored to your network'
+    - Auto-suggested courier shifts and batch sizes for each interval
+    - 'Optimizer balances SLA hit rate, cost, and miles per drop'
+    - Live re-forecasting with weather/events and intraday data
+    - 'What‑if planning for promos, fees, and staffing limits'
+    - One‑click export to your dispatch and roster tools
+  features:
+    - Zone-level hourly forecasts with confidence bands
+    - Continuously trained models with seasonality and trends
+    - 'External signals: weather, local events, holidays'
+    - 'SLA‑aware batching: wait time, service windows, capacity'
+    - 'Shift builder: roles, vehicles, max hours, breaks'
+    - Coverage heatmap and gap alerts by zone/time
+    - Cost-per-drop and SLA risk per interval
+    - Lock rules for fixed shifts; auto-fill the rest
+    - Midday re-plan without disrupting locked shifts
+    - API and web app; SSO support
+    - CSV/webhook export to major dispatch/roster systems
+    - Audit logs and privacy-by-design data handling
+  steps:
+    - Connect your order and delivery data (API or CSV)
+    - 'Define zones, SLAs, vehicle types, and capacity rules'
+    - Review hourly forecasts and suggested shifts/batches
+    - Approve and publish rosters to dispatch
+    - Monitor live demand; auto-adjust with one click
+---
+# FluxFleet — Demand Forecasting & Smart Batching Planner
+
+Industry: Local Messengers and Local Delivery
+Service: Demand Forecasting & Smart Batching Planner

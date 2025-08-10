@@ -1,0 +1,322 @@
+---
+name: Charter Quote & Feasibility Agent (CQFA)
+slug: charter
+naics:
+  primary: '481219'
+  occupations: []
+service:
+  title: Charter Quote & Feasibility Agent
+  description: >-
+    Parses RFQs, checks airport/airspace feasibility, estimates costs, and
+    returns a ready-to-send quote with itinerary and assumptions.
+  targetUsers:
+    - Air charter operators
+    - Cargo charter providers
+    - Helicopter charter/scenic ops
+  triggers:
+    - Incoming RFQ email/web form
+    - Broker chat message
+  inputs:
+    - 'Dep/arr airports, dates/times (local/UTC)'
+    - PAX/cargo weights and constraints
+    - Candidate aircraft and operator rate cards
+    - Fuel price table/cards
+    - Known fees (landing/handling/parking)
+    - 'Performance data (burn rates, speed, minimum runway)'
+  steps:
+    - Parse RFQ and normalize units/timezones
+    - 'Airport suitability: runway/lighting/curfews/PPR'
+    - 'Compute distance, block time, estimated fuel burn'
+    - Crew legality pre-check (calls Crew Duty service)
+    - >-
+      Estimate fees: landing/handling/parking/overflight/nav (use tables;
+      request missing quotes via email)
+    - Apply margins/taxes; build price options (aircraft A/B)
+    - Draft quote PDF/email with assumptions and validity window
+    - Send to client; schedule automated follow-ups
+  tools:
+    - Gmail/Outlook API
+    - AeroDataBox/AviationAPI (airports/runways)
+    - OpenAIP (airspace)
+    - Great-circle library
+    - TimezoneDB
+    - CurrencyFX API
+    - DocuSign/HelloSign
+    - QuickBooks/Xero (optional)
+  outputs:
+    - Client-ready quote PDF/email
+    - 'Feasibility notes (airport limits, alternates)'
+    - Cost breakdown with sensitivity assumptions
+    - Follow-up tasks in CRM
+  pricingModel:
+    - Per-quote fee
+    - Success fee on accepted trip
+    - Monthly subscription with usage tier
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 4
+    overall: 4
+  risks:
+    - Fee or fuel estimate variance vs reality
+    - Airport constraint or permit missed if data stale
+    - Performance assumptions mismatched to tail-specific data
+  dependencies:
+    - Operator rate card and margins
+    - Aircraft performance profiles
+    - Access to handler/fuel contract data
+    - Shared mailbox/CRM access
+leanCanvas:
+  problem:
+    - >-
+      Slow, manual quote turnaround: Typical RFQ-to-quote time is 20–45 minutes
+      per request, often spanning multiple systems (email, Avinode/Schedaero,
+      EFBs, airport directories). Delays materially reduce win rate.
+    - >-
+      Feasibility risk and rework: Runway, performance, NOTAM/TFR,
+      slots/curfews, customs/CIQ, duty-time and MEL checks are fragmented and
+      error-prone, causing last-minute trip cancellations or costly re-routes.
+    - >-
+      Margin leakage: Fuel burn, winds, nav/route charges, FBO/handling,
+      overnights, deicing, and tax rules (e.g., U.S. FET/segment fees, EU
+      charges) are inconsistently modeled; quotes frequently underprice by
+      3–10%.
+    - >-
+      Scaling constraints: Growing RFQ volume requires headcount; smaller
+      operators cannot quote 24/7; brokers expect sub-15-minute responses.
+    - >-
+      Lack of auditability: Assumptions (e.g., alternates, minimum turn times,
+      crew swaps) are not standardized, making QA, training, and regulatory
+      audits harder.
+  solution:
+    - >-
+      AI RFQ ingestion: Parse emails, PDFs, Avinode/Schedaero messages to
+      extract itinerary, pax counts, dates, time windows, luggage, preferences,
+      special handling.
+    - >-
+      Feasibility engine: Validate airports/runways, performance by type/tail,
+      NOTAM/TFR, curfews/slots, customs/immigration, alternates, fuel
+      availability, duty/rest legality, MEL restrictions, ETOPS eligibility
+      where applicable.
+    - >-
+      Cost engine: Winds-aware block times, fuel burn, route/nav charges,
+      airport/handling/overnight/deicing fees, catering/ground transport, crew
+      costs, tax/regulatory fees; operator-specific markups and client-specific
+      pricing rules.
+    - >-
+      Quote composer: Auto-generate ready-to-send email/PDF with itinerary,
+      inclusions/exclusions, assumptions, and validity; supports multi-leg,
+      multi-day, and repositioning logic.
+    - >-
+      Human-in-the-loop: One-click review/approve/edit; transparent assumptions
+      and sensitivity sliders (fuel price, winds, handling vendor).
+    - >-
+      Learning loop: Improves with outcomes (won/lost, actual vs estimated
+      costs, client feedback) to tune pricing and feasibility heuristics per
+      operator and per tail.
+  uniqueValueProp: >-
+    Send feasibility-checked, margin-accurate charter quotes in under 5
+    minutes—directly from your inbox—without switching systems. Reduce quote
+    time by 80–90%, increase win rates by 10–20%, and cut infeasible accepts to
+    near zero, with clear, audit-ready assumptions.
+  unfairAdvantage: >-
+    Operator- and tail-specific calibration across feasibility and cost, built
+    from proprietary outcomes data (quotes won/lost, actuals vs estimates) and
+    integrated regulatory knowledge graphs. Embedded in the inbox and existing
+    ops stack—no system migration—creating high switching costs and continuous
+    learning unique to each operator.
+  customerSegments:
+    - >-
+      Part 135 and other non-scheduled passenger charter operators (1–50+
+      aircraft), U.S. (NAICS 481219) and similar EMEA/APAC ops
+    - Charter brokers and marketplaces handling high RFQ volumes
+    - >-
+      Air ambulance and medical charters (time-sensitive feasibility and
+      permits)
+    - On-demand cargo/ACMI/light freight charters
+    - Corporate flight departments offering ad-hoc non-scheduled flights
+  channels:
+    - >-
+      Direct sales to operators/brokers via SDR/AE motion; target lists from
+      public Part 135 certificates and industry directories
+    - >-
+      Industry events: NBAA Schedulers & Dispatchers, NBAA-BACE, EBACE, MEBAA
+      (live demos, pilot offers)
+    - >-
+      Partnerships/integrations with scheduling/quoting platforms (e.g., FL3XX,
+      Leon, Skylegs, Avianis, JetInsight) and broker CRMs (Stack.aero);
+      co-marketing where available
+    - >-
+      Content marketing: Speed-to-quote benchmark reports, feasibility
+      checklists, ROI calculators; webinars with operator case studies
+    - >-
+      Referrals via FBO/handler/fuel networks; reseller agreements where
+      possible
+    - >-
+      Marketplaces/RFQ aggregators (e.g., Avinode/Schedaero email parsing) and
+      email plug-in distribution
+    - >-
+      Outbound to high-volume brokers and medical charter operators with
+      30–90-day pilots
+  revenueStreams:
+    - >-
+      SaaS seats: $99–$199 per user/month (sales/dispatch roles) with volume
+      discounts
+    - >-
+      Usage: $1.50 per RFQ parsed; +$3.50 per full feasibility + cost; bundle
+      tiers (e.g., 1,000 RFQs/month at blended $2.50)
+    - >-
+      Enterprise: $1,500–$5,000/month for advanced features (SSO, custom
+      rulesets, guaranteed SLAs, private data connectors)
+    - >-
+      Implementation/integration fees: $2,000–$15,000 for custom connectors,
+      data migration, and per-tail performance calibration
+    - >-
+      Professional services: Fee schedule setup, cost table validation, and
+      training packages
+    - >-
+      Optional add-ons: Automated slot/PPR request workflows, CIQ
+      pre-notifications, and analytics packs
+  costStructure:
+    - >-
+      People: 10–15 FTE in year 1–2 (ML/NLP, flight ops SME, backend,
+      integrations, compliance, GTM); fully-loaded $2–3.5M/year
+    - >-
+      Data and APIs: Aeronautical data (AIRAC), NOTAM/TFR feeds, weather
+      (winds/icing), route charge estimators, airport/handling databases;
+      $150k–$500k/year depending on coverage/licensing
+    - >-
+      Compute: Model inference and routing, ETL pipelines, storage/backup;
+      $10k–$50k/month scaling with volume
+    - >-
+      Compliance/security: SOC 2 Type II, penetration testing, legal/insurance;
+      $100k–$250k/year
+    - 'Sales/marketing: Events, travel, demos, collateral; $150k–$400k/year'
+    - >-
+      Support and success: Onboarding, domain training, customer SLAs;
+      $100k–$300k/year
+  keyMetrics:
+    - >-
+      Median time to first quote (TTFQ): target <5 minutes; 95th percentile <12
+      minutes
+    - >-
+      Parser accuracy (airport/date/pax extraction): F1 ≥ 0.97; address
+      ambiguous requests with confidence flags
+    - >-
+      Feasibility precision/recall: <1% false-negative feasibility misses; <3%
+      false-positive flags; tracked per region/type
+    - >-
+      Quote accuracy: Estimated vs actual cost variance within ±5% on average;
+      <10% at 90th percentile
+    - >-
+      Win-rate uplift: +10–20 percentage points vs baseline after 60 days;
+      measured by response time cohorts
+    - 'Throughput: RFQs processed per user/day; target +3–5x vs baseline'
+    - >-
+      Adoption: % of RFQs initiated via CQFA; target >70% by month 3 for live
+      accounts
+    - 'Churn: <2% logo churn per quarter; NPS > 50; CSAT > 90%'
+    - >-
+      System reliability: 99.9% uptime; data refresh SLA for NOTAM/winds ≤ 5
+      minutes; AIRAC cycle updates on day 0
+    - 'Security: 100% of customers on MFA/SSO; zero P1 security incidents'
+storyBrand:
+  character: >-
+    Charter sales reps, brokers, and dispatchers at on-demand operators (NAICS
+    481219) who must turn RFQs into accurate quotes fast.
+  problem: >-
+    RFQs flood in; manual feasibility checks across airports, NOTAMs, crew duty,
+    and costs are slow and error‑prone—causing missed buying windows, re‑quotes,
+    and margin hits. It shouldn’t take a war room to send a reliable charter
+    quote.
+  guide: >-
+    Aviation‑trained AI, backed by ops experts and live data (NOTAMs, METAR/TAF,
+    fees, fuel), purpose‑built for 481219. We’ve priced thousands of trips and
+    know what derails a quote.
+  plan: >-
+    1) Forward an RFQ or connect your inbox/CRM. 2) The agent parses legs,
+    checks airport/airspace/crew feasibility, and builds costs plus itinerary
+    with assumptions and validity. 3) You review, set margins, and send the
+    ready‑to‑go quote. Agreement: transparent line items, auditable sources, and
+    enterprise‑grade security.
+  callToAction: >-
+    Start a 14‑day trial or forward your next RFQ to your unique agent address
+    to get a live quote in minutes. Transitional: book a 20‑minute demo or
+    download a sample quote + ROI model.
+  success: >-
+    Sub‑15‑minute turnaround, higher win rates, fewer re‑quotes, protected
+    margins, and confident ops—quoting that scales 24/7 without added headcount.
+  failure: >-
+    Slow or inaccurate quoting leads to lost deals, fee surprises and reposition
+    costs, crew duty busts, compliance risk, and damaged client trust.
+landingPage:
+  hero:
+    title: Charter Quote & Feasibility Agent
+    subtitle: >-
+      Turn RFQs into accurate, compliant quotes in minutes. Parses requests,
+      checks airport/airspace feasibility, estimates costs, and generates a
+      ready-to-send quote—built for on‑demand air operators (NAICS 481219).
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - 'Slow, manual quoting loses hot leads'
+    - 'Hidden fees, curfews, and NOTAMs erode margins'
+    - Messy RFQs across email/portals waste dispatcher time
+    - Performance/runway surprises trigger rework and apologies
+    - Pricing and assumptions vary by rep—no audit trail
+    - After-hours requests overwhelm small teams
+    - 'Fragmented data (FBOs, fuel, customs, slots) raises risk'
+  solution:
+    - 'Forward an RFQ—agent extracts legs, pax, dates, airports, notes'
+    - >-
+      Automatic feasibility: runway, NOTAMs/TFRs, curfews, approaches, customs
+      hours, airspace restrictions
+    - >-
+      Costing with your rates: block time, fuel, FBO/handling, landing, deicing,
+      crew, overnights, nav/overflight, taxes, owner splits, margin
+    - >-
+      Generates a branded quote with itinerary, pricing, assumptions,
+      exclusions, validity
+    - >-
+      Suggests alternates and multiple aircraft options with side‑by‑side
+      comparisons
+    - One‑click send; sync to CRM/ops; full audit trail and approvals
+    - 'Human‑in‑the‑loop: dispatch reviews and publishes'
+  features:
+    - Email/portal RFQ ingestion with attachment parsing
+    - 'Structured extraction of legs, pax, dates, airports, special requests'
+    - Airport/airspace feasibility engine with configurable rules
+    - >-
+      Live checks: NOTAMs, TFRs, curfews, slots, customs hours (via integrated
+      data sources)
+    - >-
+      Runway and performance suitability using operator‑approved data and
+      buffers
+    - >-
+      FBO selection with fee libraries; fuel price integrations
+      (contract/retail)
+    - >-
+      Cost model builder: hourly rates, mins, reposition, owner/charter splits,
+      taxes/segment fees
+    - Crew duty/rest and overnight estimation with time zone handling
+    - 'International prompts: permits, overflight, APIS, cabotage flags'
+    - Alternate airport suggestions and weather buffers (with integrations)
+    - >-
+      Quote composer: branded PDF/email, terms, assumptions,
+      inclusions/exclusions, validity
+    - 'Margin guardrails, discount controls, and approval workflows'
+    - 'API/webhooks; integrations with scheduling, CRM, and marketplaces'
+    - Change log and version history for compliance
+  steps:
+    - 'Connect aircraft, rates, fees, and preferred FBOs'
+    - Forward RFQs to your unique inbox or API
+    - Review auto‑feasibility and cost breakdown; adjust as needed
+    - Select aircraft and itinerary; add terms and validity
+    - Generate and send the quote
+    - Track opens and revisions; capture approvals
+    - Convert accepted quotes to trips and sync with ops
+---
+# Charter Quote & Feasibility Agent (CQFA)
+
+Generated for NAICS 481219 — Other Nonscheduled Air Transportation.
+Service: Charter Quote & Feasibility Agent

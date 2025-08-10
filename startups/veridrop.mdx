@@ -1,0 +1,299 @@
+---
+name: VeriDrop AI
+slug: veridrop
+service:
+  title: Proof-of-Delivery (POD) Validation & Fraud Detection
+  description: >-
+    Automated inspection of POD photos/signatures/geotags to verify delivery,
+    detect tampering, and flag anomalies for review.
+  targetUsers:
+    - Ops quality teams
+    - Finance/claims
+    - Client success
+  triggers:
+    - POD image/signature uploaded
+    - Client dispute raised
+  inputs:
+    - POD photo or signature
+    - Timestamp/GPS/EXIF
+    - Order recipient details
+    - Driver/device ID
+  steps:
+    - 1) Retrieve POD assets via webhook
+    - 2) OCR recipient names and parse EXIF/GPS
+    - '3) Check scene consistency (address markers, time-of-day)'
+    - 4) Compare to order metadata; compute trust score
+    - '5) Flag anomalies (duplicates, edits, mismatched GPS)'
+    - 6) Route to human reviewer; finalize disposition
+  tools:
+    - AWS Textract/Google Vision
+    - OpenCV/EXIF parsers
+    - Rekognition/Image hashing
+    - S3/Cloud Storage
+    - TMS webhooks
+  outputs:
+    - POD trust score and pass/fail
+    - Annotated review report
+    - Dispute pack for clients
+  pricingModel:
+    - Per-POD processed
+    - Tiered monthly bundles
+    - Optional chargeback recovery bounty
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 8
+    overall: 9
+  risks:
+    - False positives harming driver trust
+    - Low-quality images limit accuracy
+    - Privacy considerations around images
+  dependencies:
+    - Access to POD assets
+    - Clear fraud rules and thresholds
+    - Retention policy alignment
+leanCanvas:
+  problem:
+    - >-
+      High rate of false or disputed deliveries (1–3% of orders) leads to
+      credits/chargebacks, re-deliveries, and lost NPS.
+    - >-
+      Manual review of POD photos/signatures is slow and inconsistent; ops teams
+      spend 10–20 hours/week per 1,000 deliveries on disputes.
+    - >-
+      Drivers sometimes reuse old photos, use stock images, or spoof GPS; simple
+      EXIF checks miss sophisticated tampering.
+    - >-
+      Existing ePOD systems validate “presence” (a photo exists) but not
+      authenticity, location congruence, or chain-of-custody.
+    - >-
+      Signature collection lacks liveness checks and authenticity scoring;
+      forged scribbles pass as proof.
+    - >-
+      Geotags and timestamps can be spoofed; no cross-sensor validation
+      (barometer, magnetometer, Wi‑Fi, Bluetooth, cell) to confirm
+      location/time.
+    - >-
+      Lack of auditable, standardized evidence for insurance/regulatory needs
+      increases claim friction and payouts.
+    - >-
+      Integration complexity: ops leaders need a drop-in SDK/API that adds
+      verification without replatforming.
+  solution:
+    - >-
+      Drop‑in mobile SDK and REST API that capture photos/signatures with
+      cryptographic signing, device attestation, and secure metadata; sends
+      artifacts for scoring in <500 ms P95.
+    - >-
+      AI models analyze image authenticity (copy‑move, splice, resampling),
+      detect photo reuse via perceptual hashes, validate geotag/time vs route
+      plan and sensor fusion; produce a 0–100 risk score with reasons.
+    - >-
+      Signature liveness and authenticity scoring; optional historical matching
+      per recipient or consignment.
+    - >-
+      Rules engine + webhooks to auto-approve low risk, require extra step for
+      medium risk (2nd photo or driver note), and route high risk to review
+      console.
+    - >-
+      Ops console for human-in-the-loop review, bulk triage, and evidence packs
+      exportable to customers/insurers.
+    - >-
+      Analytics: driver risk profiles, hotspot locations/times, SKU/category
+      fraud trends; A/B testing to quantify impact on disputes and CS tickets.
+    - >-
+      Prebuilt integrations with popular ePOD/TMS/route platforms to minimize
+      engineering lift; onboarding in days not months.
+  uniqueValueProp: >-
+    Real‑time, forensic‑grade POD verification that proves “this package was
+    delivered here, then, by this device” and flags anomalies before they become
+    disputes—reducing delivery credits/chargebacks by 30–60% and cutting
+    investigation time by 70–90%, with explainable AI and a defensible audit
+    trail.
+  unfairAdvantage: >-
+    Cross-network fraud intelligence and a growing proprietary dataset of
+    tampered and authentic POD artifacts; secure capture SDK that
+    cryptographically binds image/signature to time, location, and device;
+    explainable risk scoring tuned for last‑mile use cases; and embedded
+    distribution via ePOD/TMS partners and insurers that raises switching costs.
+  customerSegments:
+    - >-
+      Mid-market and enterprise last‑mile carriers and local courier/messenger
+      companies (50–5,000 drivers).
+    - >-
+      Retailers and grocers with in‑house fleets needing photo/signature POD
+      (big box, same-day, curbside).
+    - >-
+      Pharmacies/healthcare and lab specimen couriers (chain-of-custody
+      requirements).
+    - >-
+      Alcohol/tobacco/age‑restricted delivery networks (signature and ID
+      capture).
+    - 'High‑value e‑commerce, 3PLs, and white‑glove delivery providers.'
+    - >-
+      ePOD/route optimization/TMS platforms seeking embedded POD verification
+      for their customers.
+    - >-
+      Insurance carriers and MGAs offering cargo/shipper policies who want
+      verified evidence to reduce loss ratios.
+  channels:
+    - >-
+      Direct sales to operations and risk leaders at courier firms, retailers,
+      and 3PLs (email/LI outreach, SDRs, demos).
+    - >-
+      Partnerships and OEM embeds with ePOD/route/TMS platforms; revenue share
+      and marketplace listings.
+    - >-
+      Industry events: CLDA (Customized Logistics & Delivery Association), Home
+      Delivery World, Manifest, RetailX.
+    - >-
+      Content and proof: case studies quantifying chargeback reduction; webinars
+      with partners; benchmark reports on POD fraud.
+    - >-
+      Pilot-led GTM: 30–90 day POCs with clear success criteria and integration
+      support.
+    - >-
+      Insurance partners: offer premium credits or faster claims for shipments
+      with verified POD.
+    - >-
+      Developer channels: API directories, GitHub samples, and community Slack
+      for integrators.
+  revenueStreams:
+    - >-
+      Usage-based pricing per verification: $0.015–$0.05 per POD check depending
+      on volume/latency tier; monthly minimums by tier.
+    - >-
+      Platform subscription: $499–$4,999/month for console, analytics,
+      governance, and SLA bundles.
+    - >-
+      Premium add-ons: Secure Capture SDK (+$0.005/check), Signature Match
+      module (+$0.005/check), Managed Review service ($0.20–$0.60 per escalated
+      case).
+    - >-
+      Enterprise features: SSO, dedicated VPC, custom retention/region, priority
+      support (custom quotes).
+    - >-
+      Annual contracts with committed volume discounts (10–40%) and
+      true-up/overage billing.
+    - >-
+      Insurance referral rebates for clients opting into partnered policies with
+      verified POD requirements.
+  costStructure:
+    - >-
+      Cloud inference and storage: target COGS 20–30% of revenue; optimize with
+      quantized models and edge caching; est. $0.003–$0.01 per check at scale.
+    - >-
+      Data labeling and synthetic tamper generation (internal team + vendors);
+      budget $100k–$300k/year in early stages.
+    - 'Engineering and ML headcount (6–12 FTE initial): $1.5M–$3M/year.'
+    - >-
+      Security/compliance (SOC 2 Type II, pen tests, DPA legal):
+      $100k–$250k/year.
+    - >-
+      Sales/marketing: SDRs, events, partner programs; CAC payback target <12
+      months; $300k–$1M/year depending on growth stage.
+    - >-
+      Customer success and Managed Review ops (optional) staffed to SLA;
+      variable with volume.
+    - >-
+      Legal/insurance and general admin (D&O/cyber, professional liability):
+      $50k–$150k/year.
+  keyMetrics:
+    - >-
+      Detection performance: precision ≥98% at recall ≥90% on known fraud
+      patterns; target false-positive rate <1.5% at production thresholds.
+    - >-
+      Business impact: 30–60% reduction in delivery credits/chargebacks within
+      90 days; 70–90% faster dispute resolution time.
+    - >-
+      Ops efficiency: reduce manual reviews to <2% of deliveries; median review
+      time <90 seconds per flagged case.
+    - >-
+      Latency & reliability: <500 ms P95 scoring; 99.9% API uptime; <0.1%
+      webhook failure rate after retries.
+    - >-
+      Adoption: % of routes using secure capture SDK (>80% by month 3);
+      integration time to first decision (<7 days).
+    - >-
+      Quality and drift: weekly PSI drift score <0.2; model retrain cadence
+      every 6–8 weeks; A/B lift vs control.
+    - >-
+      Financial: Gross margin >60% by month 12; Net Revenue Retention >115%;
+      Logo churn <7% annually; LTV/CAC >3.
+    - >-
+      Fraud/issue mix: flags by reason (duplicate image, GPS mismatch, label
+      mismatch, signature risk), top 10 hotspots, top 10 driver risk delta.
+storyBrand:
+  character: >-
+    Local messenger and same‑day delivery operators (ops managers, dispatchers,
+    owner‑operators) who need reliable, defensible proof of delivery without
+    slowing routes.
+  problem: >-
+    External: fake/altered photos, forged signatures, spoofed geotags. Internal:
+    hours lost to disputes and manual checks. Philosophical: honest operators
+    shouldn’t lose revenue or trust because PODs can be faked.
+  guide: >-
+    We understand last‑mile pressure and tight client SLAs. Our AI verifies POD
+    photos, signatures, and geotags, detecting tampering and anomalies with
+    explainable checks and an easy, workflow‑friendly interface.
+  plan: >-
+    1) Connect via API or upload PODs. 2) Set validation rules and thresholds
+    (geofence, time window, tamper tests). 3) AI scores and flags anomalies for
+    quick review; results sync back to your systems with a feedback loop to
+    improve over time.
+  callToAction: >-
+    Direct: Start a pilot with your own PODs or book a 15‑minute demo.
+    Transitional: Get the POD Fraud Playbook and sample validation rules.
+  success: >-
+    Fewer chargebacks and disputes, faster approvals and payouts, audit‑ready
+    evidence for clients, stronger trust and SLA compliance, reduced manual
+    review, better driver coaching, protected margins.
+  failure: >-
+    Ongoing revenue leakage from fraud and errors, manual review overload,
+    missed SLAs, client churn, and elevated compliance and insurance risk.
+landingPage:
+  hero:
+    title: AI Proof‑of‑Delivery Validation & Fraud Detection
+    subtitle: >-
+      Verify photos, signatures, and geotags in seconds. Stop tampering, cut
+      disputes, and prove delivery with confidence.
+    ctaText: Request Demo
+    ctaHref: /demo
+  problem:
+    - Fake or recycled POD photos
+    - Edited timestamps and missing metadata
+    - Forged or inconsistent signatures
+    - GPS spoofing and off‑location drop‑offs
+    - Manual reviews slow and error‑prone
+    - Disputes and chargebacks erode margins
+  solution:
+    - Automated inspection of every POD artifact in real time
+    - 'Tamper, spoofing, and inconsistency detection with explainable signals'
+    - Risk scores and instant alerts for review
+    - 'Clean, exportable audit trail for customers and regulators'
+    - Drop‑in API/SDKs that fit your courier and TMS workflows
+    - Human‑in‑the‑loop tools to resolve edge cases fast
+  features:
+    - 'Photo forensics: detects edits, reused images, and timestamp mismatches'
+    - 'Signature validation: consistency scoring and likely‑forgery flags'
+    - >-
+      Geotag checks: destination proximity, route plausibility, and time‑window
+      validation
+    - Device and account fingerprinting to catch repeat abusers
+    - Anomaly scoring with customizable thresholds and business rules
+    - 'Real‑time API, webhooks, and batch processing'
+    - 'Reviewer dashboard with queues, evidence, and one‑click outcomes'
+    - Immutable audit logs and exportable reports
+    - 'Privacy‑first: encryption, granular retention controls, compliance‑ready'
+    - 'Flexible deployment: cloud or private cloud with 99.9% uptime SLA'
+  steps:
+    - Connect your app or TMS via API/SDK
+    - 'Set rules, thresholds, and required POD fields'
+    - Stream PODs and receive instant pass/fail with risk scores
+    - Review flagged deliveries with visual evidence and explanations
+    - Sync outcomes back to your systems and notify stakeholders
+---
+# VeriDrop AI
+
+Industry: Local Messengers and Local Delivery
+Service: Proof-of-Delivery (POD) Validation & Fraud Detection

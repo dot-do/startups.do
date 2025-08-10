@@ -1,0 +1,335 @@
+---
+name: RailSight Triage — Wayside Detector Alert AI
+slug: railsight
+service:
+  title: Wayside Detector Alert Triage (HBD/WILD/Acoustic)
+  description: >-
+    Correlates wayside detector alerts with AEI reads and train data to
+    prioritize actions and draft set-out/work orders.
+  targetUsers:
+    - Mechanical departments
+    - Train operations desk
+    - Car shops
+  triggers:
+    - New HBD/WILD/acoustic alert
+    - Detector health check fails
+    - Unusually high alert rate on a train or segment
+  inputs:
+    - 'Detector alert streams (HBD,WILD,acoustic)'
+    - AEI tag reads and consist data
+    - Train symbol/schedule
+    - Weather and speed at detector
+    - Maintenance history for implicated cars
+  steps:
+    - Ingest alerts and correlate with nearest AEI read/consist
+    - 'Score severity based on thresholds, trends, and context'
+    - Identify nearest feasible set-out locations and shops
+    - Draft recommended action and notify responsible desk
+    - Open EAM work order if approved
+  tools:
+    - Railinc AEI/consist feeds (where available)
+    - MQTT/REST ingest
+    - Python scoring service
+    - Email/Slack/Teams notifications
+    - EAM API for ticket creation
+  outputs:
+    - Prioritized alert queue with severity and action recommendations
+    - Draft set-out plans and work orders
+    - Detector health and false-positive metrics
+  pricingModel:
+    - Per-detector per-month
+    - Optional per-alert triage fee
+    - Setup/integration one-time
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 4
+    modelCapability: 4
+    overall: 4
+  risks:
+    - False positives/negatives
+    - Latency and data synchronization
+    - Operational liability if actions are misapplied
+  dependencies:
+    - Live/near-real-time alert data
+    - AEI/consist access
+    - Ops contact routing and approval protocol
+leanCanvas:
+  problem:
+    - >-
+      High alert volume and noise: Class I/II railroads receive tens of
+      thousands of HBD/WILD/Acoustic alerts annually with 30–60%
+      noise/duplicates, driving unnecessary set-outs, crew delays, and yard
+      congestion.
+    - >-
+      Fragmented data prevents fast action: AEI reads, detector events, train
+      consists, dispatch data, and maintenance history live in separate systems;
+      mechanical desks spend 5–15 minutes per alert stitching context, delaying
+      stop/continue decisions.
+    - >-
+      Inconsistent triage and missed trends: Threshold-only rules miss context
+      (ambient temp, speed, prior readings) leading to both false negatives
+      (missed hot bearings) and false positives (unnecessary set-outs).
+    - >-
+      Limited auditability and compliance: Manual notes and screenshots
+      complicate post-incident investigations, AAR claims, and FRA audits; no
+      standardized evidence trail or KPIs.
+    - >-
+      Work order friction: Drafting set-out/work orders and routing to the
+      correct shop or contractor adds 10–30 minutes per incident and is
+      error-prone.
+  solution:
+    - >-
+      Real-time correlation engine that stitches HBD/WILD/Acoustic alerts with
+      AEI tag reads, train consist/speed, prior detector history, environment
+      (ambient temp/wind), grade/curvature, and maintenance records.
+    - >-
+      Risk scoring and recommended actions: stop now, set-out at next
+      siding/yard, slow/monitor to next detector, or continue—each with
+      confidence and rationale.
+    - >-
+      Automated drafting of set-out/work orders with AAR codes, part likelihood
+      (e.g., bearing vs. wheel), nearest capable repair location, and estimated
+      time/cost impact.
+    - >-
+      Noise suppression and de-duplication across detectors on the same
+      line-of-road to minimize repeat calls on the same asset.
+    - >-
+      Ops workflow: one-click notification to dispatcher/mechanical,
+      mobile-friendly view for crews, and escalation if unacknowledged within
+      SLA.
+    - >-
+      Full audit trail and analytics: per-alert evidence pack, decisions,
+      outcomes, and KPIs for FRA/AAR reporting and continuous improvement.
+  uniqueValueProp: >-
+    Turn noisy wayside alerts into prioritized, explainable actions in under 60
+    seconds by fusing detector events with AEI/train/maintenance data—reducing
+    unnecessary set-outs by 25–45%, cutting response time by 50–70%, and
+    creating auditable, auto-drafted work orders that keep trains moving and
+    assets safe.
+  unfairAdvantage: >-
+    A cross-railroad, multi-sensor labeled dataset and correlation engine
+    centered on AEI identity gives superior context and trend modeling;
+    pre-built connectors to major EAM/TMS systems enable true closed-loop
+    automation; explainable, policy-driven recommendations satisfy
+    safety/compliance teams, reducing approval friction versus OEM-specific,
+    black-box analytics.
+  customerSegments:
+    - >-
+      Class I freight railroads (mechanical desk, network operations, safety,
+      data/IT).
+    - >-
+      Class II regional railroads and larger short lines with detector coverage
+      or shared trackage rights.
+    - >-
+      Railcar owners/lessors and repair shops seeking earlier interventions and
+      reduced bad-order mileage.
+    - >-
+      Detector OEMs and integrators (HBD/WILD/Acoustic) seeking analytics and
+      triage software to bundle with hardware.
+    - >-
+      Rail service contractors (maintenance-of-equipment and on-track support)
+      who can receive auto-routed work orders.
+    - >-
+      Passenger/commuter agencies operating on freight corridors with shared
+      detector infrastructure.
+  channels:
+    - >-
+      Direct enterprise sales to Class I mechanical/operations with ROI-driven
+      pilots on selected subdivisions.
+    - >-
+      Co-selling/bundles with detector OEMs/integrators during hardware refresh
+      or greenfield installs.
+    - >-
+      Partnerships with Railinc (data feeds), EAM vendors (implementation
+      partners), and Class I innovation programs.
+    - >-
+      Industry events and committees: AREMA, AAR/MxV Rail committees, Railway
+      Interchange; publish validated case studies.
+    - >-
+      Targeted outreach to railcar lessors and repair networks for downstream
+      adoption and data-sharing incentives.
+    - >-
+      RFP responses for condition monitoring/operations decision support and
+      proof-of-value engagements.
+  revenueStreams:
+    - >-
+      SaaS subscription per detector site: $600–$1,200 per site per month
+      depending on data availability and SLA.
+    - >-
+      Enterprise license for railroads: $500k–$2M/year for network-wide
+      coverage, unlimited users, and premium support.
+    - >-
+      Usage-based component: $0.05–$0.15 per processed alert beyond plan
+      thresholds or for high-frequency corridors.
+    - >-
+      Implementation/integration fees: $75k–$300k per deployment (interfaces to
+      AEI, EAM, TMS, SSO).
+    - >-
+      Optional outcome-based bonus: shared savings from reduced unnecessary
+      set-outs/delays (with baseline and audit).
+    - >-
+      Training and change management packages for mechanical desks and
+      dispatchers.
+  costStructure:
+    - >-
+      Data licensing/feeds (AEI/consist/ownership) and connectivity to railroad
+      systems.
+    - >-
+      Cloud/compute for streaming ingestion, feature stores, and inference
+      (budget: $0.02–$0.05 per alert; $5k–$25k/month per large customer).
+    - ML/data engineering and domain experts (mechanical/operations SMEs).
+    - Integration/professional services team and 24/7 support desk.
+    - 'Security/compliance (SOC 2, ISO 27001) and rail-safety insurance.'
+    - Partner/OEM rev-share and industry memberships (AAR/AREMA).
+    - >-
+      Sales and customer success (enterprise motion) and travel for on-site
+      pilots.
+  keyMetrics:
+    - >-
+      Triage precision/recall (per detector type): target precision ≥85%, recall
+      ≥80% for true actionable conditions post-human review.
+    - >-
+      Reduction in unnecessary set-outs: baseline vs. post-implementation;
+      target 25–45% reduction within 6 months.
+    - >-
+      Time-to-notification P95: target ≤60 seconds from event receipt;
+      end-to-end acknowledgment P95 ≤5 minutes.
+    - >-
+      False-negative rate on severe events (e.g., verified bearing failures):
+      target <1 per 1M car-miles with immediate root-cause review.
+    - >-
+      Crew/desk time saved per alert: target 5–12 minutes; aggregate
+      hours/month.
+    - >-
+      Network impact: average minutes of delay avoided per incident; yard dwell
+      reduction for set-out cars (target 5–10%).
+    - >-
+      Work-order automation rate: ≥70% auto-drafted with <10% manual rework; EAM
+      acceptance latency ≤2 minutes.
+    - >-
+      System reliability: ingestion uptime ≥99.9%; decisioning availability
+      ≥99.5%; data latency P95 ≤5 seconds.
+    - >-
+      Commercial KPIs: pilot-to-production conversion ≥60%; gross margin ≥70% at
+      scale; logo retention ≥95%; NRR ≥115%.
+    - >-
+      Compliance/audit: 100% of alerts with evidence pack; audit requests
+      turnaround <48 hours.
+storyBrand:
+  character: >-
+    Rail operations and mechanical teams (dispatch/NOC, mechanical desk,
+    trainmasters, car owners) who must act on HBD/WILD/acoustic alerts in real
+    time without disrupting trains.
+  problem: >-
+    - External: High volumes of uncorrelated HBD/WILD/acoustic alerts; limited
+    context from AEI/consist; manual triage is slow and inconsistent.
+
+    - Internal: Alarm fatigue and uncertainty about severity, location, and next
+    best action.
+
+    - Philosophical: Safety‑critical defects shouldn’t be buried in noise or
+    guesswork.
+  guide: >-
+    We understand late‑night alarms, set‑out decisions under pressure, and
+    regulatory scrutiny. Our rail ops + ML team integrates detector, AEI, and
+    train data to rank severity, pinpoint car/wheel, and recommend
+    actions—validated in pilots to reduce noise and speed decisions.
+  plan: >-
+    - Connect: Ingest wayside alerts, AEI reads, train consist/speed/location
+    via secure APIs.
+
+    - Configure: Calibrate rules and ML thresholds to your territory, detectors,
+    and SOPs.
+
+    - Prove: Run a 60–90 day pilot on selected lanes; compare outcomes and tune.
+
+    - Deploy: Go live with 24/7 dashboard, alerts, and auto-drafted set-out/work
+    orders to TMS/EAM/CMMS.
+
+    - Support: SLA-backed monitoring, weekly reviews, continuous model updates.
+  callToAction: >-
+    Direct: Schedule a 30‑minute demo and pick a pilot territory. Transitional:
+    Request a sample triage report and ROI estimate.
+  success: >-
+    - Faster, clearer decisions with prioritized alerts and precise car/wheel
+    identification.
+
+    - Fewer unnecessary set‑outs and service disruptions; better network
+    velocity and OTIF.
+
+    - Improved safety and compliance; documented actions and audit trail.
+
+    - Shorter shop cycle times via pre-filled, accurate work orders.
+
+    - Higher crew confidence and reduced alarm fatigue.
+  failure: >-
+    - Continued alarm overload and manual second‑guessing.
+
+    - Missed critical defects or late interventions leading to incidents and
+    delays.
+
+    - More unnecessary set‑outs, network slowdowns, and regulatory exposure.
+landingPage:
+  hero:
+    title: Wayside Detector Alert Triage
+    subtitle: >-
+      AI that links HBD/WILD/Acoustic alarms with AEI and train data to
+      prioritize actions and auto-draft set-out/work orders.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - Detector alarms flood the desk; true defects are buried in noise.
+    - Manual AEI cross-referencing slows response and creates errors.
+    - Missed set-out windows cause road failures and delay minutes.
+    - Triage varies by shift; policies aren’t consistently applied.
+    - Handoffs to mechanical crews are fragmented; no clean audit trail.
+    - 'Decisions lack context (train makeup, location, direction, yard capacity).'
+    - 'Outcomes aren’t captured, so false positives persist.'
+  solution:
+    - >-
+      Fuse detector alerts with AEI reads, consist, speed, tonnage, and
+      territory data.
+    - Score risk and urgency to surface the top actions in real time.
+    - Recommend optimal set-out locations and timing to minimize network impact.
+    - Auto-generate work orders and set-out instructions for fast approval.
+    - Route to the right desk/crew and track disposition end-to-end.
+    - Continuously learn from outcomes to cut false positives and improve rules.
+  features:
+    - >-
+      Detector-agnostic ingestion (HBD, WILD, acoustic, dragging equipment,
+      truck hunting).
+    - Live AEI correlation with car/locomotive history and prior defects.
+    - 'Consist-aware logic (position-in-train, length, tonnage per axle).'
+    - >-
+      Geo-aware triage using subdivision, milepost, siding capacity, and
+      upcoming yards.
+    - Configurable rule packs aligned to railroad policy and FRA thresholds.
+    - ML defect probability with confidence scores and explainable rationale.
+    - >-
+      Action recommendations: continue, inspect, set out now, set out at [best
+      location].
+    - 'One-click work order creation; CMMS/EAM integration (Maximo, Infor, SAP).'
+    - TMS/dispatch integration; crew and yard notifications out-of-the-box.
+    - 'Real-time alerts via web, mobile, email/SMS, and system webhooks.'
+    - 'Role-based access, SSO, audit trail, retention, and governance.'
+    - >-
+      KPI dashboards: avoided defects, delay minutes saved, false alarm rate,
+      MTTR.
+    - APIs for OEMs and service partners; OEM-independent architecture.
+    - >-
+      Cloud or on-prem deployment with high availability and rail-grade
+      security.
+  steps:
+    - 'Connect detector, AEI, and train lineup feeds.'
+    - Normalize and correlate events to equipment IDs and train context.
+    - Score risk and recommend actions with explainable AI.
+    - Suggest best set-out location and timing based on network impact.
+    - Draft work orders and instructions; route to the approver.
+    - Notify crews/yards and sync with CMMS/TMS systems.
+    - Monitor execution and capture inspection/repair outcomes.
+    - Continuously learn from outcomes to refine models and rules.
+---
+# RailSight Triage — Wayside Detector Alert AI
+
+Industry: Support Activities for Rail Transportation
+Service: Wayside Detector Alert Triage (HBD/WILD/Acoustic)
