@@ -297,7 +297,352 @@ landingPage:
     - 'Rollout: enable alarms, train operators, connect additional lines.'
     - 'Optimize: weekly model refresh, ROI tracking, remote monitoring.'
 ---
+
 # CuVision RCA
 
 Generated for NAICS 331420 — Copper Rolling, Drawing, Extruding, and Alloying.
 Service: Surface Defect Detection and Root-Cause Analysis (Rod/Strip/Wire)
+
+## Business Process Functions
+
+```typescript
+// Core Types
+interface Lead {
+  companyName: string;
+  contactInfo: ContactInfo;
+  productionLines: ProductionLine[];
+  currentDefectRate: number;
+  annualVolume: number;
+  qualityRequirements: QualityStandard[];
+}
+
+interface Customer {
+  id: string;
+  companyProfile: CompanyProfile;
+  contractDetails: ContractDetails;
+  deployedSystems: DeployedSystem[];
+  supportTier: SupportTier;
+}
+
+interface ProductionLine {
+  lineId: string;
+  type: 'rod' | 'strip' | 'wire';
+  speed: number; // m/min
+  alloyTypes: string[];
+  currentDefectTypes: DefectType[];
+}
+
+interface DefectEvent {
+  timestamp: Date;
+  location: Coordinates;
+  defectType: 'pit' | 'scratch' | 'lap' | 'oxidation' | 'seam';
+  severity: number;
+  upstreamParameters: ProcessParameters;
+}
+
+interface ProcessParameters {
+  rollGap: number;
+  tension: number;
+  coolantConcentration: number;
+  lineSpeed: number;
+  furnaceTemperature: number;
+  dieWear: number;
+  lubrication: LubricationStatus;
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const demoResults = await conductDemo(qualifiedLead);
+  const pilotProposal = await generatePilotProposal(demoResults);
+  const contract = await negotiateContract(pilotProposal);
+  return await onboardCustomer(contract);
+}
+
+export async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  // Validate production volume and defect impact
+  const volumeQualified = lead.annualVolume >= 1000; // tons/year minimum
+  const defectImpact = calculateDefectImpact(lead.currentDefectRate, lead.annualVolume);
+  const roiPotential = estimateROI(defectImpact, lead.productionLines);
+  
+  if (!volumeQualified || roiPotential < 3.0) {
+    throw new Error('Lead does not meet qualification criteria');
+  }
+  
+  return {
+    ...lead,
+    qualificationScore: calculateQualificationScore(lead),
+    estimatedROI: roiPotential,
+    recommendedPilotLines: selectPilotLines(lead.productionLines)
+  };
+}
+
+export async function conductDemo(qualifiedLead: QualifiedLead): Promise<DemoResults> {
+  const demoSetup = await prepareDemoEnvironment(qualifiedLead);
+  const sampleData = await collectSampleImagery(qualifiedLead.recommendedPilotLines);
+  const defectDetection = await runDefectDetectionDemo(sampleData);
+  const rcaDemo = await demonstrateRootCauseAnalysis(defectDetection);
+  
+  return {
+    detectionAccuracy: defectDetection.accuracy,
+    falseAlarmRate: defectDetection.falseAlarmRate,
+    rcaInsights: rcaDemo.insights,
+    stakeholderFeedback: await collectStakeholderFeedback(qualifiedLead.contactInfo)
+  };
+}
+
+export async function generatePilotProposal(demoResults: DemoResults): Promise<PilotProposal> {
+  const scopeOfWork = await definePilotScope(demoResults);
+  const timeline = calculatePilotTimeline(scopeOfWork);
+  const investment = calculatePilotInvestment(scopeOfWork);
+  const successMetrics = definePilotSuccessMetrics(demoResults);
+  
+  return {
+    scopeOfWork,
+    timeline,
+    investment,
+    successMetrics,
+    proposalDocument: await generateProposalDocument(scopeOfWork, timeline, investment)
+  };
+}
+
+// Product Development Processes
+export async function developVisionModel(requirements: ModelRequirements): Promise<TrainedModel> {
+  const trainingData = await collectTrainingData(requirements);
+  const labeledDataset = await labelDefectImagery(trainingData);
+  const model = await trainDefectDetectionModel(labeledDataset);
+  const validatedModel = await validateModelPerformance(model, requirements.performanceTargets);
+  
+  return await deployModelToEdge(validatedModel);
+}
+
+export async function collectTrainingData(requirements: ModelRequirements): Promise<TrainingDataset> {
+  const imageData = await captureProductionImagery(requirements.productionLines);
+  const processData = await extractProcessParameters(requirements.historianConnections);
+  const defectLabels = await getExpertDefectLabels(imageData);
+  
+  return {
+    images: imageData,
+    processParameters: processData,
+    defectAnnotations: defectLabels,
+    metadata: generateDatasetMetadata(requirements)
+  };
+}
+
+export async function trainDefectDetectionModel(dataset: TrainingDataset): Promise<MLModel> {
+  const preprocessedData = await preprocessImagery(dataset.images);
+  const augmentedDataset = await applyDataAugmentation(preprocessedData);
+  const model = await initializeYOLOModel(dataset.metadata.defectTypes);
+  
+  const trainedModel = await trainModel(model, augmentedDataset, {
+    epochs: 100,
+    batchSize: 32,
+    learningRate: 0.001,
+    validationSplit: 0.2
+  });
+  
+  return await optimizeForEdgeDeployment(trainedModel);
+}
+
+// Revenue Generation Flows
+export async function processSubscriptionRevenue(customer: Customer): Promise<RevenueTransaction> {
+  const subscriptionTier = determineSubscriptionTier(customer.deployedSystems);
+  const annualFee = calculateAnnualSubscriptionFee(subscriptionTier, customer.deployedSystems);
+  const billingSchedule = setupBillingSchedule(customer, annualFee);
+  
+  return await processPayment(customer, annualFee, billingSchedule);
+}
+
+export async function deliverImplementationServices(customer: Customer, scope: ImplementationScope): Promise<ServiceDelivery> {
+  const projectPlan = await createImplementationPlan(scope);
+  const fieldTeam = await assignFieldEngineers(projectPlan);
+  const systemIntegration = await integrateWithCustomerSystems(customer, scope);
+  const commissioning = await commissionSystem(systemIntegration);
+  
+  return {
+    deliveredServices: projectPlan.services,
+    systemStatus: commissioning.status,
+    customerAcceptance: await obtainCustomerAcceptance(commissioning),
+    invoiceAmount: calculateImplementationFee(scope)
+  };
+}
+
+export async function provisionHardware(customer: Customer, requirements: HardwareRequirements): Promise<HardwareDeployment> {
+  const hardwareSpec = await specifyHardwareConfiguration(requirements);
+  const procurement = await procureHardware(hardwareSpec);
+  const installation = await installHardware(procurement, customer.deployedSystems);
+  
+  return {
+    installedHardware: installation.components,
+    configurationStatus: installation.status,
+    warrantyDetails: generateWarrantyDetails(procurement),
+    leaseOrPurchase: determineHardwareFinancing(customer, hardwareSpec)
+  };
+}
+
+// Operational Procedures
+export async function deploySystem(customer: Customer, productionLine: ProductionLine): Promise<SystemDeployment> {
+  const sitePreparation = await prepareSiteForDeployment(customer, productionLine);
+  const hardwareInstallation = await installEdgeHardware(sitePreparation);
+  const softwareDeployment = await deploySoftwareStack(hardwareInstallation);
+  const systemConfiguration = await configureForProductionLine(softwareDeployment, productionLine);
+  const testing = await conductSystemTesting(systemConfiguration);
+  
+  if (testing.success) {
+    return await activateProductionSystem(systemConfiguration);
+  } else {
+    throw new Error(`System deployment failed: ${testing.issues.join(', ')}`);
+  }
+}
+
+export async function monitorSystemHealth(deployment: SystemDeployment): Promise<HealthStatus> {
+  const systemMetrics = await collectSystemMetrics(deployment);
+  const modelPerformance = await evaluateModelPerformance(deployment);
+  const hardwareStatus = await checkHardwareHealth(deployment);
+  const networkConnectivity = await verifyNetworkConnectivity(deployment);
+  
+  const overallHealth = calculateOverallHealth([
+    systemMetrics.status,
+    modelPerformance.status,
+    hardwareStatus.status,
+    networkConnectivity.status
+  ]);
+  
+  if (overallHealth.severity === 'critical') {
+    await triggerSupportEscalation(deployment, overallHealth);
+  }
+  
+  return overallHealth;
+}
+
+export async function performMaintenance(deployment: SystemDeployment, maintenanceType: MaintenanceType): Promise<MaintenanceResult> {
+  const maintenanceWindow = await scheduleMaintenanceWindow(deployment);
+  const backupCreated = await createSystemBackup(deployment);
+  
+  try {
+    const maintenanceActions = await executeMaintenanceActions(deployment, maintenanceType);
+    const validation = await validateSystemAfterMaintenance(deployment);
+    
+    return {
+      success: true,
+      actionsPerformed: maintenanceActions,
+      validationResults: validation,
+      downtime: calculateDowntime(maintenanceWindow)
+    };
+  } catch (error) {
+    await restoreFromBackup(deployment, backupCreated);
+    throw new Error(`Maintenance failed: ${error.message}`);
+  }
+}
+
+// Decision-Making Workflows
+export async function evaluatePilotSuccess(pilot: PilotDeployment): Promise<PilotEvaluation> {
+  const performanceMetrics = await collectPilotMetrics(pilot);
+  const roiAnalysis = await calculatePilotROI(pilot, performanceMetrics);
+  const stakeholderFeedback = await gatherStakeholderFeedback(pilot);
+  const technicalAssessment = await assessTechnicalPerformance(pilot);
+  
+  const recommendation = await generateConversionRecommendation({
+    performanceMetrics,
+    roiAnalysis,
+    stakeholderFeedback,
+    technicalAssessment
+  });
+  
+  return {
+    pilotResults: performanceMetrics,
+    financialImpact: roiAnalysis,
+    stakeholderSentiment: stakeholderFeedback,
+    technicalReadiness: technicalAssessment,
+    conversionRecommendation: recommendation
+  };
+}
+
+export async function decideProductionConversion(evaluation: PilotEvaluation): Promise<ConversionDecision> {
+  const conversionCriteria = {
+    minROI: 3.0,
+    maxPaybackMonths: 9,
+    minDefectDetectionAccuracy: 0.95,
+    maxFalseAlarmRate: 0.05,
+    minStakeholderSatisfaction: 0.8
+  };
+  
+  const meetsFinancialCriteria = evaluation.financialImpact.roi >= conversionCriteria.minROI &&
+                                evaluation.financialImpact.paybackMonths <= conversionCriteria.maxPaybackMonths;
+  
+  const meetsTechnicalCriteria = evaluation.technicalReadiness.accuracy >= conversionCriteria.minDefectDetectionAccuracy &&
+                                evaluation.technicalReadiness.falseAlarmRate <= conversionCriteria.maxFalseAlarmRate;
+  
+  const meetsStakeholderCriteria = evaluation.stakeholderSentiment.overallSatisfaction >= conversionCriteria.minStakeholderSatisfaction;
+  
+  if (meetsFinancialCriteria && meetsTechnicalCriteria && meetsStakeholderCriteria) {
+    return await approveProductionConversion(evaluation);
+  } else {
+    return await recommendPilotExtension(evaluation, conversionCriteria);
+  }
+}
+
+export async function planExpansion(customer: Customer, conversionSuccess: ConversionDecision): Promise<ExpansionPlan> {
+  const additionalLines = await identifyExpansionOpportunities(customer);
+  const expansionTimeline = await createExpansionTimeline(additionalLines);
+  const resourceRequirements = await calculateExpansionResources(additionalLines);
+  const revenueProjection = await projectExpansionRevenue(additionalLines, customer);
+  
+  return {
+    targetLines: additionalLines,
+    implementationTimeline: expansionTimeline,
+    resourceNeeds: resourceRequirements,
+    revenueImpact: revenueProjection,
+    riskAssessment: await assessExpansionRisks(additionalLines, customer)
+  };
+}
+
+// Root Cause Analysis Workflow
+export async function performRootCauseAnalysis(defectEvent: DefectEvent): Promise<RootCauseAnalysis> {
+  const correlatedParameters = await correlateWithProcessParameters(defectEvent);
+  const historicalPatterns = await analyzeHistoricalPatterns(defectEvent.defectType);
+  const causalFactors = await identifyCausalFactors(correlatedParameters, historicalPatterns);
+  const correctiveActions = await generateCorrectiveActions(causalFactors);
+  
+  return {
+    primaryCause: causalFactors.primary,
+    contributingFactors: causalFactors.contributing,
+    confidence: causalFactors.confidence,
+    recommendedActions: correctiveActions,
+    preventiveMeasures: await suggestPreventiveMeasures(causalFactors)
+  };
+}
+
+export async function correlateWithProcessParameters(defectEvent: DefectEvent): Promise<ParameterCorrelation> {
+  const timeWindow = {
+    start: new Date(defectEvent.timestamp.getTime() - 300000), // 5 minutes before
+    end: defectEvent.timestamp
+  };
+  
+  const upstreamData = await fetchUpstreamParameters(timeWindow);
+  const correlations = await calculateParameterCorrelations(defectEvent, upstreamData);
+  
+  return {
+    strongCorrelations: correlations.filter(c => c.strength > 0.7),
+    moderateCorrelations: correlations.filter(c => c.strength > 0.4 && c.strength <= 0.7),
+    timeWindow,
+    confidence: calculateCorrelationConfidence(correlations)
+  };
+}
+
+// Continuous Improvement Workflow
+export async function optimizeSystemPerformance(deployment: SystemDeployment): Promise<OptimizationResult> {
+  const performanceBaseline = await establishPerformanceBaseline(deployment);
+  const optimizationOpportunities = await identifyOptimizationOpportunities(performanceBaseline);
+  const optimizationPlan = await createOptimizationPlan(optimizationOpportunities);
+  const implementedChanges = await implementOptimizations(deployment, optimizationPlan);
+  const performanceImprovement = await measurePerformanceImprovement(deployment, performanceBaseline);
+  
+  return {
+    baseline: performanceBaseline,
+    optimizations: implementedChanges,
+    improvement: performanceImprovement,
+    nextSteps: await planNextOptimizationCycle(performanceImprovement)
+  };
+}
+```
