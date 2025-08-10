@@ -316,6 +316,611 @@ landingPage:
     - 'Lock plan and export seeding rates, chem plans, and calendars.'
     - 'Track in‑season, adjust with alerts, and compare plan vs. actual.'
 ---
+
+export interface Lead {
+  name: string
+  farm: string
+  acres: number
+  oilseedAcres: number
+  location: string
+  currentRotation?: string[]
+  painPoints: string[]
+  contactInfo: {
+    email: string
+    phone: string
+  }
+}
+
+export interface Customer {
+  id: string
+  name: string
+  farm: string
+  tier: 'grower' | 'advisor' | 'enterprise'
+  acres: number
+  oilseedAcres: number
+  fields: Field[]
+  subscriptionStart: Date
+  status: 'active' | 'trial' | 'churned'
+}
+
+export interface Field {
+  id: string
+  name: string
+  acres: number
+  soilType: string
+  coordinates: [number, number]
+  historicalYields: YieldRecord[]
+  currentRotation: CropRotation[]
+  riskFactors: RiskFactor[]
+}
+
+export interface CropRotation {
+  year: number
+  crop: 'canola' | 'sunflower' | 'safflower' | 'flax' | 'mustard' | 'sesame' | 'camelina'
+  variety: string
+  plantingDate: Date
+  expectedYield: number
+  grossMargin: number
+}
+
+export interface VarietyRecommendation {
+  crop: string
+  variety: string
+  brand: string
+  traits: string[]
+  maturityGroup: string
+  diseaseResistance: string[]
+  expectedYield: number
+  riskScore: number
+  marginPotential: number
+}
+
+export interface OptimizationPlan {
+  fieldId: string
+  rotationPlan: CropRotation[]
+  varietyRecommendations: VarietyRecommendation[]
+  riskMitigation: RiskMitigationStrategy[]
+  expectedMarginUplift: number
+  confidenceInterval: [number, number]
+}
+
+export interface RiskFactor {
+  type: 'disease' | 'pest' | 'weather' | 'market'
+  name: string
+  severity: 'low' | 'medium' | 'high'
+  probability: number
+  impact: number
+}
+
+export interface RiskMitigationStrategy {
+  riskType: string
+  strategy: string
+  implementation: string
+  cost: number
+  effectiveness: number
+}
+
+export interface YieldRecord {
+  year: number
+  crop: string
+  yield: number
+  quality: string
+}
+
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead)
+  const demoResults = await conductFieldDemo(qualifiedLead)
+  const proposal = await generateProposal(demoResults)
+  const contract = await negotiateContract(proposal)
+  return await onboardCustomer(contract)
+}
+
+export async function qualifyLead(lead: Lead): Promise<Lead> {
+  if (lead.oilseedAcres < 200) {
+    throw new Error('Insufficient oilseed acreage for target market')
+  }
+  
+  if (!['ND', 'SD', 'MT', 'MN', 'SK', 'MB', 'AB'].some(region => 
+    lead.location.includes(region))) {
+    throw new Error('Outside target geographic region')
+  }
+  
+  const painPointScore = calculatePainPointScore(lead.painPoints)
+  if (painPointScore < 3) {
+    throw new Error('Insufficient pain points for product fit')
+  }
+  
+  return lead
+}
+
+export async function conductFieldDemo(lead: Lead): Promise<{
+  lead: Lead
+  demoFields: Field[]
+  baselineMetrics: any
+  optimizedPlan: OptimizationPlan[]
+  projectedUplift: number
+}> {
+  const demoFields = await selectDemoFields(lead)
+  const baselineMetrics = await analyzeCurrentRotation(demoFields)
+  const optimizedPlan = await generateOptimizationPlan(demoFields)
+  const projectedUplift = calculateProjectedUplift(baselineMetrics, optimizedPlan)
+  
+  return {
+    lead,
+    demoFields,
+    baselineMetrics,
+    optimizedPlan,
+    projectedUplift
+  }
+}
+
+export async function generateOptimizationPlan(fields: Field[]): Promise<OptimizationPlan[]> {
+  const plans: OptimizationPlan[] = []
+  
+  for (const field of fields) {
+    const soilData = await analyzeSoilConditions(field)
+    const weatherPatterns = await getHistoricalWeather(field.coordinates)
+    const diseaseHistory = await assessDiseaseRisk(field)
+    const marketData = await getCurrentMarketPrices(field.coordinates)
+    
+    const rotationOptions = await generateRotationOptions(field, soilData, weatherPatterns)
+    const varietyRecommendations = await recommendVarieties(field, rotationOptions)
+    const riskMitigation = await developRiskMitigation(diseaseHistory, field)
+    
+    const optimizedRotation = await optimizeRotation(
+      rotationOptions,
+      varietyRecommendations,
+      marketData,
+      riskMitigation
+    )
+    
+    const marginUplift = await calculateMarginUplift(field, optimizedRotation)
+    
+    plans.push({
+      fieldId: field.id,
+      rotationPlan: optimizedRotation,
+      varietyRecommendations,
+      riskMitigation,
+      expectedMarginUplift: marginUplift.expected,
+      confidenceInterval: marginUplift.confidenceInterval
+    })
+  }
+  
+  return plans
+}
+
+export async function optimizeRotation(
+  rotationOptions: CropRotation[][],
+  varietyRecommendations: VarietyRecommendation[],
+  marketData: any,
+  riskMitigation: RiskMitigationStrategy[]
+): Promise<CropRotation[]> {
+  const constraints = {
+    diseaseBreakIntervals: {
+      canola: 4,
+      sunflower: 4,
+      safflower: 3
+    },
+    herbicideMOARotation: true,
+    soilMoistureManagement: true
+  }
+  
+  const objectiveFunction = (rotation: CropRotation[]) => {
+    const grossMargin = rotation.reduce((sum, crop) => sum + crop.grossMargin, 0)
+    const riskPenalty = calculateRiskPenalty(rotation, riskMitigation)
+    return grossMargin - riskPenalty
+  }
+  
+  return await runOptimizationAlgorithm(rotationOptions, constraints, objectiveFunction)
+}
+
+export async function recommendVarieties(
+  field: Field,
+  rotationOptions: CropRotation[][]
+): Promise<VarietyRecommendation[]> {
+  const recommendations: VarietyRecommendation[] = []
+  
+  for (const rotation of rotationOptions) {
+    for (const cropYear of rotation) {
+      const varietyOptions = await getVarietyDatabase(cropYear.crop)
+      const climateMatch = await assessClimateMatch(field, varietyOptions)
+      const diseaseResistance = await evaluateDiseaseResistance(field, varietyOptions)
+      const yieldPotential = await predictYieldPotential(field, varietyOptions)
+      
+      const topVarieties = await rankVarieties(
+        varietyOptions,
+        climateMatch,
+        diseaseResistance,
+        yieldPotential
+      )
+      
+      recommendations.push(...topVarieties.slice(0, 3))
+    }
+  }
+  
+  return recommendations
+}
+
+export async function monitorInSeasonPerformance(customer: Customer): Promise<void> {
+  for (const field of customer.fields) {
+    const currentConditions = await getCurrentFieldConditions(field)
+    const diseaseAlerts = await checkDiseaseThresholds(field, currentConditions)
+    const pestAlerts = await checkPestThresholds(field, currentConditions)
+    
+    if (diseaseAlerts.length > 0 || pestAlerts.length > 0) {
+      await sendAlerts(customer, field, [...diseaseAlerts, ...pestAlerts])
+    }
+    
+    const adjustedRecommendations = await adjustSeasonalRecommendations(
+      field,
+      currentConditions
+    )
+    
+    if (adjustedRecommendations.length > 0) {
+      await updateFieldPlan(field, adjustedRecommendations)
+      await notifyCustomer(customer, field, adjustedRecommendations)
+    }
+  }
+}
+
+export async function generateSeasonalReports(customer: Customer): Promise<void> {
+  const performanceMetrics = await calculateSeasonalMetrics(customer)
+  const marginAnalysis = await analyzeMarginPerformance(customer)
+  const varietyPerformance = await evaluateVarietyPerformance(customer)
+  const riskMitigationEffectiveness = await assessRiskMitigation(customer)
+  
+  const report = {
+    customer: customer.name,
+    season: new Date().getFullYear(),
+    summary: {
+      totalAcres: customer.oilseedAcres,
+      averageMarginUplift: marginAnalysis.averageUplift,
+      topPerformingVarieties: varietyPerformance.topVarieties,
+      riskEventsAvoided: riskMitigationEffectiveness.eventsAvoided
+    },
+    fieldDetails: performanceMetrics,
+    recommendations: await generateNextSeasonRecommendations(customer)
+  }
+  
+  await deliverReport(customer, report)
+}
+
+export async function expandCustomerAcreage(customer: Customer): Promise<Customer> {
+  const expansionOpportunities = await identifyExpansionOpportunities(customer)
+  const additionalFields = await proposeAdditionalFields(expansionOpportunities)
+  const upgradedPlan = await calculateUpgradedPricing(customer, additionalFields)
+  
+  const approval = await requestExpansionApproval(customer, upgradedPlan)
+  if (approval.approved) {
+    customer.fields.push(...additionalFields)
+    customer.acres += additionalFields.reduce((sum, field) => sum + field.acres, 0)
+    await updateSubscription(customer, upgradedPlan)
+  }
+  
+  return customer
+}
+
+export async function processAdvisorWorkflow(advisor: Customer): Promise<void> {
+  const managedFarms = await getManagedFarms(advisor)
+  const bulkOptimizations: OptimizationPlan[] = []
+  
+  for (const farm of managedFarms) {
+    const farmOptimization = await generateOptimizationPlan(farm.fields)
+    bulkOptimizations.push(...farmOptimization)
+  }
+  
+  const consolidatedRecommendations = await consolidateRecommendations(bulkOptimizations)
+  const advisorDashboard = await generateAdvisorDashboard(consolidatedRecommendations)
+  const clientReports = await generateClientReports(managedFarms, bulkOptimizations)
+  
+  await deliverAdvisorPackage(advisor, {
+    dashboard: advisorDashboard,
+    clientReports,
+    bulkRecommendations: consolidatedRecommendations
+  })
+}
+
+export async function integrateWithFarmManagementSystems(customer: Customer): Promise<void> {
+  const availableIntegrations = ['John Deere Operations Center', 'Climate FieldView', 'AgLeader']
+  
+  for (const integration of availableIntegrations) {
+    if (await customerHasSystem(customer, integration)) {
+      await establishDataConnection(customer, integration)
+      await syncFieldBoundaries(customer, integration)
+      await syncHistoricalData(customer, integration)
+      await enableRealTimeUpdates(customer, integration)
+    }
+  }
+}
+
+async function calculatePainPointScore(painPoints: string[]): Promise<number> {
+  const weightedPainPoints = {
+    'rotation planning': 3,
+    'variety selection': 3,
+    'disease management': 2,
+    'margin optimization': 3,
+    'time savings': 2
+  }
+  
+  return painPoints.reduce((score, point) => {
+    const weight = weightedPainPoints[point.toLowerCase()] || 1
+    return score + weight
+  }, 0)
+}
+
+async function runOptimizationAlgorithm(
+  options: CropRotation[][],
+  constraints: any,
+  objectiveFunction: (rotation: CropRotation[]) => number
+): Promise<CropRotation[]> {
+  let bestRotation: CropRotation[] = []
+  let bestScore = -Infinity
+  
+  for (const rotation of options) {
+    if (await validateConstraints(rotation, constraints)) {
+      const score = objectiveFunction(rotation)
+      if (score > bestScore) {
+        bestScore = score
+        bestRotation = rotation
+      }
+    }
+  }
+  
+  return bestRotation
+}
+
+async function validateConstraints(rotation: CropRotation[], constraints: any): Promise<boolean> {
+  return true
+}
+
+async function calculateRiskPenalty(rotation: CropRotation[], riskMitigation: RiskMitigationStrategy[]): Promise<number> {
+  return 0
+}
+
+async function selectDemoFields(lead: Lead): Promise<Field[]> {
+  return []
+}
+
+async function analyzeCurrentRotation(fields: Field[]): Promise<any> {
+  return {}
+}
+
+async function calculateProjectedUplift(baseline: any, optimized: OptimizationPlan[]): Promise<number> {
+  return 15
+}
+
+async function analyzeSoilConditions(field: Field): Promise<any> {
+  return {}
+}
+
+async function getHistoricalWeather(coordinates: [number, number]): Promise<any> {
+  return {}
+}
+
+async function assessDiseaseRisk(field: Field): Promise<any> {
+  return {}
+}
+
+async function getCurrentMarketPrices(coordinates: [number, number]): Promise<any> {
+  return {}
+}
+
+async function generateRotationOptions(field: Field, soilData: any, weatherPatterns: any): Promise<CropRotation[][]> {
+  return []
+}
+
+async function developRiskMitigation(diseaseHistory: any, field: Field): Promise<RiskMitigationStrategy[]> {
+  return []
+}
+
+async function calculateMarginUplift(field: Field, rotation: CropRotation[]): Promise<{
+  expected: number
+  confidenceInterval: [number, number]
+}> {
+  return {
+    expected: 15,
+    confidenceInterval: [10, 35]
+  }
+}
+
+async function getVarietyDatabase(crop: string): Promise<any[]> {
+  return []
+}
+
+async function assessClimateMatch(field: Field, varieties: any[]): Promise<any> {
+  return {}
+}
+
+async function evaluateDiseaseResistance(field: Field, varieties: any[]): Promise<any> {
+  return {}
+}
+
+async function predictYieldPotential(field: Field, varieties: any[]): Promise<any> {
+  return {}
+}
+
+async function rankVarieties(varieties: any[], climate: any, disease: any, yield: any): Promise<VarietyRecommendation[]> {
+  return []
+}
+
+async function getCurrentFieldConditions(field: Field): Promise<any> {
+  return {}
+}
+
+async function checkDiseaseThresholds(field: Field, conditions: any): Promise<any[]> {
+  return []
+}
+
+async function checkPestThresholds(field: Field, conditions: any): Promise<any[]> {
+  return []
+}
+
+async function sendAlerts(customer: Customer, field: Field, alerts: any[]): Promise<void> {
+  
+}
+
+async function adjustSeasonalRecommendations(field: Field, conditions: any): Promise<any[]> {
+  return []
+}
+
+async function updateFieldPlan(field: Field, recommendations: any[]): Promise<void> {
+  
+}
+
+async function notifyCustomer(customer: Customer, field: Field, recommendations: any[]): Promise<void> {
+  
+}
+
+async function calculateSeasonalMetrics(customer: Customer): Promise<any> {
+  return {}
+}
+
+async function analyzeMarginPerformance(customer: Customer): Promise<any> {
+  return { averageUplift: 15 }
+}
+
+async function evaluateVarietyPerformance(customer: Customer): Promise<any> {
+  return { topVarieties: [] }
+}
+
+async function assessRiskMitigation(customer: Customer): Promise<any> {
+  return { eventsAvoided: 0 }
+}
+
+async function generateNextSeasonRecommendations(customer: Customer): Promise<any[]> {
+  return []
+}
+
+async function deliverReport(customer: Customer, report: any): Promise<void> {
+  
+}
+
+async function identifyExpansionOpportunities(customer: Customer): Promise<any[]> {
+  return []
+}
+
+async function proposeAdditionalFields(opportunities: any[]): Promise<Field[]> {
+  return []
+}
+
+async function calculateUpgradedPricing(customer: Customer, additionalFields: Field[]): Promise<any> {
+  return {}
+}
+
+async function requestExpansionApproval(customer: Customer, plan: any): Promise<{ approved: boolean }> {
+  return { approved: true }
+}
+
+async function updateSubscription(customer: Customer, plan: any): Promise<void> {
+  
+}
+
+async function getManagedFarms(advisor: Customer): Promise<any[]> {
+  return []
+}
+
+async function consolidateRecommendations(optimizations: OptimizationPlan[]): Promise<any> {
+  return {}
+}
+
+async function generateAdvisorDashboard(recommendations: any): Promise<any> {
+  return {}
+}
+
+async function generateClientReports(farms: any[], optimizations: OptimizationPlan[]): Promise<any[]> {
+  return []
+}
+
+async function deliverAdvisorPackage(advisor: Customer, package: any): Promise<void> {
+  
+}
+
+async function customerHasSystem(customer: Customer, system: string): Promise<boolean> {
+  return false
+}
+
+async function establishDataConnection(customer: Customer, system: string): Promise<void> {
+  
+}
+
+async function syncFieldBoundaries(customer: Customer, system: string): Promise<void> {
+  
+}
+
+async function syncHistoricalData(customer: Customer, system: string): Promise<void> {
+  
+}
+
+async function enableRealTimeUpdates(customer: Customer, system: string): Promise<void> {
+  
+}
+
+async function generateProposal(demoResults: any): Promise<any> {
+  return {}
+}
+
+async function negotiateContract(proposal: any): Promise<any> {
+  return {}
+}
+
+async function onboardCustomer(contract: any): Promise<Customer> {
+  return {
+    id: 'new-customer',
+    name: contract.name,
+    farm: contract.farm,
+    tier: 'grower',
+    acres: contract.acres,
+    oilseedAcres: contract.oilseedAcres,
+    fields: [],
+    subscriptionStart: new Date(),
+    status: 'active'
+  }
+}
+
+export default function Page() {
+  return (
+    <>
+      <Hero
+        title="Maximize Profit from Non‑Soy Oilseeds"
+        subtitle="AI plans optimal rotations and varieties for canola, sunflower, safflower, flax, mustard, sesame, and camelina—tuned to your soils, pests, and prices."
+        ctaText="Get a Demo"
+        ctaHref="/demo"
+      />
+      <Problem bullets={[
+        "Rotations across diverse oilseeds are hard to optimize by field",
+        "Local variety performance shifts yearly; trial data is scattered",
+        "Disease and insect carryover punish yields when timing is off",
+        "Herbicide carryover and weed resistance constrain choices",
+        "Price and basis move fast; gross margins change weekly"
+      ]} />
+      <Solution bullets={[
+        "Field‑level AI blends soils, weather, pest history, and markets",
+        "Recommends crop‑by‑field rotations that break disease cycles",
+        "Picks varieties by maturity, oil profile, lodging, and disease ratings",
+        "Live gross‑margin forecasts with price/yield sensitivity",
+        "Carryover‑safe herbicide and seed programs aligned to rotation"
+      ]} />
+      <Features items={[
+        "Rotation Optimizer with pest, residue, and rule constraints",
+        "Variety Selector by region, maturity, oil content, disease scores",
+        "Gross Margin Engine with futures, basis, and input costs",
+        "Herbicide Program Builder with resistance and carryover checks",
+        "In‑Season Replan using weather, scouting, and satellite signals",
+        "Contract Fit Advisor (high‑oleic, confection, linseed quality)",
+        "Water/Heat Unit Match for zones and planting windows",
+        "Risk Scoring: disease, insect, shatter, lodging, marketing"
+      ]} />
+      <Steps steps={[
+        "Connect fields, soils, past crops, prices, and costs",
+        "Set goals: profit, risk, rotation rules, and contract targets",
+        "Review AI rotation and variety picks with margin breakdowns",
+        "Lock plan and export seeding rates, chem plans, and calendars",
+        "Track in‑season, adjust with alerts, and compare plan vs. actual"
+      ]} />
+    </>
+  )
+}
+
 # RotVarAI — Oilseed Optimizer
 
 Generated for NAICS 111120 — Oilseed (except Soybean) Farming.
