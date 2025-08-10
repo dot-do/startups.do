@@ -303,3 +303,422 @@ landingPage:
 
 Generated for NAICS 111110 — Soybean Farming.
 Service: Disease Risk Forecasting & Fungicide Timing (White Mold, Frogeye, Rust)
+
+## Business Process Functions
+
+```typescript
+// Core data types
+interface Lead {
+  id: string
+  name: string
+  operation: {
+    acres: number
+    location: string
+    crops: string[]
+  }
+  contact: {
+    email: string
+    phone: string
+    role: 'grower' | 'consultant' | 'retailer'
+  }
+  source: 'webinar' | 'farm_show' | 'referral' | 'digital_ad' | 'extension'
+  painPoints: string[]
+  timeline: string
+}
+
+interface Customer {
+  id: string
+  lead: Lead
+  subscription: {
+    plan: 'grower' | 'retailer' | 'consultant'
+    acres: number
+    pricePerAcre: number
+    startDate: Date
+    endDate: Date
+  }
+  fields: Field[]
+  integrations: string[]
+  onboardingComplete: boolean
+}
+
+interface Field {
+  id: string
+  customerId: string
+  boundary: GeoJSON
+  acres: number
+  plantingDate: Date
+  variety: {
+    name: string
+    maturityGroup: string
+    diseaseRatings: {
+      whiteMold: number
+      frogeye: number
+      rust: number
+    }
+  }
+  history: {
+    diseaseOutbreaks: DiseaseEvent[]
+    yieldHistory: number[]
+    sprayHistory: SprayEvent[]
+  }
+}
+
+interface RiskAssessment {
+  fieldId: string
+  date: Date
+  diseases: {
+    whiteMold: { risk: number; confidence: number }
+    frogeye: { risk: number; confidence: number }
+    rust: { risk: number; confidence: number }
+  }
+  growthStage: string
+  weatherFactors: {
+    humidity: number
+    leafWetness: number
+    temperature: number
+  }
+  zones: RiskZone[]
+}
+
+interface SprayWindow {
+  fieldId: string
+  disease: string
+  optimalStart: Date
+  optimalEnd: Date
+  backupStart: Date
+  backupEnd: Date
+  confidence: number
+  expectedROI: number
+  productRecommendations: string[]
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  // Step 1: Qualify lead based on operation size and pain points
+  const qualifiedLead = await qualifyLead(lead)
+  
+  // Step 2: Generate personalized demo with their field data
+  const demoData = await generatePersonalizedDemo(qualifiedLead)
+  
+  // Step 3: Conduct demo and capture feedback
+  const demoResults = await conductDemo(demoData, qualifiedLead)
+  
+  // Step 4: Create proposal based on demo feedback
+  const proposal = await generateProposal(qualifiedLead, demoResults)
+  
+  // Step 5: Negotiate contract terms
+  const contract = await negotiateContract(proposal)
+  
+  // Step 6: Onboard new customer
+  return await onboardCustomer(contract)
+}
+
+async function qualifyLead(lead: Lead): Promise<Lead> {
+  // Qualify based on operation size (min 1,000 acres for direct)
+  if (lead.operation.acres < 1000 && lead.contact.role === 'grower') {
+    throw new Error('Operation too small for direct sales - route to retailer channel')
+  }
+  
+  // Score lead based on pain points alignment
+  const painPointScore = calculatePainPointAlignment(lead.painPoints)
+  
+  // Verify budget authority and timeline
+  const budgetQualified = await verifyBudgetAuthority(lead)
+  
+  return {
+    ...lead,
+    qualified: true,
+    score: painPointScore,
+    budgetQualified
+  }
+}
+
+async function generatePersonalizedDemo(lead: Lead): Promise<DemoData> {
+  // Use their location and typical varieties to create realistic scenarios
+  const localWeatherData = await getHistoricalWeather(lead.operation.location)
+  const commonVarieties = await getRegionalVarieties(lead.operation.location)
+  
+  // Create sample fields with realistic disease pressure scenarios
+  const sampleFields = await createSampleFields(
+    lead.operation.location,
+    lead.operation.acres,
+    commonVarieties
+  )
+  
+  // Generate historical "what-if" scenarios showing potential savings
+  const historicalScenarios = await generateHistoricalScenarios(
+    sampleFields,
+    localWeatherData
+  )
+  
+  return {
+    sampleFields,
+    historicalScenarios,
+    potentialSavings: calculatePotentialSavings(historicalScenarios),
+    customizedPitchDeck: await generatePitchDeck(lead, historicalScenarios)
+  }
+}
+
+// Product Development Processes
+export async function developDiseaseModel(disease: string): Promise<ModelVersion> {
+  // Step 1: Collect training data from field trials and customer reports
+  const trainingData = await collectTrainingData(disease)
+  
+  // Step 2: Feature engineering with weather, phenology, and microclimate data
+  const features = await engineerFeatures(trainingData)
+  
+  // Step 3: Train ensemble models with cross-validation
+  const models = await trainEnsembleModels(features, disease)
+  
+  // Step 4: Validate against held-out field trial data
+  const validation = await validateModels(models, disease)
+  
+  // Step 5: A/B test with subset of customers
+  const abTestResults = await runABTest(models, validation)
+  
+  // Step 6: Deploy if performance thresholds met
+  if (abTestResults.auc > 0.75 && abTestResults.precision > 0.6) {
+    return await deployModel(models, disease)
+  } else {
+    throw new Error(`Model performance below threshold: AUC ${abTestResults.auc}`)
+  }
+}
+
+async function collectTrainingData(disease: string): Promise<TrainingData> {
+  // Aggregate data from multiple sources
+  const fieldTrialData = await getFieldTrialData(disease)
+  const customerScoutingData = await getCustomerScoutingReports(disease)
+  const universityData = await getUniversityResearchData(disease)
+  const weatherData = await getHistoricalWeatherData()
+  
+  return {
+    diseaseObservations: [...fieldTrialData, ...customerScoutingData, ...universityData],
+    weatherData,
+    phenologyData: await getPhenologyData(),
+    yieldImpactData: await getYieldImpactData(disease)
+  }
+}
+
+// Revenue Generation Flows
+export async function processSubscriptionRenewal(customer: Customer): Promise<RenewalResult> {
+  // Step 1: Calculate customer health score and usage metrics
+  const healthScore = await calculateCustomerHealth(customer)
+  
+  // Step 2: Analyze ROI delivered in previous season
+  const roiAnalysis = await analyzeCustomerROI(customer)
+  
+  // Step 3: Identify expansion opportunities
+  const expansionOpportunities = await identifyExpansionOpportunities(customer)
+  
+  // Step 4: Generate renewal proposal with pricing
+  const renewalProposal = await generateRenewalProposal(
+    customer,
+    healthScore,
+    roiAnalysis,
+    expansionOpportunities
+  )
+  
+  // Step 5: Execute renewal workflow based on health score
+  if (healthScore > 80) {
+    return await processAutoRenewal(renewalProposal)
+  } else if (healthScore > 60) {
+    return await processAssistedRenewal(renewalProposal)
+  } else {
+    return await processRetentionWorkflow(renewalProposal)
+  }
+}
+
+async function calculateCustomerHealth(customer: Customer): Promise<number> {
+  const metrics = {
+    // Usage metrics
+    alertOpenRate: await getAlertOpenRate(customer.id),
+    actionTakenRate: await getActionTakenRate(customer.id),
+    loginFrequency: await getLoginFrequency(customer.id),
+    
+    // Outcome metrics
+    yieldProtection: await getYieldProtection(customer.id),
+    sprayReduction: await getSprayReduction(customer.id),
+    roiRealized: await getROIRealized(customer.id),
+    
+    // Engagement metrics
+    supportTickets: await getSupportTicketCount(customer.id),
+    featureAdoption: await getFeatureAdoption(customer.id),
+    referrals: await getReferralCount(customer.id)
+  }
+  
+  // Weighted health score calculation
+  return (
+    metrics.alertOpenRate * 0.15 +
+    metrics.actionTakenRate * 0.25 +
+    metrics.roiRealized * 0.30 +
+    metrics.yieldProtection * 0.20 +
+    metrics.featureAdoption * 0.10
+  )
+}
+
+// Operational Procedures
+export async function generateDailyRiskAssessments(): Promise<void> {
+  // Step 1: Get all active fields for current growing season
+  const activeFields = await getActiveFields()
+  
+  // Step 2: Fetch latest weather data and forecasts
+  const weatherData = await fetchWeatherData()
+  
+  // Step 3: Process each field in parallel
+  const riskAssessments = await Promise.all(
+    activeFields.map(field => assessFieldRisk(field, weatherData))
+  )
+  
+  // Step 4: Identify fields requiring alerts
+  const alertFields = riskAssessments.filter(assessment => 
+    requiresAlert(assessment)
+  )
+  
+  // Step 5: Generate and send alerts
+  await Promise.all(
+    alertFields.map(assessment => sendRiskAlert(assessment))
+  )
+  
+  // Step 6: Update risk maps and dashboards
+  await updateRiskMaps(riskAssessments)
+  await updateCustomerDashboards(riskAssessments)
+}
+
+async function assessFieldRisk(field: Field, weatherData: WeatherData): Promise<RiskAssessment> {
+  // Step 1: Determine current growth stage
+  const growthStage = await calculateGrowthStage(field, weatherData)
+  
+  // Step 2: Calculate microclimate conditions
+  const microclimate = await calculateMicroclimate(field, weatherData)
+  
+  // Step 3: Run disease risk models
+  const diseaseRisks = await runDiseaseModels(field, growthStage, microclimate)
+  
+  // Step 4: Generate zone-level risk maps
+  const zones = await generateRiskZones(field, diseaseRisks, microclimate)
+  
+  return {
+    fieldId: field.id,
+    date: new Date(),
+    diseases: diseaseRisks,
+    growthStage: growthStage.stage,
+    weatherFactors: microclimate,
+    zones
+  }
+}
+
+// Decision-Making Workflows
+export async function optimizeSprayTiming(
+  riskAssessment: RiskAssessment,
+  customer: Customer
+): Promise<SprayWindow[]> {
+  // Step 1: Identify critical growth stage windows
+  const criticalWindows = await identifyCriticalWindows(riskAssessment)
+  
+  // Step 2: Factor in weather forecast and spray conditions
+  const weatherWindows = await calculateWeatherWindows(riskAssessment.fieldId)
+  
+  // Step 3: Calculate economic thresholds
+  const economicThresholds = await calculateEconomicThresholds(
+    riskAssessment.fieldId,
+    customer
+  )
+  
+  // Step 4: Optimize timing across multiple constraints
+  const optimizedWindows = await optimizeWindows(
+    criticalWindows,
+    weatherWindows,
+    economicThresholds,
+    riskAssessment
+  )
+  
+  // Step 5: Generate backup windows for weather delays
+  const backupWindows = await generateBackupWindows(optimizedWindows)
+  
+  return optimizedWindows.map((window, index) => ({
+    ...window,
+    backupStart: backupWindows[index].start,
+    backupEnd: backupWindows[index].end
+  }))
+}
+
+async function calculateEconomicThresholds(
+  fieldId: string,
+  customer: Customer
+): Promise<EconomicThresholds> {
+  const field = customer.fields.find(f => f.id === fieldId)
+  const currentSoybeanPrice = await getCurrentSoybeanPrice()
+  const applicationCost = await getApplicationCost(customer.subscription.plan)
+  const fungicideCost = await getFungicideCost()
+  
+  // Calculate break-even yield protection needed
+  const totalCost = applicationCost + fungicideCost
+  const breakEvenBushels = totalCost / currentSoybeanPrice
+  
+  // Factor in probability of yield loss by disease and timing
+  const yieldLossRisk = await calculateYieldLossRisk(field)
+  
+  return {
+    breakEvenBushels,
+    minimumROI: 2.0, // 2:1 return minimum
+    maxAcceptableRisk: 0.3, // 30% risk threshold
+    yieldLossRisk
+  }
+}
+
+export async function prioritizeScoutingRoutes(
+  customer: Customer,
+  riskAssessments: RiskAssessment[]
+): Promise<ScoutingRoute[]> {
+  // Step 1: Score fields by urgency and risk
+  const fieldScores = riskAssessments.map(assessment => ({
+    fieldId: assessment.fieldId,
+    urgencyScore: calculateUrgencyScore(assessment),
+    riskScore: calculateOverallRisk(assessment),
+    travelTime: 0 // Will be calculated in routing
+  }))
+  
+  // Step 2: Optimize routes considering travel time and priority
+  const optimizedRoutes = await optimizeScoutingRoutes(
+    fieldScores,
+    customer.operation.location
+  )
+  
+  // Step 3: Generate scouting checklists for each field
+  const routesWithChecklists = await Promise.all(
+    optimizedRoutes.map(async route => ({
+      ...route,
+      checklist: await generateScoutingChecklist(route.fieldId, riskAssessments)
+    }))
+  )
+  
+  return routesWithChecklists
+}
+
+// Integration and workflow orchestration
+export async function executeSeasonWorkflow(customer: Customer): Promise<void> {
+  // Pre-season setup
+  await setupFieldBoundaries(customer)
+  await configureAlertThresholds(customer)
+  await integrateWithFarmPlatforms(customer)
+  
+  // Growing season monitoring (runs daily)
+  const monitoringWorkflow = setInterval(async () => {
+    const riskAssessments = await generateDailyRiskAssessments()
+    const sprayWindows = await Promise.all(
+      riskAssessments.map(assessment => 
+        optimizeSprayTiming(assessment, customer)
+      )
+    )
+    await updateCustomerDashboard(customer, riskAssessments, sprayWindows)
+  }, 24 * 60 * 60 * 1000) // Daily
+  
+  // Post-season analysis
+  setTimeout(async () => {
+    clearInterval(monitoringWorkflow)
+    await generateSeasonReport(customer)
+    await calculateROIRealized(customer)
+    await prepareRenewalAnalysis(customer)
+  }, getSeasonEndDate(customer) - Date.now())
+}
+```
