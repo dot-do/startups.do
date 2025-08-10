@@ -35,6 +35,7 @@ export type IdeatedIdea =
 
 const DEFAULT_NAICS = path.resolve(process.cwd(), 'datasets', 'naics.tsv')
 const DEFAULT_OCCS = path.resolve(process.cwd(), 'datasets', 'occupations.tsv')
+const STARTUPS_DIR = path.resolve(process.cwd(), 'startups')
 
 function parseTsv<T = Record<string, string>>(text: string): T[] {
   const lines = text.split(/\r?\n/).filter(l => l.length > 0)
@@ -70,6 +71,21 @@ type Frontmatter = {
 
 function kebabCase(s: string) {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+}
+
+async function ensureUniqueSlug(base: string): Promise<string> {
+  let candidate = base
+  let i = 2
+  while (true) {
+    try {
+      const filePath = path.join(STARTUPS_DIR, `${candidate}.mdx`)
+      await fs.access(filePath)
+      candidate = `${base}-${i}`
+      i++
+    } catch {
+      return candidate
+    }
+  }
 }
 
 export async function ideate(opts: IdeateOptions = {}): Promise<IdeatedIdea[]> {
@@ -108,7 +124,8 @@ export async function ideate(opts: IdeateOptions = {}): Promise<IdeatedIdea[]> {
       additionalContext && additionalContext.length > 0 ? `Context: ${additionalContext}` : undefined
     )
     const businessName = canvas.object.businessName
-    const slug = `${n.naics}-${kebabCase(businessName)}`
+    const baseSlug = kebabCase(businessName)
+    const slug = persist ? await ensureUniqueSlug(baseSlug) : baseSlug
     results.push({ kind: 'industry', naics: n, canvas, slug })
 
     if (persist) {
@@ -144,7 +161,8 @@ Generated from NAICS ${n.naics} — ${n.industry}.
     if (o.description) ctxParts.push(`Occupation description: ${o.description}`)
     const canvas = await leanCanvas(idea, ctxParts.length ? ctxParts.join('\n') : undefined)
     const businessName = canvas.object.businessName
-    const slug = `${o.code}-${kebabCase(businessName)}`
+    const baseSlug = kebabCase(businessName)
+    const slug = persist ? await ensureUniqueSlug(baseSlug) : baseSlug
     results.push({ kind: 'occupation', occupation: o, canvas, slug })
 
     if (persist) {
