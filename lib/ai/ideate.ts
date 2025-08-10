@@ -128,7 +128,7 @@ export async function ideate(opts: IdeateOptions = {}): Promise<IdeatedIdea[]> {
 
     for (let serviceIndex = 0; serviceIndex < limitedServices.length; serviceIndex++) {
       const svc = limitedServices[serviceIndex]
-      queue.add(async () => {
+      taskPromises.push(queue.add(async () => {
         const title = String((svc as any).title ?? 'AI Service')
         const description = String((svc as any).description ?? '')
         const serviceIdea = `${title} — AI service for ${n.industry} (NAICS ${n.naics})`
@@ -181,7 +181,7 @@ Service: ${title}
           await setStartup(slug, doc)
           console.log(`    Saved startup: ${slug}`)
         }
-      })
+      }))
     }
   }
 
@@ -204,7 +204,7 @@ Service: ${title}
 
     for (let serviceIndex = 0; serviceIndex < limitedServices.length; serviceIndex++) {
       const svc = limitedServices[serviceIndex]
-      queue.add(async () => {
+      taskPromises.push(queue.add(async () => {
         const title = String((svc as any).title ?? 'AI Service')
         const description = String((svc as any).description ?? '')
         const serviceIdea = `${title} — AI copilot for ${o.name}`
@@ -258,7 +258,7 @@ Service: ${title}
           await setStartup(slug, doc)
           console.log(`    Saved startup: ${slug}`)
         }
-      })
+      }))
     }
   }
 
