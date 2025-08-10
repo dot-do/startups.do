@@ -100,24 +100,35 @@ export async function ideate(opts: IdeateOptions = {}): Promise<IdeatedIdea[]> {
     return occupationSelectableOnly ? r.selectable === 'T' : true
   })
 
-  const limitedNaics = typeof maxIndustries === 'number' ? naicsRows.slice(0, maxIndustries) : naicsRows
-  const limitedOccs = typeof maxOccupations === 'number' ? occRows.slice(0, maxOccupations) : occRows
+  const shuffledNaics = [...naicsRows].sort(() => Math.random() - 0.5)
+  const shuffledOccs = [...occRows].sort(() => Math.random() - 0.5)
+  
+  const limitedNaics = typeof maxIndustries === 'number' ? shuffledNaics.slice(0, maxIndustries) : shuffledNaics
+  const limitedOccs = typeof maxOccupations === 'number' ? shuffledOccs.slice(0, maxOccupations) : shuffledOccs
 
   const results: IdeatedIdea[] = []
 
-  for (const n of limitedNaics) {
+  console.log(`Starting ideation process...`)
+  console.log(`Processing ${limitedNaics.length} industries and ${limitedOccs.length} occupations`)
+
+  for (let industryIndex = 0; industryIndex < limitedNaics.length; industryIndex++) {
+    const n = limitedNaics[industryIndex]
+    console.log(`Processing industry ${industryIndex + 1}/${limitedNaics.length}: ${n.industry} (NAICS ${n.naics})`)
     const asResult = await agenticServices({
       industry: n.industry,
       additionalContext: additionalContext && additionalContext.length > 0 ? `Context: ${additionalContext}` : undefined,
     })
     const services = (asResult.object as { services?: Array<Record<string, unknown>> }).services ?? []
+    console.log(`Generated ${services.length} services for ${n.industry}`)
     const limitedServices =
       typeof opts.maxServicesPerMarket === 'number' ? services.slice(0, opts.maxServicesPerMarket) : services
 
-    for (const svc of limitedServices) {
+    for (let serviceIndex = 0; serviceIndex < limitedServices.length; serviceIndex++) {
+      const svc = limitedServices[serviceIndex]
       const title = String((svc as any).title ?? 'AI Service')
       const description = String((svc as any).description ?? '')
       const serviceIdea = `${title} — AI service for ${n.industry} (NAICS ${n.naics})`
+      console.log(`  Processing service ${serviceIndex + 1}/${limitedServices.length}: ${title}`)
       const ctx = [
         additionalContext ? `Context: ${additionalContext}` : null,
         description ? `Service description: ${description}` : null,
@@ -125,12 +136,15 @@ export async function ideate(opts: IdeateOptions = {}): Promise<IdeatedIdea[]> {
         .filter(Boolean)
         .join('\n')
 
+      console.log(`    Generating lean canvas for: ${title}`)
       const canvas = await leanCanvas(serviceIdea, ctx)
+      console.log(`    Generating story brand for: ${title}`)
       const sb = await storyBrand(serviceIdea, ctx)
+      console.log(`    Generating landing page for: ${title}`)
       const lp = await landingPage(serviceIdea, ctx)
 
       const businessName = canvas.object.businessName
-      const baseSlug = kebabCase(`${businessName}-${title}`)
+      const baseSlug = kebabCase(businessName)
       const slug = persist ? await ensureUniqueSlug(baseSlug) : baseSlug
       results.push({ kind: 'industry', naics: n, canvas, slug })
 
@@ -161,11 +175,14 @@ Service: ${title}
 `
         const doc: StartupDocInput<typeof frontmatter> = { data: frontmatter, content }
         await setStartup(slug, doc)
+        console.log(`    Saved startup: ${slug}`)
       }
     }
   }
 
-  for (const o of limitedOccs) {
+  for (let occupationIndex = 0; occupationIndex < limitedOccs.length; occupationIndex++) {
+    const o = limitedOccs[occupationIndex]
+    console.log(`Processing occupation ${occupationIndex + 1}/${limitedOccs.length}: ${o.name} (${o.code})`)
     const asResult = await agenticServices({
       occupation: o.name,
       additionalContext: [
@@ -176,13 +193,16 @@ Service: ${title}
         .join('\n') || undefined,
     })
     const services = (asResult.object as { services?: Array<Record<string, unknown>> }).services ?? []
+    console.log(`Generated ${services.length} services for ${o.name}`)
     const limitedServices =
       typeof opts.maxServicesPerMarket === 'number' ? services.slice(0, opts.maxServicesPerMarket) : services
 
-    for (const svc of limitedServices) {
+    for (let serviceIndex = 0; serviceIndex < limitedServices.length; serviceIndex++) {
+      const svc = limitedServices[serviceIndex]
       const title = String((svc as any).title ?? 'AI Service')
       const description = String((svc as any).description ?? '')
       const serviceIdea = `${title} — AI copilot for ${o.name}`
+      console.log(`  Processing service ${serviceIndex + 1}/${limitedServices.length}: ${title}`)
       const ctx = [
         additionalContext ? `Context: ${additionalContext}` : null,
         o.description ? `Occupation description: ${o.description}` : null,
@@ -191,12 +211,15 @@ Service: ${title}
         .filter(Boolean)
         .join('\n')
 
+      console.log(`    Generating lean canvas for: ${title}`)
       const canvas = await leanCanvas(serviceIdea, ctx)
+      console.log(`    Generating story brand for: ${title}`)
       const sb = await storyBrand(serviceIdea, ctx)
+      console.log(`    Generating landing page for: ${title}`)
       const lp = await landingPage(serviceIdea, ctx)
 
       const businessName = canvas.object.businessName
-      const baseSlug = kebabCase(`${businessName}-${title}`)
+      const baseSlug = kebabCase(businessName)
       const slug = persist ? await ensureUniqueSlug(baseSlug) : baseSlug
       results.push({ kind: 'occupation', occupation: o, canvas, slug })
 
@@ -227,9 +250,11 @@ Service: ${title}
 `
         const doc: StartupDocInput<typeof frontmatter> = { data: frontmatter, content }
         await setStartup(slug, doc)
+        console.log(`    Saved startup: ${slug}`)
       }
     }
   }
 
+  console.log(`Ideation complete! Generated ${results.length} total ideas`)
   return results
 }
