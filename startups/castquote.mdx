@@ -1,0 +1,389 @@
+---
+name: CastQuote Autopilot (RFQ-to-Quote AI for Nonferrous Die Casting)
+slug: castquote
+naics:
+  primary: '331523'
+  occupations: []
+service:
+  title: RFQ-to-Quote Autopilot for Die Casting
+  description: >-
+    Automates quote creation from RFQs and CAD, estimating machine selection,
+    cycle time, material usage, and cost with a draft commercial quote.
+  targetUsers:
+    - Sales Engineering
+    - Estimators
+    - Plant Manager
+  triggers:
+    - RFQ email received
+    - RFQ portal upload
+    - New opportunity in CRM
+  inputs:
+    - 3D CAD (STEP/IGES) and 2D drawing PDFs
+    - Alloy and temper
+    - Annual volume and EAU profile
+    - 'Quality requirements (PPM, leak, CTQ)'
+    - 'Internal rate tables (labor, machine, energy, overhead)'
+    - Machine list and clamp tonnage
+  steps:
+    - Ingest RFQ package via secure link/email
+    - 'Parse CAD to compute volume, projected area, wall thickness map, undercuts'
+    - Select candidate machine(s) and calculate clamp force margin
+    - >-
+      Estimate cycle time (fill, intensification, solidification, spray,
+      open/close) and OEE-adjusted throughput
+    - 'Calculate metal yield, runner/overflow scrap, and material cost'
+    - Compute fully burdened cost and recommended price bands
+    - 'Flag risks/assumptions (thin walls, deep cores, large thermal mass)'
+    - Generate quote PDF/email and itemized cost sheet; push to CRM/ERP draft
+  tools:
+    - PythonOCC/OpenCascade for CAD parsing
+    - Pandas/NumPy for cost model
+    - 'Domain rules (e.g., NADCA design guidelines)'
+    - LLM for narrative/assumption text
+    - 'Email/CRM API (Outlook/Gmail, HubSpot/Salesforce)'
+  outputs:
+    - Quote PDF and editable DOCX
+    - Cost breakdown spreadsheet
+    - Machine selection and cycle-time sheet
+    - Risk/assumption register
+    - Optional rough gating/runner parameter suggestion
+  pricingModel:
+    - 'Per-RFQ fee (e.g., $150–$500 depending on CAD complexity)'
+    - Monthly base for automation + storage
+    - Optional success fee for awarded orders
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8.5
+  risks:
+    - Geometry parsing errors on poor CAD
+    - Wrong cost assumptions leading to mispricing
+    - Liability if quote used without SME review
+  dependencies:
+    - Access to CAD files and RFQ docs
+    - Current machine list and rates
+    - CRM/ERP export or API (optional)
+leanCanvas:
+  problem:
+    - >-
+      RFQs arrive in multiple formats (email, portals) with mixed CAD and spec
+      attachments; manual triage and data entry consume 1–3 hours per RFQ.
+    - >-
+      Estimating requires scarce tribal knowledge (machine tonnage,
+      gating/yield, cycle time) leading to inconsistent and error-prone quotes;
+      experienced estimators are retiring and hard to replace.
+    - >-
+      Quote lead times (2–5 days) miss customer decision windows and reduce win
+      rates; late quotes are rarely awarded.
+    - >-
+      Cost volatility (alloy price, energy) is not reflected consistently,
+      causing margin leakage or uncompetitive pricing.
+    - >-
+      Current tools (spreadsheets/ERP modules) are not CAD-driven; simulation is
+      too slow for quoting; general-purpose quoting software lacks die-casting
+      physics.
+    - >-
+      Quoting workload is spiky (RFX bursts) creating bottlenecks and overtime
+      or missed RFQs.
+    - >-
+      No closed-loop: actuals (cycle time, scrap, metal yield) rarely feed back
+      to improve future quotes.
+  solution:
+    - >-
+      Unified RFQ intake: Monitor shared inboxes/portals; auto-extract RFQ data,
+      due dates, revisions, and attach CAD/specs.
+    - >-
+      CAD-driven estimation: Parse STEP/IGES/Parasolid/SolidWorks/NX/Inventor;
+      compute volume, projected area, thickness histogram, cored features,
+      parting line candidates.
+    - >-
+      Machine selection: Estimate clamp tonnage from projected area and
+      alloy-specific injection pressure; map to in-fleet presses, shot size, die
+      size, tie bar spacing.
+    - >-
+      Cycle time model: Physics-informed ML for fill + solidification/cooling,
+      shot sleeve, spray/lube, open/close, trim; includes setup and changeover
+      time by family/tooling state.
+    - >-
+      Yield and material usage: Estimate gates/runners/overflows, biscuit,
+      expected scrap/reclaim rate; compute net metal, chips/burr, and recycling
+      credit by alloy.
+    - >-
+      Cost stack: Machine hourly rate, labor, energy (kWh/shot), consumables
+      (lube, shot sleeve wear), QA, secondary ops (tapping, machining),
+      packaging, freight; optional tool amortization.
+    - >-
+      Commercial quote draft: Price ladder by volume tiers, lead time, payment
+      terms; margin slider; risk flags; customer-ready PDF/email and CRM
+      opportunity auto-creation.
+    - >-
+      Confidence and audit: Line-item confidence scores; traceability to
+      geometry features and historical analogs; scenario compare (“thin wall
+      risk,” “press change”).
+    - >-
+      Integrations: Push to ERP/MES (Plex, Epicor, Infor CSI, E2/JobBOSS) and
+      CRM (Salesforce, HubSpot); pull alloy/energy price feeds; SSO; on-prem or
+      VPC option.
+    - >-
+      Closed-loop learning: Ingest awarded quotes and production actuals (cycle
+      time, scrap, metal yield) to continuously calibrate models per foundry.
+  uniqueValueProp: >-
+    Turn RFQs and CAD into draft, auditable quotes in under 1 hour with
+    die-casting–specific physics + AI. Standardize estimating, cut quote lead
+    time by 70–90%, and improve margin accuracy to within ±5–10% of actual cost
+    while integrating seamlessly with your ERP/CRM.
+  unfairAdvantage: >-
+    Die-casting–specific physics+ML stack trained on multi-foundry datasets with
+    closed-loop feedback from ERP actuals, plus deep CAD analytics and
+    NADCA-aligned heuristics. Email-to-quote automation and calibration per
+    press fleet enable high accuracy quickly—capabilities generic quoting tools
+    and spreadsheets lack.
+  customerSegments:
+    - >-
+      Primary: Nonferrous metal die-casting foundries (NAICS 331523) producing
+      aluminum, magnesium, and zinc parts; 20–500 employees; 30–300 RFQs/month.
+    - >-
+      Subsegments: Tier-1 automotive die casters; aerospace/defense approved
+      foundries (ITAR); industrial/consumer job shops; captive OEM die-casting
+      divisions.
+    - >-
+      Buyer personas: VP/Director of Sales/Estimating; Plant Manager/COO; CFO;
+      IT/Engineering leaders.
+    - >-
+      Geos (beachhead): North America (US/Canada) -> EU (Germany, Italy, Poland)
+      -> Asia (India, ASEAN).
+  channels:
+    - >-
+      Direct sales to foundries: SDR + AE motion targeting 300 NA plants with
+      20–200 employees; 3–6 month sales cycle; pilot-first approach.
+    - >-
+      Industry partnerships: NADCA sponsorship, webinars, and technical papers;
+      co-marketing with ERP resellers (Epicor, Plex) and CAD VARs (SolidWorks,
+      Siemens).
+    - >-
+      Events: NADCA Die Casting Congress & Tabletop; EUROGUSS; AFS metalcasting
+      events; present “RFQ-to-Quote Benchmark” study.
+    - >-
+      Bottom-up product-led: 90-day pilot with ROI guarantee; frictionless CAD
+      plugin and email connector; self-serve trial with sample RFQs.
+    - >-
+      Content/SEO: Technical blog, whitepaper “Achieving ±8% Quote Accuracy in
+      Die Casting,” ROI calculator, estimator playbooks.
+    - >-
+      Customer reference program: 5 lighthouse accounts producing case studies
+      (quote time cut 75%, win-rate +5–10 pts).
+    - >-
+      Outbound targeting: ICP lists by press tonnage and industry (auto/aero);
+      LinkedIn and trade directory outreach; ABM ads to Estimating and Plant
+      leaders.
+    - >-
+      Pricing transparency page with interactive per-RFQ cost and savings
+      calculator.
+  revenueStreams:
+    - >-
+      SaaS subscription per plant: Starter ($1,500/month, up to 80 RFQs), Pro
+      ($3,500/month, up to 250 RFQs), Enterprise (custom; unlimited
+      plants/sites).
+    - 'Usage-based overage: $6–$12 per additional RFQ processed after tier cap.'
+    - >-
+      One-time onboarding/calibration: $8,000–$30,000 depending on integrations
+      and model tuning.
+    - >-
+      Premium add-ons: ERP/PLM connectors ($400–$1,200/month), on-prem/VPC
+      deployment (+25–40%), ITAR enclave (+$1,000/month).
+    - >-
+      Professional services: Cost model calibration, historical data cleanup,
+      estimator training ($150–$250/hour).
+    - 'Data services: Alloy/energy price feed bundle ($200–$600/month).'
+  costStructure:
+    - >-
+      R&D: ML engineers, CAD/geometry engineers, foundry process SMEs
+      ($2.5–4.0M/year at scale).
+    - >-
+      Cloud infrastructure: GPU/CPU for CAD parsing and inference; storage for
+      CAD files; $0.50–$1.50 per RFQ variable cost at volume.
+    - >-
+      Licensing: CAD kernels/translators (Parasolid/ACIS/Datakit), simulation
+      surrogate libraries ($200–$500k/year).
+    - >-
+      Sales & Marketing: SDRs, AEs, events (NADCA/EUROGUSS), content
+      ($1.0–1.8M/year).
+    - Customer success & onboarding ($500–900k/year).
+    - >-
+      Compliance & security: SOC 2 audit, pen tests, ITAR/VPC costs
+      ($150–400k/year).
+    - >-
+      G&A: Admin, legal (data processing agreements, ITAR), insurance
+      (cyber/E&O).
+  keyMetrics:
+    - >-
+      Median time-to-quote (TTQ): target ≤1 hour by month 6; 90th percentile ≤6
+      hours.
+    - >-
+      Automation rate: % RFQs fully auto-drafted without human edits; target 50%
+      at month 6, 70% at month 12 (for well-calibrated accounts).
+    - >-
+      Quote accuracy (MAPE vs actual cost): target ≤10% at month 3; ≤8% at month
+      9; ≤6% at month 18.
+    - >-
+      Win-rate uplift vs baseline: target +5–10 percentage points within 2
+      quarters at lighthouse accounts.
+    - 'Throughput: RFQs per estimator per week; target 3–5x increase.'
+    - >-
+      Margin protection: variance between quoted and realized margin; target ≤3
+      pts deviation.
+    - >-
+      Adoption: weekly active estimator rate ≥80%; integration utilization (ERP
+      sync success ≥98%).
+    - >-
+      Per-RFQ unit cost (compute/licensing): ≤$1.50 at volume; gross margin
+      ≥75%.
+    - 'Churn: Net revenue retention ≥115%; logo churn ≤6% annually.'
+    - >-
+      Model feedback loop: % of awarded quotes with production actuals ingested
+      ≥70% within 60 days of SOP.
+storyBrand:
+  character: >-
+    Operations/Estimating Manager or Sales Engineer at a nonferrous metal
+    die‑casting foundry (NAICS 331523) who wants to turn RFQs and CAD into
+    accurate quotes in minutes—so they win profitable work without bottlenecks.
+  problem: >-
+    External: RFQs arrive with drawings, CAD, and partial specs; manual
+    estimation is slow, error‑prone, and dependent on a few experts.
+
+    Internal: You’re juggling spreadsheets and cycle‑time guesses, working
+    nights, and worrying about underquoting.
+
+    Philosophical: Precision manufacturers shouldn’t lose or regret jobs because
+    quoting is guesswork.
+  guide: >-
+    Empathy: We understand die‑casting quoting—machine selection, cavitation,
+    cycle time, alloy usage, secondary ops, and scrap are complex under time
+    pressure.
+
+    Authority: Purpose‑built AI for nonferrous die‑casting, developed with
+    process engineers, validated on historical RFQs/CAD, and designed to
+    integrate with your ERP/CRM while keeping your data in your control.
+  plan: >-
+    Process Plan:
+
+    1) Connect RFQ inbox/portal and CAD files.
+
+    2) Configure machines, alloys, labor rates, overhead, scrap, and business
+    rules.
+
+    3) Autopilot estimates machine/tonnage, die size/cavitation, cycle time,
+    material usage, secondary ops, and total cost; drafts a customer‑ready
+    quote.
+
+    4) Review, adjust, approve, and sync to CRM/ERP.
+
+    Agreement Plan:
+
+    - Clear pricing; no long‑term lock‑in.
+
+    - Your data remains yours; access controls and private deployment options.
+
+    - Start small: pilot on past RFQs with agreed success criteria.
+  callToAction: >-
+    Direct: Book a demo; start a 30‑day pilot with your RFQs and CAD.
+
+    Transitional: Download a sample quote, ROI calculator, and implementation
+    checklist.
+  success: >-
+    Quotes in minutes, not days. Higher win rates with consistent, defensible
+    pricing. Protected margins and fewer underquotes. Transparent assumptions
+    and audit trails. A scalable quoting process that outlives tribal knowledge.
+  failure: >-
+    Slow, inconsistent quoting; lost bids to faster shops; underquoted jobs that
+    erode margin; expert burnout; fragile processes tied to a few people; lumpy,
+    unpredictable revenue.
+landingPage:
+  hero:
+    title: RFQ‑to‑Quote Autopilot for Die Casting
+    subtitle: >-
+      Turn RFQs and CAD into accurate, margin‑safe quotes in minutes. Built for
+      nonferrous die‑casting foundries (NAICS 331523).
+    ctaText: Get a demo
+    ctaHref: '#demo'
+  problem:
+    - RFQs pile up while experts are tied up in manual CAD reviews
+    - >-
+      Press selection and cavitation decisions vary by estimator, risking
+      inconsistencies
+    - Cycle time “best guesses” leak margin or price you out
+    - 'Material usage, runners, and scrap are under‑estimated'
+    - Missed bid windows due to spreadsheet and email ping‑pong
+    - Hard to compare single vs multi‑cavity and family mold scenarios quickly
+    - 'DFM issues surface late, triggering rework and delays'
+    - Quote versions and approvals get lost across teams and systems
+  solution:
+    - 'Ingest RFQs, drawings, and CAD; auto‑extract requirements and quantities'
+    - >-
+      Recommend press tonnage, shot size, and cavitation from geometry and
+      projected area
+    - >-
+      Model cycle time (fill, cooling, spray, open/close, eject) based on alloy
+      and wall profile
+    - 'Estimate runner/biscuit/overflow volumes, yield, and scrap rates'
+    - >-
+      Build cost stack: material, machine rate, labor, tooling amortization,
+      energy, overhead
+    - 'Generate a ready‑to‑send commercial quote with lead time, MOQ, and terms'
+    - >-
+      Flag DFM risks (draft, wall thickness, ribs/bosses, fillets, undercuts)
+      with suggestions
+    - >-
+      Compare scenarios (single vs multi‑cavity, family molds) and show
+      break‑even points
+    - Export to ERP/CRM and keep a clean audit trail of revisions and approvals
+    - Learn from wins/losses to calibrate rates and assumptions over time
+  features:
+    - 'RFQ intake from email, portals, and file upload (PDF, STEP, IGES, STL)'
+    - Automatic geometry and projected area analysis for Al/Mg/Zn alloys
+    - Press tonnage and shot size calculation with utilization guidance
+    - Cavitation and family mold feasibility with yield and takt impact
+    - Cycle time engine tuned for die casting (fill/cool/lube/open/close/eject)
+    - >-
+      Material usage with runners, overflows, biscuits, melt loss, scrap, and
+      recycle credit
+    - >-
+      Cost modeling for machine, labor, tooling amortization, secondary ops,
+      finishing, energy, overhead
+    - Live alloy price inputs and surcharges; multi‑currency support
+    - >-
+      DFM checks: draft angles, thin walls, thickness transitions, fillets,
+      bosses, ribs, cored holes
+    - >-
+      Secondary operations library (trim, deburr, machining, tapping,
+      impregnation, coating)
+    - 'Quote composer: branded PDFs/emails with configurable terms and validity'
+    - >-
+      Approval workflows, role‑based permissions, margin guardrails, version
+      control
+    - >-
+      Scenario comparison with piece price curves vs annual volume and
+      cavitation
+    - ERP/CRM sync (estimates to jobs/opportunities) with line‑level breakdowns
+    - 'Revision handling: re‑run estimates on updated CAD and track deltas'
+    - >-
+      Analytics: hit rate, turnaround time, margin by customer/part, estimator
+      calibration
+  steps:
+    - Connect your RFQ inbox/portal and upload CAD/drawings
+    - >-
+      AI analyzes geometry and RFQ, selects press/cavitation, and estimates
+      cycle time, yield, and costs
+    - >-
+      Review DFM flags and assumptions; tweak rates, add secondary ops, and lock
+      margins
+    - Generate and send a branded quote; sync to ERP/CRM for tracking
+    - >-
+      Track status, manage revisions, and learn from outcomes to continuously
+      improve accuracy
+---
+# CastQuote Autopilot (RFQ-to-Quote AI for Nonferrous Die Casting)
+
+Generated for NAICS 331523 — Nonferrous Metal Die-Casting Foundries.
+Service: RFQ-to-Quote Autopilot for Die Casting

@@ -1,0 +1,334 @@
+---
+name: >-
+  ChromaticFlow AI — Production Schedule & Changeover Optimizer for Printing
+  Inks
+slug: chrmtcflw
+naics:
+  primary: '325910'
+  occupations: []
+service:
+  title: Production Schedule & Changeover Optimizer
+  description: >-
+    Generates near-optimal mixer/mill schedules considering color/chemistry
+    changeovers, cleaning, crew, and inventory.
+  targetUsers:
+    - Production planning
+    - Operations managers
+  triggers:
+    - Daily/shift planning run
+    - Rush order arrives
+    - Machine downtime event
+  inputs:
+    - Open orders and due dates
+    - Routing/BOM and batch sizes
+    - Machine calendars and cleaning/changeover matrix
+    - Crew shifts and skills
+    - Inventory/shortages and lead times
+  steps:
+    - Ingest orders and constraints from ERP/MES
+    - 'Build MILP with objectives (OTIF, minimal changeover, WIP)'
+    - Optimize and produce 24–72h schedule
+    - Generate changeover sequence and cleaning plan
+    - 'Simulate what-if (rush job, downtime) and re-optimize'
+    - Publish schedule and KPIs to planners
+  tools:
+    - Google OR-Tools/Pyomo
+    - 'ERP/MES connectors (SAP, Odoo, Dynamics)'
+    - Gantt/ICS exporter
+    - LLM for change notes
+  outputs:
+    - Executable schedule (CSV/JSON/ICS)
+    - Changeover/cleaning checklist
+    - 'KPIs: utilization, makespan, changeovers'
+  pricingModel:
+    - Monthly subscription per plant
+    - One-time integration/setup
+    - Optional premium for real-time re-optimization
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 9
+    overall: 9
+  risks:
+    - Data accuracy (routing/cleaning times)
+    - Planner trust/adoption
+    - Unmodeled constraints causing infeasible plans
+  dependencies:
+    - ERP/MES access
+    - Changeover matrices
+    - Inventory data
+leanCanvas:
+  problem:
+    - >-
+      High-mix, low-volume operations lead to excessive changeovers: 20–120
+      minutes per changeover depending on pigment/resin/solvent; 10–25% of
+      mixer/mill time lost to avoidable changeovers and cleaning.
+    - >-
+      Manual/Excel-based scheduling cannot consider full constraints
+      (compatibility, QA, crew qualifications, curing, inventory), resulting in
+      firefighting, expediting, and overtime.
+    - >-
+      Color/chemistry compatibility is complex: switching between dark-to-light,
+      solvent- to water-based, or UV/EB chemistries requires different cleaning
+      procedures and time; tribal knowledge is hard to scale.
+    - >-
+      Crew and qualification constraints (e.g., only certain operators can run
+      bead mills or handle UV inks) create bottlenecks and unplanned idle time.
+    - >-
+      WIP and inventory coupling (bases, letdowns, varnishes, solvents,
+      pigments) introduces upstream constraints that most schedulers ignore,
+      causing downstream stockouts and late orders.
+    - >-
+      Quality testing, cure/aging times, and packaging capacity are often not
+      modeled, delaying release and extending cycle time by 4–24 hours.
+    - >-
+      Rush orders and frequent re-prioritizations cause schedule churn; typical
+      plants replan 3–10 times per week, hurting schedule adherence.
+    - >-
+      VOC/hazardous waste and solvent usage spike with suboptimal sequencing;
+      cleaning solvent use often equals 5–15% of batch volume, with disposal
+      costs and EHS exposure.
+    - >-
+      Key performance pain: OTIF at 85–90% (vs >95% target), mixer OEE at
+      45–60%, overtime >10% of labor hours, scrap/rejects 0.5–2% due to
+      contamination or hold failures.
+  solution:
+    - >-
+      Hybrid optimization engine (constraint programming + MILP + domain
+      heuristics) that sequences batches by color/chemistry to minimize cleaning
+      while honoring finite capacities, crew qualifications, QA, curing, and
+      packaging constraints.
+    - >-
+      Chemistry and color compatibility graph with a rules library (pigment
+      family, resin system, solvent class, food-grade/halal/Kosher segregation)
+      to compute realistic cleaning times and procedures.
+    - >-
+      Dynamic cleaning time estimator using past changeover history, color delta
+      E, resin compatibility, and solvent selection to predict setup/clean
+      durations ±10 minutes accuracy after calibration.
+    - >-
+      Finite-capacity scheduling across mixers, mills, QA labs, curing/aging,
+      and packaging lines; includes queue times and shared resource constraints
+      (e.g., wash stations).
+    - >-
+      Crew/shift optimizer with qualification matrix, cross-training
+      preferences, overtime caps, and union rules.
+    - >-
+      Inventory- and lot-sizing-aware scheduling that respects base/letdown
+      availability, minimum/maximum batch sizes, and raw material arrival dates;
+      reduces WIP days by 10–20%.
+    - >-
+      Fast re-optimization to handle rush orders or asset downtime with schedule
+      stability controls (lock levels) to minimize disruption.
+    - >-
+      Scenario planning and what-if simulation: compare policies (light-to-dark
+      vs dark-to-light, fewer larger batches vs more frequent changeovers) with
+      KPIs for solvent use, OTIF, and labor hours.
+    - >-
+      ERP/MES connectors (SAP ECC/S4, QAD, Deacom, MS Dynamics, Epicor) for
+      orders, BOMs, routings, inventory, and confirmations; shop-floor dispatch
+      interface and APIs/webhooks.
+    - >-
+      6-week implementation playbook: data mapping (2 weeks), time studies and
+      rule calibration (1–2 weeks), model training and UAT (2 weeks), go-live
+      and training (1 week).
+  uniqueValueProp: >-
+    Near-optimal, chemistry-aware production schedules that increase mixer/mill
+    throughput 10–20%, cut changeover/cleaning time 20–35%, reduce solvent usage
+    15–30%, and lift OTIF to >95%—implemented and integrated with ERP/MES in
+    under 6 weeks.
+  unfairAdvantage: >-
+    A domain-specific compatibility and cleaning-time library for
+    pigments/resins/solvents in ink manufacturing—validated by time
+    studies—combined with prebuilt ERP connectors and a solver tuned for ink
+    workflows. This shortens implementation to <6 weeks and delivers measurable
+    solvent and changeover reductions that generic APS tools cannot match.
+  customerSegments:
+    - >-
+      Mid-size independent ink manufacturers (NAICS 325910) with 1–3 plants,
+      $50–500M revenue, running solvent, water-based, or UV inks for packaging,
+      publication, and specialty applications.
+    - >-
+      Large multi-national ink producers with multi-site networks (4+ plants)
+      seeking standardization and centralized planning.
+    - >-
+      Specialty/technical ink producers (UV/EB, conductive, digital) with
+      stringent QA and segregation needs.
+    - >-
+      Roles: VP/Director of Operations, Plant Manager, Master Scheduler, Supply
+      Chain Director, CIO/CTO (for integration/security).
+    - >-
+      Geographies: initial focus North America (U.S./Canada), expansion to EU
+      and select APAC markets with similar regulatory/EHS landscapes.
+  channels:
+    - >-
+      Direct sales to ink manufacturers via consultative selling focused on
+      operations and EHS outcomes.
+    - >-
+      Partnerships with ERP/MES integrators familiar with chemical/process
+      manufacturing (SAP, Deacom, QAD, Dynamics partners).
+    - >-
+      OEM alliances with mixer/mill suppliers (e.g., Bühler, NETZSCH) to
+      co-market optimization tied to their equipment upgrades.
+    - >-
+      Industry associations and events: NAPIM/NPIRI, TAPPI, INFOFLEX, AIMCAL;
+      sponsor technical sessions on changeover optimization and solvent
+      reduction.
+    - >-
+      Content-led demand generation: whitepaper on “Chemistry-Aware Scheduling
+      in Ink Manufacturing,” ROI calculator, case studies showing changeover and
+      solvent reductions.
+    - >-
+      Targeted ABM on LinkedIn toward VP Ops/Plant Managers; webinar series with
+      live scheduling demos and pilot offers.
+    - Customer-led referrals with incentives; advisory board of early adopters.
+    - >-
+      Pilot-to-scale motion: 6-week paid pilots with ROI guarantee (credit pilot
+      fee against subscription upon success).
+  revenueStreams:
+    - >-
+      SaaS subscription per site, tiered by number of assets: Lite (≤5 assets)
+      $40k/year, Standard (≤12 assets) $75k/year, Enterprise (unlimited assets
+      per site) $120k/year; multi-site discounts 15–30%.
+    - >-
+      Implementation and data integration: $30k–$80k per site depending on
+      ERP/MES and data quality.
+    - 'Training and change management: $5k–$10k per site.'
+    - >-
+      Premium add-ons: advanced analytics pack ($10k/year), additional
+      connectors ($5k/year per connector), premium SLA (24/7, <1h response)
+      +$10k/year.
+    - >-
+      Optional value-based component: 10% of verified first-year hard savings
+      (changeover labor, solvent, overtime) capped at subscription value.
+    - >-
+      Professional services: time studies, rulebook development, custom reports
+      ($200–$250/hour).
+  costStructure:
+    - >-
+      Core team: optimization engineers (OR), chemical/process engineers with
+      ink expertise, data engineers, full-stack developers, solution
+      consultants, customer success.
+    - >-
+      Cloud infrastructure (compute for solvers, storage, monitoring): $1k–$3k
+      per active site per month at scale; multi-tenant architecture to control
+      cost of goods.
+    - >-
+      Solver licensing and tooling (e.g., Gurobi/CPLEX, optimization libraries):
+      $30k–$80k/year depending on concurrency and environment.
+    - >-
+      Sales and marketing: AE/SE salaries, ABM spend, trade shows, content;
+      partner commissions 10–20%.
+    - Implementation and support travel; on-site time studies and training.
+    - >-
+      Security and compliance: SOC 2 Type II audits, penetration testing, cyber
+      insurance.
+    - >-
+      R&D for chemistry-specific rules library and machine learning models;
+      product roadmap and UI/UX investments.
+  keyMetrics:
+    - >-
+      Customer outcome KPIs (tracked pre/post): changeover hours per week
+      (target -20–35%), solvent usage per ton (-15–30%), mixer/mill throughput
+      kg/hr (+10–20%), OTIF >95%, schedule adherence +15–25 points, overtime
+      hours (-20–40%), WIP/cycle time (-10–20%).
+    - >-
+      Operational KPIs: average solve time for 7-day horizon <120 seconds;
+      schedule stability >85% unchanged operations after replan; cleaning time
+      prediction MAE ≤10 minutes; data latency <5 minutes for ERP/MES sync.
+    - >-
+      Adoption KPIs: % of schedule executed from system >90% within 60 days of
+      go-live; planner time spent scheduling (-50%).
+    - >-
+      Business KPIs: pilot conversion rate ≥60%, ARR growth >100% YoY in years
+      1–2, gross margin ≥70%, CAC payback <12 months, net revenue retention
+      ≥115%, logo retention ≥90%.
+    - >-
+      EHS metrics: hazardous waste per 1,000 kg production (-10–25%), VOC
+      emissions from cleaning (-10–20%).
+storyBrand:
+  character: >-
+    Operations leaders at printing ink manufacturers (NAICS 325910) who must
+    ship on time while juggling mixers/mills, color/chemistry changeovers,
+    cleaning, crews, and inventory.
+  problem: >-
+    External: frequent changeovers, variable wash times, tight due dates, QC
+    holds, crew limits, and inventory gaps. Internal: planners firefight and
+    don’t trust the schedule. Philosophical: you shouldn’t have to choose
+    between throughput and cleanliness/quality.
+  guide: >-
+    Production Schedule & Changeover Optimizer — an AI scheduler built for ink
+    plants. We understand pigment cross‑contamination, resin/solvent families,
+    QC release, and mill/mixer realities, and have deployed optimization in
+    process manufacturing.
+  plan: >-
+    1) Connect ERP/MES/BOMs; load cleaning matrix, crew rosters, and asset
+    calendars. 2) Configure objectives (minimize changeovers/cleaning, meet due
+    dates, honor inventory/QC) and run scenarios. 3) Go live with daily
+    optimized schedules, what‑ifs, and operator run sheets. Pilot in 2–4 weeks;
+    no rip‑and‑replace.
+  callToAction: >-
+    Book a 30‑minute demo. Start a 4‑week pilot with a sample week of orders and
+    assets. Get an ROI‑backed rollout plan.
+  success: >-
+    Near‑optimal sequences by color/chemistry; 20–40% fewer changeovers and wash
+    hours; +5–15% throughput; 10–25% less overtime; >98% on‑time; fewer
+    contamination events and QC holds; lower solvent use and WIP; calmer shifts
+    and trusted schedules.
+  failure: >-
+    Status quo: firefighting with spreadsheets; costly overtime; late shipments
+    and expediting; contamination rework and scrap; wasted cleaning chemicals;
+    idle assets alongside bottlenecks; stressed planners and unhappy customers.
+landingPage:
+  hero:
+    title: Production Schedule & Changeover Optimizer for Printing Ink (NAICS 325910)
+    subtitle: >-
+      AI schedules mixer and mill runs to cut changeovers and cleaning, meet due
+      dates, and maximize throughput—under real constraints.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - Changeovers and wash-ups consume too much mixer/mill time.
+    - Spreadsheet scheduling can’t handle complex color and vehicle rules.
+    - Crew and skill limits cause idle equipment and costly overtime.
+    - Hot orders blow up the plan; constant firefighting.
+    - Inventory and QC release timing stall production.
+    - Risk of cross-contamination from poor sequencing.
+    - 'No fast, data-driven way to compare schedule scenarios.'
+  solution:
+    - Sequence jobs to minimize color/chemistry changeovers and cleaning.
+    - 'Honor crew, skills, shifts, and machine capacities automatically.'
+    - Plan with inventory and QC release timing to hit due dates.
+    - Reoptimize in seconds for rush orders or breakdowns.
+    - Simulate scenarios to pick the best plan before committing.
+    - Publish clear Gantt and dispatch lists to the floor.
+    - 'Integrate with ERP/MES for orders, BOMs, and confirmations.'
+    - 'Track KPIs: changeover hours, throughput, on-time performance.'
+  features:
+    - 'Changeover matrix by color family, resin/vehicle, solvent, and finish.'
+    - 'Cleaning policy rules: cold/warm/hot wash with times and costs.'
+    - Campaigning by color families to reduce washes and solvent use.
+    - 'Multi-resource modeling: mixers, mills, let-down, QC, tanks.'
+    - 'Batch sizing and splitting with min fill, yield, and hold times.'
+    - 'Crew calendars, skill matrix, and shift patterns.'
+    - 'Inventory and QC release constraints on raw, WIP, and packaging.'
+    - 'Due date priorities, customer classes, and lateness penalties.'
+    - Rush order insertion with frozen zones for stable replans.
+    - Maintenance and sanitation downtime calendars.
+    - 'Real-time replanning for delays, scrap, and unplanned events.'
+    - Drag-and-drop edits with instant feasibility checks.
+    - 'Visual Gantt, heatmaps, bottleneck and critical path views.'
+    - APIs and flat-file import/export to ERP/MES/LIMS.
+    - 'User roles, approvals, and full change audit trail.'
+    - Enterprise security with SSO and role-based access.
+  steps:
+    - 'Connect orders, routings, and inventory from ERP/MES.'
+    - 'Configure changeover matrix, cleaning rules, and constraints.'
+    - 'Run the optimizer to generate a feasible, ranked schedule.'
+    - 'Review, tweak, and lock the plan; publish to production.'
+    - Monitor execution and reoptimize as conditions change.
+---
+# ChromaticFlow AI — Production Schedule & Changeover Optimizer for Printing Inks
+
+Generated for NAICS 325910 — Printing Ink Manufacturing.
+Service: Production Schedule & Changeover Optimizer

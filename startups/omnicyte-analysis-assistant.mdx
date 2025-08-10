@@ -358,3 +358,404 @@ landingPage:
 
 Generated for NAICS 541714 — Research and Development in Biotechnology (except Nanobiotechnology).
 Service: Imaging and Flow Cytometry Analysis Assistant
+
+## Business Process Workflows
+
+```typescript
+// Core Types
+interface Lead {
+  id: string
+  company: string
+  contactInfo: ContactInfo
+  researchFocus: 'cell-therapy' | 'immuno-oncology' | 'vaccines' | 'antibody-discovery' | 'synthetic-biology'
+  teamSize: number
+  currentTools: string[]
+  painPoints: string[]
+  complianceNeeds: 'basic' | 'gxp' | 'part11'
+}
+
+interface Customer {
+  id: string
+  lead: Lead
+  contract: Contract
+  deploymentType: 'saas' | 'vpc' | 'on-prem'
+  seats: number
+  usage: UsageMetrics
+}
+
+interface AnalysisRequest {
+  id: string
+  customerId: string
+  dataType: 'microscopy' | 'flow-cytometry' | 'both'
+  files: DataFile[]
+  assayType: string
+  priority: 'standard' | 'priority' | 'urgent'
+  complianceLevel: 'basic' | 'audit-ready'
+}
+
+interface AnalysisResult {
+  id: string
+  requestId: string
+  segmentationResults?: SegmentationData
+  gatingResults?: GatingData
+  qcMetrics: QCMetrics
+  auditTrail: AuditEntry[]
+  confidence: number
+  humanReviewRequired: boolean
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead)
+  const demo = await conductDemo(qualifiedLead)
+  const pilot = await runPilot(demo)
+  const proposal = await generateProposal(pilot)
+  const contract = await negotiateContract(proposal)
+  return await onboardCustomer(contract)
+}
+
+export async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  // Score lead based on research focus, team size, and pain points
+  const fitScore = calculateFitScore(lead)
+  
+  if (fitScore < 0.6) {
+    throw new Error('Lead does not meet qualification criteria')
+  }
+  
+  const stakeholders = await identifyStakeholders(lead)
+  const budget = await assessBudget(lead)
+  const timeline = await determineTimeline(lead)
+  
+  return {
+    ...lead,
+    fitScore,
+    stakeholders,
+    budget,
+    timeline,
+    qualified: true
+  }
+}
+
+export async function conductDemo(lead: QualifiedLead): Promise<DemoResult> {
+  const demoDataset = await selectDemoDataset(lead.researchFocus)
+  const customizedDemo = await prepareDemoEnvironment(lead, demoDataset)
+  
+  const demoSession = await runDemoSession({
+    lead,
+    environment: customizedDemo,
+    duration: 60, // minutes
+    features: ['segmentation', 'gating', 'audit-trail', 'reporting']
+  })
+  
+  const feedback = await collectDemoFeedback(demoSession)
+  const followUpActions = await determineDemoFollowUp(feedback)
+  
+  return {
+    sessionId: demoSession.id,
+    feedback,
+    followUpActions,
+    pilotRecommended: feedback.interest >= 8
+  }
+}
+
+export async function runPilot(demo: DemoResult): Promise<PilotResult> {
+  if (!demo.pilotRecommended) {
+    throw new Error('Pilot not recommended based on demo feedback')
+  }
+  
+  const pilotScope = await definePilotScope(demo.lead)
+  const pilotEnvironment = await setupPilotEnvironment(pilotScope)
+  
+  // 30-day pilot with real customer data
+  const pilotExecution = await executePilot({
+    scope: pilotScope,
+    environment: pilotEnvironment,
+    duration: 30, // days
+    dataVolume: pilotScope.estimatedFiles,
+    successCriteria: pilotScope.kpis
+  })
+  
+  const results = await evaluatePilotResults(pilotExecution)
+  const roi = await calculatePilotROI(results)
+  
+  return {
+    ...results,
+    roi,
+    conversionRecommended: results.successRate >= 0.7 && roi.timeReduction >= 0.5
+  }
+}
+
+// Product Development Processes
+export async function developAnalysisPipeline(assayType: string): Promise<Pipeline> {
+  const requirements = await gatherRequirements(assayType)
+  const trainingData = await acquireTrainingData(requirements)
+  const model = await trainModel(trainingData, requirements)
+  const pipeline = await buildPipeline(model, requirements)
+  const validation = await validatePipeline(pipeline)
+  
+  if (validation.performance.dice < 0.85 || validation.performance.kappa < 0.85) {
+    throw new Error('Pipeline does not meet quality thresholds')
+  }
+  
+  const documentation = await generatePipelineDocumentation(pipeline, validation)
+  await deployPipeline(pipeline, documentation)
+  
+  return pipeline
+}
+
+export async function validateAssayTemplate(template: AssayTemplate): Promise<ValidationResult> {
+  const testDatasets = await getValidationDatasets(template.assayType)
+  const results = []
+  
+  for (const dataset of testDatasets) {
+    const result = await runValidation(template, dataset)
+    results.push(result)
+  }
+  
+  const aggregatedMetrics = await aggregateValidationMetrics(results)
+  const acceptanceCriteria = await checkAcceptanceCriteria(aggregatedMetrics)
+  
+  return {
+    template,
+    results,
+    metrics: aggregatedMetrics,
+    passed: acceptanceCriteria.allPassed,
+    recommendations: acceptanceCriteria.recommendations
+  }
+}
+
+// Revenue Generation Flows
+export async function processSubscriptionRevenue(customer: Customer): Promise<RevenueEvent> {
+  const usage = await calculateMonthlyUsage(customer)
+  const seatCharges = await calculateSeatCharges(customer)
+  const computeCharges = await calculateComputeCharges(usage)
+  
+  const totalAmount = seatCharges + computeCharges
+  const invoice = await generateInvoice(customer, {
+    seatCharges,
+    computeCharges,
+    totalAmount,
+    period: getCurrentBillingPeriod()
+  })
+  
+  const payment = await processPayment(invoice)
+  await updateCustomerUsage(customer, usage)
+  
+  return {
+    customerId: customer.id,
+    amount: totalAmount,
+    type: 'subscription',
+    invoice,
+    payment,
+    timestamp: new Date()
+  }
+}
+
+export async function handleEnterpriseUpgrade(customer: Customer, upgradeRequest: UpgradeRequest): Promise<Contract> {
+  const currentPlan = await getCurrentPlan(customer)
+  const proposedPlan = await buildEnterprisePlan(upgradeRequest)
+  
+  const costAnalysis = await performCostAnalysis(currentPlan, proposedPlan)
+  const customSLA = await negotiateCustomSLA(upgradeRequest.requirements)
+  
+  const enterpriseContract = await createEnterpriseContract({
+    customer,
+    plan: proposedPlan,
+    sla: customSLA,
+    pricing: costAnalysis.pricing,
+    terms: upgradeRequest.terms
+  })
+  
+  const approval = await getContractApproval(enterpriseContract)
+  if (approval.approved) {
+    await migrateToEnterprise(customer, enterpriseContract)
+    await setupDedicatedSupport(customer)
+  }
+  
+  return enterpriseContract
+}
+
+// Operational Procedures
+export async function ensureComplianceReadiness(analysisRequest: AnalysisRequest): Promise<ComplianceCheck> {
+  const dataClassification = await classifyData(analysisRequest.files)
+  const regulatoryRequirements = await determineRegulatoryRequirements(analysisRequest)
+  
+  const complianceChecks = await runComplianceChecks({
+    dataClassification,
+    requirements: regulatoryRequirements,
+    requestedLevel: analysisRequest.complianceLevel
+  })
+  
+  if (!complianceChecks.allPassed) {
+    const remediation = await generateRemediationPlan(complianceChecks.failures)
+    throw new ComplianceError('Compliance requirements not met', remediation)
+  }
+  
+  const auditPreparation = await prepareAuditDocumentation(analysisRequest)
+  
+  return {
+    passed: true,
+    checks: complianceChecks,
+    auditDocumentation: auditPreparation,
+    certifications: ['SOC2-Type2', 'ALCOA+', '21CFR-Part11']
+  }
+}
+
+export async function maintainDataIntegrity(operation: DataOperation): Promise<IntegrityResult> {
+  const checksumBefore = await calculateChecksum(operation.data)
+  const backupCreated = await createDataBackup(operation.data)
+  
+  try {
+    const result = await executeOperation(operation)
+    const checksumAfter = await calculateChecksum(result.data)
+    
+    const integrityLog = await logIntegrityEvent({
+      operation: operation.type,
+      checksumBefore,
+      checksumAfter,
+      timestamp: new Date(),
+      userId: operation.userId,
+      verified: true
+    })
+    
+    return {
+      success: true,
+      data: result.data,
+      integrityLog,
+      backup: backupCreated
+    }
+  } catch (error) {
+    await restoreFromBackup(backupCreated)
+    throw new IntegrityError('Data integrity compromised during operation', error)
+  }
+}
+
+// Decision-Making Workflows
+export async function reviewAnalysisResults(result: AnalysisResult): Promise<ReviewDecision> {
+  const confidenceThreshold = 0.85
+  const expertReviewRequired = result.confidence < confidenceThreshold || result.humanReviewRequired
+  
+  if (!expertReviewRequired) {
+    return await autoApproveResult(result)
+  }
+  
+  const expertAssignment = await assignExpertReviewer(result)
+  const reviewSession = await createReviewSession(result, expertAssignment)
+  
+  const expertDecision = await waitForExpertReview(reviewSession)
+  const finalResult = await applyExpertDecision(result, expertDecision)
+  
+  await logReviewDecision({
+    resultId: result.id,
+    reviewer: expertAssignment.expert,
+    decision: expertDecision,
+    confidence: result.confidence,
+    timestamp: new Date()
+  })
+  
+  return {
+    approved: expertDecision.approved,
+    result: finalResult,
+    reviewer: expertAssignment.expert,
+    comments: expertDecision.comments,
+    auditTrail: [...result.auditTrail, expertDecision.auditEntry]
+  }
+}
+
+export async function optimizeAnalysisPipeline(pipeline: Pipeline, performanceData: PerformanceMetrics): Promise<OptimizedPipeline> {
+  const bottlenecks = await identifyBottlenecks(performanceData)
+  const optimizationStrategies = await generateOptimizationStrategies(bottlenecks)
+  
+  const optimizedComponents = []
+  for (const strategy of optimizationStrategies) {
+    const optimizedComponent = await applyOptimization(pipeline, strategy)
+    const validation = await validateOptimization(optimizedComponent)
+    
+    if (validation.performanceImprovement > 0.1) {
+      optimizedComponents.push(optimizedComponent)
+    }
+  }
+  
+  const optimizedPipeline = await assemblePipeline(optimizedComponents)
+  const benchmarkResults = await benchmarkPipeline(optimizedPipeline)
+  
+  return {
+    ...optimizedPipeline,
+    optimizations: optimizationStrategies,
+    performanceGains: benchmarkResults.improvements,
+    validated: benchmarkResults.meetsThresholds
+  }
+}
+
+// Utility Functions (referenced by main workflows)
+async function calculateFitScore(lead: Lead): Promise<number> {
+  // Implementation would score based on research focus, team size, current tools, etc.
+  return 0.8
+}
+
+async function identifyStakeholders(lead: Lead): Promise<Stakeholder[]> {
+  // Implementation would identify key decision makers
+  return []
+}
+
+async function selectDemoDataset(researchFocus: string): Promise<DemoDataset> {
+  // Implementation would select appropriate demo data
+  return {} as DemoDataset
+}
+
+async function trainModel(data: TrainingData, requirements: Requirements): Promise<MLModel> {
+  // Implementation would train ML models for segmentation/gating
+  return {} as MLModel
+}
+
+async function processPayment(invoice: Invoice): Promise<Payment> {
+  // Implementation would handle payment processing
+  return {} as Payment
+}
+
+// Additional type definitions would be defined here...
+interface QualifiedLead extends Lead {
+  fitScore: number
+  stakeholders: Stakeholder[]
+  budget: BudgetInfo
+  timeline: Timeline
+  qualified: boolean
+}
+
+interface DemoResult {
+  sessionId: string
+  feedback: DemoFeedback
+  followUpActions: string[]
+  pilotRecommended: boolean
+  lead: QualifiedLead
+}
+
+interface PilotResult {
+  successRate: number
+  roi: ROIMetrics
+  conversionRecommended: boolean
+}
+
+interface Pipeline {
+  id: string
+  assayType: string
+  model: MLModel
+  version: string
+  performance: PerformanceMetrics
+}
+
+interface ComplianceCheck {
+  passed: boolean
+  checks: ComplianceResult[]
+  auditDocumentation: AuditDocumentation
+  certifications: string[]
+}
+
+interface ReviewDecision {
+  approved: boolean
+  result: AnalysisResult
+  reviewer: Expert
+  comments: string
+  auditTrail: AuditEntry[]
+}
+```

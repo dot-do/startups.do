@@ -1,7 +1,15 @@
+'use client'
+import React, { useEffect, useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import { LuArrowRight } from "react-icons/lu";
 
 import { badgeVariants } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+
+const DynamicDotGrid = dynamic(() => import("@/components/blocks/Backgrounds/DotGrid/DotGrid"), { ssr: false });
+const DynamicLightRays = dynamic(() => import("@/components/blocks/Backgrounds/LightRays/LightRays"), { ssr: false });
+const DynamicDarkVeil = dynamic(() => import("@/components/blocks/Backgrounds/DarkVeil/DarkVeil"), { ssr: false });
+const DynamicDither = dynamic(() => import("@/components/blocks/Backgrounds/Dither/Dither"), { ssr: false });
 
 interface Hero1Props {
   badge?: {
@@ -58,7 +66,7 @@ const Hero1: React.FC<Hero1Props> = ({
   };
 
   const headingConfig = {
-    text: heading?.text || "The Best Developer Friendly",
+    text: heading?.text || "Build Autonomous Businesses",
     highlightedText: heading?.highlightedText || "Framework",
   };
 
@@ -68,15 +76,36 @@ const Hero1: React.FC<Hero1Props> = ({
       href: buttons?.primary?.href || "#",
     },
     secondary: {
-      text: buttons?.secondary?.text || "Watch Demo",
+      text: buttons?.secondary?.text || "Learn more",
       href: buttons?.secondary?.href || "#",
     },
   };
+
+  // Random background selection
+  const backgroundOptions = useMemo(
+    () => [
+      <DynamicDotGrid key="dotgrid" />,
+      <DynamicLightRays key="lightrays" />,
+      <DynamicDarkVeil key="darkveil" />,
+      <DynamicDither key="dither" enableMouseInteraction={false} />,
+    ],
+    []
+  );
+  const [bgIndex, setBgIndex] = useState<number | null>(null);
+  useEffect(() => {
+    setBgIndex(Math.floor(Math.random() * backgroundOptions.length));
+    // backgroundOptions is stable due to empty deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <section 
       className={`dark font-public_sans relative bg-background min-h-screen lg:min-h-[900px] xl:min-h-[960px] flex items-center -mt-20 py-12 before:absolute before:top-0 before:left-0 before:z-10 before:block before:h-[15rem] before:w-full before:bg-linear-to-b before:from-muted before:to-transparent before:content-[''] md:py-32 ${className}`}
     >
+      {/* Randomized background from components/blocks with 70% opacity */}
+      <div className="absolute inset-0 z-0 opacity-50 pointer-events-none">
+        {bgIndex !== null ? backgroundOptions[bgIndex] : null}
+      </div>
       <div className="relative z-20 mx-auto max-w-7xl px-6 lg:px-8">
         <div className="relative z-20 mx-auto flex max-w-[56.25rem] flex-col items-center gap-6">
           {badgeConfig.show && (

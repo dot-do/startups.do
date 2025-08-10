@@ -1,0 +1,292 @@
+---
+name: SeismoAI TomoPick
+slug: seismoai
+naics:
+  primary: '541360'
+  occupations: []
+service:
+  title: Seismic Refraction First-Break Picking and Tomography
+  description: >-
+    Automated first-break picking and 2D travel-time tomography for Vs/Vp
+    sections.
+  targetUsers:
+    - Geotech/engineering firms
+    - Seismic service providers
+    - Hydrogeology
+  triggers:
+    - Upload of new SEG-2/SEGY shots
+    - Need for rapid refraction section products
+  inputs:
+    - SEGY/SEG-2 shot gathers
+    - Spread geometry and elevations
+    - Source/receiver coordinates
+  steps:
+    - Denoise and auto-pick first arrivals (DL picker)
+    - Human review/correction on flagged traces
+    - Build travel-time dataset and quality masks
+    - Run TTT inversion (pyGIMLi)
+    - Export Vs/Vp sections and QA plots
+  tools:
+    - 'ObsPy, segyio'
+    - PhaseNet/EQTransformer models adapted for refraction
+    - pyGIMLi TTT
+    - 'matplotlib, geopandas'
+  outputs:
+    - First-break picks and confidence
+    - Vs/Vp sections (GeoTIFF/PNG)
+    - Inversion report with RMS misfit
+    - GIS package of profile results
+  pricingModel:
+    - Per spread/profile
+    - Bundle per project corridor
+    - Optional hourly for QC/interpretation
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 7.5
+    overall: 7.5
+  risks:
+    - Strong noise/ground roll masking arrivals
+    - Geometry errors causing artifacts
+    - Layering assumptions not met
+  dependencies:
+    - Accurate geometry and elevations
+    - Acquisition logs
+    - Topography along lines
+leanCanvas:
+  problem:
+    - >-
+      Manual first-break picking is slow (4–8 hours per line-km) and
+      inconsistent across analysts, delaying deliverables and inflating costs.
+    - >-
+      High-noise near-surface data (cultural noise, wind, coupling issues)
+      causes missed/incorrect picks that propagate to poor tomography models.
+    - >-
+      Current tools lack uncertainty quantification and standardized QC, leading
+      to subjective interpretation and rework.
+    - >-
+      A shortage of trained near-surface geophysicists creates processing
+      bottlenecks, especially during seasonal field peaks.
+    - >-
+      Integrations with common acquisition formats and processing suites are
+      fragmented, increasing handoffs and error risk.
+  solution:
+    - >-
+      Automated first-break picking with uncertainty bounds (per-trace σt) and
+      noise-adaptive preconditioning; target MAE ≤1.5 ms, 95% of picks within ±3
+      ms of expert consensus.
+    - >-
+      2D travel-time tomography (Vp and Vs via P- and S-wave refraction) with
+      Tikhonov regularization and L-curve selection; target RMS misfit ≤2 ms and
+      model roughness constraints.
+    - >-
+      Comprehensive QC dashboard: pick gather overlays, misfit histograms, ray
+      coverage, sensitivity, and depth of investigation maps; red/amber/green
+      flags and auto-suggested fixes.
+    - >-
+      Seamless data I/O: SEG-2, SEG-Y, SU, Geode, ABEM/Guideline Geo; exports to
+      SEG-Y/ASCII/GeoTIFF and shapefiles; roll-along aware stitching.
+    - >-
+      Human-in-the-loop corrections: rapid batch review, assisted re-pick on
+      flagged traces, audit trail, and project reproducibility.
+    - >-
+      API and web app for batch projects; CLI for headless integration into
+      existing pipelines; job queues with SLA-based prioritization.
+  uniqueValueProp: >-
+    Accelerate seismic refraction projects by 5–10x with AI-grade first-break
+    picking and 2D travel-time tomography that deliver Vs/Vp sections with
+    quantified uncertainty, seamless format support, and human-in-the-loop
+    QC—reducing processing time from days to hours while improving model
+    reliability.
+  unfairAdvantage: >-
+    A growing, proprietary, heterogenous refraction dataset with calibrated
+    uncertainty models and integrated HIL tomography workflow, plus deep
+    integrations with incumbent tools and hardware vendors—creating switching
+    costs and performance that generic pickers or manual tools cannot match.
+  customerSegments:
+    - >-
+      Primary: Small-to-mid geophysical survey contractors (10–100 employees)
+      doing near-surface refraction for civil, mining, environmental, and
+      renewables.
+    - >-
+      Primary: Geotechnical/engineering consultancies with in-house or
+      outsourced geophysics teams (e.g., AEC firms).
+    - >-
+      Secondary: Mining operators and EPCs needing rapid near-surface velocity
+      characterization for pits, haul roads, tailings, and foundations.
+    - >-
+      Secondary: Government/transportation agencies (DOTs, municipalities) for
+      route selection and foundation characterization.
+    - >-
+      Tertiary: Academic/research labs and NGOs running refraction surveys,
+      seeking reproducible workflows.
+  channels:
+    - >-
+      Direct outbound to 200–300 North American geophysical contractors with
+      15-minute benchmarking offer on their legacy datasets.
+    - >-
+      Partnerships with instrument vendors (Geometrics/Geode, ABEM/Guideline
+      Geo) for co-marketing and bundled trial licenses.
+    - >-
+      Integration plugins and export profiles for popular suites (ReflexW,
+      SeisImager/2D, Rayfract) to reduce switching friction.
+    - >-
+      Conference presence (SAGEEP/EEGS, SEG, EAGE Near Surface, AGU); live
+      “speed picking” challenges with public datasets.
+    - >-
+      Content marketing: technical notes, uncertainty primers, and case studies
+      showing 70–90% time savings and lowered misfit; targeted
+      LinkedIn/ResearchGate campaigns.
+    - >-
+      Pilot program: 10–20 contractors, 2 free projects each (≤10 line-km
+      total), with signed case study rights.
+    - >-
+      Channel partners: regional resellers and AEC primes who subcontract
+      geophysical processing; revenue share 15–25%.
+    - >-
+      Self-serve web onboarding with sample data room and CLI; Slack/Teams
+      support channel for priority users.
+  revenueStreams:
+    - >-
+      SaaS subscriptions: Starter $500/month (5,000 picks + 2 line-km
+      tomography), Pro $2,000/month (30,000 picks + 15 line-km), Enterprise
+      custom SLA and SSO.
+    - >-
+      Usage-based overages: $0.15/pick (Starter), $0.10/pick (Pro); tomography
+      $250/line-km (Starter), $150/line-km (Pro).
+    - >-
+      Per-project pricing for non-subscribers: $1,500 minimum, then $400 per
+      additional line-km or $0.20/pick.
+    - >-
+      Professional services: workflow integration, custom model tuning, and
+      training ($200–$300/hr).
+    - >-
+      White-label/API licensing to large AECs or national labs; annual contracts
+      $50k–$250k depending on volume and support.
+    - Data processing bundles with vendors (hardware + AI credits).
+  costStructure:
+    - >-
+      COGS: GPU inference (AWS g5/g6 instances) ≈ $1.00–$1.50/hour;
+      ~60,000–120,000 picks/hour per GPU; compute cost ≈ $0.00001–$0.00002 per
+      pick.
+    - >-
+      Storage: S3 $0.023/GB-month; typical project 10–50 GB raw + 2–5 GB
+      outputs; egress $0.05–$0.09/GB.
+    - >-
+      Model training/labeling: expert labeling at ~$0.05/shot during ramp;
+      target 200k–500k labeled shots in year 1.
+    - >-
+      Personnel (year 1): 2 ML engineers ($150k each), 1 geophysicist ($120k), 1
+      full-stack ($140k), 1 sales ($120k), 1 CS/PM ($120k); loaded cost ≈
+      $900k–$1.1M.
+    - >-
+      Compliance/insurance: SOC 2 Type I (year 1) $50k–$100k; professional
+      liability/E&O $10k–$25k/year.
+    - 'Marketing/sales: conferences, webinars, paid ads ≈ $80k–$150k/year.'
+    - >-
+      Third-party tools: monitoring, CI/CD, error tracking, analytics ≈
+      $2k–$5k/month.
+    - >-
+      Contingency for data annotation contractors and domain advisors ≈
+      $5k–$10k/month in year 1.
+  keyMetrics:
+    - >-
+      Technical: pick MAE (ms) vs expert baseline; target ≤1.5 ms median, ≤3.0
+      ms P95.
+    - >-
+      Technical: tomography RMS travel-time misfit ≤2.0 ms; model roughness
+      within predefined thresholds; P95 depth of investigation increase ≥10%.
+    - >-
+      Throughput: line-km processed per GPU-hour; target ≥2 line-km/GPU-hour for
+      typical 48–96 channel spreads.
+    - >-
+      Operational: time-to-first-result (TTFR) ≤15 minutes for 1 line-km; 99.5%
+      job success rate; P90 turnaround ≤2 hours for 5 line-km.
+    - >-
+      Adoption: monthly active projects, line-km processed/month, and
+      picks/month; target 50k picks/day by month 6; 500k/day by month 18.
+    - >-
+      Quality: human override rate ≤10% of traces by month 6; rework rate ≤2% of
+      projects.
+    - >-
+      Commercial: MRR growth ≥12% MoM first 6 months; gross margin ≥80% by month
+      12; logo churn ≤2%/month; NRR ≥115%.
+    - >-
+      Sales efficiency: CAC payback ≤8 months; LTV/CAC ≥5x; win rate ≥30% on
+      qualified pilots.
+    - 'CS: average time saved per project ≥70%; CSAT ≥4.5/5; NPS ≥45.'
+storyBrand:
+  character: >-
+    Survey managers and geophysicists at 541360 firms who must turn refraction
+    field data into defensible Vs/Vp sections fast.
+  problem: >-
+    External: Manual first-break picking and tomography are slow, noisy, and
+    inconsistent. Internal: Deadlines loom, QC is stressful, and results feel
+    risky. Philosophical: Field data shouldn’t be the bottleneck to confident
+    subsurface decisions.
+  guide: >-
+    We understand tight field-to-report windows and noisy shots. Our
+    geophysicists and ML engineers built an AI that auto-picks first breaks and
+    runs 2D travel-time tomography—validated against expert picks, compatible
+    with SEG2/SEGY/CSV, with human-in-the-loop QC and auditable outputs.
+  plan: >-
+    1) Upload your refraction data. 2) Review AI first-break picks with QC
+    panels; adjust if needed. 3) Run 2D travel-time tomography and export Vs/Vp
+    sections, picks, and report-ready deliverables (images, SEG-Y, GIS).
+  callToAction: >-
+    Primary: Start a free pilot with your latest line. Secondary: Book a
+    15-minute demo and get a sample Vs/Vp report.
+  success: >-
+    Consistent, defensible picks and velocity sections delivered quickly;
+    predictable budgets; happier clients; stronger bids; less rework and field
+    revisits.
+  failure: >-
+    Nights lost to hand-picking, missed deadlines, budget overruns, disputed
+    deliverables, and subsurface uncertainty that erodes client trust.
+landingPage:
+  hero:
+    title: AI First‑Break Picking & 2D Tomography for Refraction Surveys
+    subtitle: >-
+      Automate picks and deliver defensible Vs/Vp sections in minutes — built
+      for Geophysical Surveying & Mapping (NAICS 541360)
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - Manual first‑break picking is slow and subjective
+    - Noisy shots and complex spreads reduce consistency
+    - 'Deadlines demand rapid, defensible deliverables'
+    - Iterative inversion and QC consume hours
+    - File and geometry wrangling introduces errors
+    - Clients expect traceability and uncertainty metrics
+  solution:
+    - Deep‑learning first‑break detection robust to noise
+    - 'Automated geometry handling, elevation statics, and batch processing'
+    - Fast 2D travel‑time tomography for Vs/Vp sections
+    - Interactive QC and pick editor for expert control
+    - One‑click deliverables with uncertainty and audit trail
+    - Cloud or on‑prem deployment with API integration
+  features:
+    - Auto first‑break picking with confidence scores
+    - Real‑time field QC and misfit dashboards
+    - 2D refraction tomography with damping and smoothing controls
+    - 'Vs/Vp sections, interface depths, and bedrock mapping'
+    - 'Support for SEG2, SEGY, SU; CSV geometry and DEM import'
+    - Elevation statics and topography handling
+    - Batch processing across lines and spreads
+    - Uncertainty estimates and repeatability metrics
+    - 'Assisted manual editing (snap‑to‑slope, low‑SNR zoom)'
+    - 'Exports: picks, velocity models, GeoTIFF/XYZ, SEGY with headers'
+    - Report generator for IBC/NEHRP site classes
+    - 'Role‑based access, versioning, and audit logs'
+  steps:
+    - Upload SEG2/SEGY and survey geometry or use a template
+    - 'Auto‑QC validates channels, SNR, geometry, and elevations'
+    - Run AI first‑break picking; review and adjust as needed
+    - Launch 2D tomography; monitor misfit and convergence
+    - Approve model; generate Vs/Vp sections and contours
+    - 'Export picks, models, and reports; share via link or API'
+---
+# SeismoAI TomoPick
+
+Generated for NAICS 541360 — Geophysical Surveying and Mapping Services.
+Service: Seismic Refraction First-Break Picking and Tomography

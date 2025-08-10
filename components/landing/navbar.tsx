@@ -87,59 +87,41 @@ const Navbar = ({
       }
     }
   }, [logo.title]);
+  // Compute a deterministic style variant for the startup name so a single element
+  // still gets a "randomized" look based on its text content
+  const logoVariantIndex = React.useMemo(() => {
+    const s = startupName || "";
+    let h = 0;
+    for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+    return s ? h % 6 : 0;
+  }, [startupName]);
+
+  const baseLogoClass =
+    "uppercase font-normal tracking-[0.2em] text-[1.1em]";
+  const logoVariants = [
+    "", // base
+    "normal-case font-thin tracking-[0] text-[1.9em]",
+    "normal-case font-bold tracking-[-0.05em] text-[1.7em]",
+    "font-mono uppercase tracking-[0.3em] text-[1.15em]",
+    "normal-case italic underline-offset-4 tracking-[0.05em] text-[1.4em]",
+    "bg-gradient-to-r from-primary to-primary/40 text-transparent bg-clip-text font-extrabold tracking-tight text-[1.6em]",
+  ];
+  const logoClass = cn(baseLogoClass, logoVariants[logoVariantIndex]);
   return (
-    <section className="py-4 relative z-50 max-w-7xl mx-auto">
-      <div className="container relative">
+    <section className="py-4 relative z-50">
+      <div className="relative mx-auto max-w-screen-2xl">
         {/* Desktop Menu */}
-        <nav className="hidden justify-between lg:flex">
+        <nav className="hidden lg:flex items-center relative justify-between w-full">
           {/* Logo */}
           <a href={logo.url ?? "#"} className="group group/item flex items-center gap-2">
-            <div
-              className='
-                uppercase font-normal tracking-[0.2em] text-[1.1em]
-
-                group-[:nth-child(3n+2)]/item:normal-case
-                group-[:nth-child(3n+2)]/item:font-thin
-                group-[:nth-child(3n+2)]/item:tracking-[0]
-                group-[:nth-child(3n+2)]/item:text-[1.9em]
-
-                group-[:nth-child(7n+3)]/item:normal-case
-                group-[:nth-child(7n+3)]/item:font-bold
-                group-[:nth-child(7n+3)]/item:tracking-[-0.05em]
-                group-[:nth-child(7n+3)]/item:text-[1.7em]
-
-                group-[:nth-child(4n+1)]/item:font-mono
-                group-[:nth-child(4n+1)]/item:uppercase
-                group-[:nth-child(4n+1)]/item:tracking-[0.3em]
-                group-[:nth-child(4n+1)]/item:text-[1.15em]
-
-                group-[:nth-child(6n+4)]/item:normal-case
-                group-[:nth-child(6n+4)]/item:italic
-                group-[:nth-child(6n+4)]/item:underline-offset-4
-                group-[:nth-child(6n+4)]/item:tracking-[0.05em]
-                group-[:nth-child(6n+4)]/item:text-[1.4em]
-
-                group-[:nth-child(9n)]/item:bg-gradient-to-r
-                group-[:nth-child(9n)]/item:from-primary
-                group-[:nth-child(9n)]/item:to-primary/40
-                group-[:nth-child(9n)]/item:text-transparent
-                group-[:nth-child(9n)]/item:bg-clip-text
-                group-[:nth-child(9n)]/item:font-extrabold
-                group-[:nth-child(9n)]/item:tracking-tight
-                group-[:nth-child(9n)]/item:text-[1.6em]
-              '
-            >
-              {startupName}
-            </div>
+            <div className={logoClass}>{startupName}</div>
           </a>
-          <div className="flex items-center gap-6">
-            <div className="flex items-center">
-              <NavigationMenuWithoutViewport>
-                <NavigationMenuList className="relative">
-                  {menu.map((item) => renderMenuItem(item))}
-                </NavigationMenuList>
-              </NavigationMenuWithoutViewport>
-            </div>
+          <div className="absolute left-1/2 -translate-x-1/2 flex items-center">
+            <NavigationMenuWithoutViewport>
+              <NavigationMenuList className="relative">
+                {menu.map((item) => renderMenuItem(item))}
+              </NavigationMenuList>
+            </NavigationMenuWithoutViewport>
           </div>
           <div className="flex gap-2">
             <Button asChild variant="outline" size="sm">
@@ -155,43 +137,7 @@ const Navbar = ({
         <div className="block lg:hidden">
           <div className="flex items-center justify-between">
             <a href={logo.url ?? "#"} className="group group/item flex items-center gap-2">
-              <div
-                className='
-                  uppercase font-normal tracking-[0.2em] text-[1.1em]
-
-                  group-[:nth-child(3n+2)]/item:normal-case
-                  group-[:nth-child(3n+2)]/item:font-thin
-                  group-[:nth-child(3n+2)]/item:tracking-[0]
-                  group-[:nth-child(3n+2)]/item:text-[1.9em]
-
-                  group-[:nth-child(7n+3)]/item:normal-case
-                  group-[:nth-child(7n+3)]/item:font-bold
-                  group-[:nth-child(7n+3)]/item:tracking-[-0.05em]
-                  group-[:nth-child(7n+3)]/item:text-[1.7em]
-
-                  group-[:nth-child(4n+1)]/item:font-mono
-                  group-[:nth-child(4n+1)]/item:uppercase
-                  group-[:nth-child(4n+1)]/item:tracking-[0.3em]
-                  group-[:nth-child(4n+1)]/item:text-[1.15em]
-
-                  group-[:nth-child(6n+4)]/item:normal-case
-                  group-[:nth-child(6n+4)]/item:italic
-                  group-[:nth-child(6n+4)]/item:underline-offset-4
-                  group-[:nth-child(6n+4)]/item:tracking-[0.05em]
-                  group-[:nth-child(6n+4)]/item:text-[1.4em]
-
-                  group-[:nth-child(9n)]/item:bg-gradient-to-r
-                  group-[:nth-child(9n)]/item:from-primary
-                  group-[:nth-child(9n)]/item:to-primary/40
-                  group-[:nth-child(9n)]/item:text-transparent
-                  group-[:nth-child(9n)]/item:bg-clip-text
-                  group-[:nth-child(9n)]/item:font-extrabold
-                  group-[:nth-child(9n)]/item:tracking-tight
-                  group-[:nth-child(9n)]/item:text-[1.6em]
-                '
-              >
-                {startupName}
-              </div>
+              <div className={logoClass}>{startupName}</div>
             </a>
             <Sheet>
               <SheetTrigger asChild>
@@ -203,43 +149,7 @@ const Navbar = ({
                 <SheetHeader>
                   <SheetTitle>
                     <a href={logo.url ?? "#"} className="group group/item flex items-center gap-2">
-                      <div
-                        className='
-                          uppercase font-normal tracking-[0.2em] text-[1.1em]
-
-                          group-[:nth-child(3n+2)]/item:normal-case
-                          group-[:nth-child(3n+2)]/item:font-thin
-                          group-[:nth-child(3n+2)]/item:tracking-[0]
-                          group-[:nth-child(3n+2)]/item:text-[1.9em]
-
-                          group-[:nth-child(7n+3)]/item:normal-case
-                          group-[:nth-child(7n+3)]/item:font-bold
-                          group-[:nth-child(7n+3)]/item:tracking-[-0.05em]
-                          group-[:nth-child(7n+3)]/item:text-[1.7em]
-
-                          group-[:nth-child(4n+1)]/item:font-mono
-                          group-[:nth-child(4n+1)]/item:uppercase
-                          group-[:nth-child(4n+1)]/item:tracking-[0.3em]
-                          group-[:nth-child(4n+1)]/item:text-[1.15em]
-
-                          group-[:nth-child(6n+4)]/item:normal-case
-                          group-[:nth-child(6n+4)]/item:italic
-                          group-[:nth-child(6n+4)]/item:underline-offset-4
-                          group-[:nth-child(6n+4)]/item:tracking-[0.05em]
-                          group-[:nth-child(6n+4)]/item:text-[1.4em]
-
-                          group-[:nth-child(9n)]/item:bg-gradient-to-r
-                          group-[:nth-child(9n)]/item:from-primary
-                          group-[:nth-child(9n)]/item:to-primary/40
-                          group-[:nth-child(9n)]/item:text-transparent
-                          group-[:nth-child(9n)]/item:bg-clip-text
-                          group-[:nth-child(9n)]/item:font-extrabold
-                          group-[:nth-child(9n)]/item:tracking-tight
-                          group-[:nth-child(9n)]/item:text-[1.6em]
-                        '
-                      >
-                        {startupName}
-                      </div>
+                      <div className={logoClass}>{startupName}</div>
                     </a>
                   </SheetTitle>
                 </SheetHeader>

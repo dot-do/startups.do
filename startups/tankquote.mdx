@@ -1,0 +1,354 @@
+---
+name: TankQuote AI
+slug: tankquote
+naics:
+  primary: '332420'
+  occupations: []
+service:
+  title: RFQ-to-Quote Estimator for Heavy-Gauge Tanks
+  description: >-
+    AI agent parses RFQ packages and produces itemized quotes with lead time and
+    assumptions.
+  targetUsers:
+    - Estimators
+    - Sales Engineers
+    - Owners
+  triggers:
+    - RFQ email received
+    - RFQ folder upload
+  inputs:
+    - RFQ PDFs/DWG/STEP
+    - 'Specs (code, NDE, coating)'
+    - Shop rates and burden
+    - Material/consumable price lists
+    - Shipping origin/destination
+  steps:
+    - Monitor inbox/folder and ingest files
+    - >-
+      OCR and parse drawings/specs; extract OD/ID, length, thickness, material,
+      head type, nozzles, code/NDE/coating
+    - 'Compute plate/head weights, surface area, weld inches'
+    - >-
+      Estimate labor by routing (rolling, fit-up, welding, NDE, hydro, paint,
+      assembly)
+    - 'Estimate consumables and buyouts (heads, nozzles, attachments)'
+    - Calculate freight and rigging
+    - 'Assemble priced BOM, lead time, and assumptions'
+    - Optional human review; finalize quote
+  tools:
+    - Microsoft Graph or Gmail API
+    - Azure Form Recognizer or AWS Textract
+    - pdfplumber; Autodesk Forge/Model Derivative or OpenCascade
+    - Python cost engine/Google Sheets
+    - HERE or Google Maps Distance Matrix
+    - 'Docx/PDF generator (Docx, Pandoc)'
+  outputs:
+    - Itemized quote (PDF/XLSX)
+    - Basis-of-quote assumptions
+    - Risk/exception list
+    - Cover email text
+  pricingModel:
+    - Per-RFQ fixed fee tiered by document count/complexity
+    - Optional success-fee on awarded jobs
+    - Monthly retainer for guaranteed turnaround
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 0.9
+    modelCapability: 0.8
+    overall: 0.85
+  risks:
+    - Misread drawings/specs leading to cost errors
+    - Out-of-date material/freight prices
+    - Liability for bid accuracy without SME review
+  dependencies:
+    - Access to historical rates and standards
+    - Vendor price lists for materials/heads
+    - Template library for quotes
+leanCanvas:
+  problem:
+    - >-
+      RFQ packages (100–1,000+ pages incl. drawings/specs) take 6–24 hours each
+      to interpret; quote backlogs cause missed bid deadlines and lost revenue.
+    - >-
+      High error risk in extracting critical requirements (API 650/620, ASME
+      VIII, plate grade/thickness, NDE, coatings, nozzles, wind/seismic);
+      mistakes erode margin or trigger costly change orders.
+    - >-
+      Estimating depends on tribal knowledge (cutting/forming/welding hours,
+      fit-up yields, shop vs field erection) that walks out the door with senior
+      estimators.
+    - >-
+      Manual, duplicate data entry across email, PDF, ERP, and Excel; poor
+      traceability of assumptions and basis-of-quote.
+    - >-
+      Lead-time commitments are guesswork without capacity-aware scheduling;
+      overpromising causes expediting costs and customer dissatisfaction.
+    - >-
+      Price volatility (plate steel, coatings, freight) makes static cost
+      libraries stale; updating them is manual and slow.
+    - >-
+      Customers are increasingly demanding itemized quotes with clear
+      assumptions and exceptions, increasing preparation time.
+  solution:
+    - >-
+      AI RFQ parser extracts dimensions, materials, weld types/length, NDE,
+      coatings, nozzles, accessories, design code sections, tests, and delivery
+      location from PDFs/drawings/specs.
+    - >-
+      Parametric cost model calibrated to each shop’s processes (cutting,
+      forming, welding, fit-up, blasting/painting, hydrotest, field erection) to
+      generate BOM, route times, and labor/equipment hours.
+    - >-
+      Dynamic pricing engine: pulls current plate indices (e.g.,
+      CRU/MetalMiner), coatings, and freight; applies target margins by
+      category/risk.
+    - >-
+      Lead-time engine tied to rough-cut capacity (critical workcenters,
+      subcontract steps) to propose credible ship/install dates.
+    - >-
+      Assumption builder: auto-generates inclusions/exclusions, clarifications,
+      and alternates; flags missing/ambiguous RFQ requirements and code
+      conflicts.
+    - >-
+      Integrations: ERP/CPQ/CRM (Epicor, Infor, JobBOSS, Salesforce/HubSpot),
+      design tools (COMPRESS/PV Elite) to import design parameters and export
+      quotes/BOMs.
+    - >-
+      Human-in-the-loop review with confidence scoring, change tracking, and
+      audit trail from RFQ to awarded job and post-mortem actuals.
+    - >-
+      Security: SOC 2 roadmap, customer-dedicated VPC or on-prem connector;
+      role-based access and data residency options.
+  uniqueValueProp: >-
+    Turn RFQs into accurate, itemized quotes with capacity-aware lead times in
+    hours, not days—grounded in your shop’s actual costs and standards, with
+    full traceability of assumptions.
+  unfairAdvantage: >-
+    Shop-specific estimation twin: a continuously learning model calibrated to
+    each plant’s routings, yields, and vendor base, enriched by anonymized
+    industry benchmarks and standards-aware extraction libraries for API 650/620
+    and ASME VIII—creating accuracy and speed competitors without domain data
+    cannot match.
+  customerSegments:
+    - >-
+      Primary: North American heavy-gauge metal tank manufacturers (NAICS
+      332420), shop-fabricated and field-erected tanks; $10–200M revenue; 2–10
+      estimators/sales engineers.
+    - >-
+      Roles: Estimators, Proposal/Quotes Managers, Sales Engineers, VP
+      Sales/Estimating, Operations/Plant Managers, CFO/Controller.
+    - >-
+      Secondary: Pressure vessel, silo/bin, large diameter pipe/stack
+      fabricators (adjacent heavy-plate).
+    - >-
+      Influencers/Partners: ERP admins (Epicor, Infor CSI, JobBOSS), engineering
+      leads using COMPRESS/PV Elite, association members (STI/SPFA).
+  channels:
+    - >-
+      Direct sales to target list of ~300 NAICS 332420 firms; outbound SDR + AE
+      motion with 6–10 week pilots.
+    - >-
+      Partnerships with ERP VARs (Epicor/Infor resellers) and COMPRESS/PV Elite
+      ecosystem for referrals and integrations.
+    - >-
+      Industry associations and events: STI/SPFA meetings, ILTA, FABTECH;
+      sponsor webinars on API 650 quoting best practices.
+    - >-
+      Content-led demand gen: RFQ-to-Quote benchmark report, ROI calculator,
+      case studies; LinkedIn campaigns targeting Estimator/Proposal Manager
+      titles.
+    - >-
+      Customer advisory board with 6–8 design partners; land-and-expand from
+      single plant to multi-plant rollouts.
+    - >-
+      Channel to project cargo/freight brokers for co-marketing on logistics
+      estimation.
+  revenueStreams:
+    - >-
+      SaaS subscription (tiered by seats/RFQs): Starter $1,500/month (up to 3
+      seats, 150 RFQs/yr); Pro $3,500/month (up to 5 seats, 600 RFQs/yr);
+      Enterprise custom (SAML, VPC, unlimited seats/RFQs bands).
+    - 'Usage overage: $10–$25 per additional RFQ processed beyond plan.'
+    - >-
+      One-time onboarding/calibration: $10k–$30k per plant (data ingestion,
+      model tuning, integrations).
+    - >-
+      Premium modules: Advanced capacity/APS ($500/month), freight API bundle
+      ($300/month), SOC 2/VPC surcharge (10–15%).
+    - >-
+      Professional services: custom quote templates, cost library buildouts,
+      training ($150–$220/hr).
+  costStructure:
+    - 'ML/Engineering team (6–8 FTE): $1.4M–$1.9M/yr.'
+    - 'Domain experts (estimating/process engineers, 1–2 FTE): $220k–$320k/yr.'
+    - >-
+      Cloud/compute (GPU for model training, CPU for inference, storage):
+      $12k–$30k/month; marginal COGS $0.50–$1.50/RFQ.
+    - >-
+      Third-party APIs (OCR/CAD parsing/steel indices/freight): $3k–$8k/month
+      depending on volume.
+    - >-
+      Sales & marketing (2 AEs, 1 SDR, 1 SE): $550k–$700k OTE/yr; demand gen
+      budget $8k–$15k/month.
+    - >-
+      Security/compliance (SOC 2 Type II, pen tests, cyber insurance):
+      $75k–$150k/yr.
+    - >-
+      General & administrative (legal, finance, office, tooling):
+      $20k–$40k/month.
+    - Target gross margin 75–80% by Year 2; payback on CAC < 12 months.
+  keyMetrics:
+    - >-
+      Quote cycle time: baseline median 12 hours/RFQ to 3–4 hours (≥65%
+      reduction); target 80% of RFQs completed within 1 business day.
+    - >-
+      Extraction accuracy: ≥98% on structured fields; ≥92% F1 on unstructured
+      requirements; BOM cost delta within ±5–8% vs awarded job actuals.
+    - >-
+      Estimator throughput: RFQs per estimator per week from 5 to 10+; measure
+      utilization and queue length.
+    - >-
+      Win rate (hit rate): +2–4 percentage points from faster, clearer quotes;
+      track by customer/segment.
+    - >-
+      Margin protection: reduce post-award cost variance by 1–2 margin points;
+      change orders per job down 20%.
+    - >-
+      Lead-time credibility: <10% of orders require expediting due to quoting
+      lead-time errors (baseline 25–30%).
+    - >-
+      Adoption: % of RFQs processed through TankQuote AI (target >70% by month 3
+      at each site); reviewer edits per quote trending down.
+    - >-
+      SaaS KPIs: ARR, logo churn <8%, NRR >115%, gross margin >75%, CAC payback
+      <12 months.
+storyBrand:
+  character: >-
+    Estimators, sales engineers, and ops leaders at heavy‑gauge metal tank
+    manufacturers (NAICS 332420) who want to respond to complex RFQs fast with
+    accurate, defensible, itemized quotes and reliable lead times to win
+    profitable work.
+  problem: >-
+    - Villain: Bloated, disjointed RFQ packages (drawings, specs, emails) and
+    manual takeoffs
+
+    - External: Time‑consuming parsing; missed requirements (materials, NDE,
+    coatings, code stamps); inconsistent assumptions; capacity‑blind lead times;
+    rework
+
+    - Internal: Stress over errors and late quotes; fear of underbidding;
+    burnout
+
+    - Philosophical: Skilled manufacturers shouldn’t lose bids because paperwork
+    is harder than the fabrication
+  guide: >-
+    - Empathy: We know the scramble of last‑minute RFQs and the risk of hidden
+    requirements buried in multi‑doc packages
+
+    - Authority: Built for heavy‑gauge tanks; AI tuned for technical docs and
+    drawings; human‑in‑the‑loop review; security‑first; integrates with common
+    ERP/CPQ; clear audit trail from quote lines back to source pages
+  plan: |-
+    - Process Plan:
+      1) Upload RFQ package (PDFs, drawings, BOMs)
+      2) AI extracts scope (materials, welds, NDE, coatings, routing) and produces itemized pricing, lead time, and assumptions
+      3) You review, adjust margins/lead time, export to quote/ERP, and send
+    - Agreement Plan:
+      - Start with a pilot using past RFQs
+      - Transparent, usage‑based pricing; cancel anytime
+      - Your RFQ data stays private; encrypted at rest and in transit
+  callToAction: >-
+    - Direct CTA: Book a 20‑minute demo; Start a pilot on 5 historical RFQs
+
+    - Transitional CTA: Download a sample itemized quote and ROI calculator; RFQ
+    parsing checklist
+  success: |-
+    - Quotes generated in minutes, not days
+    - Higher win rates via faster responses and clear assumptions
+    - Protected margins with accurate takeoffs and standardized cost drivers
+    - Capacity‑aware lead times aligned to shop schedule
+    - Traceable: every line item linked to source pages
+    - Consistent quoting across estimators; faster onboarding
+    - More bids submitted with the same team
+  failure: |-
+    - Slow, inconsistent quotes and missed line items erode margins
+    - Lost bids to faster competitors
+    - Costly change orders and backcharges from overlooked requirements
+    - Estimator overtime and burnout; damaged reputation with buyers
+landingPage:
+  hero:
+    title: Instant RFQ-to-Quote for Heavy‑Gauge Tanks
+    subtitle: >-
+      AI that parses RFQ packages and generates itemized quotes, lead times, and
+      assumptions for Metal Tank Manufacturing (NAICS 332420).
+    ctaText: Get a Demo
+    ctaHref: /demo
+  problem:
+    - RFQs arrive as mixed PDFs/drawings/spreadsheets—manual takeoff takes days.
+    - >-
+      Missed scope (nozzles, liners, NDE) causes costly rework and change
+      orders.
+    - Estimator bottlenecks stall response time and lower win rates.
+    - Inconsistent labor and weld assumptions erode margin.
+    - Lead times aren’t tied to shop capacity or supplier availability.
+    - Revisions are hard to track; quotes drift from specs.
+    - Tribal knowledge lives in spreadsheets and email threads.
+  solution:
+    - >-
+      Upload RFQ; AI extracts scope, BOM, weld map, QA/testing, and commercial
+      terms.
+    - >-
+      Auto material takeoff: plate, heads, nozzles, flanges, supports,
+      internals.
+    - >-
+      Labor and weld-hour calculations by joint type; fit-up, rolling, forming,
+      PWHT options.
+    - >-
+      NDE/inspection, hydrotest, documentation package, and stamping assumptions
+      captured.
+    - 'Coating/lining area, system mapping, and blast/paint hours estimated.'
+    - 'Freight, crating, and site requirements included as line items.'
+    - Capacity-aware lead time based on shop calendar and supplier lead times.
+    - 'Clear assumptions, exclusions, and alternates; code references mapped.'
+    - Ready-to-send quote (PDF/Excel) and integration to ERP/CRM.
+    - 'Version control, approvals, and audit trail with role-based access.'
+  features:
+    - 'Multi-format parsing: PDFs, drawings, specs, spreadsheets, and images.'
+    - 'Code detection: ASME VIII, UL-142, API 620/650 references auto-identified.'
+    - >-
+      Nozzle schedule extraction with sizes, ratings, flanges, and reinforcement
+      pads.
+    - >-
+      Weld length and type calculation (long/hoop seams, nozzle welds,
+      attachments).
+    - Material takeoff by grade and thickness with corrosion allowance handling.
+    - 'Head, shell, cone, and skirt breakdown with rolling/forming hours.'
+    - 'NDE/QA matrix generation (RT/UT/MT/PT), hydrotest, PMI, PWHT options.'
+    - >-
+      Coating/lining area calc with blast profile and system mapping; cure times
+      included.
+    - >-
+      Buyout items and vendor RFQs (heads, linings, heat treatment) tracked with
+      quotes.
+    - 'Lead-time engine using shop capacity, routing, and supplier lead times.'
+    - >-
+      Commercial term extraction: incoterms, payment terms, documentation,
+      warranties.
+    - >-
+      Alternates engine: carbon vs stainless, coating options, schedule
+      variants.
+    - Quote templates with customer branding; multi-currency and tax handling.
+    - >-
+      One-click export to ERP/CRM (CSV/API); SOC 2-ready security and audit
+      logs.
+  steps:
+    - 'Upload the RFQ package (drawings, specs, spreadsheets).'
+    - 'Confirm shop rates, materials, and code profile (one-time setup).'
+    - Review extracted scope and cost drivers; tweak assumptions as needed.
+    - Generate itemized quote with lead time and clarifications.
+    - Export to ERP/CRM and send to the customer with a click.
+---
+# TankQuote AI
+
+Generated for NAICS 332420 — Metal Tank (Heavy Gauge) Manufacturing.
+Service: RFQ-to-Quote Estimator for Heavy-Gauge Tanks

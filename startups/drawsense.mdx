@@ -1,0 +1,318 @@
+---
+name: DrawSense RCA
+slug: drawsense
+naics:
+  primary: '331222'
+  occupations: []
+service:
+  title: Yield & Surface Defect Root-Cause Analytics (Vision + Process)
+  description: >-
+    Classifies surface defects (seams, laps, die lines, zinc pickup) from images
+    and correlates with process windows to recommend countermeasures.
+  targetUsers:
+    - Quality engineers
+    - Met lab
+    - Production managers
+  triggers:
+    - Customer complaint
+    - Yield drop > threshold
+    - New alloy/diameter run
+    - Periodic Pareto review
+  inputs:
+    - Defect images (phone microscope/SEM/optical)
+    - Scrap/defect logs by coil and reason
+    - 'Process history (drafts, speeds, temperatures)'
+    - Incoming rod heat/chemistry
+  steps:
+    - Image upload via portal; anonymize metadata
+    - Auto-label/classify defects (vision model) with confidence
+    - 'Link defects to process slices (last N minutes, pass X)'
+    - Run causal analysis vs. parameter drifts/lube health
+    - Generate 5-Why draft and countermeasure shortlist
+    - Track effectiveness over subsequent runs
+  tools:
+    - OpenCV/Roboflow
+    - GPT-4o Vision for assisted classification
+    - Python (SHAP for feature attribution)
+    - Power BI dashboard
+    - LangChain agent to assemble 8D report
+  outputs:
+    - Defect classification and confidence
+    - Pareto by defect type vs. line/pass
+    - Top correlated parameters and recommended actions
+    - 8D/5-Why report template
+  pricingModel:
+    - Per-investigation fee
+    - Optional ongoing monthly with image model tuning
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Inconsistent lighting/magnification on images
+    - Labeling bias
+    - Correlation mistaken for causation
+  dependencies:
+    - Access to images and defect logs
+    - Basic process data around defect timestamps
+    - Quality engineer review/feedback loop
+leanCanvas:
+  problem:
+    - >-
+      Inline surface defects (seams, laps, die lines, zinc pickup) drive
+      scrap/rework, customer returns, and lost throughput; detection is often
+      late (post-coil or downstream), making root-cause isolation expensive and
+      slow.
+    - >-
+      Existing vision systems flag defects but do not reliably classify by
+      defect family or correlate to process windows (reduction per die, speed,
+      lube, die wear, bath chemistry), so corrective actions are
+      trial-and-error.
+    - >-
+      Process and quality data are siloed (PLC/SCADA/MES/LIMS/ERP), preventing
+      continuous learning across coils, lots, and lines; tribal knowledge
+      retires with experts.
+    - >-
+      Operators face alarm fatigue and false positives from generic vision
+      tools, reducing trust and adoption; quality teams spend hours compiling 8D
+      reports manually.
+    - >-
+      Wire drawing/galkanizing lines run at high speed (5–35 m/s) with tight
+      margins; even small mis-sets (e.g., 5°C bath temp drift, 0.5% Al
+      variation, 2% speed increase) can double defect rates.
+    - >-
+      Plants lack an ROI-justified, steel-wire-specific solution that closes the
+      loop from detection to prescriptive countermeasures and verifies
+      effectiveness.
+  solution:
+    - >-
+      Deploy high-speed line-side vision (line-scan/area-scan + tailored
+      lighting) to capture surface at 360° coverage; edge inference classifies
+      seams, laps, die lines, zinc pickup, pitting, scratches in real time.
+    - >-
+      Ingest synchronized process data (die stack, reduction schedule, capstan
+      speed/torque, drawing force, lube pressure/temperature/concentration,
+      pickling/anneal parameters, bath temp/Al, air-wipe settings) via OPC
+      UA/Modbus/SQL and build a genealogy across heat/rod/coil/line.
+    - >-
+      Correlate defect rates and morphologies to process windows using
+      multivariate time-series modeling (Granger causality, SHAP feature
+      attribution, change-point detection) to identify likely root causes and
+      drift.
+    - >-
+      Prescriptive countermeasures engine maps defect-class + context to
+      recommended actions (e.g., replace die N, reduce reduction at die 3 by
+      2–3%, increase lube concentration by 1–2%, adjust bath Al by 0.05–0.1%,
+      increase air-wipe pressure by 5–10 kPa).
+    - >-
+      Operator-centric workflow: prioritized alerts, one-click 8D report
+      generation, before/after verification of fixes, SPC charts, and what-if
+      simulation for process-window changes.
+    - >-
+      Continuous improvement: federated learning by plant/line with strict data
+      governance; recurring model re-training validated against golden datasets;
+      KPI tracking ROI dashboards.
+    - >-
+      Integration with MES/ERP for hold/release, COA attachment of defect
+      analytics, and maintenance CMMS for die life prediction and planned
+      changeovers.
+  uniqueValueProp: >-
+    Real-time defect classification plus process-aware root-cause and
+    prescriptive recommendations purpose-built for steel wire drawing—improving
+    yield 1.5–3.0 points and cutting defect-related stoppages 30–50% with
+    payback in 6–12 months.
+  unfairAdvantage: >-
+    A steel-wire-specific, outcomes-verified dataset and prescriptive
+    correlation engine that ties defect morphology to controllable process
+    levers—packaged with OEM/SI integrations and validated ROI playbooks that
+    generic vision or analytics vendors lack.
+  customerSegments:
+    - >-
+      Primary economic buyers: VP/Director of Operations, Plant Manager,
+      Director of Quality at steel wire drawing plants (NAICS 331222).
+    - >-
+      Primary users/influencers: Quality engineers, process engineers, line
+      supervisors, metallurgists, maintenance and die room leads.
+    - >-
+      Sub-segments: High-carbon spring wire and tire cord; galvanized wire
+      (fencing, construction); PC strand and rope wire; low/medium-carbon wire
+      for fasteners and nails.
+    - >-
+      OEM/partners: Wire drawing machine builders (e.g., Niehoff, Henrich),
+      galvanizing line OEMs, die and lubricant suppliers, systems integrators
+      for PLC/SCADA.
+  channels:
+    - >-
+      Direct sales to target plants (mid/large) via industry lists and warm
+      intros; prioritize 50 US/EU plants with >5 lines and annual revenue >$50M.
+    - >-
+      System integrator partners for installation/integration (Rockwell,
+      Siemens, Ignition-focused SIs) with referral/reseller agreements.
+    - >-
+      OEM partnerships with machine builders and die/lube suppliers to bundle or
+      co-sell; revenue-share on upgrades/retrofits.
+    - >-
+      Industry associations and events: Interwire (WAI), Wire Düsseldorf, AIST,
+      webinars and plant roundtables with case studies.
+    - >-
+      Digital marketplaces: Rockwell PartnerNetwork, Siemens Xcelerator
+      listings; co-marketing and solution templates.
+    - >-
+      Land-and-expand: start with 1–2 lines per plant as paid pilot; expand to
+      all lines and additional sites post-ROI.
+  revenueStreams:
+    - >-
+      SaaS subscription per line: $3,000–$6,000/month/line depending on feature
+      tier and support SLAs; volume discounts for >5 lines.
+    - >-
+      Edge appliance + cameras + lighting: one-time hardware sale
+      $20,000–$55,000 per line (or financed).
+    - >-
+      Implementation/integration: $25,000–$80,000 per site depending on data
+      integrations and commissioning complexity.
+    - >-
+      Paid pilot (12 weeks): $60,000 for 1–2 lines, includes hardware rental,
+      model training, ROI report; convertible to subscription credit on success.
+    - >-
+      Premium services: managed labeling, custom analytics, operator training,
+      and validation services ($200–$300/hour or fixed-fee packages).
+    - >-
+      Annual support and model refresh (if perpetual license requested): 18–22%
+      of license list price.
+  costStructure:
+    - >-
+      COGS per line: cameras/optics/lighting $8,000–$25,000; edge compute
+      $3,000–$8,000; mounting/enclosure $2,000–$6,000; integration labor 40–120
+      hours.
+    - >-
+      Cloud/compute: $300–$700/month/line (can be $0 for fully on-prem); storage
+      and backup $50–$150/month/line.
+    - >-
+      Personnel: ML/vision engineers, data engineers, field application
+      engineers, QA, product; blended fully-loaded cost
+      $180k–$230k/engineer/year.
+    - >-
+      Sales and marketing: events, travel, demos, POCs ($8k–$20k per
+      opportunity); partner commissions 10–20%.
+    - >-
+      Warranty and support: spares, remote monitoring, on-site visits; 5–8% of
+      revenue.
+    - >-
+      Insurance, certifications, and security compliance (SOC 2/ISO 27001)
+      $150k–$300k/year.
+  keyMetrics:
+    - >-
+      Operational impact KPIs per line: yield +1.5–3.0 percentage points within
+      6 months; defect-related stoppages −30–50%; scrap/rework −25–40%; customer
+      returns −30% YoY.
+    - >-
+      Vision performance: per-class precision ≥95%, recall ≥90% at target
+      speeds; false positive rate <2% of production time; detection latency <200
+      ms.
+    - >-
+      Process analytics impact: time-to-root-cause <1 hour from alert;
+      recommendation acceptance rate >60%; verified effectiveness in 7 days.
+    - >-
+      Financial KPIs: pilot-to-subscription conversion >60%; ARR per plant
+      $150k+ within 12 months; gross margin >55% Year 1, >70% by Year 3; CAC
+      payback <12 months; net revenue retention >120%.
+    - >-
+      Adoption: weekly active engineering users >70% of target cohort; operator
+      acknowledgement rate >85%; number of lines under management;
+      time-to-go-live <6 weeks/line.
+    - >-
+      Quality system integration: percent of 8D events auto-generated >70%;
+      audit pass rate 100% for traceability requirements.
+storyBrand:
+  character: >-
+    Production and quality leaders in steel wire drawing (NAICS 331222) who want
+    to eliminate surface defects, stabilize process windows, and lift yield with
+    predictable throughput.
+  problem: >-
+    External: Recurring surface defects—seams, laps, die lines, zinc
+    pickup—erode yield and customer trust. Internal: Too many variables (die
+    condition, reduction schedule, lube, speed, temperature, zinc) make root
+    cause slow and political. Philosophical: Your images and process data should
+    tell you what to do next—without more firefighting.
+  guide: >-
+    Empathy: We know a rejected coil and a 0.5% yield loss are costly.
+    Authority: Metallurgy + computer-vision experts with proven wire-defect
+    models; secure OT/IT integration; explainable analytics that connect vision
+    to process and countermeasures.
+  plan: >-
+    1) Readiness check: share sample defect images and a tag map (dies, speeds,
+    temps, lube, zinc). 2) 30-day pilot on one line: classify defects, correlate
+    with process windows, and issue ranked countermeasures; baseline yield/PPM.
+    3) Scale and embed: deploy operator alerts and RCA dashboards; integrate
+    with SCADA/MES/LIMS; quarterly model refresh and countermeasure library
+    updates.
+  callToAction: >-
+    Direct: Book a 30‑minute demo and submit sample images for a free readiness
+    assessment. Transitional: Download the Surface Defect Checklist and a sample
+    RCA report.
+  success: >-
+    Higher yield and first‑pass quality; fewer stops and claims.
+    Minutes‑to‑cause diagnostics; stable die/lube windows; confident audits. A
+    shared, explainable AI that coaches operators and accelerates
+    problem‑solving across lines.
+  failure: >-
+    Persistent seams, laps, die lines, and zinc pickup. Ongoing scrap, rework,
+    missed shipments, and chargebacks. Another black‑box tool that doesn’t
+    connect images to process or say what to do next.
+landingPage:
+  hero:
+    title: Yield & Surface Defect Root-Cause Analytics for Steel Wire Drawing
+    subtitle: >-
+      Vision + Process AI for NAICS 331222. Classifies seams, laps, die lines,
+      and zinc pickup, correlates to process windows, and recommends fixes—so
+      you ship more good wire.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - 'Surface defects found late drive scrap, rework, and claims.'
+    - 'Root-cause hunts take days; vision, PLC/SCADA, and lab data are siloed.'
+    - >-
+      Defects vary by heat, die, pass, speed, tension, and lube—patterns stay
+      hidden.
+    - Inconsistent countermeasures; tribal knowledge limits repeatability.
+    - Intermittent defects evade manual inspection and SPC.
+    - Unplanned downtime and breaks cut OEE and margins.
+  solution:
+    - 'Inline AI classifies seams, laps, die lines, and zinc pickup in real time.'
+    - >-
+      Correlates defect rates with die ID, pass, reduction, speed, tension, lube
+      temp/flow, and bath chemistry.
+    - Maps safe process windows and flags drift before defects spike.
+    - Recommends targeted countermeasures with estimated yield and cost impact.
+    - 'Full traceability by coil, heat, machine, shift, and pass.'
+    - Continuous learning from operator feedback; adapts to alloys and sizes.
+  features:
+    - Works with existing cameras or turnkey kits; edge/on‑prem deployment.
+    - 'API connectors for PLC/SCADA, MES, QMS, lab, and historian data.'
+    - 'Real-time Pareto by defect type, machine, pass, die, coil, and heat.'
+    - Process window heatmaps with drill-down to annotated images.
+    - Alerts on thresholds and pattern shifts (email/SMS/Andon).
+    - >-
+      Countermeasure library: die regrind/replace, reduction schedule,
+      speed/tension tuning, lube chemistry/flow, cleaning/pickling, zinc bath
+      settings.
+    - What‑if analysis to test fixes before changeover.
+    - Auto reports for PPAP/8D with image evidence and trend charts.
+    - 'Operator UI: accept/reject, quick feedback, and guided actions.'
+    - Model performance tracking (precision/recall) and MSA reports.
+    - 'Security: SSO, audit trail, network segmentation; no cloud required.'
+    - Scales across lines and plants with centralized governance.
+    - NAICS 331222 templates and best‑practice baselines.
+  steps:
+    - 'Assess: line walk, data readiness, and ROI baseline.'
+    - 'Connect: install cameras; integrate PLC/SCADA/MES/historian.'
+    - 'Learn: collect images, label, and train defect models.'
+    - 'Validate: run shadow mode; tune correlations and alerts.'
+    - 'Go live: enable recommendations, dashboards, and operator workflows.'
+    - 'Improve: weekly reviews, model updates, and scale to more lines.'
+---
+# DrawSense RCA
+
+Generated for NAICS 331222 — Steel Wire Drawing.
+Service: Yield & Surface Defect Root-Cause Analytics (Vision + Process)

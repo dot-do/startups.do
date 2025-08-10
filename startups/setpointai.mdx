@@ -1,0 +1,350 @@
+---
+name: SetPointAI (Run Setup Recommender for Extrusion & Lamination)
+slug: setpointai
+naics:
+  primary: '326112'
+  occupations: []
+service:
+  title: AI Run Setup Recommender (Extrusion & Lamination)
+  description: >-
+    Suggests initial and adjusted setpoints (temps, die bolts, nip, line speed,
+    tension, corona, chill roll) for new or repeat jobs to hit spec with minimal
+    scrap.
+  targetUsers:
+    - Process Engineer
+    - Extrusion/Lamination Supervisor
+    - Operators
+  triggers:
+    - New job released to floor
+    - Product changeover
+    - Operator requests optimization
+  inputs:
+    - 'Recent and historical run logs (temps, speeds, pressures)'
+    - 'Product spec (thickness, width, COF, haze, modulus)'
+    - Resin/additive lots and drying data
+    - Ambient/humidity data if available
+    - Past scrap/defect notes
+  steps:
+    - Pull and normalize last N similar jobs (kNN similarity by spec/structure)
+    - 'Train/update predictive models for KPIs (thickness stdev, haze, COF)'
+    - 'Optimize setpoints with constraints (max amps, temp limits, nip pressure)'
+    - Return recommended start-up recipe and predicted KPIs
+    - Collect operator feedback and outcomes to retrain weekly
+  tools:
+    - Python
+    - scikit-learn/XGBoost
+    - Optuna (Bayesian optimization)
+    - 'ERP/MES API (SAP, NetSuite, Ignition)'
+    - Slack/Teams bot
+  outputs:
+    - Setpoint table (CSV/PDF) per job
+    - Predicted KPIs and confidence bands
+    - 'Do/don’t-do notes (e.g., increase zone 3 +5°C)'
+    - Post-run variance report
+  pricingModel:
+    - One-time setup fee
+    - Per-line monthly subscription
+    - 'Optional savings share (e.g., 10% of scrap reduction)'
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 7
+    modelCapability: 8
+    overall: 7
+  risks:
+    - Bad or sparse historical data
+    - Operator trust/adoption
+    - Overfitting to specific resins/lines
+  dependencies:
+    - Access to MES/ERP run data
+    - Spec master data
+    - VPN/API connectivity
+    - Process SME for validation
+leanCanvas:
+  problem:
+    - >-
+      High and variable startup scrap during job changeovers (commonly 200–1,000
+      kg per changeover for film/lamination) due to trial-and-error setpoints
+      for temps, die bolts, nip, line speed, tension, corona, and chill rolls.
+    - >-
+      Long time-to-spec (often 30–90 minutes) reduces available capacity and
+      increases energy/adhesive consumption.
+    - >-
+      Tribal knowledge concentrated in a few experts; operator turnover and
+      shift-to-shift variability cause inconsistent results.
+    - >-
+      Recipe/run books are static and don’t account for resin lot variation,
+      ambient conditions, adhesive age, or machine drift.
+    - >-
+      Existing APC/MPC systems optimize steady-state but do not recommend
+      initial/transition setpoints tailored to job history and materials.
+    - >-
+      Limited closed-loop traceability and auditability of changes; difficult to
+      meet brand-owner quality and compliance requirements.
+    - >-
+      Complex multilayer and lamination stacks increase risk of delamination,
+      curl, COF variance, and gauge bands without data-driven starting
+      conditions.
+  solution:
+    - >-
+      Line- and job-aware initial setpoint recommender for temps, die bolts
+      profile, nip pressure, line speed, tensions by zone, corona watt density,
+      and chill roll temps.
+    - >-
+      Adaptive online adjustment suggestions within guardrails based on live
+      feedback (gauge, web temperatures, coat weight, COF proxies, tension
+      loads, film width, defect counts).
+    - >-
+      Job similarity search to retrieve best historical runs by material family,
+      layer stack, target thickness/coat weight, order specs, resin/adhesive
+      lots, and ambient conditions.
+    - >-
+      Physics-informed ML blending first-principles (heat transfer, rheology,
+      winding, nip mechanics) with historical data for robust cold-start
+      behavior.
+    - >-
+      Operator-in-the-loop HMI with confidence scores, expected outcomes (e.g.,
+      predicted scrap/time), and one-click apply with MOC/audit trail.
+    - >-
+      Recipe governance: automatic versioning, change approvals, and rollbacks;
+      ISA-95/ISA-88 alignment.
+    - >-
+      Integration toolkit: OPC UA/DA, MQTT Sparkplug, Modbus-TCP,
+      Rockwell/Siemens PLCs, SCADA/MES connectors (e.g., Ignition, FactoryTalk,
+      AVEVA).
+    - >-
+      Edge compute for real-time inference; cloud for model training, fleet
+      learning, benchmarking, and secure data sharing across plants.
+    - >-
+      Safety and compliance guardrails: constraint handling, interlocks, and
+      electronic signatures; IEC 62443-aligned security posture.
+    - >-
+      Value tracking: automatic KPI dashboards for startup scrap, time-to-spec,
+      FPY, energy/kg, adhesive waste, and Cpk on gauge/COF.
+  uniqueValueProp: >-
+    Hit spec faster with less waste: AI-recommended initial and adaptive
+    setpoints that cut startup scrap by 20–50%, reduce time-to-spec by 40–70%,
+    and improve first-pass yield—operator-in-the-loop, safety-guarded, and fully
+    auditable.
+  unfairAdvantage: >-
+    Federated, cross-plant dataset plus physics-informed models purpose-built
+    for extrusion and lamination startups; proven guardrailed recommendations
+    operators trust, with full auditability and rapid onboarding templates. OEM
+    and supplier partnerships accelerate validation and adoption.
+  customerSegments:
+    - >-
+      Primary: NAICS 326112 plastics packaging film and sheet manufacturers
+      (blown film, cast film/sheet, extrusion coating, solventless/solvent-based
+      lamination).
+    - >-
+      Decision-makers: Operations/plant managers, process engineering managers,
+      continuous improvement leaders, quality leaders, production managers.
+    - 'Users: Line operators, process engineers, shift supervisors.'
+    - >-
+      Mid-market converters with 2–6 plants and 5–40 lines total; enterprise
+      converters with 10+ plants and 100+ lines.
+    - >-
+      OEM and automation partners: extrusion/lamination OEMs, corona/gauging
+      suppliers, MES/SCADA vendors, system integrators.
+  channels:
+    - >-
+      Direct enterprise sales to top-200 North American and European converters;
+      ROI-led discovery and plant walk-throughs.
+    - >-
+      3-month lighthouse pilots on 2–3 lines per plant with ROI guarantee (e.g.,
+      20% scrap/time-to-spec reduction or extended pilot at no cost).
+    - >-
+      OEM partnerships: extrusion (e.g., Davis-Standard, Reifenhäuser, W&H),
+      lamination/coating (e.g., Nordmeccanica, Comexi) for co-selling and
+      bundled trials.
+    - >-
+      Automation/SI partners for integration and rollout (Rockwell, Siemens
+      channel partners; Inductive Automation integrators).
+    - >-
+      Alliances with resin and adhesive suppliers (e.g., ExxonMobil, Dow,
+      LyondellBasell; Henkel, Bostik) to pre-qualify recommended windows by
+      material family.
+    - >-
+      Industry events and associations: Pack Expo, ICEC USA, TAPPI, SPE;
+      technical talks with published pilot results.
+    - >-
+      Targeted content: case studies, calculators (scrap/time/energy ROI), and
+      operator training videos; webinars with brand owners on
+      sustainability/waste reduction.
+    - >-
+      Land-and-expand playbook: start with blown film or lamination, add lines
+      and plants after 60–90 days of measured wins.
+  revenueStreams:
+    - >-
+      SaaS subscription per line: $1,500–$3,000 per line per month depending on
+      features and volume.
+    - >-
+      Add-on module for closed-loop automated ramping or APC handoff:
+      +$500–$1,000 per line per month.
+    - 'Enterprise analytics and benchmarking: $3,000–$10,000 per plant per year.'
+    - >-
+      One-time integration and commissioning: $25,000–$100,000 per plant
+      (scope-dependent).
+    - 'Training and change management packages: $5,000–$20,000 per plant.'
+    - >-
+      Performance-based upside option (shared savings) for large rollouts after
+      baselining.
+    - OEM white-label revenue share for embedded offerings.
+  costStructure:
+    - >-
+      COGS: edge gateways ($2,000–$4,000 per line), field engineering (40–120
+      hours per plant), cloud compute/storage ($100–$300 per line per month),
+      data egress and security tooling.
+    - >-
+      R&D: ML/controls engineers, process engineers, domain experts; model
+      development and validation.
+    - >-
+      Sales/Marketing: enterprise sales, applications engineers, demo rigs,
+      travel, events.
+    - >-
+      Customer success and support: on-call support, refresher trainings, model
+      re-tuning.
+    - >-
+      Compliance and cybersecurity: IEC 62443 audits, SOC 2, liability
+      insurance, IP protection.
+    - 'Partner programs: OEM integrations, SI enablement, MDF for co-marketing.'
+  keyMetrics:
+    - >-
+      Startup scrap per changeover (kg) and % of run: target 20–50% reduction
+      within 60 days.
+    - 'Time-to-spec (minutes): target 40–70% reduction within 60 days.'
+    - 'First-pass yield (FPY): +3–7 percentage points within 90 days.'
+    - >-
+      Gauge Cpk during first 60 minutes of run: target improvement to ≥1.33 for
+      target products.
+    - >-
+      Recommendation acceptance rate by operators: ≥70% in month 1, ≥85% in
+      month 3.
+    - >-
+      Recommendation accuracy: MAPE on initial thickness/coat weight ≤5–8%;
+      off-spec minutes prediction MAE ≤10 minutes.
+    - 'Energy intensity (kWh/kg) during startup: 10–25% reduction by month 3.'
+    - >-
+      Adhesive waste during lamination startup (kg or $): 20–40% reduction by
+      month 3.
+    - 'Payback period per line: ≤6 months; LTV:CAC ≥4:1 by year 2.'
+    - 'Net revenue retention per account: ≥120% via line and plant expansions.'
+storyBrand:
+  character: >-
+    Plant managers, process engineers, and line leads at plastics packaging film
+    & sheet manufacturers (NAICS 326112) who need every
+    extrusion/coating/lamination run to hit spec fast with minimal scrap.
+  problem: >-
+    - External: Too many variables (barrel/die temps, die bolts, nip load, line
+    speed, web tension, corona power, chill roll temps) and job-to-job
+    variability force trial-and-error and waste.
+
+    - Internal: Pressure to meet schedule and quality with fewer veteran
+    operators and rising resin costs.
+
+    - Philosophical: Past data should make the next run right the first time—no
+    one should burn resin to find setpoints.
+  guide: >-
+    We understand the pain of dial-ins that bleed minutes and pellets. Our AI is
+    trained on your run history, resin data, specs, and asset limits—validated
+    with process SMEs—to recommend safe, explainable setpoints and adjustments.
+    Secure, traceable, and designed for operator trust.
+  plan: >-
+    - Process: (1) Connect job specs, run history, and asset limits. (2)
+    Calibrate models per line/die/structure. (3) For each job, receive
+    recommended initial setpoints (temps, die bolts, nip, speed, tension,
+    corona, chill rolls) with guardrails and rationale. (4) Apply, log results,
+    and get live adjustment guidance that learns over time.
+
+    - Agreement: Human-in-the-loop; hard limits enforced; your data stays yours;
+    change history is auditable.
+  callToAction: >-
+    - Direct: Start a 4-week pilot on one line.
+
+    - Transitional: Book a 30-minute demo; download the ROI calculator and a
+    case study.
+  success: |-
+    - On-spec faster (fewer pulls to target)
+    - Lower startup and changeover scrap
+    - Higher OEE and more stable runs
+    - Faster operator onboarding and knowledge capture
+    - Fewer customer complaints and rework
+    - Better schedule adherence and margin protection
+  failure: |-
+    - Continued trial-and-error, high scrap, and overtime
+    - Missed ship dates and customer claims
+    - Vulnerability when key experts are unavailable
+    - Eroding margins from resin, energy, and downtime
+landingPage:
+  hero:
+    title: Hit Spec Faster. Scrap Less.
+    subtitle: >-
+      AI run-setup recommendations for film and sheet extrusion and lamination
+      (NAICS 326112). Optimize temps, die bolts, nip, line speed, tension,
+      corona, and chill roll to reach target fast.
+    ctaText: Start a pilot
+    ctaHref: /demo
+  problem:
+    - New and repeat jobs take too long to dial in.
+    - 'Setpoints live in notebooks and memory, not in a repeatable system.'
+    - 'Operators chase gauge, COF, bond, and profile across shifts.'
+    - 'Over-conservative startups waste resin, time, and energy.'
+    - Each line behaves differently; lessons do not transfer.
+    - It is unclear which adjustment moves which spec.
+  solution:
+    - AI suggests initial and in-run setpoints to hit spec with minimal scrap.
+    - >-
+      Learns from your runs, materials, dies, and lines to standardize best
+      setups.
+    - >-
+      Predicts impact on gauge, COF, haze, seal strength, bond, OTR/MVTR with
+      confidence.
+    - >-
+      Cuts startup time, boosts first-pass yield, and stabilizes quality across
+      shifts.
+  features:
+    - >-
+      Setup recommender: zone temps, die bolt map, nip pressure, line speed, web
+      tension, corona power, chill roll temps.
+    - >-
+      Job-aware inputs: resin grade, layer stack, die width, neck-in, targets
+      and tolerances.
+    - >-
+      Live optimization using SCADA/MES and QC feedback to refine setpoints
+      during startup and steady state.
+    - >-
+      Guardrails that respect safe limits, SOPs, and interlocks; shows rationale
+      and predicted outcomes.
+    - >-
+      Recipe and runbook management with versioning, comparisons, and audit
+      trail.
+    - >-
+      Integrations: OPC UA, Modbus, MQTT, Ignition, AVEVA, Rockwell, OSIsoft PI,
+      SAP/Oracle/MES/ERP.
+    - 'Deployment: on-prem or cloud, IT-secure, SSO, role-based access.'
+    - >-
+      KPIs tracked: startup scrap, time to spec, spec hit rate, throughput,
+      energy per lb.
+    - >-
+      Materials library for resins, tie layers, adhesives, primers with learned
+      effects.
+    - >-
+      Supports blown and cast film, sheet, coextrusion, extrusion lamination,
+      and adhesive lamination.
+  steps:
+    - 'Connect data: PLC/SCADA, MES/ERP, lab QC, and run history.'
+    - 'Define job: materials, layer stack, die/line, targets and tolerances.'
+    - >-
+      Get recommended setup: initial setpoints and die bolt map per line and
+      product.
+    - >-
+      Run with guidance: operator prompts and live adjustment suggestions with
+      confidence.
+    - 'Capture results automatically: setpoints, production, and QC outcomes.'
+    - >-
+      Continuously improve: model retrains and promotes best-known setups to
+      standards.
+---
+# SetPointAI (Run Setup Recommender for Extrusion & Lamination)
+
+Generated for NAICS 326112 — Plastics Packaging Film and Sheet (including Laminated) Manufacturing.
+Service: AI Run Setup Recommender (Extrusion & Lamination)

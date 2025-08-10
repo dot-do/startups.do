@@ -1,0 +1,331 @@
+---
+name: FoldQuote AI
+slug: foldquote
+naics:
+  primary: '322219'
+  occupations: []
+service:
+  title: RFQ-to-Quote Automation for Folding Cartons
+  description: >-
+    Automatically parses RFQs and dielines to produce costed quotes with
+    routing, yields, and margin rules.
+  targetUsers:
+    - Estimators
+    - Sales Ops
+    - Prepress
+  triggers:
+    - RFQ email received
+    - Customer portal upload
+  inputs:
+    - RFQ email/PDF
+    - Dieline files (DXF/AI/PDF)
+    - Artwork (optional)
+    - Machine speeds/changeover matrix
+    - Material price lists
+    - Historic quotes/win-loss
+  steps:
+    - Ingest email/portal submission and attachments
+    - >-
+      OCR/CAD parse to extract dimensions, ECMA style, flaps, bleeds, material,
+      print colors/finishing
+    - 'Estimate sheet layout, imposition, yield and waste'
+    - 'Compute routing (press, die-cutter, folder-gluer) with setup/run times'
+    - 'Roll up material, labor, overhead; apply margin and customer pricing rules'
+    - Generate quote PDF and CRM record; route for human review
+    - Send to customer and log in ERP/CRM
+  tools:
+    - Google Document AI or AWS Textract
+    - Esko/ArtiosCAD SDK or DXF parsers
+    - SVGNest/Tilia Phoenix API/OR-Tools
+    - ERP/CPQ API (Dynamics/Odoo/Acumatica)
+    - HubSpot/Salesforce API
+    - Python/Node workers
+  outputs:
+    - Cost breakdown with assumptions
+    - Yield/waste estimate
+    - Routing steps and lead-time
+    - Customer-ready quote PDF
+    - CRM/ERP entry
+  pricingModel:
+    - 'Per RFQ (e.g., $20–$60)'
+    - SaaS subscription + setup
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - CAD/print spec parsing errors leading to misquotes
+    - Out-of-date price lists or speeds
+    - Integration complexity with ERP/CPQ
+    - Liability for inaccurate quotes
+  dependencies:
+    - Access to price lists and machine data
+    - ERP/CRM API credentials
+    - CAD libraries/licenses for dieline parsing
+leanCanvas:
+  problem:
+    - >-
+      RFQ-to-quote cycle times are slow (often 24–72 hours) due to manual
+      parsing of emails, PDFs, spreadsheets, and dielines (CF2/DXF/PDF).
+    - >-
+      Quoting accuracy depends on tribal knowledge of estimators; turnover or
+      absence creates bottlenecks and inconsistent margins.
+    - >-
+      Determining optimal layout (n-up, rotation, grain, trims, waste) across
+      available sheet and press sizes is time-consuming and prone to suboptimal
+      yields (1–3% material waste).
+    - >-
+      Routing decisions across presses, die-cutters, folder-gluers, and optional
+      stations (windowing, foil, emboss) are inconsistent; machine availability
+      and setup times are not systematically optimized.
+    - >-
+      Existing MIS/ERP estimating modules require extensive manual data entry
+      and don’t read dielines, causing rekeying errors and slow throughput.
+    - >-
+      Missed RFQs or delayed responses reduce hit rates vs. faster competitors,
+      especially for brokers demanding same-day quotes.
+    - >-
+      Cost variance between quoted and actual (post-job costing) is high
+      (±8–12%) due to inaccurate makeready, run speeds, and changeover
+      assumptions.
+    - >-
+      Estimators spend significant time on non-value-add tasks (file hunting,
+      spec clarification, duplicate data entry) rather than pricing strategy and
+      customer communication.
+  solution:
+    - >-
+      Unified RFQ intake: auto-ingest from email inboxes and portals; NLP
+      extracts specs (dimensions, board, caliper, colors, coatings, qty breaks,
+      delivery terms).
+    - >-
+      Dieline analysis: parse CF2/DXF/PDF to detect cut/crease, blank size,
+      perimeter/crease length, panel geometry, and nesting constraints; detect
+      windows/holes/embellishments.
+    - >-
+      Auto layout/yields: compute optimal n-up across available sheet sizes and
+      presses with grain/bleed/trim rules; simulate multiple layouts and choose
+      highest contribution margin.
+    - >-
+      Routing engine: recommend equipment sequence (press, coater, die-cutter,
+      stripper/blanker, folder-gluer, specialty ops) with setup/run time
+      estimates based on machine library and historical actuals.
+    - >-
+      Costing and margin rules: materials (SBS/CCNB/Kraft), inks/coatings,
+      tooling amortization, makeready, run rates; apply customer/product margin
+      floors, rounding, and discount policies.
+    - >-
+      Quote composer: generate branded quote PDFs and emails with line-item
+      breakdowns, alternates (board options, qty breaks), lead time, and
+      validity; auto-log to CRM.
+    - >-
+      ERP/MIS integration: push BOM/routing to systems like EFI Radius/Packaging
+      Suite, Aptean, PrintVis (BC), Amtech; pull price lists, machine rates, and
+      inventory.
+    - >-
+      Continuous learning: compare quoted vs. actuals to tune speeds, setup
+      times, and waste assumptions; learn customer-specific win/loss drivers.
+    - >-
+      Compliance and audit: maintain a rule audit trail; SOC 2-oriented logging;
+      role-based approvals for margin exceptions.
+  uniqueValueProp: >-
+    From RFQ to a costed, routable, ERP-ready quote in under 30 minutes: AI
+    parses specs and dielines, optimizes yields and routing, and enforces margin
+    rules—boosting hit rates while protecting profitability.
+  unfairAdvantage: >-
+    A purpose-built dieline geometry and layout optimization engine trained on
+    packaging-specific datasets, combined with governed learning from post-job
+    actuals—delivering continuously improving yield, speed, and margin control
+    that generic RPA/MIS estimators cannot match.
+  customerSegments:
+    - >-
+      Mid-market folding carton manufacturers (annual revenue $20M–$300M, 1–5
+      plants) needing higher quote throughput and margin control.
+    - >-
+      Large multi-plant packaging converters seeking standardized, AI-assisted
+      estimating across sites with shared machine libraries and pricing
+      policies.
+    - >-
+      Packaging brokers/print management firms handling high RFQ volumes
+      requiring fast, defensible pricing from multiple converter partners.
+    - >-
+      Specialty folding carton shops (short-run, high-mix) where speed, accurate
+      small-batch costing, and changeover optimization matter.
+    - >-
+      Greenfield/modernizing plants replacing spreadsheet-based estimating and
+      seeking quick wins in sales ops productivity.
+  channels:
+    - >-
+      Direct sales to folding carton converters via targeted ABM lists (PPC
+      membership directory, NAICS 322219 SIC mapping).
+    - >-
+      Partnerships with MIS/ERP vendors (EFI, Aptean, PrintVis/Microsoft BC,
+      Amtech) offering co-sell, marketplace listings, and integration bundles.
+    - >-
+      CAD/structural design partnerships (Esko, EngView, Arden) for joint
+      webinars and referral fees; showcase dieline-to-quote workflows.
+    - >-
+      Industry events and associations: Paperboard Packaging Council, PRINTING
+      United, drupa; speak on estimator productivity and AI case studies.
+    - >-
+      Content-led growth: ROI calculator, benchmark report on RFQ-to-quote
+      times, yield optimization playbook, and sample dashboards.
+    - >-
+      Pilot-led land-and-expand: 60–90 day pilots tied to SLA metrics (cycle
+      time, accuracy, hit rate); expand from 1 line of business to all plants
+      upon ROI.
+    - >-
+      System integrators and consultants specializing in packaging IT for
+      implementation and change management.
+    - >-
+      Broker channel enablement: broker-facing portal with SLAs to pull
+      converters in; promote to print management firms.
+  revenueStreams:
+    - >-
+      Annual subscriptions per plant: Starter $18k/yr (2 users, 200
+      quotes/month), Pro $45k/yr (10 users, 1,200 quotes/month, 2 integrations),
+      Enterprise $90k–$180k/yr (unlimited quotes, SSO, premium SLA,
+      multi-plant).
+    - >-
+      Usage overage: $0.50–$1.00 per additional quote processed beyond plan;
+      volume discounts at 5k+/month.
+    - >-
+      One-time onboarding/integration fees: $10k–$60k depending on ERP/CAD
+      connections and machine library setup.
+    - >-
+      Optional modules: private model hosting/on-prem dieline parser ($30k/yr
+      add-on), advanced analytics pack ($12k/yr), broker portal ($15k/yr).
+    - >-
+      Professional services: historical data cleanup, rate card calibration, and
+      estimator training ($150–$250/hr or fixed-scope packages).
+  costStructure:
+    - >-
+      R&D and product (ML engineers, packaging engineers, full-stack):
+      $1.8M–$3.0M/yr at scale.
+    - >-
+      Cloud infrastructure and model inference (OCR/CAD parsing/optimization):
+      $0.20–$0.80 per quote; target gross margin ≥80%.
+    - >-
+      Customer success and implementation: 1 CSM per 10–15 plants; onboarding
+      labor 80–200 hours per plant.
+    - >-
+      Sales and marketing: enterprise AE/SE teams, events, content; CAC target
+      $40k–$80k per enterprise logo with 12–18 month payback.
+    - >-
+      Third-party licensing: CAD libraries, file conversion, OCR engines,
+      security/compliance tooling (SOC 2).
+    - >-
+      General and administrative: legal (data/IP), finance, HR; IP protection
+      for geometry and optimization algorithms.
+  keyMetrics:
+    - >-
+      RFQ-to-quote cycle time: baseline 24–72 hours; target median <30 minutes;
+      90th percentile <2 hours within 90 days of go-live.
+    - >-
+      Estimator productivity: quotes per FTE/day baseline 8–15; target 30–60
+      within 60 days.
+    - >-
+      Quote hit rate: baseline 20–30%; target +5–10 percentage points within 6
+      months due to speed/consistency.
+    - >-
+      Margin adherence: % of jobs priced within ±3% of target margin; target
+      ≥85% after 90 days.
+    - >-
+      Quote accuracy vs. actual: absolute cost variance; target ≤±5% initially,
+      ≤±3% after 6 months of learning.
+    - >-
+      Sheet utilization: average improvement vs. baseline layouts; target +1–3%
+      material savings.
+    - >-
+      Automation coverage: % of RFQs/dielines auto-processed without manual
+      intervention; target ≥70% within 60 days, ≥85% within 6 months.
+    - >-
+      Time-to-value: days from kickoff to first automated quote; target ≤14
+      days; full pilot ROI validation by day 60.
+    - >-
+      ARR growth and NRR: new ARR per quarter; NRR target ≥115% via expansion to
+      additional plants/modules.
+    - >-
+      Model accuracy KPIs: dieline parse success rate ≥98% on supported formats;
+      spec extraction F1 ≥0.95 on core fields.
+storyBrand:
+  character: >-
+    Estimators and sales teams at folding-carton manufacturers (NAICS 322219)
+    who want to turn mixed‑format RFQs and dielines into fast, accurate,
+    profitable quotes.
+  problem: >-
+    Manual quoting is slow and error‑prone—hand‑parsing dielines, calculating
+    impositions/yields, building routings/BOMs, and applying margin rules across
+    presses and finishing. The result: delayed responses, under‑quoting, margin
+    leakage, and lost bids.
+  guide: >-
+    We understand RFQ chaos. Built by packaging engineers and pricing leaders,
+    our AI reads RFQs and CAD dielines, models press/finishing constraints, and
+    standardizes costing—integrating with your MIS/ERP for seamless handoff.
+  plan: >-
+    1) Connect your RFQ inbox and MIS/ERP. 2) Upload or auto‑ingest RFQs and
+    dielines (PDF/AI/DXF/CF2). 3) Receive a costed quote with routing,
+    imposition, yields, waste, and margin rules—review, tweak, and send in
+    minutes.
+  callToAction: >-
+    Direct: Book a 30‑minute demo or start a 14‑day pilot with your own RFQs.
+    Transitional: Get a free quote speed/accuracy benchmark on sample jobs.
+  success: >-
+    Quotes in minutes; higher win rates; protected margins; standardized costing
+    across plants; reduced estimator workload; clean audit trail; faster, more
+    confident pricing.
+  failure: >-
+    Slow, inconsistent quoting; mis‑spec’d jobs; under‑quoted work; margin
+    erosion; estimator burnout; lost customers and revenue.
+landingPage:
+  hero:
+    title: RFQ-to-Quote Automation for Folding Cartons
+    subtitle: >-
+      Parse RFQs and dielines. Auto-build routes, yields, and costed
+      quotes—fast, consistent, profitable. Built for NAICS 322219.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - 'Slow, manual rekeying from emails, PDFs, and spreadsheets'
+    - Dielines take time to interpret; yield and imposition mistakes
+    - Inconsistent estimates and margins across estimators
+    - Tooling reuse and make-ready costs get missed
+    - Quotes slip past due dates; win rates suffer
+    - 'Fragmented flow between CAD, spreadsheets, and MIS/ERP'
+    - No clear audit trail or pricing guardrails
+  solution:
+    - Ingest RFQs from email or portal; auto-extract specs and quantities
+    - Parse dielines (PDF/CF2/DXF/AI); detect cut/crease/bleed/window
+    - 'Auto-generate routing for print, die-cut, foil/emboss, glue, window patch'
+    - 'Compute sheet layouts and yields by press, sheet size, and grain'
+    - 'Cost engine for material, setup/run, waste, tooling, and freight'
+    - 'Margin rules by customer, segment, and capacity with approvals'
+    - One-click quotes to PDF/Excel/portal; sync to MIS/ERP with audit trail
+    - Scenario compare to pick the lowest landed cost and fastest lead time
+  features:
+    - CAD/dieline parser with geometry validation and window detection
+    - 'Intelligent imposition: multi-up, gang, grain, sheet libraries'
+    - 'Board grades and calipers (SBS, SUS, CCNB) with coating/lamination options'
+    - 'Waste modeling by press and operation (trim, make-ready, spoilage)'
+    - Die library with reuse detection and amortization by keyline match
+    - 'Routing builder with constraints (colors, UV, inline/offline finishing)'
+    - 'Rule-based pricing: margin floors, approvals, exception workflows'
+    - Multi-plant optimization and capacity-aware due dates
+    - 'Integrations: MIS/ERP (EFI Radius, SAP, Dynamics), CAD (Esko/ArtiosCAD)'
+    - 'Quote outputs: PDF, Excel, customer portal with e-sign'
+    - 'Security: SSO, roles, audit logs; SOC 2 ready'
+    - 'Analytics: quote cycle time, win rate, price bands, estimator productivity'
+    - API-first with webhooks; sandbox environment
+  steps:
+    - Connect your inbox and MIS/ERP; import rates and die library
+    - Drag-and-drop an RFQ and dieline or forward the email
+    - AI extracts specs and validates the dieline; flags gaps to confirm
+    - 'System proposes layouts, yields, and routing options automatically'
+    - 'Review costs; run what-if scenarios across presses, boards, and sheets'
+    - Apply pricing and margin rules; generate the quote package
+    - Send to customer and sync back to MIS/ERP with a full audit trail
+---
+# FoldQuote AI
+
+Generated for NAICS 322219 — Other Paperboard Container Manufacturing.
+Service: RFQ-to-Quote Automation for Folding Cartons

@@ -347,7 +347,465 @@ landingPage:
       Export the Rx to your planter, plant with confidence, and get a season-end
       performance report.
 ---
+
 # SoyRate AI
 
 Generated for NAICS 111110 — Soybean Farming.
 Service: Variable-Rate Seeding (VRS) Prescriptions for Soybean
+
+## Business Workflow Functions
+
+The following TypeScript functions encode SoyRate AI's core business processes as executable code, following the Business-as-Code paradigm:
+
+```typescript
+// Core Types
+interface Lead {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  farmName: string;
+  soybeanAcres: number;
+  planterCapability: 'basic' | 'advanced' | 'premium';
+  currentVRSUsage: boolean;
+  source: 'direct' | 'partner' | 'referral';
+  region: string;
+}
+
+interface Customer {
+  id: string;
+  lead: Lead;
+  contractValue: number;
+  acresSubscribed: number;
+  onboardingStatus: 'pending' | 'in-progress' | 'complete';
+  agronomistAssigned?: string;
+  partnerChannel?: string;
+}
+
+interface FieldData {
+  fieldId: string;
+  boundaries: GeoJSON;
+  historicalYield: YieldMap[];
+  soilData: SoilLayer;
+  elevationData: DEMLayer;
+  planterSpecs: PlanterCapabilities;
+}
+
+interface VRSPrescription {
+  fieldId: string;
+  zones: ManagementZone[];
+  seedingRates: SeedingRate[];
+  roiProjection: ROIAnalysis;
+  testStripLayout: TestStrip[];
+  exportFormats: PrescriptionFile[];
+}
+
+interface ROIAnalysis {
+  projectedYieldLift: number; // bu/acre
+  seedSavings: number; // seeds/acre
+  profitDelta: number; // $/acre
+  confidence: number; // 0-1
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  try {
+    const qualifiedLead = await qualifyLead(lead);
+    const proposal = await generateProposal(qualifiedLead);
+    const contract = await negotiateContract(proposal);
+    const customer = await onboardCustomer(contract);
+    
+    await notifyPartnerChannel(customer);
+    await scheduleAgronomistAssignment(customer);
+    
+    return customer;
+  } catch (error) {
+    await logLeadFailure(lead, error);
+    throw new Error(`Customer acquisition failed: ${error.message}`);
+  }
+}
+
+export async function qualifyLead(lead: Lead): Promise<Lead> {
+  // Minimum qualification criteria
+  if (lead.soybeanAcres < 500) {
+    throw new Error('Insufficient acreage for service');
+  }
+  
+  if (!['basic', 'advanced', 'premium'].includes(lead.planterCapability)) {
+    throw new Error('Planter not VRS-capable');
+  }
+  
+  const regionSupported = await checkRegionSupport(lead.region);
+  if (!regionSupported) {
+    throw new Error('Region not currently supported');
+  }
+  
+  // Score lead quality
+  const leadScore = await calculateLeadScore(lead);
+  if (leadScore < 0.6) {
+    throw new Error('Lead quality below threshold');
+  }
+  
+  return { ...lead, qualified: true, score: leadScore };
+}
+
+export async function generateProposal(lead: Lead): Promise<Proposal> {
+  const pricingTier = await determinePricingTier(lead.soybeanAcres);
+  const estimatedROI = await estimateROI(lead);
+  const partnerDiscount = await calculatePartnerDiscount(lead.source);
+  
+  return {
+    leadId: lead.id,
+    acreage: lead.soybeanAcres,
+    pricePerAcre: pricingTier.price - partnerDiscount,
+    totalValue: (pricingTier.price - partnerDiscount) * lead.soybeanAcres,
+    projectedROI: estimatedROI,
+    pilotOffer: lead.soybeanAcres > 1000 ? '2 fields free' : '1 field free',
+    validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+  };
+}
+
+// Product Development Processes
+export async function developVRSPrescription(fieldData: FieldData): Promise<VRSPrescription> {
+  try {
+    const processedData = await ingestAndCleanData(fieldData);
+    const managementZones = await createManagementZones(processedData);
+    const populationModel = await buildPopulationModel(managementZones);
+    const seedingRates = await optimizeSeedingRates(populationModel);
+    const testStrips = await generateTestStrips(managementZones);
+    const roiAnalysis = await calculateROI(seedingRates, fieldData);
+    const prescriptionFiles = await exportPrescriptions(seedingRates, fieldData.planterSpecs);
+    
+    return {
+      fieldId: fieldData.fieldId,
+      zones: managementZones,
+      seedingRates,
+      roiProjection: roiAnalysis,
+      testStripLayout: testStrips,
+      exportFormats: prescriptionFiles,
+    };
+  } catch (error) {
+    await logPrescriptionFailure(fieldData.fieldId, error);
+    throw new Error(`Prescription development failed: ${error.message}`);
+  }
+}
+
+export async function ingestAndCleanData(fieldData: FieldData): Promise<ProcessedFieldData> {
+  // Validate field boundaries
+  const validBoundaries = await validateFieldBoundaries(fieldData.boundaries);
+  
+  // Normalize historical yield data (3-5 years)
+  const normalizedYield = await normalizeYieldData(fieldData.historicalYield);
+  
+  // Process soil data (SSURGO/EC)
+  const processedSoil = await processSoilData(fieldData.soilData);
+  
+  // Extract topography features
+  const terrainFeatures = await extractTerrainFeatures(fieldData.elevationData);
+  
+  // Fetch satellite vigor indices
+  const satelliteData = await fetchSatelliteIndices(fieldData.boundaries);
+  
+  // Get weather/risk layers
+  const weatherRisk = await getWeatherRiskLayers(fieldData.boundaries);
+  
+  return {
+    boundaries: validBoundaries,
+    yield: normalizedYield,
+    soil: processedSoil,
+    terrain: terrainFeatures,
+    satellite: satelliteData,
+    weather: weatherRisk,
+  };
+}
+
+export async function createManagementZones(data: ProcessedFieldData): Promise<ManagementZone[]> {
+  // Multi-year yield stability analysis
+  const yieldStability = await analyzeYieldStability(data.yield);
+  
+  // Soil productivity indices
+  const soilProductivity = await calculateSoilProductivity(data.soil);
+  
+  // Terrain-derived wetness index
+  const wetnessIndex = await calculateWetnessIndex(data.terrain);
+  
+  // Automated zone creation using ML clustering
+  const zones = await clusterManagementZones({
+    yieldStability,
+    soilProductivity,
+    wetnessIndex,
+  });
+  
+  // Ensure zones meet minimum size requirements
+  const validatedZones = await validateZoneSize(zones);
+  
+  return validatedZones;
+}
+
+// Revenue Generation Flows
+export async function processSubscriptionPayment(customer: Customer): Promise<PaymentResult> {
+  try {
+    const billingAmount = await calculateBillingAmount(customer);
+    const paymentMethod = await getCustomerPaymentMethod(customer.id);
+    const payment = await processPayment(paymentMethod, billingAmount);
+    
+    if (payment.status === 'success') {
+      await updateSubscriptionStatus(customer.id, 'active');
+      await sendPaymentConfirmation(customer);
+      await enableServiceAccess(customer.id);
+    } else {
+      await handlePaymentFailure(customer, payment.error);
+    }
+    
+    return payment;
+  } catch (error) {
+    await logPaymentError(customer.id, error);
+    throw new Error(`Payment processing failed: ${error.message}`);
+  }
+}
+
+export async function calculateOutcomeBasedRevenue(
+  customer: Customer,
+  actualResults: FieldResults[]
+): Promise<OutcomeRevenue> {
+  const baselineProfit = await calculateBaselineProfit(actualResults);
+  const actualProfit = await calculateActualProfit(actualResults);
+  const incrementalProfit = actualProfit - baselineProfit;
+  
+  if (incrementalProfit <= 0) {
+    return { amount: 0, reason: 'No incremental profit generated' };
+  }
+  
+  const sharePercentage = await getOutcomeSharePercentage(customer.id);
+  const revenueAmount = incrementalProfit * sharePercentage;
+  
+  await generateOutcomeReport(customer, {
+    baseline: baselineProfit,
+    actual: actualProfit,
+    incremental: incrementalProfit,
+    revenue: revenueAmount,
+  });
+  
+  return { amount: revenueAmount, verified: true };
+}
+
+// Operational Procedures
+export async function onboardNewCustomer(customer: Customer): Promise<OnboardingResult> {
+  try {
+    // Data collection and setup
+    await requestFieldData(customer);
+    await setupCustomerAccount(customer);
+    await assignAgronomist(customer);
+    
+    // Initial prescription generation
+    const fieldData = await collectFieldData(customer);
+    const initialPrescriptions = await generateInitialPrescriptions(fieldData);
+    
+    // Training and support
+    await scheduleTrainingSession(customer);
+    await provideDocumentation(customer);
+    await setupSupportChannel(customer);
+    
+    // First value delivery
+    await deliverFirstPrescription(customer, initialPrescriptions[0]);
+    
+    return {
+      status: 'complete',
+      timeToFirstValue: await calculateTimeToFirstValue(customer.id),
+      prescriptionsGenerated: initialPrescriptions.length,
+    };
+  } catch (error) {
+    await escalateOnboardingIssue(customer, error);
+    throw new Error(`Onboarding failed: ${error.message}`);
+  }
+}
+
+export async function managePartnerRelationship(partner: Partner): Promise<PartnerStatus> {
+  // Monitor partner performance
+  const performance = await trackPartnerPerformance(partner);
+  
+  // Provide training and enablement
+  if (performance.needsTraining) {
+    await schedulePartnerTraining(partner);
+  }
+  
+  // Calculate commissions and payments
+  const commissions = await calculatePartnerCommissions(partner);
+  await processPartnerPayment(partner, commissions);
+  
+  // Review territory and targets
+  const territoryReview = await reviewPartnerTerritory(partner);
+  if (territoryReview.needsAdjustment) {
+    await adjustPartnerTerritory(partner, territoryReview.recommendations);
+  }
+  
+  return {
+    status: performance.status,
+    acresManaged: performance.acresManaged,
+    conversionRate: performance.conversionRate,
+    nextReview: territoryReview.nextReviewDate,
+  };
+}
+
+// Decision-Making Workflows
+export async function evaluatePrescriptionQuality(
+  prescription: VRSPrescription,
+  fieldData: FieldData
+): Promise<QualityAssessment> {
+  // Agronomic validation
+  const agronomicScore = await validateAgronomicSoundness(prescription);
+  
+  // Technical compatibility check
+  const compatibilityScore = await checkPlanterCompatibility(
+    prescription,
+    fieldData.planterSpecs
+  );
+  
+  // Economic viability assessment
+  const economicScore = await assessEconomicViability(prescription);
+  
+  // Risk assessment
+  const riskScore = await assessPrescriptionRisk(prescription, fieldData);
+  
+  const overallScore = (agronomicScore + compatibilityScore + economicScore + riskScore) / 4;
+  
+  return {
+    overallScore,
+    agronomicScore,
+    compatibilityScore,
+    economicScore,
+    riskScore,
+    approved: overallScore >= 0.8,
+    recommendations: await generateQualityRecommendations(prescription),
+  };
+}
+
+export async function decidePricingStrategy(
+  customer: Customer,
+  marketConditions: MarketConditions
+): Promise<PricingDecision> {
+  const customerValue = await assessCustomerValue(customer);
+  const competitivePosition = await analyzeCompetitivePosition(marketConditions);
+  const costStructure = await getCurrentCostStructure();
+  
+  // Value-based pricing calculation
+  const valueBasedPrice = customerValue.projectedROI * 0.15; // 15% of ROI
+  
+  // Cost-plus pricing calculation
+  const costPlusPrice = costStructure.costPerAcre * 2.5; // 2.5x markup
+  
+  // Competitive pricing calculation
+  const competitivePrice = competitivePosition.averagePrice * 0.95; // 5% discount
+  
+  // Select optimal pricing strategy
+  const recommendedPrice = Math.min(valueBasedPrice, Math.max(costPlusPrice, competitivePrice));
+  
+  return {
+    recommendedPrice,
+    strategy: 'value-based',
+    rationale: 'Maximizes customer value while maintaining competitive position',
+    expectedConversion: await predictConversionRate(recommendedPrice, customer),
+  };
+}
+
+export async function prioritizeProductDevelopment(
+  features: FeatureRequest[],
+  resources: DevelopmentResources
+): Promise<DevelopmentPriority[]> {
+  const prioritizedFeatures = [];
+  
+  for (const feature of features) {
+    const customerImpact = await assessCustomerImpact(feature);
+    const technicalComplexity = await assessTechnicalComplexity(feature);
+    const businessValue = await calculateBusinessValue(feature);
+    const resourceRequirement = await estimateResourceRequirement(feature);
+    
+    const priority = (customerImpact * businessValue) / (technicalComplexity * resourceRequirement);
+    
+    prioritizedFeatures.push({
+      feature,
+      priority,
+      customerImpact,
+      technicalComplexity,
+      businessValue,
+      resourceRequirement,
+    });
+  }
+  
+  return prioritizedFeatures.sort((a, b) => b.priority - a.priority);
+}
+
+// Validation and ROI Workflows
+export async function validatePrescriptionResults(
+  prescription: VRSPrescription,
+  actualResults: FieldResults
+): Promise<ValidationReport> {
+  const yieldComparison = await compareYieldResults(prescription, actualResults);
+  const seedUsageAnalysis = await analyzeSeedUsage(prescription, actualResults);
+  const roiValidation = await validateROI(prescription.roiProjection, actualResults);
+  const testStripAnalysis = await analyzeTestStrips(prescription.testStripLayout, actualResults);
+  
+  return {
+    yieldLiftAchieved: yieldComparison.actualLift,
+    yieldLiftPredicted: prescription.roiProjection.projectedYieldLift,
+    seedSavingsAchieved: seedUsageAnalysis.actualSavings,
+    roiAchieved: roiValidation.actualROI,
+    roiPredicted: prescription.roiProjection.profitDelta,
+    accuracy: roiValidation.accuracy,
+    testStripSignificance: testStripAnalysis.statisticalSignificance,
+    recommendations: await generateImprovementRecommendations(prescription, actualResults),
+  };
+}
+
+// Helper function implementations (simplified)
+async function qualifyLead(lead: Lead): Promise<Lead> { /* implementation */ }
+async function generateProposal(lead: Lead): Promise<Proposal> { /* implementation */ }
+async function negotiateContract(proposal: Proposal): Promise<Contract> { /* implementation */ }
+async function onboardCustomer(contract: Contract): Promise<Customer> { /* implementation */ }
+async function calculateLeadScore(lead: Lead): Promise<number> { /* implementation */ }
+async function checkRegionSupport(region: string): Promise<boolean> { /* implementation */ }
+async function determinePricingTier(acres: number): Promise<PricingTier> { /* implementation */ }
+async function estimateROI(lead: Lead): Promise<number> { /* implementation */ }
+async function calculatePartnerDiscount(source: string): Promise<number> { /* implementation */ }
+
+// Export all workflow functions for use in the Business-as-Code platform
+export const soyRateWorkflows = {
+  customerAcquisition: {
+    acquireCustomer,
+    qualifyLead,
+    generateProposal,
+  },
+  productDevelopment: {
+    developVRSPrescription,
+    ingestAndCleanData,
+    createManagementZones,
+  },
+  revenueGeneration: {
+    processSubscriptionPayment,
+    calculateOutcomeBasedRevenue,
+  },
+  operations: {
+    onboardNewCustomer,
+    managePartnerRelationship,
+  },
+  decisionMaking: {
+    evaluatePrescriptionQuality,
+    decidePricingStrategy,
+    prioritizeProductDevelopment,
+  },
+  validation: {
+    validatePrescriptionResults,
+  },
+};
+```
+
+## Integration with .do Platform
+
+These workflow functions integrate with the broader .do ecosystem:
+
+- **Functions.do**: Each workflow function can be registered as an AI Function for autonomous execution
+- **Workflows.do**: Complex multi-step processes can be orchestrated across functions
+- **Agents.do**: Autonomous agents can execute these workflows based on triggers and events
+- **Database.do**: Customer data, field data, and results are managed through the unified data layer
+
+The Business-as-Code approach enables SoyRate AI to operate as an autonomous digital business, with clear workflows for every aspect of the operation from customer acquisition to product delivery and validation.
