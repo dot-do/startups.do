@@ -1,6 +1,6 @@
 # Startups.do
 
-Build autonomous businesses with Devin and `.do` platform
+Build autonomous businesses with **Devin** and the **`.do` platform**
 
 ---
 
