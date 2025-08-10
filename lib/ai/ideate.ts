@@ -3,6 +3,9 @@ import path from 'node:path'
 import { leanCanvas } from './leanCanvas'
 import { setStartup } from '../startups/setStartup'
 import type { StartupDocInput } from '../startups/setStartup'
+import { agenticServices } from './agenticServices'
+import { storyBrand } from './storyBrand'
+import { landingPage } from './landingPage'
 
 type NaicsRow = { naics: string; industry: string }
 type OccupationRow = { code: string; name: string; description: string; displayLevel: string; selectable: string; sortSequence: string }
@@ -17,6 +20,7 @@ export type IdeateOptions = {
   maxOccupations?: number
   additionalContext?: string
   persist?: boolean
+  maxServicesPerMarket?: number
 }
 
 export type IdeatedIdea =
@@ -52,22 +56,6 @@ function parseTsv<T = Record<string, string>>(text: string): T[] {
   return rows
 }
 
-type Frontmatter = {
-  name: string
-  slug: string
-  naics: { primary: string; occupations: string[] }
-  leanCanvas: {
-    problem: string[]
-    solution: string[]
-    uniqueValueProp: string
-    unfairAdvantage: string
-    customerSegments: string[]
-    channels: string[]
-    revenueStreams: string[]
-    costStructure: string[]
-    keyMetrics: string[]
-  }
-}
 
 function kebabCase(s: string) {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
@@ -118,76 +106,128 @@ export async function ideate(opts: IdeateOptions = {}): Promise<IdeatedIdea[]> {
   const results: IdeatedIdea[] = []
 
   for (const n of limitedNaics) {
-    const idea = `AI-native solutions for the ${n.industry} industry (NAICS ${n.naics})`
-    const canvas = await leanCanvas(
-      idea,
-      additionalContext && additionalContext.length > 0 ? `Context: ${additionalContext}` : undefined
-    )
-    const businessName = canvas.object.businessName
-    const baseSlug = kebabCase(businessName)
-    const slug = persist ? await ensureUniqueSlug(baseSlug) : baseSlug
-    results.push({ kind: 'industry', naics: n, canvas, slug })
+    const asResult = await agenticServices({
+      industry: n.industry,
+      additionalContext: additionalContext && additionalContext.length > 0 ? `Context: ${additionalContext}` : undefined,
+    })
+    const services = (asResult.object as { services?: Array<Record<string, unknown>> }).services ?? []
+    const limitedServices =
+      typeof opts.maxServicesPerMarket === 'number' ? services.slice(0, opts.maxServicesPerMarket) : services
 
-    if (persist) {
-      const frontmatter = {
-        name: businessName,
-        slug,
-        naics: { primary: n.naics, occupations: [] as string[] },
-        leanCanvas: {
-          problem: canvas.object.problemStatement,
-          solution: canvas.object.solution,
-          uniqueValueProp: canvas.object.uniqueValueProposition,
-          unfairAdvantage: canvas.object.unfairAdvantage,
-          customerSegments: canvas.object.customerSegments,
-          channels: canvas.object.channels,
-          revenueStreams: canvas.object.revenueStreams,
-          costStructure: canvas.object.costStructure,
-          keyMetrics: canvas.object.keyMetrics,
-        },
-      }
-      const content = `# ${businessName}
+    for (const svc of limitedServices) {
+      const title = String((svc as any).title ?? 'AI Service')
+      const description = String((svc as any).description ?? '')
+      const serviceIdea = `${title} — AI service for ${n.industry} (NAICS ${n.naics})`
+      const ctx = [
+        additionalContext ? `Context: ${additionalContext}` : null,
+        description ? `Service description: ${description}` : null,
+      ]
+        .filter(Boolean)
+        .join('\n')
 
-Generated from NAICS ${n.naics} — ${n.industry}.
+      const canvas = await leanCanvas(serviceIdea, ctx)
+      const sb = await storyBrand(serviceIdea, ctx)
+      const lp = await landingPage(serviceIdea, ctx)
+
+      const businessName = canvas.object.businessName
+      const baseSlug = kebabCase(`${businessName}-${title}`)
+      const slug = persist ? await ensureUniqueSlug(baseSlug) : baseSlug
+      results.push({ kind: 'industry', naics: n, canvas, slug })
+
+      if (persist) {
+        const frontmatter = {
+          name: businessName,
+          slug,
+          naics: { primary: n.naics, occupations: [] as string[] },
+          service: svc,
+          leanCanvas: {
+            problem: canvas.object.problemStatement,
+            solution: canvas.object.solution,
+            uniqueValueProp: canvas.object.uniqueValueProposition,
+            unfairAdvantage: canvas.object.unfairAdvantage,
+            customerSegments: canvas.object.customerSegments,
+            channels: canvas.object.channels,
+            revenueStreams: canvas.object.revenueStreams,
+            costStructure: canvas.object.costStructure,
+            keyMetrics: canvas.object.keyMetrics,
+          },
+          storyBrand: (sb as any).object,
+          landingPage: (lp as any).object,
+        }
+        const content = `# ${businessName}
+
+Generated for NAICS ${n.naics} — ${n.industry}.
+Service: ${title}
 `
-      const doc: StartupDocInput<Frontmatter> = { data: frontmatter, content }
-      await setStartup(slug, doc)
+        const doc: StartupDocInput<typeof frontmatter> = { data: frontmatter, content }
+        await setStartup(slug, doc)
+      }
     }
   }
 
   for (const o of limitedOccs) {
-    const idea = `AI-native copilot for ${o.name}`
-    const ctxParts = []
-    if (additionalContext) ctxParts.push(additionalContext)
-    if (o.description) ctxParts.push(`Occupation description: ${o.description}`)
-    const canvas = await leanCanvas(idea, ctxParts.length ? ctxParts.join('\n') : undefined)
-    const businessName = canvas.object.businessName
-    const baseSlug = kebabCase(businessName)
-    const slug = persist ? await ensureUniqueSlug(baseSlug) : baseSlug
-    results.push({ kind: 'occupation', occupation: o, canvas, slug })
+    const asResult = await agenticServices({
+      occupation: o.name,
+      additionalContext: [
+        additionalContext ? additionalContext : null,
+        o.description ? `Occupation description: ${o.description}` : null,
+      ]
+        .filter(Boolean)
+        .join('\n') || undefined,
+    })
+    const services = (asResult.object as { services?: Array<Record<string, unknown>> }).services ?? []
+    const limitedServices =
+      typeof opts.maxServicesPerMarket === 'number' ? services.slice(0, opts.maxServicesPerMarket) : services
 
-    if (persist) {
-      const frontmatter = {
-        name: businessName,
-        slug,
-        naics: { primary: '', occupations: [o.name] },
-        leanCanvas: {
-          problem: canvas.object.problemStatement,
-          solution: canvas.object.solution,
-          uniqueValueProp: canvas.object.uniqueValueProposition,
-          unfairAdvantage: canvas.object.unfairAdvantage,
-          customerSegments: canvas.object.customerSegments,
-          channels: canvas.object.channels,
-          revenueStreams: canvas.object.revenueStreams,
-          costStructure: canvas.object.costStructure,
-          keyMetrics: canvas.object.keyMetrics,
-        },
-      }
-      const content = `# ${businessName}
+    for (const svc of limitedServices) {
+      const title = String((svc as any).title ?? 'AI Service')
+      const description = String((svc as any).description ?? '')
+      const serviceIdea = `${title} — AI copilot for ${o.name}`
+      const ctx = [
+        additionalContext ? `Context: ${additionalContext}` : null,
+        o.description ? `Occupation description: ${o.description}` : null,
+        description ? `Service description: ${description}` : null,
+      ]
+        .filter(Boolean)
+        .join('\n')
 
-Generated from Occupation ${o.code} — ${o.name}.
+      const canvas = await leanCanvas(serviceIdea, ctx)
+      const sb = await storyBrand(serviceIdea, ctx)
+      const lp = await landingPage(serviceIdea, ctx)
+
+      const businessName = canvas.object.businessName
+      const baseSlug = kebabCase(`${businessName}-${title}`)
+      const slug = persist ? await ensureUniqueSlug(baseSlug) : baseSlug
+      results.push({ kind: 'occupation', occupation: o, canvas, slug })
+
+      if (persist) {
+        const frontmatter = {
+          name: businessName,
+          slug,
+          naics: { primary: '', occupations: [o.name] },
+          service: svc,
+          leanCanvas: {
+            problem: canvas.object.problemStatement,
+            solution: canvas.object.solution,
+            uniqueValueProp: canvas.object.uniqueValueProposition,
+            unfairAdvantage: canvas.object.unfairAdvantage,
+            customerSegments: canvas.object.customerSegments,
+            channels: canvas.object.channels,
+            revenueStreams: canvas.object.revenueStreams,
+            costStructure: canvas.object.costStructure,
+            keyMetrics: canvas.object.keyMetrics,
+          },
+          storyBrand: (sb as any).object,
+          landingPage: (lp as any).object,
+        }
+        const content = `# ${businessName}
+
+Generated for Occupation ${o.code} — ${o.name}.
+Service: ${title}
 `
-      const doc: StartupDocInput<Frontmatter> = { data: frontmatter, content }
-      await setStartup(slug, doc)
+        const doc: StartupDocInput<typeof frontmatter> = { data: frontmatter, content }
+        await setStartup(slug, doc)
+      }
     }
   }
 
