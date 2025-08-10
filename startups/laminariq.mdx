@@ -396,3 +396,410 @@ landingPage:
 
 Generated for NAICS 326112 — Plastics Packaging Film and Sheet (including Laminated) Manufacturing.
 Service: Smart Quoting + COA Automation
+
+## Business Process Functions
+
+```typescript
+// Core data types for LaminarIQ business processes
+interface RFQRequest {
+  id: string;
+  customerId: string;
+  specifications: FilmSpecification[];
+  volume: number;
+  deliveryDate: Date;
+  attachments: Document[];
+  customerSpecs: CustomerSpecification[];
+}
+
+interface FilmSpecification {
+  gauge: number;
+  width: number;
+  layers: LayerSpec[];
+  resins: ResinSpec[];
+  additives: AdditiveSpec[];
+  properties: PropertyRequirement[];
+}
+
+interface LayerSpec {
+  position: number;
+  material: string;
+  thickness: number;
+  function: 'barrier' | 'sealant' | 'structure' | 'print';
+}
+
+interface ResinSpec {
+  type: string;
+  grade: string;
+  supplier: string;
+  currentPrice: number;
+  indexLinked: boolean;
+}
+
+interface PropertyRequirement {
+  test: string; // ASTM test method
+  specification: string;
+  tolerance: string;
+  customerTemplate: string;
+}
+
+interface Quote {
+  id: string;
+  rfqId: string;
+  customerId: string;
+  lineItems: QuoteLineItem[];
+  totalPrice: number;
+  margin: number;
+  leadTime: number;
+  validUntil: Date;
+  assumptions: string[];
+  risks: RiskFlag[];
+  approvalStatus: 'draft' | 'pending' | 'approved' | 'sent';
+}
+
+interface QuoteLineItem {
+  sku: string;
+  description: string;
+  quantity: number;
+  unitPrice: number;
+  materialCost: number;
+  laborCost: number;
+  overheadCost: number;
+  margin: number;
+}
+
+interface ProductionRun {
+  id: string;
+  quoteId: string;
+  sku: string;
+  lotNumbers: string[];
+  rollNumbers: string[];
+  palletNumbers: string[];
+  actualYield: number;
+  actualScrap: number;
+  actualCycleTime: number;
+  limResults: LIMSResult[];
+}
+
+interface LIMSResult {
+  lotNumber: string;
+  rollNumber: string;
+  testMethod: string;
+  result: number;
+  specification: string;
+  passFail: 'pass' | 'fail';
+  timestamp: Date;
+}
+
+interface COA {
+  id: string;
+  lotNumber: string;
+  customerId: string;
+  sku: string;
+  testResults: TestResult[];
+  customerTemplate: string;
+  digitalSignature: string;
+  deliveryMethod: 'pdf' | 'edi' | 'ecoa' | 'portal';
+  status: 'generated' | 'reviewed' | 'approved' | 'delivered';
+}
+
+interface Customer {
+  id: string;
+  name: string;
+  industry: string;
+  plantLocations: string[];
+  annualVolume: number;
+  paymentTerms: string;
+  coaRequirements: COARequirement[];
+  approvedSupplier: boolean;
+}
+
+interface Lead {
+  id: string;
+  companyName: string;
+  contactName: string;
+  email: string;
+  phone: string;
+  industry: string;
+  estimatedVolume: number;
+  source: string;
+  qualificationScore: number;
+}
+
+interface RiskFlag {
+  type: 'pricing' | 'technical' | 'compliance' | 'capacity';
+  severity: 'low' | 'medium' | 'high';
+  description: string;
+  mitigation: string;
+}
+
+// Customer Acquisition Workflow
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  // Step 1: Qualify the lead based on volume, industry, and fit
+  const qualifiedLead = await qualifyLead(lead);
+  
+  // Step 2: Conduct technical assessment and capability mapping
+  const technicalAssessment = await assessTechnicalFit(qualifiedLead);
+  
+  // Step 3: Generate initial proposal with pilot program
+  const proposal = await generateProposal(qualifiedLead, technicalAssessment);
+  
+  // Step 4: Negotiate contract terms and pilot scope
+  const contract = await negotiateContract(proposal);
+  
+  // Step 5: Onboard customer with pilot implementation
+  const customer = await onboardCustomer(contract);
+  
+  return customer;
+}
+
+// RFQ Processing Workflow
+export async function processRFQ(rfq: RFQRequest): Promise<Quote> {
+  try {
+    // Step 1: AI-assisted RFQ intake and parsing
+    const parsedSpecs = await parseRFQSpecifications(rfq);
+    
+    // Step 2: Map customer specs to internal capabilities
+    const mappedSpecs = await mapSpecifications(parsedSpecs);
+    
+    // Step 3: Generate cost estimate using costing engine
+    const costEstimate = await generateCostEstimate(mappedSpecs);
+    
+    // Step 4: Apply pricing optimization and scenarios
+    const pricingScenarios = await optimizePricing(costEstimate);
+    
+    // Step 5: Create quote with approval workflow
+    const quote = await createQuote(rfq, pricingScenarios);
+    
+    // Step 6: Route for approval based on margin and risk
+    await routeForApproval(quote);
+    
+    return quote;
+  } catch (error) {
+    throw new Error(`RFQ processing failed: ${error.message}`);
+  }
+}
+
+// COA Automation Workflow
+export async function automateCoA(productionRun: ProductionRun): Promise<COA> {
+  try {
+    // Step 1: Pull LIMS data for completed production run
+    const limData = await pullLIMSData(productionRun);
+    
+    // Step 2: Validate test results against customer specifications
+    const validationResults = await validateTestResults(limData);
+    
+    // Step 3: Generate COA using customer-specific template
+    const coa = await generateCOA(productionRun, validationResults);
+    
+    // Step 4: Apply digital signature and compliance checks
+    await applyDigitalSignature(coa);
+    
+    // Step 5: Route COA based on pass/fail status
+    if (validationResults.allPassed) {
+      await deliverCOA(coa);
+    } else {
+      await flagForQualityReview(coa, validationResults.failures);
+    }
+    
+    return coa;
+  } catch (error) {
+    throw new Error(`COA automation failed: ${error.message}`);
+  }
+}
+
+// Plant Onboarding Workflow
+export async function onboardPlant(customer: Customer, plantConfig: PlantConfiguration): Promise<void> {
+  try {
+    // Step 1: Connect to ERP/LIMS/MES systems
+    await connectSystems(plantConfig);
+    
+    // Step 2: Import historical data and configure cost models
+    await importHistoricalData(plantConfig);
+    
+    // Step 3: Configure customer-specific COA templates
+    await configureCOATemplates(customer, plantConfig);
+    
+    // Step 4: Train and validate models on sample data
+    await trainModels(plantConfig);
+    
+    // Step 5: Conduct pilot testing with real RFQs
+    await conductPilotTesting(plantConfig);
+    
+    // Step 6: Go live with monitoring and support
+    await goLive(plantConfig);
+  } catch (error) {
+    throw new Error(`Plant onboarding failed: ${error.message}`);
+  }
+}
+
+// Revenue Generation Workflow
+export async function generateRevenue(customer: Customer, timeframe: string): Promise<RevenueReport> {
+  try {
+    // Step 1: Track subscription revenue by plant and tier
+    const subscriptionRevenue = await calculateSubscriptionRevenue(customer, timeframe);
+    
+    // Step 2: Calculate usage-based add-ons (OCR, EDI transactions)
+    const usageRevenue = await calculateUsageRevenue(customer, timeframe);
+    
+    // Step 3: Track implementation and professional services
+    const servicesRevenue = await calculateServicesRevenue(customer, timeframe);
+    
+    // Step 4: Monitor expansion opportunities (additional plants)
+    const expansionOpportunities = await identifyExpansionOpportunities(customer);
+    
+    // Step 5: Generate revenue report with forecasting
+    const revenueReport = await generateRevenueReport({
+      subscription: subscriptionRevenue,
+      usage: usageRevenue,
+      services: servicesRevenue,
+      expansion: expansionOpportunities
+    });
+    
+    return revenueReport;
+  } catch (error) {
+    throw new Error(`Revenue generation failed: ${error.message}`);
+  }
+}
+
+// Operational Excellence Workflow
+export async function optimizeOperations(plantId: string): Promise<OperationalMetrics> {
+  try {
+    // Step 1: Monitor key performance indicators
+    const kpis = await monitorKPIs(plantId);
+    
+    // Step 2: Analyze quote accuracy vs actual costs
+    const accuracyAnalysis = await analyzeQuoteAccuracy(plantId);
+    
+    // Step 3: Optimize cost models based on feedback loop
+    await optimizeCostModels(plantId, accuracyAnalysis);
+    
+    // Step 4: Track COA automation rate and exceptions
+    const coaMetrics = await trackCOAMetrics(plantId);
+    
+    // Step 5: Generate operational improvement recommendations
+    const recommendations = await generateImprovementRecommendations(kpis, coaMetrics);
+    
+    return {
+      kpis,
+      accuracyAnalysis,
+      coaMetrics,
+      recommendations
+    };
+  } catch (error) {
+    throw new Error(`Operations optimization failed: ${error.message}`);
+  }
+}
+
+// Decision-Making Workflow for Pricing Strategy
+export async function optimizePricingStrategy(marketData: MarketData): Promise<PricingStrategy> {
+  try {
+    // Step 1: Analyze resin index trends and volatility
+    const resinAnalysis = await analyzeResinTrends(marketData);
+    
+    // Step 2: Evaluate competitive positioning
+    const competitiveAnalysis = await analyzeCompetition(marketData);
+    
+    // Step 3: Model capacity constraints and utilization
+    const capacityAnalysis = await analyzeCapacity();
+    
+    // Step 4: Generate pricing scenarios and recommendations
+    const pricingScenarios = await generatePricingScenarios({
+      resin: resinAnalysis,
+      competition: competitiveAnalysis,
+      capacity: capacityAnalysis
+    });
+    
+    // Step 5: Implement dynamic pricing rules
+    const pricingStrategy = await implementPricingStrategy(pricingScenarios);
+    
+    return pricingStrategy;
+  } catch (error) {
+    throw new Error(`Pricing strategy optimization failed: ${error.message}`);
+  }
+}
+
+// Supporting function implementations (pseudocode)
+async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  // Implement lead scoring algorithm
+  // Check against ideal customer profile
+  // Validate contact information and authority
+}
+
+async function parseRFQSpecifications(rfq: RFQRequest): Promise<ParsedSpecifications> {
+  // Use AI/LLM to extract specifications from documents
+  // Parse PDF drawings and Excel BOMs
+  // Extract gauge, width, layers, resins, properties
+}
+
+async function generateCostEstimate(specs: MappedSpecifications): Promise<CostEstimate> {
+  // Calculate material costs with current resin indices
+  // Estimate line speed, scrap rates, and changeover times
+  // Apply labor, energy, and overhead costs
+}
+
+async function pullLIMSData(run: ProductionRun): Promise<LIMSData> {
+  // Connect to LIMS system via API
+  // Retrieve test results by lot/roll/pallet
+  // Validate data completeness and quality
+}
+
+async function connectSystems(config: PlantConfiguration): Promise<void> {
+  // Establish connections to ERP (SAP, Oracle, Plex)
+  // Connect to LIMS (LabWare, LabVantage, STARLIMS)
+  // Set up MES integration for production data
+}
+
+// Additional type definitions
+interface QualifiedLead extends Lead {
+  qualificationScore: number;
+  decisionMaker: boolean;
+  budgetConfirmed: boolean;
+  timelineEstimate: string;
+}
+
+interface ParsedSpecifications {
+  films: FilmSpecification[];
+  volumes: VolumeRequirement[];
+  delivery: DeliveryRequirement[];
+  quality: QualityRequirement[];
+}
+
+interface MappedSpecifications extends ParsedSpecifications {
+  internalSKUs: string[];
+  capabilityMatch: number;
+  riskFlags: RiskFlag[];
+}
+
+interface CostEstimate {
+  materialCost: number;
+  laborCost: number;
+  overheadCost: number;
+  totalCost: number;
+  margin: number;
+  confidence: number;
+}
+
+interface RevenueReport {
+  totalRevenue: number;
+  subscriptionRevenue: number;
+  usageRevenue: number;
+  servicesRevenue: number;
+  expansionPotential: number;
+  forecast: MonthlyForecast[];
+}
+
+interface OperationalMetrics {
+  quoteAccuracy: number;
+  coaAutomationRate: number;
+  cycleTime: number;
+  winRate: number;
+  marginRealization: number;
+}
+
+interface PricingStrategy {
+  baseRates: PriceMatrix;
+  surcharges: SurchargeRules;
+  discountRules: DiscountRules;
+  indexLinking: IndexLinkingRules;
+}
+```
