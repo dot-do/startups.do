@@ -1,0 +1,353 @@
+---
+name: RiceWise SSNM — AI Nutrient Plans for Rice (NAICS 111160)
+slug: ricewise
+naics:
+  primary: '111160'
+  occupations: []
+service:
+  title: Site-Specific Nutrient Management (SSNM) Plan for Rice
+  description: >-
+    N-P-K split plan by growth stage using soil data, target yield, and leaf
+    color chart (LCC) smartphone checks.
+  targetUsers:
+    - Farmers
+    - Extension programs
+    - Input retailers
+  triggers:
+    - Start of season
+    - LCC check reminders by stage
+    - Soil test upload
+  inputs:
+    - Field location
+    - Soil test results or SoilGrids defaults
+    - Target yield and variety duration
+    - Organic amendments availability
+    - Local fertilizer products/prices
+  steps:
+    - Ingest soil data (or SoilGrids) and compute initial N-P-K requirement
+    - Allocate N splits by stage; set LCC-triggered topdress thresholds
+    - Map P and K rates based on soil test and removal
+    - Generate shopping list using local product SKUs/prices
+    - Send calendar with reminders; accept LCC photos to confirm/adjust N
+  tools:
+    - SoilGrids API
+    - IRRI/Local SSNM guidelines
+    - Leaf color detection via phone camera
+    - Twilio/WhatsApp reminders
+    - Google Sheets for plan tracking
+  outputs:
+    - Field-specific nutrient plan and calendar
+    - Product list with dosages and cost
+    - Adjustment log based on LCC photos
+  pricingModel:
+    - Per plan ($3–$7/field)
+    - Season subscription including updates
+    - Retailer-sponsored (lead-gen)
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 3.5
+    overall: 4
+  risks:
+    - Local calibration needs for SSNM
+    - Incorrect LCC photos affect N decisions
+    - Fertilizer availability/price fluctuations
+  dependencies:
+    - Access to local fertilizer SKUs/prices
+    - SSNM guideline database
+    - Messaging channel
+leanCanvas:
+  problem:
+    - >-
+      Blanket fertilizer recommendations ignore field variability, causing
+      10–30% over/under-application of N-P-K and inconsistent yields.
+    - >-
+      Split timing is hard to execute: farmers miss basal/tillering/panicle
+      splits due to labor bottlenecks and unclear reminders, reducing N use
+      efficiency (NUE).
+    - >-
+      Soil tests are scarce or delayed; farmers lack a way to translate soil
+      data and target yields into precise, stage-wise doses.
+    - >-
+      Nitrogen is often overused, increasing costs and risk of lodging while
+      contributing to N2O emissions; potash is frequently under-applied,
+      reducing grain filling.
+    - >-
+      Advice sources (retailers, neighbors) are not personalized and may be
+      biased by inventory/pricing, not agronomy.
+    - >-
+      Smartphone ownership is common, but connectivity, literacy, and language
+      barriers limit access to high-quality agronomy.
+    - >-
+      Fertilizer price volatility makes “standard” plans uneconomic; farmers
+      need plans that adapt to local prices and available brands/sacks.
+    - >-
+      Existing tools rarely verify plant N status in-field; without LCC or
+      equivalent checks, recommendations drift from reality.
+  solution:
+    - >-
+      Onboard field basics: location, variety duration, planting/transplant
+      date, target yield, irrigation type, and recent yield history.
+    - >-
+      Ingest soil data: lab test (preferred) or infer from public soil
+      maps/legacy tests with confidence bands; flag where P/K deficits likely.
+    - >-
+      Generate season-long SSNM: basal, tillering, panicle initiation (PI), and
+      late split doses for N; basal/split plans for P and K based on soil and
+      target yield.
+    - >-
+      Dynamic N via smartphone LCC: weekly prompts to capture leaf images with a
+      low-cost calibration card; apply N only when LCC threshold is crossed
+      (e.g., LCC < 3) with dose adjusted to crop stage.
+    - >-
+      Timing and logistics: reminders synced to growth stage GDDs and local
+      weather; buffer windows for rain and labor availability; alternative split
+      suggestions if a dose is missed.
+    - >-
+      Local price optimization: convert kg nutrients to bagged product doses by
+      nearby retailer prices/brands; show cheapest equivalent options.
+    - >-
+      Record-keeping and ROI: track applied doses, yield, and costs; show per-ha
+      profit impact and fertilizer savings; provide season-end report for
+      buyers/lenders.
+    - >-
+      Low-connectivity delivery: SMS/IVR/WhatsApp bot for reminders and doses;
+      full Android app with offline cache; voice prompts in local language.
+    - >-
+      Safety and stewardship: limits to avoid over-application, lodging risk
+      warnings, and compliance reports (4R principles).
+  uniqueValueProp: >-
+    Personalized, stage-wise N-P-K split plans for rice that cut fertilizer
+    costs 10–20% and lift yields 3–10%, using your soil data, target yield, and
+    on-phone Leaf Color Chart checks—delivered in local language,
+    offline-capable, and timed to your crop calendar.
+  unfairAdvantage: >-
+    A feedback-rich dataset tying smartphone LCC readings, precise split
+    timings, local prices, and harvest outcomes—collected through demo plots and
+    enterprise programs—enables superior dose/timing recommendations and rapid
+    localization. Combined with an offline-first, voice-enabled experience and
+    last-mile retailer/mill channels, this creates defensibility that generic
+    advisories and one-size-fits-all apps lack.
+  customerSegments:
+    - >-
+      Primary: Smallholder rice farmers (0.5–5 ha) in Asia (India, Bangladesh,
+      Vietnam, Philippines, Indonesia) seeking to reduce costs and stabilize
+      yields.
+    - >-
+      Primary: Mid/large commercial rice farms/cooperatives (20–2,000 ha)
+      seeking standardized SSNM at scale.
+    - >-
+      Secondary: Rice mills/buyers contracting farmers and wanting higher, more
+      consistent paddy quality and traceable practices.
+    - >-
+      Secondary: Ag-retailers/last-mile input dealers seeking value-added
+      advisory to retain customers.
+    - >-
+      Secondary: NGOs/government extension programs aiming to improve farmer
+      incomes and nutrient stewardship.
+    - >-
+      Adjacent: Soil labs and fertilizer manufacturers who want their
+      results/products embedded into actionable plans.
+  channels:
+    - >-
+      Last-mile retailers and co-ops: train 1–2 lead dealers per cluster;
+      provide dealer incentive ($0.50–$1.00 per enrolled ha).
+    - >-
+      Rice mills/buyers: bundle advisory into contract farming; tie to quality
+      premiums and traceability.
+    - >-
+      Government/NGO programs: integrate into extension campaigns; co-branded
+      rollouts in target districts.
+    - >-
+      Soil labs: include an SSNM QR code/report with every rice soil test;
+      rev-share per plan.
+    - >-
+      Digital: WhatsApp/FB groups, ag-influencers, short tutorial videos in
+      local languages, app store listings.
+    - >-
+      USSD/SMS enrollment flows promoted via telco partners; radio spots before
+      key rice seasons.
+    - >-
+      Demo plots and field days: 200+ side-by-side demos per launch
+      state/province to build trust.
+    - >-
+      University/IRRI-linked extension networks for credibility and access to
+      lead farmers.
+  revenueStreams:
+    - >-
+      Per-hectare seasonal subscription for farmers: $2–$5/ha/season (tiered by
+      features and channel).
+    - >-
+      Enterprise SaaS for mills/NGOs: $3–$8/ha/season with dashboards, bulk
+      onboarding, and compliance reports.
+    - >-
+      Retailer enablement: referral fee or rev-share for enrolled hectares;
+      optional SKU placement fees.
+    - >-
+      Soil lab integrations: $0.50–$1.50 per SSNM report generated via lab
+      channel.
+    - >-
+      Premium analytics: field benchmarking and profitability insights for
+      commercial farms ($500–$5,000/year).
+    - >-
+      Optional carbon/MRV services when paired with N reduction protocols (small
+      near-term revenue; pilot basis).
+  costStructure:
+    - >-
+      R&D and product (mobile, backend, CV for LCC): $60k–$120k/yr per
+      engineering pod; agronomy science team $120k–$300k/yr.
+    - >-
+      Cloud and data: $0.05–$0.15 per active hectare/season for compute/storage;
+      $0.01–$0.03 per SMS; IVR $0.02–$0.05/min.
+    - >-
+      Field validation: $50–$150 per demo plot; $10–$20 per farmer training
+      session including materials.
+    - >-
+      Calibration kits (LCC reference card): $0.30–$0.60 per unit landed; target
+      1 per enrolled farmer.
+    - 'Channel incentives: $0.50–$1.00 per enrolled hectare to dealers/mills.'
+    - >-
+      Customer support/call center: $1–$2 per farmer/season in high-touch
+      pilots; scale to <$0.50 with bots/self-serve.
+    - >-
+      Market development and compliance (localization, translations,
+      regulatory): $30k–$100k per country entry.
+    - 'General & administrative: finance, legal, data privacy compliance.'
+  keyMetrics:
+    - 'Hectares under management (HaUM): Y1 50,000; Y3 375,000; Y5 1,250,000.'
+    - >-
+      Active adherence rate (farms applying ≥80% of recommended splits): Y1
+      50%+, Y3 65%+.
+    - >-
+      On-time split compliance (dose applied within 3-day window): Y1 60% avg;
+      Y3 75%+.
+    - >-
+      Yield uplift vs farmer practice (paired plots): target +0.3 to +0.6 t/ha
+      (5–10%) at p<0.1 significance in ≥70% of trials.
+    - >-
+      Nitrogen savings: 15–30% vs baseline or ≥20 kg N/ha without yield loss in
+      ≥60% of fields.
+    - >-
+      NUE (kg grain per kg N applied): +10–25% improvement; Partial Factor
+      Productivity N target ≥50 kg/kg in irrigated systems.
+    - >-
+      Farmer net income uplift: +$40–$120/ha/season after subscription cost; ROI
+      >5x for smallholders.
+    - >-
+      Model accuracy: smartphone LCC classification agreement ≥85% vs physical
+      LCC/SPAD; dosing error ≤±5 kg N/ha at split.
+    - >-
+      Retention: season-to-season ≥60% in Y1 pilots; ≥75% by Y3 for enterprise
+      channels.
+    - >-
+      Unit economics: CAC <$5/farmer via retailer/mill channels; payback <1
+      season; Gross margin >70% by Y3.
+    - NPS >40; Support contact rate <0.6 per farmer per season.
+storyBrand:
+  character: >-
+    Rice growers and farm managers who want field‑specific N‑P‑K guidance to
+    reliably hit target yield with less guesswork, waste, and risk.
+  problem: >-
+    - Villain: One‑size‑fits‑all fertilizer advice.
+
+    - External: Variable soils, water regimes, and growth stages make timing and
+    rates hard.
+
+    - Internal: Worry about over/under‑fertilizing and missing critical windows.
+
+    - Philosophical: Every field deserves precise, science‑based nutrient
+    management, not blanket recommendations.
+  guide: >-
+    - Empathy: We understand the pressure to feed the crop without wasting
+    inputs.
+
+    - Authority: AI SSNM for rice (NAICS 111160), calibrated to local soils and
+    climate, agronomist‑reviewed, using LCC smartphone checks and transparent
+    assumptions.
+  plan: >-
+    - Step 1: Upload soil test, field boundary, planting date, and target yield.
+
+    - Step 2: Receive N‑P‑K split plan by growth stage (basal, tillering,
+    panicle initiation, booting).
+
+    - Step 3: Use LCC smartphone checks; app adjusts in‑season N
+    recommendations.
+
+    - Step 4: Get timing alerts, weather windows, and application checklists.
+
+    - Step 5: End‑of‑season nutrient balance and performance report.
+
+    - Agreement: Simple subscription, cancel anytime; your data stays yours;
+    agronomist support included.
+  callToAction: >-
+    - Direct: Get your SSNM plan now.
+
+    - Transitional: Book a 15‑minute demo; download a sample plan and ROI
+    worksheet.
+  success: |-
+    - Consistent yields aligned to target.
+    - Reduced nutrient waste and input variability.
+    - Fewer late‑season deficiencies and lodging risk.
+    - Clear records for certifications and audits.
+    - Confident, timely decisions at each growth stage.
+  failure: |-
+    - Keep guessing on rates and timing.
+    - Over/under‑apply fertilizer and miss growth windows.
+    - Spend more for less yield and quality.
+    - Increased runoff and compliance headaches.
+landingPage:
+  hero:
+    title: AI-Powered SSNM Plan for Rice
+    subtitle: >-
+      Split N–P–K by growth stage using your soil test, target yield, and LCC
+      smartphone checks. Grow more with less fertilizer.
+    ctaText: Get My SSNM Plan
+    ctaHref: /get-started
+  problem:
+    - Blanket fertilizer rates waste money and cap yields.
+    - 'Over/under nitrogen leads to lodging, pests, and higher emissions.'
+    - Timing is hard—missed top-dress windows reduce response.
+    - Soil tests and leaf color charts rarely translate into daily actions.
+    - Rising input prices demand precision and proof of ROI.
+  solution:
+    - >-
+      Field-specific N–P–K split plans calibrated to your soil test and target
+      yield.
+    - 'Growth-stage schedule with exact rates, timing, and method per split.'
+    - Smartphone LCC checks trigger dynamic N adjustments before topdressing.
+    - Weather and irrigation-aware timing to minimize loss and maximize uptake.
+    - Simple operator sheets and alerts so the plan is easy to execute.
+  features:
+    - Soil test import (photo/CSV) with automatic interpretation.
+    - Target-yield optimizer with cost and expected response analysis.
+    - >-
+      Split schedule for nursery, active tillering, panicle initiation, booting,
+      and grain fill.
+    - LCC-guided N decisions with in-app camera calibration and thresholds.
+    - >-
+      P and K recommendations from soil status, crop removal, and build/balance
+      strategy.
+    - 'Micronutrient flags (Zn, S, Si) plus lime/gypsum guidance when needed.'
+    - SMS/WhatsApp/app notifications; works offline in the field.
+    - >-
+      Localized presets for variety, season, irrigation (irrigated, rainfed,
+      AWD).
+    - Variable-rate map export (Shapefile/GeoJSON) for applicators.
+    - 'Sustainability metrics: NUE, N loss risk, and leaching/runoff indicators.'
+    - 'Multi-field dashboard, team access, and audit trail for compliance.'
+    - 'Budgeting and recordkeeping: inputs used, costs, and yield outcomes.'
+  steps:
+    - Add field boundary or area; upload soil test or enter basic soil data.
+    - 'Select variety, season window, and target yield.'
+    - Review your AI N–P–K split plan by growth stage with dates and rates.
+    - >-
+      Before each N split, do a quick LCC check with your phone to confirm or
+      adjust.
+    - Receive alerts for topdressing windows based on LCC and weather.
+    - 'Apply, log operations, and track yield, cost savings, and NUE.'
+    - Export plan sheets or variable-rate files for your applicator.
+---
+# RiceWise SSNM — AI Nutrient Plans for Rice (NAICS 111160)
+
+Generated for NAICS 111160 — Rice Farming.
+Service: Site-Specific Nutrient Management (SSNM) Plan for Rice

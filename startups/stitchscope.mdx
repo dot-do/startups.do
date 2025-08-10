@@ -1,0 +1,334 @@
+---
+name: StitchScope QC
+slug: stitchscope
+service:
+  title: Photo-based Visual Quality Inspection
+  description: >-
+    Analyzes smartphone photos of seams, grommets, printing, and dimensions to
+    flag defects and compile QC reports.
+  targetUsers:
+    - Quality Inspectors
+    - Production Supervisors
+    - Customer Service
+  triggers:
+    - End-of-batch inspection
+    - Inline checkpoint photos uploaded
+  inputs:
+    - Photos with reference scale cards
+    - Defect taxonomy and tolerances
+    - Sample golden images/SOPs
+  steps:
+    - Guide users to capture photos via checklist
+    - Auto-correct lighting; detect reference scaling
+    - 'Run defect detection (stitch skips, misalignment, stains)'
+    - Estimate dimensions vs tolerance using scale
+    - Aggregate results and compute batch pass/fail
+    - Publish QC report; push nonconformance to NCR log
+  tools:
+    - Roboflow/Ultralytics YOLO
+    - OpenCV color/geometry
+    - Google Drive/Forms or lightweight mobile app
+    - Power BI/Notion for reports
+  outputs:
+    - Per-lot QC report with annotated images
+    - Defect Pareto and trends
+    - NCR tickets for failures
+  pricingModel:
+    - Per image or per lot processed
+    - Monthly plan with image quota
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 4.5
+    modelCapability: 4
+    overall: 4.2
+  risks:
+    - Lighting/angle variability causing false flags
+    - Limited accuracy for small defects without good reference
+    - Worker adoption for photo capture
+  dependencies:
+    - Defect definitions and tolerances
+    - Sample image set for tuning
+    - Storage (Drive/SharePoint) permissions
+leanCanvas:
+  problem:
+    - >-
+      Manual visual QC for textile bags and canvas products is subjective and
+      inconsistent across inspectors and shifts, leading to variable quality and
+      customer complaints.
+    - >-
+      Critical defects (missed stitches, open seams, mis-set grommets, skewed
+      prints, off-dimension cuts) often escape sampling-based inspections and
+      are discovered late (post-pack or by customers).
+    - >-
+      Traditional machine vision systems are high capex and hard to retrofit on
+      sewing, grommeting, and screen/heat-transfer printing lines with frequent
+      SKU changeovers.
+    - >-
+      QC documentation is slow and error-prone; compiling AQL/ISO-compliant
+      reports, photo evidence, and traceability per lot or PO often delays
+      shipments.
+    - >-
+      Training new inspectors on defect taxonomies and tolerances per SKU is
+      time-consuming; high turnover in QC roles increases ramp time and
+      inconsistency.
+    - >-
+      Brands and retailers increasingly demand digital QC evidence and supplier
+      scorecards; many mills lack structured, searchable QC data.
+    - >-
+      Dimension checks with tape/ruler are slow and inaccurate, especially for
+      large canvas items; operators skip or rush measurements under schedule
+      pressure.
+  solution:
+    - >-
+      Guided mobile app (Android/iOS) with SKU-specific checklists for seams,
+      grommets, printing, and dimensions; dynamic prompts ensure necessary
+      angles and views are captured.
+    - >-
+      Calibration kit: lightweight magnetic board or mat with fiducial markers
+      (ArUco) enabling accurate dimensioning (±2–3 mm on items up to 1.2 m with
+      a single shot; larger items via multi-tile stitching).
+    - >-
+      On-device pre-check (blur, lighting, framing) to reduce unusable images;
+      real-time feedback to operator to recapture before submission.
+    - >-
+      Cloud inference models specialized for textile defects: seam continuity,
+      stitch density and zigzag consistency, over/under-trim, grommet
+      position/ovalization, print registration/skew, logo placement, color
+      deviation (ΔE2000), panel size variance.
+    - >-
+      Immediate pass/fail with defect type, severity, and location overlays;
+      configurable tolerances per SKU (e.g., print offset ≤ ±3 mm; grommet
+      center offset ≤ 2 mm; seam width ±1.5 mm).
+    - >-
+      Automated AQL sampling and reporting (ISO 2859-1 / ANSI/ASQ Z1.4); per-lot
+      inspection plans, accept/reject decisions, and photo-backed PDF/CSV
+      reports.
+    - >-
+      Operations dashboard: line/shift-level defect trends, top defect causes,
+      FPY, rework rates, and supplier/PO scorecards; export to ERP/MES.
+    - >-
+      APIs and integrations (e.g., NetSuite, Infor, SAP B1) to fetch POs/SKUs
+      and post inspection results; webhooks for hold/release and NCR workflows.
+    - >-
+      Multilingual UI (EN, ZH, VI, BN, TR) and SOP templates; role-based access
+      controls for inspectors, supervisors, and brand auditors.
+    - >-
+      Offline mode with store-and-forward for limited connectivity shops; local
+      encryption and privacy controls for brand artwork.
+  uniqueValueProp: >-
+    Smartphone photo inspection that catches textile-specific defects and
+    measures dimensions within seconds, auto-generates AQL-compliant QC reports,
+    and deploys in a day—no fixed cameras or line changes required.
+  unfairAdvantage: >-
+    A domain-specific defect dataset and measurement pipeline optimized for
+    textile bags/canvas, paired with AQL automation and smartphone-only
+    deployment, enabling fast ROI without capex—difficult for generic vision
+    vendors and inspection agencies to replicate quickly.
+  customerSegments:
+    - >-
+      Textile bag manufacturers (tote, drawstring, duffel, reusable shopping,
+      industrial FIBCs liners, mailer bags with textile components).
+    - 'Canvas and technical textile mills (tarps, awnings, sails, covers, tents).'
+    - >-
+      Contract cut-and-sew factories producing private-label bags/canvas for
+      brands and retailers.
+    - >-
+      On-site printers (screen/DTF/heat-transfer) applying graphics to
+      canvas/bags.
+    - >-
+      Third-party inspection agencies performing pre-shipment inspections (PSI)
+      and in-process checks (DUPRO) for brands.
+    - >-
+      Brands/retailers with vendor compliance programs seeking digital QC
+      evidence from suppliers.
+  channels:
+    - >-
+      Direct sales to medium/large mills via outbound SDRs and LinkedIn
+      targeting Quality/Plant Managers (target 30 demos/month/SDR, 20%
+      demo-to-pilot).
+    - >-
+      Partnerships with ERP/MES/PLM vendors (NetSuite, SAP B1 partners, Infor
+      channel) for co-selling and marketplace listings (goal: 5 active partners
+      in year 1, 20% of pipeline via partners).
+    - >-
+      Alliances with third-party inspection firms (SGS, TUV SUD, Bureau Veritas,
+      QIMA) to bundle smartphone AI for PSI/DUPRO (pilot 2 firms, 5 shared
+      accounts each).
+    - >-
+      Industry marketplaces and associations: Advanced Textiles Association
+      (ATA), Techtextil, Intertextile Shanghai; sponsor workshops on digital QC
+      (generate 300 MQLs/year).
+    - >-
+      China/SEA outreach via WeChat mini-app, Alibaba supplier bulletins, and
+      local distributors (set 2 regional distributors in CN and VN; quota 10
+      facilities each/year).
+    - >-
+      Content-led inbound: defect taxonomy guides, AQL calculators, ROI case
+      studies; SEO for “textile bag QC”, “canvas inspection AI” (organic target:
+      3,000 monthly site visits by month 12).
+    - >-
+      Pilot-led GTM: 4-week paid pilots in 2 lines/factory with ROI target ≥15%
+      rework reduction; convert ≥70% to annual agreements.
+    - >-
+      Trade shows and on-site demo days with mobile kits; offer “48-hour
+      deployment challenge” to reduce perceived risk.
+  revenueStreams:
+    - >-
+      SaaS per active production line: $149–$249/line/month (annual term),
+      includes up to 20k images/month/line and standard support.
+    - >-
+      Per-inspection overage: $0.02–$0.05/image beyond plan or
+      $0.15–$0.30/inspection (typ. 6 images).
+    - >-
+      Enterprise plan: site license starting $3,500/month for up to 25 lines,
+      SSO, on-prem inference option, premium SLA.
+    - >-
+      Setup/onboarding: $1,500/site (includes calibration kit for 4 stations,
+      SOP configuration, training).
+    - >-
+      Professional services: custom model tuning for unique SKUs
+      ($3,000–$8,000/project); ERP/MES integrations ($5,000–$15,000).
+    - >-
+      Hardware kits: calibration mats/boards, stands, ring lights ($120/station
+      kit, COGS ~$45).
+    - >-
+      Data/analytics add-on: monthly supplier scorecards and brand portal access
+      for brands ($500–$2,000/month/brand).
+  costStructure:
+    - >-
+      Cloud inference and storage: ~$0.0005–$0.002 per image (GPU time + storage
+      + egress); target COGS < 12% of ARR.
+    - >-
+      Data labeling and model training: initial dataset 50k images
+      (~$0.08/image) = ~$4k; ongoing 10k images/month = ~$800; ML engineer +
+      MLOps staffing.
+    - Mobile and backend development; QA and localization (EN/ZH/VI/BN/TR).
+    - >-
+      Calibration kit production and logistics: COGS ~$45/kit; shipping
+      $8–$20/kit region-dependent.
+    - >-
+      Sales & marketing: SDRs/AEs, channel partner commissions (10–20%), trade
+      show budgets (~$50k/year).
+    - >-
+      Customer success and field support for pilot deployments; travel for key
+      accounts in CN/IN/VN/TR.
+    - General & administrative; compliance and security (SOC 2 in year 2).
+    - Contingency for on-prem deployments (GPU edge devices where required).
+  keyMetrics:
+    - >-
+      Model performance by defect class: recall ≥ 95% and precision ≥ 92% for
+      critical defects (open seam, grommet misplacement >2 mm, print offset >3
+      mm); FP rate < 5%.
+    - >-
+      Dimension accuracy: ±2–3 mm on items ≤1.2 m single-frame; ±5 mm
+      multi-frame stitched; verified via golden samples.
+    - >-
+      Throughput: decision time ≤ 5 seconds per photo; operator capable of
+      120–180 inspected units/hour for small bags with 3–4 photos/unit.
+    - >-
+      Quality outcomes: reduce customer-return-related defects by 25–40% within
+      90 days; increase FPY by 8–15%; reduce rework hours by 20–30%.
+    - >-
+      Adoption: ≥ 70% of shifts using guided app on participating lines; ≥ 80%
+      of required photos captured per SKU checklist.
+    - >-
+      AQL compliance: 100% digital reports attached to lots; reduce report
+      preparation time from 30–60 minutes to <5 minutes.
+    - >-
+      Business: pilot-to-annual conversion ≥ 70%; logo churn < 8% annually;
+      LTV/CAC ≥ 3.0; gross margin ≥ 75%.
+    - >-
+      Time-to-value: deploy in < 48 hours; first accepted lot with digital
+      report within 7 days of kickoff.
+storyBrand:
+  character: >-
+    QC supervisors and production managers at textile bag and canvas mills who
+    must ship flawless seams, grommets, prints, and dimensions on time and on
+    margin.
+  problem: >-
+    External: Manual checks miss seam skips, mis-set grommets, off-register
+    prints, and out-of-tolerance sizes; reporting is slow and inconsistent.
+    Internal: Pressure from tight deadlines and brand audits with variable
+    inspector skill by shift. Philosophical: Quality shouldn’t depend on one
+    pair of eyes or a clipboard.
+  guide: >-
+    We understand factory-floor realities—lint, humidity, moving lines, and
+    tight margins. Our purpose-built computer vision for textile bags and canvas
+    flags defects and compiles audit-ready QC reports, giving you consistent,
+    traceable quality data.
+  plan: >-
+    1) Snap: Use any smartphone to capture seams, grommets, prints, and
+    tape-measured dimensions. 2) Check: AI flags defects by type/severity and
+    tolerance, with fix suggestions. 3) Report: One-tap lot/PO QC report; export
+    to PDF/CSV/ERP. Start with a 2-week pilot on one line—no hardware required.
+  callToAction: >-
+    Direct: Book a 30-minute pilot setup. Transitional: Download a sample QC
+    report and defect checklist.
+  success: >-
+    Faster, consistent inspections across shifts; fewer defects shipped; reduced
+    rework and chargebacks; audit-ready traceability; higher throughput and
+    stronger customer trust.
+  failure: >-
+    Ongoing subjective checks, late-found defects, costly rework, missed ship
+    dates, failed audits, lost contracts, and eroded brand reputation.
+landingPage:
+  hero:
+    title: AI Visual QC for Textile Bags and Canvas
+    subtitle: >-
+      Analyze smartphone photos of seams, grommets, prints, and dimensions to
+      auto‑flag defects and generate QC reports in minutes.
+    ctaText: Start Free Pilot
+    ctaHref: /demo
+  problem:
+    - Manual inspection is slow and inconsistent across lines and shifts.
+    - >-
+      Seam defects, bad grommet placement, print misalignment, and off‑spec
+      sizes slip through.
+    - QC photos and notes are scattered; reports take hours to compile.
+    - Limited traceability makes vendor audits and root‑cause analysis hard.
+    - 'Rework, scrap, and returns erode margins and delay shipments.'
+    - Scaling QC across remote vendors lacks standardization and visibility.
+  solution:
+    - Standardize inspections with guided smartphone photo capture.
+    - >-
+      Instant AI checks for seams, grommets, prints, and dimensions against your
+      specs.
+    - >-
+      Auto‑generate image‑rich, time‑stamped QC reports with pass or fail and
+      reasons.
+    - >-
+      Live dashboards for lines, batches, and vendors to spot trends and prevent
+      defects.
+    - 'Integrate results with ERP or MES; export PDF, CSV, and JSON.'
+    - Works offline and syncs when connected; secure and role‑based access.
+  features:
+    - >-
+      Seam analysis: skipped stitches, loose threads, puckering, missed
+      backstitch.
+    - 'Grommet checks: count, spacing, placement, and deformation detection.'
+    - >-
+      Print QC: alignment, registration, smearing, missing areas; optional OCR
+      for text.
+    - >-
+      Dimensional verification via fiducials or reference rulers with SKU‑level
+      tolerances.
+    - 'Spec‑driven checklists by SKU, PO, and customer standards.'
+    - Real‑time pass or fail with confidence scores and suggested actions.
+    - 'Photo guidance overlays for angle, distance, and lighting consistency.'
+    - 'Barcode or QR scan to link photos to orders, lots, and operators.'
+    - 'Reports with images, annotations, signatures, and full audit trail.'
+    - 'APIs and webhooks; connects to SAP, NetSuite, Odoo, and custom systems.'
+    - 'Enterprise security: SSO, RBAC, encryption, regional data residency.'
+    - Continuous model tuning on your fabrics and SKUs; multilingual UI.
+  steps:
+    - 'Set up SKUs, tolerances, and QC checklists.'
+    - Scan the order and capture guided photos on any smartphone.
+    - AI analyzes and flags defects instantly with pass or fail.
+    - 'Supervisor reviews, annotates, and approves or rejects.'
+    - One tap to send the QC report to customers and ERP.
+    - Track KPIs and trends to prevent repeat defects.
+---
+# StitchScope QC
+
+Industry: Textile Bag and Canvas Mills
+Service: Photo-based Visual Quality Inspection

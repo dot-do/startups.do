@@ -1,0 +1,337 @@
+---
+name: EffluentIQ Compliance Monitor
+slug: effluentiq
+service:
+  title: Regulatory Discharge Compliance Monitor & Auto-DMR Draft
+  description: >-
+    Continuously checks effluent data against permit limits, flags potential
+    exceedances, and drafts Discharge Monitoring Reports (DMR) for review and
+    submission.
+  targetUsers:
+    - Plant managers
+    - Compliance officers
+    - Lab supervisors
+  triggers:
+    - Hourly data ingest
+    - New lab result posted
+    - End-of-month report cycle
+  inputs:
+    - NPDES permit limits and sampling plan
+    - 'SCADA/historian time series (flow, pH, DO, BOD/TSS/NH3/TP surrogates)'
+    - LIMS lab results with QC flags
+    - Outfall IDs and schedules
+    - Holiday/observed schedule
+  steps:
+    - Ingest and validate historian and LIMS data; align timestamps and units
+    - Compute daily/weekly/monthly averages and loadings per permit method
+    - Compare to limits; flag excursions and missing samples
+    - 'Generate DMR draft (XML/PDF) with plots, calculations, and data lineage'
+    - Route for review/approval; log sign-offs; package NetDMR submission files
+    - Notify on anomalies and upcoming sampling obligations
+  tools:
+    - 'Historian API (e.g., PI Web API/InfluxDB)'
+    - LIMS API
+    - EPA NetDMR (XML/portal)
+    - PDF/Excel generator
+    - Teams/Slack notifications
+  outputs:
+    - Daily compliance dashboard
+    - Exception/violation alerts with root-cause hints
+    - Monthly DMR draft (XML/PDF)
+    - Audit trail and data export package
+  pricingModel:
+    - One-time setup and permit onboarding
+    - Monthly subscription per facility
+    - Optional per-submission support fee
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 9
+    overall: 9
+  risks:
+    - Data quality/clock skew causing false flags
+    - Regulatory acceptance of auto-generated drafts
+    - Access/IT security constraints
+    - Liability if misinterpretation occurs
+  dependencies:
+    - Read-only access to historian and LIMS
+    - Permit documents and sampling plan
+    - User accounts for NetDMR or submission workflow
+    - IT-approved secure connection
+leanCanvas:
+  problem:
+    - >-
+      Manual DMR preparation is error-prone and time-consuming (typically 6–20
+      staff hours/month/facility), leading to late or incorrect submissions.
+    - >-
+      Data lives in silos (SCADA, LIMS, handheld logs, lab PDFs), making it hard
+      to compute rolling averages, seasonal limits, and permit-specific
+      calculations correctly.
+    - >-
+      Facilities often discover exceedances after the fact; there’s limited
+      real-time visibility into approaching daily, weekly, or monthly limits.
+    - >-
+      Complex regulatory rules (state-specific eDMR formats, TRC/chronic
+      exceedance logic, MDL/qualifier handling, rounding/significant figures per
+      40 CFR 136) are difficult to operationalize consistently.
+    - >-
+      Audit and traceability gaps (who edited what, when; whether results are
+      validated) increase risk during inspections and enforcement actions.
+    - >-
+      Integrations with NetDMR/eDMR portals are manual and repetitive, diverting
+      skilled staff away from process optimization.
+    - >-
+      Non-compliance carries substantial penalties (civil penalties per day per
+      violation), increased scrutiny, reputational harm, and higher insurance
+      costs.
+  solution:
+    - >-
+      Permit-aware monitoring: AI parses permits (PDF/Word) to extract
+      parameters, units, sample frequencies, averaging periods, seasonal limits,
+      qualifiers, and reporting rules.
+    - >-
+      Continuous limit checking: Ingests SCADA and lab data to compute
+      daily/weekly/monthly averages, max/min, loading (lbs/day), seasonal rules,
+      and automatically handles <MDL and qualifiers per permit rules.
+    - >-
+      Predictive alerts: Forecasts end-of-period averages based on current
+      trends and upcoming samples; notifies operators of required corrective
+      actions to avoid exceedances.
+    - >-
+      Auto-DMR drafting: Generates NetDMR/eDMR-ready drafts (XML/CSV where
+      supported, or pre-populated forms), including rationale notes and full
+      audit history for reviewer approval.
+    - >-
+      Data validation & QA/QC: Flags outliers, missing samples, unit mismatches,
+      and calculation anomalies; enforces rounding/significant figures and
+      detection-limit substitutions per permit.
+    - >-
+      Workflow & audit trail: Multi-step review/approval, electronic signatures,
+      role-based access, and immutable logs for inspections.
+    - >-
+      Integrations: Connectors to SCADA (OPC UA, MQTT, Modbus via gateway),
+      historians (PI, Ignition), LIMS (REST/CSV/SFTP), and lab PDFs via OCR with
+      human-in-the-loop review.
+    - >-
+      Reporting & evidence: Monthly compliance packets (chain-of-custody, lab
+      reports, calibrations, benchsheets) bundled for inspections and
+      record-keeping.
+  uniqueValueProp: >-
+    No-surprise compliance. EffluentIQ continuously interprets your permit,
+    monitors plant data in real time, flags potential exceedances before they
+    occur, and drafts audit-ready DMRs for review and submission—reducing
+    violations and freeing staff time.
+  unfairAdvantage: >-
+    A continuously updated, permit-aware rules engine and parser trained on
+    thousands of real permits and DMRs, combined with a growing library of
+    validated integrations to common SCADA/LIMS systems and audited calculation
+    logic—all wrapped in an inspection-ready audit trail. Early relationships
+    with integrators and consultants shorten deployment and RFP cycles.
+  customerSegments:
+    - >-
+      Primary: Municipal wastewater treatment plants (POTWs) with 0.5–50 MGD
+      design capacity; compliance managers, lab supervisors, and plant
+      operators.
+    - >-
+      Secondary: Contract operators managing multiple small plants
+      (regional/rural operators).
+    - >-
+      Adjacent (expansion): Industrial direct dischargers (food & bev, pulp &
+      paper, chemicals), campuses, and utilities with reclaimed water permits.
+    - >-
+      Influencers/Channels: Engineering consultants (AECOM, HDR, Jacobs,
+      Arcadis, Carollo), state Rural Water Associations, WEF/AWWA chapters, lab
+      service providers, SCADA/LIMS integrators.
+  channels:
+    - >-
+      Direct sales to utilities via targeted outreach to compliance managers and
+      plant superintendents (focus on plants >1 MGD).
+    - >-
+      Partnerships with engineering consultants to include EffluentIQ in O&M
+      scopes and digital twin projects.
+    - >-
+      Alliances with SCADA/LIMS system integrators (Inductive Automation
+      partners, PI system integrators) offering co-implementation bundles.
+    - >-
+      Sponsorships and workshops at WEFTEC, AWWA, and state Rural Water
+      Association conferences; webinars with case studies.
+    - >-
+      Content-led demand gen: “DMR accuracy checklist,” “TRC calculator,” and
+      “Permit parsing demo” as lead magnets.
+    - >-
+      90-day paid pilots tied to measurable KPIs (time saved, avoided
+      exceedances), with option to roll into annual subscription.
+    - >-
+      Public procurement/RFP monitoring with quick-turn compliance narratives
+      and references.
+  revenueStreams:
+    - >-
+      Annual SaaS subscription per facility, tiered by design capacity/parameter
+      count: Small (<1 MGD): $6,000–$9,000; Medium (1–10 MGD): $12,000–$18,000;
+      Large (>10 MGD): $25,000–$40,000.
+    - >-
+      One-time onboarding/integration fee: $5,000–$20,000 depending on
+      connectors and data cleanup.
+    - >-
+      Add-ons: Advanced forecasting/what-if module (+$3,000–$6,000/yr),
+      eDMR/NetDMR assist and validation pack (+$2,000–$5,000/yr), enterprise
+      SSO/audit exports (+$2,000/yr).
+    - Multi-facility/enterprise discounts (10–25% based on volume).
+    - >-
+      Professional services: historical data backfill, permit change impact
+      analysis, and custom reports ($150–$250/hr).
+  costStructure:
+    - >-
+      R&D: Data engineering, ML forecasting models, permit parser/rules engine
+      maintenance, UI/UX.
+    - >-
+      Cloud infrastructure: Secure data ingestion, storage, compute for
+      streaming/analytics, backups, monitoring (estimated
+      $800–$2,500/facility/year depending on data rates).
+    - >-
+      Integrations and onboarding: SI time, connector maintenance, data mapping,
+      QA.
+    - >-
+      Customer success & support: Training, helpdesk, compliance updates,
+      quarterly reviews.
+    - >-
+      Sales & marketing: Field sales, conference booths, content production,
+      partner enablement.
+    - >-
+      Security & compliance: SOC 2 audits, pen tests, logging, incident
+      response.
+    - >-
+      Legal & regulatory: Contracting, data protection, state-specific eDMR
+      requirements.
+    - 'Insurance (E&O, cyber), admin, finance.'
+  keyMetrics:
+    - >-
+      Time-to-value: days from kickoff to first permit parsed (<14 days) and to
+      first auto-DMR draft (<30 days).
+    - >-
+      Data coverage: % of parameters automated (target >95%) and % of data
+      flowing from source systems (>98% uptime).
+    - >-
+      Alert performance: mean time to alert (<15 minutes from data arrival),
+      precision/recall of exceedance alerts (>95% each over rolling 90 days).
+    - >-
+      Compliance outcomes: % reduction in late/incorrect DMRs (>90% reduction),
+      % reduction in SNC events year-over-year, number of exceedances prevented
+      (leading indicator).
+    - >-
+      Efficiency gains: staff hours saved per month (target 8–16
+      hours/facility), auto-filled fields per DMR (>90%).
+    - >-
+      Sales metrics: pilot conversion rate (>60%), average sales cycle (<=120
+      days), ACV, ARR growth, CAC payback (<12 months).
+    - 'Retention & expansion: logo churn (<5%), net revenue retention (>115%).'
+storyBrand:
+  character: >-
+    Operations and compliance leaders at sewage treatment facilities who must
+    meet NPDES permit limits and file accurate, on‑time DMRs.
+  problem: >-
+    Permits are complex and evolving; data lives in SCADA/LIMS/spreadsheets;
+    manual checks and DMR prep are slow and error‑prone—risking violations,
+    fines, and audit headaches.
+  guide: >-
+    We understand the pressure of NPDES compliance. Our AI, built with
+    environmental compliance expertise and transparent audit trails, turns plant
+    data into defensible, draft‑ready DMRs.
+  plan: >-
+    1) Connect: ingest SCADA/LIMS/spreadsheets; import permit limits and
+    averaging rules. 2) Monitor: continuously check effluent data, flag
+    potential exceedances, surface trends. 3) Draft: auto‑generate DMRs with
+    correct calculations, qualifiers, and explanations for review. 4) Approve &
+    export: route approvals, export/submit NetDMR‑ready files, archive with full
+    audit logs.
+  callToAction: >-
+    Schedule a 30‑minute demo or start a low‑risk pilot on one outfall this
+    month.
+  success: >-
+    Real‑time visibility, fewer surprises, faster reporting, clean audits, lower
+    risk, and more time for operations improvement.
+  failure: >-
+    Missed exceedances, late or incorrect DMRs, penalties and consent decrees,
+    audit findings, and damaged public trust.
+landingPage:
+  hero:
+    title: Regulatory Discharge Compliance Monitor & Auto‑DMR Draft
+    subtitle: >-
+      Continuous permit‑aware monitoring, proactive exceedance alerts, and
+      ready‑to‑submit DMR drafts for wastewater treatment plants.
+    ctaText: Request a demo
+    ctaHref: '#demo'
+  problem:
+    - >-
+      DMR prep consumes hours each month; spreadsheets and cross‑checks are
+      brittle.
+    - >-
+      Permit limits, averaging periods, and qualifiers are complex—and change
+      mid‑cycle.
+    - 'Data lives in SCADA, LIMS, lab PDFs, and field notebooks.'
+    - >-
+      Exceedances are discovered after the reporting period—too late to prevent
+      violations.
+    - 'Rounding, MDL/LOQ handling, and unit conversions cause costly errors.'
+    - Missed samples and invalid data create gaps and rework.
+    - Audits and NOVs require documentation your team has to chase down.
+  solution:
+    - Real‑time monitoring of effluent data against NPDES permit limits.
+    - >-
+      Permit‑aware rule engine for outfalls, parameters, frequencies, and
+      averaging (daily max, monthly average, geometric mean).
+    - >-
+      Immediate alerts for potential exceedances, missed samples, and data
+      quality issues.
+    - >-
+      Automatic DMR draft with pre‑populated values, qualifiers, and
+      comments—ready for review.
+    - One‑click export to NetDMR/eDMR and state portals via CSV/XML templates.
+    - >-
+      Built‑in evidence package: source data lineage, calculations, attachments,
+      and audit trail.
+    - >-
+      Team workflow with reviewer/approver roles and electronic sign‑off (no
+      auto‑submission without approval).
+  features:
+    - >-
+      Permit parser: upload your permit; we map limits, monitoring locations,
+      and schedules.
+    - 'Integrations: SCADA/data historian, LIMS, lab EDDs, CSV/manual entry.'
+    - >-
+      Calculation engine: daily max/min, monthly average, geometric mean,
+      flow‑weighted averages, and loadings (lbs/day).
+    - 'LOQ/MDL handling: J/U flags, substitution rules, and precision per permit.'
+    - >-
+      Automated rounding and unit conversion aligned with 40 CFR guidance and
+      permit conditions.
+    - >-
+      Smart alerts: threshold forecasts, trend anomalies, and wet‑weather
+      context.
+    - 'Compliance calendar: sampling schedules, hold points, and reminders.'
+    - >-
+      Auto‑validate: cross‑footing, completeness checks, reason codes, and a
+      reusable comment library.
+    - >-
+      Evidence bundle: lab reports, chain‑of‑custody, data lineage, and change
+      history in one place.
+    - >-
+      Security & governance: SSO (SAML/Okta), RBAC, audit logs, encryption in
+      transit and at rest.
+    - 'Deployment options: secure cloud or private VPC.'
+    - >-
+      Human‑in‑the‑loop control: drafts only; your team approves before
+      export/submission.
+  steps:
+    - 'Connect data sources (SCADA/historian, LIMS, lab EDDs, manual forms).'
+    - 'Upload permit; confirm outfalls, parameters, and limits.'
+    - Set alert thresholds and notification routes.
+    - System monitors in real time; flags issues before they become violations.
+    - Review Auto‑DMR draft with evidence; add comments as needed.
+    - Approve and export to NetDMR/eDMR; retain a signed audit trail.
+    - Track submissions and KPIs on the compliance dashboard.
+---
+# EffluentIQ Compliance Monitor
+
+Industry: Sewage Treatment Facilities
+Service: Regulatory Discharge Compliance Monitor & Auto-DMR Draft

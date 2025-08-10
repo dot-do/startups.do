@@ -1,0 +1,345 @@
+---
+name: FlowCast MPS for Plastics Plumbing
+slug: flowcast2
+naics:
+  primary: '326191'
+  occupations: []
+service:
+  title: SKU Demand Forecasting + Production Planning
+  description: >-
+    Forecast SKU demand and generate a constrained weekly master production
+    schedule for injection/thermoforming lines.
+  targetUsers:
+    - Operations Manager
+    - Supply Chain Planner
+    - Plant Manager
+  triggers:
+    - 'Weekly (e.g., Mondays 08:00 local)'
+    - On new large order entered in ERP
+    - On promo/event calendar update
+  inputs:
+    - Historical shipments by SKU/customer
+    - Open orders/backlog
+    - Promotions/seasonality
+    - Inventory on hand/WIP
+    - Capacity by line/mold
+    - Changeover times
+    - Supplier lead times/MOQs
+  steps:
+    - Ingest ERP exports/APIs and clean data
+    - 'Segment SKUs (intermittent, seasonal, fast movers)'
+    - 'Forecast by SKU (ensemble: Prophet/XGBoost/sktime)'
+    - Optimize MPS with capacity/changeover constraints (OR-Tools)
+    - Simulate service level and inventory impact
+    - Publish schedule and exception list to ERP/Sheets
+    - Alert on constraints violations
+  tools:
+    - 'Python (pandas, scikit-learn, Prophet, XGBoost)'
+    - sktime
+    - Google Sheets API or Excel Online
+    - OR-Tools/Pyomo
+    - Power BI/Looker Studio
+    - 'ERP connectors (SAP OData/REST, Oracle NetSuite, Epicor)'
+  outputs:
+    - 12–26 week forecast per SKU
+    - Weekly MPS by line/mold
+    - Changeover plan and capacity utilization
+    - Exception/shortage report (CSV/Sheet)
+  pricingModel:
+    - One-time setup + monthly subscription
+    - Tiered by SKU count/site
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 4.5
+    overall: 4.6
+  risks:
+    - 'Data quality (SKU supersessions, returns)'
+    - Forecast error during new product launches
+    - Change management in production
+  dependencies:
+    - Read access to ERP/MES data
+    - Calendar of promos/holidays
+    - Agreed capacity and changeover parameters
+leanCanvas:
+  problem:
+    - >-
+      SKU-level demand is volatile and tied to housing/renovation cycles,
+      promotions, and retailer resets; most plants forecast with spreadsheets
+      and simple moving averages, causing 10–25% forecast bias and stockouts on
+      A SKUs.
+    - >-
+      Changeovers (especially color/material) consume 10–20% of available
+      machine time; schedules are often built manually, not optimized for
+      mold/cavity constraints, leading to poor schedule attainment (<70%).
+    - >-
+      Machine, mold, and labor constraints aren’t jointly modeled; planners can
+      meet demand in the plan but miss real-world feasibility, driving expedite
+      freight and overtime.
+    - >-
+      Retailer and distributor service-level penalties (OTIF/On-Time to Request)
+      erode margins; lack of DC-level demand visibility misallocates inventory.
+    - >-
+      Long-tail SKUs either overproduce (excess inventory/obsolescence) or
+      underproduce (backorders), because ABC segmentation isn’t linked to
+      planning policies (MOQ, min-run, safety stock).
+    - >-
+      ERP/MES data is siloed; POS/EDI signals and external indicators (housing
+      starts, permits, weather) are not used in forecasting.
+    - >-
+      Thermoforming/injection operations need campaign planning (e.g.,
+      light-to-dark color sequences) to cut purge/scrap; planners lack tools to
+      enforce optimal sequences.
+    - >-
+      Maintenance windows and mold PM aren’t integrated into the MPS, causing
+      unplanned downtime and missed schedules.
+  solution:
+    - >-
+      AI demand forecasting: hierarchical SKU x customer/region weekly forecasts
+      using orders, POS/EDI, promotions, external indicators (housing starts,
+      permits, weather), with bias control and ABC policy tuning.
+    - >-
+      Constraint-based master production scheduling (MPS): MILP/CP-SAT optimizer
+      models machines, molds/cavities, cycle times, crew/labor, setup and
+      color-sequencing, maintenance windows, MOQs/min-run/lot sizes, and
+      material availability to produce a feasible weekly schedule by line/shift.
+    - >-
+      Color campaign planning: light-to-dark sequencing and family batching to
+      minimize purges, resin loss, and setup time.
+    - >-
+      Service-level aware planning: balances OTIF targets and cost-to-serve,
+      with DC-level allocation and prioritization rules for retail/commercial
+      channels.
+    - >-
+      Scenario planning: what-if simulations for promotions, price changes,
+      capacity outages, or resin constraints; compare KPI deltas before
+      committing the MPS.
+    - >-
+      Closed-loop execution: ERP/MES connectors to publish planned orders, track
+      schedule adherence, and auto-retrain forecasts with latest signals.
+    - >-
+      Rapid deployment: 8–12 week implementation, data agents for on-prem
+      ERP/MES, SOC 2-ready security, and planner-friendly UI with explainable
+      forecasts and plan rationales.
+  uniqueValueProp: >-
+    Improve service and throughput while cutting changeovers: SKU-level demand
+    forecasts + constraint-based weekly MPS tailored to injection/thermoforming.
+    Target outcomes in 90 days: +3–5 OEE points, +5–10 pts schedule attainment
+    (to 85–95%), -15–25% changeover hours, -20–30% expedite freight, +2–4 pts
+    fill rate, -10–20% finished goods inventory on A/B SKUs.
+  unfairAdvantage: >-
+    A constraint and color-campaign optimizer purpose-built for plastics
+    plumbing (mold/cavity, purge costs, retailer calendars) with pre-built
+    ERP/MES/EDI connectors and external housing indicators, enabling sub-12-week
+    deployments and measurable KPI guarantees; growing benchmark dataset for
+    326191 strengthens models over time.
+  customerSegments:
+    - >-
+      Primary: Mid-market to large Plastics Plumbing Fixture manufacturers
+      (NAICS 326191), $50M–$2B revenue, 1–10 plants, 20–150
+      injection/thermoforming lines.
+    - >-
+      Roles: VP Operations, Director of Supply Chain, Master Scheduler/Planner,
+      Plant Manager, S&OP Lead, IT/ERP Manager.
+    - >-
+      Early adopters: Manufacturers supplying big-box retailers (Home Depot,
+      Lowe’s, Menards) and large wholesalers (Ferguson, Winsupply) with strict
+      OTIF targets; multi-plant networks with frequent transfers; firms with
+      color-intensive portfolios (toilet seats, tubs/showers).
+  channels:
+    - >-
+      Direct sales to VP Ops/Supply Chain and Plant Managers via targeted ABM on
+      LinkedIn and email; ICP: 100–1,000 SKUs per plant, 10–30% changeover time,
+      OTIF penalties.
+    - >-
+      Industry events and associations: NPE (plastics), KBIS/IBS (kitchen &
+      bath), ASPE, PMI (Plumbing Manufacturers International), Plastics Industry
+      Association webinars.
+    - >-
+      ERP/MES VAR and SI partnerships: Epicor, Infor, Plex partners;
+      revenue-share referral model and co-selling bundles.
+    - >-
+      Cloud marketplaces: AWS/Azure Marketplace private offers for
+      procurement-friendly buying.
+    - >-
+      Thought leadership: case studies, calculators (e.g., changeover cost ROI),
+      webinars on color-campaign planning and DC allocation for big-box.
+    - >-
+      Pilot-led motion: 12-week paid pilots in one plant, milestone-based with
+      clear KPI targets; land-and-expand playbook to additional plants/lines.
+    - >-
+      Customer referral program: incentive credits for successful introductions
+      within supplier networks and industry groups.
+  revenueStreams:
+    - >-
+      Annual SaaS subscription per plant: $50k (up to 10 lines), $90k (11–30
+      lines), custom enterprise for >30 lines or multi-plant.
+    - >-
+      Platform fee: $25k/year per enterprise for SSO, S&OP scenario packs, and
+      governance.
+    - >-
+      Implementation/onboarding: $40k–$120k per plant depending on ERP/MES
+      integration complexity and data quality remediation.
+    - >-
+      Premium support & model monitoring: 15% of subscription for 24/7,
+      quarterly model recalibration workshops.
+    - >-
+      Data add-ons: external indicators pack (housing/permits/weather) $8k/year
+      per enterprise.
+    - >-
+      Performance bonus (optional): shared savings against baseline for reduce
+      expedites/scrap or improved service (e.g., 10% of verified year-1 savings,
+      capped at subscription).
+  costStructure:
+    - >-
+      R&D and product (data science, optimization, backend, UI): 8–12 FTEs;
+      $1.6M–$2.4M/year.
+    - >-
+      Cloud infrastructure (per active plant): $400–$1,200/month for
+      compute/storage; solver licensing (Gurobi/CPLEX) $25k–$60k/year pooled.
+    - 'Data costs: external indicators and data enrichment $10k–$30k/year.'
+    - >-
+      Implementation & CS: 1 FTE per 6–8 concurrent plants; travel/training
+      budget $3k per plant go-live.
+    - >-
+      Security/compliance: SOC 2 Type II $25k–$60k/year plus pen tests
+      $15k–$30k/year.
+    - >-
+      Sales & marketing: events, ads, content $150k–$400k/year; partner MDF
+      optional.
+    - >-
+      Gross margin target: 75–80% at scale; CAC payback <12 months on mid-tier
+      subscription.
+  keyMetrics:
+    - >-
+      Customer-side KPIs: weighted MAPE ≤18% for A/B SKUs; forecast bias within
+      ±5%; fill rate ≥96–98%; OTIF penalties reduced ≥30%; schedule attainment
+      ≥90%; changeover hours -15–25%; OEE +3–5 pts; expedite freight -20–30%; FG
+      inventory -10–20% on A/B; resin scrap -1–2 pts.
+    - >-
+      Planning process KPIs: plan generation time <10 minutes; weekly replan
+      adoption ≥95%; planner touches per plan <10; schedule freeze violations
+      <5% of orders.
+    - >-
+      Implementation KPIs: time-to-value ≤12 weeks; data integration defects <2
+      per interface post go-live; user adoption ≥90% of planners within 30 days.
+    - >-
+      Business KPIs (vendor): logo retention ≥95%; NRR ≥115% via plant
+      expansion; pilot conversion ≥60%; average ARR per customer ≥$180k within
+      12 months; win rate ≥25% in qualified deals.
+storyBrand:
+  character: >-
+    Operations, plant, and production planning leaders at plastics plumbing
+    fixture manufacturers (NAICS 326191) who need reliable SKU-level forecasts
+    and a feasible weekly master schedule for injection/thermoforming lines to
+    hit OTIF while minimizing changeovers, overtime, and excess inventory.
+  problem: >-
+    External: Volatile distributor orders, seasonality and promos, long-tail
+    SKUs, resin/color constraints, limited molds and machine tonnage, labor
+    gaps, and maintenance windows make schedules fragile. Internal: Planners
+    live in spreadsheets, firefight shortages, and lack confidence in the plan.
+    Philosophical: Moving water shouldn’t require guesswork—production should
+    run predictably and profitably.
+  guide: >-
+    Empathy: We’ve lived the chaos of tool swaps, resin changeovers, and late
+    distributor pulls. Authority: Purpose-built AI for injection/thermoforming
+    with finite-capacity scheduling, changeover matrices, and campaign logic.
+    Proven integrations (SAP, Infor, Epicor), secure data handling, and
+    measurable improvements across similar discrete manufacturers.
+  plan: >-
+    1) Connect & model: Ingest ERP/MES/CRM data; map SKUs, routings, molds,
+    cavitation, machine/tonnage, resin/colors, changeover times, min lots,
+    maintenance, crews, and storage. 2) Calibrate: Train demand models
+    (seasonality, promotions, lead times) and a finite scheduler to
+    service-level targets; run what-if simulations and validate with planners.
+    3) Operate: Deliver weekly SKU forecasts and a constrained master schedule
+    with planner overrides, alerts, and KPI tracking; continuously tune models
+    as signals change. Risk reduction: 6–8 week pilot, no rip-and-replace, keep
+    planner control, clear ROI checkpoints.
+  callToAction: >-
+    Direct: Book a 30-minute discovery to scope your pilot. Transitional: Get a
+    sample forecast and constrained schedule using your historical data, plus a
+    readiness checklist.
+  success: >-
+    - 20–40% lower forecast error at SKU level. - 15–30% less finished-goods and
+    WIP inventory with maintained or higher service. - 95–99% customer
+    service/OTIF with fewer expedites. - 10–25% fewer changeovers via smart
+    campaigns and color sequencing. - 10–20% less overtime and 20–40% fewer
+    premium freight events. - Higher schedule adherence (85–95%) and more stable
+    crews. - Clear visibility to resin/tool constraints and proactive capacity
+    planning.
+  failure: >-
+    Without this, planners keep firefighting: stockouts and late orders, costly
+    expediting, whiplash schedules, idle machines next to bottlenecks, bloated
+    inventory that still misses demand, frustrated distributors, and margin
+    erosion that invites competitors into key accounts.
+landingPage:
+  hero:
+    title: >-
+      SKU Demand Forecasting + Production Planning for Plastics Plumbing
+      Fixtures
+    subtitle: >-
+      AI that forecasts demand and builds a constrained weekly master production
+      schedule for injection and thermoforming lines—hit OTIF with fewer
+      changeovers and lower inventory.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - Volatile SKU-level demand makes manual forecasting unreliable.
+    - Changeovers (color/resin/mold) consume capacity and create scrap.
+    - Spreadsheets and tribal scheduling cause stockouts and overtime.
+    - >-
+      Press tonnage–mold compatibility and cavitation constraints are hard to
+      juggle.
+    - Thermoforming bottlenecks at forming/trim stations derail plans.
+    - Tooling calendars and maintenance windows disrupt schedules.
+    - Resin availability and lead times force last‑minute expedites.
+    - Missed OTIF and rush fees erode margins.
+  solution:
+    - 'Machine‑learning forecasts at SKU, plant, and customer/DC levels.'
+    - >-
+      Constrained weekly MPS for injection and thermoforming that respects press
+      capacity, tonnage–mold matrix, cavitation, cycle times, and labor shifts.
+    - Auto‑sequencing to minimize color/material purges and mold changeovers.
+    - 'Built‑in tooling calendars, maintenance, and mold‑sharing constraints.'
+    - >-
+      Material planning with resin grades, regrind rules, packaging, and
+      supplier lead times.
+    - 'One‑click what‑if scenarios for rush orders, outages, or new tooling.'
+    - 'ERP/MES integration for orders, inventory, routings, and feedback loops.'
+  features:
+    - Hierarchical forecasting built for intermittent and seasonal demand.
+    - New SKU forecasts via attribute/family analogs.
+    - Service‑level targets (fill rate/OTIF) with safety stock optimization.
+    - >-
+      Capacity models for injection presses and thermoforming lines: tonnage,
+      mold compatibility, cavities, cycle time, scrap.
+    - Family molds and shared tooling scheduling.
+    - Color/material‑aware sequencing to cut purge time and waste.
+    - >-
+      Resin allocation and availability checks, including regrind/blend
+      constraints.
+    - Labor and shift calendars with overtime rules.
+    - Visual weekly Gantt and capacity heatmaps by press/line.
+    - >-
+      Exception alerts for stockouts risk, late orders, and constraint
+      violations.
+    - 'APIs/connectors for SAP, Oracle, Plex, Epicor, DELMIAWorks/IQMS.'
+    - Role‑based approvals and full plan audit trails.
+  steps:
+    - >-
+      Connect ERP/MES data: orders, BOMs, routings, inventory, tooling, and
+      calendars.
+    - Load press/line specs and mold–press compatibility matrix.
+    - Auto‑generate baseline SKU forecasts; planners review and adjust.
+    - >-
+      Create the first constrained weekly MPS; auto‑sequence
+      injection/thermoforming runs.
+    - Run scenarios and choose the plan that meets service and capacity goals.
+    - Publish to ERP/MES; release work orders and buy signals.
+    - Track actuals vs plan; the model learns and continuously improves.
+---
+# FlowCast MPS for Plastics Plumbing
+
+Generated for NAICS 326191 — Plastics Plumbing Fixture Manufacturing.
+Service: SKU Demand Forecasting + Production Planning

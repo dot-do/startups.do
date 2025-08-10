@@ -1,0 +1,346 @@
+---
+name: OMO Liquidity Forecast & Recommendation Agent (NAICS 521110)
+slug: omoliquidity
+naics:
+  primary: '521110'
+  occupations: []
+service:
+  title: OMO Liquidity Forecast and Recommendation Agent
+  description: >-
+    Daily net liquidity forecast and suggested open market operation sizing
+    based on flows and seasonality.
+  targetUsers:
+    - Market Operations
+    - Treasury
+    - Payment Systems
+  triggers:
+    - Daily T+1/T+5 forecast windows
+    - Large government payment events
+    - Tax deadlines or auctions
+  inputs:
+    - Government cash balance and schedules
+    - Maturing repos/bills
+    - Currency in circulation trends
+    - RTGS throughput and queue metrics
+    - Bank reserve requirements
+  steps:
+    - Ingest and reconcile flows; detect late files
+    - Model intra-/inter-day liquidity using state-space/Kalman
+    - 'Incorporate calendar effects (taxes, auctions, holidays)'
+    - Produce forecast with confidence bands
+    - Compute recommended injection/absorption and instruments mix
+    - Notify operations; log deviations next day for learning
+  tools:
+    - 'Python (statsmodels, pykalman)'
+    - SQL/warehouse connectors
+    - Calendars API
+    - Grafana dashboards
+    - Secure messaging (email/Teams/Slack)
+  outputs:
+    - T+1 to T+5 liquidity forecast
+    - Recommended OMO size/instruments
+    - Assumption log and variance analysis
+  pricingModel:
+    - Monthly subscription
+    - Optional per-recommendation review by human expert
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 7
+    modelCapability: 7
+    overall: 7
+  risks:
+    - Timeliness/accuracy of cash flow inputs
+    - Model misspecification on volatile days
+    - Operational reliance on recommendations
+  dependencies:
+    - Secure VPN to treasury/RTGS data
+    - Event calendars
+    - Approval policy for recommendations
+leanCanvas:
+  problem:
+    - >-
+      Daily net liquidity forecasts are often spreadsheet-based, siloed across
+      departments (Market Operations, Treasury, RTGS/Payments), and require
+      manual data stitching, leading to late and less reliable OMO decisions.
+    - >-
+      Seasonality (tax days, salary cycles, holidays, currency in circulation,
+      FX interventions) and irregular government flows are difficult to model
+      consistently, causing larger-than-desired deviations of overnight rates
+      from policy targets.
+    - >-
+      Suboptimal OMO sizing increases volatility in short-term rates, widens
+      auction tails, and raises sterilization costs (tens of basis points over a
+      year for mid-sized markets).
+    - >-
+      Limited explainability and auditability of in-house models hinder model
+      risk governance and continuity amid staff rotation/turnover.
+    - >-
+      Fragmented data pipelines (RTGS, reserve accounts, government cash
+      balance, securities settlement, FX, currency in circulation) increase
+      operational risk and reduce timeliness.
+    - >-
+      No unified what-if and scenario engine to quantify impacts of policy
+      events, tax calendars, or exogenous shocks on liquidity and OMO needs in
+      real time.
+  solution:
+    - >-
+      End-to-end data ingestion from RTGS, reserve accounts, government cash
+      balances, auction/settlement calendars, currency-in-circulation, FX
+      operations, and seasonal macro/payment calendars.
+    - >-
+      Hybrid time-series + structural flow models that decompose net liquidity
+      into predictable seasonality, known events, and stochastic components;
+      confidence intervals on forecasts and recommended OMO sizes.
+    - >-
+      Scenario and stress-testing engine (e.g., large tax day, unscheduled FX
+      intervention, settlement failures) to quantify OMO implications across T+0
+      to T+30.
+    - >-
+      Explainable AI layer with factor attribution (which flows drive forecast),
+      stability diagnostics, and backtesting dashboards with MAPE/MAE by
+      horizon.
+    - >-
+      Actionable recommendations: daily recommended injection/absorption volumes
+      with bands (base case, conservative, aggressive) against reserve target
+      paths and corridor settings.
+    - >-
+      Integration and governance: audit trails, approvals workflow, model
+      versioning, user roles, data lineage, and API integration to OMO
+      auction/operation systems.
+    - >-
+      Deployment choices: on-premises (air-gapped) or sovereign cloud;
+      low-latency updates (≤5 minutes) from RTGS for near-real-time monitoring.
+    - >-
+      Training and change management: capacity-building program; SOPs; model
+      risk documentation aligned to central bank frameworks.
+  uniqueValueProp: >-
+    Explainable, security-hardened daily net liquidity forecasts (T+0 to T+30)
+    and OMO size recommendations, delivered before market open with mid-day
+    updates, reducing overnight-rate deviations by 30–50%, cutting manual prep
+    time by 70–90%, and providing full auditability and model governance
+    suitable for central-bank standards.
+  unfairAdvantage: >-
+    Purpose-built for central banks with regulatory-grade explainability, model
+    governance, and pre-built RTGS/auction connectors; proven reductions in
+    reserve-target deviations and operational workload; on-prem/air-gapped
+    option with sovereign-cloud alternatives; deep domain team and partnerships
+    enabling faster, lower-risk deployments than bespoke consulting or generic
+    analytics tools.
+  customerSegments:
+    - >-
+      Primary: Central banks/monetary authorities with active open market
+      operations (OMO) and a policy rate corridor regime.
+    - >-
+      Primary users: Market Operations/Liquidity Forecasting Units; Monetary
+      Policy Implementation; Government Cash Management liaison teams; Risk &
+      Model Governance; IT/Security teams.
+    - >-
+      Initial focus: Emerging and mid-sized advanced economy central banks
+      (ample OMO frequency, manageable procurement, openness to technical
+      assistance).
+    - >-
+      Secondary: Currency board authorities and monetary agencies managing
+      liquidity even without policy rate corridors.
+  channels:
+    - >-
+      Direct enterprise sales to central banks via RFI/RFP processes; build
+      relationships with Market Operations and IT/Security leads.
+    - >-
+      Partnerships with international organizations and TA programs (IMF, World
+      Bank, regional bodies like SEACEN/CEMLA/MEFMI) for co-funded pilots.
+    - >-
+      Alliances with RTGS/core payments vendors and treasury/auction platforms
+      for pre-built connectors and joint bids.
+    - >-
+      Reference-driven growth: secure 2–3 flagship central banks; publish
+      anonymized case studies and policy notes.
+    - >-
+      Thought leadership: technical working papers, BIS/central bank conference
+      presentations, workshops on liquidity forecasting and OMO sizing.
+    - >-
+      Targeted events: SWIFT/RTGS vendor forums, SEACEN/CEMLA meetings, BIS/CCBS
+      courses; closed-door demos for central bank networks.
+  revenueStreams:
+    - >-
+      Annual institutional license (tiered by market size/complexity): Tier 1
+      (large advanced): $1.2M/year; Tier 2 (mid-sized): $600k/year; Tier 3
+      (small/emerging): $200k/year.
+    - >-
+      One-time implementation/integration fee: Tier 1: $500k; Tier 2: $300k;
+      Tier 3: $100k.
+    - 'Premium support/SLA and 24x7 incident coverage: +15–25% of license.'
+    - 'Training and capacity-building packages: $50k–$150k per cohort.'
+    - >-
+      Custom connectors/feature modules (e.g., sovereign debt office
+      integration, FX module): $50k–$250k per module.
+    - >-
+      On-prem maintenance and upgrade subscription (if separated from license)
+      for air-gapped deployments: $100k–$300k/year.
+  costStructure:
+    - >-
+      Core team salaries: central bank domain economists, data
+      scientists/time-series experts, ML engineers, security engineers,
+      enterprise integration engineers, PMs, compliance.
+    - >-
+      Security/compliance: ISO 27001/SOC 2 audits, VAPT/penetration tests,
+      secure SDLC, data residency controls, cyber insurance.
+    - >-
+      R&D: model development, backtesting infrastructure, stress-testing
+      framework, explainability tooling.
+    - >-
+      Implementation and support: local SI partners, travel for on-site
+      integration and training, 24x7 support coverage.
+    - >-
+      Cloud/infra (for sovereign-cloud clients and sandbox): compute, storage,
+      observability, CI/CD, on-call.
+    - >-
+      Sales/go-to-market: long procurement cycles, RFP response costs, legal,
+      contracting, and bid bonds.
+    - >-
+      Partnership and certification costs with RTGS/auction vendors and
+      government IT bodies.
+  keyMetrics:
+    - >-
+      Model accuracy: 1-day-ahead net liquidity MAPE ≤8–12%; 5-day ≤15–25%;
+      alert false positive rate ≤10% on target-breach alerts.
+    - >-
+      Policy implementation outcomes: 30–50% reduction in absolute deviations of
+      end-of-day reserves from target; 15–30 percentage point improvement in
+      keeping overnight rate within corridor.
+    - >-
+      Operational efficiency: reduce daily analyst prep time from 1–2 hours to
+      <15 minutes; auto-generation of daily brief before 07:30 local time;
+      mid-day refresh by 12:00.
+    - >-
+      Recommendation quality: reduce auction tail widths by 10–25%; cut
+      under/over-supplied OMO events by 25–40%.
+    - >-
+      Reliability: 99.9% uptime; data latency from RTGS feed ≤5 minutes;
+      successful daily run rate ≥99%.
+    - >-
+      Adoption: ≥80% of operations days use recommendations; ≥10 active users
+      per institution; training completion rate ≥90%.
+    - >-
+      Commercial: pilot-to-production conversion ≥60%; renewal rate ≥95%;
+      average sales cycle ≤9–12 months; gross margin ≥65% post year 2.
+storyBrand:
+  character: >-
+    Monetary authorities—central bank liquidity and market-operations teams
+    (NAICS 521110) who must keep rates within the policy corridor and want
+    precise daily net-liquidity forecasts with actionable OMO sizing.
+  problem: >-
+    External: Fragmented/lagged flow data, seasonality, and unpredictable
+    treasury/FX/settlement/currency-in-circulation shifts obscure net liquidity.
+    Internal: Morning time pressure and reputational risk from mis-sized OMOs.
+    Philosophical: The public deserves a stable system—policy tools should be
+    precise, transparent, and defensible.
+  guide: >-
+    We understand the stakes of corridor control and sterilization costs. Our
+    explainable, central-bank-grade models nowcast autonomous factors on
+    multi-year data; deployments are secure (on‑prem or sovereign cloud) with
+    audit trails, governance, and scenario analysis.
+  plan: >-
+    1) Connect: secure feeds for RTGS, treasury cash/tax calendars, government
+    securities flows, FX, currency in circulation, reserve requirements. 2)
+    Calibrate: backtest, validate, and set thresholds. 3) Operate: deliver each
+    morning a net-liquidity forecast and recommended OMO size/tenor with
+    rationale, scenarios, and override workflow. Optional: 90‑day pilot, SLA,
+    and training.
+  callToAction: >-
+    Direct: Schedule a scoping session to launch a 90‑day pilot. Transitional:
+    Request the methodology brief and sample dashboard.
+  success: >-
+    Tighter control of overnight rates, fewer re-openings, lower liquidity
+    volatility and sterilization cost, smoother tax/holiday periods, faster
+    decision cycles, and audit-ready documentation for every OMO.
+  failure: >-
+    Without this, desks risk rate spikes or slippage from target, costly
+    over/under‑sterilization, rushed morning firefighting around large flows,
+    opaque rationales, and reputational damage.
+landingPage:
+  hero:
+    title: OMO Liquidity Forecast & Sizing Agent
+    subtitle: >-
+      Daily net liquidity forecasts with actionable OMO sizing—built for central
+      banks.
+    ctaText: Request a demo
+    ctaHref: '#request-demo'
+  problem:
+    - >-
+      OMO operations often over- or under-shoot, driving short-term rate
+      volatility.
+    - Manual spreadsheets and delayed data slow decisions.
+    - >-
+      Seasonal tax, coupon, FX, and cash cycles are hard to anticipate
+      consistently.
+    - >-
+      Fragmented feeds from RTGS, TSA, FX, and market systems create blind
+      spots.
+    - Lack of explainability and audit trails raises governance risk.
+  solution:
+    - AI-driven 1–14 day net liquidity forecasts with confidence bands.
+    - >-
+      Daily recommended injection/absorption and instrument mix to stay within
+      the policy corridor.
+    - 'Intraday refresh with new RTGS, settlement, and market data.'
+    - >-
+      Driver attribution for seasonality, government cash flows, redemptions, FX
+      ops, and currency in circulation.
+    - 'Human-in-the-loop approvals, scenario analysis, and full auditability.'
+  features:
+    - 'Forecast horizon: 1–14 days, intraday updates as new flows land.'
+    - >-
+      OMO sizing: injection/absorption amount, tenor, and mix (repo, reverse
+      repo, term, outright).
+    - >-
+      Corridor impact projection: expected O/N rate distribution vs target
+      corridor.
+    - >-
+      Driver attribution: TSA balance, tax days, coupons/redemptions, FX
+      auctions, payroll, holidays.
+    - >-
+      Scenario builder: adjust issuance calendars, FX operations, reserve
+      requirements, and liquidity buffers.
+    - >-
+      Confidence bands and risk flags: highlight uncertainty and edge-case
+      outcomes.
+    - 'Anomaly detection: unusual RTGS patterns and off-cycle flows.'
+    - >-
+      Integrations: RTGS, government securities settlement, primary dealer
+      auctions, FX platforms, data warehouse, core banking.
+    - >-
+      Governance: versioned models, approvals, and full audit trail for policy
+      committees.
+    - >-
+      Security: on‑prem or sovereign cloud, encryption at rest/in transit, RBAC,
+      air‑gapped option, no PII.
+    - >-
+      Localization: holiday/weekend calendars, multi-currency, custom market
+      hours.
+    - >-
+      Time-to-value: typical pilot in 4–6 weeks with backtesting and
+      calibration.
+  steps:
+    - >-
+      Connect data feeds (RTGS, TSA/government cash, securities settlement, FX,
+      auctions, calendar).
+    - >-
+      Backfill and calibrate with 2–3 years of history; deliver backtest and
+      accuracy report.
+    - >-
+      Daily cycle: generate net liquidity forecast and confidence bands for 1–14
+      days.
+    - >-
+      Receive OMO recommendation: size, tenor, instrument mix, and corridor
+      impact.
+    - >-
+      Review and approve; execute; agent monitors outcomes and updates intraday
+      as flows change.
+    - >-
+      Post-trade: reconcile, attribute drivers, and learn from deviations for
+      continuous improvement.
+---
+# OMO Liquidity Forecast & Recommendation Agent (NAICS 521110)
+
+Generated for NAICS 521110 — Monetary Authorities-Central Bank.
+Service: OMO Liquidity Forecast and Recommendation Agent

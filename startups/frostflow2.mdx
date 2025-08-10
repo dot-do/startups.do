@@ -1,0 +1,350 @@
+---
+name: FrostFlow AI
+slug: frostflow2
+naics:
+  primary: '312113'
+  occupations: []
+service:
+  title: Weather- and Order-Driven Production & Shift Plan Optimizer
+  description: >-
+    Forecast demand using weather/events and optimize daily production and labor
+    shifts with material requirements.
+  targetUsers:
+    - Operations Manager
+    - Plant Manager
+    - Schedulers
+  triggers:
+    - 'Daily at 14:00 local'
+    - New large order (>X pallets)
+    - Weather forecast update
+    - Holiday/event calendar update
+  inputs:
+    - 2+ years order history (CSV/API)
+    - Current open orders (ERP export)
+    - Production capacity by line
+    - Labor roster/skills
+    - Maintenance calendar
+    - Local weather forecast (7–14 days)
+    - Holidays/events
+  steps:
+    - Ingest historical sales and clean anomalies
+    - 'Feature-engineer weather, weekday, events; train short-term forecast'
+    - Estimate melt/returns; translate demand to production by SKU
+    - Run OR-Tools to create feasible production plan by line/shift
+    - Generate labor roster and overtime recommendations
+    - Derive MRP for bags/pallets/film; flag shortages
+    - Publish plan to Sheets/ERP and notify via Slack/Email
+  tools:
+    - 'Python (pandas, scikit-learn/XGBoost)'
+    - Prophet/GluonTS
+    - OR-Tools
+    - OpenWeather/Meteostat API
+    - Google Sheets/Drive
+    - Slack/Email
+    - Zapier/Make
+  outputs:
+    - Daily production schedule (CSV/Sheet)
+    - Shift roster and overtime plan (PDF/Sheet)
+    - 'MRP (bags, film, pallets)'
+    - Exceptions and alerts
+  pricingModel:
+    - One-time setup
+    - Monthly subscription per site
+    - Optional success fee on forecast accuracy
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 4
+    overall: 5
+  risks:
+    - Poor data quality/short history
+    - Rapid demand shocks outside weather signals
+    - Labor rules/union constraints
+    - ERP integration friction
+  dependencies:
+    - Access to order/production data
+    - Weather API key
+    - Calendar of events/holidays
+    - ERP/Sheets access
+leanCanvas:
+  problem:
+    - >-
+      Highly volatile, weather- and event-driven demand causes frequent
+      stockouts during heat spikes; operators report 3–8% seasonal revenue lost
+      to out-of-stocks on peak days.
+    - >-
+      Overproduction leads to melt/shrink and write-offs; typical packaged ice
+      shrink can be 5–12% of production during summer peaks due to misaligned
+      runs and storage limits.
+    - >-
+      Labor shifts are planned manually and reactively, resulting in 10–25%
+      overtime during hot weeks and underutilization during cool spells.
+    - >-
+      Material requirements (bags, pallets, wrap, fuel, CO2 for dry ice
+      variants) are not forecasted alongside demand, triggering rush orders and
+      10–30% premium freight costs.
+    - >-
+      Production bottlenecks (ice maker tonnage, baggers, palletizers, blast
+      freezers, storage capacity) are not explicitly modeled, creating avoidable
+      queues and idle time.
+    - >-
+      Limited cold storage and route constraints are not synchronized with
+      production, causing product to sit, melt, or miss delivery windows.
+    - >-
+      Existing tools (spreadsheets/ERP modules) lack microclimate weather
+      resolution, demand explainability, scenario planning, and plant-level
+      optimization.
+    - >-
+      Schedulers spend 1–3 hours daily consolidating orders, weather, and
+      capacity in spreadsheets with no audit trail, often yielding suboptimal
+      plans.
+  solution:
+    - >-
+      Weather- and event-driven demand forecasting at SKU/route/region level,
+      using microclimate data, historical sales, and open orders.
+    - >-
+      Optimization engine that generates a feasible daily production schedule by
+      line/machine and a labor shift roster meeting expected demand and service
+      levels at minimal cost.
+    - >-
+      Integrated material requirements planning (bags, pallets, wrap, labels,
+      fuel) aligned to forecast and plan, with lead-time-aware purchase
+      suggestions.
+    - >-
+      Cold storage and capacity-aware planning that respects tonnage limits,
+      bagger throughput, palletizer rates, and freezer/storage constraints.
+    - >-
+      Route- and customer-window-aware allocation to reduce missed deliveries
+      and stockouts on the hottest days.
+    - >-
+      What-if simulator to test heatwave, event, plant downtime, or labor
+      shortage scenarios and recommend mitigation (e.g., pull-ahead production,
+      temp staffing).
+    - >-
+      Continuous re-planning: intraday adjustments based on updated weather,
+      orders, and machine status; push alerts for variances.
+    - >-
+      Simple rollout: connectors to common ERPs and order systems;
+      mobile-friendly dashboards for planners and supervisors.
+  uniqueValueProp: >-
+    AI that turns weather, events, and orders into a daily, plant-feasible
+    production and labor plan—cut shrink 25–50%, reduce overtime 10–20%, and
+    lift peak-day fill rate to 97–99% within the first season.
+  unfairAdvantage: >-
+    A domain-specific forecasting and optimization stack trained on microclimate
+    and event signals for packaged ice, plus a constraints library that mirrors
+    real plant bottlenecks (ice makers, baggers, freezer and route limits). As
+    the network grows, cross-plant datasets yield superior heatwave response
+    patterns and seasonality priors, creating a data network effect competitors
+    without this focus cannot replicate.
+  customerSegments:
+    - >-
+      Primary: Packaged ice manufacturers (NAICS 312113) with 1–20 plants;
+      roles: VP/Director of Operations, Plant Managers, Production Planners,
+      Workforce Schedulers.
+    - >-
+      Secondary: Regional ice distributors and co-packers serving
+      convenience/grocery channels; roles: Dispatch/Logistics Managers.
+    - >-
+      Enterprise chains with multi-region footprints needing network balancing
+      across plants and cross-docking.
+    - >-
+      Small and mid-sized single-plant operators with seasonal staffing
+      challenges.
+  channels:
+    - >-
+      Direct sales to packaged ice operators: target 500 US/Canada plants
+      producing ~70% volume. Sequence: warm intro via IPIA membership list,
+      LinkedIn outreach to VP Ops/Plant Managers, and 30-minute value demo.
+    - >-
+      Industry associations and trade shows: Sponsor and speak at IPIA Annual
+      Convention; host workshop: “Beating Heatwaves: Data-Driven Ice
+      Production.” Goal: 100 leads, 20 pilots/season.
+    - >-
+      ERP/channel partners: VARs for NetSuite, SAP B1, and Dynamics; offer
+      10–15% referral fees and co-marketing. Goal: 10 partners in 12 months
+      generating 30% of new ARR.
+    - >-
+      Pilot-first motion: 8-week paid pilot for 1–2 plants including demand
+      forecast + shift/production plan. Priced at $8k–$20k credited toward
+      subscription upon conversion. Target pilot-to-subscription conversion
+      ≥60%.
+    - >-
+      Content and proof: Publish 3 case studies by end of first season showing
+      shrink, overtime, and fill rate improvements; SEO and webinars pre-summer;
+      retargeting ads March–June.
+    - >-
+      Territory field marketing: Plant visits in Sun Belt states Feb–May; offer
+      free readiness assessment (data + capacity audit).
+    - >-
+      Customer expansion: Land-and-expand into additional plants after first
+      season with volume discounts; CSM-led QBRs tied to KPI attainment.
+  revenueStreams:
+    - >-
+      SaaS subscription per plant, tiered by scale and feature set: Small (≤100
+      tons/day): $800–$1,500/month; Mid (100–400 tons/day): $2,000–$3,000/month;
+      Large/Enterprise (≥400 tons/day or multi-plant): $4,000–$6,000/month per
+      plant.
+    - >-
+      Implementation/onboarding: $5k–$50k per deployment depending on
+      integrations and multi-plant complexity.
+    - >-
+      Data add-ons: premium weather/event data passthrough with 10–20% margin;
+      optional long-range forecast packs.
+    - >-
+      Usage-based: API overage for high-frequency replans and telemetry
+      ingestion beyond included thresholds.
+    - >-
+      Professional services: custom scenarios, network modeling, and seasonal
+      planning workshops ($150–$250/hr).
+    - >-
+      Optional performance-based fee: 5–10% of measured savings after baseline
+      (shrink, overtime) for enterprise accounts.
+  costStructure:
+    - >-
+      Cloud compute and storage for forecasting and optimization (target 12–18%
+      of ARR as COGS).
+    - >-
+      Third-party data licensing (weather/event APIs) at volume tiers (4–8% of
+      ARR).
+    - >-
+      Engineering, data science, and OR talent; MLOps and QA (35–45% of OPEX
+      year 1–2).
+    - >-
+      Sales and marketing: trade shows, partner commissions, travel (15–25% of
+      OPEX).
+    - Customer success and onboarding (10–15% of OPEX).
+    - >-
+      Solver licensing (if commercial) or support for open-source OR;
+      integration middleware costs.
+    - >-
+      Security/compliance (SOC 2), pen tests, insurance (cyber, E&O, product
+      liability).
+    - 'General and administrative: finance, legal, HR, office, tooling.'
+  keyMetrics:
+    - >-
+      Forecast accuracy: MAPE ≤18–22% at daily route level in season; ≤10–15% at
+      weekly region aggregate. Bias |≤3%|.
+    - >-
+      Service level: peak-day fill rate ≥97% across priority customers; stockout
+      hours reduced ≥50% vs. baseline.
+    - >-
+      Shrink/waste: reduce melt/write-offs by 25–50% (e.g., from 8% to 4–6% of
+      production).
+    - >-
+      Labor efficiency: overtime hours per 1,000 bags down 10–20%; temp labor
+      usage within planned variance ±10%.
+    - >-
+      Plan adherence: ≥90% adherence to production schedule by hour; reschedule
+      responsiveness <15 minutes to recompute plan.
+    - >-
+      Material availability: bag/pallet stockouts reduced to <1 per month per
+      plant; rush freight costs down 30–50%.
+    - >-
+      Financial: ROI within first season; target payback <4 months; net savings
+      per plant $50k–$250k/season depending on scale.
+    - >-
+      Adoption: weekly active planner users ≥95%; supervisor mobile logins
+      ≥3x/day on peak weeks.
+    - >-
+      Commercial: pilot conversion ≥60%; logo churn <5% annually; NPS ≥40; CAC
+      payback <12 months.
+storyBrand:
+  character: >-
+    Ops leaders, plant schedulers, and dispatch coordinators at packaged ice
+    manufacturers (NAICS 312113) who must hit service targets while controlling
+    labor, energy, and materials.
+  problem: >-
+    External: Heat waves, holidays, and local events swing demand, stressing
+    production capacity, freezer space, labor rules, delivery windows, and
+    material lead times. Internal: Teams scramble with spreadsheets and gut
+    feel, causing stockouts, melt/waste, overtime, and missed SLAs.
+    Philosophical: Getting ice where people need it shouldn’t depend on
+    guesswork.
+  guide: >-
+    We understand the whiplash of ice season and the pain of reactive
+    scheduling. Our team blends cold-chain ops experience with AI and operations
+    research to forecast demand from weather/events and to optimize daily
+    production, shifts, and material plans—purpose-built for NAICS 312113.
+  plan: >-
+    1) Connect: orders/EDI, POS, weather/events, capacities, BOMs, and labor
+    rules. 2) Optimize: generate a daily demand forecast and an actionable
+    production + shift + material plan to review and approve. 3) Orchestrate:
+    publish to ERP/WMS/HR, monitor actuals, and auto‑adjust with alerts.
+  callToAction: >-
+    Direct: Schedule a 30‑minute demo and launch a 14‑day pilot for one plant.
+    Transitional: Request a free 30‑day weather‑driven demand sample for your
+    region.
+  success: >-
+    Right ice, right place, right time; higher fill rates; less waste and
+    overtime; assured material availability; predictable, compliant shifts;
+    lower energy per ton; calmer teams and better margins.
+  failure: >-
+    Weekend stockouts, melted inventory and write‑offs, overtime blowouts,
+    missed retailer SLAs and chargebacks, stressed crews, and lost margin.
+landingPage:
+  hero:
+    title: AI Production & Shift Plan Optimizer for Ice Manufacturing
+    subtitle: >-
+      Forecast ice demand from weather and events, then auto-build daily
+      production, labor, and material plans. Fewer stockouts. Lower overtime.
+      Tighter costs. Built for NAICS 312113.
+    ctaText: Request a Demo
+    ctaHref: '#demo'
+  problem:
+    - 'Demand whiplash from heatwaves, weekends, and events'
+    - Manual spreadsheets miss fast-moving weather shifts
+    - Overproduction ties up freezer space; underproduction causes stockouts
+    - Overtime and last-minute staffing changes inflate labor costs
+    - 'Bag, film, and pallet shortages stop lines'
+    - 'No clear view of line capacity, changeovers, and maintenance windows'
+    - Plans don’t reach floor teams and drivers in time
+  solution:
+    - >-
+      Hyperlocal demand forecasts by depot, route, SKU, and day using weather,
+      holidays, and orders
+    - >-
+      Optimized daily production schedules by line and shift within real
+      capacity and freezer limits
+    - 'Automated shift plans with skills, certifications, and overtime rules'
+    - >-
+      Material requirements planning for bags, film, pallets, and consumables
+      with purchase suggestions
+    - 'What-if scenarios for heatwaves, events, outages, or rush orders'
+    - 'One-click publish to production boards, time clocks, and dispatch'
+    - Live tracking and re-optimization as orders and weather change
+  features:
+    - >-
+      Weather-driven forecasting with hyperlocal temps, humidity, heat index,
+      and storms
+    - 'Event signals: holidays, sports, festivals, and weekend uplift modeling'
+    - >-
+      SKU and channel-level models (bag sizes, cubed vs crushed; retail vs
+      wholesale)
+    - Explainable AI with driver contributions and forecast confidence bands
+    - >-
+      Finite-capacity scheduling by line, shift, changeovers, and sanitation
+      windows
+    - 'Freezer capacity, dock, and load/unload constraints built into plans'
+    - >-
+      Labor optimizer with roles, cross-training, breaks, and overtime
+      minimization
+    - >-
+      MRP with reorder points, lead times, and vendor calendars for bags, film,
+      and pallets
+    - Cost vs service trade-off controls to balance overtime and stockout risk
+    - 'Alerts for stockout risk, material shortages, and plan adherence'
+    - 'Integrations with ERP/WMS/TMS, time clocks, and CMMS via API or CSV'
+    - 'Mobile rosters, shift swap requests, and digital sign-off on any device'
+  steps:
+    - 'Connect orders, inventory, equipment, and staffing data via API or CSV'
+    - 'Set capacities, freezer limits, changeovers, labor rules, and lead times'
+    - Review demand forecast and auto-generated plan for the next 14 days
+    - Approve and publish production and shift schedules to floor and crews
+    - Get alerts as weather or orders change and re-optimize with one click
+    - 'Track actuals vs plan to improve accuracy, service, and costs over time'
+---
+# FrostFlow AI
+
+Generated for NAICS 312113 — Ice Manufacturing.
+Service: Weather- and Order-Driven Production & Shift Plan Optimizer

@@ -1,0 +1,295 @@
+---
+name: PanelMetrics AI
+slug: panelmetrics
+service:
+  title: Precast Panel Takeoff and Embed/Lifter Schedule
+  description: >-
+    Extracts precast panel geometry, openings, and hardware to produce panel
+    counts, areas, and an embed/lifter schedule.
+  targetUsers:
+    - Precast Estimators
+    - Preconstruction Managers
+  triggers:
+    - New precast package issued
+    - Design development milestone
+  inputs:
+    - PDF/IFC/Revit precast drawings
+    - 'Manufacturer catalogs (Leviat/Halfen, Dayton, Meadow Burke)'
+    - Spec sections (03 45 00)
+    - Firm hardware standards
+  steps:
+    - 'Parse drawings/models; identify panels, joints, reveals, openings'
+    - >-
+      Classify panel types and compute area/weight by thickness and concrete
+      density
+    - Detect and count embeds/lifters/connection hardware by symbol library
+    - Generate panel schedule with hardware list and install notes
+    - Export Excel schedules; produce marked-up sheets for traceability
+  tools:
+    - OpenCV symbol detection
+    - ifcopenshell/Speckle
+    - Excel
+    - LLM for spec rules
+  outputs:
+    - Panel schedule (Excel) with area/weight
+    - Embed/lifter schedule (Excel)
+    - Marked-up PDFs
+    - Assumptions/exceptions list
+  pricingModel:
+    - Per panel count (unit-based)
+    - Per drawing set fixed fee
+    - Subscription + usage
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 0.96
+    modelCapability: 0.78
+    overall: 0.85
+  risks:
+    - Symbol variability between designers
+    - Hardware mapping may need client standards
+    - Not a substitute for PE connection design
+  dependencies:
+    - Drawing/model access
+    - Hardware symbol library
+    - Company standards for hardware selection
+leanCanvas:
+  problem:
+    - >-
+      Manual precast panel takeoffs and embed/lifter schedules are slow (8–20
+      hours per 100-panel drawing set) and error-prone (2–5% typical variance),
+      impacting bid accuracy and margins.
+    - >-
+      Revisions and addenda require rework; estimators re-do counts and
+      schedules 2–3 times per project, adding 20–40% effort and delaying bid
+      submissions.
+    - >-
+      Embeds/lifters rely on fragmented vendor catalogs and spreadsheets; lack
+      of standardization leads to misplacement and field rework ($5k–$50k per
+      incident).
+    - >-
+      Current tools (Bluebeam/Excel or fully modeling in Revit/Tekla) are either
+      manual or overkill; teams need rapid, auditable outputs without building
+      full BIM models.
+    - >-
+      Limited estimator bandwidth creates bid backlog and lost opportunities;
+      firms leave 5–15% of RFPs unbid due to time constraints.
+    - >-
+      Traceability is weak; GCs and owners increasingly demand transparent
+      quantities and change histories, which manual workflows lack.
+  solution:
+    - >-
+      AI-driven parsing of PDFs, DWGs, and IFCs to detect panel boundaries,
+      thickness, edges, reveals, joints, and openings; outputs panel counts,
+      areas, weights, and perimeter by type.
+    - >-
+      Automated hardware selection: lifters and embeds chosen via rule engine
+      using panel weight, rigging geometry, and vendor charts
+      (Leviat/Halfen/Meadow Burke, Dayton Superior, JVI); configurable safety
+      factors and local practices.
+    - >-
+      Embed/lifter scheduling: panel-by-panel bill with coordinates (X/Y from a
+      user-defined datum), part numbers, quantities, and edge distances; export
+      to Excel/CSV and instantiate as objects in Revit/Tekla via plugins.
+    - >-
+      Revision compare: diff quantities and schedules between plan versions;
+      generate an auditable change log with rationale and deltas.
+    - >-
+      Human-in-the-loop QA: side-by-side review, confidence highlights, and
+      one-click corrections that retrain the model over time; approval workflow
+      with stamped PDFs of the schedule package.
+    - >-
+      Integration APIs: push/pull to Procore, Autodesk Construction Cloud, and
+      Bluebeam; attach schedule to submittals and RFIs.
+    - >-
+      Guardrails: engineering checks for minimum edge distances, lifter angles,
+      panel weight sanity checks; warnings when inputs exceed catalog limits;
+      not a sealed design (optional partner PE review available).
+  uniqueValueProp: >-
+    10x faster, auditable precast panel takeoffs and embed/lifter schedules from
+    2D/3D drawings—with >95% detection accuracy, vendor-catalog-driven hardware
+    selection, and seamless exports to Excel, Revit, and Tekla—so contractors
+    bid more work with higher confidence and fewer field issues.
+  unfairAdvantage: >-
+    A precast-specific model and ruleset trained on a growing, proprietary
+    dataset of annotated panel drawings and schedules, combined with
+    vendor-catalog partnerships and deep Revit/Tekla integrations that create a
+    closed-loop feedback system and high switching costs.
+  customerSegments:
+    - >-
+      Precast concrete manufacturers and erectors (estimating, engineering,
+      VDC).
+    - >-
+      Structural steel fabricators handling precast connections, embeds, and
+      erection planning.
+    - >-
+      General contractor preconstruction/estimating teams for projects with
+      precast scope (facade, parking, industrial).
+    - >-
+      Design-build structural engineers specializing in precast who prepare
+      preliminary layouts and schedules.
+    - Independent takeoff/estimating service firms serving precast/steel trades.
+    - >-
+      Geographies: North America (primary beachhead), followed by UK/Ireland,
+      DACH, Nordics, ANZ, and GCC.
+  channels:
+    - >-
+      Beachhead pilots: 10–15 North American precast producers/erectors with 6–8
+      week paid pilots; target roles: Chief Estimator, Preconstruction Manager,
+      VDC Lead.
+    - >-
+      Partnerships: vendor catalogs (Leviat/Halfen/Meadow Burke, Dayton
+      Superior, JVI) co-marketing and referrals; integration listings on
+      Autodesk App Store and Tekla Warehouse.
+    - >-
+      Industry associations and events: PCI, AISC/NASCC, World of Concrete, The
+      Precast Show—speak, demo, and run “speed takeoff” challenges.
+    - >-
+      Outbound + ABM: 200 target accounts (top precast/steel firms) with
+      sequenced email/LinkedIn, ROI calculators, and tailored demo assets.
+    - >-
+      Content and webinars: case studies showing 70–90% time reductions and
+      error rate improvements; SEO around “precast takeoff,” “embed schedule,”
+      “lifter layout.”
+    - >-
+      Referrals and consultants: commission program for estimating consultants
+      and BIM implementers (10–15% first-year referral).
+    - >-
+      Freemium trial: process 3 sheets or 50 panels free; in-app guided tour to
+      first value in <30 minutes.
+  revenueStreams:
+    - >-
+      SaaS subscriptions (most common): Starter $299/user/month, Pro
+      $899/user/month (includes 1,500 panels/month), Enterprise custom; overages
+      $0.03–$0.10/panel based on volume.
+    - >-
+      Per-project pricing for non-subscribers: $1.50/panel (min $750/project)
+      with 3-business-day SLA; rush +50%.
+    - >-
+      Professional services: custom template setup, plugin configuration, vendor
+      catalog mapping, and training ($5k–$25k per enterprise).
+    - >-
+      Enterprise contracts: annual site licenses ($30k–$250k/year) with
+      committed panel volume and premium SLAs.
+    - >-
+      Optional PE partner review of schedules for submittals (pass-through + 15%
+      coordination fee).
+  costStructure:
+    - >-
+      COGS: GPU inference and storage ($0.01–$0.03 per plan sheet), map tile
+      rendering, and egress; target gross margin >75%.
+    - >-
+      ML/data operations: annotation labor ($12–$30/hour offshore/blended),
+      labeling tools, QA reviewers for pilots and enterprise SLAs.
+    - >-
+      R&D payroll: applied ML engineers, CV researchers, BIM/plugin developers,
+      and structural domain experts ($200k–$350k loaded cost per senior in NA).
+    - >-
+      Sales and marketing: 2–3 AEs and 1–2 SEs initially; event sponsorships
+      ($10k–$50k each), content production, paid ads.
+    - >-
+      General and administrative: SOC 2 Type II ($40k–$80k/year), liability/E&O
+      insurance ($20k–$60k/year), legal (IP, contracts).
+    - >-
+      Cloud and dev tooling: CI/CD, monitoring, security scanning, test
+      environments ($5k–$20k/month at seed stage).
+  keyMetrics:
+    - >-
+      Model performance: panel boundary IoU ≥ 0.90; opening detection F1 ≥ 0.95
+      for openings ≥150 mm; hardware assignment match rate ≥ 92% to approved
+      schedules.
+    - >-
+      Automation rate: ≥ 85% of panels require zero manual edits by month 6 for
+      NA pilot cohort; manual edits/panel < 0.2.
+    - >-
+      Cycle time: median processing time < 10 minutes per 100 panels; revision
+      diff turnaround < 5 minutes per issue.
+    - >-
+      Business outcomes: time saved per project (hours) vs. baseline; error rate
+      reduction vs. historical variance; win rate lift on bids using AI
+      schedules.
+    - >-
+      Adoption: time-to-first-value < 30 minutes; weekly active users/seat ≥
+      60%; projects per customer/month ≥ 4 by month 6.
+    - >-
+      Financial: gross margin ≥ 75%; logo churn < 8% annually; net revenue
+      retention ≥ 115%; LTV/CAC ≥ 4 within 12 months.
+    - >-
+      Quality/SLA: on-time schedule delivery ≥ 98%; support first response < 1
+      business hour for Enterprise; CSAT ≥ 4.5/5.
+    - >-
+      Data flywheel: labeled plan sets ≥ 1,000 in year 1; distribution across at
+      least 10 building types and 5 regions to reduce bias/drift.
+storyBrand:
+  character: >-
+    Structural steel and precast concrete contractors, estimators, and project
+    managers who need fast, accurate precast panel takeoffs and hardware
+    schedules to bid competitively and plan fabrication/erection.
+  problem: >-
+    Manual takeoffs from PDFs/Revit/Tekla are slow and error-prone. Missed
+    openings, embeds, and lifters drive RFIs, field fixes, delays, and margin
+    erosion. Inconsistent schedules hinder coordination with fabrication and
+    field teams.
+  guide: >-
+    An AI takeoff service purpose-built for precast. We understand shop drawings
+    and BIM and turn geometry and hardware into clean quantities and schedules
+    with traceability. A reliable partner for teams who value speed, accuracy,
+    and repeatability.
+  plan: >-
+    1) Upload drawings or models. 2) AI extracts panels, openings, embeds, and
+    lifters with clickable highlights and audit trail. 3) Review and approve in
+    browser, track revisions. 4) Export panel counts/areas and embed/lifter
+    schedules to Excel/CSV/ERP.
+  callToAction: Start a free pilot on your next bid or book a 15-minute demo.
+  success: >-
+    Bid faster with confidence. Produce accurate panel counts and areas plus a
+    complete embed/lifter schedule in minutes. Cut RFIs and rework, improve
+    coordination, protect margins, and win more work.
+  failure: >-
+    Keep burning hours on manual takeoffs, miss critical hardware, trigger
+    change orders and schedule slips, and lose bids to faster, more accurate
+    competitors.
+landingPage:
+  hero:
+    title: Precast Panel Takeoff & Embed/Lifter Schedule
+    subtitle: >-
+      AI that turns drawings into accurate panel counts, areas, and hardware
+      schedules—fast.
+    ctaText: Start Free Trial
+    ctaHref: /signup
+  problem:
+    - Manual takeoffs burn days and invite errors.
+    - Missed openings or hardware trigger costly rework.
+    - Late embed/lifter schedules stall casting and steel coordination.
+    - Plan revisions slip through without clear deltas.
+    - Inconsistent panel IDs and notes break traceability.
+  solution:
+    - 'Upload plans; AI extracts panel geometry, openings, and hardware symbols.'
+    - 'Get instant panel counts, gross/net areas, and perimeters by type/level.'
+    - Auto-build an embed/lifter schedule with tags and quantities.
+    - Revision compare highlights added/removed/changed panels and hardware.
+    - Export to Excel/CSV and share tagged PDFs for review.
+  features:
+    - PDF/DWG ingestion with sheet set detection.
+    - Panel boundary detection including joints and openings.
+    - 'Hardware recognition for embeds, lifters, and braces with symbol mapping.'
+    - 'Panel IDs, levels, grids, and pour tags captured and organized.'
+    - Gross vs net area and opening area summaries per panel and total.
+    - Rule templates for lifter/brace counts; quick overrides per panel.
+    - 'Quality checks for missing hardware, unnamed panels, and spec mismatches.'
+    - Revision tracking with side‑by‑side diffs and change logs.
+    - 'One‑click exports: Excel/CSV schedules and marked‑up PDFs.'
+    - Imperial/Metric support and customizable units/rounding.
+    - 'Roles, permissions, and approval workflow with audit trail.'
+    - 'API/webhooks for downstream estimating, BIM, or ERP systems.'
+  steps:
+    - Upload your drawings and spec/legend.
+    - Confirm hardware symbol mappings (or use saved templates).
+    - 'Run extraction; review detected panels, openings, and hardware.'
+    - Resolve flagged items and apply rule templates as needed.
+    - Approve to generate the takeoff and embed/lifter schedule.
+    - 'Export and share with plant, field, and steel partners.'
+---
+# PanelMetrics AI
+
+Industry: Structural Steel and Precast Concrete Contractors
+Service: Precast Panel Takeoff and Embed/Lifter Schedule

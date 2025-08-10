@@ -1,0 +1,353 @@
+---
+name: FreshSync Planner (Demand‑Synced Production & Purchasing AI)
+slug: freshsync
+service:
+  title: Demand-Synced Production & Purchasing Planner
+  description: >-
+    AI agent that forecasts SKU-level demand and generates a constrained
+    daily/weekly production schedule and purchase requisitions for perishable
+    lines.
+  targetUsers:
+    - Supply planners
+    - Operations managers
+    - Procurement
+  triggers:
+    - New EDI 850/852 orders arrive
+    - Daily planning cut-off
+    - Promotion/holiday updates
+  inputs:
+    - EDI 850/852 order and POS feeds
+    - ERP inventory/WIP
+    - BOMs and yields
+    - Shelf-life by SKU/pack
+    - Line speeds and changeover matrix
+    - Labor/shift availability
+    - 'Promotions, weather, holidays'
+  steps:
+    - Ingest orders/POS and clean anomalies
+    - Forecast short-horizon demand by SKU/customer
+    - 'Build constrained production plan (shelf-life, capacities, changeovers)'
+    - Simulate service level and waste; iterate
+    - Generate material purchase plan and shortages
+    - Route plan for human approval and publish to ERP/MES
+    - Notify stakeholders via Slack/Teams
+  tools:
+    - ERP/MES/WMS APIs (SAP B1/NetSuite/Deacom)
+    - Forecasting (Prophet/DeepAR/XGBoost)
+    - Optimization (Google OR-Tools)
+    - Python/Airflow for orchestration
+    - Snowflake/BigQuery for data
+    - Slack/Teams webhooks
+    - Google Sheets/Excel output
+  outputs:
+    - Approved production schedule (CSV/JSON)
+    - Pick/issue lists
+    - Purchase requisitions
+    - Exception list (constraints violated)
+  pricingModel:
+    - One-time setup/integration fee
+    - Monthly subscription tiered by SKUs/sites
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 4
+    overall: 4
+  risks:
+    - Forecast error during promotions/new SKUs
+    - 'Inaccurate master data (yields, speeds)'
+    - ERP/MES integration latency or failures
+  dependencies:
+    - VPN/API access to ERP/MES/WMS
+    - EDI/POS data access
+    - 'Master data for BOMs, routings, shelf-life'
+leanCanvas:
+  problem:
+    - >-
+      High write‑offs due to overproduction of short‑shelf‑life SKUs (typical
+      5–15% finished goods waste) driven by volatile daily demand and manual
+      planning.
+    - >-
+      Stockouts and late orders during promotions or weather spikes cause lost
+      sales and retailer chargebacks (fill rates often <95%).
+    - >-
+      Planners rely on spreadsheets across demand, production, and purchasing;
+      schedules ignore perishability constraints (shelf life, FEFO, allergen
+      changeovers), creating firefighting and expediting.
+    - >-
+      Inaccurate short‑horizon forecasts at SKU/day level (WAPE often >30%) and
+      poor new‑item or limited‑time offer forecasting.
+    - >-
+      Procurement misalignment with production: wrong pack sizes, missed
+      supplier lead times/MOQs, and last‑minute expedites inflate COGS by 2–5%.
+    - >-
+      Siloed systems (ERP/MES/WMS/POS) make it hard to build a single,
+      executable plan with capacity, labor, and yield constraints.
+    - >-
+      Compliance and quality needs (traceability, allergen sequencing, CCP
+      checks) are not embedded in the plan, causing rework and risk.
+  solution:
+    - >-
+      Forecast SKU/day/channel demand using hierarchical time‑series models
+      enriched with weather, holidays, promotions, store/DC signals, and
+      customer orders; cold‑start for new SKUs via similarity and attribute
+      models.
+    - >-
+      Optimize daily/weekly production schedules using MILP/CP that respect line
+      capacities, shift calendars, changeovers, allergen/clean‑in‑place
+      sequencing, yields, batching, and shelf‑life targets.
+    - >-
+      Auto‑generate time‑phased purchase requisitions for ingredients/packaging
+      with supplier lead times, MOQs, pack sizes, safety stocks, and price
+      breaks; flag expedite risks and substitutions.
+    - >-
+      Freshness‑maximizing planning: align production date to required code life
+      by customer and route; recommend FEFO allocations and cross‑dock vs.
+      make‑to‑order choices.
+    - >-
+      Exception‑driven workflow: planners get alerts for demand spikes, supply
+      shortfalls, capacity bottlenecks, and quality holds with one‑click plan
+      revisions and audit trails.
+    - >-
+      What‑if and scenario planning: simulate promotion uplifts, weather
+      impacts, labor shortages, or supplier delays; compare KPIs and choose best
+      plan.
+    - >-
+      Tight integrations: bi‑directional APIs/EDI with ERP/MES/WMS for BOMs,
+      routings, inventory, open orders, vendors; push POs/PRs and publish frozen
+      schedules to shop floor.
+    - >-
+      Governance and trust: human‑in‑the‑loop approvals, versioning, explainable
+      forecasts, and role‑based access; FSMA/allergen compliance checks embedded
+      in schedules.
+  uniqueValueProp: >-
+    Cut waste 15–30%, raise fill rates to 97–99%, and shrink planning time
+    60–80% by unifying SKU‑level demand forecasting with an expiry‑aware,
+    capacity‑constrained production and purchasing plan that executes directly
+    in your ERP.
+  unfairAdvantage: >-
+    A purpose‑built, expiry‑aware optimization stack plus a growing anonymized
+    dataset of SKU/day/perishability and operational outcomes across plants;
+    pre‑built ERP/Food connectors shorten time‑to‑value to <6 weeks and enable
+    guaranteed ROI pilots. Domain templates (allergen matrices, code‑life by
+    customer, FEFO rules) and explainable forecasts reduce change‑management
+    risk vs. generic APS/MRP tools.
+  customerSegments:
+    - >-
+      Mid‑market perishable prepared food manufacturers (50–1,500 employees)
+      producing chilled RTE meals, deli salads, sandwiches/wraps, cut produce,
+      dips/spreads, fresh bakery, fresh pasta, soups, meal kits.
+    - >-
+      Central kitchens/commissaries supplying grocery, convenience, airline, or
+      foodservice chains.
+    - >-
+      Co‑packers and private label producers with multi‑customer, multi‑SKU
+      portfolios.
+    - >-
+      Operations leaders: VP Operations, Supply Chain Director, Plant Manager,
+      Head of Planning/Procurement, Finance/FP&A for waste and margin.
+    - >-
+      Geographies: North America and Europe initially; multi‑plant operators
+      with 1–10 plants and 200–5,000 active SKUs.
+  channels:
+    - >-
+      Direct sales to ICP: outbound to Operations/Supply Chain leaders at
+      mid‑market perishable producers; use a 3‑touch sequence with a 2‑minute
+      ROI teaser and case study.
+    - >-
+      ERP VAR/ISV partnerships (NetSuite, SAP B1, Dynamics) with co‑sell
+      agreements and marketplace listings; bundle as advanced planning for
+      perishables.
+    - >-
+      Industry consultants/system integrators specializing in food manufacturing
+      and continuous improvement as referral partners.
+    - >-
+      Pilot‑first motion: 6–8 week paid proof‑of‑value using 6–12 months of
+      history for 1–2 plants and 200–800 SKUs; commit to target KPIs (e.g., 10%
+      waste reduction, +2 pts fill rate).
+    - >-
+      Content and SEO: publish playbooks on “expiry‑aware scheduling,” “reducing
+      fresh waste,” and “SKU/day forecasting”; webinars with customer ops
+      leaders; before/after ROI calculators.
+    - >-
+      Trade shows and associations: IFT, Process Expo, FPSA, IFDA; sponsor
+      planner roundtables; speak on promotion/weather planning impacts.
+    - >-
+      Retention/expansion: customer success QBRs tied to KPIs; enablement for
+      new plants/SKUs; in‑app upsells for scenario planning and labor
+      optimization.
+  revenueStreams:
+    - >-
+      SaaS subscription, tiered by active SKUs and plants: Starter (up to 1
+      plant/1,000 SKUs): $36k–$60k ARR; Growth (2–3 plants/3,000 SKUs):
+      $90k–$180k ARR; Enterprise (4–10 plants/10,000+ SKUs): $250k–$600k ARR.
+    - >-
+      One‑time onboarding/integration fee: $25k–$150k depending on ERP/WMS
+      complexity and plant count.
+    - >-
+      Premium modules: Labor optimizer, Supplier risk & substitutability, DSD
+      route allocation, API access; $10k–$100k ARR add‑ons.
+    - >-
+      Managed planning services (co‑pilot planners) for smaller teams:
+      $5k–$20k/month.
+    - 'Optional pilot fee credited to subscription upon success: $25k–$60k.'
+  costStructure:
+    - >-
+      R&D: data science, optimization, and full‑stack engineering ($250k–$400k
+      per FTE annually loaded; core team 6–12 FTE in first 18 months).
+    - >-
+      Cloud infrastructure and tooling: $3k–$15k/month per enterprise customer
+      at scale depending on data volume and optimization frequency; model
+      training/solver costs.
+    - >-
+      Commercial: sales/marketing, partner programs, trade shows, content
+      ($20k–$50k/month).
+    - >-
+      Customer success and onboarding: solution engineers/SMEs, support
+      ($10k–$40k/month).
+    - >-
+      Compliance and security: SOC 2/ISO audits, pen tests, insurance
+      ($50k–$150k annually).
+    - >-
+      Licenses: optimization solvers (commercial or hybrid), data enrichment
+      (weather), observability/MLOps tooling ($50k–$200k annually).
+  keyMetrics:
+    - >-
+      Forecast accuracy: SKU/day WAPE ≤20% on 7‑day horizon; ≤15% on 1–3 day
+      horizon; promo SKUs uplift error ≤25%.
+    - 'Service level: case‑fill rate ≥97–99%; on‑time in‑full (OTIF) ≥95%.'
+    - >-
+      Waste and obsolescence: finished goods write‑offs reduced by 15–30%;
+      ingredient scrap reduced by 5–15%.
+    - >-
+      Planning efficiency: planner time per schedule cut 60–80%; exception rate
+      <10% of SKUs/day needing manual touch.
+    - >-
+      Schedule quality: changeover hours reduced 10–20%; schedule adherence
+      ≥95%; overtime within budget variance ±5%.
+    - >-
+      Procurement: expedite POs reduced by 40–60%; supplier OTIF ≥95%; inventory
+      turns improved by 10–25%.
+    - >-
+      Financial impact: contribution margin uplift 2–4 pts; pilot payback <90
+      days; NRR ≥120%; logo churn <6% annually.
+    - >-
+      Go‑to‑market: lead‑to‑demo 20–30%; demo‑to‑pilot 30–40%; pilot‑to‑paid
+      60–80%; CAC payback <12 months.
+storyBrand:
+  character: >-
+    Ops, planning, and procurement leaders at perishable prepared-food
+    manufacturers who must hit freshness, fill-rate, and cost targets every day
+  problem: >-
+    - External: Volatile SKU-level demand, short shelf life, limited capacity,
+    labor and allergen constraints, supplier lead times, and manual spreadsheets
+
+    - Internal: Constant firefighting, overtime, and guesswork eroding
+    confidence and margins
+
+    - Philosophical: It shouldn’t be this hard—or wasteful—to make the right
+    fresh food in the right amount at the right time
+  guide: >-
+    - Empathy: We understand planning perishable lines is high-stakes—every hour
+    matters and waste hurts
+
+    - Authority: Proven ML forecasting and constrained optimization, built for
+    food ops; integrates with ERP/MES/WMS; transparent recommendations and audit
+    trails; human-in-the-loop controls
+  plan: >-
+    - 1) Connect data: orders/POS, ERP, BOMs, yields, capacities, suppliers, and
+    calendars
+
+    - 2) Calibrate: SKU/day forecasts, shelf-life logic, allergens, labor and
+    line constraints
+
+    - 3) Pilot: 4-week side-by-side run, accuracy and savings baseline
+
+    - 4) Go live: Daily/weekly production plan and purchase requisitions with
+    approvals and exceptions
+
+    - 5) Improve: Continuous learning, weekly review, KPI reporting
+  callToAction: >-
+    - Direct: Book a demo; start a 4-week pilot on your priority SKUs
+
+    - Transitional: Download the one-pager and ROI checklist; get a sample
+    accuracy report
+  success: >-
+    - Make only what sells: higher fill rates with lower waste
+
+    - Stable, constraint-aware schedules that cut changeovers, expedites, and
+    overtime
+
+    - Right-time purchasing that reduces stockouts and spoilage
+
+    - Clear visibility from S&OP to the floor; planners shift from firefighting
+    to optimizing
+
+    - Better margins and happier teams
+  failure: |-
+    - Ongoing scrap and markdowns from overproduction
+    - Stockouts, chargebacks, and lost retailer trust
+    - Last-minute schedule flips, overtime, and burnout
+    - Rush buys, supplier friction, and margin leakage
+    - Decisions driven by hunches instead of data
+landingPage:
+  hero:
+    title: Demand‑Synced Production & Purchasing Planner
+    subtitle: >-
+      AI agent for perishable prepared foods that forecasts SKU‑level demand and
+      builds constrained daily/weekly production schedules and purchase
+      requisitions.
+    ctaText: Book a Demo
+    ctaHref: /demo
+  problem:
+    - 'Stockouts and spoilage from volatile, short‑shelf‑life demand'
+    - Manual spreadsheets can’t keep up with daily/weekly planning cadence
+    - Misaligned production and purchasing drive rush fees and overtime
+    - 'Forecasts miss promotions, holidays, weather, and local events'
+    - 'Hard to enforce line, changeover, allergen, and labor constraints'
+    - Supplier MOQs and lead times aren’t reflected in plans
+    - Low visibility into what to make today vs. defer
+    - 'No single source of truth for planners, buyers, and operations'
+  solution:
+    - >-
+      SKU‑level demand forecasts blended from POS, orders, seasonality, and
+      events
+    - >-
+      Constrained production plan honoring shelf‑life, capacity, changeovers,
+      allergens, and labor
+    - >-
+      Auto‑generated purchase requisitions aligned to MOQs, lot sizes, and lead
+      times
+    - Daily/weekly calendars with prioritized work orders by line and shift
+    - 'Real‑time replanning as orders, yields, or staffing change'
+    - 'Scenario planning for promos, new items, and supplier disruptions'
+    - Simple approvals with ERP‑ready outputs and auditability
+  features:
+    - 'Perishable‑aware forecasting (short shelf life, decay curves)'
+    - 'Inputs: POS, orders, shipments, weather, events, price/promos'
+    - Item/store/SKU granularity with hierarchy rollups
+    - Multi‑level BOMs and yield variability
+    - 'Shelf‑life, hold times, and freshness targets'
+    - Changeover matrix and allergen/label sequencing
+    - 'Line, oven, kettle, and labor‑capacity constraints'
+    - 'Batch sizing, pans/trays, and clean‑down windows'
+    - Safety stock and service‑level policy by SKU
+    - 'Supplier calendars, lead times, MOQs, and lot sizes'
+    - Auto PR/PO draft creation with coverage and due dates
+    - 'Exception alerts: stockout risk, excess, expedite needs'
+    - Explainable forecasts and plan decisions
+    - 'One‑click publish to ERP/WMS (SAP, NetSuite, Dynamics, etc.)'
+    - 'API and flat‑file connectors; SSO, RBAC, audit logs'
+    - 'KPIs: service, waste, capacity utilization, schedule adherence'
+  steps:
+    - 'Connect data: POS/orders, ERP/WMS, supplier masters, calendars'
+    - 'Configure constraints and BOMs; map lines, shifts, changeovers'
+    - Train and validate SKU forecasts; set service policies
+    - Generate first constrained plan and purchase requisitions
+    - Review exceptions; approve and publish to ERP
+    - 'Go live: daily/weekly auto‑refresh with alerts'
+    - Continuously track KPIs and fine‑tune models and constraints
+---
+# FreshSync Planner (Demand‑Synced Production & Purchasing AI)
+
+Industry: Perishable Prepared Food Manufacturing
+Service: Demand-Synced Production & Purchasing Planner

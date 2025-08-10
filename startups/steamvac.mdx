@@ -1,0 +1,307 @@
+---
+name: SteamVac Tuner AI
+slug: steamvac
+service:
+  title: Steam/Vacuum Cycle Tuner for EPS Molding
+  description: >-
+    Recommends steam pressure/time, vacuum, cooling and aging setpoints to hit
+    density/compression targets with lower energy and cycle time.
+  targetUsers:
+    - Process Engineer
+    - Production Manager
+  triggers:
+    - Weekly/monthly cycle review
+    - Energy KPI deviations
+    - New bead grade/lot introduced
+  inputs:
+    - Pre-expansion density and temperature
+    - Aging time/ambient humidity
+    - Mold ID and venting info
+    - Steam header pressure logs
+    - Density/compression test results
+    - 'Energy meter data (boiler, line)'
+  steps:
+    - Aggregate last N runs by SKU/mold
+    - Model density/strength vs setpoints and conditions (XGBoost)
+    - Run Bayesian optimization within safety guardrails
+    - Propose trial matrix (DOE) and predicted savings
+    - Engineer approves and executes trials
+    - Refit model with results and publish golden setpoints
+  tools:
+    - XGBoost/LightGBM
+    - BoTorch/Scikit-Optimize
+    - Jupyter/Python
+    - Grafana/Metabase dashboard
+    - Slack/Teams alerts
+  outputs:
+    - Recommended setpoints per SKU/mold
+    - Predicted cycle time and energy per part
+    - Trial plan and guardrails PDF
+    - Before/after KPI report
+  pricingModel:
+    - Pilot with 1–2 SKUs fixed fee
+    - Subscription per line/month
+    - Optional pay-for-performance on energy savings
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Wrong parameters can create defects; human gate required
+    - Data sparsity for rare SKUs
+    - Sensor calibration issues
+  dependencies:
+    - Historical run/quality data export
+    - Energy meter readings (CSV/API)
+    - Process limits from engineering
+leanCanvas:
+  problem:
+    - >-
+      Energy waste from conservative setpoints: 10–30% excess steam use and
+      unnecessary vacuum/cooling time due to manual tuning and safety buffers.
+    - >-
+      Inconsistent quality: density/compression variability drives scrap,
+      rework, and warranty risk; operators compensate by over-steaming.
+    - >-
+      Slow changeovers and long aging: trial-and-error recipe tuning extends
+      setup by hours/days and inflates WIP and silo occupancy.
+    - >-
+      Limited visibility: few plants track steam/kg, vacuum kWh/cycle, or
+      cooling-water ΔT per recipe; KPIs are not tied to setpoints.
+    - >-
+      Operator dependency: expertise locked in individuals; shifts produce
+      different outcomes on the same mold/recipe.
+    - >-
+      Equipment stress: overuse of steam/vacuum increases condensate loads,
+      leaks, pump wear, and unplanned downtime.
+    - >-
+      Throughput constraints: cycle times 60–180 s leave 5–15% potential
+      productivity untapped on many molds.
+  solution:
+    - >-
+      Edge-connected AI optimizer that ingests PLC data (OPC UA/Siemens
+      S7/Rockwell/Beckhoff), historian tags, and lab QA results.
+    - >-
+      Physics- and recipe-aware models predicting density, compression strength,
+      and part ejection temperature from setpoints, bead grade, bead
+      moisture/pentane, ambient conditions, and mold geometry proxies.
+    - >-
+      Constraint-based setpoint recommender for steam pressure/time, vacuum
+      level/time, cooling water time/ΔT, and aging time windows to meet spec at
+      lowest cost.
+    - >-
+      Closed-loop optional control: send tuned recipes back to PLC with hard
+      safety envelopes (OEM mechanical/thermal limits).
+    - >-
+      What-if simulator for new molds/bead grades and seasonal shifts; digital
+      twin calibrated per mold.
+    - >-
+      A/B testing and controlled ramp plans to quantify savings with statistical
+      confidence.
+    - >-
+      Root-cause and anomaly detection: steam trap/valve leak signatures, vacuum
+      pump performance drift, condenser inefficiencies.
+    - >-
+      Recipe governance: central library, versioning, audit trail, and operator
+      guidance via HMI/App (multilingual).
+  uniqueValueProp: >-
+    EPS-specific, physics-informed AI that tunes steam, vacuum, cooling, and
+    aging setpoints to hit density/compression targets at minimum energy and
+    cycle time—typically cutting steam per kg by 10–20% and cycle time by 5–15%
+    within 8 weeks, without new capex.
+  unfairAdvantage: >-
+    A cross-plant, EPS-specific dataset and physics-informed models that capture
+    bead-grade/geometry/seasonal effects; OEM and resin-producer partnerships
+    enabling pre-validated envelopes and rapid, safe closed-loop deployment;
+    proven M&V playbooks that convert pilots to guaranteed savings contracts.
+  customerSegments:
+    - >-
+      Primary: EPS converters (shape-molding and block-molding) producing
+      packaging, insulation, and lost-foam patterns; 5–50 molding machines per
+      site.
+    - >-
+      Secondary: EPS machine OEMs and system integrators seeking digital add-ons
+      for installed base.
+    - >-
+      Secondary: Resin/bead producers aiming to standardize processing windows
+      by grade and co-market productivity gains.
+    - >-
+      Tertiary: Large construction/insulation manufacturers operating captive
+      EPS lines (multi-site).
+  channels:
+    - >-
+      Direct sales to mid/large EPS converters in Europe, North America, and
+      Turkey via industry-savvy account executives.
+    - >-
+      OEM partnerships (white-label or referral) with EPS molding machine
+      builders and pre-expander suppliers to bundle in new lines and retrofit
+      installed base.
+    - >-
+      System integrators/controls OEMs (Siemens, Rockwell, Beckhoff) for
+      integration services and regional coverage.
+    - >-
+      Co-marketing with resin/bead suppliers to provide grade-specific
+      processing packs and joint pilots.
+    - >-
+      Industry associations and events (EUMEPS, EPS-IA, Fakuma, K Show, Foam
+      Expo) plus targeted webinars and case studies.
+    - >-
+      Proof-of-Value program: 8-week pilot on 2–4 molds with guaranteed-savings
+      or fee-credit model.
+  revenueStreams:
+    - >-
+      Annual subscription per machine: $5,000–$10,000 depending on features
+      (monitoring-only vs optimization vs closed-loop).
+    - >-
+      Site platform fee: $15,000–$40,000/year covering data platform, security,
+      and support.
+    - >-
+      Performance-based option: 10–25% share of verified energy savings for
+      12–24 months (capped), or fixed fee with savings guarantee.
+    - >-
+      One-time onboarding/integration: $15,000–$80,000 per site depending on
+      PLC/historian scope and validation needs.
+    - >-
+      Professional services: recipe standardization, operator training, seasonal
+      retune packages ($150–$250/hr or fixed-scope).
+  costStructure:
+    - >-
+      Core R&D: data scientists, process engineers (polymer foaming), controls
+      engineers; $2.5–$4.0M/year at scale.
+    - 'Go-to-market: sales, OEM partnerships, marketing; $1.5–$2.5M/year.'
+    - >-
+      Customer success and field engineering for deployments and ongoing
+      optimization; $1.0–$2.0M/year.
+    - >-
+      Cloud and edge infrastructure: $50–$200 per connected machine/month;
+      storage and model serving.
+    - 'Edge hardware gateways and networking: $1,500–$4,000 per line (amortized).'
+    - 'OEM/referral rev-share: 5–15% of ARR for channel deals.'
+    - >-
+      Compliance, cybersecurity, liability insurance, and certifications (ISO
+      27001, SOC 2): $150k–$400k/year.
+  keyMetrics:
+    - >-
+      Steam per kg EPS (kg/kg) and energy per kg (kWh/kg) by recipe: target −10%
+      to −20% vs baseline within 8 weeks.
+    - >-
+      Average cycle time per mold (s): target −5% to −15% with no increase in
+      rejects or density sigma.
+    - >-
+      Density/compression conformance: ≥98.5% lots within spec; density standard
+      deviation −20%.
+    - >-
+      Adoption: ≥70% of recommended setpoints accepted by operators after 4
+      weeks; <5% rollback rate.
+    - >-
+      Model accuracy: MAPE ≤3% on density and ≤5% on part temperature at
+      ejection; recommendation hit rate ≥80%.
+    - >-
+      Savings verification: A/B test statistical significance p<0.05 over ≥2
+      weeks per recipe.
+    - >-
+      Operational: unplanned downtime attributable to steam/vacuum system −15%
+      YoY; alarm-to-action median <30 min.
+    - >-
+      Business: gross retention ≥95%, net retention ≥120%, LTV:CAC ≥4:1, payback
+      <9 months.
+    - >-
+      Deployment velocity: time-to-first-value ≤30 days; ≥90% integrations
+      completed without PLC downtime.
+storyBrand:
+  character: >-
+    EPS plant managers and process engineers who need consistent
+    density/compression at the lowest cost and faster cycles—without
+    trial-and-error.
+  problem: >-
+    - Variable bead lots, ambient swings, and mold wear cause recipe drift.
+
+    - Guesswork in steam, vacuum, cooling, and aging wastes energy and time.
+
+    - Inconsistent density/compression leads to scrap, rework, and customer
+    complaints.
+  guide: >-
+    Steam/Vacuum Cycle Tuner is an AI service built by EPS process experts. We
+    understand the headache of dialing in cycles across molds and shifts, and we
+    bring data-backed, safe recommendations you can trust.
+  plan: >-
+    1) Connect: Integrate press/utility data and upload target specs. 2)
+    Calibrate: Run a short guided trial on a selected mold/part. 3) Optimize:
+    Receive recommended steam/vacuum/cooling/aging setpoints, apply with
+    guardrails, and lock in winning recipes with ongoing monitoring.
+  callToAction: >-
+    Direct: Start a low-risk pilot on one mold. Transitional: Schedule a
+    30-minute demo and review a sample optimization report.
+  success: >-
+    On-spec density and compression with shorter cycles, lower
+    steam/electric/water use, higher throughput, fewer rejects, and documented,
+    repeatable recipes everyone can run.
+  failure: >-
+    Ongoing energy waste, long cycles, wet parts or poor fusion, warpage and
+    scrap, missed ship dates, and reliance on tribal knowledge instead of a
+    stable, data-driven process.
+landingPage:
+  hero:
+    title: AI Steam/Vacuum Cycle Tuner for EPS Molding
+    subtitle: Hit density and compression targets with less energy and shorter cycles.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - Over-steaming and long cool-downs waste energy and extend cycle times.
+    - 'Density and compression vary by bead lot, humidity, and tool conditions.'
+    - Trial-and-error setup drives scrap and lost hours.
+    - 'Aging time is guessed, creating bottlenecks or quality drift.'
+    - Settings differ by operator; results vary across shifts and molds.
+    - Limited visibility into root causes of rejects and rework.
+  solution:
+    - >-
+      AI recommends steam, vacuum, cooling, and aging setpoints to meet targets
+      at minimum energy and time.
+    - 'Learns per mold, bead grade, and environment; adapts each shift.'
+    - Generates safe recipes with guardrails and machine limits.
+    - What-if planning for density/strength trade-offs before you run.
+    - Closed-loop monitoring and auto-improvement after each cycle.
+    - >-
+      Typical gains: 10–20% less steam energy, 8–15% faster cycles, 30–50%
+      shorter setups.
+  features:
+    - >-
+      Inputs: target density/compression, bead grade, part thickness, mold,
+      ambient conditions.
+    - >-
+      Outputs: steam pressure profile/time, vacuum level/pulse, cooling
+      duration/flow, demold temp, aging time.
+    - >-
+      Recipe push to PLC/SCADA or operator instructions; approvals and
+      versioning.
+    - >-
+      Multi-objective optimizer for energy, cycle time, yield, and quality with
+      hard constraints.
+    - Physics-informed digital twin to preview outcomes and prevent scrap.
+    - >-
+      Live cycle advisor: alerts for wet beads, cold tools, blocked vents, and
+      venting issues.
+    - >-
+      SPC dashboards with Cp/Cpk by mold, material, and shift; traceable audit
+      trail.
+    - Auto-learning by lot and season; drift detection and anomaly alerts.
+    - 'APIs and connectors: OPC UA, Modbus/TCP, MQTT, REST, CSV import/export.'
+    - >-
+      On-prem or private cloud deployment; role-based access, SSO, and
+      encryption.
+    - 'ROI tracker: energy, cycle, and scrap savings by line and part.'
+  steps:
+    - Connect machines and sensors; import historical runs.
+    - Define targets and constraints per part and mold.
+    - Run calibration cycles to validate predictions.
+    - Publish optimized recipes to the line.
+    - Monitor KPIs and accept/adjust with one click.
+    - >-
+      Let the model self-tune as conditions change; review gains in the
+      dashboard.
+---
+# SteamVac Tuner AI
+
+Industry: Polystyrene Foam Product Manufacturing
+Service: Steam/Vacuum Cycle Tuner for EPS Molding

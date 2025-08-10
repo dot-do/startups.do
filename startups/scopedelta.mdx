@@ -1,0 +1,327 @@
+---
+name: ScopeDelta AI
+slug: scopedelta
+service:
+  title: Spec/Drawing Revision Diff and Change Impact
+  description: >-
+    Compares revisions to flag scope deltas and estimate quantity/tonnage
+    impacts for change events.
+  targetUsers:
+    - Estimators
+    - Project Managers
+  triggers:
+    - New revision set issued
+    - ASI/Bulletin received
+  inputs:
+    - Previous and current PDFs/models
+    - Spec sections (Div 03/05)
+    - Current BOM/takeoff
+  steps:
+    - Vector/text diff drawings and specs; detect clouded and unclouded changes
+    - Classify deltas by discipline and grid/level
+    - >-
+      Map geometric changes to quantity deltas (steel tonnage, panel area,
+      embeds)
+    - Generate change event draft with supporting snapshots
+    - Export CO log to PM platform
+  tools:
+    - PDF diff libraries
+    - ifcopenshell/geometry compare
+    - LLM for spec text diff
+    - Procore/Autodesk Build API (optional)
+  outputs:
+    - Delta report with sheet references and snapshots
+    - Updated quantity/BOM deltas (CSV)
+    - Draft Change Event/PCO entries
+  pricingModel:
+    - Per revision set
+    - Monthly subscription + per-delta usage
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 0.98
+    modelCapability: 0.9
+    overall: 0.94
+  risks:
+    - Missed implicit changes
+    - Over/under-quantification without context
+  dependencies:
+    - Access to both revision sets
+    - Current BOM/takeoff linkage
+leanCanvas:
+  problem:
+    - >-
+      Manual diffing of structural drawings and models takes 6–12 hours per
+      revision set for a mid-size project and still misses changes hidden in
+      notes or schedules, leading to 1–3% margin erosion on steel/precast
+      packages.
+    - >-
+      Change order cycle time is slow (typical 14–45 days from revision to
+      approved CO), tying up cash and creating dispute risk; contractors need
+      quantified deltas within 24–48 hours to preserve claim timelines.
+    - >-
+      Quantity and tonnage impacts are error-prone when derived from 2D PDFs;
+      detailers and PMs often rely on spot checks rather than exhaustive
+      comparisons across sheets, models, and schedules.
+    - >-
+      Precast panel geometry, embed locations, strand patterns, and connection
+      hardware frequently change between revisions; missed items cause
+      fabrication rework, field fixes, and backcharges.
+    - >-
+      Steel connection changes (bolt patterns, hole sizes, weld vs bolt,
+      baseplate thickness/anchor bolt layouts) are hard to detect across notes,
+      details, and schedules, not just plan/section graphics.
+    - >-
+      Lack of an audit-ready trail (overlay visuals tied to line-item quantity
+      changes) weakens negotiation during CO review with GCs/owners and in
+      potential disputes.
+    - >-
+      Existing tools compare pixels or models but rarely translate changes into
+      contractor-ready quantities (tonnage, piece counts, embeds, anchors) with
+      cost mapping to shop/field labor.
+    - >-
+      Data fragmentation across PDFs (revisions clouds, delta notes),
+      IFC/RVT/Tekla models, and spec addenda makes version alignment and
+      baselining inconsistent, slowing down reviews.
+  solution:
+    - >-
+      Automated multi-source ingest: PDFs (plan/elevation/details), BIM
+      (IFC/RVT/Tekla), and spec addenda with robust version alignment and
+      baselining.
+    - >-
+      Revision delta engine: computer vision + geometry parsing + NLP to detect
+      and classify changes across graphics, notes, schedules, and title blocks;
+      links to specific callouts and details.
+    - >-
+      Trade-specific quantification: converts detected changes into structural
+      steel tonnage, piece counts by profile/size, connection hardware changes;
+      and precast panel geometry, reinforcement/strand changes, embeds, and
+      connection hardware deltas.
+    - >-
+      Cost impact estimator: maps quantity deltas to configurable production
+      rates, shop/field labor, and material rates; outputs line-item ROMs with
+      sensitivity ranges and risk flags.
+    - >-
+      Evidence and reporting: 2D/3D overlays, clickable change list, CSV/Excel
+      exports, and CO-ready summaries; full traceability for audits/disputes.
+    - >-
+      Workflow integrations: Procore, Autodesk Construction Cloud, Bluebeam,
+      Tekla Structures/EPM, SDS2, STRUMIS via API and app-store connectors.
+    - >-
+      Security and collaboration: project-based permissions, immutable
+      baselines, reviewer tasks/approvals, SOC 2-aligned controls.
+  uniqueValueProp: >-
+    AI-powered revision-to-revision diff that turns drawing/model/spec changes
+    into contractor-ready line items (tonnage, piece counts, panels, embeds,
+    anchors) with estimated cost impact in minutes, not days—integrated into
+    steel/precast workflows and supported by audit-ready overlays and traceable
+    evidence.
+  unfairAdvantage: >-
+    A defensible, growing dataset of revision-change-to-quantity mappings for
+    steel/precast and embedded trade-specific heuristics that general-purpose
+    compare tools lack, combined with deep workflow integrations
+    (Tekla/Procore/Bluebeam) and an audit-ready evidence trail that shortens CO
+    cycles and strengthens negotiation leverage.
+  customerSegments:
+    - >-
+      Primary: Structural steel fabricators and erectors (10–500 employees)
+      handling commercial/industrial projects, especially those using Tekla
+      Structures/SDS2 and ERPs like Tekla EPM/STRUMIS.
+    - >-
+      Primary: Precast concrete producers and erectors (PCI members) managing
+      architectural/structural panels, garages, and industrial projects.
+    - >-
+      Secondary: Steel/precast detailing/modeling firms providing shop drawings
+      and model updates as a service.
+    - >-
+      Secondary: GC VDC/Precon and project controls teams needing independent
+      quantification for CO validation.
+    - >-
+      Secondary: Owner’s reps and cost consultants seeking third-party change
+      quantification for negotiations.
+  channels:
+    - >-
+      Direct outbound to AISC/PCI member lists with 2-call sequence: offer
+      60-day paid pilot and ROI calculator; target VPs of Operations, Detailing
+      Managers, and Preconstruction.
+    - >-
+      Marketplace integrations: Autodesk App Store, Procore Marketplace,
+      Bluebeam plugins to capture in-app discovery and drive low-friction
+      trials.
+    - >-
+      Alliances with steel/precast ERPs and MIS (Tekla EPM, STRUMIS) and
+      fabrication modeling platforms (Tekla Structures, SDS2) to bundle
+      connectors and co-market.
+    - >-
+      Events: exhibit and present case studies at NASCC The Steel Conference,
+      PCI Convention, World of Concrete, and ENR FutureTech; goal: 150 qualified
+      demos/event, 20 pilots.
+    - >-
+      Content and community: monthly webinar series on “Faster CO turnarounds,”
+      technical whitepapers benchmarking tonnage delta accuracy, and sample
+      datasets; share in LinkedIn groups and association newsletters.
+    - >-
+      Resellers/consultants: partner with detailing firms and cost consultants
+      to resell as part of managed change review services (10–20% referral
+      margin).
+    - >-
+      Customer marketing: land-and-expand motion—start with 1–2 projects in a
+      region, expand to enterprise through pilot ROI reports and internal
+      champions.
+  revenueStreams:
+    - >-
+      SaaS subscriptions (annual): Starter $399/month (3 users, 1,000
+      pages/month or 3 model versions), Professional $1,499/month (15 users,
+      5,000 pages/month, 10 model versions), Enterprise custom (SSO, unlimited
+      projects, on-prem options).
+    - >-
+      Usage-based overage: $0.05 per additional PDF page processed; $25 per
+      additional model version diff.
+    - >-
+      Professional services: onboarding/package configuration ($3,000 fixed) and
+      custom connectors/training ($200/hour).
+    - >-
+      Enterprise add-ons: private cloud/VPC isolation (+$25,000/year), SOC 2
+      report access (+$5,000/year), extended retention/archives
+      (+$0.02/GB/month).
+    - >-
+      Premium support: 2-hour response SLA (+$6,000/year) and dedicated CSM
+      (+$12,000/year).
+  costStructure:
+    - >-
+      Cloud compute for CV/NLP/model diffing: assumed $0.008 per page and $0.50
+      per model version at Year-1 volumes; autoscale GPUs for peak loads.
+    - >-
+      Object storage and CDN: ~$0.02/GB/month; average 200MB per 200-sheet set
+      with overlays; retention default 12 months.
+    - >-
+      Engineering and ML: 8–12 FTEs in Year 1–2 for core platform, integrations,
+      and accuracy improvements.
+    - >-
+      Data labeling and expert QA: $60–$120k/year via blended internal SMEs and
+      managed labeling partner; focus on steel/precast specialties.
+    - >-
+      Sales and marketing: event booths/travel ($150k/year), content production
+      ($60k/year), partnerships/referral margin (10–20%).
+    - 'Support and CSM: 1 FTE per 60–80 enterprise seats; in-app support tooling.'
+    - >-
+      Security/compliance: SOC 2 Type II ($80–120k initial, $40–60k annual),
+      pen-tests ($25k/year), legal/insurance.
+    - 'General overhead: G&A, finance, and office/tooling subscriptions.'
+    - >-
+      Unit economics target (end of Year 2): blended COGS ≤20% of revenue; gross
+      margin ≥80%; CAC payback ≤9 months.
+  keyMetrics:
+    - >-
+      Accuracy: median tonnage delta error ≤5%; precision/recall ≥0.90 for
+      detected change classes (steel connections, panel/embed changes).
+    - >-
+      Time-to-first-report: ≤10 minutes for 200-sheet structural sets; ≤5
+      minutes for model diffs ≤50MB.
+    - >-
+      Coverage: ≥95% of revisions automatically aligned to correct baseline
+      without manual mapping.
+    - >-
+      CO cycle time impact: reduce time from revision to submitted CO by ≥30%;
+      target client approval rate ≥85% on flagged items.
+    - >-
+      Adoption: weekly active users/seat ≥60%; ≥3 processed revision sets per
+      active project per month.
+    - >-
+      Sales funnel: trial-to-paid conversion ≥30% for mid-market; expansion
+      revenue from initial project to enterprise ≥2.0x within 12 months.
+    - >-
+      Revenue: ARR, net revenue retention ≥115%, gross margin ≥80%, logo
+      retention ≥90%.
+    - >-
+      Quality: support tickets per 100 processed sets ≤2; P1 incident MTTR ≤2
+      hours; NPS ≥40.
+    - >-
+      Integrations: % of projects connected to at least one system
+      (Procore/Autodesk/Tekla) ≥70%.
+storyBrand:
+  character: >-
+    Structural steel and precast concrete contractors who need to instantly see
+    what changed between spec/drawing revisions so they can protect scope, price
+    accurately, and keep projects on schedule.
+  problem: >-
+    - External: Frequent revisions and addenda hide scope deltas across sheets
+    and spec sections.
+
+    - Internal: Teams burn hours combing PDFs and still miss impacts, risking
+    rework and margin.
+
+    - Philosophical: You shouldn’t lose money because design churn is hard to
+    track.
+  guide: >-
+    We understand steel and precast workflows—estimating, detailing,
+    fabrication, and erection. Built with input from fabricators, detailers, and
+    PMs, our AI is tuned to AISC/PCI conventions and produces clear,
+    audit-friendly outputs.
+  plan: >-
+    - Step 1: Upload baseline and revised drawings/specs (PDF/DWG/IFC).
+
+    - Step 2: AI flags deltas by sheet, callout, and spec clause; estimates
+    quantity/tonnage, embeds, connections, and erection impacts.
+
+    - Step 3: Review and adjust assumptions, then export a priced change
+    log/report to CSV/PDF or push to your estimating/ERP.
+  callToAction: >-
+    Direct: Book a 20-minute demo or start a pilot on your next revision set.
+    Transitional: Download a sample change-impact report.
+  success: >-
+    Capture billable changes you’d otherwise miss, price change events faster
+    with defensible quantities/tonnage, protect margin, shorten approval cycles
+    with a clear audit trail, and keep detailing/fabrication on track.
+  failure: >-
+    Without this, you’ll keep doing manual diffs, miss hidden scope, underprice
+    change orders, absorb costs, invite disputes, and slip schedules.
+landingPage:
+  hero:
+    title: AI Revision Diff & Change Impact for Steel and Precast
+    subtitle: >-
+      Automatically compare drawing/spec revisions, flag scope deltas, and
+      quantify quantity/tonnage impacts—price change events in hours, not days.
+    ctaText: Request a Demo
+    ctaHref: /demo
+  problem:
+    - 'Manual revision checks are slow and inconsistent, leading to missed scope.'
+    - Quantifying tonnage and piece-count changes across many sheets is tedious.
+    - Change pricing stalls while teams redo takeoffs and markups.
+    - 'Disputes arise from unclear, non-traceable revision histories.'
+    - 'Duplicate effort across estimating, PM, and detailing tools wastes hours.'
+  solution:
+    - Automated side-by-side diff of drawings and specs with smart highlights.
+    - 'Instant deltas for pieces, panels, embeds, and tonnage by sheet and area.'
+    - Auto-generated change logs with linked markups and source callouts.
+    - >-
+      Adjustable rules to translate deltas into shop/erection labor and cost
+      ranges.
+    - One-click exports to Excel/CSV and shareable change-order packages.
+    - >-
+      Works with PDFs and common model formats; fits existing BIM and PM
+      workflows.
+  features:
+    - Drawing and spec revision diff with heatmap highlights and callouts.
+    - >-
+      Element-level extraction: steel (beams, columns, plates) and precast
+      (panels, embeds, rebar).
+    - 'Tonnage and piece-count deltas by zone, sequence, and phase.'
+    - 'Connection and hardware impacts (bolts, weld length, embeds) summarized.'
+    - Labor impact estimator for shop and field hours with editable rates.
+    - Version control and audit trail for every change event.
+    - Confidence scoring and risk tags on detected deltas.
+    - Notifications when new revisions drop and packages are ready to review.
+    - 'Team collaboration with comments, assignments, and approvals.'
+    - Secure cloud platform with role-based access and traceability.
+  steps:
+    - Upload Rev A and Rev B drawings/specs or model files.
+    - 'Select scope (steel, precast) and target packages or areas.'
+    - >-
+      Review AI-generated diffs and quantified deltas; adjust assumptions as
+      needed.
+    - Export a pricing-ready change package and share with the GC/owner.
+---
+# ScopeDelta AI
+
+Industry: Structural Steel and Precast Concrete Contractors
+Service: Spec/Drawing Revision Diff and Change Impact

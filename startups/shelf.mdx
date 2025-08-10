@@ -1,0 +1,337 @@
+---
+name: Shelf‑Life & FEFO Allocation Optimizer
+slug: shelf
+service:
+  title: Shelf-Life & FEFO Allocation Optimizer
+  description: >-
+    Allocates lots to orders and routes using dynamic remaining shelf-life and
+    FEFO, minimizing expiries and write-offs.
+  targetUsers:
+    - Warehouse managers
+    - Customer service
+    - Distribution planners
+  triggers:
+    - Inbound lot receipt
+    - Order wave creation
+    - Temperature excursion event
+  inputs:
+    - Lot-level mfg/expiry dates
+    - WMS inventory by location
+    - Customer min-remaining-shelf-life rules
+    - Temperature history (time-at-temp)
+    - Open orders and promised dates
+  steps:
+    - Calculate remaining shelf-life adjusted by temp history
+    - Score lots by FEFO vs customer MSRSL rules
+    - Allocate lots to orders and waves
+    - Flag at-risk lots for rework/donation/markdown
+    - Push pick lists and relabel instructions
+    - Log decisions for auditability
+  tools:
+    - WMS APIs (Blue Yonder/Infor/Fishbowl)
+    - IoT temp APIs (Azure/AWS IoT)
+    - Shelf-life models (Arrhenius/empirical)
+    - Labeling (NiceLabel/BarTender APIs)
+  outputs:
+    - Lot-to-order allocation file
+    - Pick lists and relabel queues
+    - At-risk inventory report
+  pricingModel:
+    - Setup fee
+    - Monthly subscription + per-lot metering
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 4
+    overall: 4
+  risks:
+    - Incorrect shelf-life modeling from poor temp data
+    - Customer compliance breaches on MSRSL
+    - Labeling system connectivity issues
+  dependencies:
+    - WMS access with lot and expiry data
+    - Customer shelf-life requirements
+    - Temperature exposure data
+leanCanvas:
+  problem:
+    - >-
+      Perishable prepared food makers (salads, ready meals, fresh bakery,
+      fresh-cut produce, dairy/short-life, commissaries) lose 2–8% of
+      finished-goods revenue to expiries, markdowns, and write‑offs due to
+      static FIFO rules and manual lot picking.
+    - >-
+      Retailers and foodservice customers enforce minimum‑remaining‑shelf‑life
+      (MRSL) and “code date” policies that are inconsistently applied, causing
+      rejected loads, chargebacks, and lost OTIF performance.
+    - >-
+      Current ERP/WMS FEFO logic ignores dynamic shelf‑life degradation from
+      temperature abuse, dwell time, and route duration; lots that look
+      compliant at pick-time fail MRSL at receiving.
+    - >-
+      Planners lack a way to co‑optimize lot allocation with routing and order
+      promising; they must trade off service level, freshness, and waste
+      manually in spreadsheets.
+    - >-
+      Limited traceability and auditability of allocation decisions increase
+      compliance risk (e.g., FSMA 204) and slow root‑cause analysis for spoilage
+      claims.
+    - >-
+      Short shelf life makes planning cycles tight; without real‑time allocation
+      updates, late orders or route changes cascade into waste and service
+      failures.
+  solution:
+    - >-
+      Dynamic remaining shelf‑life estimation using product‑specific models that
+      adjust for time‑temperature exposure, dwell time, and handling events.
+    - >-
+      FEFO++ allocation engine that selects compliant lots at pick‑time and
+      re‑optimizes with late orders, substitutions, and route changes.
+    - >-
+      Freshness‑aware ATP/CTP: promises orders only if a lot‑route combo can
+      meet customer MRSL and delivery windows.
+    - >-
+      Route‑integrated allocation: co‑optimizes lot selection with route
+      duration and stop sequence to maximize delivered remaining shelf life
+      (DRSL).
+    - >-
+      Compliance and audit trail: records allocation rationale (MRSL,
+      temperature, timestamps) for dispute resolution and traceability.
+    - >-
+      Simulation “what‑if” sandbox to evaluate policy changes (MRSL thresholds,
+      cut‑off times, safety stock) and quantify waste/service trade‑offs.
+    - >-
+      Exception management: flags lots at risk of expiry, creates pull‑forward
+      offers (discounts or channel reallocation), and suggests pick/ship
+      priorities.
+    - >-
+      Lightweight integrations with ERP/WMS/MES/TMS and IoT cold‑chain sensors;
+      near‑real‑time API plus batch fallbacks.
+  uniqueValueProp: >-
+    Reduce expiry write‑offs by 30–50% and improve OTIF‑Fresh to 98%+ by
+    allocating lots to orders and routes using dynamic remaining shelf life
+    (FEFO++), factoring temperature history, customer MRSL rules, and transit
+    durations—embedded in your existing ERP/WMS/TMS with measurable ROI in under
+    12 weeks.
+  unfairAdvantage: >-
+    Proprietary DRSL models calibrated with cross‑customer time‑temperature and
+    spoilage data, plus a maintained retailer MRSL/code‑date policy library and
+    prebuilt integrations enabling 8–12 week time‑to‑value. Closed‑loop learning
+    from allocation outcomes on specific lanes continuously improves
+    performance—hard for generic ERP/WMS rules to match.
+  customerSegments:
+    - >-
+      Mid‑to‑large perishable prepared food manufacturers (annual revenue
+      $50M–$5B) supplying retail and foodservice.
+    - Central kitchens/commissaries for grocery and QSR chains.
+    - >-
+      Contract manufacturers/co‑packers handling multiple brands with
+      heterogeneous MRSL rules.
+    - >-
+      Distribution centers of prepared foods divisions that manage final
+      allocation/picking before delivery.
+    - >-
+      3PL cold‑chain providers offering value‑added services (VAS) to perishable
+      manufacturers.
+  channels:
+    - >-
+      Direct sales to VP Operations/Supply Chain, Plant Managers, QA/Regulatory;
+      land with 8–12 week paid pilot in one plant/2–3 high‑waste SKUs.
+    - >-
+      Alliances with ERP/WMS/TMS vendors for marketplace listings and co‑sell
+      motions; prebuilt integration accelerators to lower time‑to‑value.
+    - >-
+      Systems integrator partners specializing in food manufacturing for
+      deployment and change management; revenue share and enablement kits.
+    - >-
+      Cold‑chain IoT vendors for joint value proposition (temperature → DRSL →
+      allocation) and co‑marketing.
+    - >-
+      Industry events/webinars (IFPA, IFT, GS1, ProFood Tech) with
+      waste‑reduction case studies and customer panels.
+    - >-
+      Content marketing: code‑date compliance guides by retailer, DRSL
+      calculators, and interactive ROI tools; targeted ABM to top 500 perishable
+      producers.
+    - >-
+      Pilot‑to‑production playbook: success criteria agreed upfront (e.g., ≥25%
+      waste reduction, ≥1.5 days avg DRSL gain, ≥97.5% OTIF‑Fresh), executive
+      sponsor cadence, and rollout roadmap.
+    - >-
+      Customer expansion motion: cross‑sell to additional plants/SKUs/routes
+      post‑pilot; template SOWs and volume‑based discounts.
+  revenueStreams:
+    - >-
+      SaaS subscription per plant, tiered by monthly order lines or cases (e.g.,
+      $60k–$240k ARR per plant depending on volume).
+    - >-
+      One‑time implementation/integration fee per plant ($20k–$150k based on
+      systems and complexity).
+    - >-
+      Premium support/SLA (24×7, <1‑hour critical response) at 15–20% of
+      subscription.
+    - >-
+      Usage‑based add‑ons: simulation compute hours, advanced ML shelf‑life
+      modeling, additional API calls.
+    - >-
+      Professional services: policy design, change management, retailer
+      compliance audits, training.
+    - >-
+      Optional performance‑based component: gainshare on verified waste
+      reduction beyond threshold.
+  costStructure:
+    - 'R&D: data science and optimization engineering, product management, QA.'
+    - >-
+      Cloud infrastructure: compute for optimization/simulation, databases,
+      observability, secure data retention.
+    - >-
+      Integrations: connector maintenance, certification with ERP/WMS/TMS
+      marketplaces.
+    - >-
+      Implementation and customer success: solution architects, onboarding,
+      training, change management.
+    - >-
+      Sales and marketing: enterprise AEs, partner managers, event sponsorships,
+      content creation; partner commissions 10–25%.
+    - >-
+      Security/compliance: SOC 2, penetration tests, privacy, regulatory
+      advisory.
+    - 'Insurance and legal: product liability/tech E&O, contracts, IP protection.'
+  keyMetrics:
+    - >-
+      Expiry/write‑off reduction: target 30–50% reduction in 90 days; track $
+      and % vs baseline by SKU/plant.
+    - >-
+      OTIF‑Fresh (on‑time, in‑full, and compliant MRSL): target ≥98.0% for top
+      20 customers; report by lane and customer weekly.
+    - >-
+      Delivered Remaining Shelf Life (DRSL): average days at receipt; target
+      +1.0–2.5 day improvement; 90th percentile DRSL ≥ customer MRSL + 1 day.
+    - >-
+      Lots‑at‑risk index: number of cases within 72 hours of expiry without an
+      allocation; target −60% within 60 days.
+    - >-
+      Allocation latency: 95th percentile decision time ≤5 seconds per order
+      line; re‑optimization ≤60 seconds for route changes.
+    - 'Waste per case shipped: target ≤$0.04–$0.08 reduction; benchmark monthly.'
+    - >-
+      Chargebacks/claims for code‑date noncompliance: target −50% within 6
+      months.
+    - >-
+      Aged inventory (≥50% life consumed) dwell time: target −40% within 90
+      days.
+    - >-
+      User adoption: >85% of waves using optimizer; <5% manual overrides without
+      justification; CSAT ≥4.5/5 for planners/pickers.
+    - >-
+      Uptime and data freshness SLAs: ≥99.9% service availability; data pipeline
+      latency ≤5 minutes for inventory/temperature feeds.
+storyBrand:
+  character: >-
+    Ops, planning, and distribution leaders at perishable prepared-food
+    manufacturers who must allocate lots to orders and routes fast, accurately,
+    and FEFO-compliant.
+  problem: >-
+    External: Short shelf-life, volatile demand, multi-lot inventory, and
+    complex routing make manual allocation slow and error-prone—leading to
+    expiries, write-offs, chargebacks, and FEFO (First Expire, First Out) audit
+    risk.
+
+    Internal: Constant firefighting and stress over waste, penalties, and
+    service failures.
+
+    Philosophical: Food is made to be eaten, not thrown away—compliance and
+    sustainability shouldn’t be a trade-off.
+  guide: >-
+    Empathy: We know the daily pressure of tight cutoffs, retailer SLAs, and
+    zero-tolerance FEFO audits.
+
+    Authority: Built by practitioners in perishable manufacturing, combining
+    optimization and ML; integrates with ERP/WMS; follows industry FEFO best
+    practices and data-security standards.
+  plan: >-
+    Process plan:
+
+    1) Connect ERP/WMS and inventory data.
+
+    2) Configure shelf-life rules, FEFO policies, and customer/SLA constraints.
+
+    3) Run AI allocation to assign lots to orders and routes by remaining
+    shelf-life.
+
+    4) Approve in-app or auto-apply to picking and shipping.
+
+    5) Monitor waste, OTIF, and compliance; refine continuously.
+
+    Agreement plan:
+
+    - Transparent recommendations with override controls.
+
+    - No disruption to existing pick/ship flows.
+
+    - Secure data handling and clear success criteria for pilot.
+  callToAction: >-
+    Direct: Book a 30-minute demo or start a single-site pilot.
+
+    Transitional: Download the FEFO audit checklist and ROI/waste-reduction
+    calculator.
+  success: |-
+    - Fewer expiries and write-offs
+    - Higher FEFO compliance and audit readiness
+    - Better OTIF and fewer chargebacks
+    - Improved margin and inventory turns
+    - Lower waste and stronger sustainability metrics
+  failure: |-
+    - Ongoing expiries, rework, and write-offs
+    - Chargebacks, lost shelf space, and damaged retailer trust
+    - Manual firefighting and missed cutoffs
+    - Poor visibility into shelf-life risk and compliance gaps
+landingPage:
+  hero:
+    title: Shelf-Life & FEFO Allocation Optimizer
+    subtitle: >-
+      AI that allocates lots to orders and routes using dynamic remaining
+      shelf-life. Cut expiries and write-offs, lift OTIF, and keep retailers
+      happy.
+    ctaText: Book a Demo
+    ctaHref: /demo
+  problem:
+    - Write-offs from expired or near-expired finished goods
+    - Manual spreadsheets to match lots with orders and routes
+    - Missed OTIF and retailer penalties for low remaining life
+    - Customer-specific MRL rules hard to apply at scale
+    - QA holds and cold-chain events breaking FEFO
+    - Allocations ignore route times and delivery windows
+    - Overproduction buffers to hedge uncertainty
+  solution:
+    - Real-time FEFO engine using remaining shelf-life per lot
+    - 'Route-aware allocation: drive time and delivery windows included'
+    - 'Customer MRL, allergens, and market rules applied automatically'
+    - Dynamic reallocation when orders change or temps shift
+    - 'API-first: plugs into ERP/WMS/TMS and MES'
+    - Picker guidance with scanning and labels for right-first-time
+    - 'Dashboards, alerts, and explainable decisions'
+  features:
+    - >-
+      Remaining shelf-life modeling from production, QA, and temperature
+      exposure
+    - Per-customer Minimum Remaining Life (MRL) and case-level constraints
+    - 'Allergen, batch, and hold/recall compliance built in'
+    - Route and stop-level FEFO with cut-off and dwell settings
+    - 'What-if simulation for promos, rush orders, and shortages'
+    - 'Auto-replan on new orders, delays, or cold-chain anomalies'
+    - ERP/WMS/TMS connectors and open REST/GraphQL APIs
+    - 'Mobile pick lists, barcode verification, and label printing'
+    - Audit trail and explainability for every allocation
+    - 'SaaS or private cloud; SSO, roles, and SOC 2-aligned security'
+  steps:
+    - Connect your ERP/WMS/MES and telematics via API
+    - 'Ingest lots, expiries, orders, routes, and customer rules'
+    - 'Configure MRL, allergens, and route policies'
+    - Dry-run allocations and validate with your team
+    - Go live with picker guidance and real-time alerts
+    - Review KPIs; fine-tune rules and automation
+---
+# Shelf‑Life & FEFO Allocation Optimizer
+
+Industry: Perishable Prepared Food Manufacturing
+Service: Shelf-Life & FEFO Allocation Optimizer

@@ -1,0 +1,313 @@
+---
+name: CellGuard AI — RAN Anomaly Detector & Self-Healing Recommender
+slug: cellguard
+naics:
+  primary: '517112'
+  occupations: []
+service:
+  title: RAN Anomaly Detector & Self-Healing Recommender
+  description: >-
+    Detects abnormal cell KPIs and recommends safe, vendor-specific parameter
+    adjustments with change tickets.
+  targetUsers:
+    - RAN Performance Engineers
+    - Ops Excellence
+    - Vendor Management
+  triggers:
+    - KPI anomaly over baseline
+    - New site/carrier activation
+    - Post-maintenance verification
+  inputs:
+    - Cell-level KPIs (drop/BLER/RRC/HO)
+    - Parameters and neighbor lists
+    - Topology and spectrum
+    - Events/maintenance logs
+  steps:
+    - Ingest PM counters and compute robust baselines
+    - Detect anomalies (ESD/Prophet/seasonal decomposition)
+    - Cluster by symptom/topology to reduce noise
+    - LLM explains likely cause and maps to known fixes
+    - Generate proposed parameter deltas and safety checks
+    - Open change request with backout plan; schedule and monitor impact
+  tools:
+    - Vendor OSS adapters (ENM/NetAct/M2000)
+    - TimescaleDB/InfluxDB
+    - Prophet/scikit-learn
+    - OR-Tools for scheduling
+    - ServiceNow Change/TMF640
+    - Optional Netconf/gNMI (read-only by default)
+  outputs:
+    - Daily anomaly digest by cluster
+    - Recommended change sets with risk score
+    - Change tickets and post-change KPIs
+  pricingModel:
+    - Per-cell-per-month
+    - Per-approved change add-on
+    - Setup/integration fee
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 7
+    overall: 7
+  risks:
+    - Incorrect parameter advice causing QoS impact
+    - Vendor/version incompatibilities
+    - Data latency/quality issues
+  dependencies:
+    - PM/parameter read access
+    - Parameter catalogs and guardrails
+    - Change governance and rollback
+leanCanvas:
+  problem:
+    - >-
+      RAN operations teams face alert fatigue from millions of counters and
+      static thresholds, leading to slow Mean-Time-To-Detect (MTTD) and
+      Mean-Time-To-Recover (MTTR).
+    - >-
+      Manual parameter tuning (neighbor lists, power/tilt, handover, timers, PRB
+      scheduling, QoS profiles) is error-prone, vendor/tech specific, and
+      constrained by change-management policies.
+    - >-
+      Existing SON tools are often rule-based, vendor siloed, or lack
+      explainability and safe rollout/rollback; they struggle with multi-vendor,
+      4G/5G DSS, and densification/small cells.
+    - >-
+      Poorly detected anomalies and conservative changes drive QoE degradation
+      (dropped calls, poor throughput), SLA penalties, NPS churn, and high OPEX
+      (truck rolls, overtime).
+    - >-
+      Carriers need a closed-loop but human-governed way to detect abnormal KPIs
+      per cell/cluster and recommend safe, vendor-specific parameter adjustments
+      with audit-ready change tickets.
+  solution:
+    - >-
+      Ingest PM/CM/FM data (3GPP counters, vendor OSS exports, topology, alarms,
+      traces) and build seasonal, per-cell baselines with topology-aware anomaly
+      detection (unsupervised + supervised).
+    - >-
+      Correlate anomalies across cells/clusters/sectors to isolate likely root
+      causes (e.g., HO failures post-software upgrade, neighbor misconfig,
+      interference, backhaul congestion).
+    - >-
+      Recommend vendor-specific parameter changes (e.g., A3/A5 offsets, TTT,
+      CIO, P0NominalPUSCH, RACH backoff, PRB scheduling weights, B1/B2
+      thresholds, neighbor add/remove) with guardrails per vendor release.
+    - >-
+      Run “safe-change” simulation (digital twin) using historical distributions
+      and constraints; generate expected KPI deltas and rollback plans; support
+      progressive rollout (A/B, canary across 1–3% of cells).
+    - >-
+      Produce auditable change tickets with impact assessment and pre/post-check
+      tasks; integrate with ServiceNow/JSM; optional closed-loop execution via
+      OSS/NMS/SON/SMO APIs with human-in-the-loop approval.
+    - >-
+      Continuously learn from outcomes (accept/reject, post-change KPI deltas)
+      to improve precision and adapt to seasonality, events, and new releases.
+  uniqueValueProp: >-
+    Detect abnormal cell KPIs and recommend safe, vendor-specific RAN parameter
+    adjustments with explainability, simulation, and auto-generated change
+    tickets—cutting MTTD/MTTR by 30–60% and reducing manual tuning hours by
+    40–70% while protecting QoE and SLAs.
+  unfairAdvantage: >-
+    A vendor- and release-specific parameter knowledge base with encoded safe
+    ranges and interactions, coupled with a simulation-first guardrail engine
+    and human-governed closed-loop workflow. Over time, outcome-driven learning
+    (via federated or per-operator models) compounds precision without sharing
+    raw data.
+  customerSegments:
+    - >-
+      Tier-1/Tier-2 wireless carriers (NAICS 517112) operating 10k–250k+ sectors
+      across 4G/5G NR, often multi-vendor (Ericsson, Nokia, Huawei, Samsung).
+    - 'RAN performance and optimization teams (Directors/Managers, RF engineers).'
+    - NOC/Service Assurance leaders accountable for MTTD/MTTR and SLA penalties.
+    - Automation/SON/SMO/RIC owners seeking closed-loop use cases.
+    - >-
+      IT/Change Management owners (ServiceNow/Jira Service Management) needing
+      auditable, safe changes.
+  channels:
+    - >-
+      Direct enterprise sales to carriers via regional account teams (US, EMEA,
+      APAC).
+    - >-
+      System integrator partnerships (Tech Mahindra, TCS, Accenture, Capgemini)
+      bundled with network modernization/automation programs.
+    - >-
+      Hyperscaler marketplaces (AWS Marketplace for Telecom, Azure for
+      Operators) with private offers and committed-spend alignment.
+    - >-
+      Co-sell with OSS/ITSM vendors (ServiceNow Telco, Netcracker) and with RAN
+      vendors where allowed via certification programs.
+    - >-
+      Thought leadership and field marketing: MWC, DTW, Big 5G, O-RAN Plugfests;
+      publish POC case studies and technical benchmarks.
+    - >-
+      Land-and-expand: start with a high-pain cluster (e.g., 2–5k cells), prove
+      ROI in 8–12 weeks, expand nationwide in phases.
+  revenueStreams:
+    - >-
+      SaaS subscription (on-prem/VPC-supported) priced per sector/cell per
+      month: $0.08–$0.25 per sector/month (volume-tiered); example: 100k sectors
+      ≈ $8k–$25k/month.
+    - >-
+      Enterprise license option per site/year for on-prem: $80–$200 per
+      site/year with 3-year term; includes support/updates.
+    - >-
+      Add-on modules: Energy Optimization pack (off-peak features), VoNR/VoLTE
+      QoE pack, Advanced Root-Cause pack ($0.02–$0.06 per sector/month each).
+    - >-
+      Professional services: data integration + hardening + UAT ($150k–$600k per
+      operator depending on footprint and interfaces).
+    - >-
+      Premium SLA (24x7, dedicated TAM, custom models) + compliance add-ons
+      (fed/regulated environments) at 15–25% uplift.
+    - >-
+      Training and certification for operators/SIs ($1.5k per engineer, cohort
+      pricing).
+  costStructure:
+    - >-
+      R&D: ML engineering, RAN SMEs, model validation labs (40–55% of spend
+      pre-scale).
+    - >-
+      Cloud/infra: data ingestion, storage (object stores), compute for
+      training/inference, observability (10–18% COGS for SaaS).
+    - >-
+      On-prem delivery: installer, packaging, security hardening, customer
+      support (PS heavy in early deployments).
+    - Data connectors and vendor certification maintenance (5–8%).
+    - Sales/Marketing and partner commissions (15–25%).
+    - >-
+      Compliance and security (ISO 27001/SOC 2 audits, pen tests, EKM/HSM
+      options) (3–6%).
+    - >-
+      Lab environments with vendor OSS/NMS emulators and traffic generators
+      (3–5%).
+  keyMetrics:
+    - >-
+      Operational impact: MTTD ↓30–50%, MTTR ↓25–40%; anomaly precision ≥85%,
+      recall ≥70%; false positive rate ≤10%.
+    - >-
+      Change outcomes: recommendation acceptance rate ≥60% by month 3; change
+      success rate (no rollback) ≥95%; post-change KPI improvement attribution
+      ≥70% of accepted changes.
+    - >-
+      QoE/KPI lift in pilot cluster: Drop Call Rate ↓10–25%, VoLTE/VoNR CSSR
+      +0.5–1.5 pp, HO failure rate ↓15–30%, P95 user throughput +5–12%.
+    - >-
+      Efficiency: manual tuning hours ↓40–70%; truck rolls per 1k cells ↓10–20%;
+      alarm volume per 1k cells ↓20–35%.
+    - >-
+      Safety/compliance: no SEVs from automation; 100% audit coverage of
+      changes; change-induced incident rate <0.5% of automated changes.
+    - >-
+      Business: POC-to-production conversion ≥50%; net revenue retention ≥120%;
+      gross margin ≥70% SaaS; payback on CAC <12 months.
+storyBrand:
+  character: >-
+    RAN and Operations leaders at wireless carriers (NAICS 517112) who want a
+    stable, self-healing network and fewer war rooms.
+  problem: >-
+    External: KPI floods, multi-vendor complexity, and drifting parameters hide
+    real degradations. Internal: teams are stuck firefighting and hesitant to
+    change risky settings. Philosophical: networks should spot anomalies early
+    and heal safely so subscribers always get consistent service.
+  guide: >-
+    We understand 24/7 RAN pressure and noisy KPIs—our team includes former RAN
+    engineers. The service uses explainable AI, aligns recommendations to vendor
+    playbooks, and enforces guardrails and rollback to keep changes safe and
+    auditable.
+  plan: >-
+    1) Connect: securely ingest PM counters, alarms, and CM baselines from your
+    RAN/ITSM. 2) Detect: learn per-cell normal and surface anomalies in near
+    real time. 3) Recommend: propose vendor-specific, safe parameter adjustments
+    with impact estimates. 4) Approve & ticket: one-click change tickets into
+    your ITIL workflow. 5) Optional: closed-loop remediation with guardrails and
+    auto-rollback.
+  callToAction: >-
+    Direct: Start a 4-week read-only pilot to validate detections and
+    recommendations. Transitional: Request the methodology brief and a sample
+    change ticket pack.
+  success: >-
+    Fewer outages and war rooms, faster MTTR, stabilized KPIs, safer parameter
+    changes across vendors, cleaner change records, improved SLA compliance and
+    subscriber experience, and reduced OPEX from targeted, automated fixes.
+  failure: >-
+    Without it, silent degradations linger, risky manual tuning triggers
+    regressions, SLA penalties and churn rise, engineers burn out in endless
+    incident bridges, and change records remain incomplete and noncompliant.
+landingPage:
+  hero:
+    title: RAN Anomaly Detector & Self-Healing Recommender
+    subtitle: >-
+      Detect abnormal cell KPIs and get safe, vendor-specific parameter
+      adjustments—complete with ready-to-execute change tickets.
+    ctaText: Request a Demo
+    ctaHref: /demo
+  problem:
+    - Silent degradations hide in KPI noise; alarms are late or too noisy.
+    - >-
+      Multi-vendor RAN tuning is risky and slow without vendor-specific
+      guardrails.
+    - 'High MTTR from manual correlation across PM, CM, FM, and traces.'
+    - >-
+      Change tickets are inconsistent; safety checks and rollback plans are
+      manual.
+    - War rooms consume engineer time; SLA penalties and churn risk increase.
+    - Limited explainability makes approvals and audits painful.
+  solution:
+    - >-
+      Real-time anomaly detection per cell/sector with adaptive, traffic-aware
+      baselines.
+    - >-
+      Vendor-specific, safe parameter recommendations with blast-radius limits
+      and impact estimates.
+    - >-
+      Auto-generated change tickets for ServiceNow/Remedy/Jira with approvals
+      and rollback plans.
+    - >-
+      Root-cause hints using topology, neighbor relations, and alarms for faster
+      triage.
+    - >-
+      Closed-loop validation: monitor post-change KPIs and suggest revert if
+      needed.
+    - >-
+      Seamless integration with OSS/NMS/SMO for execution and reporting via
+      APIs.
+  features:
+    - 'Multi-vendor support: Ericsson, Nokia, Huawei, Samsung; 4G/5G NSA/SA.'
+    - 'Streaming ingestion of PM counters, CM, FM, traces, and topology.'
+    - Seasonal and drift-aware baselines; early anomaly scoring with confidence.
+    - >-
+      Impact modeling on throughput, drops, HO failures, PRB utilization, and
+      QoE.
+    - Safe recommendation engine with policy guardrails and maintenance windows.
+    - 'What-if simulation before change: estimated gain and risk level.'
+    - 'Change ticket automation: ServiceNow, Remedy, Jira; custom webhooks.'
+    - 'One-click execution via ENM, NetAct, SMO/ORAN; export scripts supported.'
+    - >-
+      Explainability with feature contributions, rule traces, and full audit
+      log.
+    - 'AIOps dashboards: maps, heatmaps, timelines, sector drill-down.'
+    - >-
+      Security and compliance: SSO, RBAC, VPC/private cloud/on-prem;
+      audit-ready.
+    - Horizontally scalable to millions of cells with HA and failover.
+  steps:
+    - 'Connect data sources: PM, CM, FM, traces, topology via secure connectors.'
+    - >-
+      Auto-learn baselines per cell and KPI; adapt to seasons and traffic
+      patterns.
+    - Detect and rank anomalies by impact and confidence.
+    - Receive vendor-specific parameter recommendations with safety checks.
+    - >-
+      Auto-generate change tickets with scheduling, approvals, and rollback
+      plans.
+    - Execute via NMS/SMO or export; sync status back to ITSM.
+    - >-
+      Monitor post-change KPIs; auto-close or propose revert if degradation
+      persists.
+    - Review reports and continuously refine policies and thresholds.
+---
+# CellGuard AI — RAN Anomaly Detector & Self-Healing Recommender
+
+Generated for NAICS 517112 — Wireless Telecommunications Carriers (except Satellite).
+Service: RAN Anomaly Detector & Self-Healing Recommender

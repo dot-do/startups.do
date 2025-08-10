@@ -1,0 +1,326 @@
+---
+name: SurfaCast AI
+slug: surfacast
+service:
+  title: SKU Demand Forecast and Campaign Scheduler
+  description: >-
+    Forecasts SKU demand and generates solvent/surfactant campaign schedules to
+    minimize changeovers, cleaning, and waste.
+  targetUsers:
+    - Supply planners
+    - Operations planners
+    - Plant managers
+  triggers:
+    - Monthly S&OP cycle
+    - Large order intake change
+    - Seasonality or promotion calendar update
+  inputs:
+    - Historical shipments/orders by SKU and customer
+    - Promotions and customer forecasts
+    - 'Production rates, tank capacities, changeover matrices/CIP times'
+    - Inventory and MOQ constraints
+  steps:
+    - Clean and classify SKUs (make-to-stock vs make-to-order)
+    - 'Build hierarchical forecasts (SKU, family, region) with uncertainty'
+    - Optimize campaign sequence with MILP to reduce changeovers and stockouts
+    - Simulate service level vs. capacity trade-offs
+    - Publish finite schedule and safety stock targets
+  tools:
+    - 'Python, Prophet/XGBoost'
+    - OR-Tools/PuLP for MILP
+    - CSV/Excel or ERP OData connector (SAP/Oracle)
+    - Simple web UI for overrides
+  outputs:
+    - SKU-level forecast with confidence intervals
+    - Campaign sequence and changeover plan
+    - Safety stock and reorder points by SKU
+    - 'What-if scenarios (capacity, demand shock)'
+  pricingModel:
+    - Setup fee (data model + optimizer)
+    - Monthly subscription per site
+    - Optional scenario pack add-on
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 9
+    overall: 9
+  risks:
+    - Poor master data (changeover matrix inaccuracies)
+    - Forecast bias from promotions not captured
+    - Planner acceptance and override governance
+  dependencies:
+    - ERP data access (read-only)
+    - Confirmed production rates and cleaning times
+    - Service level targets
+leanCanvas:
+  problem:
+    - >-
+      High-mix, small-batch surfactant manufacturing causes frequent changeovers
+      and cleaning. Plants lose 10–25% of available reactor time to changeovers
+      and 3–8% of batch mass to solvent flushes and off-spec rework.
+    - >-
+      Demand volatility and long-tail SKUs drive poor forecast accuracy (MAPE
+      20–40% for tail SKUs), causing stockouts, expediting, and excess inventory
+      (20–35 days over target).
+    - >-
+      Manual planning in spreadsheets and generic APS tools cannot manage
+      reactor-tank-packaging constraints, raw material compatibility, or
+      hazardous changeover matrices, leading to suboptimal campaigns and low
+      plan adherence (<70%).
+    - >-
+      Cleaning and EHS constraints (CIP durations, solvent recovery limits, VOC
+      and waste disposal fees) are not proactively optimized, inflating solvent
+      usage by 10–30% and waste costs by 5–15% per year.
+    - >-
+      Raw material variability (lead times 2–12 weeks; price swings 10–25%)
+      creates bullwhip effects without accurate SKU-level demand signals and
+      consumption forecasts.
+    - >-
+      Weak S&OP to finite-scheduling handoff causes frequent re-plans (2–5 per
+      week), missed service levels (OTIF <90%), and higher working capital.
+  solution:
+    - >-
+      Unified demand-plus-scheduling: Bayesian hierarchical forecasting tuned
+      for B2B chemicals feeds a finite-capacity, constraint-based campaign
+      scheduler that clusters runs by chemistry, viscosity, color, and
+      compatibility to minimize changeovers and solvent flushes.
+    - >-
+      Surfactant-aware changeover optimization: Uses a domain changeover matrix
+      (acid/base, feedstock family, color contamination risk, quaternization vs
+      ethoxylation) and CIP solvent optimization to reduce cleaning time and
+      waste while meeting quality and EHS constraints.
+    - >-
+      End-to-end constraints: Models reactors, storage tanks, heat/cool curves,
+      transfer lines, packaging lines, QC release times, shelf life, raw
+      material availability, and labor/shift calendars in one solver
+      (MILP/CP-SAT hybrid).
+    - >-
+      Scenario planning and S&OP integration: Simulate demand shocks, raw
+      material delays, and campaign length trade-offs; generate feasible plans
+      for S&OP and produce finite schedules and production orders for MES/ERP.
+    - >-
+      Data integration accelerators: Prebuilt connectors for SAP (ECC/S4, IBP),
+      MES/historians (e.g., OSI PI), LIMS, and WMS; API-first to push schedules
+      back to ERP or APS.
+    - >-
+      Human-in-the-loop: Planners edit campaigns, lock runs, and set business
+      rules; the optimizer respects overrides and updates KPIs in real time.
+  uniqueValueProp: >-
+    A surfactant-specific AI platform that jointly forecasts SKU demand and
+    builds solvent-conscious campaign schedules, reducing changeover hours by
+    20–40%, solvent use by 15–30%, and improving forecast MAPE to under 15% for
+    core SKUs—unlocking 2–5% effective capacity and payback in under 6 months.
+  unfairAdvantage: >-
+    A surfactant-specific changeover and CIP optimization library, pre-trained
+    demand models for B2B chemical SKU patterns, and ready-made ERP/MES
+    connectors enable faster time-to-value and measurable solvent and changeover
+    reductions that generic APS or demand tools cannot match. Early proof points
+    and benchmarks become proprietary references that raise switching costs.
+  customerSegments:
+    - >-
+      Mid-to-large surfactant producers: anionics (LAS, SLES), nonionics
+      (alcohol ethoxylates), amphoterics (betaines), cationics (quats),
+      specialty blends and emulsifiers.
+    - >-
+      Contract/toll manufacturers making surfactants and formulated blends for
+      personal care, HI&I, agrochemicals, oilfield, and industrial markets.
+    - >-
+      Economic buyers: VP Supply Chain, Plant Manager, Director of Planning,
+      Head of S&OP. Users: production schedulers, demand planners, process
+      engineers, EHS managers.
+    - >-
+      Geographies: North America, EU, UK, Middle East, India, Southeast Asia;
+      initial focus on NA/EU multinationals and regional champions.
+  channels:
+    - >-
+      Pilot-led enterprise sales: target list of 200 surfactant plants; run
+      8-week paid pilots at one site and 50–150 SKUs; success criteria agreed
+      upfront (>=20% changeover time reduction and <=15% MAPE on A/B SKUs).
+    - >-
+      Allied SI partnerships: certify 10–15 SAP/MES integrators to implement
+      connectors and data models; rev-share and co-sell packages.
+    - >-
+      Industry presence: papers and case studies at AOCS, SEPAWA, AIChE Spring,
+      in-cosmetics, and World Surfactants Congress; booth plus joint talks with
+      early adopters.
+    - >-
+      Account-based marketing: outreach to VP Supply Chain and Plant Managers
+      via LinkedIn ABM and email; 3-part content series (changeover reduction,
+      solvent savings, forecast accuracy) with calculators.
+    - >-
+      Land-and-expand: start with one site and module bundle; expand to
+      additional sites and add sustainability module within 6–12 months.
+    - >-
+      Customer advisory board: 6–8 anchor customers shaping the changeover
+      matrix library and benchmarks; quarterly roadmap sessions.
+  revenueStreams:
+    - >-
+      Annual subscription per manufacturing site: 120k–300k USD depending on
+      number of reactors, SKUs, and modules (forecasting, scheduling,
+      sustainability).
+    - >-
+      One-time implementation and integration fee: 75k–250k USD per site based
+      on ERP/MES landscape and data readiness.
+    - >-
+      Outcome-based option: 5–10% of verified year-one savings (changeover
+      hours, solvent and waste costs, expediting reduction) in lieu of part of
+      subscription for first year.
+    - >-
+      Professional services: data cleansing, changeover matrix authoring, and
+      advanced modeling at 150–220 USD per hour.
+    - >-
+      Training and certification: 1,500 USD per user for planner and engineer
+      tracks; annual enablement packages.
+    - >-
+      Multi-site and enterprise discounts for 3+ plants and 3-year commitments
+      (10–20%).
+  costStructure:
+    - 'R&D and product (ML/OR engineers, domain SMEs, platform): 35–45% of OPEX.'
+    - >-
+      Implementation and customer success (solution architects, support): 20–30%
+      of OPEX.
+    - >-
+      Cloud and software (compute for optimization and training, storage,
+      security tooling): 8–12% of OPEX; 2–6 USD per optimized schedule run
+      typical cloud cost at scale.
+    - 'Sales and marketing (events, ABM, partner enablement): 15–25% of OPEX.'
+    - 'Compliance, legal, insurance: 2–5% of OPEX.'
+    - >-
+      Partner commissions for SI co-sell: 10–20% of first-year subscription on
+      partner-led deals.
+  keyMetrics:
+    - >-
+      Customer value KPIs: changeover hours reduced (target 20–40%), solvent
+      liters per batch reduced (15–30%), plan adherence (to start-of-day
+      schedule) >85%, OTIF +5–10 points, forecast MAPE <=15% for A/B SKUs and
+      <=25% for C SKUs.
+    - >-
+      Capacity and cost outcomes: effective capacity +2–5%, waste disposal cost
+      -10–20%, expedites -25–50%, inventory turns +10–20%.
+    - >-
+      Sustainability: solvent waste (kg) and CO2e from solvent and energy proxy
+      reduced by 10–25% in year one.
+    - >-
+      Adoption: planner edits accepted vs rejected >70%, weekly active users
+      >90% of target roles, time-to-replan <30 minutes.
+    - >-
+      Implementation: time-to-first-schedule <=6 weeks, time-to-value (pilot to
+      savings) <=12 weeks.
+    - >-
+      Business metrics: ARR, gross margin >70%, CAC payback <12 months,
+      pilot-to-subscription conversion >60%, net revenue retention >120% with
+      land-and-expand.
+storyBrand:
+  character: >-
+    Operations and supply chain leaders at surfactant/solvent plants who must
+    hit service levels while minimizing changeovers, cleanouts, and waste.
+  problem: >-
+    Volatile SKU demand and complex cleaning matrices force frequent
+    changeovers, long cleanouts, and wasted solvent. Spreadsheet planning causes
+    stockouts, excess inventory, overtime, and missed OTIF.
+  guide: >-
+    SKU Demand Forecast and Campaign Scheduler is an AI co-planner purpose-built
+    for surface active agent manufacturing. It learns your demand patterns,
+    cleaning matrix, tanks, and batch constraints to recommend feasible
+    campaigns.
+  plan: >-
+    1) Connect ERP/MES data (orders, SKUs, BOMs, routings,
+    cleaning/compatibility matrix). 2) Generate probabilistic forecasts and
+    optimized campaign sequences by line and tank with finite capacity. 3)
+    Review exceptions, lock campaigns, and publish weekly schedules to
+    operations.
+  callToAction: >-
+    Book a 30-minute demo or start a 4-week pilot using the last 24 months of
+    data; receive a live schedule and quantified savings.
+  success: >-
+    Reduce changeovers and cleanouts, cut solvent and waste, boost OEE and
+    service level, lower working capital, stabilize shifts, and gain confident,
+    predictable campaigns.
+  failure: >-
+    Keep firefighting: frequent changeovers, contamination risk and QA holds,
+    costly overtime and premium freight, late orders, and margin erosion.
+landingPage:
+  hero:
+    title: AI Demand Forecasting & Campaign Scheduling for Surfactants
+    subtitle: >-
+      Predict SKU demand and auto-build solvent/surfactant campaigns to cut
+      changeovers, cleaning, and waste—boost OTIF and asset utilization.
+    ctaText: Book a demo
+    ctaHref: '#demo'
+  problem:
+    - Volatile orders and SKU proliferation overwhelm spreadsheets.
+    - 'Frequent changeovers drive downtime, flushes, and rework.'
+    - Cleaning solvent and water use inflate cost and emissions.
+    - >-
+      Incompatibilities (anionic/cationic, solvent family) complicate
+      sequencing.
+    - Tank/line constraints and CIP times limit capacity.
+    - Forecast error causes stockouts on A SKUs and excess on long tail.
+    - Raw material lead-time uncertainty derails plans.
+    - Siloed ERP/MES data makes decisions slow and reactive.
+  solution:
+    - SKU-level ML forecasts with explainability and planner overrides.
+    - >-
+      Constraint-based campaign sequencing that groups compatible chemistries to
+      minimize flush/cleaning.
+    - >-
+      Optimizes batch sizes, run lengths, and line/tank assignments under MOQ,
+      shelf-life, and CIP constraints.
+    - >-
+      Live replanning as orders, raw material availability, or maintenance
+      change.
+    - 'Scenario planning for demand surges, outages, and supply delays.'
+    - Publish-ready plans to ERP/MES with alerts for stockout and capacity risk.
+    - 'KPIs that track changeovers, flush volume, OTIF, and utilization.'
+  features:
+    - >-
+      Hierarchical forecasting by SKU, customer, and region; ABC-XYZ
+      segmentation.
+    - >-
+      Cold-start for new SKUs using attribute similarity (chemistry, active
+      matter).
+    - 'Seasonality, promotions, and external signal support.'
+    - Explainable drivers and accuracy tracking (MAPE/WAPE) with bias alerts.
+    - Safety-stock recommendations aligned to service levels.
+    - >-
+      Compatibility matrices (anionic/cationic/nonionic; solvent family;
+      fragrance/color) to control sequence.
+    - >-
+      Clean-in-place recipes with time, flush volume, and waste capture per
+      family.
+    - >-
+      Line/tank capacity, transfer limits, heat-up/cool-down, and min/max batch
+      sizing.
+    - >-
+      Multi-objective optimization: changeovers, cleaning, lateness, overtime,
+      CO2e.
+    - Multi-plant and tolling support with inter-site balancing.
+    - >-
+      Interactive Gantt, capacity heatmaps, and drag-drop with feasibility
+      checks.
+    - One-click reoptimize and what-if sandbox; audit trail for overrides.
+    - 'Connectors to SAP, Oracle, D365, MES/SCADA, LIMS; CSV/API ingest.'
+    - 'Publish planned orders, campaigns, and cleaning tickets back to ERP/MES.'
+    - 'SSO, role-based access, SOC 2/ISO 27001; cloud or on-prem deployment.'
+  steps:
+    - >-
+      Connect data: orders, shipments, RM lead times, BOMs, routings, CIP
+      recipes, capacities.
+    - 'Baseline: build SKU hierarchy, segment, and generate first forecasts.'
+    - >-
+      Configure constraints: compatibility matrices, CIP times, batch rules,
+      maintenance windows, objectives.
+    - >-
+      Generate plan: create demand plan and optimized campaign schedule with
+      line/tank assignments.
+    - >-
+      Review and adjust: simulate scenarios, drag-drop changes, and reoptimize
+      with guardrails.
+    - >-
+      Publish and monitor: send to ERP/MES; track KPIs and auto-replan on
+      changes.
+---
+# SurfaCast AI
+
+Industry: Surface Active Agent Manufacturing
+Service: SKU Demand Forecast and Campaign Scheduler

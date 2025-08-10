@@ -1,0 +1,331 @@
+---
+name: ReconcileAI for Baggage
+slug: reconcileai
+service:
+  title: Baggage Reconciliation Exception Resolver
+  description: >-
+    Triages BRS exceptions, recommends fixes, and coordinates stakeholder
+    actions to clear jams and reduce mishandled bags.
+  targetUsers:
+    - Baggage Control Room
+    - Ground Handling Supervisors
+    - Airline Baggage Services
+  triggers:
+    - BRS exception spikes
+    - BHS jam/alarm
+    - Flight nearing closeout with open exceptions
+  inputs:
+    - BRS/BHS event stream
+    - Flight schedule and bag counts (AIDX)
+    - Device health (PLC/SCADA summaries)
+    - SLA thresholds
+  steps:
+    - Detect exception clusters vs baseline
+    - 'Classify root causes (tag read rate, chute blockage)'
+    - 'Recommend playbook steps (divert, manual inject, device reset)'
+    - Notify roles with location-aware instructions
+    - Confirm resolution and compute recovery impact
+  tools:
+    - SITA BagMessage/BRS API
+    - BHS PLC/SCADA summaries (read-only)
+    - Teams/WhatsApp
+    - Playbook KB
+  outputs:
+    - Exception heatmap
+    - Action recommendations
+    - Recovery time saved estimates
+  pricingModel:
+    - Monthly subscription based on bag volume
+    - Per-exception resolved fee
+    - Integration fee
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 7
+    modelCapability: 7
+    overall: 7
+  risks:
+    - Integration complexity with BHS/PLC
+    - 'Safety: instructions must be advisory only'
+    - Data sharing with handlers
+  dependencies:
+    - BRS/BHS data access
+    - Stakeholder comms channels
+    - Operational playbooks
+leanCanvas:
+  problem:
+    - >-
+      Baggage Reconciliation Systems (BRS) generate high volumes of exceptions
+      (e.g., late bags, tag read errors, no-show passenger bags, transfer
+      misconnect risk, container mismatch) that are triaged manually, delaying
+      resolution and increasing mishandled bags.
+    - >-
+      Stakeholder fragmentation (airline hub control, ground handler, BHS
+      control room, security) causes slow handoffs and unclear ownership,
+      leading to extended Mean Time To Resolution (MTTR) and knock-on delays.
+    - >-
+      Inconsistent or outdated Standard Operating Procedures (SOPs) across
+      stations lead to variable decisions and non-compliance with IATA
+      Resolution 753 and airline policies.
+    - >-
+      Limited predictive capability; current BRS/BHS tools are reactive and
+      siloed (IT vs OT), causing preventable jams and misroutes to escalate.
+    - >-
+      Auditability and reporting are weak; incident root-cause analysis is
+      manual, making it hard to prove improvements or comply with
+      regulators/customers.
+  solution:
+    - >-
+      Real-time exception triage: Ingests BRS/BHS/AODB/DCS/messaging
+      (BSM/BTM/BPM) to classify exceptions and prioritize by risk-to-departure
+      and passenger impact.
+    - >-
+      Actionable recommendations: AI + rules engine proposes next-best actions
+      (e.g., re-route bag, open manual chute, dispatch runner, offload U/S bag)
+      with confidence scores and SOP references.
+    - >-
+      Closed-loop orchestration: Assigns tasks to the right stakeholder (ramp
+      crew, sorter operator, airline control) via mobile/desktop; captures
+      confirmations and outcomes for audit.
+    - >-
+      Predictive risk scoring: Anticipates misconnects, wrong-load, and jam
+      hotspots using flight times, gate changes, belt load, weather, and
+      historic patterns.
+    - >-
+      Compliance and analytics: Automated R753 traceability, exception
+      root-cause analytics, and performance reporting by station, airline,
+      flight, and handler.
+    - >-
+      What-if and seasonal tuning: Simulates peak scenarios and recommends
+      staffing or sort plan tweaks to prevent exception surges.
+  uniqueValueProp: >-
+    Reduce mishandled bags and clear baggage jams faster by turning BRS
+    exceptions into orchestrated, closed-loop actions. ReconcileAI triages
+    exceptions in real time, predicts misconnects, recommends playbook steps,
+    and coordinates all stakeholders—cutting exception MTTR by 40–60% and
+    lowering mishandled bag rates by 15–30% within one peak season while
+    improving IATA R753 compliance and on-time departures.
+  unfairAdvantage: >-
+    Vendor-agnostic, cross-stakeholder orchestration with a proprietary
+    exception ontology and closed-loop action framework, plus a growing
+    multi-airport dataset that enables superior benchmarking and model
+    performance. Pre-certified connectors shorten deployments from months to
+    weeks, and our playbook library embeds best-practice SOPs tailored by
+    station, creating a defensible switching cost beyond basic BRS/BHS features.
+  customerSegments:
+    - >-
+      Airport Operations Control Centers (AOCCs) at medium-to-large airports
+      (≥5M pax/year).
+    - >-
+      Airline hub control centers and baggage operations teams (especially at
+      hubs and Tier-1 transfer stations).
+    - >-
+      Ground handling companies (e.g., Swissport, dnata, Menzies) operating
+      baggage rooms and ramp.
+    - >-
+      BHS control room operators and maintenance teams at airports with
+      automated sortation.
+    - >-
+      Airport IT and innovation teams responsible for AODB/BRS/BHS integrations
+      and R753 compliance.
+  channels:
+    - >-
+      Direct enterprise sales to airports, airlines, and ground handlers with
+      ROI-led pilots (8–12 weeks, success criteria defined upfront).
+    - >-
+      Co-selling and OEM partnerships with BRS/BHS vendors and systems
+      integrators (SITA, Amadeus, Collins, Vanderlande, Beumer, Siemens, Brock
+      Solutions).
+    - >-
+      Industry events and associations: Passenger Terminal EXPO, ACI
+      World/Regional, IATA WFS/753 workshops, Ground Handling International—demo
+      kiosks and case studies.
+    - >-
+      Targeted outreach to top 200 airports and top 50 global airlines; offer
+      station-level lighthouse deployments for quick wins.
+    - >-
+      Partner-driven local delivery in EMEA/NA/Asia via accredited integrators;
+      include them in RFP responses and framework agreements.
+    - >-
+      Thought leadership and compliance angle: webinars on R753 audits, bag room
+      playbook maturity, and seasonal readiness; publish anonymized benchmarks.
+    - >-
+      ROI calculators and business cases co-authored with customers’ finance/ops
+      teams; create references across airline alliances and handler networks.
+  revenueStreams:
+    - >-
+      Annual SaaS subscription tiered by passenger volume/terminals (e.g.,
+      Small: $75k–$150k; Medium: $150k–$350k; Large hub: $350k–$800k per
+      station/year).
+    - >-
+      Volume-based usage fee for high-throughput sites (e.g., $0.001–$0.005 per
+      processed bag or per exception adjudicated).
+    - >-
+      One-time implementation and integration fees ($50k–$300k depending on
+      systems and on-prem requirements).
+    - >-
+      Premium add-ons: advanced prediction module, digital twin/simulation,
+      extended data retention, premium analytics, multilingual packs.
+    - >-
+      Managed operations support (24/7 monitoring, seasonal tuning) as a monthly
+      retainer ($5k–$25k/site).
+    - >-
+      Outcome-based bonus/shared savings (e.g., 5–10% of verified reduction in
+      mishandling cost over baseline).
+    - Training and certification for handlers/airlines (per-cohort pricing).
+  costStructure:
+    - >-
+      People: ML engineers, backend/integration engineers, site reliability,
+      product, QA, domain SMEs, solutions engineers, security/compliance,
+      customer success. Typical blended loaded cost per FTE: $140k–$220k/year.
+    - >-
+      Cloud/infra: data ingestion, storage (hot/warm), stream processing,
+      inference, mobile push, monitoring. Estimated $0.0005–$0.002 per bag
+      processed depending on retention and telemetry depth.
+    - >-
+      On-prem/edge gateway appliances for airport DMZ (optional): $5k–$25k per
+      site plus maintenance.
+    - >-
+      24/7 support and NOC coverage for operational criticality (follow-the-sun
+      model).
+    - >-
+      Security and compliance: SOC 2 Type II/ISO 27001 audits, penetration
+      tests, DDoS protection, data residency; annual spend $150k–$400k at scale.
+    - >-
+      Sales/marketing: events, demos, RFP participation, pilot subsidies; 10–18%
+      of ARR in growth phase.
+    - Partner commissions/revenue share for SI/OEM deals (10–20%).
+    - >-
+      Travel and on-site commissioning/training for go-lives and peak season
+      readiness.
+    - >-
+      R&D for connectors to new BRS/BHS/DCS vendors and continuous model
+      improvement.
+    - 'Insurance (cyber, E&O) and legal for DPAs/data-sharing agreements.'
+    - >-
+      Target gross margin: 65–75% after year 2; COGS 15–25% of ARR depending on
+      on-prem footprint.
+  keyMetrics:
+    - >-
+      Mishandled Bag Rate (MBR): station-level and network-level reduction vs.
+      baseline (target improvement: 15–30% within 6–12 months).
+    - >-
+      Exception MTTR: average and 90th percentile; target 40–60% reduction
+      within first season.
+    - >-
+      Auto-resolution/auto-dispatch rate: % of exceptions actioned without
+      manual triage (target 50–70% for common categories).
+    - >-
+      On-time departure (OTD) lift for bag-related delays: decrease in offload
+      events and cutoff holds (target: 10–25% reduction in bag-caused delays).
+    - >-
+      BHS jam metrics: frequency and total jam minutes; target 20–40% reduction
+      where telemetry available.
+    - >-
+      R753 compliance: % of bags with complete custody trail and scan compliance
+      per touchpoint (target >98%).
+    - >-
+      Alert quality: recommendation precision/recall; false positive rate under
+      5% for high-confidence actions.
+    - >-
+      User adoption and engagement: DAU/MAU for bag room and AOCC users; task
+      acceptance rate >85%; time-to-first-action <90 seconds.
+    - >-
+      Implementation velocity: time from contract to first site go-live (target
+      8–12 weeks); connector reuse rate.
+    - >-
+      Financial: cost per bag processed, ARR per site, gross margin, logo
+      retention (>95%), NRR (>115%).
+storyBrand:
+  character: >-
+    Airport baggage operations leaders and control-room supervisors who must
+    keep bags flowing, transfers on time, and mishandled rates low—without
+    adding headcount.
+  problem: >-
+    - External — BRS exceptions and jams pile up across airlines, handlers, and
+    BHS, causing misconnects and delays.
+
+    - Internal — Manual triage is slow, fragmented, and stressful; no single
+    view or clear ownership to resolve fast.
+
+    - Philosophical — Passengers should get their bags on time; technology
+    should enable—not hinder—coordination.
+  guide: >-
+    - Empathy — We understand the pressure of banked waves and D0 pushes when
+    exceptions spike.
+
+    - Authority — Airport-grade AI with secure integrations (BRS/BHS/ops feeds),
+    human-in-the-loop controls, and auditable playbooks.
+  plan: >-
+    - Connect — Securely link to your BRS, BHS, and operational data sources.
+
+    - Configure — Import SOPs and priorities; set safety, compliance, and
+    escalation rules.
+
+    - Resolve — AI triages exceptions, recommends fixes, and orchestrates tasks
+    across stakeholders with live status and audit trail.
+  callToAction: |-
+    - Direct — Schedule a pilot in your busiest pier or terminal.
+    - Transitional — Request a free exception heatmap and ROI snapshot.
+  success: |-
+    - Fewer mishandled bags and reflight costs.
+    - Faster exception clearance and de-jammed belts.
+    - Higher transfer success and OTP.
+    - Calmer teams with one shared picture and automated coordination.
+    - Better passenger satisfaction and brand trust.
+  failure: |-
+    - Continued firefighting, mounting mishandled rates and penalties.
+    - Belt congestion, delayed departures, and overtime spend.
+    - Frustrated teams and passengers, plus avoidable service recovery costs.
+landingPage:
+  hero:
+    title: Baggage Reconciliation Exception Resolver
+    subtitle: >-
+      AI that triages BRS exceptions, recommends fixes, and coordinates actions
+      to clear jams and cut mishandled bags.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - Exceptions spike at peaks; manual triage can’t keep up.
+    - Bags miss flights due to unclear priorities.
+    - 'Teams chase data across BRS, BHS, DCS, and radios.'
+    - 'Late escalations lead to jams, rush bags, and cost.'
+    - No shared workflow or audit trail across stakeholders.
+    - Limited insight into root causes to prevent repeats.
+  solution:
+    - Real-time AI triage and risk scoring of BRS exceptions.
+    - 'Step-by-step fixes with owner, location, and ETA.'
+    - 'Automated coordination across ramp, baggage room, transfer, and security.'
+    - 'Two-way sync with BRS, BHS/SCADA, DCS, and AODB.'
+    - Mobile and ops-screen alerts to keep tasks moving.
+    - 'SLA tracking, audit trail, and continuous learning.'
+  features:
+    - Live exception triage and departure-risk scoring.
+    - >-
+      Resolution playbooks for no-scan, mis-sort, transfer risk, tag mismatch,
+      load variance.
+    - 'Auto-assign tasks by zone, flight, and skill; one-click escalations.'
+    - Stakeholder coordination and digital handoffs with status updates.
+    - >-
+      Integrations: BRS, DCS, AODB, BHS/SCADA, RFID/Barcode, SITA Type B
+      (BSM/BSL/BPM).
+    - Ops dashboards and mobile app with real-time belt and flight context.
+    - 'SLA timers, cutoff countdowns, and OTP impact view.'
+    - >-
+      Full audit trail and chain-of-custody; supports IATA Resolution 753
+      workflows.
+    - Root-cause analytics and prevention recommendations.
+    - 'Multi-airline, multi-handler, multi-terminal support.'
+    - 'Role-based access, SSO, and granular permissions.'
+    - Cloud or on‑prem deployment; high availability and offline tolerance.
+    - Data privacy and security controls with detailed change logs.
+  steps:
+    - 'Connect BRS, DCS, AODB, BHS/SCADA, and scanner feeds.'
+    - 'AI detects exceptions, scores risk, and sets priorities.'
+    - System recommends the fix and assigns the right owner.
+    - Stakeholders receive coordinated alerts; progress tracked to SLA.
+    - Resolutions sync back to core systems and improve the model.
+---
+# ReconcileAI for Baggage
+
+Industry: Other Airport Operations
+Service: Baggage Reconciliation Exception Resolver

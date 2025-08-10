@@ -1,0 +1,277 @@
+---
+name: AWD Irrigation & Water-Saving Schedule for Rice
+slug: awdrrgtn
+naics:
+  primary: '111160'
+  occupations: []
+service:
+  title: AWD Irrigation & Water-Saving Schedule for Rice
+  description: >-
+    Automated Alternate Wetting and Drying (AWD) irrigation plan with weekly
+    updates, using local weather and crop stage to minimize water use without
+    yield loss.
+  targetUsers:
+    - Smallholder and commercial rice farmers
+    - Irrigation scheme managers
+    - Agri-NGOs/co-ops
+  triggers:
+    - Field registration/start of season
+    - Weekly forecast refresh
+    - Significant rainfall event (>20 mm)
+    - Farmer request via WhatsApp/SMS
+  inputs:
+    - Field boundary (polygon) or lat/long
+    - Planting/transplanting date and variety duration
+    - Soil type (or default from SoilGrids)
+    - 'Irrigation method (pump/canal), typical inflow rate'
+    - 'Optional: field water tube readings or photo of cracks'
+  steps:
+    - 'Fetch 7–10 day weather (rain, temp, wind, RH) for the field'
+    - Compute daily ET0 (FAO-56) and crop coefficient by growth stage
+    - Run field water balance to estimate depletion and next irrigation date
+    - 'Apply AWD rules (e.g., re-flood when water table 15 cm below surface)'
+    - Generate weekly schedule and day-by-day guidance (on/off hours)
+    - Send advisory via WhatsApp/SMS with water-saving estimate
+    - 'Collect farmer feedback (actual irrigation, photos) and auto-calibrate'
+  tools:
+    - OpenWeatherMap API or Meteomatics
+    - 'NASA POWER API (radiation, wind, humidity)'
+    - pyeto (FAO-56 ET)
+    - 'Google Earth Engine or Sentinel Hub (rainfall backfill, land cover)'
+    - Twilio WhatsApp/SMS
+    - Airtable/Google Sheets for logs
+  outputs:
+    - Weekly AWD irrigation schedule
+    - Water saving estimate vs. continuous flooding
+    - 'Risk alerts (heatwave, heavy rain)'
+    - Simple audit log for compliance
+  pricingModel:
+    - 'Per hectare per season (e.g., $2–$6/ha)'
+    - Co-op/irrigation scheme subscription tier
+    - 'Add-on: agronomist review per field (+$5/field)'
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 4
+    overall: 4.5
+  risks:
+    - Field-level heterogeneity not captured (micro-topography)
+    - Unreliable soil info or farmer-reported inflows
+    - Water delivery constraints limit actionability
+  dependencies:
+    - Weather API keys
+    - Local AWD guidelines
+    - Messaging channel opt-in (WhatsApp/SMS)
+leanCanvas:
+  problem:
+    - >-
+      High and volatile water and pumping energy costs with tightening
+      allocations; growers need to reduce acre-inches pumped without risking
+      yield.
+    - >-
+      AWD is proven but operationally hard: timing drain/reflood windows around
+      rainfall and crop stage is labor-intensive and error-prone.
+    - >-
+      Limited field-level guidance tailored to rice levees/soils; most tools are
+      built for row crops and don’t model flooded paddy dynamics.
+    - >-
+      Data fragmentation: weather, soils, planting dates, pump capacity, and
+      field water levels are not integrated into a single, actionable schedule.
+    - >-
+      Risk perception: fear of yield loss from over-drying leads to
+      over-irrigation and missed savings.
+    - >-
+      Compliance and reporting burden for programs (e.g., EQIP, mill
+      sustainability, water districts) and carbon/MRV requires credible
+      documentation of water and methane reductions.
+  solution:
+    - >-
+      Weekly AWD irrigation plan per field that optimizes drain/reflood windows
+      using localized weather, crop stage, soil percolation, and pump capacity.
+    - >-
+      Daily alerts: when to shut off pumps, when to reflood, and when rainfall
+      will safely cover the next flood.
+    - >-
+      Simple, low-connectivity delivery: SMS summaries + mobile app maps;
+      optional sensor integrations for automation.
+    - >-
+      Program reporting: auto-generated reports quantifying acre-inches saved,
+      pump-hours avoided, and estimated methane reductions.
+    - >-
+      Risk controls: minimum water table thresholds by growth stage to protect
+      yield; override logic for heat stress or disease risk.
+  uniqueValueProp: >-
+    Rice-specific, AI-driven AWD schedules that save 20–30% irrigation water and
+    10–25% pumping energy with no yield loss, delivered via low-friction SMS/app
+    and backed by field-validated models and program-ready reporting.
+  unfairAdvantage: >-
+    Purpose-built AWD engine for rice with validated field results across major
+    U.S. soils, SAR-based flood verification, and turnkey program reporting that
+    enables mills/districts to scale AWD while offering growers a simple SMS
+    workflow and risk safeguards—hard to replicate without rice-specific
+    datasets and partnerships.
+  customerSegments:
+    - >-
+      Primary: U.S. rice growers (NAICS 111160) with 150–3,000+ acres in AR, CA,
+      LA, MS, MO, TX.
+    - >-
+      Irrigation districts and water authorities serving rice areas that seek
+      aggregate water savings.
+    - >-
+      Rice mills/handlers with Scope 3 water/GHG targets (programmatic adoption
+      across their growers).
+    - Independent crop consultants/PCAs offering irrigation scheduling services.
+    - >-
+      Carbon/MRV program developers seeking verifiable methane reduction from
+      AWD.
+  channels:
+    - >-
+      Direct sales to growers via regional reps in AR/LA/MS/MO/TX and CA;
+      on-farm demos during planting and mid-season.
+    - >-
+      Partnerships with rice mills/handlers to bundle service into
+      sustainability programs and deduct fees via rice checks.
+    - >-
+      Irrigation districts and groundwater sustainability agencies to sponsor
+      acres and aggregate reporting.
+    - >-
+      Reseller agreements with agronomy consultants/PCAs and input retailers
+      (seed/fertilizer outlets).
+    - Co-marketing with pump OEMs and sensor vendors; joint pilots.
+    - >-
+      Extension programs and field days; case-study presentations and winter
+      grower meetings.
+    - >-
+      Digital: SMS lead-gen in target counties, precision-ag newsletters, and
+      farm radio ads timed pre-planting.
+    - >-
+      NRCS/EQIP alignment: outreach through local NRCS offices highlighting
+      documentation benefits.
+  revenueStreams:
+    - 'Per-acre seasonal subscription (advisory only): $5–$8/acre/season.'
+    - 'Pro tier with sensor integration and pump tracking: $10–$14/acre/season.'
+    - >-
+      Enterprise (mills/districts) with APIs, aggregated analytics, and SSO:
+      $12–$18/acre/season with volume discounts.
+    - >-
+      Implementation/onboarding fees for enterprise deployments ($2,500–$15,000
+      per account depending on acreage/complexity).
+    - >-
+      Carbon/MRV revenue share for verified methane reductions (e.g., 20–40% CH4
+      cut with AWD): 20–40% share of net credit proceeds where programs exist.
+    - >-
+      Professional services: custom reporting, field audits, and training
+      packages.
+  costStructure:
+    - >-
+      Variable COGS per managed acre: $0.40–$1.20/season (weather API, satellite
+      compute, SMS/voice, storage).
+    - >-
+      Customer support/agronomy: $0.50–$2.00/acre depending on service tier and
+      channel.
+    - >-
+      Sales and partner commissions: 10–20% of revenue; CAC target $400–$1,200
+      per farm (500–1,000 acres typical).
+    - >-
+      R&D/modeling: hydrology and ML engineers, data science compute (~25–35% of
+      OPEX in first 2 years).
+    - Liability/E&O insurance for advisory product.
+    - >-
+      Pilot programs and field validation (travel, instrumentation, strip
+      trials).
+    - 'General overhead: product/engineering, admin, compliance, security.'
+  keyMetrics:
+    - >-
+      Water saved per acre vs. baseline: target 6–12 acre-inches/acre/season
+      (20–30% reduction).
+    - 'Pump runtime reduction: target 10–25% fewer pump-hours per field.'
+    - >-
+      Yield impact: maintain within ±1% of field/region average for variety and
+      planting window.
+    - >-
+      Forecast/schedule accuracy: dry-down event timing MAE ≤ 1.0 day; flood
+      status detection F1 ≥ 0.85.
+    - 'Schedule adherence rate: ≥ 70% of recommended actions executed on time.'
+    - >-
+      Customer outcomes: $/acre net savings (water + energy – subscription) ≥ 3x
+      ROI in Year 1; ≥ 5x in Year 2.
+    - >-
+      Adoption/retention: acres under management, logo retention ≥ 85%, net
+      revenue retention ≥ 110% with tier upgrades.
+    - >-
+      Program reporting: % of acres with complete EQIP/sustainability
+      documentation ≥ 90%.
+    - >-
+      Carbon/MRV: estimated CH4 reduction 20–40% on fields following AWD ≥ 60%
+      of eligible windows.
+    - >-
+      Sales efficiency: LTV/CAC ≥ 3.0 within 12 months; payback period ≤ 9
+      months.
+storyBrand:
+  character: >-
+    Rice growers and farm managers who want to cut water use and pumping costs
+    without risking yield.
+  problem: >-
+    Unpredictable weather, limited allocations, and manual flood checks make it
+    hard to know when to dry or re-flood; guesswork wastes water or risks yield
+    loss.
+  guide: >-
+    AWD Irrigation & Water-Saving Schedule for Rice is your AI agronomy
+    assistant. We understand rice irrigation is high‑stakes and combine local
+    weather, soil, and crop stage with proven AWD research to give clear, safe
+    irrigation timing.
+  plan: >-
+    1) Set up fields: boundaries, soil, planting date, and water source (we
+    auto‑pull local weather). 2) Get a weekly AWD plan with safe thresholds,
+    pump run‑times, and alerts for re‑flooding. 3) Irrigate and log; we
+    auto‑adjust and provide compliance‑ready reports.
+  callToAction: Start a free 1‑field trial and get your first AWD schedule this week.
+  success: >-
+    Use 15–30% less water with equal yield, lower pumping costs, fewer field
+    visits, compliance-ready records, and reduced methane emissions.
+  failure: >-
+    Keep over‑irrigating, paying more for pumping, missing optimal timing,
+    risking stress‑related yield loss, and falling short on water and
+    sustainability targets.
+landingPage:
+  hero:
+    title: AWD Irrigation & Water-Saving Schedule for Rice
+    subtitle: >-
+      AI-driven weekly irrigation plans by field, tuned to local weather and
+      crop stage to cut water and fuel without sacrificing yield.
+    ctaText: Get My AWD Plan
+    ctaHref: '#get-started'
+  problem:
+    - 'Flood irrigation wastes water, fuel, and labor.'
+    - Hard to time wet-dry cycles without local weather insight.
+    - Yield risk during sensitive stages if AWD is mistimed.
+    - Field-by-field differences make one-size plans ineffective.
+    - Rising costs and pressure to document sustainability gains.
+  solution:
+    - Automated AWD schedules tailored to each field and growth stage.
+    - Weekly plan updates using local forecasts and heat units.
+    - Clear irrigate/hold/drain calls with safe thresholds for each stage.
+    - Text/app alerts so crews act at the right time.
+    - 'Water, fuel, and methane reductions without yield loss.'
+  features:
+    - Localized 7–14 day weather integrated into AWD timing.
+    - Growth-stage modeling from planting date and variety.
+    - 'Yield-safe rules that protect sensitive stages (PI, heading).'
+    - Irrigation window forecasts with start/end dates and risk flags.
+    - Pumping hour and volume estimates to plan labor and diesel.
+    - Field maps with soil and elevation context for AWD suitability.
+    - 'SMS, email, and app notifications for actionable steps.'
+    - Optional sensor data ingestion; no hardware required to start.
+    - Multi-field dashboard with priorities for the week.
+    - Water savings and GHG reduction reports for compliance and buyers.
+  steps:
+    - 'Add fields: location, planting date, variety, and typical flood depth.'
+    - 'Choose your AWD target (conservative, standard, or aggressive).'
+    - Get a weekly schedule with wet-dry windows and irrigation volumes.
+    - 'Receive alerts when to irrigate, hold, or drain based on forecast.'
+    - Log events; the model learns and tunes future recommendations.
+---
+# AWD Irrigation & Water-Saving Schedule for Rice
+
+Generated for NAICS 111160 — Rice Farming.
+Service: AWD Irrigation & Water-Saving Schedule for Rice

@@ -1,0 +1,305 @@
+---
+name: DUR Alert Triage and Prioritization (DUR-ATP) by SentinelRx AI
+slug: duralert
+service:
+  title: DUR Alert Triage and Prioritization
+  description: >-
+    Clusters, deduplicates, and prioritizes real-time DUR alerts; recommends
+    actions and canned messages for pharmacist review.
+  targetUsers:
+    - PBM clinical programs
+    - Pharmacy operations
+  triggers:
+    - High-volume DUR alerts from adjudication
+    - Threshold of unresolved alerts exceeded
+  inputs:
+    - NCPDP Telecom DUR segments
+    - Member medication history
+    - Prescriber data and risk signals
+    - Plan DUR policies
+  steps:
+    - Ingest and normalize DUR alerts
+    - Deduplicate recurring alerts and cluster by member/drug
+    - 'Risk-rank alerts (severity, history, prescriber risk)'
+    - 'Suggest actions (override, outreach, PA) and message templates'
+    - Route prioritized queues to reviewers; track outcomes
+  tools:
+    - NCPDP feed adapter
+    - Stream processor (Kafka)
+    - Rules engine
+    - LLM classification/summarization
+    - Queueing (ServiceNow/Zendesk)
+  outputs:
+    - Prioritized alert queues
+    - Suggested actions/messages
+    - 'Program KPIs (overrides avoided, outreach)'
+  pricingModel:
+    - 'Per 1,000 alerts'
+    - Monthly subscription for monitoring
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 6.5
+    overall: 7.3
+  risks:
+    - Missed high-risk interactions
+    - Alert fatigue if prioritization poor
+    - Integration latency with adjudicator
+  dependencies:
+    - Real-time alert feed access
+    - DUR policy library
+    - Reviewer workflow integration
+    - Data governance approvals
+leanCanvas:
+  problem:
+    - >-
+      Pharmacy benefit processors and PBM clinical teams experience high alert
+      volumes (typical 8–20% of claims trigger ≥1 DUR alert), leading to alert
+      fatigue and inconsistent resolutions.
+    - >-
+      Duplicate and cascading alerts across drug–drug interaction, therapeutic
+      duplication, dose edits, quantity limits, and opioid safety rules
+      overwhelm real-time adjudication and retrospective DUR teams.
+    - >-
+      Manual triage and outreach (pharmacist calls, faxes, ePA initiation) are
+      slow and expensive; average handling time per complex DUR case can exceed
+      6–10 minutes, with low acceptance rates for many alerts (<5–10%).
+    - >-
+      Low signal-to-noise results in member and prescriber abrasion (unnecessary
+      rejections/PA requests), appeal rates, and potential noncompliance risk
+      with plan safety policies.
+    - >-
+      PBMs lack cross-client learning to tune alert thresholds and messaging by
+      population risk, prescriber behavior, and formulary context.
+    - >-
+      Existing rule engines lack adaptive prioritization, deduplication, and
+      explainable action recommendations; auditability and outcome tracking are
+      fragmented across systems.
+  solution:
+    - >-
+      Inline AI service that clusters and deduplicates real-time DUR alerts at
+      the claim level, ranks by clinical severity, member risk, and cost/impact,
+      and returns a prioritized, explainable list.
+    - >-
+      Action recommendation engine that suggests next best action (auto-approve,
+      soft warn, reject with rationale, initiate ePA, pharmacist outreach) and
+      generates canned, plan-compliant messages for pharmacist review.
+    - >-
+      Feedback capture from pharmacist actions and outcomes to continuously
+      learn thresholds, prescriber responsiveness, and member risk patterns.
+    - >-
+      Retrospective DUR module to re-score historical alerts, quantify savings,
+      and tune rules before production rollout.
+    - >-
+      Dashboards for alert load, acceptance/override, abrasion proxies (call
+      volume, appeal rate), and ROI by client/plan/drug class.
+    - >-
+      Compliance and audit layer: immutable logs of alerts, reasoning,
+      recommendations, and final decisions mapped to plan policies and NCPDP
+      codes.
+  uniqueValueProp: >-
+    Reduce DUR noise by 40–60% while improving clinical capture and compliance,
+    with sub-200 ms inline inference, explainable prioritization, and one-click,
+    pre-approved messaging—delivering 15–30% faster case resolution and 20–35%
+    fewer unnecessary prescriber/member touchpoints.
+  unfairAdvantage: >-
+    Cross-client learning on DUR outcomes and abrasion signals, combined with
+    inline placement in the real-time adjudication path, enables unique
+    prioritization and messaging optimization that rule-based engines cannot
+    match. Proprietary feedback loops, explainability tuned for pharmacist
+    workflows, and partnerships with knowledgebase/ePA vendors create defensible
+    data and distribution moats.
+  customerSegments:
+    - >-
+      Mid- to large PBMs (1M–50M lives) seeking clinical efficiency and abrasion
+      reduction.
+    - >-
+      Health plans and employer-sponsored plans using TPAs for pharmacy
+      benefits.
+    - >-
+      Pharmacy switch networks and claims processors seeking value-add modules
+      for their clients.
+    - >-
+      Large specialty pharmacies and mail-order pharmacies handling complex DUR
+      workflows.
+    - >-
+      Utilization management vendors and ePA platforms looking to pre-screen and
+      enrich PA with DUR context.
+  channels:
+    - >-
+      Direct enterprise sales to PBMs and large TPAs; pilot-led land-and-expand
+      (12-week pilots).
+    - >-
+      Partnerships with drug knowledgebase vendors (FDB, Medi-Span) to bundle AI
+      triage with content subscriptions.
+    - >-
+      Integration partnerships with ePA vendors (CoverMyMeds, Surescripts) and
+      UM platforms to pre-screen DUR before PA.
+    - >-
+      Channel through pharmacy management system vendors and switch networks as
+      a value-added module.
+    - >-
+      Thought leadership and clinical validation at AMCP, PBMI, NACDS;
+      peer-reviewed case studies with client co-authors.
+    - >-
+      Targeted ABM for mid-tier PBMs (1–10M lives) and specialty pharmacies
+      where ROI is fastest.
+  revenueStreams:
+    - >-
+      SaaS per-claim fee: $0.001–$0.005 per processed claim (tiered by volume
+      and features).
+    - >-
+      Alternative PMPM pricing: $0.02–$0.06 per member per month for full suite
+      (real-time + retrospective + dashboards).
+    - >-
+      Implementation/integration fee: $50k–$250k depending on complexity and
+      data mapping.
+    - >-
+      Premium add-ons: advanced prescriber behavior models, custom canned
+      message libraries, white-glove clinical tuning.
+    - >-
+      Value-based upside: shared savings on avoided abrasion events (e.g.,
+      reduced PA initiations/appeals) where measurable.
+    - >-
+      Professional services: policy optimization workshops, retrospective DUR
+      analysis, and training.
+  costStructure:
+    - >-
+      Cloud infrastructure and model inference (GPU/CPU serving): $0.0003–$0.001
+      per claim at scale.
+    - >-
+      Data licensing for drug knowledgebases (FDB/Medi-Span/Micromedex) and
+      reference terminologies (RxNorm, NDC mapping).
+    - >-
+      Clinical and data science staff for model development, evaluation, and
+      governance (PharmDs, MD advisors, DS/ML engineers).
+    - >-
+      Implementation and support engineers for integrations with adjudication
+      engines and pharmacy systems.
+    - >-
+      Security, compliance, and audit (SOC 2 Type II, HIPAA/HITRUST), legal, and
+      cyber insurance.
+    - >-
+      Sales and marketing (enterprise GTM, conferences, ABM content) and partner
+      channel costs.
+    - >-
+      Quality and monitoring stack (feature stores, observability, drift
+      detection, A/B testing infra).
+  keyMetrics:
+    - >-
+      Alert load reduction: target 40–60% fewer alerts reaching pharmacists,
+      measured vs. baseline for same claim mix.
+    - >-
+      Action acceptance rate: ≥20% relative increase in pharmacist acceptance of
+      high-value alerts; ≤10% false suppression (validated by audit).
+    - >-
+      Average handling time (AHT) reduction for DUR cases: 15–30% within 90 days
+      of go-live.
+    - >-
+      Abrasion metrics: 20–35% reduction in prescriber call/fax volume and
+      10–20% reduction in avoidable ePAs for targeted categories.
+    - >-
+      Clinical impact: maintained or improved capture of critical safety events
+      (no increase in SAE rate); sentinel event rate unchanged or lower
+      post-implementation.
+    - >-
+      Latency SLO: p95 <120 ms, p99 <200 ms; error rate <0.01%; automatic
+      fail-open with logging during incidents.
+    - >-
+      ROI: $0.12–$0.35 per claim processed in operational savings for complex
+      DUR segments; 3–7x ROI within 12 months.
+    - >-
+      Model performance: prioritization AUROC >0.85 for high-severity alerts;
+      recommendation precision@k >0.70 for top action.
+    - >-
+      Audit completeness: 100% of decisions and rationales logged with NCPDP
+      codes and policy references.
+    - >-
+      Adoption: >75% of DUR pharmacists regularly using canned messages within
+      60 days; feedback coverage >30% of alerts for learning.
+storyBrand:
+  character: >-
+    PBM and TPA leaders and clinical pharmacists who must process real-time DUR
+    alerts quickly while protecting members, meeting SLAs, and controlling
+    costs.
+  problem: >-
+    External: DUR alerts arrive in bursts—duplicated, conflicting, and
+    low-signal—forcing manual triage across systems. Internal: Teams are
+    overloaded and worry about missing true risks or failing audits.
+    Philosophical: Patient safety and provider trust shouldn’t be sacrificed
+    because alerts are noisy.
+  guide: >-
+    Empathy: We understand the pressure of nonstop DUR review, audit scrutiny,
+    and member impact. Authority: Security-first design aligned to HIPAA/SOC 2
+    expectations; built for PBM/TPA workflows; informed by PharmD-reviewed
+    rules; API-first with audit-ready logging and interoperability with
+    claims/DUR workflows.
+  plan: >-
+    1) Connect: Securely integrate claim/DUR feeds and pharmacist queues. 2)
+    Configure: Map priorities, dedup rules, and message templates; set SLAs and
+    escalation paths. 3) Launch & Learn: Pilot, monitor dashboards, and iterate
+    rules for sustained impact.
+  callToAction: >-
+    Primary: Schedule a 30-minute demo. Transitional: Request a pilot on a
+    subset of historical claims to see clustering, prioritization, and
+    recommended actions/canned messages.
+  success: >-
+    Streamlined queues with clustered, deduplicated alerts; faster pharmacist
+    decisions with recommended actions and ready-to-send messages; clear audit
+    trails and SLA adherence; improved member safety and provider experience;
+    reclaimed clinical time and lower operational friction.
+  failure: >-
+    Without change: persistent alert fatigue, missed interventions, SLA
+    breaches, higher labor and rework, audit findings, provider complaints, and
+    risk to member outcomes.
+landingPage:
+  hero:
+    title: DUR Alert Triage & Prioritization
+    subtitle: >-
+      Reduce alert noise, accelerate clinical decisions, and prove
+      compliance—built for PBMs and health TPAs.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - Crushing DUR alert volume causes alert fatigue and missed risks
+    - Duplicate and redundant hits across channels waste pharmacist time
+    - Manual triage delays adjudication and member access to therapy
+    - Inconsistent actions and documentation across teams and shifts
+    - 'Peaks overwhelm staff, risking SLAs and compliance findings'
+    - Fragmented data and tools make auditing and root-cause slow
+    - Training new staff is costly and error-prone
+  solution:
+    - 'Unify real-time DUR alerts into a single, prioritized worklist'
+    - Cluster and deduplicate alerts to surface what truly matters
+    - Risk-score each alert using clinical rules and plan policy
+    - Recommend next-best actions with rationale and confidence
+    - Enable one-click canned messages for members and prescribers
+    - Keep pharmacists in the loop with configurable guardrails
+    - 'Create a complete, immutable audit trail for every decision'
+    - Integrate seamlessly with PBM/TPA systems via APIs and standards
+  features:
+    - Real-time ingestion from claim adjudication and DUR engines
+    - ML-based clustering and cross-claim deduplication
+    - 'Risk scoring tuned to clinical policy, formulary, and history'
+    - Explainable recommendations with cited rules and factors
+    - Canned communication templates with merge fields and auto-logging
+    - 'Role-based worklists, SLAs, and smart escalations'
+    - Override workflows with reason codes and supervisor review
+    - 'Audit-ready logs: timestamps, user actions, outcomes'
+    - 'Dashboards for volumes, deflection, turnaround, and safety metrics'
+    - 'Configurable thresholds, policies, and A/B test sandboxes'
+    - 'HIPAA-ready, SOC 2–aligned security and end-to-end encryption'
+    - 'Flexible deployment: cloud or virtual private cloud'
+  steps:
+    - 'Connect data feeds (adjudication/DUR, member, formulary) via API or SFTP'
+    - Import clinical rules and map plan-specific priorities
+    - 'Configure queues, roles, SLAs, and escalation paths'
+    - Load message templates and set approval workflows
+    - Run a pilot cohort to calibrate thresholds and recommendations
+    - Train pharmacists and enable human-in-the-loop review
+    - Go live with continuous monitoring and weekly tuning
+---
+# DUR Alert Triage and Prioritization (DUR-ATP) by SentinelRx AI
+
+Industry: Pharmacy Benefit Management and Other Third Party Administration of Insurance and Pension Funds
+Service: DUR Alert Triage and Prioritization

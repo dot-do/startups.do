@@ -1,0 +1,264 @@
+---
+name: RebateAssembler AI
+slug: rbtssmblr
+service:
+  title: Manufacturer Rebate Submission Assembler
+  description: >-
+    Validates utilization, applies contract terms, aggregates by NDC/period, and
+    prepares rebate claim packages with exception flags.
+  targetUsers:
+    - PBM rebate/finance teams
+  triggers:
+    - End of rebate period/quarter
+    - Contract renewal/change
+  inputs:
+    - 'Pharmacy claims (NDC, units, dates)'
+    - Rebate contracts and formulary tiers
+    - 'Exclusion lists (340B, Medicaid, etc.)'
+  steps:
+    - Normalize NDC units and package sizes
+    - Apply eligibility windows and exclusions
+    - Aggregate and compute payable volumes/rates
+    - Validate against control totals; flag anomalies
+    - Assemble submission files and backup workbooks
+  tools:
+    - SQL/Snowflake/Databricks
+    - Contract OCR/NLP
+    - Drug DB for NDC mapping
+    - Excel/CSV exporters
+  outputs:
+    - Rebate submission files
+    - Exception list with root-cause hints
+    - Audit-ready workbook and calculations
+  pricingModel:
+    - Per submission cycle
+    - Per NDC line-item
+    - Setup fee for contract ingestion
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 7
+    overall: 8
+  risks:
+    - Monetary inaccuracies
+    - Contract misinterpretation
+    - Audit failure due to traceability
+  dependencies:
+    - Claims data warehouse access
+    - Contract repository
+    - Submission portal/SFTP credentials
+    - Approved calculation rules
+leanCanvas:
+  problem:
+    - >-
+      PBMs and health plan TPAs lose 0.5–2.0% of eligible manufacturer rebate
+      dollars to data quality issues, contract misinterpretation, and missed
+      deadlines.
+    - >-
+      Rebate submission prep is labor-intensive (manual NDC crosswalks, contract
+      lookups, de-duping reversals), causing 2–4 week cycle times and costly
+      rework.
+    - >-
+      Contracts vary by segment (Commercial, Medicare Part D, Medicaid MCO),
+      channel (retail, specialty, mail), and tiered utilization thresholds;
+      rules are complex and frequently change.
+    - >-
+      Exception handling lacks root-cause analytics, leading to repeated errors
+      and poor audit readiness.
+    - >-
+      Medical-benefit drug rebates (J-code to NDC mapping) are under-claimed or
+      late due to fragmented data across TPAs and providers.
+  solution:
+    - >-
+      Ingest Rx and medical claims; normalize to consistent schema (e.g., NCPDP
+      D.0 fields for pharmacy, ANSI 837/835 for medical), de-dup reversals, and
+      validate completeness.
+    - >-
+      Auto-extract and codify contract terms via NLP and a rules engine: tiered
+      rebates, channel/segment eligibility, formulary placement, inflation
+      penalties, exclusions (e.g., 340B), accumulator/copay assistance rules.
+    - >-
+      Aggregate utilization at NDC11 and contract-defined period
+      (monthly/quarterly), apply pricing references (WAC/AWP/NADAC) and
+      thresholds, then compute expected rebate amounts.
+    - >-
+      Generate manufacturer-specific claim packages with required layouts,
+      backup detail, attestations, and exception flags with root-cause codes.
+    - >-
+      Continuous learning loop: compare adjudicated vs. expected rebate
+      outcomes, detect leakage patterns, and auto-tune rules; produce
+      audit-ready logs and evidence packs.
+  uniqueValueProp: >-
+    Increase captured rebate dollars and slash submission cycle time by
+    automating contract-to-claim validation and assembly—NDC/period aggregation,
+    rule application, and exception triage—with full audit trails and measurable
+    ROI.
+  unfairAdvantage: >-
+    A continuously learning contract-to-claim knowledge graph combining clause
+    templates, manufacturer-specific idiosyncrasies, and adjudication
+    outcomes—improving exception auto-resolution and capture rates over
+    time—plus prebuilt packaging connectors and audit artifacts that shorten
+    implementation and pass audits faster than general-purpose RPA or rules-only
+    tools.
+  customerSegments:
+    - >-
+      Primary: Pharmacy Benefit Managers (PBMs) and their captive/independent
+      rebate aggregators.
+    - >-
+      Secondary: Health plans (Commercial, Medicare Advantage/Part D), Medicaid
+      Managed Care Organizations administering pharmacy or medical drug rebates.
+    - Specialty pharmacies with manufacturer performance-based contracts.
+    - >-
+      Third-party administrators (TPAs) handling medical-drug rebates and
+      analogous reimbursement programs (e.g., device warranties, stop-loss
+      recoveries).
+  channels:
+    - >-
+      Direct enterprise sales to mid-size PBMs, regional health plans, and
+      specialty pharmacies with a 6–9 month sales cycle; ROI model included.
+    - >-
+      Partnerships with TPAs/BPOs and systems integrators to embed the engine
+      into broader admin platforms.
+    - >-
+      Alliances with drug data providers (Medi-Span/First Databank/Red Book) and
+      pricing/crosswalk sources to co-market bundles.
+    - >-
+      Industry presence: PCMA, AMCP, AHIP, HLTH conferences; thought leadership
+      on rebate leakage and medical-drug rebate capture.
+    - >-
+      Pilot-led GTM: 8–12 week paid pilot on 1–2 high-rebate therapeutic classes
+      to prove dollar capture and time savings before enterprise rollout.
+    - >-
+      Targeted ABM campaigns to VP Rebate Operations, VP Pharmacy Ops, Chief
+      Pharmacy Officer, and Revenue Integrity leaders.
+  revenueStreams:
+    - >-
+      Annual subscription based on covered lives or claim volume tiers (e.g.,
+      $0.02–$0.06 PMPM or $0.005–$0.02 per eligible brand claim).
+    - >-
+      Implementation and data integration fees ($100k–$500k depending on
+      scale/feeds).
+    - >-
+      Premium modules: medical-benefit drug rebates, 340B duplicate-discount
+      prevention, contract analytics and forecasting ($50k–$250k/yr each).
+    - >-
+      Success fees for rebate recovery and resubmissions (e.g., 5–10% of
+      incremental dollars recovered, optional).
+    - White-label licensing to TPAs/BPOs with rev-share.
+  costStructure:
+    - >-
+      Core engineering and data science (pipeline, NLP, rules engine,
+      analytics).
+    - >-
+      Clinical/pharmacy informatics and contract analysts for rule curation and
+      QA.
+    - >-
+      Cloud infrastructure and data platform costs; secure data exchange and
+      observability tooling.
+    - 'Third-party data licensing (drug databases, pricing, crosswalks).'
+    - >-
+      Compliance and security (HIPAA, SOC 2/HITRUST audits), legal, and
+      insurance.
+    - 'Enterprise sales, implementation, and customer success teams.'
+    - Ongoing manufacturer template maintenance and change management.
+  keyMetrics:
+    - >-
+      Rebate capture uplift: +0.5–1.5% of eligible rebate dollars vs. baseline
+      within 6 months.
+    - >-
+      Exception rate reduction: 40–60% fewer manual exceptions per submission
+      cycle.
+    - >-
+      Time-to-submit: reduce preparation cycle from 10–20 business days to 2–5
+      days; 95th percentile latency <72 hours from period close to package
+      ready.
+    - >-
+      Accuracy: ≥99.7% NDC11-period aggregation accuracy; ≤0.3% resubmission due
+      to packaging errors.
+    - >-
+      Auto-resolution: ≥60% of exceptions auto-resolved via rules or playbooks
+      by month 6.
+    - >-
+      Audit pass rate: ≥99% of sampled claims with complete evidence trail; zero
+      material findings in annual audits.
+    - >-
+      Operational KPIs: cost per eligible claim processed <$0.01 at scale;
+      system uptime ≥99.95%; PHI access policy violations = 0.
+    - >-
+      Financial: pilot ROI >5x within 12 months; net dollar retention >115%;
+      sales cycle <9 months post-reference wins.
+storyBrand:
+  character: >-
+    Rebate operations leaders at PBMs and TPAs who must deliver accurate,
+    audit-ready manufacturer rebate submissions on time.
+  problem: >-
+    Fragmented utilization data and complex contract terms create errors,
+    delays, and disputes—putting dollars at risk and straining teams who just
+    want confidence and control.
+  guide: >-
+    We understand healthcare rebate complexity. Our AI assembler validates
+    utilization, applies contract terms, aggregates by NDC/period, and prepares
+    audit-ready claim packages with clear exception flags.
+  plan: >-
+    1) Connect claims/utilization feeds and contract terms. 2) Review
+    AI-assembled draft: validated utilization, NDC/period aggregation, and
+    flagged exceptions. 3) Approve and export submission packages; track
+    exceptions to resolution.
+  callToAction: >-
+    Direct: Book a 30-minute demo. Transitional: Request a sample rebate claim
+    package with exception report.
+  success: >-
+    Capture every eligible dollar faster, reduce disputes and cycle time,
+    strengthen audit readiness, and free teams to focus on high-value strategy
+    and negotiations.
+  failure: >-
+    Without this, you risk delayed submissions, rebate leakage,
+    over/underpayments, manual rework, and audit exposure.
+landingPage:
+  hero:
+    title: AI Rebate Submission Assembler for PBMs & TPAs
+    subtitle: >-
+      Validate utilization, apply contract terms, aggregate by NDC/period, and
+      deliver audit-ready manufacturer rebate packages—automatically.
+    ctaText: Request a demo
+    ctaHref: '#demo'
+  problem:
+    - Fragmented claims data and inconsistent file formats
+    - Manual spreadsheets and error-prone calculations
+    - 'Complex, changing contract terms and tiering'
+    - 'Missed deadlines, disputes, and delayed cash'
+    - Limited visibility into exceptions and root causes
+    - Weak audit trails and compliance exposure
+  solution:
+    - Unified ingestion for adjudicated claims via API/SFTP/flat files
+    - 'Automated eligibility, duplicate, and reversal validation'
+    - 'Contract engine applies rates, tiers, caps, and exclusions'
+    - NDC normalization and unit-of-measure conversion
+    - Period aggregation with exception flags and explanations
+    - 'One-click, audit-ready submission packages per manufacturer'
+    - 'Real-time dashboards, status tracking, and reconciliation'
+    - Enterprise security with encryption and role-based access
+  features:
+    - 'Connectors for NCPDP claims, EDI/flat files, and custom APIs'
+    - 'NDC-11 normalization, unit conversion, and quantity sanity checks'
+    - 'Duplicate, reversal, and late-adjustment handling'
+    - 'Program overlap detection (e.g., Medicaid/340B indicators)'
+    - Configurable contract templates with versioning and tiers
+    - Explainable rules engine with full trace and change history
+    - Exception worklists with SLAs and role-based approvals
+    - 'Manufacturer-specific package builders (files, cover letters, summaries)'
+    - Forecasting and accrual exports to ERP/GL
+    - 'Audit-ready logs, encryption in transit/at rest, HIPAA-aligned practices'
+  steps:
+    - Connect your claims feeds and member eligibility sources
+    - Import or configure manufacturer contract terms
+    - Validate and normalize utilization automatically
+    - Apply rates and aggregate by NDC and period
+    - Review and clear exceptions in the workflow
+    - Generate and submit rebate packages per manufacturer
+    - Track acknowledgments and reconcile payments back to claims
+---
+# RebateAssembler AI
+
+Industry: Pharmacy Benefit Management and Other Third Party Administration of Insurance and Pension Funds
+Service: Manufacturer Rebate Submission Assembler

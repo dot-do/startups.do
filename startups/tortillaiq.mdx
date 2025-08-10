@@ -1,0 +1,326 @@
+---
+name: TortillaIQ
+slug: tortillaiq
+service:
+  title: SKU-level Demand Forecast + Finite Production Plan Agent
+  description: >-
+    Generates weekly SKU/location forecasts and converts them into a finite,
+    line-level production plan respecting capacities, changeovers, and labor
+    constraints.
+  targetUsers:
+    - Supply Chain Manager
+    - Production Planner
+    - Plant Manager
+  triggers:
+    - 'Every Monday 07:00 local'
+    - New sales/EDI file dropped to shared drive
+  inputs:
+    - 24+ months order/shipments by SKU/location
+    - Promotions/calendar
+    - Capacity by line/shift
+    - Changeover matrix
+    - BOMs and yields
+    - Inventory on hand/WIP
+  steps:
+    - Ingest CSV/API exports from ERP/WMS/EDI
+    - Clean and align calendars; handle outliers and promos
+    - Train/refresh time-series models per SKU/location
+    - >-
+      Convert forecast to plan using OR-Tools with capacity and changeover
+      constraints
+    - Compute safety stock and recommended lot sizes
+    - 'Publish plan, exceptions, and what-if scenarios'
+    - Notify stakeholders via Slack/Email
+  tools:
+    - Python
+    - Prophet/NeuralProphet/XGBoost
+    - OR-Tools
+    - Google Sheets/Drive API or OneDrive
+    - Zapier/Make
+    - Slack/Teams
+  outputs:
+    - 12-week forecast by SKU/location
+    - Weekly line/shift production plan (CSV/Sheets)
+    - 'Exception list (capacity overloads, material shortages)'
+    - Gantt chart PNG/HTML
+  pricingModel:
+    - 'Pilot: $5k setup + $2k/month/site'
+    - 'Scale: $1.5k/month additional site'
+    - 'Add-on: $0.01 per SKU-week forecast over 50k'
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Poor master data/changeover matrix quality
+    - Promo/new item volatility
+    - Conflicting priorities with sales/ops
+  dependencies:
+    - ERP/EDI exports or API access
+    - Agreement on constraints and planning rules
+    - Data-sharing via Drive/S3/SFTP
+leanCanvas:
+  problem:
+    - >-
+      Short shelf-life (7–14 days) and volatile weekly orders make SKU/DC
+      forecasting hard; promotions and weather cause 15–35% WMAPE for many
+      plants.
+    - >-
+      Schedulers spend 6–12 hours per week per plant in spreadsheets and ERP
+      exports to build a feasible plan; re-plans during disruptions take 1–2
+      hours, causing missed trucks.
+    - >-
+      Changeovers by diameter, formulation, and allergen require careful
+      sequencing; poor sequencing adds 10–25% lost line time and 5–12% scrap.
+    - >-
+      Labor and crew constraints (mixing, line, packaging) aren’t synchronized
+      with the plan, driving overtime and temp usage (2–8% extra labor cost).
+    - >-
+      Finished goods freshness targets and DC cutoffs aren’t optimized, yielding
+      5–15% returns/write-offs and service level misses (fill rate <95%).
+    - >-
+      ERP/MES native APS modules are generic or underused; Excel-based planning
+      lacks scenario capability, version control, and auditability.
+    - >-
+      Limited visibility across mixing, proofing, press/oven, cooling, and
+      packaging resources causes upstream bottlenecks and downstream starvation.
+  solution:
+    - >-
+      Weekly SKU/DC forecasting using order history, POS/IRI-Nielsen, promo
+      calendars, holidays, and local weather; bias control and WMAPE optimized
+      by DC.
+    - >-
+      Finite production planning (1–6 weeks) across mixing, press/oven, cooling,
+      and packaging, with 15–30 minute buckets; minimizes changeovers and meets
+      DC ship windows.
+    - >-
+      Labor-aware scheduling: ensures required crews per line/shift,
+      synchronizes mixing and packaging staffing, and flags overtime needs
+      proactively.
+    - >-
+      Shelf-life and freshness optimization: aligns production timing with DC
+      arrivals to reduce returns while meeting case fill SLAs.
+    - >-
+      Materials and allergen changeover logic: validates film, boxes,
+      ingredients, and allergen cleanup times by SKU sequence.
+    - >-
+      Rapid re-planning: responds to rush orders, line downtime, or material
+      shortages in under 5 minutes with feasible alternatives.
+    - >-
+      What-if scenarios: compare plan alternatives for cost-to-serve, fill rate,
+      and overtime; quantify trade-offs.
+  uniqueValueProp: >-
+    An industry-specific AI that delivers weekly SKU/DC forecasts and converts
+    them into a finite, line-level production plan that respects capacity,
+    changeovers, and labor—cutting returns and overtime while raising service
+    levels. Re-plan in under 5 minutes, not hours, with tortilla-specific
+    constraints and integrations.
+  unfairAdvantage: >-
+    Verticalized tortilla constraint library, pretrained SKU/DC demand models,
+    and validated changeover matrices built from early customer plants enable
+    faster time-to-value than generic APS/IBP tools. Integration templates for
+    common ERPs and MES reduce onboarding from months to weeks. Rapid
+    re-planning under 5 minutes at realistic plant scales provides a tangible
+    operational edge. Domain experts from industrial bakeries embed best
+    practices and trust.
+  customerSegments:
+    - >-
+      Primary: Mid-to-large tortilla and flatbread manufacturers in North
+      America (3+ lines, 300k+ cases/week).
+    - >-
+      Secondary: Private-label bakery plants producing tortillas/flatbreads for
+      retailers and QSRs; co-packers serving national brands.
+    - >-
+      Buyer roles: VP Operations, Director of Supply Chain, Plant Manager,
+      Master Scheduler, Demand Planning Manager, IT/ERP Lead.
+    - >-
+      Adjacent (phase 2): Large Latin American industrial tortilla/tostada
+      producers; EU flatbread (naan/wrap) manufacturers.
+  channels:
+    - >-
+      Direct sales to VP Ops/Supply Chain and Plant Managers at top 200 NA
+      tortilla/flatbread producers; ABM via LinkedIn and industry lists.
+    - >-
+      Industry events: Tortilla Industry Association (TIA) Convention, IBIE,
+      BEMA Summit; sponsor sessions on finite scheduling ROI.
+    - >-
+      Partnerships: ERP VARs (SAP/D365/NetSuite), MES integrators, and bakery
+      equipment OEMs (e.g., Lawrence Equipment, Casa Herrera, JC Ford) for
+      co-selling.
+    - >-
+      Content-led growth: tortilla scheduling benchmark report, ROI calculator,
+      case studies, and webinars with early adopters.
+    - >-
+      Pilot program: 8–12 weeks, one plant/two lines, clear success criteria
+      (WMAPE, fill rate, changeover hours, overtime).
+    - >-
+      Customer success playbook: quarterly value reviews, expansion from 1 plant
+      to network, train-the-trainer model.
+  revenueStreams:
+    - >-
+      SaaS subscription: $1,500–$2,500 per production line per month for finite
+      planning; $1,000–$2,000 per plant per month for forecasting module.
+    - >-
+      Enterprise tier: volume discounts >10 lines; private VPC + premium support
+      + enhanced SLAs (+20–30%).
+    - >-
+      Implementation: $40k–$150k per plant depending on integrations, data
+      hygiene, and complexity; optional fixed-fee pilot $60k.
+    - >-
+      Professional services: data engineering, custom constraints, scenario
+      modeling ($150–$220/hr).
+    - >-
+      Add-ons: retail POS data connectors, advanced promo modeling, multi-plant
+      optimization, API access to solver outputs.
+    - >-
+      Performance-based option for select clients: shared savings on returns/OT
+      reductions (e.g., 10–15% of verified savings).
+  costStructure:
+    - >-
+      R&D: 35–45% of spend (forecasting models, solver tuning, UX,
+      integrations).
+    - >-
+      Cloud and data: 10–15% (compute for optimization, storage, monitoring,
+      3rd-party data).
+    - >-
+      Implementation/Success: 15–25% (solution architects, onboarding,
+      training).
+    - 'Sales/Marketing: 15–20% (events, content, partner commissions).'
+    - 'G&A and compliance: 8–12% (SOC 2, insurance, legal, finance).'
+    - 'Solver licensing (if using commercial solver): 3–8%.'
+    - 'Contingency for on-site visits and change management: 2–5%.'
+  keyMetrics:
+    - >-
+      Forecast WMAPE by SKU/DC: target ≤15% within 90 days; bias between -3% and
+      +3%.
+    - 'Case fill rate to DC: ≥97% weekly; backorders <1%.'
+    - >-
+      Schedule adherence: ≥95% (start times within ±30 minutes; planned vs
+      actual output within ±5%).
+    - >-
+      Changeover hours: -20–35% vs baseline within 60 days; warm-up scrap
+      -15–25%.
+    - >-
+      Labor: overtime hours -15–30%; planner time -60–80% (from 8–12 hours to <2
+      hours/week).
+    - 'Waste/returns: -10–25% dollar reduction; freshness complaints -30%.'
+    - >-
+      Planning cycle time: re-plan <5 minutes for 2–6 week horizon, 200–500
+      SKUs, 3–8 lines/plant.
+    - >-
+      Financial: gross margin +100–250 bps; working capital (FG + WIP) days
+      -10–20%.
+    - >-
+      Adoption: weekly active planner users >90%; scenario usage ≥3 per week per
+      plant.
+    - 'Commercial: ACV, logo retention >95%, NRR >120%, CAC payback <12 months.'
+storyBrand:
+  character: >-
+    Ops, supply chain, and plant planners at tortilla manufacturers who need
+    accurate weekly SKU/location demand and executable line schedules.
+  problem: >-
+    - External: demand swings by SKU/region; finite press/oven capacity;
+    frequent changeovers; labor limits.
+
+    - Internal: manual spreadsheets, tribal rules, constant firefighting, waste.
+
+    - Philosophical: fresh food makers shouldn’t have to guess to serve
+    customers well.
+  guide: >-
+    - We’re tortilla and CPG planning experts.
+
+    - Empathy: we’ve lived stale stock, missed windows, and Saturday overtime.
+
+    - Authority: production-grade forecasting and finite scheduling proven in
+    food manufacturing environments.
+  plan: >-
+    1) Connect ERP/POS/shipments, BOMs, routings, capacities, and labor data.
+
+    2) Generate weekly SKU/location forecasts with explainability.
+
+    3) Convert forecasts into a finite, line-level plan respecting capacities,
+    changeovers, and labor.
+
+    4) Planner review/override and what-if scenarios.
+
+    5) Publish to ERP/shop floor and continuously learn from outcomes.
+  callToAction: |-
+    - Direct: Book a 30-minute demo.
+    - Transitional: Share sample data for a no-cost pilot and ROI estimate.
+  success: |-
+    - Higher fill, lower waste and overtime.
+    - Fewer changeovers; stable, executable schedules.
+    - Clear forecast visibility by SKU/location; planners focus on exceptions.
+    - Stronger retailer relationships and margins.
+  failure: |-
+    - Stockouts and stales; costly expedites.
+    - Overtime and idle time; constant rescheduling.
+    - Eroded retailer trust and shrinking margins.
+landingPage:
+  hero:
+    title: >-
+      SKU‑Level Demand Forecast + Finite Production Plans for Tortilla
+      Manufacturing
+    subtitle: >-
+      Turn weekly SKU/DC demand into executable, line‑level schedules that
+      respect capacity, changeovers, and labor—cut waste, boost service, and
+      stabilize shifts.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - Volatile SKU/DC demand causes stockouts and stale inventory.
+    - 'Spreadsheets can’t balance lines, changeovers, and labor in real time.'
+    - 'Excess changeovers drive clean‑downs, lost hours, and scrap.'
+    - Overtime and crew bottlenecks to hit service targets.
+    - 'No unified view of forecast, plan, and actuals.'
+    - Plans ignore shelf‑life and freshness windows.
+    - What‑if analysis is slow; decisions happen too late.
+  solution:
+    - 'AI forecasts by SKU and DC, updated weekly and rollable to daily/shift.'
+    - 'Finite, line‑level schedules across mix, press, bake, and pack.'
+    - >-
+      Sequence optimization to cut changeovers
+      (corn/flour/size/organic/gluten‑free).
+    - 'Labor‑aware planning with shifts, skills, and overtime caps.'
+    - 'Shelf‑life, hold, cooling, and allergen constraints built in.'
+    - Push approved plans to ERP/MES and track adherence.
+    - 'Alerts for service risks, capacity conflicts, and material shortages.'
+    - 'Scenario planning for promotions, new SKUs, and plant downtime.'
+  features:
+    - SKU/location probabilistic forecasts with seasonality and promo effects.
+    - 'Demand sensing from orders, POS, and shipments.'
+    - 'Finite capacity planning per line, rate, and calendar.'
+    - Changeover matrix with clean‑down times and allergen rules.
+    - Batching and lot‑size optimization to reduce waste.
+    - 'Labor model: crews, skills, breaks, and shift patterns.'
+    - Shelf‑life and freshness guardrails for WIP and finished goods.
+    - WIP stages and cooling/hold times respected in routing.
+    - 'Material checks for flour, corn, oil, film, and cartons.'
+    - 'Scenario sandbox: service vs. cost trade‑offs and plan versions.'
+    - 'KPIs: service level, utilization, changeovers, waste, OTIF, attainment.'
+    - 'Integrations: SAP, D365, NetSuite, Infor; MES/SCADA via APIs.'
+    - Role‑based approvals and human‑in‑the‑loop overrides.
+    - Plan transparency with drivers and constraint explanations.
+  steps:
+    - >-
+      Connect ERP/MES data: orders, shipments, BOMs, routings, calendars, rates,
+      changeovers.
+    - >-
+      Define constraints: lines, labor, allergens, shelf‑life, lot sizes, min
+      runs.
+    - >-
+      Train and validate SKU/DC forecasts; set service targets and safety stock
+      rules.
+    - >-
+      Auto‑generate finite schedules by line and shift; review sequence and
+      loads.
+    - 'Run what‑ifs (promos, downtime, new SKUs); compare KPIs.'
+    - >-
+      Approve and publish to ERP/MES; monitor adherence and exceptions in real
+      time.
+---
+# TortillaIQ
+
+Industry: Tortilla Manufacturing
+Service: SKU-level Demand Forecast + Finite Production Plan Agent

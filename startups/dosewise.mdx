@@ -1,0 +1,312 @@
+---
+name: DoseWise AI
+slug: dosewise
+service:
+  title: Chemical Dosing Recommendation Agent (Coagulant/Polymer/Disinfection)
+  description: >-
+    Suggests cost-effective dosing ranges that meet targets (e.g., TP,
+    turbidity, disinfection) based on analyzer/lab data and process constraints.
+  targetUsers:
+    - Process engineers
+    - Operations supervisors
+  triggers:
+    - 'New analyzer reading (e.g., UV254, orthophosphate)'
+    - Significant influent change detected
+    - Daily optimization window
+  inputs:
+    - 'Online analyzers (UV254, turbidity, orthophosphate, ammonia)'
+    - 'Flow, MLSS, SRT/MCRT, temperature, pH'
+    - Lab confirmation data
+    - Chemical costs and inventory
+    - Process constraints and safety limits
+  steps:
+    - Validate sensors and reconcile with lab data; detect drift
+    - Fit/update dose-response and cost models per unit/process
+    - Compute cost-to-compliance frontier and safe operating envelopes
+    - Recommend dosing ranges and ramp rates with rationale
+    - Log outcomes for learning; alert if outside guardrails
+  tools:
+    - Analyzer vendor APIs
+    - Historian
+    - Optimization/ML libraries
+    - Dashboard and notification tools
+  outputs:
+    - Recommended dosing range and expected outcomes
+    - Cost and chemical usage forecast
+    - Out-of-bounds alerts and investigation prompts
+  pricingModel:
+    - Monthly subscription
+    - Setup for model calibration and guardrail definition
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 7
+    overall: 7
+  risks:
+    - Over/under-dosing from bad sensors or unmodeled conditions
+    - Regulatory noncompliance if misapplied
+    - Chemical inventory impacts
+    - Operator trust and adoption
+  dependencies:
+    - Reliable analyzers and maintenance program
+    - Engineer-approved bounds and SOPs
+    - Access to chemical price/inventory data
+    - Change management approval
+leanCanvas:
+  problem:
+    - >-
+      Operators often over-dose coagulants/polymer/disinfectants to avoid permit
+      violations, inflating chemical spend by 10–35% ($30k–$500k+/yr per plant)
+      and increasing sludge handling costs.
+    - >-
+      Influent quality and flow vary hourly (storm events, industrial
+      discharges), but most plants use fixed setpoints, slow jar tests, or
+      simple PID loops not optimized for multi-objective targets (TP, turbidity,
+      fecal/FC/CT, residual chlorine).
+    - >-
+      Data is siloed across SCADA/PLC, LIMS, and online analyzers; noisy or
+      drifting sensors degrade control decisions and trust.
+    - >-
+      Regulatory requirements are tightening (e.g., TP ≤ 0.1 mg/L, E. coli
+      limits), raising compliance risk and legal exposure from episodic
+      under-dosing.
+    - >-
+      Chemical pump limits, polymer shear sensitivity, clarifier loading rates,
+      and pH windows create hard constraints that typical controls don’t
+      respect, leading to process upsets.
+    - >-
+      Utilities face staffing shortages; knowledge resides in a few senior
+      operators, creating operational variability shift-to-shift.
+    - >-
+      Vendor lock-in from chemical suppliers or OEM-specific control packages
+      restricts optimization across multi-vendor equipment and changing chemical
+      prices.
+  solution:
+    - >-
+      Ingest and clean real-time plant data (flow, pH, ORP, turbidity, TP/PO4-P
+      analyzers, fecal indicators proxies/surrogates, residual chlorine, polymer
+      feed, coagulant dose, temperature, jar test results, lab TP) from
+      SCADA/PLC and LIMS via secure connectors.
+    - >-
+      Hybrid physics + ML models predict effluent quality vs. dose under current
+      influent conditions and process constraints; produce recommended dosing
+      ranges and confidence intervals every 5–15 minutes.
+    - >-
+      Multi-objective optimizer minimizes $/MG chemical cost and sludge
+      production while respecting hard constraints (pump capacity, polymer shear
+      limits, pH window, CT requirements, chlorine residual upper bounds,
+      clarifier overflow rates).
+    - >-
+      Operator UI shows recommended min/target/max dose, predicted effluent
+      outcomes, cost impact, and confidence; supports A/B testing and what-if
+      scenarios (e.g., chemical price changes, storm forecast).
+    - >-
+      Optional closed-loop mode writes setpoints to PLC with guardrails and
+      automatic fallback to last-known-good or operator control.
+    - >-
+      Automated compliance and savings reporting (monthly, quarterly) with audit
+      trails for regulators and finance.
+    - >-
+      Onboarding playbook: 8–12 weeks from kickoff—data assessment, baseline
+      model build with 3–6 months historical data, shadow-mode validation, pilot
+      acceptance criteria (KPIs), then go-live.
+    - >-
+      Edge gateway for on-prem processing and offline operation; cloud analytics
+      for fleet learning and model improvements.
+  uniqueValueProp: >-
+    AI-powered, vendor-agnostic dosing recommendations that cut chemical cost
+    10–25%, reduce sludge by 5–15%, and maintain permit compliance with
+    explainable, constraint-aware setpoints delivered to operators or
+    closed-loop control.
+  unfairAdvantage: >-
+    Hybrid physics+ML models pretrained on multi-plant datasets with transfer
+    learning, combined with a constraint engine codifying real process limits
+    and regulatory rules; vendor-agnostic connectors and an edge-first
+    architecture that runs offline with explainable recommendations and
+    validated guardrails; performance-backed commercial model and third-party
+    verified results to accelerate procurement.
+  customerSegments:
+    - >-
+      Municipal wastewater treatment plants (POTWs) >1 MGD with chemical
+      phosphorus removal, flocculation, and disinfection.
+    - >-
+      Industrial wastewater facilities in food/beverage, pulp & paper,
+      chemicals, oil & gas, and microelectronics with stringent effluent limits.
+    - >-
+      Contract operators (O&M firms) managing multiple plants and incentivized
+      on budget/compliance.
+    - >-
+      Engineering consultants/EPCs specifying process controls for upgrades and
+      advanced nutrient removal.
+    - >-
+      Chemical suppliers seeking value-added optimization and performance-based
+      contracts.
+  channels:
+    - >-
+      Direct enterprise sales to utilities and O&M firms focusing on plants >5
+      MGD and/or with TP≤0.1 mg/L limits.
+    - >-
+      Partnerships with engineering consultants (RFP influence/spec-in during
+      upgrades) and SCADA integrators for installation.
+    - >-
+      Alliances with chemical suppliers offering performance-based savings
+      programs bundled with DoseWise AI.
+    - >-
+      Industry events and associations (WEFTEC, AWWA/WEF chapters) with
+      case-study talks and operator workshops.
+    - >-
+      Pilots via state innovation programs and utility peer networks; publish
+      third-party verified results.
+    - >-
+      Content marketing: calculators ($/MG savings), white papers on hybrid
+      ML+process control, and operator training webinars.
+  revenueStreams:
+    - >-
+      SaaS subscription per process line: Monitoring tier $1,000/month;
+      Optimizer tier $3,000/month; Closed-loop control tier $5,000/month.
+    - >-
+      One-time implementation/integration fee: $20,000–$80,000 per site
+      depending on size and complexity.
+    - >-
+      Performance-based bonus: 10–20% of verified first-year net chemical
+      savings (after fees).
+    - >-
+      Professional services: jar test program design, analyzer QA/QC, operator
+      training, change management.
+    - >-
+      Data/reporting add-ons: automated regulatory reports, fleet benchmarking,
+      custom dashboards.
+    - >-
+      Channel revenue share with chemical suppliers and integrators on joint
+      deals.
+  costStructure:
+    - >-
+      R&D: ML engineers, process engineers, and water chemists for model
+      development and validation.
+    - >-
+      Cloud infrastructure and data pipelines; edge gateway hardware costs
+      (~$2,000–$5,000 per site).
+    - >-
+      Sales cycle expenses (6–12 months typical): demos, pilots, travel,
+      proof-of-value studies.
+    - >-
+      Integration/implementation labor with SCADA/IT, cybersecurity hardening,
+      and QA.
+    - 'Ongoing customer success/support, model monitoring, and retraining.'
+    - >-
+      Compliance and certifications (SOC 2, ISO 27001), liability insurance, and
+      legal for utility contracts.
+    - 'Marketing (events, case studies, pilot subsidies).'
+  keyMetrics:
+    - >-
+      Chemical cost per MG treated (target: 10–25% reduction vs. 6-month
+      baseline).
+    - 'Sludge production per MG (target: 5–15% reduction).'
+    - >-
+      Permit compliance: number of monthly exceedances (target: 0) and 95th
+      percentile effluent TP/turbidity within limits.
+    - >-
+      Dose recommendation adoption rate (% of recommendations applied; target:
+      >70% after 90 days).
+    - >-
+      Model accuracy: MAE/RMSE for predicted effluent TP/turbidity/residual vs.
+      lab/online analyzers (target: MAE TP ≤ 0.03 mg/L).
+    - >-
+      Recommendation latency and system uptime (target: <60s latency; >99.5%
+      uptime).
+    - >-
+      Operator intervention frequency and time-to-correct after disturbances
+      (target: -30%).
+    - 'Verified ROI and payback (target: payback <12 months; ROI >2x in year 1).'
+    - >-
+      Data quality score: % valid analyzer data points and drift detection MTTR
+      (target: >95% valid, drift MTTR <7 days).
+storyBrand:
+  character: >-
+    Plant operators and managers at sewage treatment facilities who must
+    consistently hit TP, turbidity, and disinfection targets while controlling
+    chemical spend.
+  problem: >-
+    External: Influent variability, changing water chemistry, and manual
+    trial-and-error lead to over/under-dosing and permit risk. Internal: Teams
+    are tired of guesswork, alarms, and weekend callouts. Philosophical: You
+    shouldn’t have to choose between compliance and cost.
+  guide: >-
+    We understand the daily pressure to protect public health and meet permits.
+    Our team blends process engineering and AI to turn analyzer and lab data
+    into clear, constraint-aware dosing recommendations. The agent is
+    transparent, auditable, and built to work with your SCADA/LIMS and operator
+    judgment.
+  plan: >-
+    1) Connect: Integrate SCADA/analyzers/LIMS; set targets (TP, turbidity,
+    disinfection) and process constraints (chemical types, pump limits,
+    alkalinity/ORP bounds, polymer shear limits, contact time). 2) Calibrate:
+    Back-test on historical runs, validate ranges with operators, set guardrails
+    and overrides. 3) Operate: Get live dosing ranges with confidence bands,
+    alerts for data quality or process drift, and simple adopt/adjust actions.
+    4) Improve: Continuous learning, weekly performance summaries, and phased
+    rollout across trains/chemicals.
+  callToAction: >-
+    Direct: Book a demo and start a 30-day pilot on one train. Transitional:
+    Request a sample report and readiness checklist.
+  success: >-
+    - Reliable compliance for TP, turbidity, and disinfection targets. -
+    Measurable reduction in chemical costs and avoidable sludge production. -
+    Fewer upsets, retests, and callouts; more operator confidence. -
+    Transparent, auditable recommendations and documented ROI. - Scalable across
+    plants, trains, and chemicals with continuous improvement.
+  failure: >-
+    - Ongoing guesswork, overdosing costs, and underdosing violations. -
+    Reactive firefighting during upsets and data-quality issues. - Higher sludge
+    handling costs and chemical waste. - No clear record of why dosing changed
+    or what worked.
+landingPage:
+  hero:
+    title: AI Chemical Dosing for Wastewater Plants
+    subtitle: >-
+      Hit permit targets at lowest chemical cost. Real‑time, constraint‑aware
+      ranges for coagulant, polymer, and disinfection.
+    ctaText: Request a Demo
+    ctaHref: /request-demo
+  problem:
+    - Over‑dosing to stay safe drives chemical spend up.
+    - Influent swings from storms and seasons break setpoints.
+    - 'Permit limits for TP, turbidity, and disinfection risk violations.'
+    - Manual jar tests and lab lag slow optimization.
+    - SCADA and LIMS data exist but aren’t actionable.
+    - Staff time is limited; expertise varies across shifts.
+    - No clear audit trail for why doses were changed.
+  solution:
+    - AI suggests cost‑optimal dosing ranges that meet targets.
+    - Uses analyzer and lab data plus flow and process constraints.
+    - Shows a preferred setpoint with uncertainty bounds and rationale.
+    - 'Adapts to events: storms, slugs, diurnal patterns, outages.'
+    - What‑if scenarios for tighter limits or chemical price changes.
+    - Integrates with SCADA/PLC for advisory or closed‑loop control.
+    - Full audit trail and alerts; operator remains in control.
+  features:
+    - 'Multi‑objective optimization: cost, compliance risk, sludge production.'
+    - 'Constraint aware: pump capacity, shear limits, contact time, residuals.'
+    - 'Real‑time targets: TP, turbidity/NTU, TSS, disinfection CT or residual.'
+    - 'Data QA/QC: outlier filtering, drift detection, calibration reminders.'
+    - 'Connectors: OPC UA, Modbus, MQTT, CSV/SFTP/API, LIMS import.'
+    - Train‑specific models; coordinates across basins and treatment stages.
+    - Explainable recommendations with drivers and confidence intervals.
+    - Event detection for wet weather and industrial slug loads.
+    - 'Advisory dashboards, alarms, and SCADA tag write‑back.'
+    - 'Compliance logs, versioned models, and change history for audits.'
+    - Cloud or on‑prem with edge gateway; role‑based access and SSO.
+    - 'Savings and performance reports: chemical, energy, and violation risk.'
+  steps:
+    - 'Connect analyzers, SCADA, and lab data sources.'
+    - 'Set effluent targets, chemical options, and operational constraints.'
+    - Run baseline analysis and validate recommendations with your team.
+    - Deploy in advisory mode; compare against current practice.
+    - 'Optional: enable closed‑loop with guardrails and overrides.'
+    - 'Monitor performance, savings, and permit margins in real time.'
+    - Continuously refine with seasonal retraining and operator feedback.
+---
+# DoseWise AI
+
+Industry: Sewage Treatment Facilities
+Service: Chemical Dosing Recommendation Agent (Coagulant/Polymer/Disinfection)

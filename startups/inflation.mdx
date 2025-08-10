@@ -1,0 +1,333 @@
+---
+name: Inflation Nowcasting and Drivers Explorer (INDE)
+slug: inflation
+naics:
+  primary: '521110'
+  occupations: []
+service:
+  title: Inflation Nowcasting and Drivers Explorer
+  description: >-
+    AI agent that produces weekly CPI nowcasts, fan charts, and driver
+    attribution with drill-downs and citations.
+  targetUsers:
+    - Monetary Policy Department
+    - Research
+    - Statistics
+  triggers:
+    - Weekly schedule
+    - 'On new data arrival (prices, FX, wages, commodities)'
+    - Pre-MPC cycle
+  inputs:
+    - Historical CPI/PPI/WPI
+    - 'FX, commodity, energy prices'
+    - Wage/payroll indices
+    - Retail scanner or web-scraped prices (if available)
+    - Expectations surveys
+    - External forecasts (IMF/OECD/Consensus)
+  steps:
+    - Ingest and validate series; flag outliers and revisions
+    - Feature engineering and seasonality handling
+    - Train/update ensemble nowcast (ARIMA/ETS/GBM) with cross-validation
+    - Generate nowcast with uncertainty bands and driver attribution
+    - Stress small what-if shocks (energy/FX) and recompute nowcast deltas
+    - >-
+      Draft a 1–2 page briefing with charts and citations; route for human
+      sign-off
+  tools:
+    - 'Python (pandas, statsmodels, lightgbm)'
+    - Prophet/ETS
+    - Great Expectations (data QA)
+    - FRED/ECB SDW/IMF IFS APIs
+    - Bloomberg/Refinitiv (if licensed)
+    - Azure OpenAI/LLM with RAG for cited briefings
+  outputs:
+    - Nowcast value and fan chart PNG/JSON
+    - Drivers table (contributions)
+    - Scenario deltas
+    - Briefing note PDF/Doc with citations
+    - Data/QA log
+  pricingModel:
+    - One-time setup fee
+    - 'Monthly subscription (data pipelines, model upkeep)'
+    - Per-brief add-on
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Data quality shifts/structural breaks
+    - Overfitting/false precision
+    - Misinterpretation of uncertainty
+    - Licensing limits for market data
+  dependencies:
+    - Secure access to internal/statistics databases
+    - Market data licenses
+    - Approval workflow for publications
+leanCanvas:
+  problem:
+    - >-
+      Official CPI releases are monthly with 2–6 week lags; monetary policy
+      committees need higher-frequency reads to decide on rates, guidance, and
+      communications.
+    - >-
+      Existing vendor models often lack explainability and audit trails; central
+      banks must meet model risk management standards (e.g., SR 11-7, ECB TRIM,
+      BoE MRM) and defend estimates to internal committees and the public.
+    - >-
+      Heterogeneous data sources (web prices, scanner data, fuel, FX, freight,
+      PMIs, weather, taxes) are fragmented; ingestion, cleansing, and versioning
+      are costly to build and maintain in-house.
+    - >-
+      Structural breaks (supply shocks, tax changes, price caps) degrade model
+      stability; detecting regime shifts and recalibrating models is nontrivial.
+    - >-
+      Data sovereignty, security, and procurement constraints require
+      on-premise/sovereign cloud deployments, role-based access, and full
+      auditability.
+    - >-
+      Leadership needs actionable attribution (drivers by COICOP class/outlet)
+      and scenario fan charts, not just point forecasts, to guide communications
+      and risks.
+    - >-
+      Talent bandwidth: many central banks cannot hire/retain specialized
+      ML/data engineering teams to build and operate weekly pipelines at
+      production quality.
+  solution:
+    - >-
+      Produce weekly CPI nowcasts (headline/core and selected sub-indices) using
+      an ensemble of Bayesian mixed-frequency models and ML with
+      regime-switching and change-point detection.
+    - >-
+      Deliver calibrated fan charts (e.g., 50/70/90% intervals) and scenario
+      overlays (tax changes, FX shocks, fuel price moves) with clear
+      assumptions.
+    - >-
+      Provide driver attribution using Shapley-style contributions and
+      decomposition by COICOP levels (divisions→classes→items), with source
+      citations and archived snapshots of inputs.
+    - >-
+      Automate data ingestion: connectors for official series (SDMX),
+      web-scraped prices (compliant scraping with robots and legal review),
+      scanner data, fuel/power tariffs, FX, futures, freight, PMIs, weather,
+      VAT/excise changes.
+    - >-
+      Quality control pipeline: anomaly detection, outlier handling,
+      missing-data imputation, and reproducible data versioning with audit logs.
+    - >-
+      Governance-by-design: full lineage, model cards, backtests, challenger
+      models, validation packs aligned to SR 11-7/ECB/BoE guidance; role-based
+      access, segregation of duties.
+    - >-
+      Flexible deployment: on-premise, sovereign cloud (AWS GovCloud/Azure
+      Government/region-locked), or managed service; API-first for BI
+      integration (Power BI/Tableau) and secure export to research notebooks.
+    - >-
+      Human-in-the-loop workflows: analyst notes, override with justification,
+      and reproducible sign-off to support internal committees and public
+      communications.
+  uniqueValueProp: >-
+    Auditable, weekly inflation nowcasts with driver attribution and
+    drill-downs, tailored to each country’s CPI basket, deployable
+    on-premise/sovereign cloud, and compliant with central-bank model risk
+    standards—so policy makers can act with timely, explainable evidence.
+  unfairAdvantage: >-
+    Audit-grade explainability down to COICOP item level with source citations
+    and archived evidence, combined with deployment in sovereign/on-prem
+    environments and a ready-to-use model risk documentation pack—capabilities
+    that most vendors and in-house teams lack simultaneously.
+  customerSegments:
+    - >-
+      Primary: Central banks and monetary authorities (Monetary Policy,
+      Research, Statistics/Prices, Data/IT, Communications).
+    - >-
+      Secondary: National statistical offices collaborating on CPI, Ministries
+      of Finance/Treasury macro teams, currency boards, and monetary unions.
+    - >-
+      Influencers/Allies: Multilaterals (IMF, World Bank, BIS), regional
+      development banks, policy think tanks supporting TA programs.
+  channels:
+    - >-
+      Direct enterprise sales to central banks: targeted outreach to DG
+      Research/Monetary Policy, Head of Statistics/Prices, Chief Data Officer,
+      and CIO.
+    - >-
+      RFP/RFQ monitoring and bidding on central bank procurement portals, UNGM,
+      Devex, World Bank eConsultant, EU TED.
+    - >-
+      Partnerships with multilaterals (IMF/WB/BIS) for technical assistance
+      pilots, co-authored notes, and capacity-building workshops.
+    - >-
+      Co-sell with major cloud providers’ public-sector teams for
+      sovereign/on-prem deployments and procurement frameworks (e.g., G-Cloud).
+    - >-
+      Thought leadership: quarterly Inflation Nowcasting Scorecard (accuracy and
+      transparency benchmarks by country), policy briefings, and webinars.
+    - >-
+      Conference presence: BIS/IFC statistics meetings, Eurosystem/ESCB,
+      IIF/central bank forums; private demos and roundtables.
+    - >-
+      Land-and-expand motion: start with one index or one country module, then
+      expand to core, sub-indices, and scenario suite; multi-country monetary
+      unions next.
+  revenueStreams:
+    - >-
+      Annual subscription license per country: Base (headline/core) USD
+      150k–250k; Advanced (full drivers, scenarios, automation) USD 300k–600k.
+    - >-
+      One-time implementation/customization: USD 100k–400k depending on CPI
+      basket complexity, data integration, and deployment model.
+    - >-
+      Annual support & maintenance (on-prem): 18–22% of license; includes
+      updates, security patches, validation reports.
+    - >-
+      Managed service hosting (optional): USD 12k–40k per month depending on
+      data volume, SLAs, and sovereignty requirements.
+    - >-
+      Professional services: training, change management, custom research, and
+      data engineering (USD 1,500–2,500 per day).
+    - >-
+      Add-ons: additional users/roles, extra sub-indices, custom scenario
+      libraries, premium data connectors (subject to third-party data
+      licensing).
+  costStructure:
+    - >-
+      Team: ML researchers, econometricians, data engineers, platform/SRE,
+      solutions architects, security/compliance, and public-sector sales
+      (largest cost).
+    - >-
+      Cloud/infra: compute for training/backtests, CI/CD, managed databases,
+      observability; dedicated secure environments for client pilots.
+    - >-
+      Data acquisition: commercial datasets (where licensed), web crawling
+      infrastructure, data storage and archiving of snapshots.
+    - >-
+      Security and compliance: ISO 27001/SOC 2 audits, pen tests, code scanning,
+      incident response drills, legal counsel.
+    - >-
+      Deployment and support: on-prem/sovereign-cloud setup, VPNs, hardware
+      sizing support, customer success, and training.
+    - >-
+      Go-to-market: conference sponsorships, travel to central banks, RFP
+      responses, thought-leadership content development.
+    - >-
+      R&D: model improvements (regime-switching, attribution), localization to
+      new CPI baskets, documentation and validation tooling.
+  keyMetrics:
+    - >-
+      Model accuracy: 12-month rolling MAE on y/y headline CPI nowcast ≤ 0.35
+      percentage points in stable regimes; ≤ 0.6 pp in volatile regimes.
+    - >-
+      Calibration: 90% prediction interval empirical coverage between 85–95%;
+      CRPS trend improvement q/q.
+    - >-
+      Bias/stability: rolling bias |mean error| ≤ 0.15 pp; drift alarms if >0.25
+      pp for 3 consecutive months.
+    - >-
+      Timeliness: end-to-end weekly pipeline latency ≤ 6 hours from latest data
+      arrival; on-time run rate ≥ 99%.
+    - >-
+      Data quality: ingestion success rate ≥ 99%; anomaly review resolved within
+      24 hours; source freshness SLA met ≥ 98%.
+    - >-
+      Reliability: service uptime ≥ 99.5% (managed service); RPO ≤ 1 hour, RTO ≤
+      4 hours.
+    - >-
+      Adoption: monthly active expert users per client ≥ 10; median session
+      drill-down depth ≥ 3 levels; ≥ 5 cited charts per MPC cycle.
+    - >-
+      Business: POC-to-contract conversion ≥ 50%; time-to-first-production ≤ 8
+      weeks; annual gross retention ≥ 90%, net retention ≥ 110%.
+    - >-
+      Compliance: high-severity security patches within 7 days; annual model
+      validation pack delivered on schedule to clients.
+storyBrand:
+  character: >-
+    Central bank policymakers and research teams (NAICS 521110) who need timely,
+    defensible inflation insight to set rates and communicate with the public.
+  problem: >-
+    External: CPI is lagged; high-frequency signals are noisy and siloed; manual
+    aggregation is slow. Internal: pressure to act with incomplete evidence and
+    justify decisions. Philosophical: the public deserves transparent,
+    evidence-based policy grounded in traceable data.
+  guide: >-
+    We understand the scrutiny and stakes of monetary policy. Our AI
+    agent—Inflation Nowcasting and Drivers Explorer—was built by macroeconomists
+    and ML engineers, validated on historical vintages, fully cited and
+    explainable, and deployable securely (on‑prem/VPC).
+  plan: >-
+    1) Securely connect approved data sources. 2) Receive weekly CPI nowcasts,
+    fan charts, and driver attribution with drill-downs and citations. 3) Review
+    in a policy dashboard, export to briefs/speeches, and iterate with our team
+    during a 4‑week pilot.
+  callToAction: >-
+    Schedule a security-cleared demo and 4‑week pilot, or request a sample
+    weekly report + methodology brief.
+  success: >-
+    Faster, defensible inflation read; clearer risk bounds; traceable drivers by
+    sector and item; tighter policy meetings; improved public communication and
+    credibility; fewer surprises.
+  failure: >-
+    Continue relying on lagged, fragmented signals; slower policy response;
+    conflicting narratives; preventable forecast misses and credibility risks.
+landingPage:
+  hero:
+    title: Inflation Nowcasting & Drivers Explorer
+    subtitle: >-
+      Weekly CPI nowcasts, fan charts, and driver attribution with drill-downs
+      and citations—built for central banks (NAICS 521110).
+    ctaText: Request demo
+    ctaHref: '#demo'
+  problem:
+    - Official CPI arrives too late for timely policy decisions.
+    - 'High-frequency signals are fragmented, noisy, and hard to synthesize.'
+    - Manual models are brittle and resource-intensive to maintain.
+    - Uncertainty and revisions are difficult to communicate to stakeholders.
+    - Attribution to categories and shocks lacks a transparent audit trail.
+    - 'Governance demands clear lineage, versioning, and reproducibility.'
+  solution:
+    - >-
+      AI agent delivers weekly CPI nowcasts with confidence bands and revision
+      tracking.
+    - >-
+      Driver decomposition across headline, core, and sub-baskets with
+      geographic views.
+    - >-
+      Click-through drill-downs to item-level drivers, each with source
+      citations.
+    - >-
+      Automated ingestion of high-frequency, administrative, and alternative
+      data.
+    - 'Policy-ready briefs, charts, and narratives for committee communication.'
+    - >-
+      Secure cloud or on‑prem deployment, with full audit logs and role-based
+      access.
+  features:
+    - Weekly CPI nowcasts with fan charts and uncertainty bands.
+    - >-
+      Driver attribution (headline/core/energy/food) with Shapley-style
+      contributions.
+    - Drill-down explorer from basket to item-level weights and price changes.
+    - Citations and data lineage on every chart and figure.
+    - 'Scenario shocks (fuel, FX, wages, VAT) with pass-through elasticities.'
+    - 'Smart alerts when drivers flip, outliers emerge, or uncertainty widens.'
+    - 'Backtesting against benchmarks (ARIMA, BVAR, DSGE) and historical CPI.'
+    - 'APIs and connectors for Power BI, Tableau, CSV, and notebooks.'
+    - >-
+      Model governance: versioning, approvals, reproducibility, and audit
+      trails.
+    - International coverage; customizable baskets and seasonal factors.
+    - 'Enterprise security: SSO, RBAC, IP allowlists; cloud or on‑prem.'
+    - 'Export-ready PDFs, slide packs, and embeddable charts.'
+  steps:
+    - Select country/basket and connect data feeds (or use our default feeds).
+    - 'Configure governance: roles, approvals, lineage, and retention settings.'
+    - Calibrate with historical CPI; validate against holdout and benchmarks.
+    - 'Launch weekly runs; receive dashboards, alerts, and API outputs.'
+    - Drill into drivers; attach citations and narratives for policy meetings.
+    - 'Run scenarios, compare outcomes, and publish a policy brief.'
+---
+# Inflation Nowcasting and Drivers Explorer (INDE)
+
+Generated for NAICS 521110 — Monetary Authorities-Central Bank.
+Service: Inflation Nowcasting and Drivers Explorer

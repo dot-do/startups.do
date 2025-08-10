@@ -1,0 +1,307 @@
+---
+name: RiceShield AI
+slug: riceshield
+naics:
+  primary: '111160'
+  occupations: []
+service:
+  title: Rice Pest/Disease Early Warning + Image Diagnostics
+  description: >-
+    Daily risk scoring for blast, bacterial leaf blight, brown planthopper;
+    farmer-submitted photos analyzed for diagnosis and action thresholds.
+  targetUsers:
+    - Rice farmers
+    - Extension agents
+    - Input dealers/retailers
+  triggers:
+    - New weather forecast
+    - New satellite image over field
+    - Farmer sends plant/leaf/pest photo
+  inputs:
+    - Field location/boundary
+    - Planting date and growth stage
+    - 'Local management history (N rate, seed variety)'
+    - Farmer images of symptoms or pests
+  steps:
+    - >-
+      Ingest weather to compute disease/pest risk indices (temp, humidity, leaf
+      wetness proxies)
+    - Use satellite NDVI/RECI anomalies for stress hot-spotting
+    - Score daily risk for blast/BLB/BPH by stage and local susceptibility
+    - >-
+      When photos arrive, run image classifier + prompt-based triage for
+      differential diagnosis
+    - >-
+      Return action: scouting intensity, thresholds, recommended active
+      ingredients (label-safe)
+    - Track responses and outcomes to improve model thresholds
+  tools:
+    - OpenWeatherMap/NOAA NDFD
+    - Sentinel-2 via Google Earth Engine
+    - LightGBM/XGBoost models
+    - 'On-device or cloud vision model (e.g., EfficientNet)'
+    - 'Twilio/WhatsApp, Telegram'
+    - Local pesticide label database (country-specific)
+  outputs:
+    - Daily risk level per pest/disease
+    - Hot-spot map tiles and scouting routes
+    - Actionable spray/scouting recommendation with PHI/REI notes
+    - Case log for each photo submission
+  pricingModel:
+    - Freemium alerts; premium diagnostics ($0.10–$0.30/photo)
+    - 'Season pass per farm (e.g., $8–$15/season)'
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 3.5
+    overall: 4
+  risks:
+    - Misdiagnosis from poor-quality images
+    - Regulatory compliance for pesticide advice
+    - 'Data gaps (cloud cover, hyper-local conditions)'
+  dependencies:
+    - Access to local pesticide labels/regulations
+    - Lightweight photo upload channel
+    - Ground-truth data to calibrate risk thresholds
+leanCanvas:
+  problem:
+    - >-
+      Rice pests/diseases (blast, bacterial leaf blight, brown planthopper)
+      cause 10–30% average seasonal losses and up to 60% in severe outbreaks;
+      detection is often too late for cost-effective control.
+    - >-
+      Farmers over/under-apply pesticides due to uncertainty; typical
+      smallholders spend $30–80/ha/season on pest control with 15–40% waste from
+      mistimed, inappropriate, or unnecessary sprays.
+    - >-
+      Diagnosis is slow and inaccurate: limited extension coverage (often >1,500
+      farmers per agent) and long travel times delay action by days.
+    - >-
+      Generic weather alerts don’t translate into field-level,
+      crop-stage-specific risk or economic thresholds; farmers lack clear,
+      localized action triggers.
+    - >-
+      Co-ops, millers, and insurers lack timely, geolocated risk intelligence to
+      manage supply risk, target advisory/inputs, and price/underwrite exposure.
+    - >-
+      Existing apps provide generic plant disease IDs with mixed accuracy and
+      limited rice-specific thresholds; trust and sustained adoption remain low
+      without measurable ROI.
+  solution:
+    - >-
+      Daily risk scoring at 250 m–1 km resolution for blast, BLB, and brown
+      planthopper combining localized weather (temp, humidity, leaf wetness
+      proxy), crop phenology, and remote sensing (Sentinel-2, NDVI/EVI, canopy
+      moisture indices).
+    - >-
+      Farmer-submitted photo diagnostics (leaf/plant/pest) with on-device
+      preprocessing and server-side ensemble models; outputs: disease/pest
+      likelihood, severity class, and recommended actions with economic
+      thresholds.
+    - >-
+      Action thresholds tailored by crop stage, variety susceptibility, and
+      local prices; guidance prioritizes IPM (resistant varieties, nitrogen
+      management, field sanitation, biologicals), then targeted chemistries with
+      PHI/IRAC/FRAC rotation.
+    - >-
+      Multi-channel delivery: WhatsApp/Telegram/LINE bots, Android app with
+      offline caching, SMS/IVR summaries; extension dashboard for agents/co-ops.
+    - >-
+      Outbreak surveillance: heatmaps and alerts for co-ops/millers/insurers;
+      API for integration into existing farm apps and insurer risk engines.
+    - >-
+      Human-in-the-loop verification: agronomist review queue for low-confidence
+      cases; feedback closes the labeling loop for continuous model improvement.
+  uniqueValueProp: >-
+    Daily, field-level early warning plus instant image diagnosis tailored to
+    rice, delivering measurable yield protection (5–15% reduction in losses) and
+    15–25% pesticide savings via localized action thresholds—accessible on
+    WhatsApp/SMS and offline-ready.
+  unfairAdvantage: >-
+    Rice-first model stack localized with IRRI/NARES data and field trials, plus
+    a proprietary, geodiverse image dataset and action-threshold library;
+    multi-channel (incl. WhatsApp/SMS) with offline capability and embedded
+    economic calculators that tie alerts to real ROI—creating trust, stickiness,
+    and defensibility beyond generic plant ID apps.
+  customerSegments:
+    - >-
+      Primary: Smallholder rice farmers (0.5–3 ha) in India, Bangladesh,
+      Indonesia, Vietnam, Philippines, Thailand.
+    - 'Secondary: Medium/large rice farms and estates (>10 ha).'
+    - >-
+      Influencers/Distributors: Farmer producer organizations/co-ops, input
+      retailers/dealers, drone spraying service providers.
+    - >-
+      Institutional: Millers and traders (supply assurance), insurers (index and
+      indemnity products), microfinance, NGOs, government extension/NARES,
+      development projects.
+    - >-
+      Researchers/Advisors: IRRI and national institutes needing surveillance
+      and ground-truth data.
+  channels:
+    - >-
+      Phase 1 (Year 1–2): Partner-led distribution via co-ops/FPOs (India,
+      Bangladesh, Philippines), input retailers, and NGO projects;
+      WhatsApp-first onboarding via QR in stores/meetings.
+    - >-
+      Digital: WhatsApp/Telegram/LINE bots, Google Play app, Facebook farmer
+      groups, YouTube how-to; KOL agronomist webinars.
+    - >-
+      Institutional: Pilots with IRRI/NARES and provincial ag departments;
+      insurer and miller proof-of-concepts bundling service with
+      contracts/loans.
+    - >-
+      Field: Demonstration plots and on-farm days synced with disease season
+      peaks; drone-service partners bundle risk alerts + precision spray
+      packages.
+    - >-
+      Telecom/Fintech: Zero-rated or subsidized data/SMS bundles; microfinance
+      adds advisory as value-add with seasonal loans.
+  revenueStreams:
+    - >-
+      Farmer/FPO subscription: $4 per farm per season (two rice seasons/year in
+      many regions) or $2/ha/season; includes daily risk + unlimited diagnostics
+      + SMS/WhatsApp alerts.
+    - >-
+      Co-op/Extension dashboard: $0.30–$0.60/ha/season for portfolio risk,
+      outbreak maps, and reporting.
+    - >-
+      Input retailer bundles: Revenue share (10–20%) on advisory-linked product
+      sales; co-marketing fees.
+    - >-
+      Miller/Trader risk intelligence: $0.10–$0.25/ha/month during crop cycle
+      for supply risk monitoring in sourcing zones.
+    - >-
+      Insurer/API licensing: $0.04–$0.08/ha/week for risk indices and claim
+      triage; success fees for loss ratio improvement.
+    - >-
+      Sponsored programs/Grants: Donor/government-funded deployments covering
+      per-farmer costs for priority districts.
+    - >-
+      Per-image diagnostic for non-subscribers: $0.05–$0.10/image via WhatsApp
+      paywall (freemium: 3 free images/month).
+  costStructure:
+    - >-
+      Data: Weather APIs (blended ECMWF/ICON/NOAA/Meteomatics):
+      $2,000–$6,000/month at initial scale; satellite is mainly free
+      (Sentinel/Landsat) with $500–$2,000/month processing/storage.
+    - >-
+      Cloud/compute: $8,000–$20,000/month for model inference, APIs, storage at
+      50–200k MAU and 1–2M images/month; CDN/queueing $1,000–$3,000/month.
+    - >-
+      SMS/WhatsApp/IVR: $0.005–$0.02/SMS; WhatsApp Business API session
+      ~$0.01–$0.05/user/session depending on country; IVR minutes $0.015–$0.04;
+      budget $5,000–$15,000/month at scale.
+    - >-
+      Field validation and agronomy: $150–$250k/year for partner trials (10–15
+      sites across 5 countries), enumerator stipends, travel.
+    - >-
+      People: ML/engineering (6–10 FTE), agronomy (3–5 FTE), country leads
+      (3–5), support (3–4); $1.5–$3.0M/year fully loaded at growth stage.
+    - >-
+      Sales/marketing: $150–$400k/year for co-op programs, demo plots, content,
+      retailer incentives.
+    - 'Compliance/overheads: $150–$300k/year (legal, data protection, admin).'
+  keyMetrics:
+    - >-
+      Model accuracy: Top-1 photo diagnosis F1 ≥0.88 for blast, ≥0.85 for BLB,
+      ≥0.85 for BPH; risk model AUC ≥0.80; calibration error <0.05.
+    - >-
+      Operational: Median diagnostic response time <15s; risk score refresh
+      daily by 08:00 local; system uptime ≥99.5%.
+    - >-
+      Adoption: 30-day activation rate ≥60%; weekly active users/MAU ≥55%; 3+
+      images/farmer/season median; trial-to-paid conversion ≥20%.
+    - >-
+      Impact: Farmers adopting recommendations reduce pesticide spend by 15–25%
+      and prevent 5–10% yield loss on treated plots; target 2:1 farmer ROI
+      within first season.
+    - >-
+      Engagement quality: Action compliance rate ≥50% on high-risk alerts;
+      repeat season retention ≥70%; NPS ≥40.
+    - >-
+      Unit economics: Blended CAC ≤$2 via partner/WhatsApp funnels; ARPU
+      $4–$6/season; 12-month LTV ≥$10; payback <3 months.
+    - >-
+      Partner KPIs: Co-op dashboard utilization ≥70% monthly; insurer loss ratio
+      improvement ≥5% in pilot zones; miller supply variance reduction ≥10%.
+storyBrand:
+  character: >-
+    Rice farmers, farm managers, and extension officers who want to protect
+    yield and spray only when necessary—making confident, timely decisions for
+    each field.
+  problem: >-
+    Villain: fast-moving blast, bacterial leaf blight, and brown planthopper
+    driven by weather and resistance. External: outbreaks escalate between field
+    visits; symptoms look alike; data is scattered. Internal: uncertainty about
+    when to scout or spray. Philosophical: feeding communities shouldn’t rely on
+    guesswork.
+  guide: >-
+    We understand how one missed week can cost a season. Our AI combines daily,
+    field-level risk models with photo-based diagnostics trained on diverse rice
+    datasets and reviewed by agronomists—designed with producers and extension
+    partners for practical, in-field use.
+  plan: >-
+    1) Onboard: create farm, set location/variety/planting date. 2) Monitor: get
+    daily blast/BLB/BPH risk scores and a 7‑day outlook; submit field photos via
+    app or WhatsApp for rapid diagnosis and action thresholds. 3) Act: follow
+    clear thresholds (green: monitor, amber: focused scouting, red: treat) with
+    IPM-aligned recommendations.
+  callToAction: >-
+    Start a free 30‑day pilot for your fields today. Or request a sample risk
+    report and a live photo-diagnosis demo.
+  success: >-
+    Earlier detection, targeted interventions, protected yield, fewer
+    unnecessary sprays, lower costs, and traceable decision logs for compliance
+    and insurance—peace of mind knowing each field is watched daily.
+  failure: >-
+    Late detection and blanket spraying lead to avoidable yield loss, higher
+    input costs, resistance pressure, regulatory risk, and stressed teams.
+landingPage:
+  hero:
+    title: AI Early Warning + Image Diagnostics for Rice
+    subtitle: >-
+      Daily risk scores for blast, bacterial leaf blight, and brown planthopper.
+      Snap a photo for instant diagnosis, severity, and action thresholds.
+    ctaText: Get Alerts Now
+    ctaHref: /signup
+  problem:
+    - Pest and disease outbreaks escalate between scouting rounds
+    - Generic weather alerts miss field-level risk
+    - Uncertainty leads to late sprays or overuse of chemicals
+    - Manual scouting is time-consuming and inconsistent
+    - Limited agronomy support during peak pressure
+    - No clear action thresholds to guide decisions
+  solution:
+    - 'Field-level daily risk scoring for blast, BLB, and brown planthopper'
+    - Photo-based AI diagnosis with confidence and severity rating
+    - >-
+      Actionable guidance using economic thresholds—spray, monitor, or
+      biocontrol
+    - 'Timely alerts via app, SMS, or WhatsApp'
+    - Growth-stage and variety-aware recommendations
+    - Season-long records to track actions and outcomes
+  features:
+    - 'Daily risk index per field for blast, BLB, and BPH'
+    - 'Hyperlocal modeling using weather, crop stage, and variety susceptibility'
+    - Instant image diagnostics from farmer-submitted photos
+    - Action thresholds and spray window optimizer (rain/wind aware)
+    - Population trend tracking from repeated photos
+    - Multilingual UI and voice prompts (low-bandwidth friendly)
+    - Offline capture with auto-sync when connected
+    - Team/co-op dashboard with farm mapping
+    - API/webhooks for integrations
+    - Data privacy and farmer-owned records
+    - Season-end performance and savings report
+  steps:
+    - Create account and map your paddies (GPS or pin-drop)
+    - 'Set variety, planting date, and growth stage'
+    - Receive daily risk scores and alert notifications
+    - Snap leaf/hopper photos and submit for instant diagnosis
+    - Follow threshold-based actions and log treatments
+    - 'Review outcomes, adjust practices, and export reports'
+---
+# RiceShield AI
+
+Generated for NAICS 111160 — Rice Farming.
+Service: Rice Pest/Disease Early Warning + Image Diagnostics

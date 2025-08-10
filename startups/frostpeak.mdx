@@ -1,0 +1,338 @@
+---
+name: FrostPeak Advisor
+slug: frostpeak
+naics:
+  primary: '312113'
+  occupations: []
+service:
+  title: Energy Load Optimization & Peak-Reduction Advisor
+  description: >-
+    Reduce kW peaks and energy cost by forecasting load and recommending
+    compressor/ice-maker run schedules aligned to tariffs.
+  targetUsers:
+    - Plant Manager
+    - Energy/Facilities Manager
+  triggers:
+    - Ahead-of-day (hourly)
+    - Utility peak notifications
+    - Tariff change
+  inputs:
+    - 15-min smart meter data
+    - Equipment list and flexibility windows
+    - Tariff schedule (TOU/demand)
+    - Ambient temperature forecast
+    - Production plan
+  steps:
+    - Ingest interval data and build baseline load model
+    - Predict next 48–72h load with weather and plan inputs
+    - Identify peak windows and demand charges risk
+    - Optimize compressor/ice-maker duty cycles within constraints
+    - Generate setpoint/run-schedule and alerts ahead of peaks
+    - Summarize expected cost savings and impacts
+  tools:
+    - Python (pandas)
+    - Time-series models
+    - OR-Tools
+    - Utility/tariff APIs
+    - InfluxDB/Grafana connectors
+    - Email/SMS notifications
+  outputs:
+    - Optimized run schedule (CSV/ICS)
+    - Peak alerts (SMS/Email)
+    - Savings report and post-mortem
+  pricingModel:
+    - Setup fee
+    - Monthly subscription per site
+    - Optional savings-share
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 4
+    modelCapability: 4
+    overall: 4
+  risks:
+    - Limited control authority over equipment
+    - Process rigidity or product risk from load shifting
+    - Metering data latency/quality
+  dependencies:
+    - Interval meter access/API
+    - Tariff data
+    - Equipment constraints documentation
+    - Notification channels (SMS/Email)
+leanCanvas:
+  problem:
+    - >-
+      Summer demand charges (often 30–60% of total electric bill) spike when
+      compressors and ice-makers run concurrently during hot afternoons.
+    - >-
+      Manual run scheduling is reactive and based on operator experience, not
+      forecasts of ambient temperature, ice demand, or tariff windows.
+    - >-
+      Plants lack real-time visibility into approaching peak kW and cannot
+      automatically stage equipment to avoid crossing demand thresholds.
+    - >-
+      Tariff complexity (TOU, ratchets, coincident/non-coincident demand,
+      seasonal rates) makes optimal scheduling non-intuitive and prone to costly
+      mistakes.
+    - >-
+      Existing SCADA/PLC systems typically control safety and sequences but
+      don’t optimize for energy cost or demand charges.
+    - >-
+      Ice inventory constraints (bin capacity, harvest cycles, product
+      quality/temperature) limit naive curtailment, requiring optimization that
+      respects production SLAs.
+    - >-
+      Limited internal analytics resources to perform measurement and
+      verification (M&V) of savings reduces confidence and budget approval.
+    - >-
+      Multi-plant operators lack standardized best practices and cross-site
+      benchmarks to identify and scale wins.
+    - >-
+      Demand response opportunities are underutilized due to uncertainty about
+      production risk and compensation.
+    - >-
+      Plants face increasing ESG and cost pressures; energy intensity per ton of
+      ice is a material line item with untapped reduction potential.
+  solution:
+    - >-
+      Forecast: Machine learning models predict hourly plant load 1–7 days ahead
+      using weather, historical production, bin levels, and operating patterns.
+    - >-
+      Tariff engine: Ingests site-specific tariffs (TOU, seasonal, demand
+      ratchets, DR incentives) to compute true marginal cost by hour.
+    - >-
+      Optimizer: Generates run schedules for compressors/ice-makers to pre-build
+      inventory off-peak and cap on-peak demand at a configurable limit (e.g.,
+      450 kW).
+    - >-
+      Real-time control: Optional closed-loop control via PLC gateway to stage
+      equipment according to the recommended schedule; open-loop mode with
+      operator prompts also supported.
+    - >-
+      Inventory-aware planning: Maintains minimum bin stock/service levels to
+      avoid stockouts and protect order fulfillment during peaks.
+    - >-
+      Peak shield: Automated alerts when predicted demand is within X% of the
+      site’s limit; one-click curtailment plan that preserves safety margins.
+    - >-
+      M&V and reporting: IPMVP-aligned savings quantification, demand vs.
+      baseline charts, and finance-ready reports.
+    - >-
+      Safety and quality guardrails: Hard limits on suction/discharge pressures,
+      product temperature, and defrost/harvest cycles.
+    - >-
+      What-if simulation: Compare alternative schedules, setpoints, or demand
+      limits before execution.
+    - >-
+      DR participation: Identify, enroll, and dispatch safe load reductions for
+      DR events with pre-approved playbooks.
+  uniqueValueProp: >-
+    Cut peak kW and electricity spend by 10–20% within the first season, with
+    AI-driven forecasts and compressor/ice-maker schedules that respect
+    production and quality constraints—no production surprises, just lower
+    bills.
+  unfairAdvantage: >-
+    A domain-specific optimization library trained on ice-manufacturing load
+    patterns and inventory constraints, pre-built PLC integration templates for
+    common refrigeration systems, and finance-grade M&V that builds trust with
+    CFOs. Early partnerships with major OEMs and DR aggregators create a
+    distribution moat and data advantage that generic EMS vendors lack.
+  customerSegments:
+    - >-
+      Primary: Packaged ice manufacturers (NAICS 312113) with peak demand >200
+      kW and seasonal summer load profiles.
+    - >-
+      Multi-plant operators (e.g., top-10 producers with 5–100+ plants) seeking
+      standardization and centralized energy optimization.
+    - >-
+      Independent/regional plants in hot climates (TX, FL, CA, AZ, NV, GA, NC)
+      exposed to high TOU/demand charges.
+    - >-
+      Roles: COO/VP Operations, Director of Engineering/Energy, Plant Managers,
+      Maintenance/Controls Managers, CFO/Finance for ROI approval.
+    - >-
+      Secondary (expansion): Cold storage rooms within ice distribution
+      networks; Canadian packaged ice manufacturers with similar tariffs.
+  channels:
+    - >-
+      Direct outbound to top 50 multi-plant operators; lead list via IPIA
+      membership and public plant locations; offer 60–90 day pilots.
+    - >-
+      Industry associations and events: Exhibit/present at IPIA Annual
+      Convention; publish case studies in industry newsletters.
+    - >-
+      OEM/control partners: Johnson Controls/Frick, Vilter, Mayekawa (Mycom),
+      Danfoss, Emerson—co-marketing and installer referrals.
+    - >-
+      Utility/DR aggregators: Partner with CPower/Enel X and select utilities to
+      package incentives/rebates with deployments.
+    - >-
+      Regional system integrators (PLCs/SCADA) as implementation partners;
+      revenue share on integrations.
+    - >-
+      Digital ABM: Targeted LinkedIn campaigns to roles (Ops/Energy leaders) in
+      hot-climate states; gated ROI calculator content.
+    - >-
+      Utility marketplaces and energy-efficiency programs (e.g., SCE, PG&E, FPL)
+      to reduce customer capex via incentives.
+    - >-
+      Customer success-led expansion: Land 1–3 plants, then expand to fleet with
+      corporate-level dashboards and multi-site KPIs.
+  revenueStreams:
+    - >-
+      SaaS subscription per site, tiered by peak kW: Small (<200 kW) $500/month;
+      Medium (200–500 kW) $1,200/month; Large (>500 kW) $2,000/month.
+    - >-
+      One-time onboarding/integration fee per site: $5,000–$15,000 depending on
+      PLC/SCADA complexity.
+    - >-
+      Optional edge gateway hardware: $800–$2,000 per unit (pass-through or
+      bundled).
+    - >-
+      Performance fee (optional/contracted): 15–30% of measured and verified
+      bill savings for first 12 months.
+    - >-
+      Professional services: DR enrollment, tariff audits, operator training,
+      custom reports ($150–$250/hour).
+    - >-
+      Enterprise plan: Corporate analytics and API access for multi-plant
+      operators (add $2,000–$5,000/month per enterprise).
+  costStructure:
+    - >-
+      Staff: Data science/ML, energy engineers, ICS integrators, full-stack
+      developers, customer success, sales (blended loaded cost $150k–$220k FTE).
+    - 'Cloud/Software: $50–$150/site/month (compute, storage, monitoring, MLOps).'
+    - >-
+      Third-party data/APIs: Tariff data (e.g., Genability/OpenEI), weather
+      (NOAA/premium)—$10–$50/site/month.
+    - >-
+      Edge hardware and logistics: $800–$2,000 per gateway + $50–$100/site/year
+      cellular or VPN.
+    - >-
+      Partner commissions and channel fees: 10–20% of first-year ARR on referred
+      deals.
+    - 'Travel and site audits: $1,500–$3,000 per site (as needed).'
+    - >-
+      Insurance, certifications, and security audits (SOC 2/IEC 62443
+      readiness): $50k–$150k/year.
+    - 'Marketing and events (IPIA, trade shows, collateral): $50k–$120k/year.'
+  keyMetrics:
+    - >-
+      Verified demand reduction (kW) vs. weather/production-normalized baseline;
+      target 15–30% peak reduction in summer months.
+    - >-
+      Total bill savings per site ($/year) and %; target 10–20% annual electric
+      bill reduction.
+    - 'Forecast accuracy: day-ahead load MAPE <10%; intraday <7%.'
+    - >-
+      Schedule adherence: >90% execution of recommended sequences (or automated
+      execution rate).
+    - >-
+      Demand charge limit breaches: <1 per month per site during peak season
+      after stabilization.
+    - 'Energy intensity: kWh/ton improvement of 8–15% for optimized operations.'
+    - >-
+      Payback period: <6 months for onboarding + first year subscription; ROI
+      >3x within 12 months.
+    - >-
+      Customer KPIs: NPS >40, logo retention >90%, net revenue retention >115%
+      (multi-site upsells).
+    - >-
+      Sales metrics: CAC payback <9 months, opportunity win rate >25%
+      post-pilot.
+    - >-
+      Operational uptime: >99.5% cloud platform; edge gateway >99% with local
+      fallback.
+storyBrand:
+  character: >-
+    Ice manufacturing operators and plant managers (NAICS 312113) who must hit
+    daily ice output targets at the lowest possible energy cost—without risking
+    product quality or equipment health.
+  problem: >-
+    External: Complex tariffs and compressor-driven kW peaks trigger costly
+    demand charges and curtailment stress. Internal: Manual scheduling feels
+    like guesswork, creating anxiety over surprise bills and missed delivery
+    windows. Philosophical: You shouldn’t have to choose between meeting
+    production targets and protecting margins.
+  guide: >-
+    We understand continuous, cold-chain-critical production and the realities
+    of compressor cycling, defrost windows, and sanitation constraints. Our team
+    blends industrial refrigeration know-how, utility-tariff expertise, and AI
+    load forecasting to deliver clear, plant-ready run schedules and insights
+    you can trust.
+  plan: >-
+    - Connect: Integrate meters/SCADA/PLC data, tariffs, weather, and production
+    plans. - Optimize: Forecast load and generate tariff-aware
+    compressor/ice-maker schedules that shave peaks while meeting output. - Act
+    & Verify: Deliver recommendations or control signals, monitor results, and
+    provide M&V reporting with production-first overrides.
+  callToAction: >-
+    Direct: Start a pilot at one site or book a demo. Transitional: Download the
+    Ice Plant Peak-Reduction Checklist and run an ROI estimate.
+  success: >-
+    Smoothed load profile, reduced demand charges and energy costs, predictable
+    monthly bills, on-time ice production, healthier compressors, fewer alarms,
+    and audit-ready KPIs for finance and sustainability—without new hardware or
+    production risk.
+  failure: >-
+    Persisting with manual scheduling leads to preventable peaks, surprise
+    demand charges, compressor wear, curtailment scramble, missed deliveries,
+    and margin erosion.
+landingPage:
+  hero:
+    title: AI Peak-Reduction for Ice Plants
+    subtitle: >-
+      Forecast load, cut kW peaks, and auto-schedule compressors and ice-makers
+      to your tariff.
+    ctaText: Start a pilot
+    ctaHref: ./start-pilot
+  problem:
+    - Demand charges dominate the bill as compressor starts stack into kW peaks.
+    - TOU rates shift; manual schedules leave savings on the table.
+    - Weather and order swings trigger surprise peaks and ratchet penalties.
+    - >-
+      Limited visibility into real-time load vs production targets and bin
+      levels.
+    - Curtailment risks ice shortfalls and quality issues.
+    - Operators lack tools to coordinate staggered starts and minimum run-times.
+  solution:
+    - 'AI forecasts 15-minute plant load from weather, orders, and bin levels.'
+    - >-
+      Optimizes compressor/ice-maker schedules to avoid peaks and ride off-peak
+      tariffs.
+    - >-
+      Respects process constraints: min run-times, suction/discharge limits,
+      defrost, maintenance.
+    - Real-time peak alerts and auto-adjustments before thresholds are hit.
+    - Closed-loop control or operator advisories via SCADA/PLC.
+    - 'Transparent M&V shows kW shaved, kWh shifted, and dollars saved.'
+    - >-
+      Typical outcomes: 10–25% lower demand charges; 5–15% energy cost
+      reduction.
+  features:
+    - 'Utility tariff engine: TOU, demand, ratchet, CPP supported.'
+    - 'Forecast horizon: intra-day to 7 days; 1-min and 15-min intervals.'
+    - >-
+      Schedule optimizer: lock/unlock assets; staggered starts; start/stop and
+      cycling limits.
+    - Bin-level and temperature inputs to protect supply and ice quality.
+    - 'What-if planner for orders, ambient temp, and shift changes.'
+    - 'Peak prediction alerts 15–60 minutes ahead (SMS, email, SCADA tag).'
+    - 'Integrations: Modbus, BACnet, OPC UA, Ignition, REST APIs.'
+    - Edge gateway for on-prem data; cloud or hybrid deployment.
+    - 'Safety guardrails: pressure/temperature bounds and anti-short-cycle logic.'
+    - 'M&V dashboard: baseline vs optimized, demand charge savings, CO2 avoided.'
+    - Multi-site portfolio view with coordinated peak management.
+    - 'Enterprise security: TLS, role-based access, audit logs.'
+  steps:
+    - Connect utility meter data and import your tariff.
+    - 'Map compressors, ice-makers, sensors, and operating constraints.'
+    - 'Sync production plan, shift schedules, and bin targets.'
+    - Train and validate the forecast with 30–60 days of history.
+    - Generate an optimized schedule; review and approve with operators.
+    - Run a 4–8 week pilot and verify savings with M&V.
+    - Enable closed-loop control and scale across sites.
+---
+# FrostPeak Advisor
+
+Generated for NAICS 312113 — Ice Manufacturing.
+Service: Energy Load Optimization & Peak-Reduction Advisor

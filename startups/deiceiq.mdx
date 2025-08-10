@@ -1,0 +1,349 @@
+---
+name: DeiceIQ TSAT Advisor
+slug: deiceiq
+service:
+  title: Deicing Queue Forecaster and TSAT Advisor
+  description: >-
+    Predicts deicing pad queues, recommends pad assignments and push sequences
+    to protect TSAT/CTOT.
+  targetUsers:
+    - APOC
+    - Ramp Control
+    - Deicing Coordinators
+    - Airline Station Ops
+  triggers:
+    - Forecast or active icing
+    - Airframe type mix update
+    - Pad capacity change
+    - TSAT/CTOT at risk
+  inputs:
+    - METAR/TAF/Hourly forecasts
+    - Deicing pad capacity and truck availability
+    - Flight schedule with deicing needs
+    - Historical spray times by type/holdover
+  steps:
+    - Estimate deicing demand per time bucket
+    - Forecast pad queue times and off-block impacts
+    - Suggest pad routing and sequence to minimize TSAT breach
+    - Notify affected flights with recommended push windows
+    - Continuously update with actual spray durations
+  tools:
+    - 'Weather API (NOAA/NWS, MeteoBlue)'
+    - AODB/AIDX
+    - OR-Tools sequencing
+    - Messaging (Teams/Slack)
+  outputs:
+    - Per-flight deicing ETA
+    - Pad assignment recommendations
+    - Risk list (TSAT/CTOT jeopardy)
+  pricingModel:
+    - Seasonal subscription (winter months)
+    - Per-deiced flight fee
+    - Setup for data connections
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 7
+    overall: 7
+  risks:
+    - Weather uncertainty
+    - Pad operations variability
+    - ANSP slot coordination complexity
+  dependencies:
+    - Deicing operations feed
+    - Weather data
+    - TSAT/CTOT access (A-CDM/NM or airline)
+leanCanvas:
+  problem:
+    - >-
+      Unpredictable deicing pad queues during winter events cause TSAT/CTOT
+      (EDCT in the US) misses, leading to push delays, slot penalties, and
+      knock-on network disruption.
+    - >-
+      Lack of a common operating picture across AOCC, ramp control, deicing
+      operators, tower/CDM, and airlines results in suboptimal pad assignments
+      and push sequences.
+    - >-
+      Most DMAN/A-CDM tools do not explicitly model deicing resource constraints
+      (pads, trucks, fluid class, HOT), making TSAT predictions brittle in
+      winter operations.
+    - >-
+      Weather variability (precipitation intensity/type shifts) and HOT
+      expiration trigger last-minute re-deice events that current tools fail to
+      anticipate.
+    - >-
+      Inefficient pad utilization (uneven load across pads, deadhead taxiing,
+      blocked access) reduces departure throughput by 5–20% in peak events.
+    - >-
+      Excess taxi/idle time increases fuel burn (typ. 50–150 kg per delayed
+      departure) and emissions; glycol usage and re-deice events increase
+      operating cost and environmental risk.
+    - >-
+      Airports and deicing operators lack quantitative, predictive KPIs (e.g.,
+      expected pad wait by tail, HOT expiry risk) to make proactive decisions
+      within minutes-to-hours horizons.
+  solution:
+    - >-
+      Real-time queue forecasting engine that fuses AODB/CDM milestones
+      (TOBT/TSAT/TTOT), surface surveillance (ASDE-X/A-SMGCS/ADS-B), deicing ops
+      data (pad status, truck allocation, fluid class), runway config, and
+      high-resolution nowcasts (precip type/intensity) to predict wait times per
+      pad/tail with quantified uncertainty.
+    - >-
+      Optimization module that recommends pad assignments and push sequences to
+      minimize TSAT/CTOT/EDCT misses subject to operational constraints (pad
+      compatibility, taxi routing, HOT windows, runway config, airline
+      priorities/SLA).
+    - >-
+      Holdover-time (HOT) risk scoring that anticipates expiry based on
+      precip/type/temp/wind and treatment class; flags tails at risk and
+      proposes expedited push or re-route to nearby pad.
+    - >-
+      What-if simulation for AOCC/deicing supervisors to test runway config
+      changes, pad closures, truck reallocations, or snowband arrival; provides
+      outcome deltas on TSAT adherence and throughput.
+    - >-
+      Role-specific interfaces and alerts: AOCC overview, deicing supervisor pad
+      view, airline ramp-tail view, tower/CDM timeline cues; API/webhooks to
+      push advisories into existing DMAN/A-CDM tools.
+    - >-
+      TSAT/EDCT protection logic: dynamic push-ready windows, pad exit
+      sequencing, and DMAN updates to keep queues synchronized with airspace
+      constraints.
+    - >-
+      Automated incident and KPI reporting: per-event performance (TSAT
+      adherence, pad utilization, re-deice rate) with baselines for ROI
+      tracking.
+    - >-
+      Secure deployment options: airport VPC, on-prem edge gateway for
+      surveillance feeds, and offline-degradation mode with cached models and
+      manual override.
+  uniqueValueProp: >-
+    Protect TSAT/CTOT during winter ops by forecasting pad queues (5–180 min
+    horizon) and optimizing pad assignments and push sequences—reducing TSAT
+    misses 20–40%, increasing pad throughput 10–15%, and cutting re-deice events
+    5–10% through holdover-aware, weather-driven AI.
+  unfairAdvantage: >-
+    Holdover-aware, constraint-optimized engine trained on cross-airport deicing
+    datasets and integrated with DMAN/A-CDM timelines, plus prebuilt connectors
+    to SWIM/NM and major ops platforms—enabling faster, safer deployments and
+    measurable TSAT protection that general surface tools or spreadsheets cannot
+    match.
+  customerSegments:
+    - >-
+      Primary: Airport Operations Control Centers (AOCC) at winter airports
+      (North America, Europe) managing deicing pads and departure flows.
+    - >-
+      Primary: Deicing service providers (e.g., Aero Mag, IDS, Swissport,
+      Menzies) scheduling crews, trucks, and pad utilization.
+    - >-
+      Primary: Hub airlines’ OCC/ramp control at bases with frequent winter
+      operations (e.g., DL at MSP/DTW, UA at DEN/ORD/EWR, AC at YYZ/YUL).
+    - >-
+      Secondary: ANSP/Tower units at A-CDM airports (TSAT/DMAN integration) and
+      FAA facilities via SWIM data-sharing.
+    - >-
+      Secondary: Airport IT/integrators and A-CDM system vendors (Saab, ADB
+      Safegate, Amadeus, SITA, Frequentis).
+    - >-
+      Initial beachhead: Medium/large hubs with off-gate deicing pads (10+ pads
+      or 20+ truck capacity) and 20+ winter events/season (e.g., DEN, ORD, MSP,
+      DTW, YYZ, YUL, BOS, EWR, JFK, SEA; FRA, MUC, ZRH, OSL, ARN, HEL, CPH).
+  channels:
+    - >-
+      Founder-led enterprise sales to AOCCs and deicing operators at 10–15
+      target airports before the next winter season; offer 60–90 day pilot
+      during peak months with baseline vs intervention KPI study.
+    - >-
+      Partnerships/Integrations: co-sell with A-CDM/DMAN vendors (Saab, ADB
+      Safegate, Amadeus, SITA, Frequentis) and surveillance providers; list in
+      their marketplaces, build standard connectors.
+    - >-
+      Deicing operators as channel partners: revenue-share for multi-airport
+      rollouts (e.g., Aero Mag, IDS) and joint case studies.
+    - >-
+      Regulatory/data access enablement: pre-approved interfaces with FAA
+      SWIM/EUROCONTROL NM B2B; template DPAs and data governance to shorten
+      procurement.
+    - >-
+      Events/Thought leadership: present winter ops case studies at ACI-NA, ACI
+      EUROPE, AAAE, World ATM Congress/ACI-ATC Forum, SAE G-12; publish
+      whitepaper on HOT-aware TSAT protection.
+    - >-
+      ROI-led marketing: airport-specific ROI calculators using historical
+      winter events; offer performance guarantees (e.g., 10% TSAT-miss reduction
+      within first winter or credit extension).
+    - >-
+      Procurement strategy: secure piggybackable cooperative contracts; frame as
+      operational safety/performance enhancement to access capex/ops budgets and
+      AIP or EU funds where applicable.
+    - >-
+      Land-and-expand: start with AOCC/deicing pad view; upsell airline ramp
+      seats and analytics add-ons; expand to additional airports in the
+      operator’s network.
+  revenueStreams:
+    - >-
+      Annual SaaS license per airport, tiered by complexity: Small (gate-only,
+      ≤4 pads): $75k–$150k; Medium (5–9 pads): $150k–$300k; Large (≥10
+      pads/multi-runway): $300k–$600k.
+    - >-
+      One-time integration/professional services per site: $50k–$200k depending
+      on data sources (AODB, surveillance, DMS) and security requirements.
+    - >-
+      Airline hub/OCC add-on: $50k–$200k per hub for carrier-specific views,
+      APIs, and what-if sandbox.
+    - >-
+      Deicing operator network license: $50k–$150k per station or
+      volume-discounted enterprise deals.
+    - >-
+      Premium analytics and seasonal post-mortem reports: $25k–$75k per
+      season/site.
+    - >-
+      Optional managed weather package (if bundled): pass-through plus 15–25%
+      margin.
+  costStructure:
+    - >-
+      Team: 10–14 FTE in year 1–2 (data science, backend, integrations, SRE,
+      aviation SMEs, success) ≈ $2.5M–$3.8M/yr; scales to 20–25 FTE by year 4.
+    - >-
+      Cloud/compute: $8k–$15k/month per large deployment (surveillance
+      ingestion, model serving, storage); multi-tenant efficiencies reduce
+      per-site cost 20–40%.
+    - >-
+      Data licensing: high-resolution nowcasts/weather APIs $50k–$150k/yr;
+      optional ADS-B/surface data agreements where required.
+    - >-
+      Integrations/Travel/Onsite: $5k–$30k per site for discovery, testing, and
+      training; certifications/badging.
+    - >-
+      Security/compliance: SOC 2 Type II and ISO 27001 over 18–24 months:
+      $150k–$300k initial, $75k–$150k/yr ongoing; cyber insurance $30k–$80k/yr.
+    - >-
+      R&D: algorithm development, simulation testbed, and synthetic data
+      generation for rare events: $300k–$600k/yr.
+    - >-
+      Sales/Marketing: conferences, pilots, collateral, and partner MDF:
+      $200k–$500k/yr.
+  keyMetrics:
+    - >-
+      Prediction accuracy: pad wait-time MAE ≤2.5 min (0–60 min horizon) and ≤5
+      min (60–180 min); calibration slope 0.9–1.1.
+    - >-
+      Operational impact: TSAT/CTOT/EDCT miss rate reduction ≥20% in first
+      winter; average taxi-out time reduction ≥3 minutes on deiced departures;
+      re-deice event rate cut ≥5%.
+    - >-
+      Throughput: pad throughput increase ≥10% during peak; queue time variance
+      reduced ≥25%.
+    - >-
+      Alert quality: advisory acceptance rate ≥70%; false positive rate ≤10% for
+      HOT risk alerts; operator override rate trending down month-over-month.
+    - >-
+      Adoption: ≥80% of winter events with active use by AOCC/deicing
+      supervisors; ≥70% of hub airline ramps using tail-level views.
+    - >-
+      Reliability/SLA: ≥99.9% uptime during declared winter events; failover
+      switchover <60 seconds; no P1 incidents without workaround >15 minutes.
+    - >-
+      Safety/Compliance: zero safety events attributable to recommendations;
+      change management and audit completion 100%.
+    - >-
+      Commercial: pilot-to-contract conversion ≥50%; NRR ≥115% via seat/add-on
+      expansion; churn <5%/yr.
+storyBrand:
+  character: >-
+    Airport operations leaders, airline AOCC teams, and deicing coordinators who
+    must keep departures flowing in winter while protecting TSAT/CTOT and
+    safety.
+  problem: >-
+    When snow hits, deicing pad queues become unpredictable. Manual
+    coordination, limited foresight, and data silos lead to missed TSAT/CTOT,
+    pad gridlock, gate holds, wasted glycol, and cascading delays—turning a
+    well-planned schedule into chaos.
+  guide: >-
+    We understand winter ops pressure. Our AI combines live ops data and weather
+    with deicing rules to forecast pad queues and recommend pad assignments and
+    push sequences. Safety-first, operator-in-the-loop, auditable, and easy to
+    integrate with A-CDM, AODB, and deicing systems.
+  plan: >-
+    1) Connect: Integrate AODB/flight data, deicing system, stands/pads, and
+    METAR/TAF. 2) Configure: Define pad constraints, holdover logic, priorities,
+    and slot rules. 3) Operate: Receive forecasts and TSAT-protecting pad/push
+    advisories via dashboard/API; accept or override; feedback continuously
+    improves. 4) Measure: Track OTP, TSAT/CTOT compliance, pad throughput,
+    fuel/glycol savings.
+  callToAction: >-
+    Direct: Schedule a demo and launch a pilot at your winter base.
+    Transitional: Request a winter-readiness assessment and sample forecasts
+    using your historical data.
+  success: >-
+    Stable winter ops with protected TSAT/CTOT, higher pad throughput, fewer
+    gate holds, smoother push sequences, reduced fuel and glycol use, lower
+    emissions, calmer teams, and better OTP and passenger experience.
+  failure: >-
+    Keep gambling with winter: missed slots, cascading delays, pad gridlock,
+    wasted glycol and overtime, frayed crews, heightened safety risk from rushed
+    decisions, angry customers, and blown budgets.
+landingPage:
+  hero:
+    title: Deicing Queue Forecaster & TSAT Advisor
+    subtitle: >-
+      Predict deicing pad queues and optimize pad assignments and push sequences
+      to protect TSAT/CTOT.
+    ctaText: Request a Demo
+    ctaHref: '#request-demo'
+  problem:
+    - TSAT/CTOT misses due to unpredictable deicing waits
+    - Manual spreadsheets and radio calls slow coordination
+    - Pads run unevenly; trucks idle while aircraft wait
+    - 'Slot wastage, taxi delays, and extra fuel burn'
+    - 'Limited shared visibility across airlines, ramp, and CDM/ATC'
+    - No rapid what‑if planning for snowfall spikes or pad closures
+  solution:
+    - Live forecasts of pad queues and service times 5–120 minutes ahead
+    - AI-recommended pad assignments and push sequences to hit TSAT/CTOT
+    - 'Dynamic reprioritization when weather, holds, or runway config changes'
+    - 'Alerts for slot risk, holdover expiry, and pad congestion'
+    - 'Shared dashboard for deicing control, ramp, airline OCC, and CDM'
+    - APIs to update TOBT/TSAT and DMAN; ACARS/SITA/SMS notifications
+  features:
+    - >-
+      Queue prediction engine using METAR/TAF, holdover tables, truck status,
+      pad capacity, and flight intent
+    - Pad occupancy timelines with expected in/out per aircraft
+    - TSAT/CTOT protection score with auto-suggested push order
+    - >-
+      Pad assignment optimizer honoring aircraft type, wingspan, fluid, and
+      restrictions
+    - 'What‑if scenarios for snowfall intensity, runway config, and pad closures'
+    - >-
+      Proactive alerts: slot at risk, deicing drift, holdover expiry, late
+      crew/doors
+    - >-
+      Integrations: AODB, A‑CDM/DMAN, stand/gate, ASMGCS/surface surveillance,
+      NOTAMs, ATIS
+    - >-
+      Role-based views for airport ops, deice control, ramp, and airlines; KPI
+      dashboards
+    - Real-time truck and crew utilization; deicing duration benchmarking
+    - Auto-updates TOBT/TSAT; proposes CTOT swap requests where permitted
+    - 'Mobile and ops room displays; low‑light, ramp‑friendly UI'
+    - 'SaaS or on‑prem, high availability, audit trail, and data export'
+  steps:
+    - >-
+      Connect data: schedules/AODB, flight plans, stand/pad states, ASMGCS,
+      METAR/TAF, NOTAMs, truck telematics
+    - >-
+      Calibrate with historical winters; validate per pad and service type; set
+      rules and constraints
+    - Run shadow mode for first snow events; compare KPIs and refine models
+    - 'Go live with one terminal/bank; train deice control, ramp, and airline ops'
+    - Expand airport-wide; enable APIs to A‑CDM/DMAN and airline OCC
+    - >-
+      Monitor KPIs weekly: TSAT adherence, slot saves, queue variance, pad
+      utilization
+---
+# DeiceIQ TSAT Advisor
+
+Industry: Other Airport Operations
+Service: Deicing Queue Forecaster and TSAT Advisor

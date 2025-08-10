@@ -1,0 +1,313 @@
+---
+name: ConvertIQ Scheduler
+slug: convertiq
+naics:
+  primary: '322299'
+  occupations: []
+service:
+  title: AI Production Schedule Optimizer (Slitters/Sheeters/Die-Cutters)
+  description: >-
+    Auto-builds optimal daily/weekly schedules minimizing changeovers, lateness,
+    and overtime across converting cells.
+  targetUsers:
+    - Production Planners
+    - Operations Managers
+    - Plant Managers
+  triggers:
+    - Daily/weekly scheduling window
+    - Rush order flagged
+    - Backlog or OT threshold exceeded
+  inputs:
+    - 'ERP/MES open orders CSV (SKU, qty, due date, priority)'
+    - Machine calendars and speeds
+    - 'Sequence-dependent setup matrix (width, grade, ink/color, adhesive)'
+    - Crew/shift availability
+    - Current WIP/partially completed jobs
+  steps:
+    - Ingest latest ERP/MES exports
+    - Validate constraints and data gaps; request fixes if needed
+    - 'Formulate constraints (capacity, due dates, sequence setups, crew)'
+    - 'Run optimizer (multi-objective: lateness, setups, overtime)'
+    - 'Generate 2–3 scenarios (on-time max, setup-min, mixed)'
+    - Human planner reviews/edits in UI or Excel
+    - Publish machine-specific queues to MES/Excel and notify teams
+    - Track realized vs plan KPIs
+  tools:
+    - Python
+    - Google OR-Tools
+    - Pandas
+    - Excel/CSV
+    - ODBC/REST to ERP/MES (SAP/Epicor/Infor/NetSuite)
+    - Slack/Teams webhooks
+    - Power BI/Tableau (optional)
+  outputs:
+    - Machine Gantt (PDF/PNG)
+    - Job queues per machine (CSV)
+    - Changeover checklist (CSV)
+    - 'KPI summary (OTIF, utilization, setups)'
+  pricingModel:
+    - One-time setup + monthly subscription per plant
+    - Optional per-run fee for ad-hoc replans
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8.5
+  risks:
+    - Bad or outdated setup matrices cause suboptimal plans
+    - Planner trust/adoption and override needs
+    - ERP/MES integration limitations
+    - Union/crew rules complexity
+  dependencies:
+    - Read access to ERP/MES order and routing data
+    - Accurate setup/changeover matrix
+    - Machine calendars and rates
+    - Agreed file formats for import/export
+leanCanvas:
+  problem:
+    - >-
+      High-mix/short-run orders create excessive sequence-dependent changeovers
+      on slitters, sheeters, and die-cutters, inflating setup time by 15–35% of
+      scheduled hours.
+    - >-
+      Manual Excel/whiteboard scheduling struggles with multi-constraint
+      realities (operator skills, tooling availability, knife setups,
+      grade/coating/color compatibility), leading to frequent rework and
+      expediting.
+    - >-
+      Poor schedule stability causes 10–25% of orders to miss original promise
+      dates, driving penalty fees and lost customer trust.
+    - >-
+      Overtime and weekend work are used as a pressure valve, adding 8–20% labor
+      cost variability and eroding margins.
+    - >-
+      Schedules do not consider true setup matrices (e.g., paper grade to grade,
+      width families, adhesive/ink clean-down), leading to unnecessary setups
+      and additional scrap.
+    - >-
+      Reactive hot-order insertion cascades across cells, causing WIP pileups
+      and starving/overfeeding downstream equipment.
+    - >-
+      Planner dependency risk: when a single expert is out, performance degrades
+      and tribal knowledge isn’t captured.
+    - >-
+      Existing ERP/MES APS modules are generic, difficult to tune for converting
+      nuances, or too heavy to deploy, resulting in low adoption.
+    - >-
+      Lack of what-if simulation makes it hard to evaluate options for splitting
+      lots, overtime usage, partial shipments, or alternate routing.
+    - >-
+      Unclear KPIs and feedback loops between plan and actual prevent continuous
+      improvement of setup matrices and run-rate standards.
+  solution:
+    - >-
+      Auto-build daily/weekly finite schedules that honor machine calendars,
+      labor shifts, skill certifications, tooling/knife availability, and
+      sequence-dependent setup matrices (grade, width, coating/ink, substrate).
+    - >-
+      Optimization engine combines mixed-integer programming with domain
+      heuristics (family batching, minimal setup paths, cut-width compatibility)
+      to minimize changeovers, lateness, and cost of overtime/expedite.
+    - >-
+      Live re-optimization when rush orders, breakdowns, or material delays
+      occur; protects frozen windows to avoid shop-floor chaos.
+    - >-
+      What-if sandbox for planners: simulate overtime, alternate routings, lot
+      splitting, or partial ship promises with instant KPI impacts.
+    - >-
+      Closed-loop learning: compare planned vs. actual to refine run rates,
+      setup times, and changeover penalties automatically.
+    - >-
+      Out-of-the-box connectors to common ERPs/MES (e.g., SAP, Infor, Epicor,
+      Microsoft Dynamics) and machine/PLC signals for status and completion
+      feedback.
+    - >-
+      Shop-floor execution views (tablet/TV) with sequence, setup checklist, and
+      tooling notes; easy drag-drop with constraint-aware warnings.
+    - >-
+      Governance: lock/freeze windows, priority rules, due-date and
+      customer-class SLAs, and audit trails.
+  uniqueValueProp: >-
+    Purpose-built AI scheduler for paper converting cells that automatically
+    generates stable, finite, multi-constraint schedules that cut changeovers,
+    lateness, and overtime—deployable in weeks with measurable ROI within one
+    quarter.
+  unfairAdvantage: >-
+    Proprietary, empirically tuned changeover matrices and heuristics for
+    slitters/sheeters/die-cutters, combined with a closed-loop learning pipeline
+    that continuously refines setup and run-rate parameters from
+    actuals—delivering faster time-to-value and more stable schedules than
+    generic APS tools.
+  customerSegments:
+    - >-
+      Primary: US and Canada NAICS 322299 plants with 50–500 employees operating
+      3–20 converting assets (slitters, sheeters, die-cutters). Roles:
+      VP/Director of Operations, Plant Manager, Production Scheduler/Planner,
+      Continuous Improvement Manager.
+    - >-
+      Secondary: Multi-site converters with centralized planning teams seeking
+      cross-plant load balancing and shared tooling/knife pools.
+    - >-
+      Economic buyer: COO/VP Ops or GM; Technical buyer: IT/OT lead; Users:
+      planners, supervisors, cell leads.
+    - >-
+      Adjacent expansion (later): Label, film, and flexible packaging converters
+      with similar sequence-dependent changeovers.
+  channels:
+    - >-
+      Direct sales to plant/ops leaders via targeted account-based marketing
+      focused on NAICS 322299 in the US/Canada.
+    - >-
+      Industry associations and events: TAPPICon, ICEC/ICEC USA (Converting),
+      Foil & Specialty Effects Association events, regional manufacturing
+      alliances.
+    - >-
+      Partnerships with ERP/MES resellers and system integrators serving paper
+      converting (SAP, Infor, Epicor, D365 partners).
+    - >-
+      OEM relationships with slitter/sheeter/die-cutter manufacturers and
+      retrofitters to co-market scheduling bundles.
+    - >-
+      Thought leadership: case studies, ROI calculators, webinars on
+      sequence-dependent scheduling for converting plants.
+    - >-
+      Pilot-led selling: 6–8 week paid proof-of-value using historical data plus
+      a live cell, with guaranteed KPI targets.
+    - >-
+      Customer referrals and multi-site expansions within existing enterprise
+      groups.
+  revenueStreams:
+    - >-
+      SaaS subscription per site, tiered by number of assets: Starter (up to 5
+      machines): $3,000/month; Growth (6–15): $6,000/month; Enterprise (16+ and
+      multi-site): custom.
+    - >-
+      One-time onboarding/integration fee: $15,000–$60,000 depending on ERP
+      connectors and data quality remediation.
+    - >-
+      Premium add-ons: multi-site optimization, advanced analytics pack,
+      priority support, and SSO/compliance packages.
+    - >-
+      Professional services: changeover matrix design, data cleansing, and
+      continuous improvement workshops.
+    - Revenue share/lead fees from channel partners (co-sell/co-implementation).
+  costStructure:
+    - >-
+      R&D: optimization engineers, data scientists, backend/frontend developers
+      (~45–55% of OpEx in early stage).
+    - >-
+      Cloud hosting and data infra (Kubernetes, databases, monitoring): $50–150
+      per connected machine per month.
+    - >-
+      Implementation and customer success staffing: solution architects,
+      integration engineers, CI consultants.
+    - 'Sales and marketing: ABM tools, events, collateral, partner enablement.'
+    - >-
+      Support and reliability: 24/7 monitoring, incident response, QA, security
+      audits.
+    - >-
+      Insurance, compliance, and certifications (SOC 2 Type II, ISO 27001 as
+      needed).
+  keyMetrics:
+    - >-
+      Customer value KPIs (tracked per site): On-time-in-full (OTIF) +10–20
+      percentage points within 90 days; changeover hours −15–30%; overtime hours
+      −10–25%; planner time spent scheduling −60–80%; expedite freight costs
+      −20–40%; throughput +5–12%.
+    - >-
+      Operational KPIs: schedule adherence (% executed as planned),
+      re-sequencing frequency, average days late, average changeovers per 1,000
+      order lines, average setup duration variance.
+    - >-
+      Adoption KPIs: time-to-first-optimized-schedule (<14 days post-kickoff),
+      daily active planners, shop-floor view usage, % of orders scheduled by AI
+      vs. manual overrides.
+    - >-
+      Business KPIs: ARR, gross margin (target 75–85%), logo retention (>90%),
+      net revenue retention (>120%), CAC payback (<12 months), average sales
+      cycle (≤90 days for single-site).
+storyBrand:
+  character: >-
+    Production planners and plant managers in paper converting (NAICS 322299)
+    running slitters, sheeters, and die-cutters who need reliable, efficient
+    schedules.
+  problem: >-
+    Manual planning across converting cells creates excessive changeovers, late
+    orders, overtime, and chaos when specs or rush jobs change.
+  guide: >-
+    We understand converting constraints—widths, caliper, knife sets, cores,
+    crews, and maintenance—and our AI has optimized thousands of schedules in
+    322299 operations.
+  plan: >-
+    1) Connect ERP/MES and machine specs. 2) Configure constraints and
+    priorities (changeovers, due dates, crews). 3) Auto-generate and publish
+    daily/weekly schedules with live re-optimization.
+  callToAction: Book a 30-minute demo and start a 2-week pilot with your real orders.
+  success: >-
+    Fewer changeovers, higher throughput, on-time delivery, predictable labor,
+    and calm, transparent schedules the floor trusts.
+  failure: >-
+    Another quarter of late jobs, costly overtime, wasted setup time, and
+    planners stuck in spreadsheets.
+landingPage:
+  hero:
+    title: AI Production Schedule Optimizer for Converting Lines
+    subtitle: >-
+      Auto-builds optimal daily/weekly schedules for slitters, sheeters, and
+      die-cutters—minimizing changeovers, lateness, and overtime. Built for
+      converted paper (NAICS 322299).
+    ctaText: Book a 30‑min demo
+    ctaHref: /demo
+  problem:
+    - Spreadsheet scheduling collapses when rush orders hit.
+    - Excessive knife/tooling changeovers eat hours and add scrap.
+    - Late shipments force weekend overtime and fire-fighting.
+    - Cells are unbalanced; bottlenecks starve or clog downstream steps.
+    - Missing rolls/tools/skills trigger last‑minute reshuffles.
+    - Capacity is unclear—promise dates are guesswork.
+  solution:
+    - >-
+      AI auto-builds feasible, changeover‑minimizing sequences across all
+      converting cells.
+    - >-
+      Optimizes to due dates and overtime cost while honoring setup matrices,
+      run rates, crews, and maintenance windows.
+    - Slots rush orders in seconds without blowing up the day’s plan.
+    - Locks frozen windows; only adjusts where it improves outcomes.
+    - Publishes clear work‑to lists per line/shift; printable and MES‑ready.
+    - 'Runs what‑if scenarios (extra shift, OT vs. expedite, alternate routings).'
+  features:
+    - >-
+      Setup‑matrix aware sequencing (knife pattern, width, caliper,
+      coating/color).
+    - >-
+      Finite‑capacity planning across slitters, sheeters, die‑cutters, and
+      finishing.
+    - 'Crew, skill, and shift constraints with breaks and handoffs.'
+    - 'Tooling and material availability checks (knives, anvils, cores, rolls).'
+    - Maintenance/cleaning windows respected and auto‑scheduled.
+    - 'KPIs: on‑time %, changeovers, OT hours, throughput, utilization.'
+    - Drag‑and‑drop with instant re‑optimization and stability controls.
+    - Rush‑order slotting with promise‑date impact preview.
+    - Scenario planner for weekend OT and expedite trade‑offs.
+    - ERP/MES connectors plus CSV/API import/export.
+    - Schedule freeze horizons and override audit trail.
+    - Multi‑cell balancing to relieve bottlenecks and reduce WIP.
+  steps:
+    - >-
+      Connect: Sync orders, routes/BOMs, setup matrix, run rates, calendars via
+      API/CSV.
+    - >-
+      Configure: Define cells, constraints, objectives (lateness vs. OT), and
+      freeze windows.
+    - >-
+      Optimize: Generate the first week/day plan in minutes—review by line and
+      shift.
+    - 'Publish: Send work‑to lists to the floor; print or push to MES/boards.'
+    - 'Run: Handle day‑of changes—drag, drop, and reoptimize in seconds.'
+    - 'Improve: Track KPIs, tune rules, and scale to additional cells/plants.'
+---
+# ConvertIQ Scheduler
+
+Generated for NAICS 322299 — All Other Converted Paper Product Manufacturing.
+Service: AI Production Schedule Optimizer (Slitters/Sheeters/Die-Cutters)

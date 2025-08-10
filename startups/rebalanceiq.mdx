@@ -1,0 +1,315 @@
+---
+name: RebalanceIQ
+slug: rebalanceiq
+service:
+  title: Demand Forecasting & Fleet Rebalancing Planner
+  description: >-
+    Predicts SKU-by-location demand and recommends transfers or purchases to hit
+    service levels at lowest cost.
+  targetUsers:
+    - Ops Manager
+    - Supply Chain Lead
+  triggers:
+    - Weekly planning cycle
+    - Stockout risk alert
+    - 'Event-heavy weeks (holidays, local events)'
+  inputs:
+    - Rentals/bookings history
+    - Walk-in vs online mix
+    - Lead times and transfer costs
+    - Location calendars/events
+    - Service level targets
+  steps:
+    - Generate location-SKU forecasts (short and mid-term)
+    - Compute stockout risk vs holding cost
+    - Run transfer/purchase optimization
+    - Create transfer pick lists and POs
+    - Notify managers for review/approve
+    - Sync to WMS/ERP
+  tools:
+    - Forecasting (LightGBM/Prophet)
+    - Optimization (OR-Tools)
+    - 'WMS/ERP API (e.g., Cin7, NetSuite)'
+    - Mapping/Distance (Google Maps API)
+    - Slack for approvals
+  outputs:
+    - Transfer plan with lanes and quantities
+    - Purchase orders
+    - Forecast accuracy dashboard
+  pricingModel:
+    - Monthly subscription (per location)
+    - One-time setup
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Forecast error causing stockouts/overstock
+    - Transfer capacity constraints
+    - Data sparsity for new SKUs
+  dependencies:
+    - Historical data export/API
+    - WMS/ERP integration
+    - Approval workflow access
+leanCanvas:
+  problem:
+    - >-
+      Stockouts and missed reservations cause lost revenue and churn; typical
+      fill-rate at location/SKU level is 85–92% versus target 97%+.
+    - >-
+      Idle or wrong-location inventory ties up capital; 15–30% of fleet sits
+      underutilized while nearby locations stock out.
+    - >-
+      Manual planning (Excel + gut feel) can’t scale across 100s of SKUs, 10–500
+      locations, promotions, and seasonal spikes (Back-to-School, Diwali,
+      Holidays).
+    - >-
+      Transfers are ad hoc and costly; no network-wide view of least-cost moves
+      subject to truck capacity, time windows, and SLA constraints.
+    - >-
+      New SKU launches and discontinuations create cold-start forecasting errors
+      and overbuying; lead-time variability and MOQs further degrade plans.
+    - >-
+      Returns/refurbishment pipeline and failure rates are not modeled, leading
+      to surprises in available-to-promise and service gaps.
+    - >-
+      Procurement plans ignore price breaks, vendor SLAs, and capital limits;
+      purchases are made late or at suboptimal cost.
+    - >-
+      Fragmented systems (ERP, POS, WMS, asset tracking) limit visibility;
+      planners spend hours reconciling data not improving decisions.
+    - >-
+      Executives lack measurable ROI from planning; no closed-loop measurement
+      of forecast accuracy, service levels, and working capital.
+    - >-
+      Sustainability targets (CO2, reverse logistics) are rising but transfer
+      decisions don’t quantify emissions trade-offs.
+  solution:
+    - >-
+      Probabilistic SKU-by-location forecasts (daily/weekly) that model
+      seasonality, promotions, holidays, weather, and local demographics;
+      stockout-censoring and cold-start handling for new SKUs.
+    - >-
+      Service-level optimization: recommend safety stocks to meet target
+      fill-rates (e.g., 97–99%) with minimum capital tied up.
+    - >-
+      Fleet rebalancing optimizer: network flow + vehicle routing to generate
+      least-cost transfer plans subject to truck capacity, store hours, and SLA
+      windows; includes emissions cost as optional constraint.
+    - >-
+      Purchase planning: reorder proposals by vendor considering lead times,
+      MOQs, price breaks, capital budgets, and refurbishment returns pipeline.
+    - >-
+      Returns/refurbishment modeling: failure rates and turnaround times
+      incorporated into available-to-promise and capacity plans.
+    - >-
+      What-if scenarios: simulate promotions, price changes, and macro shocks;
+      compare cost, service level, and CO2 outcomes.
+    - >-
+      Closed-loop execution: API and UI to create transfer orders and POs; track
+      acceptance and fulfillment; learn from outcomes to reduce bias/drift.
+    - >-
+      Explainable AI: feature importance, demand drivers, and confidence
+      intervals; user overrides tracked with audit trails.
+    - >-
+      Integrations: connectors for NetSuite, Acumatica, Microsoft Dynamics 365,
+      EZRentOut, Asset Panda, Snowflake, S3, Shopify, custom SFTP.
+    - >-
+      Governance and security: role-based access, SOC 2 roadmap, PII
+      minimization; full activity logs for compliance.
+  uniqueValueProp: >-
+    Hit 97–99% service levels with 15–30% less working capital by predicting
+    SKU-by-location demand and automatically recommending the lowest-cost
+    transfers and purchases—measurable ROI in 90 days.
+  unfairAdvantage: >-
+    Rental-native models that capture returns/refurbishment cycles and asset
+    aging, combined with a closed-loop optimizer that directly creates transfer
+    orders and POs. Cross-tenant benchmarks and ROI-backed pilots create a data
+    and credibility moat; partnerships with rental ERPs accelerate distribution.
+  customerSegments:
+    - >-
+      Primary: Mid-market and enterprise consumer electronics and appliance
+      rental chains (20–1,000+ locations; 10k–1M+ assets).
+    - >-
+      Secondary: Rent-to-own operators and subscription/device-as-a-service
+      providers (smartphones, TVs, white goods).
+    - >-
+      Tertiary: Regional rental marketplaces and refurbishers handling reverse
+      logistics and redeployment.
+  channels:
+    - >-
+      Account-based marketing (ABM) targeting 500 priority chains in US, EU,
+      India, LatAm; goal: 60 discovery calls/quarter, 20 qualified pilots/year.
+    - >-
+      Outbound SDR + founder-led sales: sequences with case studies and ROI
+      calculator; target 12% meeting rate from engaged accounts.
+    - >-
+      Partnerships: co-sell with ERPs (NetSuite/Acumatica VARs),
+      EZRentOut/EZOfficeInventory, Dynamics integrators; goal: 6 partner-sourced
+      deals/year.
+    - >-
+      Industry events: sponsor/exhibit at RTO World (APRO), NRF, Shoptalk, ARA
+      Show (selectively); target 150 leads/event, 10 POCs from events/year.
+    - >-
+      Content and SEO: monthly deep-dive posts (forecasting in rental, transfer
+      optimization), webinars quarterly; capture 1,000 MQLs/year at < $120
+      CAC/MQL.
+    - >-
+      Pilot-led GTM: 4–6 week paid diagnostic using historical data; success fee
+      contingent on measured savings; convert 60% to annual contracts.
+    - >-
+      Customer marketing and referrals: 10% discount for referrals that close;
+      NPS > 50 drives 20% of new ARR.
+    - >-
+      Regional focus phases: Year 1 US + India; Year 2 EU + LatAm; localized
+      holiday/event packs.
+  revenueStreams:
+    - >-
+      SaaS subscription (tiered by active assets and locations): Starter (up to
+      20k assets): $3,000/mo + $0.10/asset/mo; Growth (20k–100k): $8,000/mo +
+      $0.07/asset/mo; Enterprise (100k+): custom, starting $0.05/asset/mo.
+    - >-
+      Implementation/onboarding fees: $20k (Starter), $60k (Growth), $150k+
+      (Enterprise) depending on integrations and data work.
+    - >-
+      Optimization add-ons: advanced routing + emissions modeling
+      $1,000–$3,000/mo; external data packs (events/weather/demographics)
+      $500–$2,000/mo.
+    - >-
+      Performance-based component: optional 5–12% share of verified
+      logistics/inventory savings for first 12 months with cap.
+    - >-
+      Managed service (co-pilot planning): dedicated analyst support
+      $5k–$25k/mo.
+    - >-
+      Benchmarks/insights: anonymized market benchmarks subscription
+      $500–$2,000/mo per region (opt-in, privacy preserved).
+  costStructure:
+    - >-
+      People: initial team 10–15 FTE (data science, backend, frontend,
+      integrations, CS, SDRs); $250k–$400k/month fully loaded by Month 12.
+    - >-
+      Cloud/infra: $0.01–$0.03 per active asset/month for compute/storage;
+      example 100k assets ≈ $1k–$3k/month.
+    - >-
+      Data licensing: events/weather/demographics $1k–$5k/month depending on
+      regions.
+    - >-
+      Sales and marketing: events ($50k–$150k/year), ads ($5k–$20k/month),
+      partner commissions (10–20% first-year ACV).
+    - >-
+      Professional services: contractors/SIs for complex integrations, budget
+      $50k–$200k per enterprise deployment (recoverable via onboarding fees).
+    - >-
+      Security/compliance: SOC 2 Type I/II audit $50k–$150k in Year 1–2; pen
+      tests $20k/year.
+    - 'General and admin: legal, finance, insurance $20k–$50k/month at scale.'
+  keyMetrics:
+    - >-
+      Forecast accuracy: WAPE ≤ 20% portfolio-level; MASE < 1.0; improvement vs
+      baseline ≥ 15%.
+    - >-
+      Service level (fill rate) by SKU-location: target 97–99%; stockout rate <
+      2%.
+    - >-
+      Inventory efficiency: working capital reduced 15–30%; inventory turns
+      +20–40%.
+    - >-
+      Fleet utilization: idle days reduced 25%; under/over-stock index reduced
+      30%.
+    - >-
+      Transfer efficiency: transfer cost per unit -15–25%; on-time transfer rate
+      > 95%.
+    - >-
+      Procurement: rush orders -40%; purchase unit cost savings 2–5% via price
+      breaks and timing.
+    - >-
+      Planning productivity: planner hours per week on manual tasks -50%;
+      override rate < 10% after 3 months.
+    - >-
+      Adoption: ≥ 70% of recommended actions executed; ≥ 3 active users per 10
+      locations.
+    - >-
+      Commercial: ACV $80k–$500k; win rate > 25% of POCs; logo retention > 95%;
+      NRR 120%+; CAC payback < 12 months.
+storyBrand:
+  character: >-
+    Ops, inventory, and fleet managers at consumer electronics and appliance
+    rental companies who must hit service levels without ballooning capital or
+    logistics costs.
+  problem: >-
+    Demand by SKU and location swings daily; inventory is scattered; teams rely
+    on spreadsheets—resulting in stockouts, idle assets, rush purchases, and
+    costly transfers.
+  guide: >-
+    An AI planning partner with rental-ops expertise that pairs high-accuracy
+    SKU-by-location forecasting with fleet rebalancing optimization.
+  plan: >-
+    Connect your POS, reservations, and inventory data; set service-level and
+    budget targets; receive weekly transfer and purchase plans with ROI and
+    constraints; execute via API/CSV and track impact.
+  callToAction: >-
+    Book a 30-minute demo; run a 30-day pilot in one region; scale fleet-wide
+    after measured lift.
+  success: >-
+    95%+ service levels at the lowest total cost, fewer rush buys, smarter
+    transfers, higher utilization, faster turns, and freed working capital.
+  failure: >-
+    Keep firefighting: missed reservations, idle inventory, ballooning logistics
+    and capital spend, frustrated teams, and churned customers.
+landingPage:
+  hero:
+    title: 'Put the right devices in the right place, on time'
+    subtitle: >-
+      AI forecasts SKU-by-location demand and recommends transfers or purchases
+      to hit service levels at the lowest cost.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - Stockouts on high-demand SKUs while idle units sit elsewhere
+    - 'Guesswork planning in spreadsheets: slow, manual, error-prone'
+    - Seasonal spikes and promo lifts outpace static rules
+    - Over-buying to hedge uncertainty inflates carrying costs
+    - Missed service-level targets and SLA penalties
+    - Uncoordinated transfers drive up logistics spend
+  solution:
+    - 'Daily SKU-by-location demand forecasts, automatically refreshed'
+    - >-
+      Optimal transfer and purchase plans to hit target fill rates at minimal
+      total cost
+    - 'What-if scenarios for promos, new products, and new locations'
+    - Lead time and capacity-aware recommendations across your network
+    - 'Alerts for stockout risk, overdue returns, and aging inventory'
+    - 'One-click export or API sync to WMS, ERP, and dispatch systems'
+  features:
+    - >-
+      Probabilistic forecasting per SKU-location-time with seasonality and
+      events
+    - 'Rental-aware signals: reservations, returns, refurb time, attrition'
+    - >-
+      Service-level optimization balancing holding, transfer, and procurement
+      costs
+    - Multi-location rebalancing with lane costs and courier constraints
+    - 'Purchase planning with vendor MOQs, lead times, and budget caps'
+    - 'Support for cross-docking, pooling, and hub-and-spoke flows'
+    - Bundle and kit forecasting for appliance packages
+    - Substitution and cannibalization modeling across similar SKUs
+    - Geospatial demand heatmaps and coverage gap insights
+    - 'Explainable AI: drivers, confidence bands, and traceable decisions'
+    - 'Role-based workflows for planner review, approvals, and audit trail'
+    - >-
+      Real-time API plus scheduled batch ingest; enterprise-grade security and
+      SSO
+  steps:
+    - 'Connect data: sales, reservations, returns, on-hand, lanes, supplier info'
+    - 'Set service levels, budget, and business rules (MOQs, lead times, caps)'
+    - 'Import catalog and locations; map SKUs, bundles, and substitutions'
+    - Review forecasts and the recommended transfer and purchase plan
+    - Approve and publish; sync transfers and POs to your systems
+    - Monitor outcomes and iterate with scenario planning
+---
+# RebalanceIQ
+
+Industry: Consumer Electronics and Appliances Rental
+Service: Demand Forecasting & Fleet Rebalancing Planner

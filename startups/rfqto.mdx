@@ -1,0 +1,350 @@
+---
+name: RFQ-to-Quote Costing Bot
+slug: rfqto
+naics:
+  primary: '322299'
+  occupations: []
+service:
+  title: RFQ-to-Quote Costing Bot
+  description: >-
+    Turns RFQs (emails/PDFs) into routed, costed quotes with assumptions and
+    imposition-aware material usage.
+  targetUsers:
+    - Estimators
+    - Sales Ops
+    - Account Managers
+  triggers:
+    - New RFQ email or portal drop
+    - Sales rep request in Slack/Teams
+  inputs:
+    - 'RFQ documents (drawings/specs, volumes, due dates)'
+    - Material price lists (paper/adhesives/inks)
+    - Machine rates and setup times
+    - Scrap/waste factors
+    - Freight tables and markups
+  steps:
+    - Ingest RFQ via email/portal and OCR
+    - 'Extract key specs (dimensions, GSM, print, laminate, die-cut)'
+    - Propose manufacturing route and batch strategy
+    - Estimate material consumption (with nested waste) and cycle times
+    - 'Calculate cost (material, labor, overhead) and target price'
+    - Generate quote PDF and cost workbook
+    - Route for approval and push to ERP/CRM
+  tools:
+    - AWS Textract or Azure Form Recognizer
+    - OpenAI API (semantic extraction)
+    - Python/Pandas
+    - Excel
+    - CRM/ERP APIs (Salesforce/NetSuite/etc.)
+  outputs:
+    - Customer-ready quote (PDF/email)
+    - Cost breakdown workbook (Excel)
+    - Assumptions log and risk notes
+    - ERP/CRM quote entry (CSV/API)
+  pricingModel:
+    - Per-RFQ processed
+    - Setup + monthly access for templates/rates
+    - Optional commission on won quotes
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8.5
+  risks:
+    - Spec misinterpretation leading to underquote
+    - Outdated rates or material prices
+    - Terms/conditions omissions
+  dependencies:
+    - Access to RFQ inbox/portal
+    - Up-to-date rates and price lists
+    - Approval thresholds and signers
+    - Standard T&Cs and templates
+leanCanvas:
+  problem:
+    - >-
+      Slow RFQ turnaround (typically 24–72 hours) lowers win rates; buyers often
+      award to the first viable quote. A 24-hour delay can cut win probability
+      by 10–20%.
+    - >-
+      Highly manual RFQ intake from emails/PDFs; 30–60 minutes of data entry and
+      back-and-forth per RFQ even for repeat product families.
+    - >-
+      Inconsistent costing and tribal knowledge; 3–5 margin points of slippage
+      due to missed setups, make-ready waste, or wrong run speeds.
+    - >-
+      Imposition/yield is picked heuristically; 1–3% material overuse on
+      sheet/roll layouts, ganging, and die-up selection.
+    - >-
+      Estimate capacity is a bottleneck; 1–3 senior estimators gate throughput,
+      causing quote backlog and lost opportunities.
+    - >-
+      No closed-loop calibration; quotes aren’t reconciled to actual route
+      times, yields, and scrap, so models drift and pricing confidence erodes.
+    - >-
+      Complex routings (laminating, coating, die-cutting, folding/gluing, foil,
+      emboss, windowing) and customer-specific pack-out rules create rework and
+      change orders when assumptions are not explicit.
+  solution:
+    - >-
+      Ingest RFQs from email inboxes, portals, and shared drives; parse PDFs,
+      spreadsheets, and images with domain-tuned OCR/LLM.
+    - >-
+      Extract specs using a 322299 taxonomy (substrate, caliper, sheet/roll,
+      finished dims, die-line, coatings/laminations, quantities, tolerances,
+      pack-out, quality/inspection).
+    - >-
+      Resolve gaps: auto-ask clarifying questions or propose standard
+      assumptions with confidence scores; log all assumptions in the quote.
+    - >-
+      Auto-route selection: choose process steps and machines from a customer’s
+      routings library based on product family, tolerances, and SLAs.
+    - >-
+      Imposition-aware yield: optimize die-up, nesting/ganging, sheet/roll
+      widths, grain direction, and make-ready waste; simulate alternates to
+      maximize yield and throughput.
+    - >-
+      Build BOM and time standards: material, machine setup/run times, crews,
+      changeovers, WIP handling, scrap factors, inspection steps.
+    - >-
+      Cost and price: compute fully burdened cost (materials, labor, overhead),
+      apply customer/product margin bands, offer alternates (e.g., different
+      substrate or layout).
+    - >-
+      Generate quotes: branded PDF/email with itemized costs (optional),
+      assumptions, alternates, and validity; push to MIS/ERP (quote/order) and
+      CRM.
+    - >-
+      Approvals and risk flags: exception routing for low-margin, tight
+      tolerances, or uncertain specs; what-if analysis for price/lead-time
+      trade-offs.
+    - >-
+      Closed-loop learning: reconcile quotes to actuals (times, yields, scrap)
+      to recalibrate rates, speeds, and scrap, improving accuracy over time.
+  uniqueValueProp: >-
+    Turn RFQs (emails/PDFs) into routed, costed, imposition-optimized quotes
+    with documented assumptions in minutes—integrated to your MIS/ERP—cutting
+    quote time by 80%, improving material yield 1–3%, and holding margin
+    variance within ±2 pts.
+  unfairAdvantage: >-
+    A domain-tuned, imposition-aware costing engine trained on thousands of
+    322299 RFQs and reconciled to production actuals, plus prebuilt MIS/ERP and
+    CAD integrations. The closed-loop learning from estimates-to-actuals
+    systematically improves accuracy, while explicit assumption logging reduces
+    change orders. Competitors offer generic OCR or standalone imposition, but
+    not an end-to-end RFQ-to-quote workflow with measurable yield and margin
+    control.
+  customerSegments:
+    - >-
+      Primary: Mid-market All Other Converted Paper Product manufacturers (NAICS
+      322299), revenue $10–250M, high-mix/low-volume custom work, sheet- and
+      roll-based converting with die-cutting/folding/laminating.
+    - >-
+      Roles: Estimating managers, Sales/CSR teams handling RFQs,
+      Plant/Operations managers, Finance/CFO for margin control, IT/ERP admins.
+    - >-
+      Early adopters: Plants using Outlook + Excel or basic MIS estimating,
+      2,000–10,000 RFQs/year, 3–12 estimators/CSRs, frequent die-line/pack-out
+      variations.
+    - >-
+      Secondary: Multi-plant groups consolidating estimating COE; contract
+      converters serving CPG, retail displays, specialty office supplies,
+      stationery kits, novelty paper goods.
+  channels:
+    - >-
+      Direct sales to estimating/operations leaders at 322299 plants; ROI-led
+      discovery and rapid pilots (6–8 weeks).
+    - >-
+      Technology partnerships and co-selling with MIS/ERP vendors (EFI,
+      Tharstern, PrintVis) and systems integrators focused on print/converting.
+    - >-
+      Alliances with imposition/CAD vendors (Esko Phoenix/Tilia) for joint demos
+      and data exchange.
+    - >-
+      Industry associations and events: TAPPI Converters Expo, Paperboard
+      Packaging Council (for overlapping converters), specialty converting
+      conferences/webinars.
+    - >-
+      Content-led growth: RFQ-to-quote ROI calculator, benchmark reports (cycle
+      time, yield), case studies; SEO around “paper converting estimating” and
+      “imposition yield calculator.”
+    - >-
+      Referral program for paper merchants/distributors and equipment OEMs
+      (die-cutters, laminators, folder-gluers).
+    - >-
+      Outbound to CEOs/COOs/CFOs with payback guarantee (<12 weeks) and
+      pilot-based contracting; land-and-expand to multi-plant.
+  revenueStreams:
+    - >-
+      Annual subscription per site plus estimator seats: e.g., $1,500/site/month
+      + $200/user/month (includes 1,000 RFQs/month).
+    - >-
+      Usage-based pricing beyond included volume: $0.50–$1.00 per additional RFQ
+      or $0.05–$0.10 per processed page (whichever is higher).
+    - >-
+      Implementation/onboarding: data mapping, routing setup, and model tuning
+      at $10k–$40k per plant depending on complexity.
+    - >-
+      Premium add-ons: advanced imposition (cross-plant ganging), customer
+      self-serve RFQ portal/CPQ, multi-entity consolidation, custom price feeds
+      (Fastmarkets RISI), on-prem/VPC deployment.
+    - >-
+      Professional services: historical data cleanup, rate development/time
+      studies, estimator training and change management.
+    - >-
+      Support tiers and SLAs (24/7, sub-1h response) at 10–20% of subscription
+      for regulated customers.
+  costStructure:
+    - >-
+      R&D and product (ML/LLM engineers, optimization experts, full-stack)
+      ~$250k–$350k fully loaded per FTE; initial team 8–12 FTE.
+    - >-
+      Cloud compute (GPU/CPU) and storage: average $0.10–$0.35 per RFQ for
+      OCR+inference+optimization at scale; caching reduces repeats.
+    - >-
+      Third-party OCR/imposition libraries and connectors; per-page OCR costs
+      $0.02–$0.06; optional licensing fees for CAD/imposition integrations.
+    - >-
+      Sales and marketing (AEs/SEs/content): CAC target $25k–$45k per plant with
+      12-week sales cycle via pilot.
+    - >-
+      Customer success/onboarding: 1 FTE per 10–15 plants during first 90 days;
+      ongoing 1 per 25–40 plants.
+    - 'Compliance/security: SOC 2 Type II audit, pen tests, cyber insurance.'
+    - Channel commissions and rev-share for ERP/ISV partners (10–20%).
+  keyMetrics:
+    - >-
+      Quote cycle time: reduce P50 from 24–48h to <2h and P90 to <8h within 90
+      days of go-live.
+    - >-
+      Auto-quote rate: 60% of RFQs no-touch by month 3; 80% by month 12 for
+      standard product families.
+    - >-
+      Spec extraction accuracy: >95% F1 on core fields; <2% of quotes returned
+      due to missing/incorrect specs after month 3.
+    - >-
+      Material yield: +1–3% improvement vs. baseline for sheet/roll imposition;
+      remnant reuse tracked quarterly.
+    - >-
+      Margin variance: quoted vs. actual COGS within ±5% by month 3; stabilize
+      to ±2 margin pts by month 6.
+    - >-
+      Estimator productivity: +3–6x RFQs per estimator/day; time saved 30–45
+      minutes per RFQ.
+    - >-
+      Hit rate: +5–10 percentage points improvement where time-to-quote drops
+      below 8h; track by customer/product family.
+    - >-
+      Pilot payback: <12 weeks; annualized ROI >4x measured as labor saved +
+      yield gains + win-rate uplift.
+    - >-
+      Data coverage: % of routings parameterized >90% by month 2; % of machine
+      centers with validated rates >80% by month 2.
+    - >-
+      Customer satisfaction: NPS >40; support CSAT >4.6/5; annual logo churn
+      <8%.
+storyBrand:
+  character: >-
+    Estimating and operations leaders at converted paper manufacturers (NAICS
+    322299) who need to turn messy RFQs into fast, accurate, margin-safe quotes.
+  problem: >-
+    External: RFQs arrive as unstructured emails/PDFs; routing, imposition, and
+    yield math are manual and slow. Internal: estimators are overloaded; cycle
+    times lag; confidence in costing is shaky. Philosophical: winning work
+    shouldn’t depend on tribal knowledge or late nights in spreadsheets.
+  guide: >-
+    Empathy: we’ve lived converting quotes and know the chaos. Authority: AI
+    trained on 322299 workflows (printing, coating, laminating, slitting,
+    sheeting, die-cutting, folding/gluing), validated by senior estimators;
+    integrates with ERP/MES; clear assumptions and traceability.
+  plan: >-
+    1) Connect inbox/ERP; import materials, rates, scrap factors. 2) Bot parses
+    RFQs and proposes routed, costed quotes with assumptions and
+    imposition-aware material yield. 3) You review/adjust, then one-click push
+    to ERP/CRM and send.
+  callToAction: >-
+    Direct: Schedule a 20-minute demo. Transitional: Upload 3 sample RFQs for a
+    free benchmark report.
+  success: >-
+    Quotes in minutes, not hours; +2–5 margin points protected; 15–30% higher
+    win rate from faster response; estimator capacity 2–3x; 1–3% material waste
+    reduction via optimized imposition; audit-ready assumptions and routings in
+    your ERP.
+  failure: >-
+    Missed RFQs, delayed responses, over/underquoting, margin leakage, customer
+    churn, and risky dependence on tribal knowledge when key people are out.
+landingPage:
+  hero:
+    title: RFQ‑to‑Quote Costing Bot for Converted Paper Manufacturing (NAICS 322299)
+    subtitle: >-
+      Turn RFQs (emails/PDFs) into routed, costed quotes in
+      minutes—imposition‑aware, assumption‑tracked, and MIS‑ready.
+    ctaText: See it in action
+    ctaHref: '#demo'
+  problem:
+    - RFQs arrive in many formats and stall in inboxes.
+    - Manual parsing and costing ties up senior estimators.
+    - 'Imposition and trim waste are guessed, not optimized.'
+    - 'Routing steps, speeds, and spoilage are inconsistent by estimator.'
+    - Hidden assumptions create pricing risk and margin leakage.
+    - Quotes aren’t auditable or easy to push into MIS/ERP.
+    - Customer deadlines are missed; win rates suffer.
+  solution:
+    - >-
+      Auto‑read RFQs from email/PDF and extract specs, quantities, and
+      attachments.
+    - >-
+      Build a machine‑ready route (print/laminate/die‑cut/fold/glue/pack) with
+      setup, run rates, and labor.
+    - >-
+      Imposition‑aware material usage for roll or sheet: width/length, grain,
+      knife patterns, and trim optimization.
+    - >-
+      Dynamic costing from supplier catalogs and your cost tables; apply
+      markups, tiers, and surcharges.
+    - Clear assumptions with confidence scores and flags for missing inputs.
+    - 'One‑click quote generation with versions, approvals, and audit trail.'
+    - >-
+      Sync quotes to your MIS/ERP or export to PDF/Excel; reply to the customer
+      instantly.
+  features:
+    - Email/PDF ingestion with OCR and table/line‑item detection.
+    - >-
+      Spec extraction: material, basis weight/caliper, finished size,
+      tolerances, quantities, artwork, ship‑to, due dates.
+    - >-
+      Imposition engine for webs and sheets: lane count, nesting,
+      step‑and‑repeat, grain direction, gap/bleed, and die constraints.
+    - >-
+      Trim waste minimization across available roll widths/sheet sizes with
+      spoilage and makeready modeling.
+    - >-
+      Routing builder with machine capability matrix and auto‑selection by
+      size/speed/material.
+    - >-
+      Setup and run cost modeling: speeds, crew sizes, changeovers, learning
+      curves, and overtime rules.
+    - >-
+      Material catalogs: papers/films/liners/adhesives/cores, with vendor price
+      breaks and alternates.
+    - >-
+      What‑if scenarios: adjust assumptions (speed, waste, substitute materials)
+      and see margin impact instantly.
+    - 'Risk flags for missing specs, infeasible layouts, or machine conflicts.'
+    - 'Guardrails and approvals by margin threshold, customer, or order value.'
+    - Version control and full audit trail for ISO/quality compliance.
+    - APIs and CSV exports to common MIS/ERP; SSO and role‑based access.
+  steps:
+    - >-
+      Connect your RFQ inbox and set up material catalogs, machines, and cost
+      tables.
+    - Forward an RFQ (or let the bot auto‑collect) and review extracted specs.
+    - >-
+      Get a proposed route, imposition, and detailed cost breakdown with
+      assumptions.
+    - 'Tweak parameters, approve, and generate the customer‑ready quote.'
+    - Push to MIS/ERP and send—close the loop with an auditable record.
+---
+# RFQ-to-Quote Costing Bot
+
+Generated for NAICS 322299 — All Other Converted Paper Product Manufacturing.
+Service: RFQ-to-Quote Costing Bot

@@ -1,0 +1,381 @@
+---
+name: SurfSight AI — Inline QC Soft‑Sensor & Off‑Spec Early Warning
+slug: surfsight
+service:
+  title: Inline QC Soft-Sensor and Off‑Spec Early Warning
+  description: >-
+    Predicts active matter, degree of ethoxylation, viscosity, color, and cloud
+    point from NIR/FTIR and process signals; flags off‑spec risk early and
+    suggests setpoint tweaks.
+  targetUsers:
+    - QC managers
+    - Process engineers
+    - Plant managers
+  triggers:
+    - New batch starts
+    - Inline spectra or sensor values drift
+    - Rising off-spec rate
+  inputs:
+    - Historical batch logs (time-stamped)
+    - Inline NIR/FTIR spectra or grab-sample spectra (CSV)
+    - >-
+      Process data: temp, pressure, flow, agitation, feed ratios (historian/MES
+      export)
+    - QC lab results (targets/spec limits)
+  steps:
+    - Ingest aligned time-series and spectra; synchronize to batch phases
+    - 'Engineer features (spectral PCA, moving windows, phase tags)'
+    - >-
+      Train regression/classification models for key properties and off-spec
+      risk
+    - Validate with recent batches; calibrate thresholds
+    - >-
+      Deploy lightweight monitor that consumes new runs and outputs risk +
+      recommended tweaks (e.g., feed ramp, hold time)
+    - Weekly drift check and model refresh
+  tools:
+    - 'Python, pandas, scikit-learn/XGBoost'
+    - PyOD for anomaly detection
+    - 'Spectral libraries (scipy, numpy)'
+    - OSIsoft PI Web API or CSV exports
+    - Lightweight dashboard (Streamlit)
+  outputs:
+    - Live off-spec risk score per batch/phase
+    - Predicted QC properties with confidence bands
+    - Top drivers and suggested setpoint adjustments
+    - Monthly model performance report
+  pricingModel:
+    - One-time setup per line/model
+    - Monthly subscription per site
+    - Optional per-additional-property fee
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Sensor calibration drift
+    - Data alignment errors across systems
+    - Operator over-reliance on AI recommendations
+  dependencies:
+    - Access to historian/MES exports or API
+    - Spectrometer data export
+    - Spec limits and historical QC data
+leanCanvas:
+  problem:
+    - >-
+      Off‑spec and rework rates (1–5% typical) driven by lab delay (30–180
+      minutes) between sampling and results for active matter, degree of
+      ethoxylation (EO), viscosity, color, and cloud point.
+    - >-
+      Feedstock variability (fatty alcohol chain distribution, EO quality,
+      impurities) causes batch‑to‑batch and within‑batch variability that
+      operators cannot see in real time.
+    - >-
+      Ethoxylation and sulfation reactions are exothermic and sensitive to
+      temperature, catalyst, and EO feed rate; small deviations push properties
+      out of spec and create safety and quality risks.
+    - >-
+      Manual sampling increases cycle time, operator exposure, and lab backlog;
+      late detection of drift leads to scrap or costly rework/blending.
+    - >-
+      Existing NIR/FTIR models drift due to probe fouling, optical aging, or
+      recipe changes; maintaining chemometric models requires scarce expertise.
+    - >-
+      Siloed data across DCS/SCADA, historians, spectrometers, and LIMS inhibits
+      fast root‑cause analysis and early trend detection.
+    - >-
+      Customers demand tighter CoA tolerances and delivery reliability; current
+      processes struggle to hit narrow windows without over‑processing
+      (energy/time waste).
+    - >-
+      Lack of actionable operator guidance; even when anomalies are detected,
+      there is no clear, validated adjustment to setpoints or feeds.
+  solution:
+    - >-
+      Inline soft‑sensors that fuse NIR/FTIR spectra with process tags
+      (temperature, pressure, flow, EO feed, agitator speed, catalyst charge) to
+      predict key properties every 1–10 seconds.
+    - >-
+      Early warning engine that scores off‑spec risk 0–100% using statistical
+      process envelopes and predictive residuals; configurable alarms with
+      deadbands and persistence rules (EEMUA 191‑aligned).
+    - >-
+      Advisory setpoint recommender that runs fast what‑if simulations to
+      suggest temperature, EO feed, and agitation adjustments within safety and
+      recipe constraints; operator‑in‑the‑loop with clear rationale and
+      confidence bands.
+    - >-
+      Model lifecycle and MLOps: recipe‑aware models, calibration transfer
+      across instruments, drift detection, auto‑recalibration from LIMS data,
+      versioning, and full audit trail (time‑stamped, user‑signed,
+      tamper‑evident).
+    - >-
+      Integrations: OPC UA/DA, Modbus TCP, MQTT, OSIsoft PI/AVEVA Data Hub,
+      Aspen IP.21, LIMS (REST/ODBC), DCS (Emerson DeltaV, Honeywell Experion,
+      Yokogawa CENTUM, ABB 800xA, Siemens PCS 7, Rockwell PlantPAx).
+    - >-
+      Deployment: on‑prem edge server (x86, Windows/Linux) with optional cloud
+      analytics; air‑gapped mode supported; 99.5%+ local availability;
+      role‑based access, SSO, and data encryption at rest/in transit.
+    - >-
+      Operator and QC dashboards: live property trends with SPC charts,
+      golden‑batch overlays, batch reports, and auto‑generated CoA support.
+    - >-
+      Implementation playbook: 6–8 weeks/line including data readiness, model
+      build with 200–600 paired spectra–lab points, user training, and go‑live
+      validation against lab baselines.
+  uniqueValueProp: >-
+    Real‑time, lab‑grade prediction of active matter, EO, viscosity, color, and
+    cloud point from NIR/FTIR and process signals with early off‑spec risk
+    warnings and actionable setpoint tweaks—cutting off‑spec by 30–60%, reducing
+    cycle time 5–10%, and paying back in 6–12 months.
+  unfairAdvantage: >-
+    A domain‑specific, validated library of surfactant property models and
+    calibration‑transfer techniques that deliver lab‑grade accuracy with minimal
+    site‑specific calibration, plus certified connectors to major spectrometers
+    and DCS/historians—enabling 6–8 week time‑to‑value and repeatable off‑spec
+    reductions proven across multiple plants.
+  customerSegments:
+    - >-
+      Global and regional surfactant manufacturers producing ethoxylates,
+      sulfates/sulfonates, amine oxides, betaines, and specialty blends.
+    - >-
+      Toll manufacturers/blenders serving home care, personal care, HI&I,
+      agrochemical, and oilfield chemical brands.
+    - >-
+      Roles: plant managers, operations leaders, QC/QA managers,
+      process/production engineers, APC engineers, digital manufacturing
+      leaders, reliability and EHS managers.
+    - >-
+      Early adopters: plants with existing NIR/FTIR PAT infrastructure; sites
+      pursuing digital OPEX programs or golden‑batch initiatives.
+  channels:
+    - >-
+      Direct enterprise sales with pilot‑first motion: 8–12 week paid pilot on
+      1–2 lines with KPIs tied to off‑spec reduction and cycle‑time improvement;
+      option to credit pilot fee toward subscription.
+    - >-
+      Co‑sell partnerships with NIR/FTIR OEMs (e.g., Bruker, Thermo Fisher,
+      Agilent) bundling SurfSight with probes and chemometric services; reseller
+      margins 15–25%.
+    - >-
+      Alliances with DCS/MES/system integrators for site‑wide rollouts and
+      integration services; certified connectors to PI/AVEVA and AspenTech
+      historians.
+    - >-
+      Industry presence: case studies and technical talks at AOCS, CESIO,
+      SEPAWA, Specialty & Agro Chemicals America; peer‑reviewed application
+      notes and ROI calculators.
+    - >-
+      Content and ABM: webinars, application notes, and benchmarks targeting
+      plant managers and QC leaders at top 200 surfactant producers; LinkedIn
+      and industry newsletters.
+    - >-
+      Land‑and‑expand: start with ethoxylation lines; expand to
+      sulfation/sulfonation and blending; cross‑sell to sister sites within 6–12
+      months post‑pilot.
+  revenueStreams:
+    - >-
+      Annual subscription per production line: $60k/year covers up to 3
+      properties and 2 recipes; additional property packs at $10k/year each;
+      volume discounts above 4 lines/site.
+    - >-
+      Enterprise site license: $250k–$500k/year for 4–8 lines with unlimited
+      properties; multi‑site agreements with tiered pricing.
+    - >-
+      One‑time onboarding/integration: $60k–$120k per site (data connectors,
+      model development, validation, training).
+    - >-
+      Paid pilot: $50k–$100k for 8–12 weeks, credited 50–100% toward
+      subscription on conversion.
+    - >-
+      Managed model service (optional): $3k–$7k/month/site for continuous
+      monitoring, drift handling, and quarterly retraining.
+    - >-
+      Professional services: custom models, golden‑batch studies, and APC
+      integration at $200–$250/hour or fixed‑bid packages.
+    - >-
+      Hardware pass‑through/resell margin (optional): 10–20% on NIR/FTIR probes
+      where customers lack instruments.
+    - >-
+      Performance‑based upside (optional): gain‑share contracts (e.g., 10–20% of
+      verified scrap/rework savings) after baseline is established.
+  costStructure:
+    - >-
+      COGS: cloud/edge compute and storage $200–$600 per line/month; support and
+      success $15k–$30k per site/year; software licensing for chemometric
+      libraries where applicable.
+    - >-
+      R&D: data science, chemometrics, and control engineering team (6–12 FTE
+      initially); annual spend $1.5M–$3M to expand property libraries and
+      calibration transfer.
+    - >-
+      Implementation: field engineering travel and integration labor; average
+      $40k–$80k per new site (partially offset by onboarding fees).
+    - >-
+      Sales and marketing: enterprise sales (AEs/SEs), industry events, pilots;
+      CAC target $80k–$150k per site with 12–24 month LTV:CAC ≥ 4:1.
+    - >-
+      Quality and security: ISO 27001/SOC 2 Type II, secure SDLC, penetration
+      testing; $150k–$300k/year.
+    - >-
+      Liability and compliance: product liability and E&O insurance;
+      $50k–$120k/year.
+    - >-
+      Partnership and channel costs: reseller margins 15–25%; SI referral fees
+      5–10%.
+  keyMetrics:
+    - >-
+      Model performance: MAE/RMSE per property vs lab, R² >0.90 for core
+      properties; bias <20% of spec tolerance.
+    - >-
+      Alarm performance: precision/recall; false alarms per shift; mean time to
+      detect (MTTD) <5 minutes for emerging off‑spec trends.
+    - >-
+      Business impact: off‑spec rate reduction (%) compared to baseline;
+      rework/scrap tons avoided; yield improvement (%); energy/time per batch
+      reduction.
+    - >-
+      Operational: operator suggestion acceptance rate >70% after 90 days;
+      prediction uptime >99%; data gap minutes per week.
+    - >-
+      Time to value: time from kickoff to first validated prediction (<4 weeks);
+      to go‑live (<8 weeks); payback period (months).
+    - >-
+      Adoption: number of lines live per site; expansion rate within accounts;
+      NRR >120%.
+    - >-
+      Model health: drift index (PSI/KS), number of retrains per quarter,
+      calibration sample coverage (recipes/feedstocks).
+    - >-
+      Safety/quality: deviations detected before batch end (%), audit findings
+      (zero critical), CoA conformance rate.
+storyBrand:
+  character: >-
+    Plant managers, QC chemists, and process engineers at surfactant plants who
+    need real‑time quality assurance without slowing production.
+  problem: >-
+    - External: Off‑spec risk from variable feedstocks and kinetics; NIR/FTIR
+    and lab lag; drifting setpoints; complex EO/PO, sulfation, and
+    neutralization steps.
+
+    - Internal: Constant firefighting and sampling; anxiety about missing cloud
+    point, active matter, or viscosity targets; low trust in signals.
+
+    - Philosophical: Quality should be known in‑line—data should prevent waste,
+    not just document it.
+  guide: >-
+    - Empathy: We know batches get held waiting on lab results, only to scramble
+    with late tweaks and rework; cloud point and viscosity misses hurt customer
+    trust.
+
+    - Authority: Industrial AI fusing NIR/FTIR with process tags to soft‑sense
+    active matter, degree of ethoxylation, viscosity, color (APHA), and cloud
+    point; drift monitoring, model governance, and integration with DCS/MES/PI.
+    Proven chemometrics and MLOps practices reduce risk and enhance reliability.
+  plan: >-
+    Process plan:
+
+    1) Connect: Ingest NIR/FTIR and historian tags (flows, temperatures,
+    pressures, EO feed, catalyst, agitator speed).
+
+    2) Calibrate: Build/validate soft‑sensors against lab methods; align to site
+    standards and guard against drift.
+
+    3) Operate: Run live dashboards and alarms; predict off‑spec risk
+    minutes‑to‑hours ahead; suggest setpoint tweaks (feed ratio, temperature,
+    hold time) with rationale.
+
+
+    Agreement plan:
+
+    - 2–4 week pilot on a priority product family.
+
+    - No control moves without operator approval (human‑in‑the‑loop).
+
+    - Your data stays in your environment; security‑hardened deployment.
+
+    - Periodic model revalidation and documented change control.
+  callToAction: >-
+    - Direct: Book a demo and start a pilot this month.
+
+    - Transitional: Share 3–6 months of historical data for a feasibility
+    readout, ROI estimate, and sample dashboards.
+  success: >-
+    - Real‑time estimates of active matter, degree of ethoxylation, viscosity,
+    color, and cloud point at the line.
+
+    - Early warning of off‑spec risk with actionable setpoint suggestions.
+
+    - Up to 30–60% reduction in off‑spec/rework, 15–25% shorter cycle time from
+    fewer holds, and 20–40% fewer lab samples (pilot‑dependent).
+
+    - More consistent quality, on‑time shipments, and lower raw material and
+    energy waste.
+  failure: >-
+    - Continued reactive firefighting, holds, rework, and blending.
+
+    - Persistent variance in key specs leading to complaints and price
+    deductions.
+
+    - Heavy lab workload and overtime with slow feedback loops.
+
+    - Analyzer drift goes unnoticed; operators lose trust in signals; waste and
+    emissions increase.
+landingPage:
+  hero:
+    title: Inline QC Soft‑Sensor & Off‑Spec Early Warning
+    subtitle: >-
+      Real‑time AI for surfactant manufacturing. Predicts active matter, EO
+      degree, viscosity, color, and cloud point from NIR/FTIR + process signals;
+      flags off‑spec risk early and suggests setpoint tweaks.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - Off‑spec discovered at batch end drives rework and scrap
+    - Lab turnaround is too slow for real‑time control
+    - NIR/FTIR and historian data are underused
+    - Operators lack timely guidance on setpoints
+    - Quality drifts with feed variability and EO progression
+    - Inconsistent batches extend cycle times and delay release
+  solution:
+    - Soft‑sensors estimate key quality attributes continuously in‑process
+    - Early risk scoring warns of off‑spec with actionable lead time
+    - Prescriptive setpoint recommendations stabilize EO and quality
+    - 'Seamless integration with analyzers, DCS/PLC, and historians'
+    - 'Faster release: fewer samples, fewer holds, first‑time‑right CoAs'
+    - Designed for batch and continuous units across product grades
+  features:
+    - >-
+      Real‑time predictions: active matter, EO degree, viscosity, color, cloud
+      point
+    - >-
+      Ingests NIR/FTIR plus temperature, pressure, flow, pH, torque, power
+      signals
+    - Off‑spec risk forecast (10–90 min lead) with confidence bands
+    - >-
+      Setpoint suggestions (e.g., EO feed rate, jacket temp, agitation, hold
+      time)
+    - What‑if sandbox to simulate recipe or setpoint changes before applying
+    - Grade‑aware models with transfer across similar products
+    - 'Explainability: driver attribution for each prediction and alert'
+    - Drift and sensor‑fault detection with guided recalibration
+    - 'Integrations: OPC UA/Modbus/MQTT; PI/AVEVA, Aspen IP.21, PHD, Ignition'
+    - 'Alert routing to DCS, email, SMS, or Teams/Slack'
+    - 'Audit trail, role‑based access; 21 CFR Part 11‑ready (optional)'
+    - 'Deploy at the edge or private cloud; secure by design (TLS, no PII)'
+    - Latency under 5 seconds; high availability and offline buffering
+    - 'Time‑to‑value: pilot live in 4–6 weeks'
+  steps:
+    - 'Connect NIR/FTIR, historian, and DCS/PLC via standard protocols'
+    - Ingest historical batches and lab CoAs; define specs and limits
+    - Train and validate soft‑sensor models; tune alarm thresholds
+    - Deploy in shadow mode to compare against lab for 2–4 weeks
+    - Enable operator guidance and prescriptive setpoints
+    - Review KPIs; lock in gains and expand to more grades/sites
+---
+# SurfSight AI — Inline QC Soft‑Sensor & Off‑Spec Early Warning
+
+Industry: Surface Active Agent Manufacturing
+Service: Inline QC Soft-Sensor and Off‑Spec Early Warning

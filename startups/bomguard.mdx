@@ -1,0 +1,290 @@
+---
+name: BOMGuard FP (CAD-to-BOM Consistency Checker)
+slug: bomguard
+naics:
+  primary: '333996'
+  occupations: []
+service:
+  title: CAD-to-BOM Consistency Checker
+  description: >-
+    Compare EBOM extracted from CAD/PDM to MBOM in ERP, flag mismatches, and
+    suggest corrections.
+  targetUsers:
+    - Design engineering
+    - Manufacturing engineering
+    - PLM/ERP admins
+  triggers:
+    - New CAD release
+    - Pre-ECO check
+    - Nightly sync
+  inputs:
+    - CAD assemblies/metadata
+    - PDM/PLM item master
+    - 'ERP MBOM, routings, effectivity'
+  steps:
+    - Extract EBOM via CAD/PDM API
+    - Normalize part numbers/units/revisions
+    - Diff vs MBOM and detect anomalies
+    - Suggest reuse/standard parts and auto-fix proposals
+    - Create ECO draft with changes
+  tools:
+    - SolidWorks PDM/Autodesk Forge/Teamcenter APIs
+    - Python
+    - String similarity/fuzzy match
+    - ERP API
+    - Change workflow bot
+  outputs:
+    - Discrepancy report with severity
+    - Proposed MBOM updates/ECO draft
+    - Reuse recommendations
+  pricingModel:
+    - One-time integration fee
+    - Per-run or monthly subscription
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 7.5
+    modelCapability: 6.5
+    overall: 7
+  risks:
+    - API access limits
+    - Naming conventions causing false matches
+    - Change-control misalignment
+  dependencies:
+    - API tokens for CAD/PDM/ERP
+    - Part numbering rules
+    - ECO approval workflow
+leanCanvas:
+  problem:
+    - >-
+      EBOM-to-MBOM mismatches (missing parts, wrong revisions, incorrect
+      quantities/UoM, substitutes not carried through) cause line stoppages,
+      rework, and quality escapes in pump/motor builds.
+    - >-
+      Manual reconciliation across CAD/PDM and ERP is labor-intensive (often
+      4–12 hours per ECN) and error-prone, especially with high option/variant
+      complexity (shaft types, porting, displacement, mounting).
+    - >-
+      Change effectivity and serialization gaps (EBOM rev vs. MBOM effective
+      date vs. production order) create audit and traceability risks (ISO
+      9001/IATF/AS9100 where applicable).
+    - >-
+      Phantom assemblies, service kits, consumables (sealants, test fluids), and
+      supplier alternates create “expected differences” that are hard to encode
+      in brittle scripts.
+    - >-
+      Data silos and inconsistent naming/attribute schemas between PLM/PDM and
+      ERP slow down ECN cycle times and NPI readiness.
+  solution:
+    - >-
+      Continuously ingest EBOM from CAD/PDM (e.g., PTC Windchill, Siemens
+      Teamcenter, SolidWorks PDM, Autodesk Vault) and MBOM from ERP (SAP,
+      Oracle, Infor, Epicor, MS Dynamics).
+    - >-
+      Normalize, map, and diff structures with a domain rule engine
+      (variants/options, phantom assemblies, expected consumables) plus an ML
+      layer trained on historical corrections.
+    - >-
+      Flag mismatches: qty/UoM, revision/effectivity, alternates/substitutes,
+      make/buy, serialization, missing/extra lines, attribute misalignments
+      (finish, material, porting).
+    - >-
+      Propose corrections with confidence scores: MBOM line updates, ECO
+      suggestions, alternates selection, effectivity date adjustments, and
+      routing to the right owner via workflow.
+    - >-
+      Provide dashboards: risk-scored work queues, ECN readiness gates,
+      first-pass reconciliation rate, and trend analytics. Integration
+      back-writes to ERP/PLM via APIs where permitted.
+  uniqueValueProp: >-
+    AI-powered, domain-tuned EBOM↔MBOM reconciliation for fluid power: catch
+    mismatches before jobs hit the floor, auto-suggest correct fixes, and
+    compress ECN cycle time by 30–60% with audit-ready traceability.
+  unfairAdvantage: >-
+    A domain-tuned rule and ML library for fluid power pump/motor EBOM↔MBOM
+    reconciliation, trained on real correction data and option structures, plus
+    certified connectors for top PLM/ERP stacks. Feedback loops from pilots
+    create a proprietary dataset and rules corpus that general-purpose PLM/ERP
+    integrations lack.
+  customerSegments:
+    - >-
+      Primary: Mid-to-large Fluid Power Pump and Motor manufacturers (NAICS
+      333996), $50M–$5B revenue, multi-site, mixed-mode manufacturing.
+    - >-
+      Roles: Directors of Manufacturing Engineering, PLM/ERP Managers,
+      Configuration Management, Quality/Compliance, Supply Chain (BOM & Item
+      Master).
+    - >-
+      Secondary: Adjacent fluid power components (valves, manifolds), custom
+      machinery with hydraulic systems (NAICS 333995/333999), and contract
+      manufacturers building pump/motor assemblies.
+  channels:
+    - >-
+      Direct enterprise sales to Manufacturing Engineering/IT at NAICS 333996
+      firms; land with 8–12 week paid pilots tied to ECN KPIs.
+    - >-
+      Alliances with PLM/ERP SIs (SAP, Infor, Epicor, Dynamics partners)
+      offering co-sell and packaged integration accelerators.
+    - >-
+      Industry associations and events: NFPA membership, IFPE/CONEXPO, IMTS, and
+      hydraulic-focused webinars/whitepapers (case studies with quantified ROI).
+    - >-
+      Account-based marketing targeting 200–300 named accounts in US/EU;
+      LinkedIn and trade publications; ROI calculators.
+    - >-
+      Marketplace listings (Azure/AWS) for procurement ease; co-marketing with
+      CAD/PDM vendors for joint reference architectures.
+  revenueStreams:
+    - >-
+      Annual subscription (SaaS or private cloud) tiered by active part numbers
+      or MBOM lines processed per month (e.g., 250k, 1M, 5M lines).
+    - >-
+      Module add-ons: on-prem/air-gapped deployment, extended compliance pack
+      (serialization/effectivity analytics), advanced alternates optimizer.
+    - >-
+      Professional services: data mapping, connector customization, rule-pack
+      authoring, and change management training.
+    - >-
+      Premium support/SLA tiers (24/7, on-site support) and multi-site
+      enterprise pricing.
+    - Usage-based overflow for burst processing beyond tier limits.
+  costStructure:
+    - >-
+      R&D: connectors, rule engine, ML model training, security/compliance (SOC
+      2, ISO 27001).
+    - >-
+      Cloud infrastructure: compute for parsing/diff, storage, secured
+      VPCs/VNETs; observability costs.
+    - >-
+      Data labeling and domain expert SMEs (manufacturing engineers) to encode
+      rule packs.
+    - 'Sales and marketing: ABM, events, solution consulting, partner MDF.'
+    - >-
+      Professional services delivery and customer success (onboarding,
+      training).
+    - >-
+      Legal and compliance: data processing agreements, cyber insurance, pen
+      testing.
+  keyMetrics:
+    - >-
+      Mismatch Detection Precision/Recall: target ≥95% precision, ≥92% recall on
+      validation sets; false positive rate ≤3%.
+    - >-
+      ECN Cycle Time Reduction: baseline vs. post-pilot; target 30–60% reduction
+      for EBOM→MBOM reconciliation steps.
+    - >-
+      Manual Hours Saved: hours of reconciliation per ECN reduced; target 4–8
+      hours saved per ECN; quarterly roll-up.
+    - >-
+      First-Pass Reconciliation Rate: % MBOMs passing without manual edits;
+      target improvement from baseline by +25–40 pts.
+    - >-
+      Line-Stop/Delay Incidents due to BOM errors: target 40% reduction within 6
+      months; track cost avoided ($/hour x hours avoided).
+    - >-
+      Auto-Apply Rate: % of AI suggestions applied without modification; target
+      50%+ by month 6 with human-in-the-loop gating.
+    - >-
+      Time-to-Detect Mismatch: median from EBOM change to flagged MBOM issue;
+      target <15 minutes in event-driven mode.
+    - >-
+      Adoption: active sites, active users/month, MBOM lines checked/week,
+      coverage of top-100 assemblies.
+    - 'Churn and NPS: logo churn <5% annually; NPS ≥40 by year 2.'
+    - >-
+      Security/Compliance: % connectors with SSO/MFA enabled (target 100%),
+      critical vulnerability SLA adherence.
+storyBrand:
+  character: >-
+    Ops leaders, engineering managers, and ERP/PDM owners at fluid power pump
+    and motor manufacturers (NAICS 333996) who need EBOM–MBOM alignment for
+    right‑first‑time builds.
+  problem: >-
+    EBOM from CAD/PDM and MBOM in ERP drift apart, causing wrong part numbers,
+    missing seals/fasteners, incorrect alternates, and phantom
+    assemblies—leading to misbuilds, late ECOs, line stoppages, excess WIP, and
+    audit risk.
+  guide: >-
+    We understand hydraulic pump and motor complexity and the cost of a single
+    wrong seal or port option. Our AI CAD‑to‑BOM Consistency Checker
+    continuously reconciles EBOM and MBOM and guides teams with precise,
+    auditable fixes.
+  plan: >-
+    1 Connect CAD/PDM and ERP via secure connectors. 2 Run a baseline compare on
+    active items and set business rules. 3 Go live with alerts, suggested
+    corrections, and approval workflow.
+  callToAction: Schedule a demo and start a 30‑day pilot on one product line.
+  success: >-
+    Aligned EBOM–MBOM, faster releases, fewer change orders, higher first‑pass
+    yield, lower scrap and expedite costs, clean audits, and on‑time shipments.
+  failure: >-
+    Keep firefighting BOM errors, pay for rework and warranty claims, miss ship
+    dates, fail audits, and erode margins.
+landingPage:
+  hero:
+    title: CAD-to-BOM Consistency Checker for Fluid Power Manufacturing
+    subtitle: >-
+      AI that compares EBOM from CAD/PDM to MBOM in ERP, flags mismatches, and
+      suggests corrections—built for pump and motor makers (NAICS 333996).
+    ctaText: Book a 20‑min demo
+    ctaHref: /demo
+  problem:
+    - 'EBOM↔MBOM drift causes wrong builds, rework, and late orders.'
+    - >-
+      Variant-heavy products (porting, displacement, shafts, seal kits) invite
+      missed or extra parts.
+    - Revision and effectivity mismatches slip through manual checks.
+    - UoM differences (kit vs each) and alternates create purchasing errors.
+    - Engineers waste hours reconciling spreadsheets; ECOs stall and costs rise.
+  solution:
+    - >-
+      Automatically compare EBOMs from CAD/PDM with MBOMs in ERP—every change,
+      every revision.
+    - >-
+      Flag quantity, component, revision, UoM, alternates, and phantom assembly
+      inconsistencies.
+    - See suggested fixes with confidence scores and impact on cost/lead time.
+    - >-
+      One-click apply: generate ECO packets and push approved updates to
+      ERP/PLM.
+    - Continuously monitor assemblies and notify when drift reappears.
+    - >-
+      Reduce rework and scrap, accelerate ECO cycles, and boost on-time
+      delivery.
+  features:
+    - >-
+      Plug‑and‑play connectors: SolidWorks, Inventor, Creo, NX; Teamcenter,
+      Windchill, SolidWorks PDM; SAP, Oracle, Infor, Epicor.
+    - >-
+      Fluid-power aware rules: seal kits, port plates, gear/gerotor sets, case
+      drain options, paint/finish codes.
+    - >-
+      Variant compatibility checks across displacement, mount, shaft, and port
+      configurations.
+    - >-
+      Deep BOM checks: revisions, effectivity dates, alternates, UoM
+      conversions, phantom vs purchased assemblies.
+    - Obsolete/duplicate part detection using PDM metadata and lifecycle states.
+    - Suggested corrections with side‑by‑side diffs and cost/lead‑time impact.
+    - >-
+      ECO automation: approver routing, e‑sign, and exportable change packets
+      (PDF/CSV).
+    - >-
+      Security for manufacturing IT: SSO, role‑based access, audit trails; cloud
+      or on‑prem; read‑only connectors.
+    - >-
+      Reporting and exports: discrepancy lists to Excel/CSV and direct ERP
+      updates with approvals.
+  steps:
+    - Connect your PDM/PLM and ERP with secure read‑only credentials.
+    - >-
+      Map part numbers, revisions, and UoM; import your fluid‑power rules (kits,
+      alternates).
+    - Run a first-pass comparison on a representative pump or motor assembly.
+    - Review flagged mismatches and suggested fixes with impact analysis.
+    - Approve and sync updates; auto-generate ECO documentation and logs.
+    - Schedule continuous checks and alerts for new or revised designs.
+---
+# BOMGuard FP (CAD-to-BOM Consistency Checker)
+
+Generated for NAICS 333996 — Fluid Power Pump and Motor Manufacturing.
+Service: CAD-to-BOM Consistency Checker

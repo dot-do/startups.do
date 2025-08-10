@@ -1,0 +1,350 @@
+---
+name: AuthPilot AI — PA Intake & Draft Decision Support
+slug: authpilot
+service:
+  title: AI Prior Authorization (PA) Intake + Draft Decision Support
+  description: >-
+    Automates PA intake from ePA/fax/portal, assembles clinical context, matches
+    to plan criteria, and drafts a recommended decision and letters for
+    pharmacist review.
+  targetUsers:
+    - PBM clinical operations
+    - Utilization management (RPh/RN)
+    - Health plans
+  triggers:
+    - New ePA (NCPDP SCRIPT) received
+    - Fax/email PA received
+    - Provider portal submission
+  inputs:
+    - ePA XML/PDF
+    - Member/pharmacy/prescriber data
+    - Plan PA criteria and formulary
+    - Claims history (med/Rx)
+    - Clinical notes/attachments
+  steps:
+    - Parse intake (ePA or OCR fax) and validate completeness
+    - 'Retrieve member eligibility, accumulators, and Rx/medical history'
+    - Map drug to criteria (RxNorm/NDC) and match rule logic
+    - Score sufficiency; request missing info templates if needed
+    - Draft decision (approve/deny/pend) with cited criteria and evidence
+    - Generate provider/member letters and audit log for HIL approval
+  tools:
+    - Surescripts ePA API
+    - NCPDP SCRIPT
+    - RxNorm/FDB/Medi-Span
+    - Rules engine (Drools)
+    - LLM with RAG (OpenAI/Anthropic)
+    - OCR (Tesseract/Adobe)
+    - Doc automation (Docassemble)
+  outputs:
+    - Recommended decision with rationale
+    - Evidence/criteria summary
+    - Letter drafts (provider/member)
+    - 'Audit trail (timestamps, data sources)'
+  pricingModel:
+    - 'Per PA case (e.g., $X/case)'
+    - Setup fee for rules/RAG indexing
+    - Volume tiering/PMPM
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 7.5
+    overall: 8
+  risks:
+    - Clinical safety/incorrect recommendations
+    - Regulatory non-compliance (CMS/state)
+    - PHI handling/HIPAA
+    - Criteria drift or mis-mapping
+  dependencies:
+    - Access to PA criteria repository/rules
+    - ePA connectivity and fax inbox
+    - Claims/eligibility APIs or DB
+    - Letter templates and approval workflows
+    - BAA/SOC2 controls
+leanCanvas:
+  problem:
+    - >-
+      Manual PA intake across ePA/fax/portal is fragmented, requiring 12–20
+      minutes of tech/pharmacist time per case and creating backlogs, overtime,
+      and SLA risks.
+    - >-
+      Clinical context is scattered across PDFs, C-CDA attachments, and free
+      text; extracting and aligning it to plan-specific criteria is error-prone
+      and inconsistent.
+    - >-
+      Turnaround times and letter compliance (CMS/state) are hard to meet at
+      scale, leading to provider abrasion, appeal rates of 10–20% on denials,
+      and regulatory exposure.
+    - >-
+      Existing ePA tools digitize submission but do not reduce payer-side review
+      effort enough; rules engines struggle with nuanced policy language,
+      exceptions, and supporting evidence.
+    - >-
+      PBMs/TPAs lack transparent, auditable reasoning for decisions; QA sampling
+      is manual and misses drift in criteria, new drugs (e.g., GLP-1s), and
+      state-mandated wording changes.
+  solution:
+    - >-
+      Omnichannel intake: normalize ePA (NCPDP SCRIPT 2017071), portal exports,
+      fax/PDF into a unified case.
+    - >-
+      Document AI: classify, OCR, and parse clinical attachments (C-CDA, labs,
+      progress notes) to structured facts (diagnosis, prior therapies, labs,
+      BMI, prescriber specialty).
+    - >-
+      Criteria engine: map extracted facts to plan-specific drug policies and
+      step therapy, with state/CMS overlays.
+    - >-
+      Draft decision support: generate a recommended approve/deny/pend rationale
+      with citations to policy sections and detected evidence gaps.
+    - >-
+      Letter automation: draft provider/patient letters using plan templates and
+      jurisdiction-required language; pre-populate denial reason codes and
+      alternatives.
+    - >-
+      Human-in-the-loop UI: pharmacist console to review/override with one-click
+      edits; full audit trail and versioning.
+    - >-
+      Integrations: bi-directional with UM platforms (Jiva, GuidingCare,
+      TruCare, Pegasystems, Altruista), ePA networks (Surescripts, CoverMyMeds),
+      and fax APIs.
+    - >-
+      Safety/compliance: deterministic guardrails, redaction, PII/PHI handling,
+      model monitoring, SOC 2 + HITRUST.
+  uniqueValueProp: >-
+    Reduce PA handling time by 50–70% with auditable AI that ingests any
+    channel, assembles clinical context, maps to policy criteria, and drafts a
+    decision + compliant letters for pharmacist sign-off—improving turnaround,
+    lowering cost per case, and reducing appeals without changing core UM
+    platforms.
+  unfairAdvantage: >-
+    A growing, proprietary corpus of payer-specific PA decisions linked to exact
+    policy sections and reviewer edits enables high-accuracy drafting with
+    auditable citations; deep integrations into dominant UM platforms and ePA
+    networks reduce switching friction; and a compliance-first approach (SOC
+    2/HITRUST, CMS/state letter libraries) de-risks procurement and audits.
+  customerSegments:
+    - >-
+      Pharmacy Benefit Managers (PBMs) serving commercial, Medicare Part D,
+      Medicaid MCOs (priority: top-10 PBMs covering >70% of lives).
+    - >-
+      Health plan in-house pharmacy UM teams (regional Blues, integrated
+      delivery networks with own plans).
+    - Third Party Administrators (TPAs) providing UM for employer ASO plans.
+    - >-
+      Specialty pharmacy services organizations performing payer-delegated PA
+      review.
+  channels:
+    - >-
+      Direct enterprise sales to PBMs/health plans via UM operations and
+      pharmacy leadership; target RFPs and QBRs focused on TAT and
+      cost-to-serve.
+    - >-
+      Co-sell/partner integrations with UM platform vendors (Jiva, GuidingCare,
+      TruCare, Pegasystems) to be the AI decision layer in existing workflows.
+    - >-
+      Data network partnerships with Surescripts and CoverMyMeds for streamlined
+      ePA connectivity.
+    - >-
+      Thought leadership and pilots via AMCP, AHIP, and state AMCP chapters;
+      publish ROI case studies on GLP-1, PCSK9, CGRPs lines.
+    - >-
+      Land-and-expand: start with 2–3 high-volume drug classes or a single line
+      of business (e.g., Commercial), then expand to Medicare/Medicaid and more
+      drug policies.
+    - >-
+      Channel partners: BPOs handling PA queues; offer AI-enabled staffing
+      bundles.
+  revenueStreams:
+    - >-
+      Tiered per-PA processing fee ($0.75–$3.00/case) based on volume and
+      feature set (letters, appeals pack, QA sampling).
+    - >-
+      Annual platform subscription ($150k–$750k) covering environments,
+      integrations, support, and compliance reporting.
+    - >-
+      Implementation and policy onboarding ($100k–$500k) depending on number of
+      policies and LOBs.
+    - >-
+      Outcome-based bonuses tied to automation rate/TAT reduction (e.g., shared
+      savings beyond baseline).
+    - >-
+      Premium analytics/compliance module ($50k–$200k/yr): drift detection,
+      auditor exports, SLA forecasting.
+  costStructure:
+    - >-
+      Cloud compute (OCR + LLM inference) $0.10–$0.40/case at scale;
+      storage/egress for PHI.
+    - >-
+      Clinical and ML staff: pharmacists for policy curation and QA; ML
+      engineers; integrations team; security/compliance.
+    - >-
+      Certifications and audits: SOC 2 Type II, HITRUST, penetration testing,
+      HIPAA legal; ~$250k–$600k/yr.
+    - >-
+      Partner/ePA connectivity and compendia licensing (RxNorm, Medi-Span/First
+      Databank) and letter templates; $150k–$500k/yr.
+    - >-
+      Sales/BD with long enterprise cycles (6–12 months); travel, pilots, and
+      POCs.
+    - >-
+      Liability insurance (tech E&O/cyber) and contingency reserves for SLA
+      credits.
+  keyMetrics:
+    - >-
+      First Pass Draft Acceptance Rate (FPDAR): % of cases where the draft
+      decision + letter is accepted with no material edit. Target: 50% in Q2
+      pilot; 70%+ at 12 months for selected policies.
+    - >-
+      Average Handling Time (AHT) reduction: minutes saved per case. Baseline
+      14–18 min; target 6–8 min at 6 months; <5 min at 12 months for top
+      policies.
+    - >-
+      Turnaround Time (TAT) compliance: % within regulatory/contractual SLAs.
+      Target: +15–25% improvement vs. baseline within 90 days.
+    - >-
+      Criteria mapping accuracy: precision/recall on policy element extraction.
+      Target: >97% precision; >95% recall on validation sets.
+    - >-
+      Letter compliance accuracy: % letters passing internal QA and external
+      audit. Target: 99.5%+; zero critical defects.
+    - >-
+      Appeal overturn rate on AI-drafted denials: maintain at or below baseline
+      (e.g., ≤10%) while increasing throughput.
+    - >-
+      Provider abrasion: reduction in provider call-backs/inquiries per 1,000
+      PAs by 20% in 6 months.
+    - >-
+      System performance: p95 draft latency <30s; uptime ≥99.9%; error rate
+      <0.5% of cases.
+    - 'Unit economics: gross margin ≥75% at 1M cases/yr; CAC payback <12 months.'
+storyBrand:
+  character: >-
+    PBM and TPA pharmacy operations leaders who need faster, consistent,
+    compliant prior authorization decisions without growing headcount.
+  problem: >-
+    PAs arrive via ePA, fax, and portals; clinicians chase missing clinicals;
+    criteria are applied inconsistently; letters take too long; backlogs delay
+    therapy, drive costs, and invite compliance risk.
+  guide: >-
+    We understand high‑scrutiny PA operations. Our AI + pharmacist-in-the-loop
+    decision support assembles context, matches plan criteria, and drafts
+    decisions and letters you can trust.
+  plan: >-
+    1) Connect: Ingest ePA, fax (OCR), and portal submissions. 2) Configure: Map
+    plan criteria and letter templates. 3) Automate: Assemble clinical context
+    and draft recommended determinations and letters. 4) Review: Pharmacist
+    validates and finalizes in your workflow. 5) Prove and scale: Pilot, measure
+    turnaround and quality, then roll out.
+  callToAction: Schedule a 30‑minute demo or start a no‑risk pilot.
+  success: >-
+    Same‑day decisions, lower admin cost per PA, consistent and auditable
+    determinations, faster therapy starts, happier providers and members, and
+    scalable compliance-ready workflows.
+  failure: >-
+    Manual rework and backlogs persist, turnarounds slip, appeals and compliance
+    findings increase, provider abrasion grows, costs rise, and members wait
+    longer for therapy.
+landingPage:
+  hero:
+    title: AI Prior Authorization Intake + Draft Decision Support
+    subtitle: >-
+      Automate PA intake from ePA/fax/portals, assemble clinical context, match
+      to plan criteria, and draft decisions and letters —
+      pharmacist-in-the-loop.
+    ctaText: Request a demo
+    ctaHref: '#demo'
+  problem:
+    - >-
+      PAs arrive via ePA, fax, and portals — triage and data entry are slow and
+      error-prone.
+    - >-
+      Clinical details are scattered across claims, notes, and attachments —
+      case assembly takes too long.
+    - >-
+      Plan criteria change frequently — inconsistent application risks denials
+      and appeals.
+    - Drafting letters and forms consumes pharmacist time and delays turnaround.
+    - >-
+      SLA pressure and rising volumes strain staffing and increase cost per
+      case.
+    - >-
+      Audits require complete rationale and documentation — tough to maintain at
+      scale.
+  solution:
+    - >-
+      Unify intake across channels; normalize, classify, and de-duplicate
+      requests.
+    - >-
+      Auto-assemble member, prescriber, drug, diagnosis, history, and
+      attachments into a clean case file.
+    - >-
+      Match each case to the correct plan criteria; flag gaps and required
+      evidence.
+    - >-
+      Draft a recommended decision (approve/deny/pend) with cited rationale for
+      pharmacist review.
+    - >-
+      Auto-generate provider/member letters and forms, ready to send from your
+      UM system.
+    - >-
+      Built-in audit trail, explainability, and quality checks to support
+      consistent decisions.
+    - >-
+      Flexible integration via API or UI; works with existing queues, templates,
+      and workflows.
+  features:
+    - >-
+      Omnichannel intake: ePA, fax OCR, and portal capture with smart
+      classification.
+    - >-
+      Identity resolution: member, plan, and benefit verification with
+      de-duplication.
+    - >-
+      Clinical context builder: parses claims, notes, labs, and prior PAs;
+      highlights relevant evidence.
+    - >-
+      Policy management: versioned criteria, effective dates, and
+      line-of-business variations.
+    - Natural-language criteria matching with cited snippets and reason codes.
+    - >-
+      Decision drafting: approve/deny/pend recommendations with confidence and
+      alternatives (e.g., step therapy).
+    - >-
+      Letter generation: approval, denial, RFI, and appeal templates; merge
+      fields and attachments.
+    - >-
+      Reviewer workspace: side-by-side criteria and evidence, quick edits, and
+      one-click rationale.
+    - >-
+      Missing info detection and RFI checklist; auto-populated forms and
+      template routing.
+    - >-
+      Queueing and prioritization by SLA, drug cost, benefit type, and clinical
+      urgency.
+    - >-
+      Analytics and QA: turnaround time, first-pass rate, overturns, workload,
+      and cost per case.
+    - >-
+      Security controls: role-based access, encryption in transit/at rest, and
+      full audit logging.
+    - >-
+      Deployment: API and web app, SSO support, sandbox environments, and
+      webhook callbacks.
+    - 'Learning loop: continuously improves from outcomes and reviewer feedback.'
+  steps:
+    - 'Connect intake sources (ePA, fax, portals) and your UM/case system.'
+    - 'Import plan criteria, policies, and letter templates; set effective dates.'
+    - 'Configure queues, roles, and routing; define reason codes and SLAs.'
+    - >-
+      Run a pilot on selected drug classes or lines of business; calibrate
+      thresholds.
+    - >-
+      Go live with pharmacist-in-the-loop review; monitor accuracy and
+      turnaround.
+    - Expand coverage and automation; tune analytics and QA rules over time.
+---
+# AuthPilot AI — PA Intake & Draft Decision Support
+
+Industry: Pharmacy Benefit Management and Other Third Party Administration of Insurance and Pension Funds
+Service: AI Prior Authorization (PA) Intake + Draft Decision Support

@@ -150,7 +150,7 @@ If a component or props are missing, defaults derive from YAML frontmatter.
 - MDX loading: `next-mdx-remote-client`
 - AI generation: Vercel AI SDK (`@vercel/ai`) to generate/transform objects, persisted to frontmatter
 - Payments: Stripe pricing and checkout pages
-- Automation: Devin API to assign builds and generate slides
+- Automation: Devin API to build initial AI services / functions & MVP
 
 ## Local Development
 

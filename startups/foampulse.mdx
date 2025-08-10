@@ -1,0 +1,314 @@
+---
+name: FoamPulse RCA
+slug: foampulse
+service:
+  title: Downtime Root-Cause Agent (Event Log Mining)
+  description: >-
+    Analyzes PLC alarm/event sequences and maintenance notes to infer likely
+    root causes and next-best diagnostics.
+  targetUsers:
+    - Maintenance Manager
+    - Controls Engineer
+    - Reliability Engineer
+  triggers:
+    - Unplanned downtime > X minutes
+    - Weekly reliability review
+  inputs:
+    - PLC alarm/event logs
+    - CMMS work orders and notes
+    - 'Cycle times, line speeds'
+    - Environmental data (temp/RH)
+  steps:
+    - Event log parsing and deduplication
+    - Sequence clustering and frequent pattern mining
+    - Rank likely causes with evidence links
+    - Generate technician playbook and test list
+    - Track effectiveness of suggested actions
+  tools:
+    - PM4Py (process mining)
+    - HDBSCAN/sequence mining
+    - LLM summarization (OpenAI/Azure OpenAI)
+    - CMMS API (read-only)
+  outputs:
+    - Top suspected causes per incident
+    - Playbook with checks and parts
+    - MTBF/MTTR trend and pareto
+  pricingModel:
+    - Pilot on one line fixed fee
+    - Subscription per site/month
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Alarm floods/poor labeling
+    - Limited context if CMMS notes are sparse
+    - VPN/data access hurdles
+  dependencies:
+    - Export of events (CSV/OPC UA via gateway)
+    - CMMS read access
+    - Tag dictionary/alarm map
+leanCanvas:
+  problem:
+    - >-
+      Excess unplanned downtime (8–18% of scheduled time) on EPS/XPS lines due
+      to recurring but poorly diagnosed faults (steam pressure dips, vacuum
+      leaks, bead moisture variance, valve sticking, extruder surging).
+    - >-
+      High alarm noise (200–1,500 alarms/day/line) with little causal context;
+      operators triage chronologically rather than causally, inflating
+      mean-time-to-diagnose (MTTD) to 25–45 minutes.
+    - >-
+      Tribal knowledge loss from turnover and aging workforce; maintenance notes
+      are unstructured and not searchable, causing repeated trial-and-error on
+      the same faults.
+    - >-
+      Root causes span utilities and process islands (pre-expander, aging silos,
+      molding/extrusion, cutting, packaging); siloed data prevents end-to-end
+      reasoning.
+    - >-
+      OEM manuals and fault codes are generic; existing SCADA alarm views lack
+      next-best diagnostic steps tied to local equipment and recipes.
+    - >-
+      OEE and scrap targets are missed because upstream issues (e.g., bead
+      density drift, wet bead) aren’t detected until downstream alarms fire; no
+      early-warning diagnostics.
+    - >-
+      Current improvement programs require engineers to manually mine logs with
+      spreadsheets or ad-hoc SQL; slow and not repeatable.
+  solution:
+    - >-
+      Edge agent ingests PLC/SCADA alarm and event streams (OPC UA/DA,
+      Ethernet/IP, Modbus/TCP), historian tags (pressure, temperature, vacuum,
+      density), and maintenance notes from CMMS.
+    - >-
+      Sequence-mining and causal-graph models learn typical fault progressions
+      (e.g., steam pressure dip → mold temp low → incomplete fusion) to rank
+      likely root causes with confidence scores.
+    - >-
+      LLM-based note miner structures unstructured maintenance logs into
+      standardized failure modes, parts replaced, and effective fixes;
+      continuously updates the knowledge base.
+    - >-
+      Next-best diagnostic engine proposes 3–5 guided checks (e.g., verify steam
+      trap downstream of mold 3; run vacuum leak test; inspect condensate
+      return) with expected outcomes and time-to-complete.
+    - >-
+      Operator co-pilot UI embeds in HMI/SCADA browser or runs on tablets;
+      one-click work-order creation with pre-filled fault codes and parts into
+      CMMS (Fiix, UpKeep, Maximo).
+    - >-
+      Alarm rationalization companion groups chattering/nuisance alarms,
+      recommends suppression/latching/timing per ISA 18.2, and simulates impact
+      before changes.
+    - >-
+      On-edge privacy: models run locally; optional anonymized telemetry to
+      cloud for fleet learning; strict read-only access to controls layer; no
+      PLC writes.
+  uniqueValueProp: >-
+    Cut unplanned downtime on polystyrene foam lines by 15–30% within 90 days by
+    turning raw PLC alarms, SCADA events, and maintenance notes into ranked
+    root-cause hypotheses and next-best diagnostics—deployed at the edge,
+    read-only, and tailored to EPS/XPS processes.
+  unfairAdvantage: >-
+    Vertical-specific EPS/XPS failure-mode library and causal graphs trained on
+    multi-plant event sequences, combined with OEM/SI partnerships to embed at
+    source; on-edge, read-only inference with traceable evidence chains drives
+    operator trust and rapid adoption—a dataset and workflow moat difficult for
+    generic APM tools to replicate.
+  customerSegments:
+    - >-
+      EPS block molding plants (3–10 lines, $30–150M annual revenue) producing
+      insulation boards and packaging.
+    - >-
+      XPS sheet/extrusion plants (1–6 lines, $50–300M annual revenue) serving
+      construction/insulation.
+    - >-
+      Toll molders of shape-molded EPS/EPP serving appliance/automotive
+      packaging.
+    - >-
+      Primary buyers: Plant Managers, Maintenance/Reliability Managers,
+      Process/Controls Engineers.
+    - >-
+      Geographies for initial focus: North America and EU DACH/CEE regions with
+      high energy costs and strong downtime reduction incentives.
+  channels:
+    - >-
+      Direct sales to mid-sized EPS/XPS manufacturers (NA/EU) via outbound to
+      50–100 target accounts with 3–10 lines each.
+    - >-
+      OEM partnerships with EPS block molding and shape-molding machine builders
+      (e.g., Kurtz, Hirsch Servo, Erlenbach) to bundle the agent on new
+      equipment and offer retrofits.
+    - >-
+      System integrator channel (Ignition/OPC UA-focused SIs) for on-site
+      deployment and change management; rev-share on installations.
+    - >-
+      Alliances with CMMS vendors (Fiix, UpKeep) and MES providers for
+      marketplace listings and integrations.
+    - >-
+      Industry associations and events: EPS Industry Alliance, AIPE, AMEPS;
+      trade shows like Foam Expo, K, NPE for demos and case studies.
+    - >-
+      Content-led growth: teardown blogs (“Top 10 EPS downtime chains”), webinar
+      series with OEM/SI co-hosts, and ROI calculators; targeted LinkedIn
+      campaigns toward Reliability/Plant Managers.
+    - >-
+      6-week pilot program with ROI guarantee and executive readouts to drive
+      land-and-expand within sites and across sister plants.
+  revenueStreams:
+    - >-
+      SaaS subscription per line: $1,500–$3,000/month/line based on feature tier
+      and volume; minimum 2 lines/site.
+    - >-
+      Implementation package: $10,000–$30,000 per site (connectors, on-edge
+      setup, model calibration, training).
+    - >-
+      Professional services: alarm rationalization workshops, FMEA codification,
+      dashboard customizations ($150–$220/hour or fixed-scope).
+    - >-
+      Enterprise plan: multi-site analytics, SSO, private model hosting, premium
+      SLA (20% uplift).
+    - >-
+      Optional performance-based pricing: 10–20% of verified downtime savings
+      above baseline after 90 days.
+    - OEM/SI revenue share on bundled deployments (10–20%).
+  costStructure:
+    - >-
+      People (year 1): 2 ML engineers, 2 controls/OT engineers, 1 domain SME, 1
+      full-stack dev, 1 customer success, 1 AE/SDR (~$1.2–$1.6M fully loaded).
+    - >-
+      Cloud and tooling: training compute, storage, observability, CI/CD
+      ($8k–$20k/month depending on data aggregation).
+    - >-
+      Edge hardware (if supplied): industrial fanless IPC $1,200–$2,000/unit;
+      average 1–2 per line or per cell; amortized over 3 years.
+    - >-
+      Connectivity/licensing: OPC UA client, historian connectors, VPN/appliance
+      costs ($200–$500/site/month).
+    - Installation and travel for pilots and go-lives ($3k–$8k/site).
+    - 'Sales and marketing: events, content, partner MDF ($10k–$25k/quarter).'
+    - 'Compliance/security: pen tests, audits, insurance ($30k–$80k/year).'
+  keyMetrics:
+    - >-
+      Operational: reduction in unplanned downtime minutes per line (target
+      15–30% within 6 months vs. 3-month baseline).
+    - >-
+      Diagnostic speed: Mean Time To Diagnose (MTTD) reduction from 25–45 min to
+      <10 min by day 90.
+    - >-
+      Repair efficiency: Mean Time To Repair (MTTR) reduction by 10–20% via
+      better pre-diagnosis and parts readiness.
+    - >-
+      Model performance: top-3 root-cause precision ≥70% by week 4; suggestion
+      acceptance rate ≥50%; false positive rate ≤15%.
+    - >-
+      Alarm health: ≥50% reduction in chattering/standing alarms within 90 days;
+      nuisance alarm rate down by ≥40%.
+    - >-
+      Adoption: weekly active operators/techs per line ≥70%; average 1.5+
+      suggestions followed per incident.
+    - >-
+      Business: payback period ≤3 months; site NRR ≥120% year 2; gross margin
+      ≥70% after year 1; sales cycle length ≤120 days.
+    - >-
+      Data coverage: ≥90% of critical tags mapped per line; event capture
+      latency ≤2 seconds; note coverage (share of incidents with structured
+      notes) ≥80%.
+storyBrand:
+  character: >-
+    Operations and maintenance leaders at EPS and XPS foam plants who need to
+    maximize uptime, quality, and throughput.
+  problem: >-
+    Unplanned stops are hard to diagnose—alarm floods bury the first fault,
+    event sequences are opaque, and tribal knowledge is scattered. The result is
+    long MTTR, scrap, and missed orders.
+  guide: >-
+    We understand foam production and controls. Our AI mines PLC alarms and
+    events plus maintenance notes to infer likely root causes such as steam
+    supply, vacuum integrity, mold temperature, and hot-wire issues, then
+    recommends next-best diagnostics.
+  plan: >-
+    Connect historian or SCADA and CMMS data. The agent learns failure patterns
+    from your lines. Operators receive ranked root-cause hypotheses and guided
+    checks inside existing workflows.
+  callToAction: >-
+    Start a 30-day pilot on one line. Connect logs, get explanations in days,
+    and track MTTR and downtime improvements.
+  success: >-
+    Rapid recoveries, fewer unplanned stops, lower scrap, captured know-how,
+    higher OEE, safer shifts, and predictable on-time production.
+  failure: >-
+    Without it, teams keep chasing noisy alarms, lose hours to guesswork, burn
+    out, miss orders, and watch maintenance and energy costs climb.
+landingPage:
+  hero:
+    title: Downtime Root-Cause Agent for Polystyrene Foam Manufacturing
+    subtitle: >-
+      AI that mines PLC alarms, event logs, and maintenance notes to pinpoint
+      why your line stopped and what to check next.
+    ctaText: Start Pilot
+    ctaHref: /start-pilot
+  problem:
+    - >-
+      Frequent stops across pre-expansion, molding, and cutting with unclear
+      origin
+    - Alarm storms mask the first fault; teams chase symptoms instead of causes
+    - Maintenance notes are unstructured and never loop back to operators
+    - Diagnosis depends on who is on shift; expertise is inconsistent
+    - OEM alarm codes vary by vendor; no common cause mapping
+    - 'Data is siloed across PLC/SCADA, historian, and CMMS systems'
+    - 'Wrong diagnosis wastes steam, energy, and creates scrap on restarts'
+  solution:
+    - >-
+      Correlates alarm and event sequences with maintenance notes to infer
+      likely root cause
+    - Recommends next-best diagnostics and safe checks specific to foam lines
+    - 'Shows confidence, evidence, and a time-aligned alarm map for transparency'
+    - Runs at the edge for low-latency guidance during stoppages
+    - >-
+      Learns from operator feedback and closed work orders to get smarter over
+      time
+    - >-
+      Generates downtime Pareto and recurring-cause insights for continuous
+      improvement
+  features:
+    - >-
+      Multi-source ingestion: PLC/SCADA alarms, historian events, CMMS tickets
+      (OPC UA, MQTT, Modbus via gateway, CSV/REST)
+    - Sequence mining and causal modeling tuned for cyclical thermal processes
+    - >-
+      Polystyrene foam domain pack: pre-expander, aging silos, block molder,
+      steam/air/vacuum systems, hot-wire cutters, conveyors, density control
+    - >-
+      Next-best action playbooks with checklists, sensor plots, and
+      lockout/tagout reminders
+    - >-
+      Early-warning for drift: steam pressure, bead moisture, density variance,
+      vacuum leakage
+    - >-
+      Evidence view: alarm genealogy, first-fault detection, correlated sensors
+      and notes
+    - 'Role-based UI for operators, maintenance, and process engineers'
+    - >-
+      Secure deployment: on-prem edge or private cloud; read-only by default;
+      SSO support
+    - 'Feedback loop: one-click confirm or override to improve the model'
+    - >-
+      Reporting: MTBF/MTTR trends, downtime Pareto, cause recurrence, ROI
+      tracking
+  steps:
+    - 'Connect data: point to PLC/SCADA and import recent logs and CMMS history'
+    - >-
+      Map assets and alarm codes to equipment areas (pre-expander, molders,
+      cutters)
+    - 'Baseline: 1-2 weeks learning typical cycles and alarm patterns'
+    - 'Go live: AI flags likely root causes and next checks during stops'
+    - 'Review: validate recommendations and publish playbooks for operators'
+    - 'Scale: roll out to more lines and automate weekly downtime reports'
+---
+# FoamPulse RCA
+
+Industry: Polystyrene Foam Product Manufacturing
+Service: Downtime Root-Cause Agent (Event Log Mining)

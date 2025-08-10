@@ -1,0 +1,330 @@
+---
+name: NOC Alarm Triage Copilot
+slug: nocalarm
+naics:
+  primary: '517112'
+  occupations: []
+service:
+  title: NOC Alarm Triage Copilot
+  description: >-
+    Correlates alarms/KPIs, summarizes probable root cause, proposes actions,
+    and enriches trouble tickets automatically.
+  targetUsers:
+    - NOC Managers
+    - Tier-1/2 Operations
+    - Service Assurance Leads
+  triggers:
+    - High-severity alarm burst
+    - Major incident declared
+    - New ticket created/updated
+  inputs:
+    - FCAPS alarms/events
+    - PM counters/time series
+    - Syslogs and probes
+    - Topology/inventory
+    - Planned maintenance windows
+    - Runbooks/KB articles
+  steps:
+    - Subscribe to alarm streams and aggregate context
+    - Correlate events by topology/time and detect patterns
+    - LLM generates incident summary and likely root-cause hypotheses
+    - Rank recommended actions/runbook steps
+    - Open/enrich ticket with structured context and next steps
+    - Notify on-call via Slack/Teams and update status
+  tools:
+    - Kafka/REST alarm feeds
+    - Elastic/Opensearch
+    - Grafana/Prometheus
+    - Neo4j (topology)
+    - 'ServiceNow/Jira APIs, TMF621 Trouble Ticket'
+    - RAG over runbooks (LlamaIndex)
+    - OpenAI/Claude
+  outputs:
+    - Incident summaries with RCA confidence
+    - Action plan and runbook links
+    - Enriched tickets and comms
+  pricingModel:
+    - Per-incident processed
+    - Monthly subscription by volume
+    - Per-integration one-time fee
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 7
+    overall: 8
+  risks:
+    - Hallucinated or unsafe actions
+    - Alarm storms causing overload
+    - Access control to sensitive ops data
+  dependencies:
+    - Alarm/PM API access
+    - Runbook/KB corpus
+    - Ticketing permissions and workflows
+leanCanvas:
+  problem:
+    - >-
+      NOCs drown in alarm noise: 200k–1M raw alarms/day for a Tier-1; >65% are
+      redundant or low-value, slowing triage and inflating OPEX.
+    - >-
+      Slow incident response: Baseline MTTA 8–20 minutes and MTTR 60–180 minutes
+      for cross-domain faults (RAN/Core/Transport), driving SLA penalties and
+      churn risk.
+    - >-
+      Siloed tooling and data: KPIs, topology, CM/changes, and alarms live in
+      separate systems (ENM/NMS, Netcool, ServiceNow, Splunk), preventing fast
+      correlation and RCA.
+    - >-
+      Inconsistent ticket quality: Manual ticket enrichment takes 3–8
+      minutes/ticket and is often incomplete, hampering handoffs to field ops
+      and Level-3 engineers.
+    - >-
+      Loss of tribal knowledge: SOPs and heuristics live with senior engineers;
+      attrition and outsourcing create knowledge gaps across shifts and vendors.
+    - >-
+      Vendor heterogeneity and 5G complexity: Multi-vendor RAN (Ericsson, Nokia,
+      Huawei), 5GC, vRAN/Open RAN, and MEC increase event volumes and causal
+      ambiguity.
+    - >-
+      Change-induced incidents: Unplanned config changes and maintenance windows
+      routinely trigger cascades; current systems rarely reconcile changes with
+      anomalies in real time.
+    - >-
+      Compliance and audit pressure: Carriers need consistent incident
+      narratives and evidence for regulators and major enterprise customers,
+      which are costly to produce manually.
+  solution:
+    - >-
+      Ingest and normalize multi-source data: alarms (SNMP/syslog/traps),
+      KPIs/PM counters, topology/inventory (RAN/Core/Transport), CM/changes,
+      maintenance windows, weather/power feeds.
+    - >-
+      Real-time correlation engine: topology- and time-aware clustering converts
+      raw alarms into incidents; suppresses duplicates; links anomalies to
+      recent changes and known problems.
+    - >-
+      Domain-tuned AI reasoning: telecom-specific models generate probable root
+      cause hypotheses (e.g., RAN backhaul fiber cut vs. eNodeB software fault)
+      with confidence and impacted-scope estimation.
+    - >-
+      Action recommendations: propose next best actions mapped to carrier
+      SOPs/playbooks (e.g., rollback config, disable neighbor relations,
+      dispatch fiber vendor) with risk/safety checks.
+    - >-
+      Automatic ticket enrichment: populate ServiceNow/BMC with root cause
+      summary, impacted sites/cells, KPIs-before/after, change refs, and
+      suggested actions; attach evidence and timelines.
+    - >-
+      Human-in-the-loop workflow: analysts accept/modify recommendations;
+      feedback continuously retrains correlation and action models; track
+      acceptance rate and precision/recall.
+    - >-
+      Closed-loop automation (optional): execute low-risk remediation via
+      orchestrators (ONAP, SMO, NetConf/Ansible) under guardrails and rollback
+      policies.
+    - >-
+      Explainability and audit: show causal graph, evidence, and rationale used
+      to form the recommendation; export audit packages for SLAs and regulators.
+  uniqueValueProp: >-
+    Cut MTTA by 50–75% and MTTR by 30–50% within 90 days by correlating
+    alarms/KPIs/topology into clear incidents, summarizing probable root cause
+    with confidence scores, and auto-enriching 80–95% of tickets—deployed
+    on-prem or VPC, vendor-agnostic, human-in-the-loop, and audit-ready.
+  unfairAdvantage: >-
+    A telecom-specific causal graph and labeled incident/action dataset built
+    across multi-vendor networks; a library of prebuilt connectors and
+    SOP-aligned playbooks; ability to run fully on-prem/air-gapped with
+    explainable AI and audit-ready outputs—co-developed with lighthouse carriers
+    and SI partners to shorten time-to-value and procurement cycles.
+  customerSegments:
+    - Tier-1 and Tier-2 Mobile Network Operators (MNOs) with in-house NOCs
+    - Regional/Rural wireless carriers with multi-vendor networks
+    - Managed Service Providers operating NOCs for carriers
+    - 'VP/Director Service Assurance, NOC Managers, Ops Center Leads'
+    - OSS/BSS and Network Automation leaders (CTO organization)
+  channels:
+    - >-
+      Direct enterprise sales to carriers (VP Service Assurance, NOC leadership,
+      CTO Ops).
+    - >-
+      Partner co-sell with ServiceNow, IBM (Netcool), and SI integrators
+      (Accenture, Tech Mahindra, TCS, Wipro, Amdocs).
+    - >-
+      Listings/validated apps on ServiceNow Store and TM Forum Open API
+      compliance directory.
+    - >-
+      Industry events and lighthouse programs: TM Forum DTW, MWC, Big 5G,
+      OSS/BSS World, GSMA eSIM/MEC forums.
+    - >-
+      Targeted ABM for 150 priority operators (NA/EU/APAC developed):
+      invite-only executive workshops and ROI-backed pilots.
+    - >-
+      RFP/RFI responses leveraging security/compliance packages (ISO 27001/SOC 2
+      roadmaps) and data residency options.
+  revenueStreams:
+    - >-
+      Annual subscription (SaaS/on-prem license) tiered by alarm volume and
+      domains: Tier-3 (≤50k alarms/day): $150k–$300k ARR; Tier-2 (50k–300k/day):
+      $400k–$900k ARR; Tier-1 (≥300k/day): $1.2M–$2.5M ARR.
+    - >-
+      One-time implementation/integration fee: $100k–$600k based on connectors,
+      topology loaders, and playbook mapping.
+    - 'Premium support/SLA (24x7, <1h response) at 18–22% of license.'
+    - >-
+      Usage add-ons: model retraining packs, additional domains (Transport/IP,
+      MEC), closed-loop automation modules.
+    - >-
+      Managed service option with SI partner for smaller carriers (bundled
+      per-incident pricing).
+  costStructure:
+    - 'R&D team (ML/LLM, data engineering, telco SMEs, backend): 40–50% of OpEx.'
+    - >-
+      Cloud/infra (training/inference GPUs, data pipelines, CI/CD,
+      observability): 10–20% of OpEx; reduced for on-prem deployments via
+      customer hardware.
+    - >-
+      Professional services/integration and customer success: 15–25% of OpEx
+      (partially offset by setup fees).
+    - >-
+      Sales and marketing (enterprise field sales, SEs, events, ABM,
+      certifications): 15–25% of OpEx; enterprise sales cycles 6–18 months.
+    - >-
+      Compliance and security (ISO 27001/SOC 2 audits, pen testing, data
+      residency tooling): 3–6% of OpEx.
+    - >-
+      Partner incentives and marketplace fees (co-sell margins, listings): 2–5%
+      of revenue.
+  keyMetrics:
+    - >-
+      Product impact: MTTA reduction 50–75%; MTTR reduction 30–50%; noise
+      suppression 60–80%; ticket enrichment coverage 80–95%; action
+      recommendation acceptance 70%+ after 90 days.
+    - >-
+      Accuracy and safety: RCA precision ≥80%, recall ≥70% on validated labels;
+      false-automation escape rate <1%; model drift <5%/quarter.
+    - >-
+      Operational performance: p95 correlation latency <5 seconds/incident;
+      system uptime ≥99.9%; ticket creation latency <2 seconds.
+    - >-
+      Adoption: daily active NOC users, queries/analyst/day, feedback
+      submissions/day, playbook execution rate.
+    - >-
+      Business: POC-to-deal conversion ≥40%; average sales cycle 9–12 months;
+      net revenue retention ≥120%; gross margin ≥75%.
+    - >-
+      Customer ROI: analyst time saved ≥2 minutes/ticket; SLA penalty reduction
+      tracked monthly; dispatch deflection rate for non-network issues ≥20%.
+    - >-
+      Security/compliance: zero Sev-1 security incidents; time-to-patch critical
+      CVEs <7 days; audit findings closed within 30 days.
+storyBrand:
+  character: >-
+    Wireless carrier NOC leaders and ops engineers who must keep RAN/Core up,
+    hit SLAs, and control OPEX without drowning in alarm storms.
+  problem: >-
+    External: Alarm floods, siloed KPIs/topology, false positives slow triage.
+    Internal: Teams firefight, lose tribal knowledge, and can’t keep up with 3
+    a.m. pages. Philosophical: Your network should tell you what’s wrong—and how
+    to fix it—before customers feel it.
+  guide: >-
+    Empathy: We’ve lived the vendor-noise and storm-event chaos. Authority: NOC
+    Alarm Triage Copilot correlates alarms/KPIs, explains probable root cause,
+    proposes actions, and auto-enriches tickets. Built for NAICS 517112
+    carriers; secure (VPC/on‑prem), integrates with
+    ServiceNow/Remedy/Netcool/OSS, and aligns with your change controls.
+  plan: >-
+    1) Connect: Ingest alarms, KPIs, topology, and ticket history via standard
+    connectors. 2) Prove: 30‑day shadow pilot measuring MTTR/noise reduction and
+    recommendation accuracy. 3) Automate: Enable assisted triage and
+    auto-enrichment with approvals, playbooks, and dashboards.
+  callToAction: >-
+    Primary: Schedule a NOC triage demo. Secondary: Start a no‑risk pilot and
+    ROI assessment.
+  success: >-
+    Quieter NOC, faster MTTR, fewer escalations and truck rolls, higher
+    first‑time fix, consistent ticket quality, protected SLAs, happier
+    subscribers, and captured institutional knowledge.
+  failure: >-
+    Without it: ongoing alarm floods, slow restorations, SLA penalties, burnout
+    and overtime, missed anomalies, subscriber churn, and rising OPEX.
+landingPage:
+  hero:
+    title: NOC Alarm Triage Copilot for Wireless Carriers
+    subtitle: >-
+      AI that correlates alarms and KPIs across RAN, transport, and
+      core—summarizes probable root cause, proposes actions, and auto-enriches
+      tickets to cut MTTA/MTTR.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - >-
+      Alarm storms bury the real incident; operators drown in noise and
+      duplicates.
+    - >-
+      Siloed telemetry (SNMP traps, KPIs, logs) and multi-vendor networks slow
+      triage.
+    - >-
+      Manual ticket enrichment and note-taking waste time and lose context
+      between shifts.
+    - Inconsistent RCA and playbooks cause rework and unnecessary truck rolls.
+    - 5G/VoLTE/VoNR complexity outpaces NOC staffing and tools.
+    - 'SLA penalties rise due to slow detection, diagnosis, and response.'
+  solution:
+    - >-
+      Real-time correlation of alarms, counters, and topology to surface
+      probable root cause.
+    - 'Concise incident summary with confidence, scope, and business impact.'
+    - Actionable next steps and one-click playbooks aligned to your environment.
+    - >-
+      Automatic ticket creation and enrichment in ServiceNow, Remedy, or Jira
+      with full evidence.
+    - >-
+      Noise suppression that deduplicates, collapses storms, and detects
+      flapping.
+    - Continuous learning from resolved tickets and operator feedback.
+  features:
+    - >-
+      Multi-domain coverage: RAN (2G/3G/4G/5G), transport, core, power, and site
+      environment.
+    - >-
+      Vendor-agnostic ingest: SNMP traps, Kafka streams, PM/CM files, syslog,
+      OSS/EMS APIs.
+    - >-
+      Topology-aware RCA: neighbor relations, backhaul paths, sync and power
+      chains.
+    - >-
+      KPI anomaly detection: PRB utilization, drop rate, RSRP/RSRQ, latency,
+      packet loss.
+    - >-
+      Outage classification: cell/sector down, backhaul impairment, power fail,
+      GPS/sync loss, PCI collisions, VSWR/interference hints.
+    - 'Impact estimation: affected cells, subscribers, traffic, and SLA exposure.'
+    - >-
+      Explainable AI: evidence trails and confidence scores for every
+      recommendation.
+    - >-
+      Playbook suggestions: validated steps for RAN/core/transport (e.g., reset
+      gNB, rebuild neighbors, reroute transport).
+    - >-
+      One-click actions with RBAC, approvals, and audit logs via secure
+      connectors.
+    - >-
+      Ticket enrichment: summarized RCA, timeline, correlated alarms/KPIs,
+      actions taken, next best steps.
+    - >-
+      Integrations: ServiceNow, BMC Remedy, Jira, Slack, Microsoft Teams,
+      NetAct, ENM, U2000, NMS.
+    - >-
+      Enterprise-ready: on-prem or private cloud/VPC, SSO, role-based access,
+      audit trails, data residency controls.
+  steps:
+    - 'Connect alarms, KPIs, logs, and inventory from OSS/EMS and NMS.'
+    - 'Import vendor mappings for Ericsson, Nokia, Huawei, Samsung, and Open RAN.'
+    - 'Set policies for severity, domains, ticket routing, and approvals.'
+    - Run a shadow pilot; measure noise reduction and MTTA/MTTR improvements.
+    - Enable one-click actions and ticket enrichment with your ITSM platform.
+    - Go live; track outcomes and refine models with operator feedback.
+---
+# NOC Alarm Triage Copilot
+
+Generated for NAICS 517112 — Wireless Telecommunications Carriers (except Satellite).
+Service: NOC Alarm Triage Copilot

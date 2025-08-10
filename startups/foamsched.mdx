@@ -1,0 +1,313 @@
+---
+name: FoamSched AI — Order-to-Schedule Optimizer for EPS/XPS Lines
+slug: foamsched
+service:
+  title: Order-to-Schedule Optimizer for EPS/XPS Lines
+  description: >-
+    Generates feasible, cost/energy-aware production schedules across
+    pre-expansion, aging, molding/extrusion, cutting and packing with
+    changeovers and steam constraints.
+  targetUsers:
+    - Production Planner
+    - Plant Manager
+    - Operations Excellence
+  triggers:
+    - New orders/RFQs loaded
+    - Daily schedule refresh
+    - Rush order added
+  inputs:
+    - 'ERP order book (SKU, qty, due dates)'
+    - Mold/tooling availability
+    - Shift calendar/labor limits
+    - Steam/boiler capacity and maintenance windows
+    - Changeover matrices
+    - Historical cycle times and yields
+  steps:
+    - Ingest orders and constraints via CSV/API
+    - Estimate cycle times and steam loads per SKU
+    - Solve mixed-integer schedule with changeover and capacity limits
+    - Simulate steam/vacuum load profile by shift
+    - Human review and edits in browser sheet
+    - Publish to ERP/Teams and export Gantt
+  tools:
+    - Python + OR-Tools/Gurobi
+    - Pandas
+    - Google Sheets/Excel API
+    - FastAPI webhook
+    - Plotly Gantt
+  outputs:
+    - Shift-by-shift schedule (CSV/ICS)
+    - Changeover list per line
+    - Steam load profile chart
+    - Late-order risk list
+  pricingModel:
+    - Pilot (4–6 weeks) fixed fee
+    - Subscription per site/month
+    - Optional savings share (% on OT/energy reduction)
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 9
+    overall: 9
+  risks:
+    - Inaccurate constraints cause infeasible plans
+    - Planner adoption/change management
+    - ERP data latency
+  dependencies:
+    - Read-only ERP access or CSV drops
+    - Basic asset/constraint master data
+    - IT approval for API/drive connectors
+leanCanvas:
+  problem:
+    - >-
+      Planners rely on spreadsheets and experience to sequence pre-expansion,
+      aging silos, molding/extrusion, cutting, and packing, leading to
+      suboptimal schedules and expensive firefighting.
+    - >-
+      Steam/energy is a binding constraint; uncontrolled peaks cause pressure
+      drops, idle time, and demand charges.
+    - >-
+      Frequent density/bead-type changeovers and mold/tool swaps add lost time
+      and scrap; sequences are not optimized for minimal transitions.
+    - >-
+      Aging silo occupancy is mismanaged, causing waiting time for under-aged
+      beads or inventory build-up of over-aged material.
+    - >-
+      Start-up and restart profiles are not modeled, driving excessive scrap and
+      energy at extruders and block molds.
+    - >-
+      Inaccurate cycle-time estimates (humidity/temp-dependent) result in
+      schedule slippage, late orders, and overtime.
+    - >-
+      No unified view of cross-stage WIP; local optimizations at each stage
+      cause global inefficiencies.
+    - >-
+      Limited scenario planning when a boiler goes down, a rush order arrives,
+      or tariffs change.
+    - >-
+      Sustainability targets (kWh/kg, CO2e) not embedded in daily planning,
+      making ESG reporting reactive.
+    - >-
+      Existing APS/MES tools lack EPS/XPS-specific constraints (steam curves,
+      bead moisture, density switching penalties, cutting pattern yields).
+  solution:
+    - >-
+      Digital twin of the plant across pre-expansion, aging, molding/extrusion,
+      cutting, and packing with shared constraints (boiler/steam header, labor,
+      molds, silos, warehousing).
+    - >-
+      Hybrid optimizer (MILP/CP-SAT + heuristics) that minimizes total cost:
+      energy (kWh, steam peaks), changeovers, overtime, and lateness while
+      respecting product recipes, aging windows, and resource calendars.
+    - >-
+      Predictive cycle-time models (humidity/temperature/grade aware) update
+      takt times and steam demand curves.
+    - >-
+      Scenario planning: simulate rush orders, boiler derates, tariff changes;
+      compare plan cost, OTIF, energy, and stability.
+    - >-
+      Closed-loop rescheduling using live signals (OPC UA/PLC, MES, energy
+      meters) with configurable freeze windows for shop-floor stability.
+    - >-
+      Operator dispatching: structured start-up sequences, mold/tool prep, and
+      cutting patterns with digital work orders.
+    - >-
+      KPI cockpit: OTIF, schedule adherence, changeover loss, scrap at start-up,
+      kWh/kg or kWh/m³, steam peak demand, CO2e/order.
+  uniqueValueProp: >-
+    Energy- and constraint-aware production schedules for EPS/XPS that
+    co-optimize orders, changeovers, aging, and steam capacity—improving OTIF,
+    cutting energy 5–15%, and boosting throughput 3–8% without new equipment.
+  unfairAdvantage: >-
+    A specialized EPS/XPS constraint library and energy-aware optimizer trained
+    on multi-plant data (aging windows, steam curves, density/bead changeovers,
+    cutting yields) plus OEM/SI partnerships and validated case studies showing
+    double-digit energy and changeover reductions.
+  customerSegments:
+    - >-
+      EPS block molding plants (2–8 block molds, pre-expanders, 20–60 aging
+      silos, hot-wire cutting lines).
+    - >-
+      XPS sheet extrusion plants (1–4 extruders, calibration/cooling,
+      cutting/lamination, packing).
+    - >-
+      EPS shape-molding plants serving packaging/automotive with complex
+      mold-change schedules.
+    - >-
+      Multi-plant building materials manufacturers consolidating planning across
+      sites.
+    - >-
+      Key buyer roles: Operations Director, Plant Manager, Production Planning
+      Manager, Energy/Sustainability Manager, CIO/IT for integration/security.
+  channels:
+    - >-
+      Direct sales to plant/ops leadership via targeted outreach (EU: DACH,
+      Italy, Poland; NA: Midwest/Canada; Turkey/MENA).
+    - >-
+      Partnerships with EPS/XPS OEMs and system integrators for co-selling and
+      retrofit projects.
+    - ERP/MES SI ecosystem (SAP/Microsoft partners) with revenue share.
+    - >-
+      Trade shows and associations: Foam Expo Europe/NA, K-Fair, FRITZ/EUMEPS,
+      AMI conferences on Foam/Insulation.
+    - >-
+      Content-led demand: case studies on energy and OTIF gains, webinars with
+      energy managers on steam-peak shaving.
+    - >-
+      Pilot-led land-and-expand: 12-week paid pilots converting to multi-year
+      subscriptions.
+    - >-
+      Regional agents/distributors for Turkey, Middle East, LATAM with service
+      capability.
+  revenueStreams:
+    - >-
+      SaaS subscription per plant: base platform $30k–$50k/year +
+      $12k–$25k/line/year (typical plant ARR $70k–$150k).
+    - >-
+      One-time onboarding/integration: $40k–$120k per site depending on ERP/MES
+      scope.
+    - 'Premium support/SLA (24/7, <1h response) + validation sandbox: +15% ARR.'
+    - >-
+      Professional services: modeling of new products, tariff studies, KPI
+      workshops: $150–$220/hr or fixed-fee packs.
+    - >-
+      Performance-linked bonus (optional): 10–20% of verified first-year energy
+      savings above threshold.
+  costStructure:
+    - 'R&D: optimization/ML engineers, domain experts (~45–55% of spend).'
+    - Implementation/integration team and partner commissions (~15–25%).
+    - 'Cloud/edge infrastructure, data storage, observability (~6–10%).'
+    - 'Sales/marketing: events, content, travel (~10–15%).'
+    - 'Security/compliance: SOC 2/ISO 27001 audits, penetration tests (~3–5%).'
+    - >-
+      Hardware gateways/OPC UA licenses for on-prem connectivity (pass-through
+      with margin).
+  keyMetrics:
+    - 'Throughput: +3–8% m³/day or kg/day within 90 days of go-live.'
+    - >-
+      Energy intensity: −5–15% kWh/m³ (EPS) or kWh/kg (XPS) and −10–20% steam
+      peak (kg/h) within 6 months.
+    - >-
+      Changeover loss: −20–40% time lost to density/bead/mold/tool changes by
+      month 3.
+    - >-
+      Schedule adherence: >95% adherence inside frozen horizon; reschedule
+      frequency <1/day per line.
+    - >-
+      OTIF: +3–8 percentage points within 2 quarters; rush-order acceptance
+      without OTIF dip.
+    - >-
+      Startup scrap: −15–25% for extruders/block molds in first month
+      post-commissioning.
+    - >-
+      Planner productivity: −30–50% time spent scheduling; <30 min to replan
+      after a disruption.
+    - >-
+      Inventory/WIP: −10–20% average aging-silo overstay; finished goods
+      inventory turns +10–15%.
+    - >-
+      CO2e/order: −5–12% estimated from energy mix; automated monthly ESG report
+      generation.
+storyBrand:
+  character: >-
+    Operations and production planners at EPS/XPS plants who must turn volatile
+    orders into reliable, cost- and energy-aware schedules across pre-expansion,
+    aging, molding/extrusion, cutting, and packing.
+  problem: >-
+    External: Multi-stage constraints, steam/boiler limits, bead grades and
+    aging windows, and frequent changeovers make manual scheduling fragile and
+    slow. Internal: Planners are stuck firefighting late orders, overtime, and
+    unstable steam loads. Philosophical: Hitting OTIF and energy goals shouldn’t
+    require guesswork or waste.
+  guide: >-
+    We understand foam-line realities—pre-expander curves, aging bins, bead
+    consumption, mold/tooling calendars, extrusion rates, cutting patterns, and
+    steam networks. Our AI scheduling service combines domain models with
+    optimization to produce feasible, auditable plans. Secure integration, clear
+    assumptions, and support build trust from day one.
+  plan: >-
+    1) Connect ERP/MES/maintenance/energy data. 2) Calibrate a digital twin with
+    constraints (steam, aging windows, changeovers, shift/maintenance). 3) Run
+    optimizer and what‑if scenarios to balance OTIF, cost, energy, and
+    changeovers. 4) Go live with a daily finite‑capacity schedule, operator
+    cockpit, and APIs. Agreement: shared KPIs, data privacy, and staged rollout
+    checkpoints.
+  callToAction: >-
+    Direct: Book a demo or start a 4‑week pilot with your recent orders and
+    constraints. Transitional: Request the readiness checklist and a sample
+    schedule on your data.
+  success: >-
+    Reliable OTIF, smoother steam load and lower energy cost exposure, fewer
+    changeovers and re-runs, higher line utilization, less overtime and scrap,
+    clear what‑if visibility, and confident planners with schedules everyone can
+    follow.
+  failure: >-
+    Continued firefighting—missed due dates, overtime and rush energy costs,
+    steam spikes, excess WIP, idle presses, last‑minute changeovers, and eroding
+    customer trust.
+landingPage:
+  hero:
+    title: AI Order-to-Schedule Optimizer for EPS/XPS Lines
+    subtitle: >-
+      Feasible, energy-smart schedules across pre-expansion, aging,
+      molding/extrusion, cutting, and packing—optimized for changeovers and
+      steam limits.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - Plans break under steam peaks and boiler limits.
+    - Aging/curing windows missed; blocks not ready when needed.
+    - Density/color/FR changeovers eat hours and energy.
+    - Tariffs ignored; costs spike at peak demand.
+    - Silo capacity and bead batches misaligned to orders.
+    - Cutting/packing become downstream bottlenecks.
+    - Data scattered across ERP/MES/SCADA; slow recovery after stops.
+    - 'OTIF misses, excess WIP, and scrap increase.'
+  solution:
+    - 'End-to-end, constraint-aware schedules that execute on day one.'
+    - 'Optimizes due dates, energy cost, changeovers, and steam peak shaving.'
+    - >-
+      Models pre-expansion, silos, aging time, molds/extruders, cutters, and
+      crews.
+    - Auto-reschedules in minutes after breakdowns or rush orders.
+    - 'What-if scenarios for shifts, tariffs, mix, and maintenance.'
+    - 'Clear Gantt, heatmaps, KPIs; export work orders to shop floor.'
+    - >-
+      Typical results: fewer late orders, 10–25% lower peak steam, 5–12% more
+      throughput.
+  features:
+    - >-
+      Multi-line planning for pre-expanders, block molds, extruders, cutters,
+      and pack lines.
+    - >-
+      Steam header and boiler capacity with ramp-rate and max-demand
+      constraints.
+    - >-
+      Changeover matrix for density, bead type, color, FR grade, and tooling;
+      sequence minimization.
+    - Energy-aware objective using TOU tariffs and boiler efficiency curves.
+    - >-
+      Curing/aging models by density and moisture; earliest-available
+      scheduling.
+    - 'Silo, warehouse, and mold/tool availability with reservations and limits.'
+    - 'Order priority, due date, and ship window targeting with OTIF scoring.'
+    - >-
+      Real-time events: downtime, quality holds, scrap, urgent orders → instant
+      replan.
+    - Scenario studio with side-by-side comparisons and KPI deltas.
+    - 'APIs for SAP/Oracle/Microsoft ERP, MES, and OPC UA/SCADA connectivity.'
+    - 'Role-based access, approvals, and full audit trail.'
+    - Cloud or on‑prem deployment; encryption in transit and at rest.
+  steps:
+    - Connect ERP/MES/SCADA and boiler data.
+    - 'Import products, tools, changeover rules, shifts, and energy tariffs.'
+    - Set objectives and constraints; map lines and capacities.
+    - Pull orders and inventory; validate feasibility.
+    - 'Run optimizer; review Gantt, steam/energy charts, and bottlenecks.'
+    - Approve and publish to shop floor; print or push work orders.
+    - Monitor execution; auto-reschedule on events; track KPIs.
+---
+# FoamSched AI — Order-to-Schedule Optimizer for EPS/XPS Lines
+
+Industry: Polystyrene Foam Product Manufacturing
+Service: Order-to-Schedule Optimizer for EPS/XPS Lines
