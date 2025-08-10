@@ -1,0 +1,329 @@
+---
+name: CoaterGuard AI — Recipe & Run Card Validator
+slug: coaterguard
+naics:
+  primary: '327211'
+  occupations: []
+service:
+  title: Coater Recipe & Run Card Validator
+  description: >-
+    Monitors sputter coater drift and validates run cards against targets,
+    recommending offsets and maintenance checks.
+  targetUsers:
+    - Coater process engineers
+    - Quality labs
+  triggers:
+    - New/modified stack
+    - Sheet resistance/emissivity drift
+    - Customer returns
+  inputs:
+    - 'Run cards (layer stacks, setpoints)'
+    - Line speed/power/pressure logs
+    - 'QA results (Rs, emissivity, haze)'
+    - Target spec limits
+  steps:
+    - Parse run cards and link to runs
+    - Build drift models vs speed/power/targets
+    - Detect deviations beyond SPC limits
+    - Recommend offsets or chamber maintenance
+    - Generate validated run card for next lot
+  tools:
+    - SQL/CSV
+    - Python/sklearn/SPC rules
+    - RAG for spec interpretation
+    - Grafana dashboards
+    - Email/CMMS integration
+  outputs:
+    - Offset recommendations per target
+    - SPC alerts and Pareto
+    - Validated run card PDF/CSV
+  pricingModel:
+    - Monthly subscription per coater
+    - Setup fee
+    - Optional success fee on scrap reduction
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 7
+    modelCapability: 6
+    overall: 6
+  risks:
+    - Limited generalization across stacks
+    - Unmodeled interactions between targets
+    - Spec misinterpretation by AI
+  dependencies:
+    - Access to QA lab data
+    - Accurate stack metadata
+    - Maintenance event logs
+leanCanvas:
+  problem:
+    - >-
+      Coater drift (power supply aging, target erosion, gas flow shifts, vacuum
+      variability) causes optical and electrical properties to drift out of spec
+      between scheduled checks, leading to scrap and rework.
+    - >-
+      Run cards (recipes) frequently lag actual equipment behavior; engineers
+      manually tweak offsets with limited traceability, causing inconsistent
+      outcomes across shifts and lines.
+    - >-
+      Detection latency: In many plants, issues are only visible after lab/XRF
+      confirmation or customer complaints; mean time to detect drift can exceed
+      4–8 hours or multiple coils/lites.
+    - >-
+      No automated validation that a proposed run card will achieve target
+      optical stack; recipe review is manual and slow, especially for
+      multi-layer Low‑E stacks (>10 layers).
+    - >-
+      Inefficient changeovers and recipe porting across lines/coaters; engineers
+      spend hours re-deriving offsets per line and substrate type.
+    - >-
+      Maintenance is largely time-based (e.g., target swaps every N hours)
+      rather than condition-based; premature or late maintenance increases cost
+      and defect risk.
+    - >-
+      Limited version control and auditability of run card changes; difficult to
+      satisfy customer and internal traceability requirements during audits.
+    - >-
+      Skill gap: experienced process engineers and coaters retire; tribal
+      knowledge is not codified into repeatable decision support.
+  solution:
+    - >-
+      Industrial connectors ingest coater data (PLC/SCADA via OPC UA/Modbus,
+      historian tags, inline optical monitors, sheet resistance, vacuum, gas
+      flows, power, line speed) and lab/XRF results.
+    - >-
+      Digital thread links each lot/coil/lite to the exact run card version and
+      setpoints; automatic recipe parsing for layer stacks and target
+      thicknesses.
+    - >-
+      Physics-informed ML models learn each line’s drift signatures (e.g.,
+      target utilization curves, cathode zones, gas stabilization) and predict
+      impact on optical/electrical targets.
+    - >-
+      Run card validator simulates expected results and flags risks before
+      production; proposes quantified setpoint offsets and line-speed changes
+      with confidence bounds.
+    - >-
+      Prescriptive maintenance engine triggers checks (e.g., target swap,
+      cathode cleaning, leak checks) based on condition, not calendar; links to
+      checklists and CMMS.
+    - >-
+      Change management workflow: propose → review → approve → apply; full audit
+      trail with e-signatures and rollback; read-only by default, optional
+      closed loop under MOC.
+    - >-
+      Dashboards for engineers and operators: live drift score, predicted
+      next‑run Cp/Cpk, recommended offsets, and expected scrap risk;
+      notifications via email/MES.
+    - >-
+      Edge-first deployment aligned to ISA/IEC 62443; cloud optional for fleet
+      analytics, benchmarking, and model improvements.
+  uniqueValueProp: >-
+    Cut scrap and changeover time by validating coater run cards against target
+    properties and proactively recommending offsets and maintenance based on
+    physics-informed AI tuned to your specific line—deployed safely on an
+    industrial edge with measurable ROI in under 90 days.
+  unfairAdvantage: >-
+    A proprietary library of physics-informed, coater-specific ML models and
+    drift signatures calibrated across multiple lines, combined with prebuilt
+    industrial connectors and a validated run card linting engine that ties
+    recommendations to audit-ready change workflows—reducing time-to-value to
+    weeks rather than quarters.
+  customerSegments:
+    - >-
+      Primary: Flat glass manufacturers with MSVD/inline magnetron sputter
+      coaters (architectural Low‑E, automotive glazing, specialty coatings).
+    - >-
+      Roles: Coating line managers, process engineers, quality managers,
+      maintenance managers, plant managers, corporate CoE/advanced manufacturing
+      teams.
+    - >-
+      Secondary: Coater OEMs and system integrators seeking differentiated
+      analytics for new line sales and retrofits.
+    - >-
+      Adjacencies: Contract coaters and specialty glass producers using PVD
+      sputtering for mirrors, solar control, and conductive coatings.
+  channels:
+    - >-
+      Direct enterprise sales to top flat glass producers’
+      operations/quality/CoE leadership.
+    - >-
+      Co-sell and referral partnerships with coater OEMs and system integrators
+      (bundled in new line bids and retrofit projects).
+    - >-
+      Alliances with historian/MES vendors to appear as certified analytics app
+      and list in marketplaces.
+    - >-
+      Pilot-led selling: 8–12 week paid pilots on one line to prove scrap and
+      changeover ROI, then expand plant-wide/enterprise.
+    - >-
+      Industry events and associations: technical talks and case studies at
+      GlassBuild America, glasstec, NGA/GANA forums.
+    - >-
+      Thought leadership: application notes on Low‑E drift patterns, recipe
+      validation checklists, and ROI calculators.
+    - >-
+      Account-based marketing targeting plants with known MSVD lines in NA/EU;
+      outreach to plant managers and process engineering leads.
+  revenueStreams:
+    - >-
+      Annual subscription per coater line; tiered: Monitor ($120k/line/yr), Pro
+      with run-card validation and prescriptive maintenance ($200k/line/yr),
+      Enterprise with closed-loop + fleet analytics ($280k/line/yr).
+    - >-
+      One-time implementation/integration and model calibration: $50k–$250k per
+      line depending on data maturity and connectors.
+    - >-
+      Premium support/SLA and validation services (e.g., annual model
+      revalidation for audits): 15% of subscription.
+    - >-
+      Training and certification for engineers/operators: $10k per site plus
+      on-demand modules.
+    - >-
+      Performance-based upside: optional 10–20% share of verified scrap savings
+      beyond baseline.
+    - >-
+      Enterprise license for multi-plant deployments with volume discounts and
+      centralized governance.
+  costStructure:
+    - >-
+      R&D and product engineering (edge software, connectors, ML/physics models,
+      UI).
+    - >-
+      Deployment and customer success (solution engineers, data scientists,
+      field service).
+    - >-
+      Industrial edge hardware and spares for pilots; optional managed edge
+      devices.
+    - >-
+      Cloud compute/storage for fleet analytics and model lifecycle (if cloud
+      enabled).
+    - 'Security, compliance, and insurance (SOC 2, penetration tests, liability).'
+    - 'Sales and marketing (account reps, partner enablement, events, content).'
+    - 'Data acquisition and labeling (historical data curation, lab correlation).'
+    - 'General and administrative (finance, legal, HR).'
+  keyMetrics:
+    - >-
+      Customer outcome: reduce scrap on coated product by 15–30% within 6 months
+      versus historical baseline.
+    - >-
+      Customer outcome: cut average changeover/recipe porting time by 30–50% and
+      reduce first-pass off-spec lots by 40%.
+    - >-
+      Customer outcome: improve key property Cp/Cpk from ~1.0 to ≥1.33 on
+      steady-state runs within 90 days.
+    - >-
+      Model performance: predictive MAPE for key thickness proxies <3% and sheet
+      resistance MAE <0.2 Ω/□ on validation sets.
+    - >-
+      Operational: drift detection latency <10 minutes with <5% weekly false
+      alert rate after tuning.
+    - >-
+      Maintenance: increase mean time between unplanned maintenance events by
+      20% and reduce scheduled maintenance overruns by 25%.
+    - >-
+      Adoption: ≥80% of run card changes pass through validator workflow by
+      month 3 at each site.
+    - >-
+      Business: payback <6 months for Pro tier; gross margin ≥70%; logo
+      retention ≥95%; NRR ≥120% by year 2.
+    - >-
+      Deployment: time-to-first-recommendation <30 days from kickoff; full line
+      onboarding ≤8 weeks.
+storyBrand:
+  character: >-
+    Coating line managers and process/quality engineers in flat glass plants who
+    need every run to hit optical/electrical targets on time and on cost.
+  problem: >-
+    Magnetron sputter coaters drift and run cards go stale; small shifts in
+    power, pressure, gas mix, and line speed compound into off‑spec stacks,
+    scrap, rework, firefighting, and missed shipments.
+  guide: >-
+    We’re a manufacturing AI team with deep sputter expertise; we’ve stabilized
+    coater drift, raised FPY, and passed audits—securely integrating with
+    PLC/MES and OT networks while respecting SOPs and change control.
+  plan: >-
+    1) Connect PLC/MES plus inline and lab data. 2) Baseline product targets and
+    control limits. 3) Validate run cards and monitor drift 24/7. 4) Get precise
+    recipe offsets and maintenance checks. 5) Approve changes, implement, and
+    track yield/uptime gains.
+  callToAction: >-
+    Schedule a 30‑minute demo and data readiness review; start a 4‑week pilot on
+    one coater.
+  success: >-
+    Stable color and sheet resistance, higher first‑pass yield, less scrap and
+    rework, faster changeovers, extended target life, and audit‑ready
+    traceability with confident, proactive operators.
+  failure: >-
+    Without it: continued drift, QA surprises, reruns and scrap, unplanned
+    downtime, missed deliveries, and shrinking margins.
+landingPage:
+  hero:
+    title: Coater Recipe & Run Card Validator
+    subtitle: >-
+      AI for flat-glass sputter lines that monitors drift, validates run cards
+      against targets, and recommends offsets and maintenance—before the glass
+      moves.
+    ctaText: Start a pilot
+    ctaHref: /contact
+  problem:
+    - >-
+      Drift in magnetron targets and gas delivery causes color and Rs shifts
+      caught too late.
+    - Run cards are approved manually and inconsistently across shifts.
+    - >-
+      Offsets rely on tribal knowledge; over- or under-compensation creates
+      scrap.
+    - Maintenance is reactive; shields and targets run to failure.
+    - 'SPC and audits are slow; data is split across SCADA, MES, and LIMS.'
+    - Changeovers risk mis-sets and missed guard bands.
+    - Engineers spend hours reconciling spectro and 4PP data with line settings.
+  solution:
+    - >-
+      Validate every run card against current tool state and product targets in
+      seconds.
+    - 'Detect drift early and auto-recommend power, gas, and speed offsets.'
+    - Gate runs with digital guard bands; release only when in-window.
+    - Trigger maintenance based on offset magnitude and model confidence.
+    - >-
+      Unify SCADA, MES, and lab data with a single source of truth and audit
+      trail.
+    - >-
+      Cut scrap, boost first-pass yield, and stabilize color and Rs across
+      shifts.
+  features:
+    - Real-time drift models per cathode and zone.
+    - >-
+      Recipe and run card checker against optical, electrical, and thickness
+      targets.
+    - 'Offset recommendations for power, O2/N2 flows, line speed, and bias.'
+    - What-if simulation before release and after lab feedback.
+    - Guard bands with auto-hold and auto-release rules.
+    - 'SPC dashboards for a*, b*, Rs, emissivity, reflectance, transmittance.'
+    - 'Maintenance advisories for target wear, shields, pumps, and MFC health.'
+    - 'Integrations with SCADA/PLC, MES, LIMS, and historians.'
+    - 'Role-based approvals, e-signatures, and full audit trail.'
+    - 'Alerts to HMI, email, and mobile when drift crosses thresholds.'
+    - Lot and panel-level traceability linking settings to results.
+    - 'Secure deployment: on-prem or VPC; IT-friendly, no PII.'
+  steps:
+    - >-
+      Connect: Ingest SCADA tags, MES run cards, and lab measurements; map to
+      products and zones.
+    - >-
+      Baseline: Train drift models from recent runs; set guard bands and
+      tolerances.
+    - 'Validate: Auto-check each run card against current drift and targets.'
+    - >-
+      Recommend: Generate offsets and highlight risks; simulate expected
+      results.
+    - >-
+      Approve and Push: Route for sign-off; write approved settings back to
+      MES/line.
+    - >-
+      Monitor and Improve: Track outcomes, tune models, and schedule maintenance
+      proactively.
+---
+# CoaterGuard AI — Recipe & Run Card Validator
+
+Generated for NAICS 327211 — Flat Glass Manufacturing.
+Service: Coater Recipe & Run Card Validator

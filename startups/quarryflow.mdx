@@ -1,0 +1,324 @@
+---
+name: QuarryFlow AI
+slug: quarryflow
+naics:
+  primary: '212319'
+  occupations: []
+service:
+  title: Haul Cycle and Road Condition Analytics
+  description: >-
+    Analyzes truck GPS/payload to break down haul cycles, detect queueing, and
+    map rough segments affecting speed/fuel.
+  targetUsers:
+    - Operations superintendent
+    - Dispatch
+    - Maintenance
+  triggers:
+    - Rising fuel per ton
+    - Throughput bottlenecks
+    - Operator complaints of rough roads
+  inputs:
+    - GPS traces (VisionLink/Komtrax/Wenco/CSV)
+    - Payload/tonnage and fuel burn
+    - Shift schedules and routes
+    - 'Optional: smartphone telemetry from cabs'
+  steps:
+    - Connect to telematics APIs or import CSVs
+    - Auto-detect load/haul/dump/return segments
+    - Compute KPIs and road roughness heatmap
+    - 'Identify bottlenecks; simulate fixes (e.g., add loader, grade segment)'
+    - Send daily playbook and ROI-ranked actions
+  tools:
+    - Caterpillar VisionLink API
+    - Komatsu KOMTRAX/Wenco/Trimble
+    - Python (tslearn/scikit-learn)
+    - Mapbox/Leaflet for maps
+  outputs:
+    - Cycle time breakdown by truck/route
+    - Queue time hotspots
+    - Fuel/ton and speed profiles
+    - Recommended actions with expected gains
+  pricingModel:
+    - Per-truck per month
+    - Integration/setup fee
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 4.7
+    modelCapability: 4
+    overall: 4.3
+  risks:
+    - API access limits
+    - Data sparsity/noisy GPS
+    - Privacy/union concerns
+    - Operator adoption
+  dependencies:
+    - Telematics credentials or data exports
+    - Truck master data
+    - Site route map
+leanCanvas:
+  problem:
+    - >-
+      Haul cycles are opaque; most quarries do not measure load, travel, dump,
+      and queue segments with enough fidelity to act daily.
+    - >-
+      Queueing at loaders/crushers and at weighbridges frequently consumes
+      10–25% of truck hours, but is rarely quantified or tied to dispatch/shift
+      changes.
+    - >-
+      Rough/under-maintained haul segments lower average speed by 5–15%,
+      increase fuel/ton, and accelerate tire/suspension wear; maintenance is
+      reactive, not ROI-prioritized.
+    - >-
+      Existing OEM telematics are siloed by brand; mixed fleets lack a unified
+      view across Caterpillar, Komatsu, Volvo, Deere, etc.
+    - >-
+      Manual studies (stopwatches, time–motion) are infrequent, sample only a
+      few trucks, and miss shift-to-shift variability and weather impacts.
+    - >-
+      Plant throughput goals (tons/hour) are not directly connected to
+      actionable roadwork, dispatch, and loader assignment changes.
+    - >-
+      Energy costs (diesel/electric) fluctuate; fuel burn per ton is not
+      monitored per segment/grade, making efficiency programs hard to target.
+    - >-
+      Safety/EHS exposure increases on rough segments and in long queues;
+      near-miss hotspots are not mapped against road conditions.
+  solution:
+    - >-
+      Data ingestion: Connect to existing truck GPS and payload signals via OEM
+      APIs (ISO 15143-3/AEMP 2.0), Trimble Loadrite/scale files, or a low-cost
+      gateway if needed.
+    - >-
+      AI cycle segmentation: Model detects load, travel loaded, dump, travel
+      empty, waiting/queue states per truck with >92% F1 vs hand-labeled data;
+      no manual geofencing required.
+    - >-
+      Queue analytics: Automatic identification of queue hotspots (loader,
+      crusher, weighbridge) with minute-level trends by shift, weather, and
+      blast day.
+    - >-
+      Haul-road condition mapping: Build a speed-normalized roughness index per
+      10–25 m segment using speed drop vs grade/curvature and payload state;
+      flag segments that cause >0.5 min added cycle time per pass.
+    - >-
+      Throughput and dispatch optimizer: What-if scenarios showing tons/hour
+      impact of fixing top 5 segments, changing loader assignments, or
+      staggering breaks.
+    - >-
+      Fuel/ton and cost impact: Attribute fuel burn and idle to cycle stages and
+      road segments; quantify $/day savings and tire/suspension risk reduction.
+    - >-
+      Action workflows: Auto-generate roadwork work orders (e.g., “grade 280 m
+      at Bench 3 S-curve”), queue mitigations (stagger truck release), and
+      loader utilization targets.
+    - >-
+      Dashboards and alerts: Shift reports, live heatmaps, SMS/WhatsApp alerts
+      when queue minutes exceed thresholds, and weekly ROI summaries for
+      managers.
+    - >-
+      APIs/exports: Push KPIs to corporate BI (Power BI/Tableau), maintenance
+      CMMS, and dispatch tools; export CSV/GeoJSON of hotspots.
+  uniqueValueProp: >-
+    Increase tons per shift by 3–10% and cut fuel/ton by 3–7% in 30 days—using
+    your existing truck GPS and payload data. Vendor-agnostic haul-cycle, queue,
+    and haul-road condition analytics that turn maps into prioritized actions
+    and ROI.
+  unfairAdvantage: >-
+    Vendor-agnostic models trained across mixed fleets and site conditions,
+    requiring no new hardware at most sites; rapid one-day onboarding and a
+    library of proven, quantified actions that tie directly to tons/hour and
+    fuel/ton improvements. Accumulated cross-site benchmarks create defensible
+    insights competitors cannot easily replicate.
+  customerSegments:
+    - >-
+      Primary: Quarry/plant managers and operations superintendents at Other
+      Crushed and Broken Stone Mining and Quarrying sites (NAICS 212319).
+    - >-
+      Dispatchers and loadout supervisors responsible for truck assignments and
+      shift targets.
+    - >-
+      Regional performance improvement/continuous improvement leaders at
+      multi-site aggregate producers.
+    - >-
+      Maintenance and mobile equipment supervisors (haul road maintenance
+      planning, tires/suspension).
+    - >-
+      Second-order: OEM/dealer telematics teams and scale system vendors seeking
+      analytics value-add for their customers.
+  channels:
+    - >-
+      Direct sales to site/regional managers at NAICS 212319 producers via
+      targeted outreach and referrals.
+    - >-
+      Partnerships/reseller agreements with OEM dealers and telematics/scale
+      vendors (e.g., Caterpillar dealers, Trimble Loadrite) to bundle analytics.
+    - >-
+      Industry associations and events: NSSGA, AGG1/World of Asphalt, Quarry
+      Academy; present case studies and host workshops.
+    - >-
+      Content-led inbound: practical playbooks (reduce queue time by 30%), ROI
+      calculators, and weekly KPI benchmarks newsletter.
+    - >-
+      Pilot-led land-and-expand: 30–45 day pilots at flagship sites of top-10
+      producers, then roll out regionally.
+    - >-
+      Channel incentives: SPIFFs for dealer sales reps; revenue share for
+      integration partners.
+  revenueStreams:
+    - >-
+      SaaS subscription per site (vendor-agnostic, unlimited users). Suggested
+      pricing: Starter $1,250/month (up to 10 trucks), Pro $2,500/month (up to
+      25 trucks), Enterprise $4,500+/month (up to 50 trucks, API, SSO).
+    - >-
+      Usage-based add-on for high-frequency data (1 Hz+) or multi-site
+      analytics: $0.08–$0.12 per truck-hour.
+    - >-
+      Onboarding/pro services: $3,000 per site for setup, connector
+      configuration, and on-site training (waived for multi-site contracts).
+    - >-
+      Road condition enhancement (optional) using higher-rate data/smartphone
+      IMU kit: $500/month per site or $15 per equipped truck/month.
+    - >-
+      Annual enterprise support and SLA: 12–18% of subscription for customers
+      needing custom integrations.
+  costStructure:
+    - >-
+      Cloud compute and storage for telemetry (typical COGS: $0.03–$0.06 per
+      truck-hour; data retention default 12 months).
+    - >-
+      Data integration/API costs (OEM API access fees where applicable,
+      integration maintenance).
+    - 'Engineering and data science (cycle segmentation, mapping, optimizer).'
+    - 'Customer success/onboarding, including periodic site visits and training.'
+    - >-
+      Sales/marketing: events, demos, pilot support, partner commissions
+      (10–20%).
+    - >-
+      Optional hardware COGS if needed (ruggedized gateway or smartphone mount):
+      $150–$400 per truck, amortized.
+    - >-
+      Maps/GIS licensing for satellite/terrain baselayers (if not using open
+      data).
+  keyMetrics:
+    - 'Operations outcome KPIs:'
+    - '- Cycle time reduction: 4–8% within 60 days of go-live.'
+    - '- Queue minutes per truck-hour: reduce by 30–50%.'
+    - '- Tons per truck-hour: +5–10%.'
+    - '- Fuel per ton: -3–7%.'
+    - '- Hotspot remediation: resolve top 5 HRIS segments within first 30 days.'
+    - 'Equipment/maintenance:'
+    - '- Tire/suspension unscheduled failures: -10–20% over 6 months.'
+    - '- Idling time share: -15–25%.'
+    - 'Model/product performance:'
+    - '- Cycle segmentation F1-score >0.92 vs hand-labeled samples.'
+    - '- Queue detection precision/recall >0.90.'
+    - '- Time-to-first-insight <24 hours; time-to-ROI <30 days.'
+    - 'Business metrics:'
+    - '- Pilot-to-paid conversion >60%.'
+    - '- Net revenue retention >110%; gross revenue retention >95%.'
+    - '- Sites per customer (land-and-expand): >3 within 9 months.'
+    - '- CAC payback <6 months; LTV/CAC >4.'
+    - 'Engagement:'
+    - '- Weekly active sites >85%; weekly executive report open rate >60%.'
+storyBrand:
+  character: >-
+    Quarry and mine ops leaders (superintendents, dispatchers, haul-road crews)
+    who must hit tonnage targets with a fixed fleet, variable roads, and rising
+    fuel/tyre costs.
+  problem: >-
+    External: Hidden queueing at loader/crusher/scale and rough haul segments
+    slow trucks and waste fuel. Internal: Frustration with radio-based guesswork
+    and siloed telematics. Philosophical: Every ton should move safely,
+    predictably, and efficiently—decisions should be data-driven, not based on
+    hunches.
+  guide: >-
+    Empathy: We know shift performance is won or lost on the haul. Authority: AI
+    trained on millions of cycles in NAICS 212319; integrates with OEM
+    GPS/payload; secure, audited, and backed by case studies delivering
+    measurable improvements.
+  plan: >-
+    Simple 3-step path: 1) Connect GPS/payload feeds (days, not months). 2) View
+    automatic haul cycle breakdowns, queue detection, and rough-road heatmaps
+    tied to speed/fuel. 3) Act on alerts and weekly recommendations; verify ROI
+    with before/after reports and API exports. Low-risk: pilot-ready, minimal/no
+    hardware, you own your data.
+  callToAction: >-
+    Direct: Book a 30-minute demo and launch a 30-day pilot on one circuit.
+    Transitional: Download a sample report and run the ROI calculator.
+  success: >-
+    Shorter cycles, higher tons/hour, lower fuel/ton and tyre wear, smoother
+    safer roads, fewer idling hours and emissions, confident dispatching, and a
+    repeatable continuous-improvement loop.
+  failure: >-
+    Status quo persists: chronic queues, wasted fuel, rough roads, unplanned
+    maintenance, missed production targets, and avoidable safety risk.
+landingPage:
+  hero:
+    title: AI Haul Cycle & Road Condition Analytics for Quarries
+    subtitle: >-
+      Turn truck GPS and payload data into faster cycles, lower fuel, and safer
+      haul roads for crushed & broken stone operations (NAICS 212319).
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - 'Hidden queueing at load, dump, or gate steals throughput.'
+    - Rough haul segments slow trucks and spike fuel and tire costs.
+    - Cycle time variability masks the true bottlenecks and starves the crusher.
+    - Manual time studies are infrequent and miss shift-to-shift changes.
+    - Over/underloading wastes passes and stresses equipment.
+    - Mixed fleets and contractors make apples-to-apples comparisons hard.
+    - Hard to justify road work without quantified impact on tons and fuel.
+  solution:
+    - >-
+      Automatic haul cycle breakdown from GPS/payload: load, queue, travel
+      loaded, dump, return.
+    - >-
+      Queue detection and duration by location, fleet, and shift—with root-cause
+      insights.
+    - >-
+      Road condition heatmaps flag rough, steep, or high-drag segments affecting
+      speed and fuel.
+    - >-
+      Productivity KPIs: tons/hour, cycle time distribution, delay minutes, and
+      cost-to-ton impact.
+    - >-
+      Actionable recommendations to prioritize road work, reroute trucks, and
+      balance dispatch.
+    - >-
+      Live and historical playback for incident review and continuous
+      improvement.
+    - >-
+      Works with existing telematics and onboard scales—no new hardware
+      required.
+  features:
+    - >-
+      1-second GPS ingestion with smart smoothing for accurate dwell and
+      segmenting.
+    - >-
+      Auto-geofencing of faces, dumps, stockpiles; learns new locations over
+      time.
+    - >-
+      Payload integration from onboard scales to track tons and detect
+      over/underloading.
+    - Queue clustering and wait-time alerts when thresholds exceed plan.
+    - 'Segment scoring: roughness proxy, grade, curvature, and traction risk.'
+    - Fuel and emissions modeling per segment and per cycle.
+    - 'Cycle variance analysis by bench, operator, truck model, and shift.'
+    - >-
+      Interactive map, dashboards, and CSV/API exports; integrate with BI and
+      CMMS.
+    - 'Role-based access, SSO, and audit history for secure operations.'
+  steps:
+    - Connect your GPS/telematics and payload data sources.
+    - 'Confirm site boundary; auto-learn faces, dumps, and haul routes.'
+    - Validate sample cycles; set KPIs and alert thresholds.
+    - View dashboards and heatmaps to pinpoint queues and rough segments.
+    - 'Prioritize fixes: grading, drainage, speed targets, or dispatch changes.'
+    - >-
+      Track weekly impact and share ROI reports across operations and
+      maintenance.
+---
+# QuarryFlow AI
+
+Generated for NAICS 212319 — Other Crushed and Broken Stone Mining and Quarrying.
+Service: Haul Cycle and Road Condition Analytics

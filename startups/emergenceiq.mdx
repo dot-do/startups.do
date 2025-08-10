@@ -1,0 +1,280 @@
+---
+name: EmergenceIQ (Stand Count and Early Emergence AI for Corn)
+slug: emergenceiq
+naics:
+  primary: '111150'
+  occupations: []
+service:
+  title: Stand Count and Emergence Assessment (Drone/Phone Imagery)
+  description: Automated plant counting and emergence heatmaps to inform replant decisions.
+  targetUsers:
+    - Growers
+    - Crop scouts
+    - Seed dealers
+  triggers:
+    - VE–V3 emergence window
+    - 1–7 days after emergence
+  inputs:
+    - Drone images or high-res phone photos (with GPS)
+    - Row spacing and planter population targets
+    - Field boundaries and planting date
+  steps:
+    - Ingest imagery; orthomosaic if drone set
+    - Detect rows and plants via CV model
+    - Compute plants/ac and emergence percent vs target
+    - Identify skips/doubles; flag problem areas
+    - Generate replant/spot-treat recommendations
+  tools:
+    - OpenDroneMap/WebODM
+    - Ultralytics YOLOv8/Detectron2 (onnxruntime)
+    - QGIS/GDAL
+  outputs:
+    - Stand count map (GeoTIFF) and PDF summary
+    - Problem-area polygons (GeoJSON)
+    - CSV of counts by grid/zone
+  pricingModel:
+    - $0.75–$1.50 per acre analyzed
+    - Or $50–$150 per field report
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 7
+    modelCapability: 7
+    overall: 7
+  risks:
+    - Image quality and coverage gaps
+    - Row detection errors in residue/heavy weeds
+    - Airspace compliance for drones
+  dependencies:
+    - Grower/scout captures imagery
+    - 'Accurate metadata (GSD, altitude)'
+    - Timely upload (emergence window)
+leanCanvas:
+  problem:
+    - >-
+      Manual stand counts are slow (20–40 minutes/field), sample tiny areas, and
+      introduce high variance, leading to poor replant decisions.
+    - >-
+      Growers and agronomists lack timely, spatially complete emergence maps
+      (V1–V4) to quantify skips, gaps, and within-row variability.
+    - >-
+      Existing drone analytics often require expert workflows, long turnaround
+      times (>24 hours), or expensive service fees, missing the short decision
+      window.
+    - >-
+      Inconsistent thresholds for replant decisions across hybrids, planting
+      dates, soil temps, and insurance guidelines cause either unnecessary
+      replanting or missed opportunities.
+    - >-
+      Limited integration with farm data platforms (e.g., John Deere Operations
+      Center, Climate FieldView) fragments workflow and reduces adoption.
+    - >-
+      Connectivity constraints in the field make cloud-only solutions unreliable
+      during peak season.
+  solution:
+    - >-
+      Computer vision models detect and count emerged corn plants from drone or
+      guided phone imagery at V1–V4.
+    - >-
+      Emergence heatmaps (per 10–20 ft segments) quantify skips, doubles, and
+      gaps; gap-length statistics flag yield-risk zones.
+    - >-
+      Replant decision support: agronomy-tuned thresholds (e.g., % of target
+      stand, gap length distribution, planting date, GDU accumulation) with
+      editable rulesets aligned to local practice and insurance guidelines.
+    - >-
+      Guided capture app: flight plans for DJI-class drones; phone mode with
+      AR-guided transects ensuring adequate coverage and angle/altitude
+      consistency.
+    - >-
+      Results in-field: offline/edge pre-processing on device; full results in
+      <30 minutes for a 160-acre block when connectivity is available;
+      PDF/GeoTIFF/Shapefile exports.
+    - >-
+      Integrations: John Deere Operations Center, Climate FieldView,
+      AgLeader/Trimble shapefiles; APIs for retailers to embed reports into
+      portals.
+    - >-
+      Quality assurance: confidence scores per tile, automatic blur/residue
+      detection, and redo prompts; side-by-side with manual transects for
+      auditability.
+  uniqueValueProp: >-
+    Fast, accurate, field-ready AI that turns drone or phone images into stand
+    counts and emergence heatmaps within minutes, integrated into existing farm
+    workflows, so growers and agronomists can make confident, timely replant
+    decisions.
+  unfairAdvantage: >-
+    A large, regionally diverse, ground-truthed dataset of early-season corn
+    imagery paired with an agronomy-tuned replant engine and insurer-aligned
+    audit pack, delivered with near-real-time results on commodity drones or
+    phones and embedded in growers’ existing platforms.
+  customerSegments:
+    - >-
+      Primary: US corn growers with 500–10,000+ acres (owner-operators and farm
+      managers)
+    - >-
+      Primary: Agronomy service providers at ag retailers/co-ops (scouting
+      programs covering 50k–500k acres)
+    - 'Primary: Independent crop consultants (ICCAs) serving 10–50 growers each'
+    - 'Secondary: Seed dealers offering early-season service packages'
+    - 'Secondary: Drone service providers (DSPs) targeting ag clientele'
+    - >-
+      Influencers/Stakeholders: Insurance adjusters, seed/chemical reps,
+      extension agronomists
+  channels:
+    - >-
+      Ag retailer/co-op partner program (wholesale per-acre pricing, co-branded
+      reports, enablement kits).
+    - >-
+      Independent crop consultant channel with volume discounts and referral
+      incentives.
+    - >-
+      Drone service provider network onboarding (Part 107-compliant) with
+      territory exclusives where applicable.
+    - >-
+      Marketplace integrations: John Deere Operations Center, Climate FieldView
+      partner programs.
+    - >-
+      Seed dealer programs bundling early-season stand assessments with seed
+      purchases.
+    - >-
+      Digital acquisition: targeted campaigns to growers in Corn Belt states;
+      webinars with extension agronomists; farm shows (Commodity Classic, Husker
+      Harvest Days).
+  revenueStreams:
+    - >-
+      Per-acre analysis fee (list: $2.50–$4.00/acre; partner wholesale:
+      $1.25–$2.00/acre).
+    - >-
+      SaaS subscriptions for organizations: Starter ($1,500/yr, up to 5,000
+      acres), Pro ($7,500/yr, up to 30,000 acres), Enterprise (custom, SSO, API,
+      priority SLA).
+    - >-
+      API licensing for platforms bundling stand count into their offerings
+      ($0.75–$1.50/acre via API).
+    - >-
+      Professional services: onboarding, custom replant rulesets, training
+      ($2,000–$25,000).
+    - >-
+      Data insights add-on (aggregated, anonymized benchmarking for partners)
+      with opt-in and strict privacy controls.
+  costStructure:
+    - >-
+      COGS per acre: compute/inference and storage $0.05–$0.15/acre; map
+      tiling/egress $0.02–$0.06/acre; support allocation $0.03–$0.07/acre.
+    - >-
+      R&D: ML engineers, mobile and platform developers, agronomists
+      ($150k–$220k FTE fully loaded).
+    - >-
+      Data operations: labeling/QA, field trials, ground truth collection
+      ($0.03–$0.10/acre equivalent).
+    - >-
+      Sales/marketing: partner enablement, events, digital ads, revenue
+      share/rebates (10–20% of partner-attributed revenue).
+    - >-
+      Cloud infrastructure: GPU training clusters, CI/CD, monitoring
+      ($15k–$40k/month seasonally spiky).
+    - >-
+      Compliance and insurance: product liability, E&O; legal for data/privacy
+      and partner contracts.
+    - >-
+      Customer success/onboarding and documentation; L2 support during
+      planting/emergence window.
+  keyMetrics:
+    - >-
+      Model accuracy: mean absolute percentage error (MAPE) of stand counts ≤5%
+      at V2–V3; F1 ≥0.95 on holdout datasets.
+    - >-
+      QC coverage: ≥95% of acres processed with confidence score ≥0.9;
+      re-capture rate ≤7%.
+    - >-
+      Turnaround time: 95th percentile processing time ≤30 minutes for 160 acres
+      in rapid mode; uptime ≥99.5% during peak weeks.
+    - >-
+      Adoption: acres analyzed per season (Year 1: 300k–500k; Year 2: 1.5–2.5M;
+      Year 3: 4–6M).
+    - >-
+      Partner productivity: avg acres/partner/month during peak ≥20k; partner
+      retention ≥85% annually.
+    - >-
+      Unit economics: COGS/acre ≤$0.25 by Year 2; gross margin ≥70%; CAC payback
+      ≤6 months for retailers/consultants.
+    - >-
+      Decision impact: % of fields with replant recommendation clarity
+      (confident yes/no) ≥90%; post-season audit shows ≥80% agreement with
+      ground-truth stand outcomes.
+    - >-
+      Customer experience: NPS ≥50; churn ≤10% annually on organizational
+      subscriptions.
+storyBrand:
+  character: >-
+    Corn growers and farm managers who want fast, objective stand counts and
+    emergence insight within days of planting to protect yield and avoid
+    unnecessary replant.
+  problem: >-
+    Manual stand counts are slow, patchy, and subjective; emergence is uneven;
+    the replant window is tight. Without field‑wide, objective data, growers
+    feel uncertain and risk over‑ or under‑reacting—costing time, money, and
+    yield.
+  guide: >-
+    We understand early‑season pressure. Our agronomy‑informed AI turns drone or
+    phone imagery into trustworthy stand counts and emergence heatmaps, built
+    with agronomist‑reviewed datasets and compatible with common DJI drones and
+    smartphones.
+  plan: >-
+    1) Capture: Fly a quick grid with a standard drone or walk rows with our
+    phone app at VE–V3. 2) Analyze: Upload imagery; AI counts plants, flags
+    gaps, and maps emergence variability. 3) Act: Use thresholded replant zones,
+    share reports, and export shapefiles/geoPDF to equipment and advisors.
+  callToAction: Schedule a 15‑minute demo or start a one‑field trial before V3.
+  success: >-
+    Make confident, timely replant decisions; target interventions where ROI is
+    highest; save scouting time; improve uniformity and yield potential; keep
+    auditable records for advisors and future seasons.
+  failure: >-
+    Without it: hidden stand loss goes unnoticed, replant decisions are guessed
+    or delayed, inputs are misallocated, and preventable yield is lost at
+    harvest.
+landingPage:
+  hero:
+    title: AI Stand Count & Emergence Heatmaps for Corn
+    subtitle: >-
+      Use drone or phone imagery to quantify plants and spot gaps, so replant
+      calls are data-driven.
+    ctaText: Get a Demo
+    ctaHref: /demo
+  problem:
+    - Manual stand counts are slow and cover tiny areas.
+    - Replant windows are short and risky to guess.
+    - Uneven emergence and skips are hard to see early.
+    - Labor is scarce during planting and early scouting.
+    - Inconsistent methods produce inconsistent decisions.
+    - No geo-referenced maps to drive variable-rate replant.
+  solution:
+    - Automated plant counting from RGB drone or phone imagery.
+    - Emergence heatmaps reveal weak zones and skips by row.
+    - 'Field, zone, and row-level summaries with confidence indicators.'
+    - Replant ROI guidance using target population and yield assumptions.
+    - 'Export shapefile, GeoJSON, and CSV for prescriptions.'
+    - Works with common drones and standard smartphone cameras.
+  features:
+    - Corn-specific AI tuned for VE to V3 stages.
+    - Row detection and orientation auto-calibration.
+    - Counts normalized per row-foot and per acre.
+    - Adjustable thresholds for viable plants and gap size.
+    - Side-by-side maps for before/after and hybrid trials.
+    - Multi-field dashboard with trend reports across farms.
+    - Fast cloud processing and offline upload from the field.
+    - 'QC overlays: missed rows, double plants, and low-confidence areas.'
+    - Role-based access and data ownership controls.
+    - API access for FMIS and analytics workflows.
+  steps:
+    - Capture imagery at VE-V3 with a drone or smartphone.
+    - Upload images; AI detects rows and counts plants automatically.
+    - Review emergence heatmap and population summaries.
+    - Simulate replant scenarios and view ROI guidance.
+    - Export zones to your planter or share with your agronomist.
+---
+# EmergenceIQ (Stand Count and Early Emergence AI for Corn)
+
+Generated for NAICS 111150 — Corn Farming.
+Service: Stand Count and Emergence Assessment (Drone/Phone Imagery)

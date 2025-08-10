@@ -1,0 +1,334 @@
+---
+name: >-
+  ToolLogix AI — Predictive Maintenance for Semiconductor Equipment (NAICS
+  333242)
+slug: toollogix
+naics:
+  primary: '333242'
+  occupations: []
+service:
+  title: Tool Log Anomaly Detection & Predictive Maintenance
+  description: >-
+    Detects early failure signals in vacuum pumps, RF generators, chillers,
+    robotics, and chambers from exported timeseries and event logs; recommends
+    actions and parts.
+  targetUsers:
+    - Reliability engineering
+    - Field service managers
+    - CS/aftermarket
+  triggers:
+    - New log batch uploaded to S3/SFTP
+    - Streaming threshold hit (via MQTT/OPC-UA)
+    - Daily scheduled run
+  inputs:
+    - 'Sensor/event logs (OPC-UA/SECS/GEM exports, CSV)'
+    - Maintenance history (CMMS)
+    - 'Operating context (recipe family, shift, site)'
+  steps:
+    - Ingest and normalize logs; align by tool states
+    - 'Feature engineering (duty cycles, drift, RMS, harmonics, vacuum pump KPIs)'
+    - >-
+      Detect anomalies (Isolation Forest/LSTM AE) and remaining useful life
+      (survival model)
+    - Map patterns to likely root causes using case-base
+    - Recommend action and parts; push alert to Slack/Teams/Email
+    - Weekly retrain with feedback
+  tools:
+    - 'Python, scikit-learn, PyTorch/TensorFlow'
+    - 'OPC-UA/MQTT client, Kafka (optional)'
+    - Snowflake/Azure Blob/S3
+    - Grafana/PowerBI dashboard
+    - Slack/Teams webhooks
+    - CMMS API (Maximo/UpKeep)
+  outputs:
+    - Per-tool health score and top 3 probable failure modes
+    - Triage recommendations and parts picklist
+    - Time-to-failure estimate with confidence
+    - CSV/JSON + PDF weekly report and dashboard
+  pricingModel:
+    - One-time setup
+    - Per-tool/month license
+    - Outcome-based bonus for downtime reduction (optional)
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 7
+    overall: 8
+  risks:
+    - False positives/negatives may disrupt maintenance planning
+    - Data quality/time sync issues
+    - Domain drift across tool generations
+  dependencies:
+    - Secure VPN/SFTP access to logs
+    - Historical labeled events for calibration
+    - Downtime/event code dictionary
+leanCanvas:
+  problem:
+    - >-
+      Unplanned downtime costs: A single critical tool outage can cost
+      $50k–$500k per day in lost output and scrap; many failures are still
+      detected only after alarms or process excursions.
+    - >-
+      Low early-warning sensitivity: Existing FDC/SPC limits often miss weak
+      signals (e.g., rising pump current ripple, RF reflected power drift) that
+      precede failures by days to weeks.
+    - >-
+      High false alarm fatigue: Alarm floods (>1,000/day on complex tools)
+      reduce technician trust; precision is often <60% in real-world conditions.
+    - >-
+      Fragmented data: SECS/GEM events, EDA (Interface A) traces, OEM
+      proprietary logs, and chiller/RF/pump telemetry live in silos; correlation
+      across subsystems is manual and slow.
+    - >-
+      Skilled labor shortage: Senior equipment engineers are scarce; time spent
+      manually reviewing logs can exceed 6–8 hours per week per tool family.
+    - >-
+      Reactive spares planning: Parts are stocked based on rough MTBF or tribal
+      knowledge, tying up capital and still missing urgent needs.
+    - >-
+      OEM warranty/service risk: OEMs carry significant warranty and service
+      costs from early-life failures without timely detection and root cause
+      attribution.
+    - >-
+      Security/compliance barriers: Many fabs restrict cloud connectivity;
+      solutions requiring continuous cloud streaming are non-starters.
+    - >-
+      Model drift and process changes: Frequent recipe/tool updates shift
+      baselines, degrading static models without robust drift management.
+  solution:
+    - >-
+      Non-invasive ingestion of existing logs: SECS/GEM events, EDA
+      E120/E125/E164 traces, OEM subsystem logs (vacuum, RF, chillers, robotics)
+      without additional sensors.
+    - >-
+      Domain-specific feature library: 1,000+ engineered features (e.g., pump
+      current ripple %, base pressure decay slope, RF reflected power drift,
+      temperature control error dynamics).
+    - >-
+      Multimodal models: Combine time-series, events, and recipes to detect weak
+      signals and correlate across subsystems (e.g., RF fault driven by chiller
+      flow drop).
+    - >-
+      Early warning scores with lead-time targets: Alerts aim for 7–21 days
+      advance notice for pumps/chillers, 3–10 days for RF/matches, with
+      confidence intervals.
+    - >-
+      Actionable guidance: Prescribes checks, parts, and estimated time to
+      failure; links to BOM/part numbers and technical procedures.
+    - >-
+      Automated drift management: Adaptive baselining per tool/recipe and
+      champion-challenger model governance to maintain precision/recall after
+      process changes.
+    - >-
+      Root cause and post-mortem: Annotates failures to grow a cross-OEM failure
+      signature library and closes the loop with technician feedback.
+    - >-
+      CMMS/MES integration: Create work orders and planned downtime windows in
+      SAP PM/Maximo; log findings to MES/FDC (e.g., PDF Solutions Exensio).
+    - >-
+      Deployment flexibility: Air-gapped on-prem appliance or private cloud;
+      data never leaves site unless explicitly allowed.
+  uniqueValueProp: >-
+    On-prem, multi-vendor anomaly detection that turns native tool logs into
+    7–21 day early failure warnings and actionable part/maintenance
+    recommendations—reducing unplanned downtime 20–40% with <1 false alert per
+    asset per week.
+  unfairAdvantage: >-
+    A cross-vendor failure signature library and pre-trained models
+    purpose-built for semiconductor subsystems, deployable fully on-prem without
+    adding sensors. Deep SEMI standards integration (SECS/GEM, EDA) and proven
+    precision/lead-time targets reduce time-to-value to weeks, not quarters.
+    Co-development with subsystem OEMs enables access to proprietary telemetry
+    fields and service procedures, improving actionability beyond generic PdM
+    platforms.
+  customerSegments:
+    - >-
+      WFE OEMs (etch, deposition, implant, clean, PVD/CVD/ALD, litho subsystems)
+      seeking embedded health analytics for shipped tools.
+    - >-
+      Subsystem OEMs and suppliers: vacuum pumps/boosters, RF
+      generators/matches, chillers, robotics handlers, valves, abatement.
+    - >-
+      300mm and mature-node (200mm) fabs and foundries (logic, memory, analog)
+      with on-prem or private cloud analytics requirements.
+    - >-
+      Refurbishers/third-party service providers managing uptime SLAs for legacy
+      tools.
+    - >-
+      Advanced OSATs with vacuum/RF-intensive processes (e.g., plasma dicing,
+      molding, advanced packaging).
+  channels:
+    - >-
+      Design-partner pilots with 2–3 subsystem OEMs (vacuum, RF) to embed
+      analytics in service offerings; co-branding on installed base.
+    - >-
+      Direct enterprise sales to top-50 fabs for on-prem deployments; land with
+      one module (pumps) and expand to RF/chillers and more tools.
+    - >-
+      Partnerships with system integrators and FDC/MES vendors (e.g., PDF
+      Solutions partners, Cimetrix, major SIs) for integration and co-sell.
+    - >-
+      Co-marketing with subsystem OEMs’ service contracts and remote monitoring
+      portals as an add-on analytics tier.
+    - >-
+      Industry events and technical papers: SEMICON West/Europa/China, AVS, IEEE
+      ICMTS; publish case studies with measured ROI.
+    - >-
+      Cloud provider industrial programs (AWS, Azure, GCP) for marketplace
+      listings and private offers (on-prem option highlighted).
+    - >-
+      Targeted ABM campaigns toward reliability/maintenance leadership and
+      service GM roles at OEMs and fabs.
+    - >-
+      Customer success playbooks: 12-week pilot with explicit success criteria
+      and executive readouts to drive expansion.
+  revenueStreams:
+    - >-
+      SaaS subscription per asset class (on-prem license): $800–$1,500 per
+      pump/chiller per year; $1,200–$2,500 per RF unit per year; volume
+      discounts.
+    - >-
+      Per-tool bundle: $6,000–$15,000 per complex tool per year for
+      multi-subsystem coverage; site enterprise licenses for >300 assets.
+    - >-
+      OEM licensing/royalty: $300–$800 per shipped tool per year for embedded
+      analytics tier; NRE for custom integration ($50k–$250k).
+    - >-
+      Professional services: data integration, model tuning, playbook creation
+      ($30k–$150k per site or OEM platform).
+    - >-
+      Premium support/SLA: 24/7 support, onsite quarterly reviews, dedicated CSM
+      (10–15% of license).
+    - >-
+      Outcome-based pricing for select customers: bonus or revenue share (5–10%)
+      tied to documented downtime reduction.
+    - Training and certification for field service teams ($5k–$20k per cohort).
+  costStructure:
+    - >-
+      Core team: ML engineers, reliability engineers, SEMI integration
+      engineers, security/compliance; $4M–$8M/year at scale.
+    - >-
+      On-prem appliance and edge compute (passed through or leased): $4k–$12k
+      per site plus maintenance.
+    - >-
+      Cloud/CI/CD and artifact storage for model training and distribution:
+      $150k–$400k/year.
+    - >-
+      Data integration and professional services delivery: $3k–$8k per site per
+      week during onboarding.
+    - >-
+      Sales and marketing: enterprise sales, events (SEMICON), technical
+      content; $1M–$3M/year.
+    - >-
+      Partner enablement and certifications (SEMI standards participation,
+      security audits): $100k–$300k/year.
+    - >-
+      Liability insurance and legal (warranty, data processing agreements):
+      $150k–$400k/year.
+  keyMetrics:
+    - >-
+      Model performance by asset class: precision ≥85%, recall ≥70%, AUC ≥0.90
+      within 90 days of go-live; false alerts ≤1 per asset per week.
+    - >-
+      Alert lead-time: median ≥10 days for pumps/chillers, ≥5 days for RF; 90th
+      percentile ≥3 days across assets.
+    - >-
+      Uptime impact: 20–40% reduction in unplanned downtime for targeted assets
+      within 6 months; tool OEE +2–5%.
+    - >-
+      Economic ROI per site: ≥5x annual license value; payback in ≤6 months from
+      first pilot line.
+    - >-
+      Technician efficiency: ≥30% reduction in time spent on manual log review;
+      MTTR -10–20% with prescriptive steps.
+    - >-
+      Adoption: ≥60% pilot-to-production conversion; net revenue retention
+      ≥120%; logo churn ≤8% annually.
+    - >-
+      Integration speed: first asset class live in ≤8 weeks; additional classes
+      ≤3 weeks each.
+    - >-
+      Data coverage: ≥95% of required signals available and healthy ≥98% of
+      operating hours.
+    - >-
+      OEM/service outcomes: warranty cost per tool -10–15%; spare parts turns
+      +10–20%.
+storyBrand:
+  character: >-
+    Equipment engineering and service managers in semiconductor machinery (NAICS
+    333242) responsible for uptime, yield, and SLAs.
+  problem: >-
+    Weak failure signals in vacuum pumps, RF generators, chillers, robotics, and
+    chambers hide in time-series and event logs; issues only surface as alarms
+    or tool-down events, causing scrap, missed shipments, and costly dispatches.
+  guide: >-
+    We understand every minute of tool-down time is expensive. Our AI analyzes
+    exported tool logs with domain-validated models to surface early failure
+    signals and provide clear, actionable recommendations.
+  plan: >-
+    1) Securely export or stream logs via API/SFTP; 2) We detect anomalies,
+    estimate remaining useful life, and rank risks by tool and failure mode; 3)
+    You receive prioritized alerts, parts lists, and step-by-step actions, then
+    close the loop with feedback.
+  callToAction: >-
+    Launch a 30-day pilot on a target tool family—upload one week of logs to get
+    a live risk dashboard, recommended interventions, and an ROI summary.
+  success: >-
+    Predict failures days to weeks early; cut unplanned downtime and scrap;
+    right-size spares; improve MTBF, OEE, and on-time delivery; boost customer
+    trust and margin.
+  failure: >-
+    Continue reacting to alarms and breakdowns—paying for expedited parts,
+    overtime, warranty claims, missed orders, and avoidable yield loss.
+landingPage:
+  hero:
+    title: AI Anomaly Detection & Predictive Maintenance for Semiconductor Tools
+    subtitle: >-
+      Spot issues early in pumps, RF generators, chillers, robotics, and
+      chambers using your exported timeseries and event logs. Cut unplanned
+      downtime and scrap with action-ready recommendations and parts lists.
+    ctaText: Start a Pilot
+    ctaHref: '#pilot'
+  problem:
+    - Unplanned downtime from subtle drifts hidden in noisy logs
+    - Technicians firefighting without early warning or clear root cause
+    - Disparate OEM log formats slow analysis and response
+    - Late parts ordering stretches MTTR and impacts yield
+    - Threshold alarms are chatty and miss recipe-specific behavior
+    - No fleet-wide view to prioritize the riskiest tools
+  solution:
+    - >-
+      Detect early failure signals directly from exported logs—no firmware
+      changes
+    - Recipe-aware models learn each tool’s normal and highlight true anomalies
+    - Actionable recommendations with likely root causes and parts kits
+    - Risk scoring and remaining-life estimates to plan maintenance windows
+    - Fleet dashboard to rank tools by risk and production impact
+    - CMMS/MES integration to trigger work orders and track outcomes
+  features:
+    - >-
+      Covers vacuum pumps, RF generators, chillers, robotics, and process
+      chambers
+    - 'Works with CSV/JSON log exports via UI, API, or secure SFTP'
+    - 'Auto-parse, normalize, time-align, and segment by recipe and mode'
+    - 'Multivariate anomaly, change-point, and event-correlation analytics'
+    - Explainable alerts with key signals and contributing factors
+    - 'Playbook-style fixes with required parts, quantities, and vendor mapping'
+    - Risk and remaining-life estimates with confidence levels
+    - 'Fleet analytics for MTBF, MTTR, alarm fatigue, and impact tracking'
+    - 'Feedback loop: confirm fixes to continuously improve recommendations'
+    - 'On-prem/VPC deployment, SSO, RBAC, and audit logging'
+    - 'Notifications via email, Slack, Teams, and shift-handover summaries'
+    - No tool firmware changes or invasive sensors required
+  steps:
+    - Export timeseries and event logs from your tools or historian
+    - Upload via UI/API or connect a secure agent; map tool and recipe metadata
+    - System auto-parses logs and learns baseline behavior per tool
+    - Receive early-warning alerts with root-cause hypotheses and parts kits
+    - Approve work orders from the app or push to CMMS/MES
+    - Close the loop by confirming outcomes; models adapt and improve
+---
+# ToolLogix AI — Predictive Maintenance for Semiconductor Equipment (NAICS 333242)
+
+Generated for NAICS 333242 — Semiconductor Machinery Manufacturing.
+Service: Tool Log Anomaly Detection & Predictive Maintenance
