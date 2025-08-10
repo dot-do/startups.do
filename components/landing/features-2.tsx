@@ -40,8 +40,8 @@ const defaultFeatures: FeaturesItem[] = [
 ];
 
 const Features2 = ({
-  subtitle = "Our Values",
-  title = "Why Choose Us?",
+  subtitle = "Features",
+  title = "Key Features",
   features = defaultFeatures,
   className = ""
 }: Features2Props) => {

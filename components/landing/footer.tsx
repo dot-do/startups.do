@@ -1,3 +1,4 @@
+'use client';
 import React from 'react';
 import { FaYoutube, FaDiscord, FaGithub, FaXTwitter, FaLinkedin } from "react-icons/fa6";
 
@@ -35,7 +36,28 @@ const Footer: React.FC<FooterProps> = ({
   socialLinks = defaultSocialLinks,
 }) => {
   const currentYear = new Date().getFullYear();
-  const copyrightText = copyright || `© ${currentYear} ${companyName} All rights reserved.`;
+  const [startupName, setStartupName] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const seg = window.location.pathname.split('/').filter(Boolean)[0];
+      if (seg) {
+        try {
+          setStartupName(decodeURIComponent(seg));
+        } catch {
+          setStartupName(seg);
+        }
+      }
+    }
+  }, []);
+
+  // Prefer dynamic startup name from URL; fall back to provided companyName.
+  // Ensure we append ", Inc." exactly once.
+  const baseName = (startupName ?? companyName);
+  const normalizedBase = baseName.replace(/,?\s*inc\.?$/i, '');
+  const displayCompany = `${normalizedBase}, Inc.`;
+
+  const copyrightText = copyright || `© ${currentYear} ${displayCompany} All rights reserved.`;
 
   return (
     <footer className="bg-background border-t border-border">

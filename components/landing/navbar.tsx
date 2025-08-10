@@ -88,7 +88,7 @@ const Navbar = ({
     }
   }, [logo.title]);
   return (
-    <section className="py-4 relative">
+    <section className="py-4 relative z-50 max-w-7xl mx-auto">
       <div className="container relative">
         {/* Desktop Menu */}
         <nav className="hidden justify-between lg:flex">
