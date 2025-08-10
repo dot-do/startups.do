@@ -58,8 +58,36 @@ function parseTsv<T = Record<string, string>>(text: string): T[] {
 }
 
 
-function kebabCase(s: string) {
-  return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+
+export function subdomainName(s: string, targetLen = 12, hardCap = 20) {
+  const tokens = (s.toLowerCase().match(/[a-z0-9]+/g) || []).filter(Boolean)
+  if (tokens.length === 0) return 'x'
+  let base = tokens[0]
+
+  if (base.length < 4 && tokens.length > 1) {
+    const combined = base + tokens[1]
+    base = combined
+  }
+
+  if (base.length > targetLen) {
+    const head = base[0] || ''
+    const rest = base.slice(1).replace(/[aeiouy]/g, '')
+    base = (head + rest).slice(0, targetLen)
+  }
+
+  base = base.replace(/[^a-z0-9-]/g, '')
+  base = base.replace(/-+/g, '-')
+  base = base.replace(/^-+/, '').replace(/-+$/, '')
+
+  if (base.length > hardCap) base = base.slice(0, hardCap)
+  if (!base) base = 'x'
+
+  const parts = base.split('-').filter(Boolean)
+  if (parts.length > 2) {
+    base = parts.slice(0, 2).join('-')
+  }
+
+  return base
 }
 
 async function ensureUniqueSlug(base: string): Promise<string> {
@@ -69,7 +97,7 @@ async function ensureUniqueSlug(base: string): Promise<string> {
     try {
       const filePath = path.join(STARTUPS_DIR, `${candidate}.mdx`)
       await fs.access(filePath)
-      candidate = `${base}-${i}`
+      candidate = `${base}${i}`
       i++
     } catch {
       return candidate
@@ -148,7 +176,7 @@ export async function ideate(opts: IdeateOptions = {}): Promise<IdeatedIdea[]> {
         const lp = await landingPage(serviceIdea, ctx)
 
         const businessName = canvas.object.businessName
-        const baseSlug = kebabCase(businessName)
+        const baseSlug = subdomainName(businessName)
         const slug = persist ? await ensureUniqueSlug(baseSlug) : baseSlug
         results.push({ kind: 'industry', naics: n, canvas, slug })
 
@@ -225,7 +253,7 @@ Service: ${title}
         const lp = await landingPage(serviceIdea, ctx)
 
         const businessName = canvas.object.businessName
-        const baseSlug = kebabCase(businessName)
+        const baseSlug = subdomainName(businessName)
         const slug = persist ? await ensureUniqueSlug(baseSlug) : baseSlug
         results.push({ kind: 'occupation', occupation: o, canvas, slug })
 
