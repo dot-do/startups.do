@@ -275,6 +275,427 @@ landingPage:
     - 'Deploy triage queues, alerts, and automated work order creation.'
     - 'Track savings, tune thresholds, and expand across regions.'
 ---
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead)
+  const proposal = await generateProposal(qualifiedLead)
+  const pilot = await setupPilotProgram(proposal)
+  const contract = await negotiateContract(pilot)
+  return await onboardCustomer(contract)
+}
+
+export async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  const companyProfile = await enrichCompanyData(lead.company)
+  const warrantyData = await assessWarrantyCosts(companyProfile)
+  const techStack = await evaluateTechStack(companyProfile)
+  
+  if (warrantyData.annualCost < 1000000 || companyProfile.pumpUnits < 50000) {
+    throw new Error('Lead does not meet minimum criteria')
+  }
+  
+  return {
+    ...lead,
+    profile: companyProfile,
+    warrantyBaseline: warrantyData,
+    integrationComplexity: techStack.complexity,
+    fitScore: calculateFitScore(warrantyData, techStack)
+  }
+}
+
+export async function setupPilotProgram(proposal: Proposal): Promise<PilotConfig> {
+  const selectedModels = await identifyPilotModels(proposal.customer, 3)
+  const dataConnections = await planDataIntegration(proposal.customer.systems)
+  const successMetrics = await defineSuccessMetrics(proposal.customer.baseline)
+  
+  return {
+    duration: 90,
+    models: selectedModels,
+    integrations: dataConnections,
+    metrics: successMetrics,
+    budget: calculatePilotBudget(selectedModels.length, dataConnections.complexity)
+  }
+}
+
+// Product Development Processes
+export async function developPredictiveModel(pumpType: PumpType): Promise<PredictiveModel> {
+  const trainingData = await collectTrainingData(pumpType)
+  const physicsModel = await buildPhysicsInformedModel(pumpType.specifications)
+  const mlModel = await trainMachineLearningModel(trainingData)
+  const hybridModel = await combineModels(physicsModel, mlModel)
+  
+  const validation = await validateModel(hybridModel, trainingData.testSet)
+  if (validation.precision < 0.8 || validation.recall < 0.7) {
+    return await iterateModel(hybridModel, validation.feedback)
+  }
+  
+  return await deployModel(hybridModel)
+}
+
+export async function buildFailureTaxonomy(manufacturerData: ManufacturerData[]): Promise<FailureTaxonomy> {
+  const rawFailureModes = await extractFailureModes(manufacturerData)
+  const standardizedModes = await standardizeFailureLabels(rawFailureModes)
+  const hierarchicalTaxonomy = await buildHierarchy(standardizedModes)
+  
+  return await validateTaxonomy(hierarchicalTaxonomy)
+}
+
+export async function createPrescriptivePlaybook(failureMode: FailureMode): Promise<ActionPlaybook> {
+  const rootCauses = await identifyRootCauses(failureMode)
+  const preventiveActions = await generatePreventiveActions(rootCauses)
+  const correctiveActions = await generateCorrectiveActions(rootCauses)
+  const partsRequirements = await calculatePartsRequirements(preventiveActions, correctiveActions)
+  
+  return {
+    failureMode,
+    preventive: prioritizeByROI(preventiveActions),
+    corrective: prioritizeByUrgency(correctiveActions),
+    parts: partsRequirements,
+    estimatedCost: calculateActionCosts(preventiveActions, correctiveActions),
+    estimatedTime: calculateActionDuration(preventiveActions, correctiveActions)
+  }
+}
+
+// Revenue Generation Flows
+export async function processSubscriptionRevenue(customer: Customer, month: Month): Promise<Revenue> {
+  const activeUnits = await countActiveUnits(customer, month)
+  const tierPricing = await calculateTierPricing(activeUnits, customer.plan)
+  const moduleCharges = await calculateModuleCharges(customer.enabledModules)
+  const outcomeBonus = await calculateOutcomeBonus(customer, month)
+  
+  const invoice = await generateInvoice({
+    customer,
+    month,
+    subscriptionFee: tierPricing.total,
+    moduleCharges: moduleCharges.total,
+    outcomeBonus: outcomeBonus.amount,
+    total: tierPricing.total + moduleCharges.total + outcomeBonus.amount
+  })
+  
+  return await processPayment(invoice)
+}
+
+export async function calculateOutcomeBonus(customer: Customer, month: Month): Promise<OutcomeBonus> {
+  const baselineWarrantyCost = customer.baseline.monthlyWarrantyCost
+  const actualWarrantyCost = await getActualWarrantyCost(customer, month)
+  const savings = baselineWarrantyCost - actualWarrantyCost
+  const verifiedSavings = await verifySavings(savings, customer)
+  
+  if (verifiedSavings <= 0) {
+    return { amount: 0, verified: false }
+  }
+  
+  const bonusRate = customer.contract.outcomeBonusRate || 0.15
+  return {
+    amount: verifiedSavings * bonusRate,
+    verified: true,
+    savings: verifiedSavings,
+    baseline: baselineWarrantyCost,
+    actual: actualWarrantyCost
+  }
+}
+
+export async function expandCustomerRevenue(customer: Customer): Promise<ExpansionPlan> {
+  const currentCoverage = await assessCurrentCoverage(customer)
+  const expansionOpportunities = await identifyExpansionOpportunities(customer)
+  const additionalModules = await recommendAdditionalModules(customer.usage)
+  
+  return {
+    currentARR: customer.currentARR,
+    potentialARR: calculatePotentialARR(expansionOpportunities, additionalModules),
+    expansionPath: prioritizeExpansionOpportunities(expansionOpportunities),
+    timeline: createExpansionTimeline(expansionOpportunities),
+    investment: calculateExpansionInvestment(expansionOpportunities)
+  }
+}
+
+// Operational Procedures
+export async function processWarrantyClaim(claim: WarrantyClaim): Promise<ClaimDecision> {
+  const riskScore = await calculateRiskScore(claim.unit)
+  const failureClassification = await classifyFailureMode(claim.symptoms, claim.unit.telemetry)
+  const fraudRisk = await assessFraudRisk(claim)
+  const prescription = await generatePrescription(failureClassification, claim.unit)
+  
+  const triageDecision = await makeTriageDecision({
+    claim,
+    riskScore,
+    failureClassification,
+    fraudRisk,
+    prescription
+  })
+  
+  if (triageDecision.requiresHumanReview) {
+    return await routeToHumanReview(claim, triageDecision)
+  }
+  
+  return await autoProcessClaim(claim, triageDecision)
+}
+
+export async function optimizeSparePartsInventory(region: Region): Promise<InventoryPlan> {
+  const riskForecasts = await getRiskForecasts(region, 90)
+  const failurePredictions = await aggregateFailurePredictions(riskForecasts)
+  const partsRequirements = await calculatePartsRequirements(failurePredictions)
+  const currentInventory = await getCurrentInventory(region)
+  
+  const shortfalls = await identifyShortfalls(partsRequirements, currentInventory)
+  const surpluses = await identifySurpluses(partsRequirements, currentInventory)
+  
+  return {
+    region,
+    forecast: failurePredictions,
+    currentStock: currentInventory,
+    recommendedOrders: shortfalls,
+    redistributionOpportunities: surpluses,
+    estimatedCost: calculateInventoryOptimizationCost(shortfalls, surpluses)
+  }
+}
+
+export async function schedulePreventiveMaintenance(customer: Customer): Promise<MaintenanceSchedule> {
+  const highRiskUnits = await identifyHighRiskUnits(customer, 30)
+  const availableTechnicians = await getTechnicianAvailability(customer.region)
+  const prescriptions = await generatePrescriptions(highRiskUnits)
+  
+  const optimizedSchedule = await optimizeSchedule({
+    units: highRiskUnits,
+    technicians: availableTechnicians,
+    prescriptions,
+    constraints: customer.maintenanceConstraints
+  })
+  
+  return await createMaintenanceSchedule(optimizedSchedule)
+}
+
+// Decision-Making Workflows
+export async function evaluateCustomerHealth(customer: Customer): Promise<HealthScore> {
+  const usageMetrics = await getUsageMetrics(customer)
+  const outcomeMetrics = await getOutcomeMetrics(customer)
+  const engagementMetrics = await getEngagementMetrics(customer)
+  const supportMetrics = await getSupportMetrics(customer)
+  
+  const healthScore = await calculateHealthScore({
+    usage: usageMetrics,
+    outcomes: outcomeMetrics,
+    engagement: engagementMetrics,
+    support: supportMetrics
+  })
+  
+  if (healthScore.score < 70) {
+    await triggerCustomerSuccessIntervention(customer, healthScore)
+  }
+  
+  return healthScore
+}
+
+export async function makePricingDecision(customer: Customer, renewal: RenewalOpportunity): Promise<PricingDecision> {
+  const valueDelivered = await calculateValueDelivered(customer)
+  const competitivePosition = await assessCompetitivePosition(customer.industry)
+  const expansionPotential = await assessExpansionPotential(customer)
+  const churnRisk = await assessChurnRisk(customer)
+  
+  const pricingStrategy = await determinePricingStrategy({
+    valueDelivered,
+    competitivePosition,
+    expansionPotential,
+    churnRisk,
+    currentPricing: customer.currentPricing
+  })
+  
+  return {
+    recommendedPricing: pricingStrategy.pricing,
+    rationale: pricingStrategy.rationale,
+    riskAssessment: pricingStrategy.risks,
+    expectedOutcome: pricingStrategy.expectedOutcome
+  }
+}
+
+export async function prioritizeProductRoadmap(feedback: CustomerFeedback[], market: MarketData): Promise<RoadmapPriorities> {
+  const featureRequests = await analyzeFeatureRequests(feedback)
+  const marketTrends = await analyzeMarketTrends(market)
+  const technicalDebt = await assessTechnicalDebt()
+  const competitiveGaps = await identifyCompetitiveGaps(market.competitors)
+  
+  const scoredInitiatives = await scoreInitiatives({
+    features: featureRequests,
+    trends: marketTrends,
+    debt: technicalDebt,
+    gaps: competitiveGaps
+  })
+  
+  return await optimizeRoadmap(scoredInitiatives)
+}
+
+// Type Definitions
+interface Lead {
+  company: string
+  contact: ContactInfo
+  source: string
+  initialInterest: string
+}
+
+interface QualifiedLead extends Lead {
+  profile: CompanyProfile
+  warrantyBaseline: WarrantyData
+  integrationComplexity: number
+  fitScore: number
+}
+
+interface Customer {
+  id: string
+  company: CompanyProfile
+  plan: SubscriptionPlan
+  baseline: BaselineMetrics
+  contract: ContractTerms
+  currentARR: number
+  region: Region
+  maintenanceConstraints: MaintenanceConstraints
+  systems: SystemIntegrations
+  enabledModules: Module[]
+  currentPricing: PricingStructure
+  usage: UsageMetrics
+  industry: string
+}
+
+interface PumpType {
+  id: string
+  manufacturer: string
+  model: string
+  specifications: TechnicalSpecs
+  commonFailureModes: FailureMode[]
+}
+
+interface WarrantyClaim {
+  id: string
+  unit: PumpUnit
+  symptoms: string[]
+  reportedBy: string
+  timestamp: Date
+  priority: Priority
+}
+
+interface FailureMode {
+  id: string
+  name: string
+  category: string
+  severity: number
+  frequency: number
+  rootCauses: string[]
+}
+
+interface PredictiveModel {
+  id: string
+  pumpType: PumpType
+  accuracy: ModelAccuracy
+  version: string
+  deployedAt: Date
+}
+
+interface ActionPlaybook {
+  failureMode: FailureMode
+  preventive: PreventiveAction[]
+  corrective: CorrectiveAction[]
+  parts: PartsRequirement[]
+  estimatedCost: number
+  estimatedTime: number
+}
+
+interface OutcomeBonus {
+  amount: number
+  verified: boolean
+  savings?: number
+  baseline?: number
+  actual?: number
+}
+
+interface ExpansionPlan {
+  currentARR: number
+  potentialARR: number
+  expansionPath: ExpansionOpportunity[]
+  timeline: ExpansionTimeline
+  investment: number
+}
+
+interface ClaimDecision {
+  approved: boolean
+  action: string
+  priority: Priority
+  estimatedCost: number
+  requiresHumanReview: boolean
+}
+
+interface InventoryPlan {
+  region: Region
+  forecast: FailurePrediction[]
+  currentStock: InventoryItem[]
+  recommendedOrders: OrderRecommendation[]
+  redistributionOpportunities: RedistributionOpportunity[]
+  estimatedCost: number
+}
+
+interface MaintenanceSchedule {
+  customer: Customer
+  scheduledMaintenance: ScheduledMaintenance[]
+  totalCost: number
+  estimatedSavings: number
+}
+
+interface HealthScore {
+  score: number
+  factors: HealthFactor[]
+  riskLevel: string
+  recommendations: string[]
+}
+
+interface PricingDecision {
+  recommendedPricing: PricingStructure
+  rationale: string
+  riskAssessment: RiskAssessment
+  expectedOutcome: OutcomeProjection
+}
+
+interface RoadmapPriorities {
+  initiatives: ScoredInitiative[]
+  timeline: RoadmapTimeline
+  resourceRequirements: ResourceRequirement[]
+  expectedImpact: ImpactProjection
+}
+
+export default function Page() {
+  return (
+    <>
+      <Hero
+        title="Predictive pump intelligence that prevents failures before they happen"
+        subtitle="Physics-informed AI platform that reduces warranty costs 15-30% and accelerates service triage by 25-40% for pump manufacturers."
+        ctaText="Start 90-day pilot"
+        ctaHref="/contact"
+      />
+      <Problem bullets={[
+        "Warranty costs consume 1.5-2.5% of revenue due to preventable failures",
+        "Manual triage and inconsistent failure classification slow resolution",
+        "Fragmented data across ERP, CMMS, and IoT systems impedes insights",
+        "No-fault-found claims waste 10-20% of warranty budget"
+      ]} />
+      <Solution bullets={[
+        "Unified data integration across ERP, CMMS, and IoT systems",
+        "Physics-informed predictive models with 7-45 day lead times",
+        "Automated failure classification and warranty triage workflows",
+        "Prescriptive maintenance playbooks prioritized by ROI"
+      ]} />
+      <Features items={[
+        "Risk scoring and failure prediction",
+        "Automated warranty triage",
+        "Prescriptive maintenance recommendations",
+        "Spare parts optimization",
+        "ROI reporting and analytics"
+      ]} />
+      <Steps steps={[
+        "90-day pilot with 2-3 pump models",
+        "Full ERP/CMMS integration",
+        "Scale across product lines and regions"
+      ]} />
+    </>
+  )
+}
+
 # PumpShield Predictive Warranty
 
 Generated for NAICS 333914 — Measuring, Dispensing, and Other Pumping Equipment Manufacturing.
