@@ -303,3 +303,467 @@ landingPage:
 
 Generated for NAICS 111110 — Soybean Farming.
 Service: Disease Risk Forecasting & Fungicide Timing (White Mold, Frogeye, Rust)
+
+## Business Workflow Functions
+
+```typescript
+// Core data types for TimingIQ business operations
+interface Lead {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  farmSize: number; // acres
+  location: {
+    state: string;
+    county: string;
+    coordinates?: [number, number];
+  };
+  currentDiseaseManagement: string;
+  painPoints: string[];
+  source: 'webinar' | 'farm_show' | 'referral' | 'digital_ad' | 'extension';
+  createdAt: Date;
+}
+
+interface Customer {
+  id: string;
+  lead: Lead;
+  subscription: {
+    plan: 'grower' | 'retailer' | 'consultant';
+    acresUnderManagement: number;
+    pricePerAcre: number;
+    startDate: Date;
+    renewalDate: Date;
+  };
+  fields: Field[];
+  onboardingComplete: boolean;
+  integrations: string[];
+}
+
+interface Field {
+  id: string;
+  name: string;
+  acres: number;
+  boundaries: GeoJSON;
+  plantingDate: Date;
+  maturityGroup: string;
+  varietyDiseaseRatings: {
+    whiteMold: number;
+    frogeye: number;
+    rust: number;
+  };
+  soilType: string;
+  irrigated: boolean;
+  diseaseHistory: DiseaseEvent[];
+}
+
+interface DiseaseRiskAssessment {
+  fieldId: string;
+  date: Date;
+  riskScores: {
+    whiteMold: number; // 0-100
+    frogeye: number;
+    rust: number;
+  };
+  growthStage: string; // R1-R6
+  weatherConditions: {
+    humidity: number;
+    leafWetness: number;
+    temperature: number;
+  };
+  sprayWindow: {
+    optimal: { start: Date; end: Date };
+    backup: { start: Date; end: Date };
+  };
+  confidence: number; // 0-1
+}
+
+interface SprayRecommendation {
+  fieldId: string;
+  targetDiseases: string[];
+  applicationWindow: { start: Date; end: Date };
+  productClass: string;
+  ratePerAcre: number;
+  expectedROI: number;
+  yieldProtection: number; // bushels/acre
+  zones?: {
+    highRisk: GeoJSON;
+    mediumRisk: GeoJSON;
+    lowRisk: GeoJSON;
+  };
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  // Step 1: Qualify lead based on farm size and location
+  const qualifiedLead = await qualifyLead(lead);
+  
+  // Step 2: Generate personalized demo and proposal
+  const proposal = await generateProposal(qualifiedLead);
+  
+  // Step 3: Conduct demo and negotiate contract
+  const contract = await negotiateContract(proposal);
+  
+  // Step 4: Onboard new customer
+  return await onboardCustomer(contract);
+}
+
+async function qualifyLead(lead: Lead): Promise<Lead> {
+  // Validate farm size meets minimum threshold (1,000+ acres for direct)
+  if (lead.farmSize < 1000) {
+    throw new Error('Farm size below minimum threshold for direct sales');
+  }
+  
+  // Check if location is in target soybean production regions
+  const targetStates = ['IA', 'IL', 'IN', 'OH', 'MN', 'WI', 'ND', 'SD', 'NE', 'MO'];
+  if (!targetStates.includes(lead.location.state)) {
+    throw new Error('Location outside target market');
+  }
+  
+  // Score lead based on pain points and current practices
+  const leadScore = calculateLeadScore(lead);
+  if (leadScore < 70) {
+    throw new Error('Lead score below qualification threshold');
+  }
+  
+  return lead;
+}
+
+async function generateProposal(lead: Lead): Promise<any> {
+  // Calculate potential ROI based on farm characteristics
+  const potentialSavings = lead.farmSize * 0.25 * 15; // 25% reduction in unnecessary sprays * $15/acre
+  const yieldProtection = lead.farmSize * 2 * 12; // 2 bu/acre protection * $12/bu
+  const totalValue = potentialSavings + yieldProtection;
+  
+  // Generate customized pricing proposal
+  const pricePerAcre = lead.farmSize > 10000 ? 3.50 : 4.00;
+  const annualCost = lead.farmSize * pricePerAcre;
+  
+  return {
+    leadId: lead.id,
+    potentialROI: (totalValue - annualCost) / annualCost,
+    pricing: {
+      pricePerAcre,
+      annualCost,
+      minimumCommitment: Math.max(annualCost, 1500)
+    },
+    customizedDemo: await generateDemoScript(lead),
+    trialOffer: {
+      acres: Math.min(lead.farmSize * 0.1, 500),
+      duration: 30, // days
+      cost: 0
+    }
+  };
+}
+
+async function negotiateContract(proposal: any): Promise<any> {
+  // Handle contract negotiation workflow
+  const contract = await createContract(proposal);
+  
+  // Set up payment terms and billing
+  await setupBilling(contract);
+  
+  // Schedule onboarding kickoff
+  await scheduleOnboarding(contract);
+  
+  return contract;
+}
+
+async function onboardCustomer(contract: any): Promise<Customer> {
+  // Create customer record
+  const customer = await createCustomerRecord(contract);
+  
+  // Import field boundaries and planting data
+  await importFieldData(customer);
+  
+  // Set up integrations (Ops Center, FieldView, etc.)
+  await setupIntegrations(customer);
+  
+  // Configure risk thresholds and alert preferences
+  await configureAlerts(customer);
+  
+  // Schedule first risk assessment
+  await scheduleInitialAssessment(customer);
+  
+  return customer;
+}
+
+// Product Development Processes
+export async function developDiseaseModel(diseaseType: string): Promise<any> {
+  // Step 1: Collect and validate training data
+  const trainingData = await collectTrainingData(diseaseType);
+  
+  // Step 2: Feature engineering and model development
+  const model = await trainPredictiveModel(trainingData);
+  
+  // Step 3: Validate model performance
+  const validation = await validateModel(model);
+  
+  // Step 4: Deploy to production if validation passes
+  if (validation.accuracy > 0.75) {
+    return await deployModel(model);
+  } else {
+    throw new Error('Model validation failed - accuracy below threshold');
+  }
+}
+
+async function collectTrainingData(diseaseType: string): Promise<any[]> {
+  // Aggregate historical weather data
+  const weatherData = await fetchWeatherHistory();
+  
+  // Collect field observations from cooperators
+  const fieldObservations = await fetchFieldObservations(diseaseType);
+  
+  // Gather satellite imagery and canopy data
+  const imageryData = await fetchSatelliteImagery();
+  
+  // Combine and clean datasets
+  return await combineAndCleanData([weatherData, fieldObservations, imageryData]);
+}
+
+async function trainPredictiveModel(data: any[]): Promise<any> {
+  // Feature engineering for disease risk factors
+  const features = await engineerFeatures(data);
+  
+  // Train ensemble model (Random Forest + XGBoost)
+  const model = await trainEnsembleModel(features);
+  
+  // Optimize hyperparameters
+  return await optimizeHyperparameters(model);
+}
+
+// Revenue Generation Flows
+export async function processSubscriptionRenewal(customer: Customer): Promise<boolean> {
+  // Step 1: Calculate customer value and usage metrics
+  const metrics = await calculateCustomerMetrics(customer);
+  
+  // Step 2: Generate renewal proposal with potential upsells
+  const renewalProposal = await generateRenewalProposal(customer, metrics);
+  
+  // Step 3: Execute renewal workflow
+  const renewed = await executeRenewalWorkflow(renewalProposal);
+  
+  // Step 4: Update customer record and billing
+  if (renewed) {
+    await updateCustomerSubscription(customer, renewalProposal);
+  }
+  
+  return renewed;
+}
+
+async function calculateCustomerMetrics(customer: Customer): Promise<any> {
+  // Calculate engagement metrics
+  const alertOpenRate = await getAlertOpenRate(customer.id);
+  const actionRate = await getActionOnRecommendationRate(customer.id);
+  
+  // Calculate ROI delivered
+  const avoidedSprays = await getAvoidedSprayAcres(customer.id);
+  const yieldProtection = await getYieldProtectionBushels(customer.id);
+  
+  // Calculate customer health score
+  const healthScore = (alertOpenRate * 0.3) + (actionRate * 0.4) + (Math.min(avoidedSprays / customer.subscription.acresUnderManagement, 0.3) * 0.3);
+  
+  return {
+    engagement: { alertOpenRate, actionRate },
+    roi: { avoidedSprays, yieldProtection },
+    healthScore,
+    churnRisk: healthScore < 0.6 ? 'high' : healthScore < 0.8 ? 'medium' : 'low'
+  };
+}
+
+export async function expandCustomerAccount(customer: Customer): Promise<Customer> {
+  // Identify expansion opportunities
+  const opportunities = await identifyExpansionOpportunities(customer);
+  
+  // Generate upsell proposals
+  const proposals = await generateUpsellProposals(opportunities);
+  
+  // Execute expansion workflow
+  const expandedServices = await executeExpansionWorkflow(proposals);
+  
+  // Update customer account
+  return await updateCustomerWithExpansion(customer, expandedServices);
+}
+
+// Operational Procedures
+export async function generateDailyRiskAssessments(): Promise<DiseaseRiskAssessment[]> {
+  // Step 1: Get all active fields requiring assessment
+  const activeFields = await getActiveFields();
+  
+  // Step 2: Fetch current weather and forecast data
+  const weatherData = await fetchCurrentWeatherData();
+  
+  // Step 3: Generate risk assessments for each field
+  const assessments = await Promise.all(
+    activeFields.map(field => generateFieldRiskAssessment(field, weatherData))
+  );
+  
+  // Step 4: Store assessments and trigger alerts if needed
+  await storeAssessments(assessments);
+  await triggerHighRiskAlerts(assessments);
+  
+  return assessments;
+}
+
+async function generateFieldRiskAssessment(field: Field, weather: any): Promise<DiseaseRiskAssessment> {
+  // Calculate current growth stage
+  const growthStage = await calculateGrowthStage(field);
+  
+  // Run disease risk models
+  const riskScores = await calculateDiseaseRisk(field, weather, growthStage);
+  
+  // Determine optimal spray windows
+  const sprayWindow = await calculateSprayWindow(field, weather, growthStage);
+  
+  // Calculate confidence based on data quality
+  const confidence = await calculateConfidence(field, weather);
+  
+  return {
+    fieldId: field.id,
+    date: new Date(),
+    riskScores,
+    growthStage,
+    weatherConditions: {
+      humidity: weather.humidity,
+      leafWetness: weather.leafWetness,
+      temperature: weather.temperature
+    },
+    sprayWindow,
+    confidence
+  };
+}
+
+export async function processSprayRecommendation(assessment: DiseaseRiskAssessment): Promise<SprayRecommendation> {
+  // Determine if spray is economically justified
+  const economicJustification = await calculateEconomicJustification(assessment);
+  
+  if (!economicJustification.justified) {
+    throw new Error('Spray not economically justified');
+  }
+  
+  // Generate product recommendations
+  const productRecommendation = await generateProductRecommendation(assessment);
+  
+  // Create zone-specific recommendations if applicable
+  const zones = await generateZoneRecommendations(assessment);
+  
+  return {
+    fieldId: assessment.fieldId,
+    targetDiseases: getTargetDiseases(assessment.riskScores),
+    applicationWindow: assessment.sprayWindow.optimal,
+    productClass: productRecommendation.productClass,
+    ratePerAcre: productRecommendation.rate,
+    expectedROI: economicJustification.roi,
+    yieldProtection: economicJustification.yieldProtection,
+    zones
+  };
+}
+
+// Decision-Making Workflows
+export async function prioritizeScoutingQueue(customer: Customer): Promise<Field[]> {
+  // Get current risk assessments for all customer fields
+  const assessments = await getCurrentRiskAssessments(customer.fields);
+  
+  // Calculate urgency scores
+  const prioritizedFields = assessments
+    .map(assessment => ({
+      field: customer.fields.find(f => f.id === assessment.fieldId)!,
+      urgencyScore: calculateUrgencyScore(assessment),
+      assessment
+    }))
+    .sort((a, b) => b.urgencyScore - a.urgencyScore)
+    .map(item => item.field);
+  
+  return prioritizedFields;
+}
+
+function calculateUrgencyScore(assessment: DiseaseRiskAssessment): number {
+  // Weight factors: risk level, growth stage criticality, weather window
+  const riskWeight = Math.max(...Object.values(assessment.riskScores)) / 100;
+  const stageWeight = getCriticalStageWeight(assessment.growthStage);
+  const timeWeight = getTimeUrgencyWeight(assessment.sprayWindow);
+  
+  return (riskWeight * 0.5) + (stageWeight * 0.3) + (timeWeight * 0.2);
+}
+
+export async function makeSprayDecision(
+  assessment: DiseaseRiskAssessment,
+  field: Field,
+  constraints: any
+): Promise<{ decision: 'spray' | 'wait' | 'scout'; reasoning: string }> {
+  // Evaluate risk threshold
+  const maxRisk = Math.max(...Object.values(assessment.riskScores));
+  
+  // Check economic justification
+  const economics = await calculateEconomicJustification(assessment);
+  
+  // Consider operational constraints
+  const operationalFeasibility = await checkOperationalConstraints(field, constraints);
+  
+  // Make decision based on multiple factors
+  if (maxRisk > 70 && economics.justified && operationalFeasibility.canSpray) {
+    return {
+      decision: 'spray',
+      reasoning: `High risk (${maxRisk}) with positive ROI (${economics.roi.toFixed(2)}) and operational window available`
+    };
+  } else if (maxRisk > 50 && maxRisk <= 70) {
+    return {
+      decision: 'scout',
+      reasoning: `Moderate risk (${maxRisk}) requires field verification before spray decision`
+    };
+  } else {
+    return {
+      decision: 'wait',
+      reasoning: `Risk below threshold (${maxRisk}) or economic/operational constraints prevent spraying`
+    };
+  }
+}
+
+// Helper functions (pseudocode - would be implemented separately)
+async function calculateLeadScore(lead: Lead): Promise<number> { /* Implementation */ return 85; }
+async function generateDemoScript(lead: Lead): Promise<string> { /* Implementation */ return ""; }
+async function createContract(proposal: any): Promise<any> { /* Implementation */ return {}; }
+async function setupBilling(contract: any): Promise<void> { /* Implementation */ }
+async function scheduleOnboarding(contract: any): Promise<void> { /* Implementation */ }
+async function createCustomerRecord(contract: any): Promise<Customer> { /* Implementation */ return {} as Customer; }
+async function importFieldData(customer: Customer): Promise<void> { /* Implementation */ }
+async function setupIntegrations(customer: Customer): Promise<void> { /* Implementation */ }
+async function configureAlerts(customer: Customer): Promise<void> { /* Implementation */ }
+async function scheduleInitialAssessment(customer: Customer): Promise<void> { /* Implementation */ }
+async function fetchWeatherHistory(): Promise<any[]> { /* Implementation */ return []; }
+async function fetchFieldObservations(diseaseType: string): Promise<any[]> { /* Implementation */ return []; }
+async function fetchSatelliteImagery(): Promise<any[]> { /* Implementation */ return []; }
+async function combineAndCleanData(datasets: any[][]): Promise<any[]> { /* Implementation */ return []; }
+async function engineerFeatures(data: any[]): Promise<any> { /* Implementation */ return {}; }
+async function trainEnsembleModel(features: any): Promise<any> { /* Implementation */ return {}; }
+async function optimizeHyperparameters(model: any): Promise<any> { /* Implementation */ return {}; }
+async function validateModel(model: any): Promise<{ accuracy: number }> { /* Implementation */ return { accuracy: 0.8 }; }
+async function deployModel(model: any): Promise<any> { /* Implementation */ return {}; }
+async function generateRenewalProposal(customer: Customer, metrics: any): Promise<any> { /* Implementation */ return {}; }
+async function executeRenewalWorkflow(proposal: any): Promise<boolean> { /* Implementation */ return true; }
+async function updateCustomerSubscription(customer: Customer, proposal: any): Promise<void> { /* Implementation */ }
+async function getAlertOpenRate(customerId: string): Promise<number> { /* Implementation */ return 0.75; }
+async function getActionOnRecommendationRate(customerId: string): Promise<number> { /* Implementation */ return 0.65; }
+async function getAvoidedSprayAcres(customerId: string): Promise<number> { /* Implementation */ return 500; }
+async function getYieldProtectionBushels(customerId: string): Promise<number> { /* Implementation */ return 1000; }
+async function identifyExpansionOpportunities(customer: Customer): Promise<any[]> { /* Implementation */ return []; }
+async function generateUpsellProposals(opportunities: any[]): Promise<any[]> { /* Implementation */ return []; }
+async function executeExpansionWorkflow(proposals: any[]): Promise<any[]> { /* Implementation */ return []; }
+async function updateCustomerWithExpansion(customer: Customer, services: any[]): Promise<Customer> { /* Implementation */ return customer; }
+async function getActiveFields(): Promise<Field[]> { /* Implementation */ return []; }
+async function fetchCurrentWeatherData(): Promise<any> { /* Implementation */ return {}; }
+async function storeAssessments(assessments: DiseaseRiskAssessment[]): Promise<void> { /* Implementation */ }
+async function triggerHighRiskAlerts(assessments: DiseaseRiskAssessment[]): Promise<void> { /* Implementation */ }
+async function calculateGrowthStage(field: Field): Promise<string> { /* Implementation */ return "R3"; }
+async function calculateDiseaseRisk(field: Field, weather: any, stage: string): Promise<any> { /* Implementation */ return {}; }
+async function calculateSprayWindow(field: Field, weather: any, stage: string): Promise<any> { /* Implementation */ return {}; }
+async function calculateConfidence(field: Field, weather: any): Promise<number> { /* Implementation */ return 0.85; }
+async function calculateEconomicJustification(assessment: DiseaseRiskAssessment): Promise<any> { /* Implementation */ return { justified: true, roi: 2.5, yieldProtection: 2.0 }; }
+async function generateProductRecommendation(assessment: DiseaseRiskAssessment): Promise<any> { /* Implementation */ return {}; }
+async function generateZoneRecommendations(assessment: DiseaseRiskAssessment): Promise<any> { /* Implementation */ return {}; }
+function getTargetDiseases(riskScores: any): string[] { /* Implementation */ return []; }
+async function getCurrentRiskAssessments(fields: Field[]): Promise<DiseaseRiskAssessment[]> { /* Implementation */ return []; }
+function getCriticalStageWeight(stage: string): number { /* Implementation */ return 0.8; }
+function getTimeUrgencyWeight(window: any): number { /* Implementation */ return 0.6; }
+async function checkOperationalConstraints(field: Field, constraints: any): Promise<any> { /* Implementation */ return { canSpray: true }; }
+```
