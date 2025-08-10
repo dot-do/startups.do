@@ -308,7 +308,427 @@ landingPage:
     - 'Spot gaps, novelty, and competitive clusters; prioritize.'
     - Export insights and share; keep monitoring automatically.
 ---
+
 # Evidence & IP Landscape Scout
 
 Generated for NAICS 541714 — Research and Development in Biotechnology (except Nanobiotechnology).
+
+## Business Process Functions
+
+```typescript
+// Core business process types
+interface Lead {
+  id: string;
+  company: string;
+  contactName: string;
+  email: string;
+  researchArea: string;
+  targetProteins?: string[];
+  modalities?: string[];
+  indications?: string[];
+  urgency: 'low' | 'medium' | 'high';
+  budget?: number;
+  source: 'inbound' | 'outbound' | 'referral' | 'conference';
+}
+
+interface Customer {
+  id: string;
+  company: string;
+  tier: 'team' | 'growth' | 'enterprise';
+  subscriptionValue: number;
+  onboardingDate: Date;
+  primaryContact: string;
+  researchFocus: string[];
+}
+
+interface LandscapeRequest {
+  id: string;
+  customerId: string;
+  targets: string[];
+  modalities: string[];
+  indications: string[];
+  timeRange: { start: Date; end: Date };
+  jurisdictions: string[];
+  includePreprints: boolean;
+  alertFrequency: 'daily' | 'weekly' | 'monthly';
+}
+
+interface LandscapeReport {
+  id: string;
+  requestId: string;
+  evidenceGraph: any;
+  patentClaims: any[];
+  gapAnalysis: any;
+  competitiveIntelligence: any;
+  citations: string[];
+  confidence: number;
+  generatedAt: Date;
+}
+
+interface RevenueEvent {
+  type: 'subscription' | 'overage' | 'professional_services' | 'managed_services';
+  amount: number;
+  customerId: string;
+  date: Date;
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  try {
+    const qualifiedLead = await qualifyLead(lead);
+    const demoLandscape = await generateDemoLandscape(qualifiedLead);
+    const proposal = await generateProposal(qualifiedLead, demoLandscape);
+    const contract = await negotiateContract(proposal);
+    return await onboardCustomer(contract);
+  } catch (error) {
+    throw new Error(`Customer acquisition failed: ${error.message}`);
+  }
+}
+
+async function qualifyLead(lead: Lead): Promise<Lead> {
+  // Validate research area matches our capabilities
+  const supportedAreas = ['oncology', 'immunology', 'neurology', 'rare_diseases'];
+  if (!supportedAreas.some(area => lead.researchArea.toLowerCase().includes(area))) {
+    throw new Error('Research area outside core competency');
+  }
+  
+  // Score lead based on urgency, budget, and fit
+  const score = calculateLeadScore(lead);
+  if (score < 0.6) {
+    throw new Error('Lead does not meet qualification threshold');
+  }
+  
+  return { ...lead, qualified: true };
+}
+
+async function generateDemoLandscape(lead: Lead): Promise<LandscapeReport> {
+  const demoRequest: LandscapeRequest = {
+    id: `demo-${lead.id}`,
+    customerId: lead.id,
+    targets: lead.targetProteins?.slice(0, 2) || ['KRAS'],
+    modalities: lead.modalities?.slice(0, 1) || ['small_molecule'],
+    indications: lead.indications?.slice(0, 1) || ['solid_tumors'],
+    timeRange: { start: new Date('2020-01-01'), end: new Date() },
+    jurisdictions: ['US', 'EU'],
+    includePreprints: true,
+    alertFrequency: 'weekly'
+  };
+  
+  return await conductLandscapeAnalysis(demoRequest);
+}
+
+async function generateProposal(lead: Lead, demo: LandscapeReport): Promise<any> {
+  const tier = determineTier(lead);
+  const pricing = calculatePricing(tier, lead.budget);
+  
+  return {
+    customerId: lead.id,
+    tier,
+    pricing,
+    demoResults: demo,
+    proposedFeatures: getFeaturesByTier(tier),
+    timeline: '30-day implementation'
+  };
+}
+
+async function negotiateContract(proposal: any): Promise<any> {
+  // Simulate contract negotiation process
+  await validateLegalTerms(proposal);
+  await approveSecurityRequirements(proposal);
+  return { ...proposal, status: 'signed', signedAt: new Date() };
+}
+
+async function onboardCustomer(contract: any): Promise<Customer> {
+  const customer: Customer = {
+    id: contract.customerId,
+    company: contract.company,
+    tier: contract.tier,
+    subscriptionValue: contract.pricing.annual,
+    onboardingDate: new Date(),
+    primaryContact: contract.primaryContact,
+    researchFocus: contract.researchAreas
+  };
+  
+  await setupCustomerEnvironment(customer);
+  await provideInitialTraining(customer);
+  await scheduleSuccessCheckIn(customer);
+  
+  return customer;
+}
+
+// Product Development Processes
+export async function developProduct(): Promise<void> {
+  try {
+    await enhanceNLPModels();
+    await expandDataSources();
+    await improveUserInterface();
+    await validateWithCustomers();
+  } catch (error) {
+    throw new Error(`Product development failed: ${error.message}`);
+  }
+}
+
+async function enhanceNLPModels(): Promise<void> {
+  // Improve biology-specific NLP capabilities
+  await trainDomainSpecificModels();
+  await updateOntologyMappings();
+  await validateModelAccuracy();
+}
+
+async function expandDataSources(): Promise<void> {
+  // Add new patent offices and literature sources
+  await integratePubMedUpdates();
+  await addPatentOfficeAPIs();
+  await validateDataQuality();
+}
+
+async function improveUserInterface(): Promise<void> {
+  // Enhance user experience based on feedback
+  await updateDashboardDesign();
+  await optimizeSearchInterface();
+  await addVisualizationFeatures();
+}
+
+async function validateWithCustomers(): Promise<void> {
+  // Beta test with select customers
+  await deployBetaFeatures();
+  await collectCustomerFeedback();
+  await iterateBasedOnFeedback();
+}
+
+// Revenue Generation Flows
+export async function generateRevenue(customer: Customer, usage: any): Promise<RevenueEvent[]> {
+  try {
+    const events: RevenueEvent[] = [];
+    
+    // Process subscription revenue
+    const subscriptionRevenue = await processSubscriptionRevenue(customer);
+    events.push(subscriptionRevenue);
+    
+    // Process usage overages
+    const overageRevenue = await processUsageOverages(customer, usage);
+    if (overageRevenue) events.push(overageRevenue);
+    
+    // Identify upsell opportunities
+    await identifyUpsellOpportunities(customer, usage);
+    
+    return events;
+  } catch (error) {
+    throw new Error(`Revenue generation failed: ${error.message}`);
+  }
+}
+
+async function processSubscriptionRevenue(customer: Customer): Promise<RevenueEvent> {
+  return {
+    type: 'subscription',
+    amount: customer.subscriptionValue / 12, // Monthly amount
+    customerId: customer.id,
+    date: new Date()
+  };
+}
+
+async function processUsageOverages(customer: Customer, usage: any): Promise<RevenueEvent | null> {
+  const limits = getTierLimits(customer.tier);
+  const overage = calculateOverage(usage, limits);
+  
+  if (overage.amount > 0) {
+    return {
+      type: 'overage',
+      amount: overage.cost,
+      customerId: customer.id,
+      date: new Date()
+    };
+  }
+  
+  return null;
+}
+
+async function identifyUpsellOpportunities(customer: Customer, usage: any): Promise<void> {
+  if (usage.landscapeRuns > getTierLimits(customer.tier).landscapes * 0.8) {
+    await scheduleUpsellConversation(customer, 'usage_approaching_limit');
+  }
+  
+  if (usage.apiCalls > 0 && customer.tier === 'team') {
+    await scheduleUpsellConversation(customer, 'api_usage_detected');
+  }
+}
+
+// Core Service: Landscape Analysis
+export async function conductLandscapeAnalysis(request: LandscapeRequest): Promise<LandscapeReport> {
+  try {
+    const normalizedEntities = await normalizeEntities(request);
+    const literatureData = await queryLiteratureSources(normalizedEntities);
+    const patentData = await queryPatentSources(normalizedEntities);
+    const evidenceGraph = await buildEvidenceGraph(literatureData, patentData);
+    const gapAnalysis = await performGapAnalysis(evidenceGraph);
+    const competitiveIntel = await analyzeCompetitiveLandscape(patentData);
+    
+    const report: LandscapeReport = {
+      id: `report-${request.id}`,
+      requestId: request.id,
+      evidenceGraph,
+      patentClaims: patentData.claims,
+      gapAnalysis,
+      competitiveIntelligence: competitiveIntel,
+      citations: [...literatureData.citations, ...patentData.citations],
+      confidence: calculateConfidenceScore(evidenceGraph),
+      generatedAt: new Date()
+    };
+    
+    await setupAlerts(request, report);
+    return report;
+  } catch (error) {
+    throw new Error(`Landscape analysis failed: ${error.message}`);
+  }
+}
+
+async function normalizeEntities(request: LandscapeRequest): Promise<any> {
+  // Normalize targets using HGNC/UniProt
+  // Normalize modalities using controlled vocabularies
+  // Normalize indications using MeSH/DOID
+  return {
+    targets: await normalizeTargets(request.targets),
+    modalities: await normalizeModalities(request.modalities),
+    indications: await normalizeIndications(request.indications)
+  };
+}
+
+async function queryLiteratureSources(entities: any): Promise<any> {
+  // Query PubMed, bioRxiv, medRxiv, etc.
+  const sources = await Promise.all([
+    queryPubMed(entities),
+    queryBioRxiv(entities),
+    querySemanticScholar(entities)
+  ]);
+  
+  return aggregateLiteratureResults(sources);
+}
+
+async function queryPatentSources(entities: any): Promise<any> {
+  // Query USPTO, EPO, WIPO, etc.
+  const sources = await Promise.all([
+    queryUSPTO(entities),
+    queryEPO(entities),
+    queryWIPO(entities)
+  ]);
+  
+  return aggregatePatentResults(sources);
+}
+
+// Operational Procedures
+export async function manageOperations(): Promise<void> {
+  try {
+    await monitorSystemHealth();
+    await processAlertQueue();
+    await updateDataIndices();
+    await generateUsageReports();
+    await performSecurityAudits();
+  } catch (error) {
+    throw new Error(`Operations management failed: ${error.message}`);
+  }
+}
+
+async function monitorSystemHealth(): Promise<void> {
+  // Monitor API response times, error rates, data freshness
+  const metrics = await collectSystemMetrics();
+  if (metrics.errorRate > 0.01) {
+    await alertOperationsTeam('High error rate detected');
+  }
+}
+
+async function processAlertQueue(): Promise<void> {
+  // Process pending alerts for all customers
+  const pendingAlerts = await getPendingAlerts();
+  for (const alert of pendingAlerts) {
+    await processAlert(alert);
+  }
+}
+
+async function updateDataIndices(): Promise<void> {
+  // Update vector embeddings and search indices
+  await updateLiteratureIndex();
+  await updatePatentIndex();
+  await optimizeSearchPerformance();
+}
+
+// Decision-Making Workflows
+export async function makeStrategicDecision(context: any): Promise<any> {
+  try {
+    const marketAnalysis = await analyzeMarketConditions();
+    const competitorAnalysis = await analyzeCompetitors();
+    const customerFeedback = await aggregateCustomerFeedback();
+    const financialMetrics = await calculateFinancialMetrics();
+    
+    const recommendation = await generateRecommendation({
+      market: marketAnalysis,
+      competition: competitorAnalysis,
+      customers: customerFeedback,
+      finances: financialMetrics,
+      context
+    });
+    
+    return recommendation;
+  } catch (error) {
+    throw new Error(`Strategic decision making failed: ${error.message}`);
+  }
+}
+
+// Helper functions (would be implemented separately)
+function calculateLeadScore(lead: Lead): number { return 0.8; }
+function determineTier(lead: Lead): string { return 'growth'; }
+function calculatePricing(tier: string, budget?: number): any { return { annual: 72000 }; }
+function getFeaturesByTier(tier: string): string[] { return ['api_access', 'sso']; }
+function getTierLimits(tier: string): any { return { landscapes: 250 }; }
+function calculateOverage(usage: any, limits: any): any { return { amount: 0, cost: 0 }; }
+function calculateConfidenceScore(graph: any): number { return 0.85; }
+
+async function validateLegalTerms(proposal: any): Promise<void> {}
+async function approveSecurityRequirements(proposal: any): Promise<void> {}
+async function setupCustomerEnvironment(customer: Customer): Promise<void> {}
+async function provideInitialTraining(customer: Customer): Promise<void> {}
+async function scheduleSuccessCheckIn(customer: Customer): Promise<void> {}
+async function scheduleUpsellConversation(customer: Customer, reason: string): Promise<void> {}
+async function trainDomainSpecificModels(): Promise<void> {}
+async function updateOntologyMappings(): Promise<void> {}
+async function validateModelAccuracy(): Promise<void> {}
+async function integratePubMedUpdates(): Promise<void> {}
+async function addPatentOfficeAPIs(): Promise<void> {}
+async function validateDataQuality(): Promise<void> {}
+async function updateDashboardDesign(): Promise<void> {}
+async function optimizeSearchInterface(): Promise<void> {}
+async function addVisualizationFeatures(): Promise<void> {}
+async function deployBetaFeatures(): Promise<void> {}
+async function collectCustomerFeedback(): Promise<void> {}
+async function iterateBasedOnFeedback(): Promise<void> {}
+async function normalizeTargets(targets: string[]): Promise<string[]> { return targets; }
+async function normalizeModalities(modalities: string[]): Promise<string[]> { return modalities; }
+async function normalizeIndications(indications: string[]): Promise<string[]> { return indications; }
+async function queryPubMed(entities: any): Promise<any> { return {}; }
+async function queryBioRxiv(entities: any): Promise<any> { return {}; }
+async function querySemanticScholar(entities: any): Promise<any> { return {}; }
+async function queryUSPTO(entities: any): Promise<any> { return {}; }
+async function queryEPO(entities: any): Promise<any> { return {}; }
+async function queryWIPO(entities: any): Promise<any> { return {}; }
+async function aggregateLiteratureResults(sources: any[]): Promise<any> { return {}; }
+async function aggregatePatentResults(sources: any[]): Promise<any> { return {}; }
+async function buildEvidenceGraph(lit: any, pat: any): Promise<any> { return {}; }
+async function performGapAnalysis(graph: any): Promise<any> { return {}; }
+async function analyzeCompetitiveLandscape(patents: any): Promise<any> { return {}; }
+async function setupAlerts(request: LandscapeRequest, report: LandscapeReport): Promise<void> {}
+async function collectSystemMetrics(): Promise<any> { return { errorRate: 0.005 }; }
+async function alertOperationsTeam(message: string): Promise<void> {}
+async function getPendingAlerts(): Promise<any[]> { return []; }
+async function processAlert(alert: any): Promise<void> {}
+async function updateLiteratureIndex(): Promise<void> {}
+async function updatePatentIndex(): Promise<void> {}
+async function optimizeSearchPerformance(): Promise<void> {}
+async function analyzeMarketConditions(): Promise<any> { return {}; }
+async function analyzeCompetitors(): Promise<any> { return {}; }
+async function aggregateCustomerFeedback(): Promise<any> { return {}; }
+async function calculateFinancialMetrics(): Promise<any> { return {}; }
+async function generateRecommendation(data: any): Promise<any> { return {}; }
+async function generateUsageReports(): Promise<void> {}
+async function performSecurityAudits(): Promise<void> {}
+```
+
 Service: Evidence & IP Landscape Scout
