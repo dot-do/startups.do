@@ -117,3 +117,277 @@ export default function Page() {
     </>
   )
 }
+
+## Business Process Functions
+
+The following TypeScript functions define the core business processes for Acme Claims as executable code:
+
+```typescript
+// Types for claims processing
+interface Lead {
+  id: string
+  company: string
+  contactInfo: ContactInfo
+  claimsVolume: number
+  currentProvider?: string
+}
+
+interface Customer {
+  id: string
+  company: string
+  contractTerms: ContractTerms
+  integrationConfig: IntegrationConfig
+  onboardingStatus: 'pending' | 'active' | 'complete'
+}
+
+interface Claim {
+  id: string
+  customerId: string
+  type: 'auto' | 'property' | 'liability'
+  status: 'submitted' | 'processing' | 'review' | 'approved' | 'denied' | 'paid'
+  documents: Document[]
+  riskScore: number
+  estimatedPayout: number
+  submittedAt: Date
+  processedAt?: Date
+}
+
+interface FraudRiskAssessment {
+  score: number // 0-100, higher = more suspicious
+  factors: string[]
+  confidence: number
+  requiresHumanReview: boolean
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  // Qualify lead based on claims volume and current pain points
+  const qualifiedLead = await qualifyLead(lead)
+  
+  // Generate custom proposal highlighting time-to-payout improvements
+  const proposal = await generateProposal(qualifiedLead, {
+    currentCycleTime: lead.currentProvider?.avgCycleTime || '2-3 weeks',
+    targetCycleTime: '5 minutes',
+    accuracyGuarantee: '99%+'
+  })
+  
+  // Negotiate contract terms and integration requirements
+  const contract = await negotiateContract(proposal)
+  
+  // Set up technical integration and onboard customer
+  return await onboardCustomer(contract)
+}
+
+export async function qualifyLead(lead: Lead): Promise<Lead & { qualified: boolean; score: number }> {
+  // Score lead based on claims volume, current pain points, and fit
+  const qualificationScore = calculateLeadScore({
+    claimsVolume: lead.claimsVolume,
+    hasSlowProcessing: true, // Inferred from problem statement
+    hasFraudIssues: true,    // Inferred from problem statement
+    hasIntegrationCapability: await assessTechnicalCapability(lead)
+  })
+  
+  return {
+    ...lead,
+    qualified: qualificationScore > 70,
+    score: qualificationScore
+  }
+}
+
+// Claims Processing Workflows (Core Product)
+export async function processClaimFNOL(claimData: any): Promise<Claim> {
+  // First Notice of Loss - intake and initial processing
+  const claim = await createClaim(claimData)
+  
+  // Parse and extract data from submitted documents
+  const parsedDocuments = await parseClaimDocuments(claim.documents)
+  
+  // Generate initial risk assessment
+  const riskAssessment = await assessFraudRisk(claim, parsedDocuments)
+  
+  // Update claim with parsed data and risk score
+  const updatedClaim = await updateClaim(claim.id, {
+    ...parsedDocuments,
+    riskScore: riskAssessment.score,
+    status: riskAssessment.requiresHumanReview ? 'review' : 'processing'
+  })
+  
+  // Route to appropriate processing path
+  if (riskAssessment.requiresHumanReview) {
+    await queueForHumanReview(updatedClaim, riskAssessment)
+  } else {
+    await processAutomatically(updatedClaim)
+  }
+  
+  return updatedClaim
+}
+
+export async function assessFraudRisk(claim: Claim, parsedData: any): Promise<FraudRiskAssessment> {
+  // Use proprietary claims patterns for fraud detection
+  const riskFactors = await analyzeClaimPatterns(claim, parsedData)
+  
+  // Score based on historical fraud indicators
+  const riskScore = calculateRiskScore(riskFactors)
+  
+  // Determine if human review is required
+  const requiresReview = riskScore > 75 || hasHighRiskIndicators(riskFactors)
+  
+  return {
+    score: riskScore,
+    factors: riskFactors.map(f => f.description),
+    confidence: riskFactors.reduce((acc, f) => acc + f.confidence, 0) / riskFactors.length,
+    requiresHumanReview: requiresReview
+  }
+}
+
+export async function processAutomatically(claim: Claim): Promise<Claim> {
+  // Automated processing for low-risk claims
+  const payoutAmount = await calculatePayout(claim)
+  
+  // Validate payout against policy limits
+  const validatedPayout = await validatePayout(claim, payoutAmount)
+  
+  // Process payment through insurer integration
+  const paymentResult = await processPayment(claim.customerId, validatedPayout)
+  
+  // Update claim status and complete processing
+  return await updateClaim(claim.id, {
+    status: 'paid',
+    actualPayout: validatedPayout,
+    processedAt: new Date(),
+    paymentReference: paymentResult.transactionId
+  })
+}
+
+export async function handleHumanReview(claim: Claim, reviewDecision: 'approve' | 'deny' | 'investigate'): Promise<Claim> {
+  // Human-in-the-loop processing for edge cases
+  switch (reviewDecision) {
+    case 'approve':
+      return await processAutomatically(claim)
+    case 'deny':
+      return await denyClaim(claim, 'Manual review - claim denied')
+    case 'investigate':
+      return await escalateForInvestigation(claim)
+  }
+}
+
+// Revenue Generation Workflows
+export async function generateRevenue(claim: Claim): Promise<{ perClaimFee: number; saasRevenue: number }> {
+  // Calculate per-claim processing fee
+  const perClaimFee = calculatePerClaimFee(claim)
+  
+  // Track SaaS subscription revenue
+  const customer = await getCustomer(claim.customerId)
+  const saasRevenue = customer.contractTerms.monthlySaasRate
+  
+  // Record revenue and update metrics
+  await recordRevenue({
+    customerId: claim.customerId,
+    claimId: claim.id,
+    perClaimFee,
+    saasRevenue,
+    processedAt: new Date()
+  })
+  
+  return { perClaimFee, saasRevenue }
+}
+
+// Operational Procedures
+export async function monitorSystemHealth(): Promise<void> {
+  // Track key metrics: time-to-payout, fraud rate, CSAT
+  const metrics = await collectMetrics()
+  
+  // Alert if metrics fall below thresholds
+  if (metrics.avgProcessingTime > 300) { // 5 minutes
+    await alertOpsTeam('Processing time exceeded target', metrics)
+  }
+  
+  if (metrics.fraudRate > 0.01) { // 1%
+    await alertOpsTeam('Fraud rate above threshold', metrics)
+  }
+  
+  if (metrics.customerSatisfaction < 4.5) { // Out of 5
+    await alertOpsTeam('Customer satisfaction below target', metrics)
+  }
+}
+
+export async function scaleInfrastructure(claimsVolume: number): Promise<void> {
+  // Auto-scale LLM and infrastructure resources based on volume
+  const requiredCapacity = calculateRequiredCapacity(claimsVolume)
+  
+  // Scale LLM API limits
+  await scaleLLMCapacity(requiredCapacity.llmCalls)
+  
+  // Scale infrastructure resources
+  await scaleInfrastructure(requiredCapacity.computeUnits)
+  
+  // Update integration rate limits
+  await updateIntegrationLimits(requiredCapacity.apiCalls)
+}
+
+// Decision-Making Workflows
+export async function optimizeProcessing(): Promise<void> {
+  // Analyze processing patterns and optimize workflows
+  const processingData = await analyzeProcessingPatterns()
+  
+  // Identify bottlenecks and optimization opportunities
+  const optimizations = await identifyOptimizations(processingData)
+  
+  // Implement approved optimizations
+  for (const optimization of optimizations) {
+    if (optimization.impact > 0.1 && optimization.risk < 0.05) {
+      await implementOptimization(optimization)
+    }
+  }
+}
+
+export async function expandToNewMarket(market: string): Promise<{ feasible: boolean; timeline: string; investment: number }> {
+  // Evaluate market expansion opportunities
+  const marketAnalysis = await analyzeMarket(market)
+  
+  // Assess regulatory requirements
+  const regulatoryRequirements = await assessRegulatory(market)
+  
+  // Calculate investment and timeline
+  const expansion = await planExpansion(marketAnalysis, regulatoryRequirements)
+  
+  return {
+    feasible: expansion.roi > 0.25, // 25% ROI threshold
+    timeline: expansion.timeline,
+    investment: expansion.totalInvestment
+  }
+}
+
+// Helper functions (would be implemented separately)
+async function calculateLeadScore(factors: any): Promise<number> { return 85 }
+async function assessTechnicalCapability(lead: Lead): Promise<boolean> { return true }
+async function generateProposal(lead: any, terms: any): Promise<any> { return {} }
+async function negotiateContract(proposal: any): Promise<any> { return {} }
+async function onboardCustomer(contract: any): Promise<Customer> { return {} as Customer }
+async function createClaim(data: any): Promise<Claim> { return {} as Claim }
+async function parseClaimDocuments(docs: Document[]): Promise<any> { return {} }
+async function analyzeClaimPatterns(claim: Claim, data: any): Promise<any[]> { return [] }
+async function calculateRiskScore(factors: any[]): Promise<number> { return 25 }
+async function hasHighRiskIndicators(factors: any[]): boolean { return false }
+async function calculatePayout(claim: Claim): Promise<number> { return 5000 }
+async function validatePayout(claim: Claim, amount: number): Promise<number> { return amount }
+async function processPayment(customerId: string, amount: number): Promise<any> { return {} }
+async function updateClaim(id: string, updates: any): Promise<Claim> { return {} as Claim }
+async function queueForHumanReview(claim: Claim, assessment: any): Promise<void> { }
+async function denyClaim(claim: Claim, reason: string): Promise<Claim> { return claim }
+async function escalateForInvestigation(claim: Claim): Promise<Claim> { return claim }
+async function calculatePerClaimFee(claim: Claim): number { return 50 }
+async function getCustomer(id: string): Promise<Customer> { return {} as Customer }
+async function recordRevenue(data: any): Promise<void> { }
+async function collectMetrics(): Promise<any> { return {} }
+async function alertOpsTeam(message: string, data: any): Promise<void> { }
+async function calculateRequiredCapacity(volume: number): Promise<any> { return {} }
+async function scaleLLMCapacity(calls: number): Promise<void> { }
+async function updateIntegrationLimits(calls: number): Promise<void> { }
+async function analyzeProcessingPatterns(): Promise<any> { return {} }
+async function identifyOptimizations(data: any): Promise<any[]> { return [] }
+async function implementOptimization(opt: any): Promise<void> { }
+async function analyzeMarket(market: string): Promise<any> { return {} }
+async function assessRegulatory(market: string): Promise<any> { return {} }
+async function planExpansion(analysis: any, regulatory: any): Promise<any> { return {} }
+```
