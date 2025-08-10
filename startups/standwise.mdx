@@ -1,0 +1,316 @@
+---
+name: StandWise Copilot (AI for Gate/Stand Allocation)
+slug: standwise
+naics:
+  primary: '488119'
+  occupations: []
+service:
+  title: Gate/Stand Allocation Copilot
+  description: >-
+    Assists duty allocators with stand conflicts, swaps, and constraint checks;
+    proposes optimal assignments with justifications.
+  targetUsers:
+    - Stand/Gate Allocation
+    - Ramp Control
+    - APOC
+  triggers:
+    - Inbound delay creating stand conflict
+    - Unserviceable stand
+    - Aircraft type change
+    - Tow plan update
+  inputs:
+    - 'Stand/gate inventory and constraints (MARS, wingspan, fueling, jetway)'
+    - Flight schedule and aircraft type
+    - Tow plan and taxiway closures
+    - 'Special constraints (PRM, international/domestic segregation)'
+  steps:
+    - Continuously validate plan against constraints and new events
+    - Detect conflicts and generate feasible alternatives
+    - 'Score options by taxi time, towing, connection flows'
+    - Present top-3 proposals with trade-offs and one-click apply
+    - Record rationale and change log
+  tools:
+    - AODB Resource Manager API
+    - Constraint solver (Google OR-Tools)
+    - Airport Rules KB
+    - Visualization (web dashboard)
+  outputs:
+    - Conflict alerts
+    - Ranked stand swap proposals
+    - Change log and compliance report
+  pricingModel:
+    - Monthly subscription per airport
+    - Add-on per additional terminal/concourses
+    - Integration/setup fee
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 7
+    overall: 7
+  risks:
+    - Incorrect constraints leading to unsafe suggestions
+    - 'Need for high-quality, up-to-date rules'
+    - Latency during peak ops
+  dependencies:
+    - AODB resource data
+    - Rules/constraints catalog
+    - User permissions to propose/apply changes
+leanCanvas:
+  problem:
+    - >-
+      Frequent stand conflicts and late swaps increase tows and delays:
+      medium-to-large airports see 2–8 last-minute tows/day costing $600–$2,500
+      each and causing 5–20 min knock-on delays.
+    - >-
+      Manual allocation is cognitively intensive and brittle: allocators track
+      50–200 constraints (aircraft size/bridge, Schengen/non-Schengen,
+      adjacency, curfews, safety zones, PRM gates, code-share adjacency) across
+      100–300 daily movements; errors rise during IROPs and peaking waves.
+    - >-
+      Existing RMS tools surface conflicts but give limited, slow or opaque
+      optimization; allocators still spend 1–2 hours/shift firefighting and
+      reconciling rules across AODB/RMS/stand plans.
+    - >-
+      Poor justifications erode stakeholder trust: airlines challenge gate
+      changes without clear why/impact; lack of audit trails creates disputes
+      and SLA penalties.
+    - >-
+      Static rules don’t adapt to real-time changes (METAR/NOTAM, late inbounds,
+      equipment outages), leading to suboptimal use of contact stands and
+      increased remote parking/busing costs.
+    - >-
+      Operational KPIs (D0/D15, passenger connection times, towing count) are
+      not directly tied to allocation decisions in tools; hard to quantify ROI
+      or coach teams.
+    - >-
+      Integration risk and long projects: airports fear multi-month RMS
+      rip/replace; need a low-risk overlay that coexists with current AODB/RMS.
+  solution:
+    - >-
+      Overlay copilot that plugs into existing AODB/RMS to continuously scan
+      allocations, detect conflicts, and propose ranked, constraint-compliant
+      assignments with full justifications.
+    - >-
+      Real-time constraint engine with airport-specific rules (aircraft/stand
+      compatibility, pier/immigration segregation, wingtip clearance, tow paths,
+      noise/curfew, preferential airline gates, maintenance blocks).
+    - >-
+      Multi-objective optimizer that balances KPIs: minimize tows/remote
+      stands/passenger walking time, protect wave peaks and connections, respect
+      airline preferences and fairness.
+    - >-
+      Human-in-the-loop workflow: allocator accepts/edits proposals; system
+      learns from decisions to refine suggestions while maintaining safety
+      constraints and auditability.
+    - >-
+      What-if simulation and IROPs playbooks: fast re-optimization for late
+      inbounds, equipment outages, weather, runway closures; scenario scoring
+      against KPIs.
+    - >-
+      Transparent explanations: every suggestion includes supporting rules,
+      impacts (OTP, tows, walking distance), affected flights/airlines, and risk
+      analysis for quick stakeholder buy-in.
+    - >-
+      Edge-ready deployment with fail-safe: on-prem or VPC; deterministic
+      fallbacks and read-only mode if data sources degrade; full audit logs for
+      compliance.
+  uniqueValueProp: >-
+    An explainable, safety-first AI copilot that detects conflicts, proposes
+    optimal stand swaps in under 2 seconds, and documents the why. Reduce
+    last-minute tows by 25–40%, allocator firefighting time by 30–50%, and
+    improve D0 by 1–3 percentage points within 90 days—without replacing your
+    RMS/AODB.
+  unfairAdvantage: >-
+    Explainable, airport-specific constraint modeling language and optimization
+    engine that learns allocator preferences while enforcing hard safety rules;
+    deep, certified connectors across major AODB/RMS vendors enabling fast,
+    low-risk overlay deployments; growing, proprietary dataset of allocation
+    decisions/outcomes that improves recommendations and KPI impact per airport.
+  customerSegments:
+    - >-
+      Primary users: AOCC/Resource Management duty allocators and shift leads at
+      medium/large airports (5M–80M pax/year).
+    - >-
+      Economic buyers: Directors/Heads of Airport Operations, AOCC Managers,
+      CIO/CTO (for IT/security sign-off).
+    - >-
+      Influencers: Airline station managers, ground handlers, terminal ops,
+      apron control, A-CDM coordinators.
+    - >-
+      Geographies: Initial focus on Europe and North America (A-CDM-matured and
+      data-rich), expansion to Middle East/Asia with hub operations.
+  channels:
+    - >-
+      Direct enterprise sales to airport operators (targeting AOCC leadership)
+      with ROI pilots (8–12 weeks) tied to measurable KPIs.
+    - >-
+      Partnerships and resellers with AODB/RMS vendors and airport system
+      integrators to embed the copilot as an add-on module.
+    - >-
+      Industry events and buyer consortia: ACI (World/Europe/NA), IATA WPS,
+      Passenger Terminal Expo; publish case studies and KPI benchmarks.
+    - >-
+      Public-sector procurement frameworks where applicable (e.g., G-Cloud/OGC,
+      airport authority vendor lists); respond to RFPs with clear integration
+      plans.
+    - >-
+      Thought leadership: webinars with AOCC leaders, whitepapers on explainable
+      AI in safety-critical ops, benchmarking reports (opt-in data).
+  revenueStreams:
+    - >-
+      Annual SaaS subscription tiered by gate count and movement volume: Small
+      (1–10 gates): $30k ARR; Medium (11–50): $120k ARR; Large (51–150): $350k
+      ARR; Mega (150+): $700k+ ARR.
+    - >-
+      One-time integration and onboarding fees: $50k–$250k depending on
+      connectors, on-prem/VPC setup, and rule modeling complexity.
+    - >-
+      Premium options: 24/7 on-call support, enhanced SLAs, disaster-recovery
+      active-active, dedicated environment (+$25k–$150k ARR).
+    - >-
+      Professional services: change management, advanced scenario modeling, KPI
+      tuning workshops ($1,500–$2,500/day).
+    - >-
+      Optional usage-based component for high-change environments: $0.02–$0.05
+      per accepted proposal beyond included thresholds.
+  costStructure:
+    - >-
+      R&D: optimization/AI engineers, backend, integrations, UX; ongoing model
+      development and CML tooling ($3–6M/year at scale).
+    - >-
+      Cloud/compute and on-prem support: inference clusters, observability,
+      security tooling ($40k–$150k/airport/year depending on deployment).
+    - >-
+      Compliance and security: SOC 2/ISO 27001 audits, pen tests, data
+      protection, insurance ($200k–$500k/year).
+    - >-
+      Implementation and customer success: solution architects, field engineers,
+      training, travel ($80k–$250k per new airport).
+    - >-
+      Sales/marketing and partnerships: enterprise AE/SE teams, events,
+      collateral ($1–2M/year initially).
+  keyMetrics:
+    - >-
+      Operational: last-minute tows per 100 movements (target: -25–40% within 6
+      months).
+    - >-
+      Conflict horizon: average minutes between first detection and conflict
+      time (target: +15–30 min warning).
+    - >-
+      Allocator efficiency: time spent resolving conflicts per shift (target:
+      -30–50%).
+    - >-
+      Contact-stand utilization: % of arrivals/departures on contact vs remote
+      (target: +3–7 pp).
+    - >-
+      OTP impact: D0 and D15 improvement attributable to allocation changes
+      (target: +1–3 pp D0, +0.5–2 pp D15).
+    - >-
+      Proposal quality: acceptance rate of top-3 recommendations (target: >70%
+      after 90 days), post-acceptance rework rate (<10%).
+    - >-
+      System performance: P95 recommendation latency <2s; data freshness <5s;
+      uptime 99.95%.
+    - >-
+      Business: ACV, gross margin (>70%), payback period (<12 months), NRR
+      (>120% via expansions), time-to-value (<90 days).
+storyBrand:
+  character: >-
+    Airport duty allocators and stand planners who must place every aircraft on
+    the right stand, on time, under shifting constraints.
+  problem: >-
+    External: Stand conflicts, irregular ops, late changes, and complex
+    constraints (aircraft fit, MARS, towing, customs, airline priorities)
+    overwhelm legacy tools. Internal: Allocators feel rushed, second‑guessed,
+    and blind to knock‑on effects. Philosophical: Safety‑ and service‑critical
+    decisions shouldn’t rely on spreadsheets and memory.
+  guide: >-
+    Empathy: We understand how last‑minute swaps cascade and create radio chaos.
+    Authority: Built with airport ops SMEs; explainable AI and a robust
+    constraint engine that respects local rules and integrates with AODB/stand
+    systems.
+  plan: >-
+    Process: 1) Connect schedule, resources, and rules; 2) Get real‑time
+    assignments, conflict alerts, and ranked alternatives with reasons; 3)
+    Approve or override in one click; audit trail syncs back. Agreement: Your
+    rules first, human‑in‑the‑loop always, secure pilot before go‑live.
+  callToAction: >-
+    Direct: Book a live demo or start a controlled pilot on your next schedule
+    wave. Transitional: Download the Gate/Stand Readiness Checklist and request
+    an ROI estimate.
+  success: >-
+    Proactive conflict resolution, fewer late gate changes, faster turns, higher
+    OTP, reduced towing and radio traffic, clear justifications for every
+    assignment, happier airlines and passengers, confident allocators.
+  failure: >-
+    Continued firefighting: cascading swaps, avoidable delays and violations,
+    costly tows, missed slots, blame cycles, and fatigued teams.
+landingPage:
+  hero:
+    title: Gate/Stand Allocation Copilot
+    subtitle: >-
+      Resolve stand conflicts in seconds. AI proposes optimal gate/stand
+      assignments—and explains every decision. Built for Other Airport
+      Operations (NAICS 488119).
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - Stand clashes and cascading swaps consume peak-time hours.
+    - Constant ETA changes and IRROPS overwhelm planners.
+    - >-
+      Critical constraints (type, wingspan, customs, curfews, MCT, tow/no‑tow)
+      are easy to miss.
+    - 'Suboptimal plans increase taxi time, tows, bus gates, and delays.'
+    - >-
+      Protecting connections and VIP priorities conflicts with utilization
+      goals.
+    - No clear audit trail to justify swaps to airlines or regulators.
+    - Legacy rule engines are brittle and slow to adapt policies.
+    - 'Coordination across apron, terminal, and airlines is fragmented.'
+  solution:
+    - Always-on conflict detection with proactive alerts.
+    - 'AI-recommended swaps and assignments, ranked with clear reasons.'
+    - Automatic enforcement of airport constraints and policies.
+    - >-
+      Optimization tuned to your KPIs: on-time, minimal tows, transfer
+      protection, balance.
+    - >-
+      What-if scenarios for closures, diversions, and late inbounds—before
+      publishing.
+    - Seamless AODB/RMS and A‑CDM integration with human-in-the-loop approval.
+    - 'Full auditability: every change explained, timestamped, and reversible.'
+  features:
+    - Real-time stand occupancy timeline and conflict view.
+    - >-
+      Comprehensive constraint engine: aircraft/stand fit, bridge, curfew,
+      customs/Schengen, tow/no‑tow, fueling, de‑icing, noise, MCT, adjacency,
+      wingspan, weight.
+    - Explainable recommendations with pass/fail checks and rationale.
+    - >-
+      Impact metrics: delay minutes saved, tow moves avoided, taxi distance,
+      connection risk, utilization.
+    - One-click apply and instant rollback; safe sandbox for testing.
+    - 'IRROPS mode for weather, closures, diversions, and late aircraft.'
+    - Connection protection with MCT-aware transfer clustering.
+    - What-if simulator and scenario playback for post‑ops review.
+    - 'Role-based workflow, approvals, and handover notes.'
+    - >-
+      Integrations: AODB, RMS, FIDS, A‑CDM, ATC advisories, BHS, stand plans;
+      APIs and webhooks.
+    - 'Deployment: cloud or on‑prem; offline cache for comms outages.'
+    - 'Security: SSO, RBAC, encryption at rest/in transit, full audit logs.'
+    - Configurable policies and objective weights; multi-airport support.
+    - Multilingual UI and time-zone aware scheduling.
+  steps:
+    - 'Connect AODB, RMS, and live data feeds.'
+    - Import stand map; configure constraints and policies.
+    - Run AI allocation or enable real-time assist on your existing plan.
+    - Review ranked recommendations with justifications and impact metrics.
+    - Approve and publish changes; sync to ops systems and FIDS.
+    - Monitor KPIs and alerts; use what‑if scenarios to adapt in minutes.
+    - Continuously improve with operator feedback and audit insights.
+---
+# StandWise Copilot (AI for Gate/Stand Allocation)
+
+Generated for NAICS 488119 — Other Airport Operations.
+Service: Gate/Stand Allocation Copilot

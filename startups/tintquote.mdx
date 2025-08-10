@@ -1,0 +1,337 @@
+---
+name: TintQuote AI
+slug: tintquote
+naics:
+  primary: '325910'
+  occupations: []
+service:
+  title: Color Match & Costed Quote Agent
+  description: >-
+    Auto-generate near-match ink formulations, predicted color delta, and a
+    costed quote from a target color and print context.
+  targetUsers:
+    - Color matching lab
+    - Sales/CSR
+    - Technical service
+  triggers:
+    - New RFQ with color target
+    - Customer uploads CxF/L*a*b* values or Pantone
+  inputs:
+    - 'Target color (CxF, L*a*b*, Pantone)'
+    - Substrate and ink system (solvent/UV/water)
+    - Print process (flexo/gravure/offset) and anilox/screen data
+    - Opacity/fastness/chemistry constraints
+    - Existing base inks with spectral curves and costs
+    - Lead time and MOQ rules
+  steps:
+    - Parse RFQ and validate required info
+    - Pull spectral data and constraints from DB
+    - >-
+      Simulate base blends (Kubelka–Munk/Beer–Lambert) to minimize dE under
+      constraints
+    - Optimize for cost and availability; exclude restricted substances
+    - Predict on-press shift with substrate/backing model
+    - 'Produce 1–3 candidate formulas with dE, cost, and lead time'
+    - Generate quote and sample label; push to CRM
+  tools:
+    - Color libraries (CxF3/ICC)
+    - Optimization (scikit-optimize/OR-Tools)
+    - LLM for explanation and quote text
+    - ERP/CRM connector (SAP/Dynamics/Salesforce)
+  outputs:
+    - Candidate formulations with predicted dE
+    - Costed quote (PDF/JSON) with lead time
+    - Blend instructions and sample ID
+  pricingModel:
+    - Subscription per site/user
+    - Per-quote usage fee
+    - One-time setup for base spectral data ingestion
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Inaccurate spectral data leading to off-shade
+    - Unmodeled substrate/press effects
+    - Liability if quote promises not met
+  dependencies:
+    - Base ink spectral database
+    - Pricing/availability from ERP
+    - CRM access
+leanCanvas:
+  problem:
+    - >-
+      Color matching and quoting are slow: typical cycle from target color to
+      approved quote takes 1–3 days with 2–4 lab iterations.
+    - >-
+      First-pass match rates are inconsistent (often <50% within ΔE00 ≤ 1.5),
+      leading to rework and delayed customer commitments.
+    - >-
+      Margin leakage: quotes often don’t reflect real-time raw material costs,
+      inventory availability, loss factors, or compliance upcharges; pricing is
+      inconsistent across reps and sites.
+    - >-
+      Expertise concentration: tacit knowledge lives with senior colorists;
+      turnover creates risk and onboarding time for new staff.
+    - >-
+      Supply volatility: pigment substitutions and regulatory restrictions
+      (e.g., EuPIA Exclusion Policy, Swiss Ordinance, brand-owner lists)
+      complicate matches and re-formulations.
+    - >-
+      Fragmented tools: formulation software, ERP costing, and spectro QC don’t
+      talk to each other, creating manual data entry and errors.
+    - >-
+      Lost deals due to slow response: converters and brand owners expect
+      same-day, costed quotes with documented tolerances and print context
+      assumptions.
+  solution:
+    - >-
+      AI-assisted, physics-informed formulation engine that proposes 1–3
+      near-match recipes from a target color (LAB/spectral/Pantone) and print
+      context (substrate, process, anilox/film weight, ink system).
+    - >-
+      Real-time predicted color error (ΔE00) under specified illuminant/observer
+      and measurement conditions; confidence score; metamerism risk indicator.
+    - >-
+      Costed quote generation using BOM, current raw material costs, yield/loss
+      factors, labor/overhead, packaging, and volume-based margin ladders;
+      generates a customer-facing quote PDF and ERP-ready line items.
+    - >-
+      Inventory- and compliance-aware substitutes (pigment/binder swaps) that
+      maintain color within tolerance while optimizing cost, lead time,
+      VOC/low-migration targets, and restricted substance lists.
+    - >-
+      “Nearest stock color” and “use existing formula” suggestions to avoid
+      unnecessary new developments.
+    - >-
+      Closed-loop learning: ingest lab validation spectra and production deltas
+      to improve future predictions; site-specific calibration and correction
+      factors.
+    - >-
+      Seamless integrations to spectrophotometers, ERP/MES/PLM, and QC systems
+      to eliminate re-keying and ensure traceability.
+  uniqueValueProp: >-
+    From target color and print context to a near-match formulation, predicted
+    ΔE00, and a costed, sales-ready quote in under 15 minutes—raising first-pass
+    match rate to 80%+, cutting lab iterations by 50%, and protecting 1–2 margin
+    points through inventory- and compliance-aware costing.
+  unfairAdvantage: >-
+    A physics-informed ML engine calibrated to each site’s historical data and
+    print context, coupled with real-time costing, inventory awareness, and
+    compliance intelligence—delivering an end-to-end path from color target to
+    price, which incumbent formulation tools and ERPs handle only in silos.
+    Optional federated learning improves the core without exposing customer
+    data.
+  customerSegments:
+    - >-
+      Mid-to-large printing ink manufacturers (flexo, gravure, offset;
+      packaging, labels, corrugated, flexible film).
+    - >-
+      Regional/specialty ink makers (niche colors, short runs, metallics,
+      low-migration).
+    - In-plant ink room service providers supporting major converters.
+    - >-
+      Converters with captive ink kitchens needing faster internal matching and
+      costing.
+    - >-
+      Pigment/resin suppliers’ application labs (as co-development/enablement
+      tool).
+  channels:
+    - >-
+      Direct enterprise sales to mid/large ink manufacturers (target list of
+      ~100 in North America and Europe).
+    - >-
+      Partnerships with spectrophotometer vendors and distributors for
+      co-selling and bundling.
+    - Alliances with ERP/MES vendors and SIs for integrations and referrals.
+    - >-
+      Industry events and associations: FTA INFOFLEX/Forum, Labelexpo, PRINTING
+      United, drupa; technical talks and live demos.
+    - >-
+      Content marketing: white papers on AI + Kubelka–Munk, ROI calculator for
+      quote speed/margin lift, webinars with pilot customers.
+    - >-
+      Pilot-first motion: 8–12 week paid pilots with SLA’d outcomes (e.g., >50%
+      cycle-time reduction, >20% fewer lab trials).
+    - >-
+      Targeted outreach to in-plant ink room operators at large converters for
+      expansion after manufacturer beachheads.
+  revenueStreams:
+    - >-
+      SaaS subscription: per-user or per-site. Indicative pricing: $600–1,200
+      per user/month or $4,000–8,000 per site/month (includes baseline usage).
+    - >-
+      Usage-based fees: $0.25–$1.00 per AI formulation/optimization beyond plan;
+      volume discounts for >10,000 matches/month.
+    - >-
+      Enterprise plan: annual contracts ($80k–$250k/yr) with unlimited users,
+      dedicated instance, advanced analytics, and premium support.
+    - >-
+      Implementation/onboarding: $15k–$60k one-time per site for data migration,
+      model training, and integrations.
+    - 'Premium support and training: $5k–$25k/yr per site; optional 24/7 support.'
+    - >-
+      OEM/white-label: instrument vendors or ERP partners bundle the engine and
+      share revenue.
+    - >-
+      Advisory services: compliance configuration, cost-optimization workshops,
+      custom model extensions.
+  costStructure:
+    - >-
+      R&D and product (color science, ML, full-stack, integrations):
+      $1.5–2.5M/yr for 8–12 FTEs.
+    - >-
+      Cloud infrastructure (compute for model training/inference, storage of
+      spectral/formula data, security): $12k–$30k/month at 20+ enterprise
+      customers.
+    - >-
+      Implementation and customer success: $200k–$500k/yr; partially offset by
+      onboarding fees.
+    - >-
+      Sales and marketing (events, content, demos): $400k–$900k/yr in early
+      scale; CAC target $10k–$25k per enterprise site.
+    - >-
+      Compliance/legal/insurance (E&O, data processing agreements):
+      $80k–$200k/yr.
+    - >-
+      Test lab capex (spectros, drawdown/print fixtures, reference substrates):
+      $80k–$150k one-time; maintenance $10k–$25k/yr.
+    - 'Partner program costs (rev share, MDF): 5–15% of influenced ARR.'
+  keyMetrics:
+    - >-
+      Time-to-quote: baseline 24–72 hours → target median <2 hours; stretch <30
+      minutes for repeats.
+    - 'First-pass match rate: baseline 30–50% within ΔE00 ≤ 1.5 → target 75–90%.'
+    - 'Lab iterations per order: baseline 2–4 → target ≤1.5 average.'
+    - >-
+      Quote win rate: baseline X% → +10–20% relative lift within 6 months of
+      deployment.
+    - >-
+      Gross margin protection: +1–2 percentage points via
+      inventory/compliance-aware costing and margin ladders.
+    - >-
+      Model confidence accuracy: ≥80% of predictions within ±0.3 ΔE00 of lab
+      validation for supported systems.
+    - >-
+      Adoption: weekly active technical users ≥70% of licensed seats; sales
+      usage ≥50% of eligible quotes.
+    - >-
+      Integration coverage: ≥90% of quotes created through ERP integration (no
+      manual re-entry).
+    - >-
+      Data onboarding time: first site live within 6–8 weeks; subsequent sites
+      ≤3 weeks.
+    - 'Support KPIs: P1 incident response <1 hour; uptime ≥99.9%.'
+storyBrand:
+  character: >-
+    Commercial and packaging ink manufacturers (NAICS 325910) who must turn
+    target colors into reliable formulations and costed quotes—fast.
+  problem: >-
+    External: Color match requests are complex and urgent; manual formulation
+    and quoting are slow and inconsistent. Internal: Labs are overloaded, sales
+    fears mispricing, and experts become bottlenecks. Philosophical: It
+    shouldn’t take days and guesswork to match a color and price it.
+  guide: >-
+    We understand the pressure of lab queues, press deadlines, and margin
+    leakage. Our AI, trained on spectral and recipe data, predicts near-match
+    formulations, Delta E, and cost in minutes—backed by color scientists,
+    validated on thousands of matches, and integrated with your
+    spectrophotometer and ERP for secure, traceable results.
+  plan: >-
+    1) Connect pigment catalog, cost data, and tolerances. 2) Submit target
+    color and print context. 3) Receive a near-match formulation, predicted
+    Delta E, and a costed quote to approve or share.
+  callToAction: Start a 30-day pilot with your data—or request a live demo today.
+  success: >-
+    Quote in minutes, win more jobs, reduce lab iterations and pigment waste,
+    protect margins with accurate costings, standardize quality across sites,
+    capture expert know‑how, and deliver confident matches your customers trust.
+  failure: >-
+    Slow quotes, lost orders, over-discounting to hedge risk, costly rework and
+    press returns, dependency on a few experts, and eroding margins.
+landingPage:
+  hero:
+    title: Color Match & Costed Quote Agent
+    subtitle: >-
+      AI for printing ink manufacturers (NAICS 325910): instant near‑match
+      formulations, predicted ΔE, and costed quotes—by press, substrate, and ink
+      system.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - Color matching takes days of lab cycles and expensive drawdowns.
+    - 'Quotes lag behind formulation, slowing wins and losing fast-turn jobs.'
+    - 'Matches fail on press due to substrate, ink system, and press variability.'
+    - Senior color know-how is scarce and siloed across sites.
+    - Inventory and compliance constraints surface late and derail jobs.
+    - Margins erode when costs are estimated instead of modeled.
+  solution:
+    - >-
+      Generate near‑match formulations from a target color and print context in
+      seconds.
+    - Predict ΔE00 across illuminants/observers before any lab work.
+    - >-
+      Auto-build a costed quote with materials, batch size, waste, labor, and
+      margin.
+    - >-
+      Constrain to your pigments, resins, and approved lists with inventory
+      awareness.
+    - 'Optimize for cost, compliance, and performance with what‑if alternatives.'
+    - 'Produce lab tickets, QC targets, and customer‑ready PDFs instantly.'
+    - Continuously learn from your historical spectral and production data.
+  features:
+    - 'Inputs: LAB, spectral curve (400–700 nm), Pantone, or image sample.'
+    - >-
+      Context-aware: substrate, ink system (solvent, water, UV), press type,
+      anilox/line screen, film weight.
+    - >-
+      ΔE00 prediction with tolerance bands; metamerism index under D50, D65,
+      TL84; 2°/10° observer.
+    - >-
+      Coverage, opacity, and overprint behavior estimates for process and spot
+      inks.
+    - >-
+      Formulation engine constrained by your resin systems, bases, VOC limits,
+      and restricted pigment lists.
+    - Inventory-aware suggestions using real-time ERP stock and lead times.
+    - >-
+      Cost model: raw material prices, yield, waste, energy/labor, overhead, and
+      target margin.
+    - >-
+      Quote builder: itemized BOM, per‑kg price, MOQs, lead time; branded PDF or
+      e‑quote.
+    - >-
+      Compliance flags: FDA 21 CFR, REACH, Proposition 65, heavy metals, low
+      VOC.
+    - >-
+      Device integrations: X‑Rite and Techkon spectrophotometers; import CXF/QTX
+      files.
+    - >-
+      System integrations: SAP, Infor, Microsoft Dynamics, and LIMS; SSO and
+      role-based approvals.
+    - >-
+      Versioning, change control, and audit trail; COA and spec sheet
+      generation.
+    - Multi‑illuminant simulation and tolerance checks aligned to ISO 13655.
+    - 'Deployment options: secure cloud or on‑prem/VPC; SOC 2–aligned controls.'
+    - API‑first architecture for embedding in portals and customer self‑serve.
+  steps:
+    - >-
+      Upload or capture the target color (LAB, spectral, Pantone) and select
+      print context.
+    - >-
+      Choose ink system, substrate, press parameters, tolerance, and compliance
+      needs.
+    - 'Review AI‑generated formulations with predicted ΔE00, coverage, and cost.'
+    - 'Compare alternatives by cost, compliance, and inventory availability.'
+    - >-
+      Select an option to auto‑generate a costed quote, lab ticket, and QC
+      targets.
+    - Send the quote or push to ERP/MRP; trigger optional lab verification.
+    - Capture lab/press results to refine the model and lock the standard.
+---
+# TintQuote AI
+
+Generated for NAICS 325910 — Printing Ink Manufacturing.
+Service: Color Match & Costed Quote Agent

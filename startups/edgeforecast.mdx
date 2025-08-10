@@ -1,0 +1,301 @@
+---
+name: EdgeForecast AI — Reorder Advisor for Saw Blades & Hand Tools
+slug: edgeforecast
+naics:
+  primary: '332216'
+  occupations: []
+service:
+  title: Demand Forecasting and Inventory Reorder Advisor
+  description: >-
+    Generates SKU-level forecasts and recommends reorder points, lot sizes, and
+    safety stock for blades and hand tools.
+  targetUsers:
+    - Supply chain planners
+    - Purchasing
+    - Finance/S&OP
+  triggers:
+    - Weekly ERP snapshot
+    - Monthly S&OP cycle
+    - Large new customer or promotion
+  inputs:
+    - '24–36 months sales/orders (SKU, customer, region)'
+    - 'Lead times, MOQ, supplier calendars'
+    - 'Backlog, on-hand and in-transit inventory'
+    - Promotions/events and price lists
+  steps:
+    - Clean and aggregate data; create hierarchy (SKU→family→customer/region)
+    - Train hierarchical forecasts; include promotions and seasonality
+    - Simulate service levels vs inventory (Monte Carlo)
+    - 'Optimize reorder policies (R, Q) with constraints and target fill rate'
+    - Publish forecast and procurement plan; write-back to ERP or Sheets
+    - Track bias/MAE; monthly recalibration
+  tools:
+    - Greykite/Prophet
+    - scikit-learn/XGBoost
+    - OR-Tools
+    - dbt/SQL
+    - 'Connectors (SAP, NetSuite, Odoo, Acumatica)'
+    - Google Sheets/Excel
+  outputs:
+    - 12–18 month forecasts (CSV/API) with confidence intervals
+    - 'SKU reorder points, order quantities, review cycle'
+    - 'Exception list (stockouts, long leads, MOQs)'
+    - Executive S&OP deck
+  pricingModel:
+    - 'Setup: $5k–$25k'
+    - 'Per-SKU/month: $0.10–$0.40 (min $800/mo)'
+    - Optional success fee on inventory reduction
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - High-mix/low-volume noise
+    - Promotion and new-item forecasting uncertainty
+    - ERP data quality and hierarchy issues
+  dependencies:
+    - ERP/API or CSV export
+    - Supplier lead times and calendars
+    - Agreement on target service levels
+leanCanvas:
+  problem:
+    - >-
+      Intermittent and lumpy demand across long-tail SKUs (specialty blades, odd
+      sizes) makes simple moving averages or ERP heuristics unreliable, driving
+      stockouts and overstock.
+    - >-
+      Lead-time variability (steel coil supply, heat treatment, coatings,
+      imports) and batch/lot constraints aren’t reflected in static safety-stock
+      rules, causing either excessive inventory or low service levels.
+    - >-
+      Planners rely on spreadsheets and disconnected ERP reports; no systematic
+      service-level targeting, no bias control, and limited visibility of
+      forecast error by SKU/plant/channel.
+    - >-
+      New product introductions, private-label variants, and seasonal
+      construction cycles create frequent forecast cold-starts and model drift.
+    - >-
+      Cost of stockouts (lost distributor shelf space, rush freight, line
+      downtime, retailer fines) and excess inventory (20–30% annual carrying
+      cost, obsolescence) erode margins.
+    - >-
+      Existing ERP replenishment modules are generic, hard to tune for
+      intermittent demand, and lack SKU-level explainability and automated
+      reorder recommendations.
+  solution:
+    - >-
+      SKU-level probabilistic demand forecasting optimized for
+      intermittent/long-tail items; bias-controlled and seasonality-aware.
+    - >-
+      Automated reorder policies: reorder point, order-up-to, EOQ/lot size, and
+      service-level–targeted safety stock, factoring lead-time variability and
+      minimum batch sizes.
+    - >-
+      What-if simulation: test service levels, supplier lead-time changes, and
+      demand shocks before committing POs.
+    - >-
+      Cold-start and NPI forecasting via attribute similarity (blade diameter,
+      tooth count, coating, brand, pack size, channel) and look-alike
+      clustering.
+    - >-
+      Multi-echelon support (plant → DC → customer) with optional
+      substitution/cannibalization logic for close SKUs.
+    - >-
+      Human-in-the-loop workflow: planner overrides with audit trails and reason
+      codes; exception-based alerts.
+    - >-
+      Explainability: drivers of forecast changes (seasonality, promo, macro
+      indices like PMI/housing starts), and SKU risk scores (stockout/excess
+      risk).
+    - >-
+      Seamless ERP integration (Epicor Kinetic/Prophet 21, Infor CSI/Syteline,
+      Microsoft D365 BC/F&O, SAP B1, NetSuite, Plex) via certified connectors
+      and REST APIs.
+  uniqueValueProp: >-
+    Increase service level to 97–99% while reducing on-hand inventory 10–20%
+    within 6–9 months by delivering SKU-plant-channel forecasts and automated
+    reorder points, lot sizes, and safety stock tuned to intermittent demand and
+    variable lead times—integrated directly into your ERP/MRP.
+  unfairAdvantage: >-
+    Prebuilt intermittent-demand models and policy engine calibrated for saw
+    blades and hand tools, with out-of-the-box ERP connectors and an
+    explainability layer specific to tool attributes (diameter, tooth count,
+    coating, pack size) and channels—enabling 90-day pilot ROI and faster
+    time-to-value than horizontal planning tools.
+  customerSegments:
+    - >-
+      Mid-market saw blade and hand tool manufacturers (NAICS 332216) with
+      $20M–$500M revenue, 5,000–50,000 SKUs, 1–5 plants, selling via
+      distributors and retail.
+    - >-
+      Large enterprises (> $500M revenue) with multi-plant networks, global
+      distribution, and complex channel/assortment management.
+    - >-
+      Adjacent: captive distributors/private-label units attached to
+      manufacturers needing coordinated demand/replenishment.
+  channels:
+    - >-
+      Direct sales to operations/supply chain leaders (VP Ops, Director Supply
+      Chain, Materials Manager) at NAICS 332216 firms via targeted outreach and
+      referrals.
+    - >-
+      ERP VAR/ISV partnerships (Epicor, Infor, Microsoft D365, SAP B1, NetSuite,
+      Plex) with marketplace listings and co-selling bundles.
+    - >-
+      Industry associations and events: STAFDA, ISA, MODEX/ProMat, MDM events;
+      sponsor webinars and present case studies on intermittent-demand
+      forecasting.
+    - >-
+      Content-led inbound: benchmarking reports (MAPE/WAPE by SKU class), ROI
+      calculator, templates for service-level policy and reorder design.
+    - >-
+      Pilot-led land-and-expand: 90-day pilots on 2,000–5,000 SKUs and one
+      plant, followed by multi-plant rollout.
+    - >-
+      Channel to private-label retailers/distributors to co-sell into their
+      upstream suppliers (manufacturers).
+  revenueStreams:
+    - >-
+      SaaS subscription tiered by active SKUs and plants (e.g., Starter: up to
+      5k SKUs/1 plant $3,000/month; Growth: up to 20k SKUs/3 plants
+      $7,500/month; Enterprise: custom $12,000–$40,000/month).
+    - >-
+      One-time onboarding/integration fee ($20,000–$150,000 depending on ERP,
+      data quality, and plants).
+    - >-
+      Premium support and SLA packages (24/7, dedicated CSM)
+      +$1,000–$5,000/month.
+    - >-
+      Professional services: data cleanup, policy design workshops, S&OP
+      enablement, and custom connectors ($200–$300/hour or fixed-scope).
+    - >-
+      Optional add-ons: multi-echelon optimization module, external-index
+      ingestion (PMI/housing starts), and distributor sell-through connectors
+      ($500–$3,000/month each).
+  costStructure:
+    - >-
+      R&D and data science team (forecasting/optimization engineers, product,
+      QA).
+    - >-
+      Cloud infrastructure (compute for training/scoring, data storage,
+      observability) on AWS/Azure; estimated $0.02–$0.05 per active SKU/month at
+      scale.
+    - >-
+      Go-to-market (AE/SDR salaries, marketing, events, partner commissions
+      10–25%).
+    - Implementation and customer success staffing.
+    - 'Security/compliance (SOC 2 Type II, pen tests, monitoring).'
+    - 'General/admin (legal, finance, HR).'
+  keyMetrics:
+    - >-
+      Service level (fill rate/OTIF) by SKU class; target: +2–4 ppt within 3–6
+      months while holding or reducing inventory.
+    - 'Inventory turns; target: +10–25% within 6–12 months.'
+    - >-
+      Forecast accuracy: WAPE/MAE by SKU and hierarchy; target: 15–30%
+      improvement versus baseline; Forecast bias within ±5%.
+    - 'Stockout rate and backorders; target: 30–50% reduction in 6 months.'
+    - 'Working capital tied up in inventory; target: 10–20% reduction.'
+    - 'Expedite freight and premium production hours; target: 20–40% reduction.'
+    - >-
+      Planner productivity: SKUs managed per planner; target: 2–3x increase and
+      30–50% fewer manual touch SKUs.
+    - >-
+      Time-to-value: first SKU recommendations in ≤2 weeks; pilot ROI in ≤90
+      days.
+    - Net revenue retention (NRR) > 110% via plant/SKU expansion and add-ons.
+    - >-
+      Sales metrics: win rate > 25% vs shortlist, CAC payback < 12 months, sales
+      cycle 60–120 days mid-market.
+storyBrand:
+  character: >-
+    Operations and supply chain leaders at saw blade and hand tool manufacturers
+    (NAICS 332216) who need dependable SKU-level forecasts and inventory
+    guidance.
+  problem: >-
+    External: volatile orders, long lead times, and lumpy distributor demand.
+    Internal: constant firefighting from stockouts while cash is trapped in
+    excess. Philosophical: buying inventory shouldn’t be guesswork.
+  guide: >-
+    We’re an AI forecasting and inventory advisor built for blades and hand
+    tools. Empathy: we understand OTIF pressure, seasonality, and mixed SKU
+    velocities. Authority: transparent accuracy, industry-tuned models, and ERP
+    integrations (Epicor, Infor, SAP).
+  plan: >-
+    1) Connect ERP and demand history. 2) Calibrate: set SKU-level forecasts,
+    safety stock, reorder points, and lot sizes to your service levels, MOQs,
+    and lead times. 3) Operate: weekly updates, alerts, and exception reviews.
+    Risk-free pilot with ROI and accuracy report.
+  callToAction: >-
+    Direct: Schedule a 30-minute demo or start an 8-week pilot. Transitional:
+    Get a free demand variability audit and sample forecast.
+  success: >-
+    Right-size inventory, fewer stockouts, higher service levels, smoother
+    production, and freed working capital—with clear, trusted forecast accuracy.
+  failure: >-
+    Keep guessing: emergency expedites, missed orders, idle lines, bloated
+    stock, eroded margins, and unhappy distributors.
+landingPage:
+  hero:
+    title: Forecast demand. Set smart reorders. Keep blades & tools in stock.
+    subtitle: >-
+      AI for Saw Blade & Handtool Manufacturing (NAICS 332216). SKU‑level
+      forecasts with optimal reorder points, lot sizes, and safety stock.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - >-
+      Seasonal construction cycles cause stockouts on hot SKUs and excess on
+      slow movers.
+    - >-
+      Thousands of variants (diameter, TPI, carbide grade, handle type)
+      overwhelm manual planning.
+    - Long steel/carbide and coating lead times with MoQs complicate reordering.
+    - Dealer promos and OEM schedules create lumpy demand and missed fill rates.
+    - Changeovers on grinding/packaging lines make lot sizing guesswork.
+    - Cash tied up in inventory while expediting eats margin.
+    - Spreadsheets and disconnected ERP data slow decision-making.
+  solution:
+    - >-
+      Generate SKU-location forecasts that capture seasonality, trends, and
+      promotions.
+    - >-
+      Set optimal reorder points, order quantities, and safety stock by
+      service-level target.
+    - >-
+      Account for lead-time variability, MoQs, and batch/setup costs
+      automatically.
+    - 'Simulate scenarios (new product, promo, supplier delay) before you commit.'
+    - Publish policies and planned orders directly to your ERP/MRP.
+    - >-
+      Monitor stockout risk and excess in real time with clear, actionable
+      alerts.
+  features:
+    - SKU-level machine learning forecasts (intermittent demand handled)
+    - Safety stock optimized to target service levels (per ABC/XYZ segment)
+    - Reorder point and lot-size recommendations with setup and holding costs
+    - Lead time distribution learned from receipts; variability modeled
+    - 'Multi-echelon support (plant, DC, dealer) with push/pull options'
+    - 'Event overrides for promos, price changes, and new product ramps'
+    - 'Assortments, kits, and substitutes handled (blade sets and variants)'
+    - 'Constraints: MoQ, pack multiples, calendars, shelf/aging rules'
+    - What-if simulator for supplier delays and demand spikes
+    - 'Auto-sync with ERP (SAP B1, NetSuite, Epicor, Infor, Dynamics, others)'
+    - 'Exception workflows: approve, override, and annotate policy changes'
+    - 'KPIs: fill rate, turns, inventory $, forecast accuracy, expedite cost'
+    - 'Role-based access, audit trails, and SOC 2-ready controls'
+  steps:
+    - 'Connect ERP and history (sales/orders, on-hand, lead times, BOMs).'
+    - >-
+      Define service levels, constraints (MoQs, multiples, setup cost), and
+      calendars.
+    - Review forecasts and exceptions for priority SKUs (blades and hand tools).
+    - 'Approve reorder points, lot sizes, and safety stock; run final what-ifs.'
+    - Publish policies and planned orders to ERP/MRP for execution.
+    - Track KPIs and alerts; iterate weekly with one-click updates.
+---
+# EdgeForecast AI — Reorder Advisor for Saw Blades & Hand Tools
+
+Generated for NAICS 332216 — Saw Blade and Handtool Manufacturing.
+Service: Demand Forecasting and Inventory Reorder Advisor

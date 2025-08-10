@@ -1,0 +1,265 @@
+---
+name: VisionSet QC
+slug: visionset
+naics:
+  primary: '332216'
+  occupations: []
+service:
+  title: Vision QC for Saw-Tooth Defects and Set-Angle Measurement
+  description: >-
+    AI inspects blade teeth for chips, braze defects, set-angle variance, burrs,
+    and missing teeth from uploaded images or short videos.
+  targetUsers:
+    - Quality managers
+    - Manufacturing engineers
+    - Cell supervisors
+  triggers:
+    - Batch images uploaded after grinding/setting
+    - Hourly camera capture on line
+    - Manual recheck request
+  inputs:
+    - 20–100 labeled images per part family (good/defect)
+    - Camera calibration image (checkerboard)
+    - 'Part metadata (SKU, tooth count, nominal set/kerf)'
+    - Gauge R&R reference measurements (optional)
+  steps:
+    - Collect and label sample images by defect type
+    - >-
+      Train and validate YOLO/segmentation model; calibrate angle/kerf
+      measurement using fiducials
+    - Deploy lightweight inference app; define pass/fail thresholds per SKU
+    - Run inference on new batches; queue borderline cases for human review
+    - 'Log SPC features (set-angle mean/σ, defect rate) and generate alerts'
+    - Active-learning loop to retrain monthly with reviewed cases
+  tools:
+    - Ultralytics YOLOv8
+    - OpenCV
+    - Roboflow (labeling)
+    - FastAPI/Streamlit app
+    - PostgreSQL/TimescaleDB
+    - Grafana/Power BI
+  outputs:
+    - Per-blade pass/fail and defect classification
+    - 'Per-batch SPC report (Cp/Cpk, control charts)'
+    - Set-angle and kerf distributions (CSV + dashboard)
+    - Alert emails/Slack for drifts
+  pricingModel:
+    - 'Setup fee (dataset and model): $6k–$20k depending on SKUs'
+    - 'Usage: $0.01–$0.05 per image or $500–$2k/month flat'
+    - 'Optional human review: $0.10 per flagged image'
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Lighting variability causing false results
+    - Need for initial labels and periodic re-labeling
+    - Safety/liability if relying solely on AI without QC signoff
+    - Data/IP sensitivity of images
+  dependencies:
+    - Sample images and defect taxonomy
+    - Shop-floor photo station or line camera
+    - Access to SPC repository (optional)
+leanCanvas:
+  problem:
+    - >-
+      Manual or gauge-based inspection of saw teeth is slow, inconsistent, and
+      non-traceable, leading to 2–5% false rejects and 1–3% escapes on typical
+      lines.
+    - >-
+      Measuring set-angle per tooth is labor-intensive (typ. 3–10 min/blade) and
+      varies by operator; most shops only sample 1–5% of output, missing drift
+      and setup issues.
+    - >-
+      Carbide braze defects, micro-chipping, burrs, and missing teeth often
+      appear after heat/finish processes; detection late in the line drives
+      scrap, rework, and returns, costing $10–$50 per blade or more in
+      rework/credits.
+  solution:
+    - >-
+      AI models detect chips (>100 µm), braze voids/overflows, burrs (~50–100
+      µm), missing teeth, and set-angle variance from uploaded images or short
+      videos.
+    - >-
+      Per-tooth measurement: left/right set-angle in degrees,
+      runout/variability, and defect classification heatmaps with thresholds for
+      pass/fail.
+    - >-
+      Calibration workflow (checker target + lens profile) achieving ±0.25–0.5°
+      set-angle MAE at 1080p with proper lighting; gage R&R target <10%.
+    - >-
+      Fast workflow: 10–30 seconds per blade (60–120 teeth) with batch upload or
+      inline camera trigger; API/SDK for PLC/MES (OPC UA/MQTT/REST).
+    - >-
+      Digital traceability: per-tooth records, photo/video evidence, lot
+      linkage, SPC charts, and automated COQ reporting.
+  uniqueValueProp: >-
+    100% visual QC for saw teeth that measures set-angle and catches tooth-level
+    defects in seconds, with per-tooth traceability and simple camera
+    setups—cutting escapes and inspection time by 50–80%.
+  unfairAdvantage: >-
+    Domain-specific models and datasets for saw teeth and set-angle measurement
+    (including synthetic generators and calibration IP), plus OEM partnerships
+    that enable turnkey, validated deployments competitors can’t easily
+    replicate.
+  customerSegments:
+    - >-
+      Primary: Saw blade manufacturers (circular, band, reciprocating), hand saw
+      manufacturers, carbide-tipped blade makers (NAICS 332216).
+    - >-
+      Secondary: Sharpening and re-tipping services, contract grinders, and toll
+      processors.
+    - >-
+      Tertiary: Large end-users with in-house blade prep (lumber mills,
+      panel/plywood, metal fabrication) and machine OEMs offering
+      setting/grinding systems.
+  channels:
+    - >-
+      Direct sales to QA/Manufacturing leadership at blade/handtool shops (ABM
+      via LinkedIn + industry lists).
+    - >-
+      OEM partnerships with setting/grinding machine makers (e.g., Vollmer,
+      Loroch, Iseli, Wright Machine Tool) to bundle or retrofit.
+    - >-
+      Automation integrators and distributors of cameras/lighting (Basler,
+      Teledyne FLIR, IDS; CCS lighting) for installation services.
+    - >-
+      Trade shows and associations: IMTS, IWF/ AWFS (woodworking), FABTECH,
+      carbide/abrasive conferences; technical talks and live demos.
+    - >-
+      Content-led growth: defect taxonomy guides, ROI calculators, benchmark
+      datasets; self-serve trial with sample footage.
+    - Referral program for sharpening services and regional service centers.
+  revenueStreams:
+    - >-
+      SaaS subscriptions by station and volume: Starter ($499/mo, up to 5,000
+      inspections), Pro ($2,000/mo, up to 50,000), Enterprise (custom, SSO +
+      on-prem + SLA).
+    - 'Usage-based overages ($0.05–$0.12 per analyzed blade/video, tiered).'
+    - >-
+      Hardware kits: camera + lens + calibrated lighting + jig ($2,500–$6,000
+      per station) with 20–30% margin.
+    - >-
+      Professional services: onboarding, model tuning, MES integration, and MSA
+      validation packages ($3,000–$25,000).
+    - >-
+      OEM licensing/royalties for embedded versions on setting/grinding
+      machines.
+    - 'Annual support & validation renewal (enterprise, $5,000–$25,000).'
+  costStructure:
+    - >-
+      COGS: GPU inference (cloud/edge), storage/egress (~$0.002–$0.01 per
+      inspection), hardware BOM for kits, shipping.
+    - >-
+      R&D: ML engineers, vision scientists, synthetic data generation,
+      annotation ops.
+    - >-
+      Go-to-market: field engineers, sales, channel MDF, trade shows, demo
+      equipment.
+    - 'Customer success: onboarding, MSA/validation, support SLA.'
+    - >-
+      General: ISO 9001/27001 programs, liability insurance, legal (data
+      processing agreements), office/tooling.
+    - >-
+      Unit economics example: 15 s 1080p video, 300 frames, ~6 s GPU time at
+      $2.00/GPU-hr ≈ $0.0033 inference + $0.002 storage/egress ≈ $0.005–$0.02
+      COGS per inspection.
+  keyMetrics:
+    - >-
+      Detection performance: precision/recall/F1 by defect class; target F1 ≥
+      0.95 for chips ≥100 µm with validated lighting.
+    - >-
+      Measurement accuracy: set-angle MAE ≤ 0.3° (goal), gage R&R ≤ 10% of
+      tolerance, bias < 10% of tolerance.
+    - >-
+      Quality outcomes: escape rate reduction ≥ 50%, false reject reduction ≥
+      30%, yield increase ≥ 1–3%.
+    - >-
+      Operational: inspection cycle time ≤ 30 s/blade; uptime ≥ 99%; automation
+      rate ≥ 90% (no human review).
+    - >-
+      Business: pilot-to-paid conversion ≥ 50%; ACV growth; logo churn < 8%
+      annually; gross margin > 70%; payback < 3 months.
+    - >-
+      Adoption: % of SKUs onboarded, users active weekly, alerts/action closure
+      rate, SPC rule violations per 1,000 blades.
+storyBrand:
+  character: >-
+    QC leaders, process engineers, and plant managers at saw-blade and hand tool
+    manufacturers (NAICS 332216) who need fast, objective, 100% inspection of
+    tooth geometry and braze quality to protect throughput and brand.
+  problem: >-
+    Manual inspection is slow and subjective; micro-defects—chips, braze voids,
+    set-angle variance, burrs, missing teeth—slip through, driving scrap,
+    rework, warranty claims, safety risk, and audit gaps. Quality shouldn’t
+    depend on tired eyes.
+  guide: >-
+    We understand 332216 workflows; our vision AI is trained on thousands of
+    blade and hand-tool images, validated against ISO/ANSI tolerances, and
+    deployed securely alongside your QC with proven ROI and fast onboarding.
+  plan: >-
+    1) Upload images or short videos, or connect a line-side camera. 2) Receive
+    instant defect flags, set-angle measurements, and pass/fail with annotated
+    evidence. 3) Export traceable reports and integrate results with MES/ERP;
+    tune thresholds to your specs.
+  callToAction: >-
+    Book a 20-minute demo and start a 14-day pilot; request our camera guide and
+    sample upload link today.
+  success: >-
+    Achieve 100% tooth inspection, faster changeovers, less scrap and rework,
+    fewer escapes and recalls, auditable compliance, safer products, happier
+    customers, and higher margins.
+  failure: >-
+    Keep relying on spot checks and tired eyes; defects escape; face returns,
+    lost contracts, compliance findings, and margin erosion.
+landingPage:
+  hero:
+    title: Vision QC for Saw-Tooth Defects & Set‑Angle
+    subtitle: >-
+      AI inspects blade teeth for chips, braze defects, set‑angle variance,
+      burrs, and missing teeth from images or short videos. Built for Saw Blade
+      & Handtool Manufacturing (NAICS 332216).
+    ctaText: Try the Demo
+    ctaHref: /demo
+  problem:
+    - 'Manual tooth inspection is slow, subjective, and costly.'
+    - Micro-defects and set‑angle drift are missed at line speed.
+    - 'Late discovery drives rework, scrap, and warranty risk.'
+    - Inconsistent records make audits and traceability painful.
+    - 'Glare, burrs, and SKU changes break generic vision tools.'
+    - Camera and MES/PLC integrations are complex and brittle.
+  solution:
+    - Upload photos or short videos; get per‑tooth pass/fail and measurements.
+    - 'Detect chips, braze voids, burrs, and missing teeth with visual overlays.'
+    - Quantify set‑angle tooth‑by‑tooth with tolerance checks.
+    - 'Export CSV/PDF for QA, customers, and audit trails.'
+    - Deploy at benches or inline; integrate via API with MES/PLC.
+    - 'Models tuned to your SKUs, finishes, and lighting conditions.'
+    - 'Reduce scrap, standardize QC across shifts, and speed throughput.'
+  features:
+    - 'Per‑tooth defect detection: chips, braze defects, burrs, missing teeth.'
+    - Set‑angle measurement with tolerance bands and auto‑flagging.
+    - Video-to-frame sampling for moving blades; motion blur handling.
+    - Calibration with reference gauge or checkerboard (one‑time or per shift).
+    - 'Glare/lighting normalization for carbide, HSS, and coated surfaces.'
+    - 'Multi‑SKU profiles: tooth count, pitch, kerf, diameter, left/right set.'
+    - 'Operator overlays: defect markers, angle arrows, rework guidance.'
+    - Batch and real‑time modes with queue management for cells/lines.
+    - 'Traceability: lot/serial capture, timestamps, and immutable audit logs.'
+    - 'Reporting: CSV of measurements, PDF certificates of conformance.'
+    - 'Connectors: REST API, OPC UA/MQTT for PLC/MES/ERP integration.'
+    - 'Flexible deployment: on‑prem or private cloud; data stays in your control.'
+  steps:
+    - 'Create a profile: SKU, tooth count, tolerances, and set‑angle targets.'
+    - 'Upload images or a 5–10s video, or connect a station camera.'
+    - Optionally run quick calibration with a reference target.
+    - Start inspection to receive per‑tooth results and flags.
+    - 'Review overlays, approve lots, or route flagged parts to rework.'
+    - Export reports or auto‑sync results to MES/ERP via API.
+    - Continuously improve by approving model suggestions with your feedback.
+---
+# VisionSet QC
+
+Generated for NAICS 332216 — Saw Blade and Handtool Manufacturing.
+Service: Vision QC for Saw-Tooth Defects and Set-Angle Measurement

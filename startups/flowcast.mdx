@@ -1,0 +1,331 @@
+---
+name: FlowCast AI
+slug: flowcast
+naics:
+  primary: '488119'
+  occupations: []
+service:
+  title: Passenger Flow Forecaster and Staffing Recommender
+  description: >-
+    Forecasts passenger arrivals at checkpoints/immigration and recommends
+    staffing by lane/interval.
+  targetUsers:
+    - Terminal Operations
+    - Security/Immigration Providers
+    - APOC
+  triggers:
+    - Daily/weekly planning
+    - IROPS day
+    - Large charter or irregular flight added
+  inputs:
+    - 'Flight schedule (ETA/ETD, gate, load factors)'
+    - Historical show-up curves by airline/time
+    - Queue sensors (if available)
+    - Staffing rules and minimums
+  steps:
+    - Forecast pax arrivals per zone per 15 min
+    - Simulate queues vs staffing
+    - Recommend staffing levels and lane configurations
+    - Push roster suggestions and variance alerts
+    - Measure forecast accuracy and learn
+  tools:
+    - AODB
+    - Historical data store
+    - Simple simulation/ML
+    - 'Workforce scheduling API (e.g., UKG, Kronos)'
+  outputs:
+    - Hourly demand forecast
+    - Staffing plan and lane config
+    - What-if scenarios
+  pricingModel:
+    - Monthly SaaS per terminal
+    - Add-on for immigration area
+    - Optional one-time model calibration
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Load factor uncertainty
+    - Access to staffing systems
+    - Provider buy-in
+  dependencies:
+    - Flight and historical data
+    - Queue metrics (optional)
+    - Work rules
+leanCanvas:
+  problem:
+    - >-
+      Unpredictable passenger surges create long queues at security/immigration,
+      causing SLA breaches (e.g., >20 min at standard checkpoints, >30 min at
+      immigration) and passenger dissatisfaction.
+    - >-
+      Staffing is scheduled using static templates and gut feel, not demand;
+      results in 10–25% overtime and idle time swings, driving up cost per
+      screened passenger.
+    - >-
+      Data needed to forecast demand (flight schedules, load factors, real-time
+      gate changes, connection banks, curbside arrivals, wait-time sensors) is
+      siloed across multiple systems (AODB, airline feeds, sensor vendors) and
+      not normalized.
+    - >-
+      Operational leaders lack actionable, lane-level staffing guidance that
+      respects labor rules (certifications, breaks, minimum posts, union
+      constraints) and infrastructure constraints (lane capacity, mix of
+      standard/PreCheck/priority).
+    - >-
+      Disruption events (IRROPS, weather, ATC delays, diverted flights) and
+      macro seasonality (holidays, cruise spikes) aren’t reflected fast enough
+      in staffing plans.
+    - >-
+      Procurement risk: airports need auditable, privacy-safe solutions with
+      proven ROI, integrations, and security certifications; many AI tools lack
+      these.
+  solution:
+    - >-
+      Data ingestion and normalization: AODB/operational schedule (SSIM/AIDX),
+      real-time flight updates (gate/ETD/ETA), historical throughput,
+      airline-provided load factors when available, sensor data
+      (Bluetooth/Wi‑Fi, LiDAR/camera counters), cruise/charter calendars,
+      weather/ATC advisories.
+    - >-
+      Demand forecasting: ML models produce lane-level arrival forecasts in 5–15
+      minute intervals, horizon from next 2 hours up to 90 days; adaptive
+      learning handles seasonality and events; target accuracy: SMAPE ≤12% at
+      15-min, ≤8% hourly after 6 weeks of calibration.
+    - >-
+      Staffing optimization: Mixed-integer solver translates demand forecasts
+      into lane openings and staff rosters respecting labor rules
+      (certifications, min/max posts, breaks, relief, training), equipment
+      constraints, and service tier targets; outputs actionable rosters and lane
+      plans.
+    - >-
+      What-if simulator: planners test scenarios (IRROPS, extra A380, staff
+      call-outs) and see forecasted queues, SLA risk, and incremental staffing
+      costs in seconds.
+    - >-
+      Live operations copilot: alerting when forecast vs actual diverges;
+      dynamic recommendations (open/close lanes, redeploy staff) with quantified
+      SLA impact; integrates with radio/ops chat and displays on control room
+      dashboards.
+    - >-
+      APIs and integrations: connectors to SITA/Amadeus AODB,
+      OAG/Cirium/FlightAware, queue sensors (Xovis, iinside, Veovo), WFM
+      (UKG/Kronos, Quinyx), digital signage/wait-time systems; export to payroll
+      and BI.
+    - >-
+      Governance, privacy, and audit: PII-minimized data flows, role-based
+      access, decision audit trails, SOC 2 Type II/ISO 27001, data residency
+      options; union rule libraries versioned and co-signed with HR/ops.
+    - >-
+      Deployment playbook: 8–12 week onboarding, including historical data
+      backfill, sensor calibration, model tuning, and joint success plan with
+      baselined KPIs.
+  uniqueValueProp: >-
+    Forecast passenger arrivals by lane and 15-minute interval, then recommend
+    auditable, union-compliant staffing plans that cut queue peaks and labor
+    waste—improving SLA compliance 10–20 pp and reducing overtime 10–25% within
+    90 days.
+  unfairAdvantage: >-
+    Cross-airport training data plus a library of codified union/labor and
+    infrastructure constraints enables faster, more accurate forecasts and
+    compliant staffing plans than generic WFM or analytics tools. Pre-built
+    connectors to leading AODB, sensor, and WFM systems reduce implementation
+    time to under 12 weeks, and audited decision trails meet airport governance
+    requirements.
+  customerSegments:
+    - >-
+      Airport operators (NAICS 488119) responsible for terminal operations and
+      checkpoint throughput, especially medium/large hubs (≥5M pax/year).
+    - >-
+      Private security screening providers contracted by airports (common
+      outside the U.S.).
+    - >-
+      Border/immigration agencies and airport authorities managing arrivals
+      halls (CBP in the U.S. as stakeholder; border police in EU/MEA/APAC).
+    - >-
+      Ground handling/airport service integrators bidding on operations
+      outsourcing who need differentiated performance guarantees.
+    - >-
+      Airlines (hub carriers) as influencers where missed connections/OTD are
+      impacted by security/immigration queues.
+  channels:
+    - >-
+      Direct enterprise sales to airport operators and authorities; focus on top
+      150 airports by pax in NA/EU first.
+    - >-
+      Co-selling/partnerships with AODB vendors (SITA, Amadeus), flight data
+      providers (OAG, Cirium, FlightAware), and sensor vendors (Xovis, iinside,
+      Veovo) bundling forecasting with hardware upgrades.
+    - >-
+      System integrators and managed service providers (Accenture, SITA,
+      T-Systems) for RFP inclusion and delivery at complex hubs.
+    - >-
+      Industry events and associations: ACI, AAAE, IATA AVSEC/Facilitation;
+      present case studies and run live demos.
+    - >-
+      Public tenders and government procurement frameworks; create referenceable
+      pilots to meet technical qualification criteria.
+    - >-
+      Content and proof engines: ROI calculators, whitepapers on queue SLA
+      economics, and webinars with early adopters.
+    - >-
+      Land-and-expand: start with one terminal/checkpoint → extend to all
+      terminals, arrivals hall, kerbside/check-in.
+  revenueStreams:
+    - >-
+      Annual subscription (SaaS) tiered by airport size and module count: Small
+      (≤5M pax): $60k–$120k ARR; Medium (5–20M): $150k–$350k ARR; Large (≥20M):
+      $400k–$1.2M ARR across terminals.
+    - >-
+      Per-checkpoint add-on: $3k–$10k per lane/month for high-frequency
+      optimization and live ops features.
+    - >-
+      Professional services: onboarding, integrations, and change management
+      packages ($50k–$250k per deployment depending on complexity).
+    - 'Premium support/SLA tiers (24/7 NOC, dedicated TAM) at 15–20% of ARR.'
+    - >-
+      Usage-based API access for partners (per 1,000 forecast intervals and
+      optimization runs) for integrators/OEMs.
+    - >-
+      Optional data licensing pass-through (at cost) for third-party
+      flight/sensor datasets bundled into contract.
+  costStructure:
+    - >-
+      Cloud infrastructure and MLOps (compute for training/serving, storage,
+      monitoring): scalable but steady-state 70–85% gross margin target.
+    - >-
+      Data licensing fees (OAG/Cirium/FlightAware) and sensor vendor
+      integrations/support.
+    - 'R&D: data science, optimization research, software engineering, and QA.'
+    - >-
+      Professional services team for implementations, integrations, and
+      training.
+    - >-
+      Sales and marketing: enterprise AE/SE teams, travel, events, proposal
+      management; expected CAC payback target 12–18 months.
+    - >-
+      Security/compliance: SOC2/ISO audits, penetration tests, privacy counsel,
+      data residency options.
+    - Liability insurance and certifications required by airport authorities.
+    - Customer success and 24/7 support operations for live airports.
+  keyMetrics:
+    - >-
+      Forecast accuracy: SMAPE ≤12% at 15-min intervals; hourly ≤8% after 6
+      weeks.
+    - >-
+      SLA compliance: % intervals meeting targets (e.g., security ≤20 min
+      standard, ≤10 min fast track; immigration ≤30 min).
+    - >-
+      Queue time reduction: median and 95th percentile wait-time decreases;
+      target −20% to −40% at P95 within 90 days.
+    - >-
+      Labor efficiency: overtime hours reduced 10–25%; cost per screened
+      passenger reduced 5–12%.
+    - >-
+      On-time lane availability: % of recommended lanes opened on time; target
+      ≥95%.
+    - >-
+      Staffing adherence: variance between recommended vs actual staffing by
+      interval; target ≤0.5 FTE avg deviation per interval.
+    - >-
+      Alert precision/recall for SLA breach predictions; target precision ≥0.8,
+      recall ≥0.8.
+    - 'Time-to-value: go-live ≤12 weeks; pilot ROI payback ≤6 months.'
+    - >-
+      System reliability: API uptime ≥99.9%, model serving latency ≤500 ms for
+      forecast queries, ≤60 sec for optimization runs.
+    - >-
+      User adoption: weekly active users per role and action acceptance rate
+      ≥70% for recommendations.
+    - 'Churn and expansion: net revenue retention ≥120%, logo churn ≤5% annually.'
+    - >-
+      Sales cycle length: median ≤9 months for large hubs, ≤6 months for medium
+      airports.
+storyBrand:
+  character: >-
+    Airport ops and checkpoint/immigration leaders who must keep lines moving,
+    meet SLAs, and staff efficiently.
+  problem: >-
+    Unpredictable passenger surges and static rosters cause misaligned staffing,
+    long queues, missed SLAs, and frustrated travelers and agents.
+  guide: >-
+    We understand airport ops pressure and bring aviation expertise with
+    purpose-built AI that turns flight, arrival, and checkpoint data into
+    accurate, explainable forecasts and lane-level staffing recommendations.
+  plan: >-
+    Connect your flight/arrival/checkpoint data, calibrate and validate on
+    recent days, then go live with 15-minute lane forecasts and interval
+    staffing via dashboards and alerts. Start with a low-risk pilot at one
+    checkpoint, then scale.
+  callToAction: >-
+    Schedule a 30-minute demo or launch a 60-day pilot to see results on your
+    lanes.
+  success: >-
+    Right staff, right place, right time: shorter queues, consistent SLA
+    compliance, lower overtime, smoother connections, and higher passenger
+    satisfaction backed by auditable plans.
+  failure: >-
+    Without it, staffing stays reactive: long lines, missed flights, penalties,
+    burnout, and poor traveler experience.
+landingPage:
+  hero:
+    title: Predict Passenger Flow. Staff Every Lane Right.
+    subtitle: >-
+      AI forecasts arrivals at security and immigration and recommends
+      lane-by-interval staffing to hit SLAs at the lowest cost.
+    ctaText: See it in action
+    ctaHref: /demo
+  problem:
+    - Unpredictable passenger surges cause long queues and missed SLAs
+    - Overstaffing drives overtime; understaffing hurts throughput and CX
+    - 'Manual spreadsheets can’t react to delays, cancellations, and diversions'
+    - 'Data is siloed across schedules, load factors, weather, and arrivals'
+    - No lane-level guidance for TSA/CBP/immigration staffing
+    - Hard to justify budgets without clear performance and ROI metrics
+  solution:
+    - >-
+      Demand forecasts by checkpoint, hall, and lane in 5–15 minute intervals,
+      up to 90 days out
+    - Optimal staffing per lane and interval to meet target wait times
+    - 'Live reforecasting from FIDS, AODB, ACARS, weather, and IROP signals'
+    - >-
+      Scenario planning for schedule changes, gate swaps, diversions, and
+      offloads
+    - 'Automatic re-optimization with skills, lane types, union rules, and breaks'
+    - 'Transparent KPIs: wait time, utilization, overtime savings, SLA compliance'
+  features:
+    - ML forecast engine tuned to airport show-up curves and dwell behavior
+    - >-
+      Coverage for security, immigration, e-gates, fast track, crew, PRM, and
+      secondary
+    - Lane/interval staffing plan export to WFM and rostering systems
+    - Real-time reforecasting from flight status and arrivals feeds
+    - What-if sandbox and timetable editor
+    - Target wait-time and service-level controls
+    - Disruption mode for weather and IROPs
+    - >-
+      Constraint handling: certifications, clearance, language, bid rules,
+      breaks, max hours
+    - 'Dashboards for wait time, throughput, occupancy, cost, and compliance'
+    - Alerts for impending SLA breaches and queue build-up
+    - Mobile and wallboard views for ops leaders and checkpoint supervisors
+    - API and SSO; SOC 2 and ISO 27001-ready; PII-safe design
+    - Audit trail and explainable recommendations
+  steps:
+    - >-
+      Connect data: schedules/AODB, FIDS, historical throughput, staffing
+      rosters
+    - 'Configure zones, lanes, SLA targets, skills, rules, and breaks'
+    - Train and validate on your history; review backtest accuracy
+    - 'Go live: publish daily and intraday plans; push to WFM/rosters'
+    - >-
+      Operate: monitor dashboards, accept/override suggestions, auto-replan on
+      change
+    - 'Review: weekly accuracy and KPI reports; continuous tuning and improvement'
+---
+# FlowCast AI
+
+Generated for NAICS 488119 — Other Airport Operations.
+Service: Passenger Flow Forecaster and Staffing Recommender
