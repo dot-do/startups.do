@@ -177,4 +177,349 @@ leanCanvas:
 - **Success Metrics**: Top KPIs are task completion time (89%), accuracy rate (76%), user adoption (68%)
 - **Continuous Optimization**: Companies with ongoing AI performance monitoring achieve 2.1x better outcomes
 
+## Business Process Functions
+
+```typescript
+// Core business process types
+interface Lead {
+  id: string;
+  source: string;
+  company: string;
+  contact: ContactInfo;
+  requirements: string[];
+  budget?: number;
+  timeline?: string;
+}
+
+interface Customer {
+  id: string;
+  company: string;
+  tier: 'starter' | 'pro' | 'enterprise';
+  seats: number;
+  integrations: string[];
+  skillPacks: string[];
+  onboardingStatus: 'pending' | 'active' | 'complete';
+}
+
+interface SkillPack {
+  id: string;
+  name: string;
+  occupation: string;
+  workflows: Workflow[];
+  price: number;
+  compliance: string[];
+}
+
+interface Workflow {
+  id: string;
+  name: string;
+  steps: WorkflowStep[];
+  approvals: ApprovalGate[];
+  metrics: WorkflowMetrics;
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const proposal = await generateProposal(qualifiedLead);
+  const pilot = await conductPilot(proposal);
+  const contract = await negotiateContract(pilot);
+  return await onboardCustomer(contract);
+}
+
+export async function qualifyLead(lead: Lead): Promise<Lead> {
+  const companyData = await enrichCompanyData(lead.company);
+  const fitScore = await calculateFitScore(lead, companyData);
+  
+  if (fitScore < 0.6) {
+    throw new Error('Lead does not meet qualification criteria');
+  }
+  
+  return {
+    ...lead,
+    fitScore,
+    companyData,
+    qualificationStatus: 'qualified'
+  };
+}
+
+export async function generateProposal(lead: Lead): Promise<Proposal> {
+  const skillPacks = await recommendSkillPacks(lead.requirements);
+  const integrations = await identifyRequiredIntegrations(lead.companyData);
+  const pricing = await calculatePricing(lead.seats, skillPacks, lead.tier);
+  
+  return {
+    leadId: lead.id,
+    skillPacks,
+    integrations,
+    pricing,
+    timeline: await estimateImplementationTimeline(integrations),
+    roi: await calculateROI(lead.currentProcesses, skillPacks)
+  };
+}
+
+export async function conductPilot(proposal: Proposal): Promise<PilotResults> {
+  const pilotEnvironment = await setupPilotEnvironment(proposal);
+  const testWorkflows = await deployTestWorkflows(proposal.skillPacks);
+  const pilotUsers = await onboardPilotUsers(proposal.leadId, 10);
+  
+  const results = await runPilotProgram(pilotEnvironment, testWorkflows, pilotUsers, 30);
+  
+  return {
+    ...results,
+    timeSaved: await measureTimeSaved(results.baseline, results.withAI),
+    accuracyRate: await calculateAccuracyRate(results.tasks),
+    userSatisfaction: await collectUserFeedback(pilotUsers)
+  };
+}
+
+// Product Development Processes
+export async function developSkillPack(occupation: string, requirements: string[]): Promise<SkillPack> {
+  const workflows = await designWorkflows(occupation, requirements);
+  const integrations = await buildIntegrations(workflows);
+  const skillPack = await packageSkillPack(occupation, workflows, integrations);
+  
+  await validateSkillPack(skillPack);
+  await publishToMarketplace(skillPack);
+  
+  return skillPack;
+}
+
+export async function designWorkflows(occupation: string, requirements: string[]): Promise<Workflow[]> {
+  const occupationData = await analyzeOccupationPatterns(occupation);
+  const commonTasks = await identifyCommonTasks(occupationData);
+  const workflows = await createWorkflowTemplates(commonTasks, requirements);
+  
+  return await optimizeWorkflows(workflows);
+}
+
+export async function buildIntegrations(workflows: Workflow[]): Promise<Integration[]> {
+  const requiredTools = await extractRequiredTools(workflows);
+  const integrations = await Promise.all(
+    requiredTools.map(tool => buildToolIntegration(tool))
+  );
+  
+  await testIntegrations(integrations);
+  return integrations;
+}
+
+export async function validateSkillPack(skillPack: SkillPack): Promise<ValidationResults> {
+  const securityAudit = await runSecurityAudit(skillPack);
+  const performanceTest = await runPerformanceTests(skillPack);
+  const accuracyTest = await runAccuracyTests(skillPack);
+  
+  if (securityAudit.score < 0.95 || performanceTest.score < 0.9 || accuracyTest.score < 0.85) {
+    throw new Error('Skill pack validation failed');
+  }
+  
+  return { securityAudit, performanceTest, accuracyTest };
+}
+
+// Revenue Generation Flows
+export async function processSubscription(customer: Customer, plan: string): Promise<Subscription> {
+  const subscription = await createSubscription(customer, plan);
+  const payment = await processPayment(subscription);
+  const provisioning = await provisionServices(customer, subscription);
+  
+  await sendWelcomeSequence(customer);
+  await scheduleOnboarding(customer);
+  
+  return subscription;
+}
+
+export async function expandAccount(customer: Customer): Promise<ExpansionResult> {
+  const usageAnalysis = await analyzeUsage(customer);
+  const expansionOpportunities = await identifyExpansionOpportunities(usageAnalysis);
+  
+  const recommendations = await generateExpansionRecommendations(
+    customer,
+    expansionOpportunities
+  );
+  
+  return {
+    customer,
+    opportunities: expansionOpportunities,
+    recommendations,
+    potentialARR: await calculatePotentialARR(recommendations)
+  };
+}
+
+export async function processMarketplaceRevenue(skillPackSale: SkillPackSale): Promise<RevenueShare> {
+  const revenueShare = await calculateRevenueShare(skillPackSale, 0.25);
+  const partnerPayout = await processPartnerPayout(skillPackSale.partnerId, revenueShare);
+  const platformRevenue = skillPackSale.amount - revenueShare;
+  
+  await recordRevenueTransaction(skillPackSale, revenueShare, platformRevenue);
+  
+  return {
+    skillPackSale,
+    partnerPayout,
+    platformRevenue,
+    revenueShare
+  };
+}
+
+// Operational Procedures
+export async function monitorSystemHealth(): Promise<HealthStatus> {
+  const infraHealth = await checkInfrastructureHealth();
+  const llmHealth = await checkLLMProviders();
+  const integrationHealth = await checkIntegrations();
+  const securityHealth = await checkSecurityStatus();
+  
+  const overallHealth = await calculateOverallHealth([
+    infraHealth,
+    llmHealth,
+    integrationHealth,
+    securityHealth
+  ]);
+  
+  if (overallHealth.score < 0.95) {
+    await triggerAlerts(overallHealth);
+  }
+  
+  return overallHealth;
+}
+
+export async function handleIncident(incident: Incident): Promise<IncidentResolution> {
+  const severity = await assessIncidentSeverity(incident);
+  const response = await initiateIncidentResponse(incident, severity);
+  
+  if (severity === 'critical') {
+    await notifyOnCallTeam(incident);
+    await activateDisasterRecovery(incident);
+  }
+  
+  const resolution = await resolveIncident(incident, response);
+  await conductPostMortem(incident, resolution);
+  
+  return resolution;
+}
+
+export async function processComplianceAudit(auditType: string): Promise<ComplianceReport> {
+  const auditScope = await defineAuditScope(auditType);
+  const evidence = await collectComplianceEvidence(auditScope);
+  const gaps = await identifyComplianceGaps(evidence, auditType);
+  
+  if (gaps.length > 0) {
+    await createRemediationPlan(gaps);
+  }
+  
+  return {
+    auditType,
+    scope: auditScope,
+    evidence,
+    gaps,
+    status: gaps.length === 0 ? 'compliant' : 'remediation-required'
+  };
+}
+
+// Decision-Making Workflows
+export async function evaluateFeatureRequest(request: FeatureRequest): Promise<FeatureDecision> {
+  const marketAnalysis = await analyzeMarketDemand(request);
+  const technicalFeasibility = await assessTechnicalFeasibility(request);
+  const resourceRequirements = await estimateResourceRequirements(request);
+  const businessImpact = await calculateBusinessImpact(request);
+  
+  const priorityScore = await calculatePriorityScore({
+    marketAnalysis,
+    technicalFeasibility,
+    resourceRequirements,
+    businessImpact
+  });
+  
+  const decision = priorityScore > 0.7 ? 'approved' : 'rejected';
+  
+  return {
+    request,
+    analysis: { marketAnalysis, technicalFeasibility, resourceRequirements, businessImpact },
+    priorityScore,
+    decision,
+    reasoning: await generateDecisionReasoning(decision, priorityScore)
+  };
+}
+
+export async function optimizeResourceAllocation(resources: Resource[]): Promise<AllocationPlan> {
+  const currentUtilization = await analyzeCurrentUtilization(resources);
+  const demandForecast = await forecastResourceDemand();
+  const constraints = await identifyResourceConstraints(resources);
+  
+  const optimizationModel = await buildOptimizationModel(
+    currentUtilization,
+    demandForecast,
+    constraints
+  );
+  
+  const allocationPlan = await solveOptimization(optimizationModel);
+  
+  return {
+    currentState: currentUtilization,
+    forecast: demandForecast,
+    constraints,
+    recommendedAllocation: allocationPlan,
+    expectedImpact: await calculateAllocationImpact(allocationPlan)
+  };
+}
+
+export async function makeInvestmentDecision(opportunity: InvestmentOpportunity): Promise<InvestmentDecision> {
+  const financialAnalysis = await performFinancialAnalysis(opportunity);
+  const riskAssessment = await assessInvestmentRisk(opportunity);
+  const strategicAlignment = await evaluateStrategicAlignment(opportunity);
+  const competitiveAnalysis = await analyzeCompetitiveLandscape(opportunity);
+  
+  const investmentScore = await calculateInvestmentScore({
+    financialAnalysis,
+    riskAssessment,
+    strategicAlignment,
+    competitiveAnalysis
+  });
+  
+  const decision = investmentScore > 0.75 ? 'invest' : 'pass';
+  
+  return {
+    opportunity,
+    analysis: {
+      financialAnalysis,
+      riskAssessment,
+      strategicAlignment,
+      competitiveAnalysis
+    },
+    investmentScore,
+    decision,
+    recommendedAmount: decision === 'invest' ? await calculateInvestmentAmount(opportunity) : 0
+  };
+}
+
+// Workflow Orchestration
+export async function executeEndToEndWorkflow(
+  workflowType: string,
+  input: any,
+  approvals: ApprovalGate[]
+): Promise<WorkflowResult> {
+  const workflow = await loadWorkflow(workflowType);
+  const context = await initializeWorkflowContext(input);
+  
+  let currentStep = 0;
+  const results = [];
+  
+  for (const step of workflow.steps) {
+    if (step.requiresApproval) {
+      const approval = await requestApproval(step, context, approvals[currentStep]);
+      if (!approval.approved) {
+        throw new Error(`Workflow stopped: ${approval.reason}`);
+      }
+    }
+    
+    const stepResult = await executeWorkflowStep(step, context);
+    results.push(stepResult);
+    context = await updateWorkflowContext(context, stepResult);
+    currentStep++;
+  }
+  
+  const finalResult = await finalizeWorkflow(workflow, context, results);
+  await recordWorkflowMetrics(workflow, finalResult);
+  
+  return finalResult;
+}
+```
+
 Generated from Occupation 000000 — All Occupations.
