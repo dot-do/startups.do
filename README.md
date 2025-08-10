@@ -1,4 +1,4 @@
-# startups.do — Business-as-Code
+# startups.do Business-as-Code
 
 Transform AI startup creation into code. startups.do generates, evaluates, and assembles startups from Occupations and NAICS-coded opportunities using Functions, Workflows, and Agents.
 
