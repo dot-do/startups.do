@@ -1,18 +1,20 @@
-# Startups.do
+# Startups.do — launch thousands of AI businesses
 
-Build autonomous businesses with **Devin** and the **`.do` platform**
+Generate, evaluate, and assemble AI service companies at industrial scale— with **Devin** and the **`.do` platform**
 
-> _Imagine Devin **NOT** just building software, but running businesses defined in this repo._
+> _Imagine Devin **NOT** just building software, but building **real** businesses defined in this repo._
 
 ---
 
-Transform AI startup creation with `Startups.do` – generate, evaluate, and assemble startups from Industries and Occupations across the world to uncover AI Service businesses using Functions, Workflows, and Agents.
+`Startups.do` turns Industries × Occupations into production-ready startups—complete with Functions, Workflows, Agents, and assets.
 
-- Vision: Business-as-Code (define the business as code; generate the rest with AI)
-- Output: MDX-driven startup sites in `startups/{name}.mdx` backed by YAML frontmatter
-- Engine: AI workflows that research, score, design, and build startup artifacts
-- Automation: Assign implementation to Devin via the Devin API and generate slides
+- Vision — Business-as-Code: define the company in code; build & run the rest with AI.
+- Output — MDX at scale: `startups/{name}.mdx` sites with YAML frontmatter.
+- Engine — AI workflows: research, score, design, and assemble startup artifacts.
+- Automation — Devin-ready: assign implementation to Devin via API and auto-generate the business.
+- Metrics — Built-in evals: market sizing, unit economics, KPI targets per startup.
 
+---
 
 Links:
 - See ROADMAP: ./ROADMAP.md
