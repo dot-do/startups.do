@@ -348,7 +348,445 @@ landingPage:
     - Score compounds with uncertainty and applicability‑domain tags
     - Prioritize and export ranked pick lists with cutoffs and rationale
 ---
+
 # HTS Hit Triage & QSAR Prioritizer
 
 Generated for NAICS 541714 — Research and Development in Biotechnology (except Nanobiotechnology).
 Service: HTS Hit Triage & QSAR Prioritizer
+
+## Business Process Functions
+
+### Customer Acquisition Workflows
+
+```typescript
+interface Lead {
+  id: string;
+  company: string;
+  contactName: string;
+  email: string;
+  htsVolume: number;
+  currentTriageMethod: 'manual' | 'basic-qsar' | 'none';
+  painPoints: string[];
+  budget: number;
+  timeline: string;
+}
+
+interface QualifiedLead extends Lead {
+  fitScore: number;
+  decisionMakers: string[];
+  technicalRequirements: TechnicalRequirements;
+  complianceNeeds: string[];
+}
+
+interface Customer {
+  id: string;
+  lead: QualifiedLead;
+  contract: Contract;
+  onboardingStatus: 'pending' | 'in-progress' | 'complete';
+  pilotResults?: PilotResults;
+}
+
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const proposal = await generateProposal(qualifiedLead);
+  const pilot = await conductPaidPilot(proposal);
+  const contract = await negotiateContract(pilot);
+  return await onboardCustomer(contract);
+}
+
+export async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  const fitScore = await calculateFitScore(lead);
+  
+  if (fitScore < 0.6) {
+    throw new Error('Lead does not meet minimum qualification criteria');
+  }
+  
+  const technicalRequirements = await assessTechnicalRequirements(lead);
+  const decisionMakers = await identifyDecisionMakers(lead);
+  const complianceNeeds = await assessComplianceRequirements(lead);
+  
+  return {
+    ...lead,
+    fitScore,
+    decisionMakers,
+    technicalRequirements,
+    complianceNeeds
+  };
+}
+
+export async function conductPaidPilot(proposal: Proposal): Promise<PilotResults> {
+  const pilotData = await ingestPilotData(proposal.sampleDataset);
+  const triageResults = await runTriagePipeline(pilotData);
+  const metrics = await calculatePilotMetrics(triageResults);
+  
+  return {
+    hitRateUplift: metrics.hitRateUplift,
+    costPerQualifiedHit: metrics.costPerQualifiedHit,
+    timeToDecision: metrics.timeToDecision,
+    aurocScore: metrics.aurocScore,
+    adCoverage: metrics.adCoverage,
+    customerSatisfaction: await collectPilotFeedback(proposal.contactId)
+  };
+}
+```
+
+### Product Development Processes
+
+```typescript
+interface QSARModel {
+  id: string;
+  version: string;
+  trainingData: TrainingDataset;
+  features: FeatureSet;
+  algorithm: 'rf' | 'xgboost' | 'gnn' | 'ensemble';
+  performance: ModelPerformance;
+  applicabilityDomain: ApplicabilityDomain;
+  calibration: CalibrationMetrics;
+}
+
+interface TriagePipeline {
+  id: string;
+  models: QSARModel[];
+  featureEngineering: FeatureEngineeringConfig;
+  plateCorrection: PlateCorrection;
+  uncertaintyQuantification: UncertaintyConfig;
+  activelearning: ActiveLearningConfig;
+}
+
+export async function developQSARModel(trainingData: TrainingDataset): Promise<QSARModel> {
+  const sanitizedData = await sanitizeStructures(trainingData);
+  const features = await engineerFeatures(sanitizedData);
+  const splitData = await splitDataWithLeakageCheck(features);
+  
+  const baselineModel = await trainBaselineModel(splitData);
+  const ensembleModel = await trainEnsembleModel(splitData);
+  
+  const calibratedModel = await calibrateProbabilities(ensembleModel);
+  const adModel = await assessApplicabilityDomain(calibratedModel);
+  
+  return await validateModel(adModel);
+}
+
+export async function engineerFeatures(data: SanitizedDataset): Promise<FeatureSet> {
+  const chemicalDescriptors = await computeChemicalDescriptors(data.structures);
+  const fingerprints = await computeFingerprints(data.structures);
+  const plateFeatures = await extractPlateFeatures(data.plateMetadata);
+  const assayFeatures = await extractAssayFeatures(data.assayContext);
+  const painsFlags = await flagPAINSCompounds(data.structures);
+  
+  return {
+    chemical: chemicalDescriptors,
+    fingerprints,
+    plate: plateFeatures,
+    assay: assayFeatures,
+    artifacts: painsFlags
+  };
+}
+
+export async function deployTriagePipeline(model: QSARModel, config: DeploymentConfig): Promise<TriagePipeline> {
+  const pipeline = await createPipeline(model, config);
+  await validatePipeline(pipeline);
+  await deployToEnvironment(pipeline, config.environment);
+  await setupMonitoring(pipeline);
+  
+  return pipeline;
+}
+```
+
+### Revenue Generation Flows
+
+```typescript
+interface Subscription {
+  id: string;
+  customerId: string;
+  tier: 'starter' | 'pro' | 'enterprise';
+  monthlyRevenue: number;
+  usage: UsageMetrics;
+  renewalDate: Date;
+  expansionOpportunities: string[];
+}
+
+interface UsageMetrics {
+  compoundsTriaged: number;
+  modelsRun: number;
+  computeHours: number;
+  storageGB: number;
+  apiCalls: number;
+}
+
+export async function generateRevenue(customer: Customer): Promise<RevenueStream> {
+  const subscription = await setupSubscription(customer);
+  const usage = await trackUsage(customer);
+  const overage = await calculateOverageCharges(usage, subscription);
+  const expansion = await identifyExpansionOpportunities(customer);
+  
+  return {
+    subscriptionRevenue: subscription.monthlyRevenue,
+    usageRevenue: overage.charges,
+    professionalServices: await calculatePSRevenue(customer),
+    expansionPotential: expansion.projectedRevenue
+  };
+}
+
+export async function manageSubscription(subscription: Subscription): Promise<Subscription> {
+  const usage = await monitorUsage(subscription);
+  const health = await assessCustomerHealth(subscription);
+  
+  if (health.riskLevel === 'high') {
+    await triggerRetentionWorkflow(subscription);
+  }
+  
+  if (usage.overageThreshold > 0.8) {
+    await proposeUpgrade(subscription);
+  }
+  
+  return await updateSubscription(subscription, usage);
+}
+
+export async function processPayment(invoice: Invoice): Promise<PaymentResult> {
+  try {
+    const payment = await chargeCustomer(invoice);
+    await updateAccountingRecords(payment);
+    await sendPaymentConfirmation(invoice.customerId);
+    
+    return { status: 'success', transactionId: payment.id };
+  } catch (error) {
+    await handlePaymentFailure(invoice, error);
+    throw new PaymentError(`Payment failed: ${error.message}`);
+  }
+}
+```
+
+### Operational Procedures
+
+```typescript
+interface DataIngestionJob {
+  id: string;
+  customerId: string;
+  dataSource: DataSource;
+  status: 'pending' | 'processing' | 'complete' | 'failed';
+  compounds: number;
+  assayData: AssayDataset;
+  validationResults: ValidationResults;
+}
+
+interface ModelMonitoring {
+  modelId: string;
+  driftMetrics: DriftMetrics;
+  performanceMetrics: PerformanceMetrics;
+  alerts: Alert[];
+  retrainingSchedule: RetrainingSchedule;
+}
+
+export async function ingestCustomerData(dataSource: DataSource): Promise<DataIngestionJob> {
+  const job = await createIngestionJob(dataSource);
+  
+  try {
+    const rawData = await extractData(dataSource);
+    const validatedData = await validateDataQuality(rawData);
+    const standardizedData = await standardizeFormat(validatedData);
+    const processedData = await processAssayData(standardizedData);
+    
+    await storeProcessedData(processedData, job.id);
+    await updateJobStatus(job.id, 'complete');
+    
+    return job;
+  } catch (error) {
+    await updateJobStatus(job.id, 'failed');
+    await notifyCustomer(job.customerId, error);
+    throw error;
+  }
+}
+
+export async function monitorModelPerformance(modelId: string): Promise<ModelMonitoring> {
+  const currentMetrics = await collectPerformanceMetrics(modelId);
+  const driftMetrics = await detectModelDrift(modelId);
+  const alerts = await checkAlertConditions(currentMetrics, driftMetrics);
+  
+  if (alerts.some(alert => alert.severity === 'critical')) {
+    await triggerRetrainingWorkflow(modelId);
+  }
+  
+  return {
+    modelId,
+    driftMetrics,
+    performanceMetrics: currentMetrics,
+    alerts,
+    retrainingSchedule: await getRetrainingSchedule(modelId)
+  };
+}
+
+export async function provideCustomerSupport(ticket: SupportTicket): Promise<SupportResolution> {
+  const classification = await classifyTicket(ticket);
+  const priority = await determinePriority(classification);
+  
+  if (classification.type === 'technical') {
+    return await handleTechnicalIssue(ticket);
+  } else if (classification.type === 'billing') {
+    return await handleBillingIssue(ticket);
+  } else {
+    return await routeToSpecialist(ticket, classification);
+  }
+}
+```
+
+### Decision-Making Workflows
+
+```typescript
+interface PrioritizationDecision {
+  compoundId: string;
+  predictedActivity: number;
+  confidence: number;
+  applicabilityDomain: boolean;
+  uncertaintyScore: number;
+  diversityScore: number;
+  noveltyScore: number;
+  finalRank: number;
+  recommendation: 'confirm' | 'deprioritize' | 'flag_for_review';
+}
+
+interface ActiveLearningDecision {
+  nextCompounds: string[];
+  expectedInformationGain: number;
+  diversityMetrics: DiversityMetrics;
+  budgetUtilization: number;
+  rationale: string;
+}
+
+export async function prioritizeHits(compounds: Compound[], model: QSARModel): Promise<PrioritizationDecision[]> {
+  const predictions = await generatePredictions(compounds, model);
+  const uncertainties = await quantifyUncertainty(predictions);
+  const adAssessment = await assessApplicabilityDomain(compounds, model);
+  const diversity = await calculateDiversityScores(compounds);
+  const novelty = await assessNovelty(compounds);
+  
+  const decisions = compounds.map((compound, index) => ({
+    compoundId: compound.id,
+    predictedActivity: predictions[index].activity,
+    confidence: predictions[index].confidence,
+    applicabilityDomain: adAssessment[index].inDomain,
+    uncertaintyScore: uncertainties[index],
+    diversityScore: diversity[index],
+    noveltyScore: novelty[index],
+    finalRank: 0,
+    recommendation: 'confirm' as const
+  }));
+  
+  return await rankAndRecommend(decisions);
+}
+
+export async function selectActiveLearningCandidates(
+  availableCompounds: Compound[],
+  currentModel: QSARModel,
+  budget: number
+): Promise<ActiveLearningDecision> {
+  const uncertainties = await calculateUncertainties(availableCompounds, currentModel);
+  const diversityMatrix = await calculateDiversityMatrix(availableCompounds);
+  const informationGain = await estimateInformationGain(availableCompounds, currentModel);
+  
+  const selectedCompounds = await optimizeSelection(
+    availableCompounds,
+    uncertainties,
+    diversityMatrix,
+    informationGain,
+    budget
+  );
+  
+  return {
+    nextCompounds: selectedCompounds.map(c => c.id),
+    expectedInformationGain: await calculateExpectedGain(selectedCompounds),
+    diversityMetrics: await assessSelectionDiversity(selectedCompounds),
+    budgetUtilization: selectedCompounds.length / budget,
+    rationale: await generateSelectionRationale(selectedCompounds)
+  };
+}
+
+export async function makeGovernanceDecision(
+  modelUpdate: ModelUpdate,
+  validationResults: ValidationResults
+): Promise<GovernanceDecision> {
+  const riskAssessment = await assessUpdateRisk(modelUpdate);
+  const performanceComparison = await compareModelPerformance(modelUpdate, validationResults);
+  const complianceCheck = await verifyCompliance(modelUpdate);
+  
+  if (riskAssessment.level === 'high' || !complianceCheck.passed) {
+    return {
+      decision: 'reject',
+      rationale: `High risk or compliance failure: ${riskAssessment.reasons.join(', ')}`,
+      requiredActions: await generateRequiredActions(riskAssessment, complianceCheck)
+    };
+  }
+  
+  if (performanceComparison.improvement > 0.05) {
+    return {
+      decision: 'approve',
+      rationale: 'Significant performance improvement with acceptable risk',
+      deploymentPlan: await createDeploymentPlan(modelUpdate)
+    };
+  }
+  
+  return {
+    decision: 'review',
+    rationale: 'Marginal improvement requires human review',
+    reviewers: await assignReviewers(modelUpdate)
+  };
+}
+```
+
+### Integration Workflows
+
+```typescript
+interface LIMSIntegration {
+  connectionId: string;
+  limsType: 'dotmatics' | 'benchling' | 'labware' | 'custom';
+  dataMapping: DataMapping;
+  syncSchedule: SyncSchedule;
+  lastSync: Date;
+}
+
+export async function integrateLIMS(config: LIMSConfig): Promise<LIMSIntegration> {
+  const connection = await establishConnection(config);
+  const mapping = await createDataMapping(config.schema);
+  const validation = await validateIntegration(connection, mapping);
+  
+  if (!validation.success) {
+    throw new IntegrationError(`LIMS integration failed: ${validation.errors.join(', ')}`);
+  }
+  
+  return await setupSyncSchedule(connection, mapping, config.schedule);
+}
+
+export async function syncWithLIMS(integration: LIMSIntegration): Promise<SyncResult> {
+  try {
+    const newData = await fetchFromLIMS(integration);
+    const processedData = await processLIMSData(newData, integration.dataMapping);
+    const results = await runTriageOnNewData(processedData);
+    await pushResultsToLIMS(results, integration);
+    
+    return {
+      status: 'success',
+      recordsProcessed: newData.length,
+      resultsGenerated: results.length,
+      syncTime: new Date()
+    };
+  } catch (error) {
+    await handleSyncError(integration, error);
+    throw error;
+  }
+}
+
+export async function generateAuditTrail(operation: Operation): Promise<AuditEntry> {
+  return {
+    id: generateId(),
+    timestamp: new Date(),
+    operation: operation.type,
+    userId: operation.userId,
+    customerId: operation.customerId,
+    modelId: operation.modelId,
+    inputs: await hashInputs(operation.inputs),
+    outputs: await hashOutputs(operation.outputs),
+    version: operation.modelVersion,
+    signature: await signOperation(operation)
+  };
+}
+```
