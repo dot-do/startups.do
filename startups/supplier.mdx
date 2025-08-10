@@ -355,7 +355,528 @@ landingPage:
     - 'Enable alerts, holds, and supplier outreach workflows in your ERP/MRP.'
     - Track on-time performance and risk reduction in live dashboards.
 ---
+
 # Supplier Risk & Compliance Radar (SRC-Radar)
 
 Generated for NAICS 336999 — All Other Transportation Equipment Manufacturing.
-Service: Supplier Risk & Compliance Radar
+
+## Business Workflow Functions
+
+### Customer Acquisition Workflows
+
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead)
+  const riskAssessment = await assessCustomerRisk(qualifiedLead)
+  const proposal = await generateProposal(qualifiedLead, riskAssessment)
+  const contract = await negotiateContract(proposal)
+  const customer = await onboardCustomer(contract)
+  await setupInitialMonitoring(customer)
+  return customer
+}
+
+export async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  const companyData = await enrichCompanyData(lead.company)
+  const naicsValidation = await validateNAICS(companyData.naics, "336999")
+  const supplierCount = await estimateSupplierCount(companyData)
+  const budgetFit = await assessBudgetFit(companyData.revenue, supplierCount)
+  
+  if (!naicsValidation.isValid || !budgetFit.qualified) {
+    throw new Error("Lead does not meet qualification criteria")
+  }
+  
+  return {
+    ...lead,
+    companyData,
+    supplierCount,
+    budgetRange: budgetFit.range,
+    qualificationScore: calculateQualificationScore(companyData, supplierCount, budgetFit)
+  }
+}
+
+export async function generateProposal(lead: QualifiedLead, risk: CustomerRisk): Promise<Proposal> {
+  const recommendedPlan = await selectOptimalPlan(lead.supplierCount, lead.budgetRange)
+  const customizations = await identifyCustomizations(lead.companyData, risk)
+  const roi = await calculateROI(lead, recommendedPlan)
+  const timeline = await generateImplementationTimeline(recommendedPlan, customizations)
+  
+  return {
+    plan: recommendedPlan,
+    customizations,
+    pricing: await calculateCustomPricing(recommendedPlan, customizations),
+    roi,
+    timeline,
+    terms: await generateContractTerms(lead, recommendedPlan)
+  }
+}
+
+### Supplier Risk Assessment Workflows
+
+export async function assessSupplierRisk(supplier: Supplier): Promise<SupplierRiskScore> {
+  const [deliveryRisk, financialRisk, complianceRisk, esgRisk] = await Promise.all([
+    assessDeliveryRisk(supplier),
+    assessFinancialRisk(supplier),
+    assessComplianceRisk(supplier),
+    assessESGRisk(supplier)
+  ])
+  
+  const overallScore = calculateWeightedRiskScore({
+    delivery: deliveryRisk,
+    financial: financialRisk,
+    compliance: complianceRisk,
+    esg: esgRisk
+  })
+  
+  await updateSupplierRiskHistory(supplier.id, overallScore)
+  await triggerAlertsIfNeeded(supplier, overallScore)
+  
+  return overallScore
+}
+
+export async function assessDeliveryRisk(supplier: Supplier): Promise<DeliveryRiskScore> {
+  const otdTrends = await analyzeOTDTrends(supplier.id, 12) // 12 months
+  const leadTimeVariance = await calculateLeadTimeVariance(supplier.id)
+  const capacityUtilization = await estimateCapacityUtilization(supplier)
+  const geopoliticalRisk = await assessGeopoliticalRisk(supplier.location)
+  
+  return {
+    otdScore: calculateOTDScore(otdTrends),
+    leadTimeScore: calculateLeadTimeScore(leadTimeVariance),
+    capacityScore: calculateCapacityScore(capacityUtilization),
+    geoRiskScore: geopoliticalRisk.score,
+    overallDeliveryRisk: weightedAverage([otdTrends, leadTimeVariance, capacityUtilization, geopoliticalRisk]),
+    earlyWarningSignals: identifyEarlyWarningSignals(supplier)
+  }
+}
+
+export async function assessFinancialRisk(supplier: Supplier): Promise<FinancialRiskScore> {
+  const creditData = await fetchCreditData(supplier.duns)
+  const paymentHistory = await analyzePaymentHistory(supplier.id)
+  const financialStress = await detectFinancialStress(supplier)
+  
+  return {
+    creditScore: creditData.score,
+    paymentScore: calculatePaymentScore(paymentHistory),
+    stressIndicators: financialStress.indicators,
+    overallFinancialRisk: calculateFinancialRisk(creditData, paymentHistory, financialStress),
+    recommendations: generateFinancialMitigations(creditData, financialStress)
+  }
+}
+
+### Compliance Screening Workflows
+
+export async function screenCompliance(supplier: Supplier): Promise<ComplianceResult> {
+  const [sanctionsResult, exportResult, esgResult] = await Promise.all([
+    screenSanctions(supplier),
+    screenExportControls(supplier),
+    screenESGCompliance(supplier)
+  ])
+  
+  const overallCompliance = {
+    status: determineOverallStatus([sanctionsResult, exportResult, esgResult]),
+    sanctions: sanctionsResult,
+    exportControls: exportResult,
+    esg: esgResult,
+    lastScreened: new Date(),
+    nextScreening: calculateNextScreeningDate(supplier.riskLevel)
+  }
+  
+  await updateComplianceRecord(supplier.id, overallCompliance)
+  await scheduleRemediation(supplier, overallCompliance)
+  
+  return overallCompliance
+}
+
+export async function screenSanctions(supplier: Supplier): Promise<SanctionsResult> {
+  const entities = await extractEntities(supplier)
+  const screeningResults = await Promise.all([
+    screenOFAC(entities),
+    screenBISEntityList(entities),
+    screenEUList(entities),
+    screenUKList(entities)
+  ])
+  
+  const matches = screeningResults.flatMap(result => result.matches)
+  const riskLevel = calculateSanctionsRisk(matches)
+  
+  return {
+    matches,
+    riskLevel,
+    requiresReview: matches.length > 0 || riskLevel === 'HIGH',
+    recommendations: generateSanctionsRecommendations(matches, riskLevel)
+  }
+}
+
+export async function screenExportControls(supplier: Supplier): Promise<ExportControlResult> {
+  const products = await getSupplierProducts(supplier.id)
+  const destinations = await getSupplierDestinations(supplier.id)
+  
+  const [itarScreening, earScreening] = await Promise.all([
+    screenITAR(products, destinations),
+    screenEAR(products, destinations)
+  ])
+  
+  return {
+    itar: itarScreening,
+    ear: earScreening,
+    overallRisk: calculateExportRisk(itarScreening, earScreening),
+    requiredLicenses: identifyRequiredLicenses(products, destinations),
+    recommendations: generateExportRecommendations(itarScreening, earScreening)
+  }
+}
+
+### Early Warning and Monitoring Workflows
+
+export async function monitorSupplierHealth(): Promise<void> {
+  const activeSuppliers = await getActiveSuppliers()
+  
+  for (const supplier of activeSuppliers) {
+    await Promise.all([
+      monitorDeliveryPerformance(supplier),
+      monitorFinancialHealth(supplier),
+      monitorComplianceStatus(supplier),
+      monitorESGIncidents(supplier)
+    ])
+  }
+  
+  await generateDailyRiskReport()
+}
+
+export async function monitorDeliveryPerformance(supplier: Supplier): Promise<void> {
+  const recentPerformance = await getRecentDeliveryData(supplier.id, 30) // 30 days
+  const trends = await analyzePerformanceTrends(recentPerformance)
+  
+  if (trends.deteriorating) {
+    const alert = await createEarlyWarningAlert({
+      supplier,
+      type: 'DELIVERY_RISK',
+      severity: calculateSeverity(trends),
+      details: trends,
+      recommendedActions: generateDeliveryMitigations(trends)
+    })
+    
+    await notifyStakeholders(alert)
+    await scheduleSupplierReview(supplier, alert)
+  }
+}
+
+export async function detectSupplierAnomalies(supplier: Supplier): Promise<Anomaly[]> {
+  const [shipmentAnomalies, qualityAnomalies, communicationAnomalies] = await Promise.all([
+    detectShipmentAnomalies(supplier.id),
+    detectQualityAnomalies(supplier.id),
+    detectCommunicationAnomalies(supplier.id)
+  ])
+  
+  return [...shipmentAnomalies, ...qualityAnomalies, ...communicationAnomalies]
+}
+
+### Remediation and Mitigation Workflows
+
+export async function remediateSupplierIssue(issue: SupplierIssue): Promise<RemediationResult> {
+  const remediationPlan = await createRemediationPlan(issue)
+  const assignedTeam = await assignRemediationTeam(issue.severity, issue.type)
+  
+  await initiateRemediation(remediationPlan, assignedTeam)
+  
+  const result = await trackRemediationProgress(remediationPlan.id)
+  await updateSupplierStatus(issue.supplierId, result.status)
+  
+  if (result.status === 'RESOLVED') {
+    await closeIssue(issue.id)
+    await updateRiskScore(issue.supplierId)
+  }
+  
+  return result
+}
+
+export async function createRemediationPlan(issue: SupplierIssue): Promise<RemediationPlan> {
+  const actions = await generateRemediationActions(issue)
+  const timeline = await calculateRemediationTimeline(actions)
+  const resources = await identifyRequiredResources(actions)
+  
+  return {
+    id: generatePlanId(),
+    issue,
+    actions,
+    timeline,
+    resources,
+    sla: calculateSLA(issue.severity),
+    approvals: await identifyRequiredApprovals(issue, actions)
+  }
+}
+
+export async function executeCorrectiveAction(action: CorrectiveAction): Promise<ActionResult> {
+  switch (action.type) {
+    case 'DOCUMENT_REQUEST':
+      return await requestDocuments(action.supplierId, action.documents)
+    case 'AUDIT_TRIGGER':
+      return await scheduleAudit(action.supplierId, action.auditType)
+    case 'ALTERNATIVE_SOURCING':
+      return await identifyAlternativeSources(action.partNumbers)
+    case 'SAFETY_STOCK_INCREASE':
+      return await adjustSafetyStock(action.partNumbers, action.increase)
+    default:
+      throw new Error(`Unknown action type: ${action.type}`)
+  }
+}
+
+### Revenue Generation and Business Operations
+
+export async function generateRevenue(): Promise<RevenueMetrics> {
+  const [subscriptionRevenue, usageRevenue, servicesRevenue] = await Promise.all([
+    calculateSubscriptionRevenue(),
+    calculateUsageRevenue(),
+    calculateServicesRevenue()
+  ])
+  
+  return {
+    total: subscriptionRevenue + usageRevenue + servicesRevenue,
+    subscription: subscriptionRevenue,
+    usage: usageRevenue,
+    services: servicesRevenue,
+    growth: await calculateRevenueGrowth(),
+    churn: await calculateChurnRate()
+  }
+}
+
+export async function optimizePricing(customer: Customer): Promise<PricingRecommendation> {
+  const usage = await analyzeCustomerUsage(customer.id)
+  const value = await calculateCustomerValue(customer, usage)
+  const benchmarks = await getBenchmarkPricing(customer.segment)
+  
+  return {
+    currentPlan: customer.plan,
+    recommendedPlan: await recommendOptimalPlan(usage, value),
+    upsellOpportunities: await identifyUpsellOpportunities(customer, usage),
+    priceOptimization: await calculateOptimalPricing(value, benchmarks)
+  }
+}
+
+### Decision-Making and Strategic Workflows
+
+export async function makeStrategicDecision(decision: StrategyDecision): Promise<DecisionResult> {
+  const analysis = await analyzeDecisionContext(decision)
+  const options = await generateDecisionOptions(decision, analysis)
+  const evaluation = await evaluateOptions(options, decision.criteria)
+  
+  const recommendation = await selectBestOption(evaluation)
+  const implementation = await createImplementationPlan(recommendation)
+  
+  return {
+    decision,
+    analysis,
+    options,
+    recommendation,
+    implementation,
+    risks: await identifyImplementationRisks(implementation),
+    success_metrics: await defineSuccessMetrics(decision, recommendation)
+  }
+}
+
+export async function prioritizeSuppliers(suppliers: Supplier[]): Promise<SupplierPriority[]> {
+  const priorities = await Promise.all(
+    suppliers.map(async (supplier) => {
+      const risk = await assessSupplierRisk(supplier)
+      const impact = await calculateBusinessImpact(supplier)
+      const mitigation = await assessMitigationOptions(supplier)
+      
+      return {
+        supplier,
+        priority: calculatePriority(risk, impact, mitigation),
+        risk,
+        impact,
+        mitigation
+      }
+    })
+  )
+  
+  return priorities.sort((a, b) => b.priority - a.priority)
+}
+
+### Product Development Workflows
+
+export async function developRiskModel(domain: string): Promise<RiskModel> {
+  const trainingData = await collectTrainingData(domain)
+  const features = await engineerFeatures(trainingData)
+  const model = await trainRiskModel(features)
+  const validation = await validateModel(model, domain)
+  
+  if (validation.accuracy < 0.85) {
+    throw new Error(`Model accuracy ${validation.accuracy} below threshold`)
+  }
+  
+  await deployModel(model, domain)
+  return model
+}
+
+export async function enhanceDataSources(): Promise<DataSourceResult> {
+  const newSources = await identifyDataSources()
+  const integrations = await buildIntegrations(newSources)
+  const qualityChecks = await implementQualityChecks(integrations)
+  
+  return {
+    sources: newSources,
+    integrations,
+    qualityMetrics: qualityChecks,
+    coverage: await calculateDataCoverage(newSources)
+  }
+}
+
+export async function buildIntegration(system: ERPSystem): Promise<Integration> {
+  const apiSpec = await analyzeSystemAPI(system)
+  const connector = await buildConnector(apiSpec)
+  const mapping = await createDataMapping(system, connector)
+  const testing = await testIntegration(connector, mapping)
+  
+  if (!testing.success) {
+    throw new Error(`Integration test failed: ${testing.errors}`)
+  }
+  
+  return {
+    system,
+    connector,
+    mapping,
+    status: 'ACTIVE',
+    lastSync: new Date()
+  }
+}
+
+## Type Definitions
+
+```typescript
+interface Lead {
+  id: string
+  company: string
+  contact: ContactInfo
+  source: string
+  timestamp: Date
+}
+
+interface QualifiedLead extends Lead {
+  companyData: CompanyData
+  supplierCount: number
+  budgetRange: BudgetRange
+  qualificationScore: number
+}
+
+interface Supplier {
+  id: string
+  name: string
+  duns: string
+  location: Location
+  riskLevel: 'LOW' | 'MEDIUM' | 'HIGH'
+  products: Product[]
+  performance: PerformanceMetrics
+}
+
+interface SupplierRiskScore {
+  overall: number
+  delivery: DeliveryRiskScore
+  financial: FinancialRiskScore
+  compliance: ComplianceRiskScore
+  esg: ESGRiskScore
+  lastUpdated: Date
+  trends: RiskTrends
+}
+
+interface DeliveryRiskScore {
+  otdScore: number
+  leadTimeScore: number
+  capacityScore: number
+  geoRiskScore: number
+  overallDeliveryRisk: number
+  earlyWarningSignals: WarningSignal[]
+}
+
+interface FinancialRiskScore {
+  creditScore: number
+  paymentScore: number
+  stressIndicators: StressIndicator[]
+  overallFinancialRisk: number
+  recommendations: Mitigation[]
+}
+
+interface ComplianceResult {
+  status: 'COMPLIANT' | 'NON_COMPLIANT' | 'UNDER_REVIEW'
+  sanctions: SanctionsResult
+  exportControls: ExportControlResult
+  esg: ESGResult
+  lastScreened: Date
+  nextScreening: Date
+}
+
+interface SanctionsResult {
+  matches: SanctionsMatch[]
+  riskLevel: 'LOW' | 'MEDIUM' | 'HIGH'
+  requiresReview: boolean
+  recommendations: string[]
+}
+
+interface ExportControlResult {
+  itar: ITARResult
+  ear: EARResult
+  overallRisk: 'LOW' | 'MEDIUM' | 'HIGH'
+  requiredLicenses: License[]
+  recommendations: string[]
+}
+
+interface RemediationPlan {
+  id: string
+  issue: SupplierIssue
+  actions: CorrectiveAction[]
+  timeline: Timeline
+  resources: Resource[]
+  sla: SLA
+  approvals: Approval[]
+}
+
+interface CorrectiveAction {
+  type: 'DOCUMENT_REQUEST' | 'AUDIT_TRIGGER' | 'ALTERNATIVE_SOURCING' | 'SAFETY_STOCK_INCREASE'
+  supplierId: string
+  documents?: string[]
+  auditType?: string
+  partNumbers?: string[]
+  increase?: number
+}
+
+interface RevenueMetrics {
+  total: number
+  subscription: number
+  usage: number
+  services: number
+  growth: number
+  churn: number
+}
+
+interface PricingRecommendation {
+  currentPlan: Plan
+  recommendedPlan: Plan
+  upsellOpportunities: Opportunity[]
+  priceOptimization: PriceOptimization
+}
+
+interface StrategyDecision {
+  id: string
+  type: string
+  criteria: DecisionCriteria
+  context: DecisionContext
+  urgency: 'LOW' | 'MEDIUM' | 'HIGH'
+}
+
+interface DecisionResult {
+  decision: StrategyDecision
+  analysis: DecisionAnalysis
+  options: DecisionOption[]
+  recommendation: DecisionOption
+  implementation: ImplementationPlan
+  risks: Risk[]
+  success_metrics: Metric[]
+}
+
+interface SupplierPriority {
+  supplier: Supplier
+  priority: number
+  risk: SupplierRiskScore
+  impact: BusinessImpact
+  mitigation: MitigationOptions
+}
+```
