@@ -2,6 +2,11 @@
 
 Phases and deliverables for building the AI Startup Generator as Business-as-Code.
 
+## Build & ISR for dynamic [name] route
+- The dynamic route at app/[name]/page.tsx uses export const revalidate = 86400 and generateStaticParams() sourced from listStartups() in lib/startups.
+- On build and on ISR revalidation, the page loads MDX via getStartup(name) and calls generateLandingSections() to derive hero, features, pricing, faq, and cta objects.
+- Generation runs only at build time or when the ISR window expires; it does not run per request. The AI gateway layer also caches responses, but ISR prevents unnecessary generation loops.
+- To adjust cadence, change the revalidate value in app/[name]/page.tsx. You can pass additional frontmatter context (e.g., tagline, description, problem, solution) into generateLandingSections() to steer outputs.
 ## Phase 0 — Foundations (Docs and Conventions)
 - Define Business-as-Code vision and scope in README
 - Establish MDX file location: `startups/{name}.mdx`
