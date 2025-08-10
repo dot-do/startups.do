@@ -328,7 +328,347 @@ landingPage:
     - Enable optional closed-loop control and CMMS auto-ticketing.
     - 'Scale to additional lines, alloys, and sites.'
 ---
+
 # DieLifeIQ
 
 Generated for NAICS 331420 — Copper Rolling, Drawing, Extruding, and Alloying.
 Service: Extrusion Die Life and Parameter Recommender
+
+## Business Process Functions
+
+```typescript
+// Core Types
+interface Lead {
+  companyName: string
+  contactInfo: ContactInfo
+  plantLocation: string
+  naicsCode: string
+  currentDieSpend: number
+  downtimeHours: number
+  scrapRate: number
+  productionLines: number
+}
+
+interface Customer {
+  id: string
+  companyName: string
+  contractValue: number
+  linesMonitored: number
+  onboardingStatus: 'pending' | 'in-progress' | 'complete'
+  subscriptionTier: 'basic' | 'enterprise'
+}
+
+interface Die {
+  id: string
+  geometry: DieGeometry
+  material: string
+  refurbishmentHistory: RefurbishmentRecord[]
+  currentRUL: number
+  confidenceInterval: [number, number]
+}
+
+interface ProcessParameters {
+  speed: number
+  billetTemperature: number
+  lubricationFlow: number
+  bearingAlignment: number
+}
+
+interface Recommendation {
+  parameterId: string
+  currentValue: number
+  recommendedValue: number
+  expectedImpact: {
+    dieLifeExtension: number
+    qualityImprovement: number
+    throughputImpact: number
+  }
+  confidence: number
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead)
+  const proposal = await generateProposal(qualifiedLead)
+  const pilot = await conductPilot(proposal)
+  const contract = await negotiateContract(pilot)
+  return await onboardCustomer(contract)
+}
+
+export async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  const dieSpendThreshold = 500000 // $500k annual die spend minimum
+  const downtimeThreshold = 100 // 100+ hours annual downtime
+  
+  if (lead.currentDieSpend < dieSpendThreshold) {
+    throw new Error('Lead does not meet minimum die spend criteria')
+  }
+  
+  const painScore = calculatePainScore(lead)
+  const fitScore = await assessTechnicalFit(lead)
+  
+  return {
+    ...lead,
+    painScore,
+    fitScore,
+    priority: painScore * fitScore > 0.7 ? 'high' : 'medium'
+  }
+}
+
+export async function generateProposal(lead: QualifiedLead): Promise<Proposal> {
+  const roiCalculation = await calculateROI(lead)
+  const technicalScope = await defineTechnicalScope(lead)
+  const pricing = await generatePricing(lead, technicalScope)
+  
+  return {
+    customerId: lead.id,
+    roiProjection: roiCalculation,
+    technicalScope,
+    pricing,
+    pilotDuration: 60, // days
+    expectedPayback: roiCalculation.paybackMonths
+  }
+}
+
+export async function conductPilot(proposal: Proposal): Promise<PilotResults> {
+  const pilotSetup = await setupPilotEnvironment(proposal)
+  const baselineMetrics = await collectBaselineMetrics(pilotSetup)
+  
+  // 60-day pilot execution
+  const pilotData = await runPilotProgram(pilotSetup, 60)
+  const results = await analyzePilotResults(pilotData, baselineMetrics)
+  
+  return {
+    dieLifeImprovement: results.dieLifeExtension,
+    downtimeReduction: results.downtimeReduction,
+    scrapReduction: results.scrapReduction,
+    actualROI: results.roi,
+    customerSatisfaction: results.satisfaction
+  }
+}
+
+// Product Development Processes
+export async function developProduct(): Promise<ProductRelease> {
+  const requirements = await gatherRequirements()
+  const architecture = await designArchitecture(requirements)
+  const models = await developAIModels(architecture)
+  const integration = await buildIntegrations(architecture)
+  const testing = await conductTesting(models, integration)
+  
+  return await releaseProduct(testing)
+}
+
+export async function developAIModels(architecture: SystemArchitecture): Promise<AIModels> {
+  const visionModels = await trainComputerVisionModels()
+  const rulModels = await trainRULPredictionModels()
+  const recommenderModels = await trainParameterRecommender()
+  
+  return {
+    surfaceDefectDetection: visionModels.defectDetection,
+    dieWearClassification: visionModels.wearClassification,
+    remainingUsefulLife: rulModels,
+    parameterOptimization: recommenderModels
+  }
+}
+
+export async function trainComputerVisionModels(): Promise<VisionModels> {
+  const trainingData = await collectLabeledImageData()
+  const augmentedData = await augmentTrainingData(trainingData)
+  
+  const defectModel = await trainModel('yolo-v8', augmentedData.defects)
+  const wearModel = await trainModel('resnet-50', augmentedData.wear)
+  
+  return {
+    defectDetection: defectModel,
+    wearClassification: wearModel
+  }
+}
+
+// Revenue Generation Flows
+export async function generateRevenue(customer: Customer): Promise<RevenueStream> {
+  const subscription = await processSubscriptionRevenue(customer)
+  const hardware = await processHardwareRevenue(customer)
+  const services = await processServicesRevenue(customer)
+  
+  return {
+    subscriptionARR: subscription.annualValue,
+    hardwareRevenue: hardware.totalValue,
+    servicesRevenue: services.totalValue,
+    totalRevenue: subscription.annualValue + hardware.totalValue + services.totalValue
+  }
+}
+
+export async function processSubscriptionRevenue(customer: Customer): Promise<SubscriptionRevenue> {
+  const tierPricing = {
+    basic: 60000, // $60k per line per year
+    enterprise: 120000 // $120k per line per year
+  }
+  
+  const annualValue = tierPricing[customer.subscriptionTier] * customer.linesMonitored
+  
+  return {
+    customerId: customer.id,
+    tier: customer.subscriptionTier,
+    linesMonitored: customer.linesMonitored,
+    annualValue,
+    billingCycle: 'annual'
+  }
+}
+
+export async function processHardwareRevenue(customer: Customer): Promise<HardwareRevenue> {
+  const hardwareKitCost = 25000 // $25k per line
+  const totalValue = hardwareKitCost * customer.linesMonitored
+  
+  return {
+    customerId: customer.id,
+    unitsDeployed: customer.linesMonitored,
+    unitPrice: hardwareKitCost,
+    totalValue,
+    paymentTerms: 'net-30'
+  }
+}
+
+// Operational Procedures
+export async function monitorDieHealth(die: Die): Promise<DieHealthStatus> {
+  const visionAnalysis = await analyzeVisualData(die)
+  const processData = await analyzeProcessLogs(die)
+  const rulEstimate = await estimateRemainingLife(visionAnalysis, processData)
+  
+  return {
+    dieId: die.id,
+    currentRUL: rulEstimate.hours,
+    confidence: rulEstimate.confidence,
+    healthScore: calculateHealthScore(visionAnalysis, processData),
+    recommendedAction: determineRecommendedAction(rulEstimate)
+  }
+}
+
+export async function optimizeProcessParameters(
+  currentParams: ProcessParameters,
+  dieCondition: DieHealthStatus
+): Promise<Recommendation[]> {
+  const optimizationModel = await loadParameterOptimizer()
+  const recommendations = await optimizationModel.optimize({
+    currentParameters: currentParams,
+    dieHealth: dieCondition,
+    constraints: {
+      maxSpeedReduction: 0.08, // 8% max speed reduction
+      maxTempIncrease: 15, // 15°C max temp increase
+      throughputImpact: 0.02 // ±2% throughput impact
+    }
+  })
+  
+  return recommendations.map(rec => ({
+    ...rec,
+    expectedImpact: calculateExpectedImpact(rec, dieCondition)
+  }))
+}
+
+export async function scheduleMaintenanceActions(
+  dieHealth: DieHealthStatus[]
+): Promise<MaintenanceSchedule> {
+  const criticalDies = dieHealth.filter(d => d.currentRUL < 48) // <48 hours
+  const warningDies = dieHealth.filter(d => d.currentRUL < 168) // <1 week
+  
+  const schedule = await optimizeMaintenanceSchedule(criticalDies, warningDies)
+  
+  return {
+    criticalActions: schedule.critical,
+    plannedActions: schedule.planned,
+    totalDowntime: schedule.estimatedDowntime,
+    costOptimization: schedule.costSavings
+  }
+}
+
+// Decision-Making Workflows
+export async function makeOperationalDecision(
+  context: OperationalContext
+): Promise<Decision> {
+  const riskAssessment = await assessOperationalRisk(context)
+  const options = await generateDecisionOptions(context, riskAssessment)
+  const recommendation = await selectOptimalOption(options)
+  
+  return {
+    context: context.id,
+    decision: recommendation.action,
+    reasoning: recommendation.reasoning,
+    expectedOutcome: recommendation.expectedOutcome,
+    confidence: recommendation.confidence,
+    approvalRequired: recommendation.riskLevel > 0.7
+  }
+}
+
+export async function handleAlerts(alert: SystemAlert): Promise<AlertResponse> {
+  const severity = classifyAlertSeverity(alert)
+  const response = await generateAlertResponse(alert, severity)
+  
+  if (severity === 'critical') {
+    await notifyOperators(alert, response)
+    await initiateEmergencyProtocol(alert)
+  }
+  
+  return response
+}
+
+export async function optimizeProductionSchedule(
+  orders: ProductionOrder[],
+  dieHealth: DieHealthStatus[]
+): Promise<OptimizedSchedule> {
+  const constraints = {
+    dieAvailability: dieHealth,
+    deliveryDeadlines: orders.map(o => o.deadline),
+    setupTimes: await calculateSetupTimes(orders),
+    qualityRequirements: orders.map(o => o.qualitySpec)
+  }
+  
+  const optimizer = await loadScheduleOptimizer()
+  const schedule = await optimizer.optimize(orders, constraints)
+  
+  return {
+    optimizedSequence: schedule.sequence,
+    expectedDieUsage: schedule.dieUsage,
+    deliveryPerformance: schedule.onTimeDelivery,
+    totalCost: schedule.operatingCost
+  }
+}
+
+// Helper Functions
+async function calculatePainScore(lead: Lead): Promise<number> {
+  const downtimeWeight = 0.4
+  const scrapWeight = 0.3
+  const dieSpendWeight = 0.3
+  
+  const normalizedDowntime = Math.min(lead.downtimeHours / 500, 1)
+  const normalizedScrap = Math.min(lead.scrapRate / 0.1, 1)
+  const normalizedSpend = Math.min(lead.currentDieSpend / 2000000, 1)
+  
+  return (
+    normalizedDowntime * downtimeWeight +
+    normalizedScrap * scrapWeight +
+    normalizedSpend * dieSpendWeight
+  )
+}
+
+async function calculateROI(lead: QualifiedLead): Promise<ROICalculation> {
+  const currentCosts = {
+    dieSpend: lead.currentDieSpend,
+    downtimeCost: lead.downtimeHours * 5000, // $5k per hour
+    scrapCost: lead.scrapRate * 1000000 // $1M baseline production
+  }
+  
+  const projectedSavings = {
+    dieLifeExtension: currentCosts.dieSpend * 0.3, // 30% die cost reduction
+    downtimeReduction: currentCosts.downtimeCost * 0.4, // 40% downtime reduction
+    scrapReduction: currentCosts.scrapCost * 0.25 // 25% scrap reduction
+  }
+  
+  const totalSavings = Object.values(projectedSavings).reduce((a, b) => a + b, 0)
+  const implementationCost = lead.productionLines * 85000 // $85k per line
+  
+  return {
+    annualSavings: totalSavings,
+    implementationCost,
+    paybackMonths: Math.ceil(implementationCost / (totalSavings / 12)),
+    threeYearROI: (totalSavings * 3 - implementationCost) / implementationCost
+  }
+}
+```
