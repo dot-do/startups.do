@@ -35,7 +35,7 @@ export default async function Home() {
       <Navbar githubUrl='https://github.com/dot-do/startups.do' />
       <main className='mx-auto px-4 max-w-screen-2xl'>
         <Hero title='Do Business-as-Code' subtitle='Build autonomous businesses. Deliver agentic workflows with Services-as-Software.' />
-        <StartupGrid items={items} />
+        <StartupGrid initialItems={items} pageSize={PAGE_SIZE} />
       </main>
     </div>
   )
