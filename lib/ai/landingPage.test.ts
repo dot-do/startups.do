@@ -7,6 +7,8 @@ describe('landingPage integration', () => {
     const result = await landingPage('A SaaS for automated invoices', 'Short, actionable copy.')
     const obj = result.object as Record<string, unknown>
 
+    console.log(obj)
+
     expect(obj).toBeTruthy()
     const hero = obj.hero as Record<string, unknown>
     expect(hero).toBeTruthy()

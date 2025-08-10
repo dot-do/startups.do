@@ -12,7 +12,7 @@ describe('lib/ai/index integration', () => {
       schema: z.object({ acknowledgement: z.string() })
     })
 
-    console.log({result})
+    console.log(result.object)
 
     expect(result).toBeTruthy()
     expect(result.object).toBeTruthy()
