@@ -313,7 +313,319 @@ landingPage:
       Measure & refine: track absorption and margin; the model learns and
       adjusts weekly.
 ---
-# PaceWise AI
+
+# PaceWise AI Business Process Functions
 
 Generated for NAICS 236117 — New Housing For-Sale Builders.
 Service: Dynamic Pricing & Incentive Recommender
+
+## Core Business Workflows
+
+```typescript
+// Types for business entities
+interface Lead {
+  id: string;
+  source: string;
+  communityId: string;
+  planInterest: string[];
+  budget: number;
+  timeline: string;
+  contactInfo: ContactInfo;
+  qualificationScore?: number;
+}
+
+interface Customer {
+  id: string;
+  lead: Lead;
+  contractDetails: ContractDetails;
+  onboardingStatus: OnboardingStatus;
+  salesAgent: string;
+}
+
+interface Community {
+  id: string;
+  name: string;
+  activePlans: Plan[];
+  inventory: InventoryItem[];
+  targetPace: number; // net sales per month
+  currentPace: number;
+  marginTargets: MarginTargets;
+}
+
+interface Plan {
+  id: string;
+  name: string;
+  basePrice: number;
+  currentIncentives: Incentive[];
+  elasticity: PriceElasticity;
+  specs: InventoryItem[];
+}
+
+interface PricingRecommendation {
+  planId: string;
+  lotId?: string;
+  recommendedPrice: number;
+  recommendedIncentives: Incentive[];
+  rationale: string;
+  expectedImpact: PacingImpact;
+  marginImpact: number;
+  confidence: number;
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const matchedPlans = await matchPlansToLead(qualifiedLead);
+  const proposal = await generateProposal(qualifiedLead, matchedPlans);
+  const contract = await negotiateContract(proposal);
+  return await onboardCustomer(contract);
+}
+
+export async function qualifyLead(lead: Lead): Promise<Lead> {
+  const creditScore = await getCreditScore(lead.contactInfo);
+  const preApproval = await getMortgagePreApproval(lead, creditScore);
+  const qualificationScore = calculateQualificationScore(lead, creditScore, preApproval);
+  
+  return {
+    ...lead,
+    qualificationScore
+  };
+}
+
+export async function matchPlansToLead(lead: Lead): Promise<Plan[]> {
+  const community = await getCommunity(lead.communityId);
+  const affordablePlans = community.activePlans.filter(plan => 
+    plan.basePrice <= lead.budget * 1.1 // 10% stretch
+  );
+  
+  return prioritizePlansByFit(affordablePlans, lead);
+}
+
+// Revenue Generation Flows
+export async function generateWeeklyPricingRecommendations(
+  communityId: string
+): Promise<PricingRecommendation[]> {
+  const community = await getCommunity(communityId);
+  const marketData = await gatherMarketData(community);
+  const demandSignals = await analyzeDemandSignals(community);
+  const competitorPricing = await getCompetitorPricing(community);
+  
+  const recommendations: PricingRecommendation[] = [];
+  
+  for (const plan of community.activePlans) {
+    const elasticity = await estimatePriceElasticity(plan, marketData);
+    const optimalPricing = await optimizePriceAndIncentives(
+      plan,
+      elasticity,
+      community.targetPace,
+      community.marginTargets,
+      competitorPricing
+    );
+    
+    recommendations.push(optimalPricing);
+  }
+  
+  return validateRecommendations(recommendations, community);
+}
+
+export async function optimizePriceAndIncentives(
+  plan: Plan,
+  elasticity: PriceElasticity,
+  targetPace: number,
+  marginTargets: MarginTargets,
+  competitorPricing: CompetitorData[]
+): Promise<PricingRecommendation> {
+  const incentiveOptions = await generateIncentiveOptions(plan);
+  const scenarios = await simulateScenarios(plan, incentiveOptions, elasticity);
+  
+  const optimalScenario = scenarios.find(scenario => 
+    scenario.expectedPace >= targetPace &&
+    scenario.grossMargin >= marginTargets.minimum &&
+    scenario.totalCost <= getMaxIncentiveBudget(plan)
+  );
+  
+  return {
+    planId: plan.id,
+    recommendedPrice: optimalScenario.price,
+    recommendedIncentives: optimalScenario.incentives,
+    rationale: generateRationale(optimalScenario, elasticity, competitorPricing),
+    expectedImpact: optimalScenario.pacingImpact,
+    marginImpact: optimalScenario.grossMargin - plan.currentMargin,
+    confidence: calculateConfidence(elasticity, marketData)
+  };
+}
+
+// Product Development Processes
+export async function developPricingModel(communityId: string): Promise<PricingModel> {
+  const historicalData = await getHistoricalSalesData(communityId);
+  const trafficData = await getTrafficAndLeadData(communityId);
+  const competitorHistory = await getCompetitorPricingHistory(communityId);
+  
+  const elasticityModel = await trainElasticityModel(
+    historicalData,
+    trafficData,
+    competitorHistory
+  );
+  
+  const incentiveEffectiveness = await analyzeIncentiveEffectiveness(historicalData);
+  
+  return {
+    elasticityModel,
+    incentiveEffectiveness,
+    confidence: validateModel(elasticityModel, historicalData),
+    lastUpdated: new Date()
+  };
+}
+
+export async function updatePricingModel(
+  model: PricingModel,
+  newSalesData: SalesData[]
+): Promise<PricingModel> {
+  const updatedModel = await retrainModel(model, newSalesData);
+  const performance = await evaluateModelPerformance(updatedModel, newSalesData);
+  
+  if (performance.accuracy > model.confidence) {
+    return updatedModel;
+  }
+  
+  return model; // Keep existing model if performance degrades
+}
+
+// Operational Procedures
+export async function executeWeeklyPricingCycle(communityId: string): Promise<void> {
+  const recommendations = await generateWeeklyPricingRecommendations(communityId);
+  const approvedRecommendations = await submitForApproval(recommendations);
+  
+  for (const recommendation of approvedRecommendations) {
+    await publishPricingChanges(recommendation);
+    await updateCRM(recommendation);
+    await notifySalesTeam(recommendation);
+    await logAuditTrail(recommendation);
+  }
+  
+  await scheduleFollowUpAnalysis(communityId, 7); // 7 days
+}
+
+export async function monitorInventoryAging(): Promise<void> {
+  const agedSpecs = await getAgedSpecInventory(120); // >120 days
+  
+  for (const spec of agedSpecs) {
+    const urgentPricing = await generateUrgentPricingRecommendation(spec);
+    await escalateToManagement(spec, urgentPricing);
+    await adjustMarketingSpend(spec.communityId, spec.planId);
+  }
+}
+
+// Decision-Making Workflows
+export async function evaluatePricingDecision(
+  recommendation: PricingRecommendation,
+  context: DecisionContext
+): Promise<DecisionResult> {
+  const riskAssessment = await assessPricingRisk(recommendation, context);
+  const competitiveImpact = await analyzeCompetitiveImpact(recommendation);
+  const marginImpact = await calculateMarginImpact(recommendation);
+  
+  const decision = await applyDecisionRules(
+    recommendation,
+    riskAssessment,
+    competitiveImpact,
+    marginImpact,
+    context.approvalThresholds
+  );
+  
+  return {
+    approved: decision.approved,
+    conditions: decision.conditions,
+    rationale: decision.rationale,
+    requiredApprovals: decision.requiredApprovals,
+    monitoringRequirements: decision.monitoringRequirements
+  };
+}
+
+export async function handlePricingEscalation(
+  recommendation: PricingRecommendation,
+  escalationReason: string
+): Promise<EscalationResult> {
+  const stakeholders = await identifyStakeholders(recommendation, escalationReason);
+  const briefing = await prepareBriefing(recommendation, escalationReason);
+  
+  const approvals = await collectApprovals(stakeholders, briefing);
+  
+  if (approvals.every(approval => approval.approved)) {
+    return {
+      status: 'approved',
+      finalRecommendation: await incorporateFeedback(recommendation, approvals),
+      implementationDate: approvals[0].requestedDate
+    };
+  }
+  
+  return {
+    status: 'rejected',
+    feedback: approvals.map(a => a.feedback),
+    alternativeOptions: await generateAlternatives(recommendation)
+  };
+}
+
+// Performance Tracking and Optimization
+export async function trackRecommendationPerformance(
+  recommendationId: string,
+  timeframe: number = 30
+): Promise<PerformanceMetrics> {
+  const recommendation = await getRecommendation(recommendationId);
+  const actualResults = await getActualResults(recommendation, timeframe);
+  
+  return {
+    paceVariance: actualResults.pace - recommendation.expectedImpact.pace,
+    marginVariance: actualResults.margin - recommendation.marginImpact,
+    accuracyScore: calculateAccuracyScore(recommendation, actualResults),
+    learnings: extractLearnings(recommendation, actualResults)
+  };
+}
+
+export async function optimizeIncentiveMix(
+  plan: Plan,
+  constraints: IncentiveConstraints
+): Promise<OptimalIncentiveMix> {
+  const incentiveTypes = [
+    'rateBuydown',
+    'closingCosts',
+    'designCredits',
+    'lotPremiumWaiver'
+  ];
+  
+  const combinations = generateIncentiveCombinations(incentiveTypes, constraints);
+  const effectiveness = await evaluateIncentiveEffectiveness(combinations, plan);
+  
+  return effectiveness.reduce((optimal, current) => 
+    current.conversionRate > optimal.conversionRate ? current : optimal
+  );
+}
+
+// Helper functions (would be implemented separately)
+async function getCommunity(id: string): Promise<Community> { /* implementation */ }
+async function gatherMarketData(community: Community): Promise<MarketData> { /* implementation */ }
+async function analyzeDemandSignals(community: Community): Promise<DemandSignals> { /* implementation */ }
+async function getCompetitorPricing(community: Community): Promise<CompetitorData[]> { /* implementation */ }
+async function estimatePriceElasticity(plan: Plan, marketData: MarketData): Promise<PriceElasticity> { /* implementation */ }
+async function submitForApproval(recommendations: PricingRecommendation[]): Promise<PricingRecommendation[]> { /* implementation */ }
+async function publishPricingChanges(recommendation: PricingRecommendation): Promise<void> { /* implementation */ }
+```
+
+## Business Process Integration Points
+
+The above functions integrate with:
+- **CRM Systems**: Salesforce, HubSpot for lead and customer data
+- **Analytics Platforms**: GA4 for traffic and conversion tracking  
+- **Market Data**: Redfin/Zillow APIs for competitor pricing
+- **Financial Systems**: ERP integration for margin and cost tracking
+- **Workflow Automation**: Zapier/Make for publishing price changes
+- **Approval Systems**: Custom workflow engines for pricing approvals
+
+## Key Performance Indicators
+
+These business processes are designed to achieve:
+- **Recommendation Acceptance Rate**: >60% within 90 days
+- **Absorption Lift**: +10-20% net sales per community per month
+- **Margin Improvement**: +50-150 bps while maintaining pace
+- **Forecast Accuracy**: MAPE ≤10-12% for 4-week net sales
+- **Time-to-Value**: First recommendations live ≤3 weeks from contract
