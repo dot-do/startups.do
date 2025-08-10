@@ -1,0 +1,354 @@
+---
+name: HTS Hit Triage & QSAR Prioritizer
+slug: hts-hit-triage-qsar-prioritizer
+naics:
+  primary: '541714'
+  occupations: []
+service:
+  title: HTS Hit Triage & QSAR Prioritizer
+  description: >-
+    Feature engineering, model training, and applicability-domain aware
+    prioritization for high-throughput screening outcomes without de novo
+    design.
+  targetUsers:
+    - Medicinal chemists
+    - Screening groups
+    - Compound management
+  triggers:
+    - Primary/secondary screen complete
+    - Hit list requires prioritization
+    - Assay drift suspected
+  inputs:
+    - Compound IDs/structures (SMILES/SDF)
+    - Assay readouts and metadata
+    - Assay interference/bad actor rules
+  steps:
+    - Sanitize and standardize structures; remove duplicates/salts
+    - Compute descriptors/fingerprints; flag PAINS/reactive motifs
+    - Split data with leakage checks; train baseline and ensemble models
+    - Calibrate probabilities; assess applicability domain and uncertainty
+    - >-
+      Cluster hits; propose diverse, high-confidence subsets; flag potential
+      artifacts
+    - 'Produce explainability (e.g., SHAP) and model cards; package for re-use'
+  tools:
+    - RDKit
+    - scikit-learn/XGBoost/LightGBM
+    - DeepChem (optional)
+    - SHAP
+    - DVC for model versioning
+  outputs:
+    - Ranked compound lists with confidence
+    - Model artifacts and documentation
+    - Clustering visuals and AD metrics
+  pricingModel:
+    - Per-screen project fee
+    - Success fee tied to follow-up confirmation (optional)
+    - Subscription for continuous model updates
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 4
+    modelCapability: 4.5
+    overall: 4.3
+  risks:
+    - Assay artifacts and confounding
+    - Overfitting from imbalance
+    - Regulatory/IP constraints on compound data
+  dependencies:
+    - Secure compound/assay data access
+    - Cheminformatics licensing if commercial tools are requested
+    - Agreement on triage criteria
+leanCanvas:
+  problem:
+    - >-
+      Primary HTS hit lists include high artifact rates (PAINS/aggregators,
+      autofluorescence, plate/batch effects), leading to 40–80% false positives
+      in confirmatory assays and wasted budget/time.
+    - >-
+      QSAR models trained on heterogeneous HTS outcomes often fail to
+      generalize; lack of uncertainty quantification and applicability-domain
+      (AD) awareness causes overconfident, wrong prioritizations.
+    - >-
+      Teams lack standard, reproducible feature engineering and plate-level QC
+      pipelines; manual triage is slow and inconsistent across projects.
+    - >-
+      Follow-up capacity is constrained; without data-driven enrichment,
+      confirmatory testing costs and timelines balloon (weeks to months).
+    - >-
+      Integration gaps with LIMS/ELN and chemistry toolchains create friction
+      and rework; auditability and traceability are insufficient for decision
+      reviews.
+    - >-
+      Limited in-house ML/cheminformatics expertise to build and maintain robust
+      models with drift monitoring, AD, and active learning at scale.
+  solution:
+    - >-
+      Automated feature engineering for HTS outcomes: chemical
+      descriptors/fingerprints, plate/batch covariates, assay-context features,
+      artifact/PAINS flags.
+    - >-
+      Model training with uncertainty: conformal prediction and calibrated
+      probabilities to rank by both predicted effect and confidence.
+    - >-
+      Applicability-domain aware prioritization: distance- and density-based AD
+      plus domain-specific covariates to exclude out-of-domain recommendations.
+    - >-
+      Plate- and batch-effect correction: well/edge effects, signal drift,
+      control normalization, and blind-spot detection to reduce artifacts before
+      modeling.
+    - >-
+      Active learning for confirmatory selection: propose minimal, diverse,
+      high-value subsets to maximize enrichment per confirmation dollar.
+    - >-
+      Seamless integration: connectors to common LIMS/ELN (e.g., Dotmatics,
+      Benchling), SD file workflows, and cloud/on‑prem deployment with full
+      audit trails.
+    - >-
+      Monitoring and model governance: drift detection, periodic re-training,
+      versioning, and traceable decisions for internal reviews and partner
+      reporting.
+  uniqueValueProp: >-
+    Increase confirmatory hit rate and reduce wasted assays with
+    applicability-domain aware QSAR triage, plate/QC-aware feature engineering,
+    and uncertainty-calibrated prioritization—without de novo design or IP risk.
+  unfairAdvantage: >-
+    A production-grade, applicability-domain aware triage stack that jointly
+    models chemical, plate, and assay-context features with conformal
+    uncertainty—validated on public HTS sets and packaged with integrations and
+    governance so teams realize measurable enrichment within one campaign.
+  customerSegments:
+    - >-
+      Mid-size biopharma (50–1,000 R&D FTE) running in-house or partnered HTS
+      campaigns seeking higher confirmatory hit quality.
+    - >-
+      Large pharma therapeutic area teams needing scalable, AD-aware
+      prioritization across multiple screening modalities.
+    - >-
+      CROs/CDMOs offering HTS and secondary screening that want to boost hit
+      quality and throughput for sponsors.
+    - >-
+      Academic screening centers and non-profit consortia needing standardized
+      triage and reproducible QSAR for diverse assays.
+    - >-
+      AI-native or virtual biotechs that do not do de novo design but need
+      robust triage and prioritization of purchased libraries.
+  channels:
+    - >-
+      Direct enterprise sales to mid-size biopharma therapeutic units and CRO BD
+      teams with 6–8 week paid pilots.
+    - >-
+      Partnerships with CROs to embed triage as a value-add service; revenue
+      share or bundled pricing for sponsors.
+    - >-
+      Cloud marketplaces (AWS/GCP) listings to ease procurement for VPC
+      deployments.
+    - >-
+      Co-marketing with LIMS/ELN vendors and cheminformatics tool providers
+      (Benchling, Dotmatics, ChemAxon) via connectors and joint webinars.
+    - >-
+      Conference presence and workshops at SLAS, BIO, ACS, ELRIG; publish
+      comparative case studies with independent screening centers.
+    - >-
+      Founder-led thought leadership: benchmarking on public HTS datasets
+      (PubChem, ChEMBL) and reproducible notebooks for credibility.
+    - >-
+      Targeted outbound to teams with recent HTS publications/grants; ABM
+      campaigns based on disclosed assay modalities and targets.
+  revenueStreams:
+    - >-
+      Subscription SaaS (annual): Starter $60–100k (single team/assay), Pro
+      $120–200k (multi-assay, integrations), Enterprise $250–500k (multi-site,
+      on‑prem/VPC, SSO).
+    - >-
+      Usage-based compute/storage overage for large campaigns (e.g., $0.20–0.40
+      per vCPU-hour, $20–35/TB-month).
+    - >-
+      Professional services: onboarding, custom integrations, bespoke model
+      development ($180–250/hour or scoped SOW).
+    - >-
+      Paid pilots: $50–75k for 6–8 weeks with predefined success criteria and
+      conversion credits to subscription.
+    - >-
+      CRO embedded model licensing: annual platform fee plus per-campaign seats;
+      optional success-linked bonus based on confirmed hit uplift.
+    - >-
+      Training and enablement packages: $5–15k per cohort for internal
+      upskilling and governance workshops.
+  costStructure:
+    - >-
+      Salaries: ML engineers/cheminformaticians, data scientists, software
+      engineers, solutions architects, sales/CS, security/compliance.
+    - >-
+      Cloud infrastructure: compute for training/inference, storage, networking,
+      observability; CI/CD pipelines and test environments.
+    - >-
+      Security and compliance: SOC 2 Type II, pen tests, VPC hardening, audit
+      logging, key management.
+    - >-
+      Licenses and data: commercial descriptor/toolkits (if resold),
+      cheminformatics components, code scanning tools.
+    - >-
+      Sales and marketing: conferences, pilots (COGS compute + staff), content,
+      solution engineering time.
+    - 'Legal and insurance: MSAs, DPAs, IP, E&O/cyber insurance.'
+    - >-
+      R&D: method development (conformal/AD advances), benchmarking,
+      integrations, and productization of active learning workflows.
+  keyMetrics:
+    - >-
+      Hit rate uplift in confirmatory assays vs. baseline triage (target +2–4x
+      EFx10; +15–35% absolute precision at fixed recall).
+    - Cost per qualified hit (target 25–50% reduction within 2 campaigns).
+    - >-
+      Time-to-decision from primary HTS to confirmatory selection (target 30–50%
+      reduction).
+    - >-
+      Pilot success scorecard: predefined AUROC/PR AUC thresholds, enrichment
+      vs. negative controls, and AD coverage percentage.
+    - >-
+      Pilot-to-subscription conversion rate (target ≥50%); time-to-first-value
+      ≤2 weeks; onboarding cycle ≤30 days.
+    - >-
+      Net revenue retention (target ≥120% with expansion to additional
+      assays/teams); logo retention ≥90%.
+    - >-
+      Compute efficiency: $ per 1M compounds triaged; inference throughput
+      (compounds/min) with AD enabled.
+    - >-
+      Data ingestion SLA (target <48 hours from data handoff); integration SLA
+      compliance (>95%).
+    - >-
+      Model drift alerts per quarter and retrain cadence adherence (target <2
+      unplanned retrains/quarter).
+storyBrand:
+  character: >-
+    Biotech R&D and screening teams who must rapidly triage HTS hits and choose
+    confirmatory candidates with confidence and traceability—without de novo
+    design.
+  problem: >-
+    - External: HTS yields thousands of noisy hits with artifacts, PAINS, and
+    batch effects while confirmatory budget and time are limited.
+
+    - Internal: Uncertainty and decision fatigue; skepticism of black-box AI;
+    pressure to justify selections.
+
+    - Philosophical: Hit selection should be data-driven, transparent, and
+    reproducible so good science isn’t derailed by noise.
+  guide: >-
+    We understand you can’t afford to chase noise or black-box recommendations.
+    HTS Hit Triage & QSAR Prioritizer applies proven QSAR, applicability-domain
+    estimation, and calibrated uncertainty with transparent validation. Designed
+    for NAICS 541714 workflows, we emphasize reproducibility, clear
+    documentation, and seamless integration with your cheminformatics stack.
+  plan: >-
+    Process plan:
+
+    - Scope & intake: objectives, assay context, controls, plate maps,
+    structures, metadata.
+
+    - Curation & features: standardize/annotate compounds, artifact filters,
+    plate normalization, rich descriptors/fingerprints.
+
+    - Train & validate: cross-validated QSAR/ML, calibration,
+    applicability-domain mapping, bias checks.
+
+    - Prioritize & deliver: rank by confirmability, diversity, and AD coverage;
+    provide report + notebook/API.
+
+
+    Agreement plan:
+
+    - NDA + data governance; you own your data, models, and IP.
+
+    - Secure deployment (on-prem or private cloud).
+
+    - Timeboxed pilot with clear success criteria and acceptance metrics.
+  callToAction: |-
+    - Direct: Start a 4-week pilot on your latest HTS campaign.
+    - Transitional: Request a sample prioritization report and methods brief.
+  success: >-
+    - Confident, explainable hit lists that respect applicability domain and
+    uncertainty.
+
+    - Reduced spend on false positives; more diverse, mechanism-relevant
+    chemistry entering confirmation.
+
+    - Faster path from screen to SAR and lead hypotheses.
+
+    - Audit-ready, reproducible decisions that build stakeholder trust and
+    momentum.
+  failure: >-
+    - Budget burned on artifacts and me-too chemotypes.
+
+    - Weeks lost to manual triage and debate; missed competitive windows.
+
+    - Opaque choices erode confidence; promising hits are overlooked and
+    programs stall.
+landingPage:
+  hero:
+    title: HTS Hit Triage & QSAR Prioritizer
+    subtitle: >-
+      AI triage for high‑throughput screens. We engineer features, train
+      calibrated QSARs, and rank hits with applicability‑domain awareness—no de
+      novo design required.
+    ctaText: Book a demo
+    ctaHref: '#demo'
+  problem:
+    - HTS yields thousands of hits with unclear confirm-worthiness
+    - Plate effects and artifacts inflate false positives
+    - QSARs break when chemistry drifts outside training space
+    - No uncertainty estimates → costly follow‑ups
+    - Manual feature engineering is slow and inconsistent
+    - Fragmented data formats slow decision‑making
+  solution:
+    - 'End‑to‑end triage that turns raw HTS into ranked, actionable hit lists'
+    - >-
+      Applicability‑domain aware QSAR with calibrated probabilities and abstain
+      outside domain
+    - >-
+      Automated, assay‑aware feature engineering across fingerprints,
+      descriptors, and GNN embeddings
+    - >-
+      Robust data QC: plate normalization, replicate handling, and artifact
+      flagging
+    - Transparent model cards and audit‑ready reports for every run
+    - Fast export to CSV/SDF and seamless handoff to confirmatory assays
+  features:
+    - >-
+      Automated featurization: physicochemical descriptors, circular
+      fingerprints, learned graph embeddings
+    - >-
+      Data hygiene: control-based plate correction, replicate consensus,
+      PAINS/aggregator flags
+    - >-
+      Model zoo: RF/XGBoost, elastic nets, GNNs with nested CV and
+      hyperparameter search
+    - >-
+      Calibration and risk control via conformal prediction; uncertainty and
+      abstention out of domain
+    - >-
+      Applicability domain via leverage, embedding distance, and ensemble
+      disagreement
+    - >-
+      Multi‑objective ranking by activity, novelty, diversity, and simple ADMET
+      proxies
+    - Transfer learning across related assays to boost signal with minimal data
+    - >-
+      Interactive thresholds with expected confirmation rate and cost
+      projections
+    - 'Reproducible pipelines with versioned data, features, and seeds'
+    - 'Simple integration: SMILES/SDF/SD/CSV in; CSV/SDF out'
+  steps:
+    - Ingest HTS results and structures; define endpoints and assay metadata
+    - >-
+      QC and normalize: plate/control corrections, replicate reconciliation,
+      artifact checks
+    - Engineer features and build featurization ensembles
+    - 'Train, tune, and calibrate models with cross‑validation and holdouts'
+    - Score compounds with uncertainty and applicability‑domain tags
+    - Prioritize and export ranked pick lists with cutoffs and rationale
+---
+# HTS Hit Triage & QSAR Prioritizer
+
+Generated for NAICS 541714 — Research and Development in Biotechnology (except Nanobiotechnology).
+Service: HTS Hit Triage & QSAR Prioritizer
