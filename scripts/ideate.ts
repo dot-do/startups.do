@@ -7,6 +7,7 @@ async function main() {
     occupationSelectableOnly: true,
     naicsMinDepth: 6,
     naicsMaxDepth: 6,
+    maxServicesPerMarket: 1,
     persist: false,
   })
   console.log('Generated ideas:', res.length)
