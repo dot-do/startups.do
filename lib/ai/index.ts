@@ -1,5 +1,11 @@
 import { createOpenAI } from '@ai-sdk/openai'
 export { ideate } from './ideate'
+export { landingHeroCta } from './landingHeroCta'
+export { landingFeatures1 } from './landingFeatures1'
+export { landingFeatures2 } from './landingFeatures2'
+export { landingPricing } from './landingPricing'
+export { landingFaq } from './landingFaq'
+export { generateLandingSections } from './generateLandingSections'
 
 export const openai = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
