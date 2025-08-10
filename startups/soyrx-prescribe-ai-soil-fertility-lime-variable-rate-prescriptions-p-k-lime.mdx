@@ -325,7 +325,800 @@ landingPage:
     - Export controller files and blend sheets; dispatch logistics.
     - 'Apply, track, and compare ROI with post-harvest outcomes.'
 ---
+
 # SoyRx Prescribe AI
 
 Generated for NAICS 111110 — Soybean Farming.
 Service: Soil Fertility & Lime Variable-Rate Prescriptions (P/K/Lime)
+
+## Business Process Functions
+
+```typescript
+// Core Data Types
+interface Lead {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  farmName: string;
+  acres: number;
+  location: {
+    state: string;
+    county: string;
+    coordinates: [number, number];
+  };
+  currentPractices: {
+    soilTestFrequency: 'annual' | '2-year' | '3-year' | '4-year';
+    usesVRA: boolean;
+    currentSpend: number;
+  };
+  source: 'direct' | 'partner' | 'referral' | 'event';
+  leadScore: number;
+}
+
+interface Customer {
+  id: string;
+  lead: Lead;
+  contractValue: number;
+  onboardingDate: Date;
+  status: 'pilot' | 'active' | 'churned';
+  acres: number;
+  seasonalPlan: SeasonalPlan;
+}
+
+interface SoilTestData {
+  id: string;
+  customerId: string;
+  fieldId: string;
+  labName: string;
+  testDate: Date;
+  format: 'PDF' | 'CSV' | 'API';
+  zones: SoilZone[];
+  qcStatus: 'pending' | 'validated' | 'rejected';
+}
+
+interface SoilZone {
+  id: string;
+  coordinates: number[][];
+  pH: number;
+  phosphorus: number;
+  potassium: number;
+  organicMatter: number;
+  soilType: string;
+  acres: number;
+}
+
+interface Prescription {
+  id: string;
+  customerId: string;
+  fieldId: string;
+  soilTestId: string;
+  products: PrescriptionProduct[];
+  totalCost: number;
+  expectedSavings: number;
+  status: 'draft' | 'approved' | 'exported' | 'applied';
+  createdAt: Date;
+  approvedAt?: Date;
+}
+
+interface PrescriptionProduct {
+  type: 'phosphorus' | 'potassium' | 'lime';
+  product: string;
+  ratePerAcre: number;
+  totalAmount: number;
+  costPerUnit: number;
+  totalCost: number;
+  zones: string[];
+}
+
+interface LogisticsPlan {
+  id: string;
+  prescriptionId: string;
+  blendSheets: BlendSheet[];
+  truckLoads: TruckLoad[];
+  fieldSequence: string[];
+  applicationWindow: {
+    start: Date;
+    end: Date;
+  };
+  estimatedDays: number;
+}
+
+interface BlendSheet {
+  id: string;
+  products: string[];
+  ratios: number[];
+  totalTons: number;
+  fieldIds: string[];
+}
+
+interface TruckLoad {
+  id: string;
+  blendSheetId: string;
+  tons: number;
+  route: string[];
+  estimatedTime: number;
+}
+
+interface SeasonalPlan {
+  customerId: string;
+  season: string;
+  totalAcres: number;
+  budgetCeiling: number;
+  fields: string[];
+  timeline: {
+    soilSampling: Date;
+    prescriptionDelivery: Date;
+    applicationWindow: [Date, Date];
+  };
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const demo = await scheduleDemoCall(qualifiedLead);
+  const pilot = await proposePilotProgram(demo);
+  const contract = await negotiateContract(pilot);
+  return await onboardCustomer(contract);
+}
+
+export async function qualifyLead(lead: Lead): Promise<Lead> {
+  // Score lead based on farm size, VRA readiness, and budget
+  const scoreFactors = {
+    acreage: lead.acres >= 2000 ? 25 : lead.acres >= 500 ? 15 : 5,
+    vraExperience: lead.currentPractices.usesVRA ? 20 : 10,
+    soilTestFrequency: lead.currentPractices.soilTestFrequency === 'annual' ? 20 : 
+                      lead.currentPractices.soilTestFrequency === '2-year' ? 15 : 10,
+    budget: lead.currentPractices.currentSpend >= 50000 ? 20 : 
+            lead.currentPractices.currentSpend >= 20000 ? 15 : 10,
+    location: ['IA', 'IL', 'IN', 'OH', 'MN'].includes(lead.location.state) ? 15 : 10
+  };
+  
+  const leadScore = Object.values(scoreFactors).reduce((sum, score) => sum + score, 0);
+  
+  return {
+    ...lead,
+    leadScore
+  };
+}
+
+export async function scheduleDemoCall(lead: Lead): Promise<{ lead: Lead; demoDate: Date; customFields: string[] }> {
+  if (lead.leadScore < 60) {
+    throw new Error('Lead score too low for demo');
+  }
+  
+  const customFields = await identifyCustomerFields(lead);
+  const demoDate = await findAvailableSlot(lead.location.state);
+  
+  await sendDemoConfirmation(lead, demoDate, customFields);
+  
+  return {
+    lead,
+    demoDate,
+    customFields
+  };
+}
+
+export async function proposePilotProgram(demo: { lead: Lead; customFields: string[] }): Promise<{
+  lead: Lead;
+  pilotFields: string[];
+  estimatedSavings: number;
+  pilotCost: number;
+}> {
+  const pilotFields = demo.customFields.slice(0, 2); // Start with 2 fields
+  const pilotAcres = pilotFields.length * 160; // Assume 160 acres per field
+  
+  const estimatedSavings = await calculatePotentialSavings(demo.lead, pilotAcres);
+  const pilotCost = pilotAcres * 3.50; // $3.50/acre pilot pricing
+  
+  await generatePilotProposal(demo.lead, pilotFields, estimatedSavings, pilotCost);
+  
+  return {
+    lead: demo.lead,
+    pilotFields,
+    estimatedSavings,
+    pilotCost
+  };
+}
+
+export async function negotiateContract(pilot: {
+  lead: Lead;
+  pilotFields: string[];
+  estimatedSavings: number;
+  pilotCost: number;
+}): Promise<{
+  customerId: string;
+  contractValue: number;
+  acres: number;
+  terms: string[];
+}> {
+  const contractTerms = [
+    'Pilot program for 2 fields',
+    'Success metrics: 5-12% cost reduction',
+    'Full season support included',
+    'Controller file compatibility guaranteed',
+    'Option to expand to full farm'
+  ];
+  
+  await sendContractDraft(pilot.lead, pilot.pilotCost, contractTerms);
+  const signedContract = await waitForContractSignature(pilot.lead.id);
+  
+  return {
+    customerId: generateCustomerId(),
+    contractValue: pilot.pilotCost,
+    acres: pilot.pilotFields.length * 160,
+    terms: contractTerms
+  };
+}
+
+export async function onboardCustomer(contract: {
+  customerId: string;
+  contractValue: number;
+  acres: number;
+}): Promise<Customer> {
+  const customer: Customer = {
+    id: contract.customerId,
+    lead: await getLeadById(contract.customerId),
+    contractValue: contract.contractValue,
+    onboardingDate: new Date(),
+    status: 'pilot',
+    acres: contract.acres,
+    seasonalPlan: await createSeasonalPlan(contract.customerId, contract.acres)
+  };
+  
+  await setupCustomerPortal(customer);
+  await scheduleKickoffCall(customer);
+  await sendWelcomePackage(customer);
+  
+  return customer;
+}
+
+// Soil Data Processing Workflows
+export async function processSoilTestData(soilTest: SoilTestData): Promise<SoilTestData> {
+  const parsedData = await ingestSoilLabData(soilTest);
+  const validatedData = await validateAndQC(parsedData);
+  const harmonizedData = await harmonizeUnits(validatedData);
+  const enrichedData = await enrichWithSpatialData(harmonizedData);
+  
+  await notifyCustomerOfResults(enrichedData);
+  
+  return enrichedData;
+}
+
+export async function ingestSoilLabData(soilTest: SoilTestData): Promise<SoilTestData> {
+  switch (soilTest.format) {
+    case 'PDF':
+      return await parsePDFSoilReport(soilTest);
+    case 'CSV':
+      return await parseCSVSoilData(soilTest);
+    case 'API':
+      return await fetchAPIData(soilTest);
+    default:
+      throw new Error(`Unsupported format: ${soilTest.format}`);
+  }
+}
+
+export async function validateAndQC(soilTest: SoilTestData): Promise<SoilTestData> {
+  const validationRules = {
+    pH: { min: 4.0, max: 9.0 },
+    phosphorus: { min: 0, max: 200 },
+    potassium: { min: 0, max: 1000 },
+    organicMatter: { min: 0, max: 15 }
+  };
+  
+  const validatedZones = soilTest.zones.map(zone => {
+    const issues = [];
+    
+    Object.entries(validationRules).forEach(([field, range]) => {
+      const value = zone[field as keyof SoilZone] as number;
+      if (value < range.min || value > range.max) {
+        issues.push(`${field} out of range: ${value}`);
+      }
+    });
+    
+    return { ...zone, validationIssues: issues };
+  });
+  
+  const qcStatus = validatedZones.some(zone => zone.validationIssues?.length > 0) 
+    ? 'rejected' : 'validated';
+  
+  return {
+    ...soilTest,
+    zones: validatedZones,
+    qcStatus
+  };
+}
+
+// Prescription Generation Workflows
+export async function generatePrescription(soilTest: SoilTestData, customer: Customer): Promise<Prescription> {
+  const agronomicRecs = await calculateAgronomicRecommendations(soilTest, customer);
+  const economicOptimization = await optimizeForBudget(agronomicRecs, customer);
+  const logisticsConstraints = await applyLogisticsConstraints(economicOptimization);
+  const controllerFiles = await generateControllerFiles(logisticsConstraints);
+  
+  const prescription: Prescription = {
+    id: generatePrescriptionId(),
+    customerId: customer.id,
+    fieldId: soilTest.fieldId,
+    soilTestId: soilTest.id,
+    products: logisticsConstraints.products,
+    totalCost: logisticsConstraints.totalCost,
+    expectedSavings: logisticsConstraints.expectedSavings,
+    status: 'draft',
+    createdAt: new Date()
+  };
+  
+  await saveControllerFiles(prescription.id, controllerFiles);
+  await notifyCustomerOfPrescription(prescription);
+  
+  return prescription;
+}
+
+export async function calculateAgronomicRecommendations(
+  soilTest: SoilTestData, 
+  customer: Customer
+): Promise<{ zones: SoilZone[]; recommendations: PrescriptionProduct[] }> {
+  const stateGuidelines = await getStateGuidelines(customer.lead.location.state);
+  const yieldGoals = await getYieldGoals(customer.id, soilTest.fieldId);
+  
+  const recommendations: PrescriptionProduct[] = [];
+  
+  for (const zone of soilTest.zones) {
+    // Phosphorus recommendations
+    if (zone.phosphorus < stateGuidelines.phosphorus.critical) {
+      const pRate = calculatePhosphorusRate(zone, yieldGoals, stateGuidelines);
+      recommendations.push({
+        type: 'phosphorus',
+        product: 'MAP (11-52-0)',
+        ratePerAcre: pRate,
+        totalAmount: pRate * zone.acres,
+        costPerUnit: await getProductPrice('MAP'),
+        totalCost: (pRate * zone.acres) * await getProductPrice('MAP'),
+        zones: [zone.id]
+      });
+    }
+    
+    // Potassium recommendations
+    if (zone.potassium < stateGuidelines.potassium.critical) {
+      const kRate = calculatePotassiumRate(zone, yieldGoals, stateGuidelines);
+      recommendations.push({
+        type: 'potassium',
+        product: '0-0-60',
+        ratePerAcre: kRate,
+        totalAmount: kRate * zone.acres,
+        costPerUnit: await getProductPrice('0-0-60'),
+        totalCost: (kRate * zone.acres) * await getProductPrice('0-0-60'),
+        zones: [zone.id]
+      });
+    }
+    
+    // Lime recommendations
+    if (zone.pH < stateGuidelines.pH.target) {
+      const limeRate = calculateLimeRate(zone, stateGuidelines);
+      recommendations.push({
+        type: 'lime',
+        product: 'Ag Lime (90% CCE)',
+        ratePerAcre: limeRate,
+        totalAmount: limeRate * zone.acres,
+        costPerUnit: await getProductPrice('lime'),
+        totalCost: (limeRate * zone.acres) * await getProductPrice('lime'),
+        zones: [zone.id]
+      });
+    }
+  }
+  
+  return {
+    zones: soilTest.zones,
+    recommendations
+  };
+}
+
+export async function optimizeForBudget(
+  agronomicRecs: { zones: SoilZone[]; recommendations: PrescriptionProduct[] },
+  customer: Customer
+): Promise<{ products: PrescriptionProduct[]; totalCost: number; expectedSavings: number }> {
+  const budgetCeiling = customer.seasonalPlan.budgetCeiling;
+  const totalAgronomicCost = agronomicRecs.recommendations.reduce((sum, rec) => sum + rec.totalCost, 0);
+  
+  if (totalAgronomicCost <= budgetCeiling) {
+    return {
+      products: agronomicRecs.recommendations,
+      totalCost: totalAgronomicCost,
+      expectedSavings: await calculateExpectedSavings(agronomicRecs.recommendations)
+    };
+  }
+  
+  // Optimize using Pareto efficiency
+  const optimizedProducts = await paretoOptimize(
+    agronomicRecs.recommendations,
+    budgetCeiling
+  );
+  
+  return {
+    products: optimizedProducts,
+    totalCost: optimizedProducts.reduce((sum, p) => sum + p.totalCost, 0),
+    expectedSavings: await calculateExpectedSavings(optimizedProducts)
+  };
+}
+
+// Logistics Optimization Workflows
+export async function generateLogisticsPlan(prescription: Prescription): Promise<LogisticsPlan> {
+  const blendSheets = await createBlendSheets(prescription);
+  const truckLoads = await optimizeTruckLoads(blendSheets);
+  const fieldSequence = await optimizeFieldSequence(prescription, truckLoads);
+  const applicationWindow = await determineApplicationWindow(prescription);
+  
+  const logisticsPlan: LogisticsPlan = {
+    id: generateLogisticsId(),
+    prescriptionId: prescription.id,
+    blendSheets,
+    truckLoads,
+    fieldSequence,
+    applicationWindow,
+    estimatedDays: await calculateApplicationDays(truckLoads, fieldSequence)
+  };
+  
+  await validateSpreaderCompatibility(logisticsPlan);
+  
+  return logisticsPlan;
+}
+
+export async function createBlendSheets(prescription: Prescription): Promise<BlendSheet[]> {
+  const productGroups = groupProductsByCompatibility(prescription.products);
+  
+  return productGroups.map(group => ({
+    id: generateBlendSheetId(),
+    products: group.map(p => p.product),
+    ratios: calculateBlendRatios(group),
+    totalTons: group.reduce((sum, p) => sum + p.totalAmount, 0) / 2000, // Convert lbs to tons
+    fieldIds: [prescription.fieldId]
+  }));
+}
+
+export async function optimizeTruckLoads(blendSheets: BlendSheet[]): Promise<TruckLoad[]> {
+  const truckCapacity = 25; // tons
+  const loads: TruckLoad[] = [];
+  
+  for (const blendSheet of blendSheets) {
+    const numLoads = Math.ceil(blendSheet.totalTons / truckCapacity);
+    
+    for (let i = 0; i < numLoads; i++) {
+      const loadTons = Math.min(truckCapacity, blendSheet.totalTons - (i * truckCapacity));
+      
+      loads.push({
+        id: generateTruckLoadId(),
+        blendSheetId: blendSheet.id,
+        tons: loadTons,
+        route: await optimizeDeliveryRoute(blendSheet.fieldIds),
+        estimatedTime: await calculateDeliveryTime(loadTons, blendSheet.fieldIds)
+      });
+    }
+  }
+  
+  return loads;
+}
+
+// Revenue Generation Workflows
+export async function processPayment(customer: Customer, prescription: Prescription): Promise<{
+  invoiceId: string;
+  amount: number;
+  status: 'pending' | 'paid' | 'failed';
+}> {
+  const invoice = await generateInvoice(customer, prescription);
+  const paymentResult = await processStripePayment(invoice);
+  
+  if (paymentResult.status === 'paid') {
+    await updateCustomerStatus(customer.id, 'active');
+    await triggerPrescriptionExport(prescription.id);
+  }
+  
+  return paymentResult;
+}
+
+export async function calculateRevenue(timeframe: { start: Date; end: Date }): Promise<{
+  totalRevenue: number;
+  acresProcessed: number;
+  averageRevenuePerAcre: number;
+  customerBreakdown: { customerId: string; revenue: number; acres: number }[];
+}> {
+  const prescriptions = await getPrescriptionsInTimeframe(timeframe);
+  const customerBreakdown = await groupRevenueByCustomer(prescriptions);
+  
+  const totalRevenue = customerBreakdown.reduce((sum, c) => sum + c.revenue, 0);
+  const acresProcessed = customerBreakdown.reduce((sum, c) => sum + c.acres, 0);
+  
+  return {
+    totalRevenue,
+    acresProcessed,
+    averageRevenuePerAcre: totalRevenue / acresProcessed,
+    customerBreakdown
+  };
+}
+
+// Operational Procedures
+export async function handleSeasonalWorkflow(): Promise<void> {
+  const currentSeason = getCurrentSeason();
+  
+  switch (currentSeason) {
+    case 'pre-plant':
+      await processPrePlantWorkflow();
+      break;
+    case 'growing':
+      await processGrowingSeasonWorkflow();
+      break;
+    case 'harvest':
+      await processHarvestWorkflow();
+      break;
+    case 'post-harvest':
+      await processPostHarvestWorkflow();
+      break;
+  }
+}
+
+export async function processPrePlantWorkflow(): Promise<void> {
+  const activeCustomers = await getActiveCustomers();
+  
+  for (const customer of activeCustomers) {
+    await remindSoilSampling(customer);
+    await updateProductPricing(customer);
+    await validateEquipmentCompatibility(customer);
+  }
+}
+
+export async function monitorApplicationProgress(prescriptionId: string): Promise<{
+  status: 'not-started' | 'in-progress' | 'completed';
+  percentComplete: number;
+  estimatedCompletion: Date;
+}> {
+  const telemetryData = await getControllerTelemetry(prescriptionId);
+  const prescription = await getPrescriptionById(prescriptionId);
+  
+  const totalAcres = prescription.products.reduce((sum, p) => 
+    sum + p.zones.reduce((zoneSum, zoneId) => 
+      zoneSum + getZoneAcres(zoneId), 0), 0);
+  
+  const appliedAcres = telemetryData.reduce((sum, data) => sum + data.acres, 0);
+  const percentComplete = (appliedAcres / totalAcres) * 100;
+  
+  return {
+    status: percentComplete === 0 ? 'not-started' : 
+            percentComplete === 100 ? 'completed' : 'in-progress',
+    percentComplete,
+    estimatedCompletion: await estimateCompletionDate(prescriptionId, percentComplete)
+  };
+}
+
+// Decision-Making Workflows
+export async function evaluateCustomerExpansion(customerId: string): Promise<{
+  recommendation: 'expand' | 'maintain' | 'at-risk';
+  confidence: number;
+  factors: string[];
+  suggestedActions: string[];
+}> {
+  const customer = await getCustomerById(customerId);
+  const usageMetrics = await getCustomerUsageMetrics(customerId);
+  const satisfactionScore = await getCustomerSatisfactionScore(customerId);
+  const paymentHistory = await getPaymentHistory(customerId);
+  
+  const expansionFactors = {
+    usage: usageMetrics.prescriptionsPerSeason > 5 ? 20 : 10,
+    satisfaction: satisfactionScore > 4.5 ? 25 : satisfactionScore > 3.5 ? 15 : 5,
+    payment: paymentHistory.onTimePayments > 0.95 ? 20 : 10,
+    savings: usageMetrics.averageSavings > 0.08 ? 25 : 15,
+    engagement: usageMetrics.portalLogins > 10 ? 10 : 5
+  };
+  
+  const totalScore = Object.values(expansionFactors).reduce((sum, score) => sum + score, 0);
+  
+  let recommendation: 'expand' | 'maintain' | 'at-risk';
+  let suggestedActions: string[];
+  
+  if (totalScore >= 80) {
+    recommendation = 'expand';
+    suggestedActions = [
+      'Propose full farm expansion',
+      'Introduce logistics module',
+      'Offer multi-year contract discount'
+    ];
+  } else if (totalScore >= 60) {
+    recommendation = 'maintain';
+    suggestedActions = [
+      'Continue current service level',
+      'Monitor satisfaction metrics',
+      'Offer training sessions'
+    ];
+  } else {
+    recommendation = 'at-risk';
+    suggestedActions = [
+      'Schedule retention call',
+      'Investigate satisfaction issues',
+      'Offer additional support'
+    ];
+  }
+  
+  return {
+    recommendation,
+    confidence: totalScore / 100,
+    factors: Object.keys(expansionFactors),
+    suggestedActions
+  };
+}
+
+export async function prioritizeLeads(leads: Lead[]): Promise<Lead[]> {
+  const scoredLeads = await Promise.all(
+    leads.map(async lead => ({
+      ...lead,
+      priorityScore: await calculateLeadPriority(lead)
+    }))
+  );
+  
+  return scoredLeads.sort((a, b) => b.priorityScore - a.priorityScore);
+}
+
+export async function optimizeResourceAllocation(season: string): Promise<{
+  agronomistHours: { customerId: string; hours: number }[];
+  engineeringPriorities: string[];
+  marketingBudget: { channel: string; allocation: number }[];
+}> {
+  const customerDemand = await forecastSeasonalDemand(season);
+  const resourceCapacity = await getCurrentResourceCapacity();
+  
+  const agronomistHours = await allocateAgronomistTime(customerDemand, resourceCapacity);
+  const engineeringPriorities = await prioritizeEngineeringWork(customerDemand);
+  const marketingBudget = await optimizeMarketingSpend(season, customerDemand);
+  
+  return {
+    agronomistHours,
+    engineeringPriorities,
+    marketingBudget
+  };
+}
+
+// Event-Driven Workflows
+export async function onSoilTestUploaded(event: { customerId: string; soilTestId: string }): Promise<void> {
+  const soilTest = await getSoilTestById(event.soilTestId);
+  const processedData = await processSoilTestData(soilTest);
+  
+  if (processedData.qcStatus === 'validated') {
+    const customer = await getCustomerById(event.customerId);
+    const prescription = await generatePrescription(processedData, customer);
+    await notifyCustomerOfPrescription(prescription);
+  } else {
+    await notifyCustomerOfDataIssues(event.customerId, processedData);
+  }
+}
+
+export async function onPrescriptionApproved(event: { prescriptionId: string }): Promise<void> {
+  const prescription = await getPrescriptionById(event.prescriptionId);
+  const logisticsPlan = await generateLogisticsPlan(prescription);
+  const controllerFiles = await exportControllerFiles(prescription.id);
+  
+  await updatePrescriptionStatus(event.prescriptionId, 'exported');
+  await sendFilesToCustomer(prescription.customerId, controllerFiles);
+  await scheduleApplicationReminders(prescription.customerId, logisticsPlan);
+}
+
+export async function onApplicationCompleted(event: { prescriptionId: string; telemetryData: any }): Promise<void> {
+  const prescription = await getPrescriptionById(event.prescriptionId);
+  const applicationReport = await generateApplicationReport(prescription, event.telemetryData);
+  
+  await updatePrescriptionStatus(event.prescriptionId, 'applied');
+  await sendApplicationReport(prescription.customerId, applicationReport);
+  await scheduleFollowUpSurvey(prescription.customerId);
+  await updateCustomerMetrics(prescription.customerId, applicationReport);
+}
+
+// Scheduled Workflows
+export async function dailyOperations(): Promise<void> {
+  await processIncomingSoilTests();
+  await updateProductPricing();
+  await sendDailyReports();
+  await monitorSystemHealth();
+}
+
+export async function weeklyOperations(): Promise<void> {
+  await generateWeeklyMetrics();
+  await reviewCustomerHealth();
+  await updateLeadScoring();
+  await planCapacityAllocation();
+}
+
+export async function seasonalOperations(season: string): Promise<void> {
+  await updateSeasonalPricing(season);
+  await refreshStateGuidelines();
+  await planMarketingCampaigns(season);
+  await forecastResourceNeeds(season);
+}
+
+// Helper Functions (referenced but not implemented)
+declare function identifyCustomerFields(lead: Lead): Promise<string[]>;
+declare function findAvailableSlot(state: string): Promise<Date>;
+declare function sendDemoConfirmation(lead: Lead, date: Date, fields: string[]): Promise<void>;
+declare function calculatePotentialSavings(lead: Lead, acres: number): Promise<number>;
+declare function generatePilotProposal(lead: Lead, fields: string[], savings: number, cost: number): Promise<void>;
+declare function sendContractDraft(lead: Lead, cost: number, terms: string[]): Promise<void>;
+declare function waitForContractSignature(leadId: string): Promise<any>;
+declare function generateCustomerId(): string;
+declare function getLeadById(id: string): Promise<Lead>;
+declare function createSeasonalPlan(customerId: string, acres: number): Promise<SeasonalPlan>;
+declare function setupCustomerPortal(customer: Customer): Promise<void>;
+declare function scheduleKickoffCall(customer: Customer): Promise<void>;
+declare function sendWelcomePackage(customer: Customer): Promise<void>;
+declare function parsePDFSoilReport(soilTest: SoilTestData): Promise<SoilTestData>;
+declare function parseCSVSoilData(soilTest: SoilTestData): Promise<SoilTestData>;
+declare function fetchAPIData(soilTest: SoilTestData): Promise<SoilTestData>;
+declare function notifyCustomerOfResults(soilTest: SoilTestData): Promise<void>;
+declare function getStateGuidelines(state: string): Promise<any>;
+declare function getYieldGoals(customerId: string, fieldId: string): Promise<number>;
+declare function calculatePhosphorusRate(zone: SoilZone, yieldGoals: number, guidelines: any): number;
+declare function calculatePotassiumRate(zone: SoilZone, yieldGoals: number, guidelines: any): number;
+declare function calculateLimeRate(zone: SoilZone, guidelines: any): number;
+declare function getProductPrice(product: string): Promise<number>;
+declare function calculateExpectedSavings(products: PrescriptionProduct[]): Promise<number>;
+declare function paretoOptimize(products: PrescriptionProduct[], budget: number): Promise<PrescriptionProduct[]>;
+declare function generatePrescriptionId(): string;
+declare function generateControllerFiles(optimization: any): Promise<any>;
+declare function saveControllerFiles(prescriptionId: string, files: any): Promise<void>;
+declare function notifyCustomerOfPrescription(prescription: Prescription): Promise<void>;
+declare function groupProductsByCompatibility(products: PrescriptionProduct[]): PrescriptionProduct[][];
+declare function calculateBlendRatios(products: PrescriptionProduct[]): number[];
+declare function generateBlendSheetId(): string;
+declare function generateTruckLoadId(): string;
+declare function optimizeDeliveryRoute(fieldIds: string[]): Promise<string[]>;
+declare function calculateDeliveryTime(tons: number, fieldIds: string[]): Promise<number>;
+declare function generateLogisticsId(): string;
+declare function calculateApplicationDays(loads: TruckLoad[], sequence: string[]): Promise<number>;
+declare function validateSpreaderCompatibility(plan: LogisticsPlan): Promise<void>;
+declare function optimizeFieldSequence(prescription: Prescription, loads: TruckLoad[]): Promise<string[]>;
+declare function determineApplicationWindow(prescription: Prescription): Promise<{ start: Date; end: Date }>;
+declare function generateInvoice(customer: Customer, prescription: Prescription): Promise<any>;
+declare function processStripePayment(invoice: any): Promise<any>;
+declare function updateCustomerStatus(customerId: string, status: string): Promise<void>;
+declare function triggerPrescriptionExport(prescriptionId: string): Promise<void>;
+declare function getPrescriptionsInTimeframe(timeframe: { start: Date; end: Date }): Promise<Prescription[]>;
+declare function groupRevenueByCustomer(prescriptions: Prescription[]): Promise<any[]>;
+declare function getCurrentSeason(): string;
+declare function processPrePlantWorkflow(): Promise<void>;
+declare function processGrowingSeasonWorkflow(): Promise<void>;
+declare function processHarvestWorkflow(): Promise<void>;
+declare function processPostHarvestWorkflow(): Promise<void>;
+declare function getActiveCustomers(): Promise<Customer[]>;
+declare function remindSoilSampling(customer: Customer): Promise<void>;
+declare function updateProductPricing(customer: Customer): Promise<void>;
+declare function validateEquipmentCompatibility(customer: Customer): Promise<void>;
+declare function getControllerTelemetry(prescriptionId: string): Promise<any[]>;
+declare function getPrescriptionById(prescriptionId: string): Promise<Prescription>;
+declare function getZoneAcres(zoneId: string): number;
+declare function estimateCompletionDate(prescriptionId: string, percentComplete: number): Promise<Date>;
+declare function getCustomerById(customerId: string): Promise<Customer>;
+declare function getCustomerUsageMetrics(customerId: string): Promise<any>;
+declare function getCustomerSatisfactionScore(customerId: string): Promise<number>;
+declare function getPaymentHistory(customerId: string): Promise<any>;
+declare function calculateLeadPriority(lead: Lead): Promise<number>;
+declare function forecastSeasonalDemand(season: string): Promise<any>;
+declare function getCurrentResourceCapacity(): Promise<any>;
+declare function allocateAgronomistTime(demand: any, capacity: any): Promise<any[]>;
+declare function prioritizeEngineeringWork(demand: any): Promise<string[]>;
+declare function optimizeMarketingSpend(season: string, demand: any): Promise<any[]>;
+declare function getSoilTestById(id: string): Promise<SoilTestData>;
+declare function notifyCustomerOfDataIssues(customerId: string, data: SoilTestData): Promise<void>;
+declare function exportControllerFiles(prescriptionId: string): Promise<any>;
+declare function updatePrescriptionStatus(prescriptionId: string, status: string): Promise<void>;
+declare function sendFilesToCustomer(customerId: string, files: any): Promise<void>;
+declare function scheduleApplicationReminders(customerId: string, plan: LogisticsPlan): Promise<void>;
+declare function generateApplicationReport(prescription: Prescription, telemetry: any): Promise<any>;
+declare function sendApplicationReport(customerId: string, report: any): Promise<void>;
+declare function scheduleFollowUpSurvey(customerId: string): Promise<void>;
+declare function updateCustomerMetrics(customerId: string, report: any): Promise<void>;
+declare function processIncomingSoilTests(): Promise<void>;
+declare function sendDailyReports(): Promise<void>;
+declare function monitorSystemHealth(): Promise<void>;
+declare function generateWeeklyMetrics(): Promise<void>;
+declare function reviewCustomerHealth(): Promise<void>;
+declare function updateLeadScoring(): Promise<void>;
+declare function planCapacityAllocation(): Promise<void>;
+declare function updateSeasonalPricing(season: string): Promise<void>;
+declare function refreshStateGuidelines(): Promise<void>;
+declare function planMarketingCampaigns(season: string): Promise<void>;
+declare function forecastResourceNeeds(season: string): Promise<void>;
+```
