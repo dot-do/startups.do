@@ -13,7 +13,9 @@ export default async function Home() {
   const items: StartupItem[] = []
   for (const slug of slugs) {
     const doc = await getStartup<any>(slug)
-    const name = (doc.data?.name as string) || slug
+    const rawName = (doc.data?.name as string) || slug
+    const baseName = (rawName.split(/[-–—]/)[0] || rawName).trim()
+    const name = baseName.split(/[\s-]+/).slice(0, 4).join(' ')
     const description =
       (doc.data?.description as string) ||
       (doc.data?.service?.description as string) ||
