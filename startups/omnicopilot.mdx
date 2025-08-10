@@ -177,4 +177,355 @@ leanCanvas:
 - **Success Metrics**: Top KPIs are task completion time (89%), accuracy rate (76%), user adoption (68%)
 - **Continuous Optimization**: Companies with ongoing AI performance monitoring achieve 2.1x better outcomes
 
+## Business Process Functions
+
+```typescript
+// Core Types
+interface Lead {
+  id: string;
+  email: string;
+  company: string;
+  role: string;
+  employees: number;
+  tools: string[];
+  painPoints: string[];
+  source: 'website' | 'marketplace' | 'referral' | 'enterprise';
+}
+
+interface QualifiedLead extends Lead {
+  score: number;
+  segment: 'smb' | 'mid-market' | 'enterprise' | 'regulated';
+  budget: number;
+  timeline: string;
+  decisionMakers: string[];
+}
+
+interface Customer {
+  id: string;
+  lead: QualifiedLead;
+  plan: 'starter' | 'pro' | 'enterprise';
+  seats: number;
+  connectedTools: string[];
+  skillPacks: string[];
+  mrr: number;
+  onboardingComplete: boolean;
+}
+
+interface SkillPack {
+  id: string;
+  name: string;
+  occupation: string;
+  workflows: Workflow[];
+  price: number;
+  accuracy: number;
+  usage: number;
+}
+
+interface Workflow {
+  id: string;
+  name: string;
+  steps: WorkflowStep[];
+  approvals: ApprovalRule[];
+  metrics: WorkflowMetrics;
+}
+
+interface WorkflowStep {
+  id: string;
+  type: 'ai_task' | 'tool_integration' | 'human_approval' | 'data_enrichment';
+  config: Record<string, any>;
+  retries: number;
+}
+
+interface ApprovalRule {
+  condition: string;
+  approver: string;
+  timeout: number;
+}
+
+interface WorkflowMetrics {
+  timeSaved: number;
+  successRate: number;
+  errorRate: number;
+  costPerTask: number;
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const proposal = await generateProposal(qualifiedLead);
+  const contract = await negotiateContract(proposal);
+  const customer = await onboardCustomer(contract);
+  await trackAcquisitionMetrics(customer);
+  return customer;
+}
+
+export async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  const score = await calculateLeadScore(lead);
+  const segment = determineSegment(lead.employees, lead.tools);
+  const budget = await estimateBudget(segment, lead.employees);
+  const timeline = await assessTimeline(lead.painPoints);
+  const decisionMakers = await identifyDecisionMakers(lead.role, segment);
+  
+  return {
+    ...lead,
+    score,
+    segment,
+    budget,
+    timeline,
+    decisionMakers
+  };
+}
+
+export async function generateProposal(lead: QualifiedLead): Promise<any> {
+  const skillPacks = await recommendSkillPacks(lead.role, lead.tools);
+  const pricing = await calculatePricing(lead.segment, lead.seats, skillPacks);
+  const roi = await estimateROI(lead.painPoints, skillPacks);
+  const timeline = await createImplementationTimeline(lead.segment);
+  
+  return {
+    skillPacks,
+    pricing,
+    roi,
+    timeline,
+    securityCompliance: await getComplianceRequirements(lead.segment)
+  };
+}
+
+// Product Development Processes
+export async function developSkillPack(occupation: string, requirements: any): Promise<SkillPack> {
+  const workflows = await designWorkflows(occupation, requirements);
+  const aiModels = await selectOptimalModels(workflows);
+  const integrations = await buildToolIntegrations(requirements.tools);
+  const skillPack = await assembleSkillPack(occupation, workflows, aiModels, integrations);
+  
+  await validateSkillPack(skillPack);
+  await deployToMarketplace(skillPack);
+  
+  return skillPack;
+}
+
+export async function optimizeWorkflow(workflow: Workflow): Promise<Workflow> {
+  const metrics = await analyzeWorkflowMetrics(workflow);
+  const bottlenecks = await identifyBottlenecks(workflow, metrics);
+  const optimizations = await generateOptimizations(bottlenecks);
+  
+  const optimizedWorkflow = await applyOptimizations(workflow, optimizations);
+  await validateOptimizations(optimizedWorkflow);
+  
+  return optimizedWorkflow;
+}
+
+export async function evaluateAccuracy(skillPack: SkillPack): Promise<number> {
+  const testCases = await generateTestCases(skillPack.occupation);
+  const results = await runEvaluationSuite(skillPack, testCases);
+  const accuracy = await calculateAccuracyScore(results);
+  
+  await updateSkillPackMetrics(skillPack.id, { accuracy });
+  
+  if (accuracy < 0.85) {
+    await triggerModelRetraining(skillPack);
+  }
+  
+  return accuracy;
+}
+
+// Revenue Generation Flows
+export async function processSubscription(customer: Customer): Promise<void> {
+  const usage = await calculateUsage(customer);
+  const billing = await generateBilling(customer, usage);
+  
+  await processPayment(billing);
+  await updateSubscriptionMetrics(customer);
+  
+  if (usage.automationCredits > customer.plan.limits.credits) {
+    await suggestPlanUpgrade(customer);
+  }
+}
+
+export async function expandAccount(customer: Customer): Promise<void> {
+  const expansionOpportunities = await identifyExpansionOpportunities(customer);
+  
+  for (const opportunity of expansionOpportunities) {
+    switch (opportunity.type) {
+      case 'seat_expansion':
+        await proposeSeatExpansion(customer, opportunity);
+        break;
+      case 'skill_pack_addon':
+        await recommendSkillPackAddon(customer, opportunity);
+        break;
+      case 'enterprise_upgrade':
+        await proposeEnterpriseUpgrade(customer, opportunity);
+        break;
+    }
+  }
+}
+
+export async function processMarketplaceRevenue(skillPack: SkillPack, sales: number): Promise<void> {
+  const revenueShare = sales * 0.25; // 25% take rate
+  const partnerPayout = sales * 0.75;
+  
+  await recordMarketplaceRevenue(revenueShare);
+  await processPartnerPayout(skillPack.partnerId, partnerPayout);
+  await updateSkillPackMetrics(skillPack.id, { sales });
+}
+
+// Operational Procedures
+export async function monitorSystemHealth(): Promise<void> {
+  const metrics = await collectSystemMetrics();
+  
+  if (metrics.latency.p95 > 3000) { // 3 second SLA
+    await alertOnCallTeam('High latency detected');
+    await scaleInfrastructure();
+  }
+  
+  if (metrics.errorRate > 0.01) { // 1% error rate threshold
+    await investigateErrors();
+    await rollbackIfNecessary();
+  }
+  
+  if (metrics.hallucinations > 0.01) { // 1 per 100 tasks
+    await triggerSafetyReview();
+    await updateGuardrails();
+  }
+}
+
+export async function handleSecurityIncident(incident: any): Promise<void> {
+  await isolateAffectedSystems(incident);
+  await notifySecurityTeam(incident);
+  await documentIncident(incident);
+  
+  const impact = await assessImpact(incident);
+  if (impact.severity === 'critical') {
+    await notifyCustomers(impact.affectedCustomers);
+    await implementEmergencyMitigation();
+  }
+  
+  await conductPostMortem(incident);
+  await updateSecurityPolicies(incident.lessons);
+}
+
+export async function processComplianceAudit(auditType: 'SOC2' | 'ISO27001' | 'HIPAA'): Promise<void> {
+  const evidence = await collectComplianceEvidence(auditType);
+  const gaps = await identifyComplianceGaps(evidence, auditType);
+  
+  for (const gap of gaps) {
+    await remediateComplianceGap(gap);
+  }
+  
+  await generateComplianceReport(auditType);
+  await scheduleFollowUpAudit(auditType);
+}
+
+// Decision-Making Workflows
+export async function evaluateNewMarket(market: any): Promise<boolean> {
+  const marketSize = await analyzeMarketSize(market);
+  const competition = await assessCompetition(market);
+  const customerNeed = await validateCustomerNeed(market);
+  const technicalFeasibility = await assessTechnicalFeasibility(market);
+  
+  const score = await calculateMarketScore({
+    marketSize,
+    competition,
+    customerNeed,
+    technicalFeasibility
+  });
+  
+  return score > 0.7; // 70% threshold for market entry
+}
+
+export async function prioritizeFeatures(features: any[]): Promise<any[]> {
+  const scoredFeatures = await Promise.all(
+    features.map(async (feature) => {
+      const customerDemand = await assessCustomerDemand(feature);
+      const technicalComplexity = await assessTechnicalComplexity(feature);
+      const revenueImpact = await estimateRevenueImpact(feature);
+      const strategicValue = await calculateStrategicValue(feature);
+      
+      const score = (customerDemand * 0.3) + 
+                   (revenueImpact * 0.3) + 
+                   (strategicValue * 0.2) - 
+                   (technicalComplexity * 0.2);
+      
+      return { ...feature, score };
+    })
+  );
+  
+  return scoredFeatures.sort((a, b) => b.score - a.score);
+}
+
+export async function makeInvestmentDecision(proposal: any): Promise<boolean> {
+  const roi = await calculateROI(proposal);
+  const risk = await assessRisk(proposal);
+  const strategicAlignment = await assessStrategicAlignment(proposal);
+  const resourceAvailability = await checkResourceAvailability(proposal);
+  
+  const decision = roi > 3.0 && // 3x ROI minimum
+                  risk < 0.3 && // Low to medium risk
+                  strategicAlignment > 0.7 && // High strategic alignment
+                  resourceAvailability; // Resources available
+  
+  await documentInvestmentDecision(proposal, decision, {
+    roi,
+    risk,
+    strategicAlignment,
+    resourceAvailability
+  });
+  
+  return decision;
+}
+
+// Helper Functions (pseudocode - would be implemented separately)
+async function calculateLeadScore(lead: Lead): Promise<number> {
+  // ML model to score leads based on historical conversion data
+  throw new Error('Not implemented');
+}
+
+async function determineSegment(employees: number, tools: string[]): Promise<'smb' | 'mid-market' | 'enterprise' | 'regulated'> {
+  if (employees < 200) return 'smb';
+  if (employees < 5000) return 'mid-market';
+  if (tools.some(tool => ['Epic', 'Cerner', 'Workday'].includes(tool))) return 'regulated';
+  return 'enterprise';
+}
+
+async function recommendSkillPacks(role: string, tools: string[]): Promise<SkillPack[]> {
+  // AI-powered recommendation engine
+  throw new Error('Not implemented');
+}
+
+async function calculatePricing(segment: string, seats: number, skillPacks: SkillPack[]): Promise<any> {
+  // Dynamic pricing based on segment and usage
+  throw new Error('Not implemented');
+}
+
+async function estimateROI(painPoints: string[], skillPacks: SkillPack[]): Promise<number> {
+  // Calculate expected time savings and cost reduction
+  throw new Error('Not implemented');
+}
+
+async function designWorkflows(occupation: string, requirements: any): Promise<Workflow[]> {
+  // AI-assisted workflow design
+  throw new Error('Not implemented');
+}
+
+async function validateSkillPack(skillPack: SkillPack): Promise<void> {
+  // Automated testing and validation
+  throw new Error('Not implemented');
+}
+
+async function analyzeWorkflowMetrics(workflow: Workflow): Promise<WorkflowMetrics> {
+  // Real-time metrics analysis
+  throw new Error('Not implemented');
+}
+
+async function collectSystemMetrics(): Promise<any> {
+  // System observability and monitoring
+  throw new Error('Not implemented');
+}
+
+async function assessCustomerDemand(feature: any): Promise<number> {
+  // Customer feedback analysis and demand scoring
+  throw new Error('Not implemented');
+}
+```
+
 Generated from Occupation 000000 — All Occupations.
