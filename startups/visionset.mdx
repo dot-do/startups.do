@@ -259,7 +259,504 @@ landingPage:
     - Export reports or auto‑sync results to MES/ERP via API.
     - Continuously improve by approving model suggestions with your feedback.
 ---
+
 # VisionSet QC
+
+## Business-as-Code Workflows
+
+```typescript
+// Core Types and Interfaces
+interface Lead {
+  id: string;
+  company: string;
+  contact: ContactInfo;
+  source: 'direct' | 'oem' | 'referral' | 'tradeshow' | 'content';
+  painPoints: string[];
+  currentProcess: InspectionProcess;
+  estimatedVolume: number;
+  timeline: string;
+}
+
+interface Customer {
+  id: string;
+  company: string;
+  tier: 'starter' | 'pro' | 'enterprise';
+  stations: InspectionStation[];
+  subscription: Subscription;
+  onboardingStatus: OnboardingStatus;
+}
+
+interface InspectionStation {
+  id: string;
+  location: string;
+  hardware: HardwareKit;
+  calibration: CalibrationData;
+  throughput: number;
+  uptime: number;
+}
+
+interface BladeInspection {
+  id: string;
+  bladeId: string;
+  timestamp: Date;
+  images: string[];
+  results: InspectionResults;
+  traceability: TraceabilityRecord;
+}
+
+interface InspectionResults {
+  overallStatus: 'pass' | 'fail' | 'review';
+  teethAnalyzed: number;
+  defectsFound: DefectRecord[];
+  setAngleMeasurements: SetAngleData[];
+  qualityScore: number;
+}
+
+interface DefectRecord {
+  toothIndex: number;
+  type: 'chip' | 'braze_void' | 'braze_overflow' | 'burr' | 'missing_tooth';
+  severity: 'minor' | 'major' | 'critical';
+  confidence: number;
+  location: { x: number; y: number };
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  try {
+    const qualifiedLead = await qualifyLead(lead);
+    const proposal = await generateProposal(qualifiedLead);
+    const contract = await negotiateContract(proposal);
+    const customer = await onboardCustomer(contract);
+    
+    await scheduleKickoff(customer);
+    await provisionInitialAccess(customer);
+    
+    return customer;
+  } catch (error) {
+    await logAcquisitionFailure(lead, error);
+    throw error;
+  }
+}
+
+async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  const qualification = await assessFit(lead);
+  
+  if (qualification.score < 70) {
+    await nurtureLead(lead);
+    throw new Error('Lead not qualified for immediate sales process');
+  }
+  
+  const roiCalculation = await calculateROI(lead.currentProcess, lead.estimatedVolume);
+  const technicalFit = await assessTechnicalRequirements(lead);
+  
+  return {
+    ...lead,
+    qualification,
+    roiCalculation,
+    technicalFit,
+    priority: calculatePriority(qualification, roiCalculation)
+  };
+}
+
+async function generateProposal(lead: QualifiedLead): Promise<Proposal> {
+  const hardwareRequirements = await designHardwareConfiguration(lead);
+  const softwareConfiguration = await configureSoftwarePackage(lead);
+  const pricing = await calculatePricing(lead, hardwareRequirements, softwareConfiguration);
+  const timeline = await createImplementationTimeline(lead);
+  
+  return {
+    customer: lead.company,
+    hardware: hardwareRequirements,
+    software: softwareConfiguration,
+    pricing,
+    timeline,
+    roi: lead.roiCalculation,
+    terms: await generateContractTerms(lead.tier)
+  };
+}
+
+// Product Development Processes
+export async function developInspectionModel(requirements: ModelRequirements): Promise<AIModel> {
+  const trainingData = await gatherTrainingData(requirements);
+  const syntheticData = await generateSyntheticData(requirements);
+  const combinedDataset = await combineAndValidateDataset(trainingData, syntheticData);
+  
+  const model = await trainModel(combinedDataset, requirements);
+  const validatedModel = await validateModel(model, requirements.validationCriteria);
+  
+  if (validatedModel.performance.f1Score < 0.95) {
+    await iterateModelTraining(validatedModel, combinedDataset);
+  }
+  
+  await deployModel(validatedModel);
+  return validatedModel;
+}
+
+async function gatherTrainingData(requirements: ModelRequirements): Promise<TrainingDataset> {
+  const customerSamples = await collectCustomerSamples(requirements.defectTypes);
+  const labSamples = await generateLabSamples(requirements.bladeTypes);
+  const annotatedData = await annotateDefects(customerSamples, labSamples);
+  
+  return {
+    images: annotatedData.images,
+    annotations: annotatedData.annotations,
+    metadata: annotatedData.metadata,
+    quality: await validateDataQuality(annotatedData)
+  };
+}
+
+async function optimizeCalibration(station: InspectionStation): Promise<CalibrationData> {
+  const checkerTarget = await captureCheckerTarget(station);
+  const lensProfile = await generateLensProfile(checkerTarget);
+  const lightingCalibration = await calibrateLighting(station);
+  
+  const calibrationData = {
+    lensProfile,
+    lightingCalibration,
+    timestamp: new Date(),
+    accuracy: await validateCalibrationAccuracy(lensProfile, lightingCalibration)
+  };
+  
+  if (calibrationData.accuracy.mae > 0.5) {
+    await recalibrateStation(station);
+    return optimizeCalibration(station);
+  }
+  
+  return calibrationData;
+}
+
+// Revenue Generation Flows
+export async function processSubscriptionBilling(customer: Customer): Promise<BillingResult> {
+  const usage = await calculateMonthlyUsage(customer);
+  const baseSubscription = await getSubscriptionCost(customer.tier);
+  const overages = await calculateOverages(usage, customer.tier);
+  
+  const invoice = await generateInvoice({
+    customer,
+    baseAmount: baseSubscription,
+    overageAmount: overages,
+    usage,
+    period: getCurrentBillingPeriod()
+  });
+  
+  const paymentResult = await processPayment(invoice);
+  
+  if (paymentResult.status === 'failed') {
+    await handlePaymentFailure(customer, invoice);
+  }
+  
+  await updateCustomerBilling(customer, invoice, paymentResult);
+  return paymentResult;
+}
+
+async function identifyUpsellOpportunities(customer: Customer): Promise<UpsellOpportunity[]> {
+  const usage = await analyzeUsagePatterns(customer);
+  const performance = await analyzePerformanceMetrics(customer);
+  
+  const opportunities = [];
+  
+  if (usage.averageInspections > customer.subscription.limit * 0.8) {
+    opportunities.push({
+      type: 'tier_upgrade',
+      value: await calculateTierUpgradeValue(customer),
+      confidence: 0.9
+    });
+  }
+  
+  if (performance.manualReviewRate > 0.15) {
+    opportunities.push({
+      type: 'professional_services',
+      value: await calculateModelTuningValue(customer),
+      confidence: 0.7
+    });
+  }
+  
+  return opportunities;
+}
+
+// Operational Procedures
+export async function processInspection(
+  bladeId: string, 
+  images: string[], 
+  station: InspectionStation
+): Promise<InspectionResults> {
+  
+  const preprocessedImages = await preprocessImages(images, station.calibration);
+  const aiResults = await runAIInspection(preprocessedImages, station.model);
+  const measurements = await measureSetAngles(preprocessedImages, aiResults);
+  
+  const results: InspectionResults = {
+    overallStatus: determineOverallStatus(aiResults, measurements),
+    teethAnalyzed: aiResults.teethCount,
+    defectsFound: aiResults.defects,
+    setAngleMeasurements: measurements,
+    qualityScore: calculateQualityScore(aiResults, measurements)
+  };
+  
+  await recordInspection(bladeId, results, station);
+  await updateSPCCharts(results, station);
+  
+  if (results.overallStatus === 'fail') {
+    await triggerQualityAlert(bladeId, results, station);
+  }
+  
+  return results;
+}
+
+async function runAIInspection(images: ProcessedImage[], model: AIModel): Promise<AIResults> {
+  const inference = await model.predict(images);
+  const postProcessed = await postProcessResults(inference);
+  
+  return {
+    teethCount: postProcessed.teethDetected,
+    defects: postProcessed.defects.filter(d => d.confidence > 0.8),
+    confidence: postProcessed.overallConfidence,
+    processingTime: postProcessed.duration
+  };
+}
+
+async function maintainStation(station: InspectionStation): Promise<MaintenanceResult> {
+  const healthCheck = await performHealthCheck(station);
+  
+  if (healthCheck.calibrationDrift > 0.3) {
+    await recalibrateStation(station);
+  }
+  
+  if (healthCheck.hardwareIssues.length > 0) {
+    await scheduleHardwareMaintenance(station, healthCheck.hardwareIssues);
+  }
+  
+  const performanceMetrics = await updatePerformanceMetrics(station);
+  
+  return {
+    station: station.id,
+    healthScore: healthCheck.overallHealth,
+    actionsPerformed: healthCheck.maintenanceActions,
+    nextMaintenanceDate: calculateNextMaintenance(healthCheck),
+    performance: performanceMetrics
+  };
+}
+
+// Decision-Making Workflows
+export async function evaluateQualityAlert(
+  alert: QualityAlert, 
+  station: InspectionStation
+): Promise<QualityDecision> {
+  
+  const historicalData = await getHistoricalQuality(station, alert.timeWindow);
+  const trendAnalysis = await analyzeTrends(historicalData);
+  const rootCauseAnalysis = await performRootCauseAnalysis(alert, trendAnalysis);
+  
+  const decision = await makeQualityDecision({
+    alert,
+    trends: trendAnalysis,
+    rootCause: rootCauseAnalysis,
+    businessImpact: await calculateBusinessImpact(alert)
+  });
+  
+  await executeQualityAction(decision);
+  await notifyStakeholders(decision);
+  
+  return decision;
+}
+
+async function optimizeInspectionParameters(
+  station: InspectionStation,
+  performanceData: PerformanceData
+): Promise<OptimizationResult> {
+  
+  const currentParams = station.configuration.inspectionParams;
+  const optimizationTargets = {
+    throughput: performanceData.targetThroughput,
+    accuracy: performanceData.targetAccuracy,
+    falseRejectRate: performanceData.maxFalseRejects
+  };
+  
+  const optimizedParams = await runOptimization(currentParams, optimizationTargets);
+  const simulationResults = await simulatePerformance(optimizedParams);
+  
+  if (simulationResults.improvement > 0.1) {
+    await updateStationConfiguration(station, optimizedParams);
+    await validateOptimization(station, optimizedParams);
+  }
+  
+  return {
+    originalParams: currentParams,
+    optimizedParams,
+    expectedImprovement: simulationResults.improvement,
+    implemented: simulationResults.improvement > 0.1
+  };
+}
+
+async function planCapacityExpansion(customer: Customer): Promise<ExpansionPlan> {
+  const currentCapacity = await calculateCurrentCapacity(customer);
+  const demandForecast = await forecastDemand(customer);
+  const capacityGap = demandForecast.peak - currentCapacity.max;
+  
+  if (capacityGap <= 0) {
+    return { expansionNeeded: false, currentCapacity };
+  }
+  
+  const expansionOptions = await generateExpansionOptions(capacityGap, customer);
+  const selectedOption = await selectOptimalExpansion(expansionOptions, customer);
+  
+  return {
+    expansionNeeded: true,
+    capacityGap,
+    recommendedOption: selectedOption,
+    timeline: await createExpansionTimeline(selectedOption),
+    investment: await calculateExpansionInvestment(selectedOption)
+  };
+}
+
+// Integration and Automation Workflows
+export async function integrateMESSystem(
+  customer: Customer, 
+  mesConfig: MESConfiguration
+): Promise<IntegrationResult> {
+  
+  const connectionTest = await testMESConnection(mesConfig);
+  if (!connectionTest.success) {
+    throw new Error(`MES connection failed: ${connectionTest.error}`);
+  }
+  
+  const dataMapping = await createDataMapping(customer, mesConfig);
+  const apiEndpoints = await setupAPIEndpoints(customer, mesConfig.protocol);
+  
+  await configureRealTimeSync(customer, mesConfig, dataMapping);
+  await setupAlertForwarding(customer, mesConfig);
+  
+  const validationResult = await validateIntegration(customer, mesConfig);
+  
+  return {
+    status: validationResult.success ? 'completed' : 'failed',
+    endpoints: apiEndpoints,
+    dataMapping,
+    performance: validationResult.performance
+  };
+}
+
+async function automateReporting(customer: Customer): Promise<ReportingAutomation> {
+  const reportTemplates = await getCustomerReportTemplates(customer);
+  const dataConnections = await setupDataConnections(customer);
+  
+  const automatedReports = await Promise.all(
+    reportTemplates.map(async template => {
+      const schedule = await createReportSchedule(template);
+      const generator = await setupReportGenerator(template, dataConnections);
+      
+      return {
+        template: template.name,
+        schedule,
+        generator,
+        recipients: template.recipients
+      };
+    })
+  );
+  
+  await scheduleReportGeneration(automatedReports);
+  
+  return {
+    reportsConfigured: automatedReports.length,
+    schedules: automatedReports.map(r => r.schedule),
+    nextReportDate: calculateNextReportDate(automatedReports)
+  };
+}
+
+// Customer Success and Support Workflows
+export async function onboardCustomer(contract: Contract): Promise<Customer> {
+  const customer = await createCustomerRecord(contract);
+  const onboardingPlan = await createOnboardingPlan(customer);
+  
+  await provisionHardware(customer, contract.hardware);
+  await setupSoftwareAccess(customer, contract.software);
+  await scheduleTraining(customer, onboardingPlan);
+  
+  const initialCalibration = await performInitialCalibration(customer);
+  await validateSystemPerformance(customer, initialCalibration);
+  
+  await scheduleGoLiveReview(customer);
+  
+  return {
+    ...customer,
+    onboardingStatus: {
+      phase: 'hardware_deployed',
+      completionPercentage: 60,
+      nextMilestone: 'training_completion',
+      estimatedGoLive: onboardingPlan.goLiveDate
+    }
+  };
+}
+
+async function handleSupportTicket(ticket: SupportTicket): Promise<TicketResolution> {
+  const classification = await classifyTicket(ticket);
+  const priority = await calculatePriority(ticket, classification);
+  
+  const resolution = await routeTicket(ticket, classification, priority);
+  
+  if (classification.type === 'technical' && classification.severity === 'high') {
+    await escalateToEngineering(ticket);
+  }
+  
+  await trackResolutionTime(ticket, resolution);
+  await updateCustomerHealth(ticket.customerId, resolution);
+  
+  return resolution;
+}
+```
+
+## Customer Personas
+
+### Primary Segment: Saw Blade Manufacturers
+
+**Tom Mitchell - Quality Manager**
+- Company: 300-employee circular saw blade manufacturer using legacy gauge inspection
+- Pain Points: 3% escape rate costing $30K/month in returns, manual set-angle measurement taking 5 min/blade
+- Goals: Achieve <1% escape rate, reduce inspection time by 70%, implement 100% traceability
+- Buying Criteria: ROI within 6 months, integration with existing MES, measurement accuracy validation
+- Quote: "We need to catch every defect before it ships, but current manual inspection is too slow and inconsistent"
+
+**Sarah Chen - Manufacturing Engineer**
+- Company: 150-employee carbide-tipped blade manufacturer with high-volume production
+- Pain Points: Operator variability in set-angle measurement, late detection of braze defects, limited sampling
+- Goals: Automate quality control, reduce false rejects, improve process control
+- Buying Criteria: Measurement repeatability, ease of integration, training requirements
+- Quote: "Our operators spend too much time on inspection when they should be focused on production"
+
+### Secondary Segment: Sharpening Services
+
+**Mike Rodriguez - Operations Director**
+- Company: Regional sharpening service processing 500+ blades/day
+- Pain Points: Customer complaints about returned blade quality, manual documentation burden
+- Goals: Improve customer satisfaction, reduce rework, streamline quality documentation
+- Buying Criteria: Fast inspection cycle, customer reporting capabilities, cost per inspection
+- Quote: "We need to prove quality to our customers and catch issues before blades go back"
+
+### Tertiary Segment: End-User Manufacturers
+
+**Jennifer Park - Plant Manager**
+- Company: Large lumber mill with in-house blade maintenance shop
+- Pain Points: Blade performance variability affecting production, limited quality visibility
+- Goals: Optimize blade performance, reduce downtime, improve maintenance scheduling
+- Buying Criteria: Integration with maintenance systems, performance analytics, reliability
+- Quote: "Bad blades cost us production time - we need to know blade quality before they go on the line"
+
+## Market Research Insights
+
+### Saw Blade Manufacturing Market
+- **Market Size**: $2.8B global saw blade market with 4% annual growth, driven by construction and woodworking demand
+- **Quality Challenges**: Industry average 2-5% escape rate with $10-50 per blade rework cost
+- **Inspection Methods**: 85% still use manual/gauge inspection, only 15% have automated systems
+
+### Manufacturing Quality Control Trends
+- **Automation Adoption**: 67% of manufacturers planning quality automation investments within 2 years
+- **Traceability Requirements**: 78% of OEMs requiring supplier traceability documentation
+- **ROI Expectations**: Quality automation projects must show <12 month payback for approval
+
+### Computer Vision in Manufacturing
+- **Adoption Rate**: 23% annual growth in vision inspection systems
+- **Accuracy Requirements**: Manufacturing applications need >95% detection accuracy
+- **Integration Needs**: 89% require integration with existing MES/ERP systems
 
 Generated for NAICS 332216 — Saw Blade and Handtool Manufacturing.
 Service: Vision QC for Saw-Tooth Defects and Set-Angle Measurement
