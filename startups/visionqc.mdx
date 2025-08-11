@@ -284,7 +284,428 @@ landingPage:
     - Review heatmaps and job reports; share with QA and customers
     - Continuously improve by labeling edge cases and updating recipes
 ---
+
 # VisionQC for Paperboard
 
 Generated for NAICS 322219 — Other Paperboard Container Manufacturing.
 Service: Vision QC from Line Images/Video
+
+## Business Process Functions
+
+```typescript
+// Core Types
+interface Lead {
+  id: string;
+  company: string;
+  contactName: string;
+  email: string;
+  phone: string;
+  plantLocation: string;
+  annualVolume: number;
+  currentQCProcess: string;
+  painPoints: string[];
+  source: 'trade_show' | 'referral' | 'website' | 'partner';
+}
+
+interface QualifiedLead extends Lead {
+  budget: number;
+  timeline: string;
+  decisionMakers: string[];
+  technicalRequirements: TechnicalRequirements;
+  competitiveAlternatives: string[];
+}
+
+interface TechnicalRequirements {
+  lineSpeed: number; // m/min
+  defectTypes: DefectType[];
+  existingCameras: boolean;
+  plcIntegration: boolean;
+  mesIntegration: boolean;
+  networkConstraints: string[];
+}
+
+interface DefectType {
+  category: 'print' | 'die_cut' | 'glue';
+  specificTypes: string[];
+  tolerances: Record<string, number>;
+  criticalityLevel: 'critical' | 'major' | 'minor';
+}
+
+interface Customer extends QualifiedLead {
+  contractValue: number;
+  implementationDate: Date;
+  supportTier: 'standard' | 'premium';
+  subscriptionDetails: SubscriptionDetails;
+}
+
+interface SubscriptionDetails {
+  monthlyFee: number;
+  features: string[];
+  cameraCount: number;
+  analyticsModules: string[];
+}
+
+interface SKU {
+  id: string;
+  name: string;
+  substrate: string;
+  dimensions: { width: number; height: number; depth: number };
+  printSpecs: PrintSpecs;
+  dieSpecs: DieSpecs;
+  glueSpecs: GlueSpecs;
+}
+
+interface PrintSpecs {
+  colors: string[];
+  registration: { tolerance: number };
+  barcodes: boolean;
+  specialFinishes: string[];
+}
+
+interface DieSpecs {
+  cutType: string;
+  tolerances: Record<string, number>;
+  creaseLines: boolean;
+}
+
+interface GlueSpecs {
+  pattern: string;
+  beadWidth: { min: number; max: number };
+  placement: { tolerance: number };
+}
+
+interface DefectDetectionModel {
+  id: string;
+  skuId: string;
+  version: string;
+  accuracy: { precision: number; recall: number };
+  trainingImages: number;
+  deploymentDate: Date;
+  driftScore: number;
+}
+
+interface QualityMetrics {
+  fpyImprovement: number; // percentage points
+  scrapReduction: number; // percentage
+  timeToDetect: number; // seconds
+  falsePositiveRate: number; // percentage
+  uptime: number; // percentage
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const proposal = await generateProposal(qualifiedLead);
+  const demo = await conductDemo(qualifiedLead, proposal);
+  const pilot = await runPilot(qualifiedLead, demo.feedback);
+  const contract = await negotiateContract(qualifiedLead, pilot.results);
+  return await onboardCustomer(contract);
+}
+
+export async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  const technicalAssessment = await assessTechnicalRequirements(lead);
+  const budgetQualification = await qualifyBudget(lead);
+  const stakeholderMapping = await mapDecisionMakers(lead);
+  
+  if (!technicalAssessment.feasible || !budgetQualification.qualified) {
+    throw new Error('Lead does not meet qualification criteria');
+  }
+  
+  return {
+    ...lead,
+    budget: budgetQualification.budget,
+    timeline: budgetQualification.timeline,
+    decisionMakers: stakeholderMapping.contacts,
+    technicalRequirements: technicalAssessment.requirements,
+    competitiveAlternatives: await identifyCompetitors(lead)
+  };
+}
+
+export async function generateProposal(lead: QualifiedLead): Promise<{
+  pricing: SubscriptionDetails;
+  implementation: ImplementationPlan;
+  roi: ROIProjection;
+}> {
+  const pricingTier = calculatePricingTier(lead.technicalRequirements);
+  const implementationPlan = await createImplementationPlan(lead);
+  const roiProjection = await calculateROI(lead, pricingTier);
+  
+  return {
+    pricing: pricingTier,
+    implementation: implementationPlan,
+    roi: roiProjection
+  };
+}
+
+export async function conductDemo(
+  lead: QualifiedLead, 
+  proposal: any
+): Promise<{ feedback: string[]; interest: number }> {
+  const demoEnvironment = await setupDemoEnvironment(lead.technicalRequirements);
+  const sampleData = await prepareSampleData(lead.company);
+  const liveDemo = await runLiveDemo(demoEnvironment, sampleData);
+  const feedback = await collectFeedback(lead, liveDemo);
+  
+  return {
+    feedback: feedback.comments,
+    interest: feedback.interestScore
+  };
+}
+
+export async function runPilot(
+  lead: QualifiedLead,
+  demoFeedback: string[]
+): Promise<{ results: QualityMetrics; customerSatisfaction: number }> {
+  const pilotSetup = await deployPilotSystem(lead);
+  const baselineMetrics = await measureBaselinePerformance(lead);
+  const pilotResults = await runPilotPeriod(pilotSetup, 60); // 60 days
+  const improvement = await calculateImprovement(baselineMetrics, pilotResults);
+  
+  return {
+    results: improvement,
+    customerSatisfaction: await measureCustomerSatisfaction(lead)
+  };
+}
+
+// Product Development Processes
+export async function developDefectDetectionModel(sku: SKU): Promise<DefectDetectionModel> {
+  const trainingData = await collectTrainingData(sku);
+  const labeledDataset = await labelDefects(trainingData);
+  const model = await trainModel(labeledDataset, sku);
+  const validatedModel = await validateModel(model, sku);
+  const deployedModel = await deployModel(validatedModel);
+  
+  return deployedModel;
+}
+
+export async function collectTrainingData(sku: SKU): Promise<{
+  images: string[];
+  metadata: Record<string, any>[];
+}> {
+  const goldenSamples = await captureGoldenSamples(sku, 50);
+  const defectSamples = await captureDefectSamples(sku, 100);
+  const syntheticData = await generateSyntheticData(sku, 200);
+  
+  return {
+    images: [...goldenSamples, ...defectSamples, ...syntheticData],
+    metadata: await extractMetadata([...goldenSamples, ...defectSamples, ...syntheticData])
+  };
+}
+
+export async function onboardNewSKU(
+  customer: Customer,
+  sku: SKU
+): Promise<{ model: DefectDetectionModel; timeToOnboard: number }> {
+  const startTime = Date.now();
+  
+  const templateModel = await selectTemplateModel(sku);
+  const customizedModel = await customizeModelForSKU(templateModel, sku);
+  const quickTraining = await performQuickTraining(customizedModel, sku);
+  const deployedModel = await deployToProductionLine(quickTraining, customer);
+  
+  const timeToOnboard = (Date.now() - startTime) / (1000 * 60); // minutes
+  
+  if (timeToOnboard > 60) {
+    throw new Error('SKU onboarding exceeded 60-minute target');
+  }
+  
+  return {
+    model: deployedModel,
+    timeToOnboard
+  };
+}
+
+// Revenue Generation Flows
+export async function processSubscriptionBilling(customer: Customer): Promise<{
+  invoice: Invoice;
+  payment: PaymentResult;
+}> {
+  const usageMetrics = await calculateUsageMetrics(customer);
+  const invoice = await generateInvoice(customer, usageMetrics);
+  const payment = await processPayment(invoice);
+  
+  if (!payment.successful) {
+    await handlePaymentFailure(customer, payment);
+  }
+  
+  return { invoice, payment };
+}
+
+export async function identifyUpsellOpportunities(customer: Customer): Promise<{
+  opportunities: UpsellOpportunity[];
+  priority: number;
+}> {
+  const usageAnalysis = await analyzeCustomerUsage(customer);
+  const performanceMetrics = await getCustomerPerformanceMetrics(customer);
+  const opportunities = await generateUpsellRecommendations(usageAnalysis, performanceMetrics);
+  
+  return {
+    opportunities,
+    priority: calculateUpsellPriority(opportunities)
+  };
+}
+
+export async function expandToAdditionalLines(
+  customer: Customer,
+  newLineRequirements: TechnicalRequirements
+): Promise<{ expandedContract: Customer; additionalRevenue: number }> {
+  const feasibilityAssessment = await assessExpansionFeasibility(customer, newLineRequirements);
+  const pricingProposal = await generateExpansionPricing(customer, newLineRequirements);
+  const expandedContract = await negotiateExpansion(customer, pricingProposal);
+  
+  return {
+    expandedContract,
+    additionalRevenue: pricingProposal.monthlyIncrease * 12
+  };
+}
+
+// Operational Procedures
+export async function monitorSystemHealth(customer: Customer): Promise<{
+  status: 'healthy' | 'warning' | 'critical';
+  issues: SystemIssue[];
+  recommendations: string[];
+}> {
+  const uptimeMetrics = await checkSystemUptime(customer);
+  const performanceMetrics = await checkPerformanceMetrics(customer);
+  const modelDrift = await detectModelDrift(customer);
+  const hardwareHealth = await checkHardwareHealth(customer);
+  
+  const issues = [
+    ...uptimeMetrics.issues,
+    ...performanceMetrics.issues,
+    ...modelDrift.issues,
+    ...hardwareHealth.issues
+  ];
+  
+  const status = determineOverallStatus(issues);
+  const recommendations = await generateRecommendations(issues);
+  
+  return { status, issues, recommendations };
+}
+
+export async function handleDefectAlert(
+  customer: Customer,
+  defect: DetectedDefect
+): Promise<{ action: string; escalated: boolean }> {
+  const severity = await assessDefectSeverity(defect);
+  const rejectAction = await triggerRejectMechanism(customer, defect);
+  const notification = await sendDefectNotification(customer, defect, severity);
+  
+  let escalated = false;
+  if (severity.level === 'critical') {
+    await escalateToQualityManager(customer, defect);
+    escalated = true;
+  }
+  
+  await logDefectEvent(customer, defect, rejectAction);
+  
+  return {
+    action: rejectAction.type,
+    escalated
+  };
+}
+
+export async function performModelRetraining(
+  customer: Customer,
+  model: DefectDetectionModel
+): Promise<{ updatedModel: DefectDetectionModel; improvement: number }> {
+  const feedbackData = await collectCustomerFeedback(customer, model);
+  const newTrainingData = await incorporateFeedback(feedbackData);
+  const retrainedModel = await retrainModel(model, newTrainingData);
+  const validationResults = await validateRetrainedModel(retrainedModel);
+  
+  if (validationResults.improvement < 0.05) {
+    throw new Error('Retraining did not achieve minimum 5% improvement threshold');
+  }
+  
+  const deployedModel = await deployUpdatedModel(retrainedModel, customer);
+  
+  return {
+    updatedModel: deployedModel,
+    improvement: validationResults.improvement
+  };
+}
+
+// Decision-Making Workflows
+export async function evaluateCustomerHealth(customer: Customer): Promise<{
+  healthScore: number;
+  churnRisk: 'low' | 'medium' | 'high';
+  actionPlan: string[];
+}> {
+  const usageMetrics = await analyzeUsagePatterns(customer);
+  const satisfactionScore = await measureCustomerSatisfaction(customer);
+  const supportTickets = await analyzeSupportHistory(customer);
+  const paymentHistory = await analyzePaymentHistory(customer);
+  
+  const healthScore = calculateHealthScore({
+    usage: usageMetrics.score,
+    satisfaction: satisfactionScore,
+    support: supportTickets.score,
+    payment: paymentHistory.score
+  });
+  
+  const churnRisk = determineChurnRisk(healthScore);
+  const actionPlan = await generateRetentionActionPlan(customer, churnRisk);
+  
+  return { healthScore, churnRisk, actionPlan };
+}
+
+export async function prioritizeProductDevelopment(): Promise<{
+  roadmap: DevelopmentItem[];
+  resourceAllocation: ResourcePlan;
+}> {
+  const customerRequests = await aggregateCustomerRequests();
+  const marketAnalysis = await analyzeMarketTrends();
+  const technicalFeasibility = await assessTechnicalFeasibility(customerRequests);
+  const businessImpact = await calculateBusinessImpact(customerRequests);
+  
+  const prioritizedItems = await prioritizeByValue(customerRequests, businessImpact);
+  const roadmap = await createDevelopmentRoadmap(prioritizedItems);
+  const resourcePlan = await allocateResources(roadmap);
+  
+  return { roadmap, resourcePlan };
+}
+
+export async function optimizeOperationalEfficiency(): Promise<{
+  recommendations: EfficiencyRecommendation[];
+  projectedSavings: number;
+}> {
+  const processAnalysis = await analyzeOperationalProcesses();
+  const bottlenecks = await identifyBottlenecks(processAnalysis);
+  const automationOpportunities = await identifyAutomationOpportunities();
+  const costAnalysis = await analyzeCostStructure();
+  
+  const recommendations = await generateEfficiencyRecommendations({
+    bottlenecks,
+    automation: automationOpportunities,
+    costs: costAnalysis
+  });
+  
+  const projectedSavings = await calculateProjectedSavings(recommendations);
+  
+  return { recommendations, projectedSavings };
+}
+
+// Helper function implementations (pseudocode)
+async function assessTechnicalRequirements(lead: Lead): Promise<any> {
+  // Implementation would assess line speed, defect types, integration needs
+  return { feasible: true, requirements: {} };
+}
+
+async function qualifyBudget(lead: Lead): Promise<any> {
+  // Implementation would assess budget fit and timeline
+  return { qualified: true, budget: 50000, timeline: 'Q2 2024' };
+}
+
+async function mapDecisionMakers(lead: Lead): Promise<any> {
+  // Implementation would identify key stakeholders
+  return { contacts: ['Plant Manager', 'Quality Director'] };
+}
+
+async function identifyCompetitors(lead: Lead): Promise<string[]> {
+  // Implementation would research competitive landscape
+  return ['Cognex', 'Keyence', 'Omron'];
+}
+
+// Additional helper functions would be implemented similarly...
+```
