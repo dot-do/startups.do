@@ -14,6 +14,7 @@ export default async function Home() {
   for (const slug of slugs) {
     const doc = await getStartup<any>(slug)
     const rawName = (doc.data?.name as string) || slug
+    const shortName = (doc.data?.shortName as string) || undefined
     const baseName = (rawName.split(/[-–—]/)[0] || rawName).trim()
     const name = baseName.split(/[\s-]+/).slice(0, 4).join(' ')
     const description =
@@ -25,6 +26,7 @@ export default async function Home() {
     items.push({
       id: slug,
       name,
+      shortName,
       description,
       category,
     })

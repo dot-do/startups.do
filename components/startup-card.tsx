@@ -21,6 +21,8 @@ export function StartupCard({ item, onReveal }: { item: StartupItem; onReveal?: 
   const toSlug = (s: string) => s.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
   const derivedHref = `/${toSlug(item.name)}`
 
+  const displayName = item.shortName || item.name
+
   // Match Navbar's deterministic variant styling based on the URL segment (slug)
   const logoVariantIndex = React.useMemo(() => {
     const s = toSlug(item.name || '')
@@ -67,12 +69,12 @@ export function StartupCard({ item, onReveal }: { item: StartupItem; onReveal?: 
       onKeyDown={handleKeyDown}
       onMouseLeave={handleMouseLeave}
       className='group group/item block cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md'
-      aria-label={item.ariaLabel || item.name}
+      aria-label={item.ariaLabel || displayName}
     >
       <Card className='relative min-h-[260px] rounded-md border bg-card/60 transition-colors hover:bg-card overflow-hidden motion-safe:group-hover:scale-[1.01] motion-reduce:transition-none'>
         {/* randomized text effect */}
         <div className='absolute inset-0 flex items-center justify-center p-4 text-center'>
-          <div className={nameClass}>{item.name}</div>
+          <div className={nameClass}>{displayName}</div>
         </div>
 
         <div

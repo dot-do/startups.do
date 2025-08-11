@@ -6,6 +6,7 @@ export { landingFeatures2 } from './landingFeatures2'
 export { landingPricing } from './landingPricing'
 export { landingFaq } from './landingFaq'
 export { generateLandingSections } from './generateLandingSections'
+export { updateContent } from './updateContent'
 
 export const openai = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
