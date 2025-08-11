@@ -305,3 +305,360 @@ landingPage:
 
 Generated for NAICS 326150 — Urethane and Other Foam Product (except Polystyrene) Manufacturing.
 Service: Cutting Nesting Optimizer & Scheduler
+
+## Business Workflow Functions
+
+The following TypeScript functions define the core business processes and workflows for BunWise's foam optimization operations:
+
+```typescript
+// Core Types
+interface Lead {
+  id: string;
+  company: string;
+  contactInfo: ContactInfo;
+  plantSize: 'small' | 'medium' | 'large';
+  machineCount: number;
+  currentYieldLoss: number;
+  plannerHoursPerDay: number;
+  naicsCode: string;
+}
+
+interface Customer {
+  id: string;
+  company: string;
+  subscriptionTier: 'starter' | 'professional' | 'enterprise';
+  sites: Site[];
+  contractValue: number;
+  onboardingStatus: OnboardingStatus;
+}
+
+interface Site {
+  id: string;
+  location: string;
+  machines: Machine[];
+  erpSystem?: string;
+  mesSystem?: string;
+}
+
+interface Machine {
+  id: string;
+  type: 'cnc_contour' | 'horizontal_saw' | 'vertical_saw' | 'waterjet' | 'slitter';
+  oem: 'baumer' | 'fecken_kirfel' | 'zund' | 'eastman' | 'atom' | 'other';
+  capabilities: MachineCapabilities;
+  postProcessor: string;
+}
+
+interface Order {
+  id: string;
+  parts: Part[];
+  material: FoamMaterial;
+  dueDate: Date;
+  priority: 'low' | 'medium' | 'high' | 'rush';
+  quantity: number;
+}
+
+interface FoamMaterial {
+  type: 'polyurethane' | 'memory_foam' | 'latex' | 'other';
+  density: number;
+  ild: number;
+  thickness: number;
+  bunSize: { length: number; width: number; height: number };
+}
+
+interface NestingResult {
+  yield: number;
+  wastePercentage: number;
+  cutPrograms: CutProgram[];
+  pickLists: PickList[];
+  estimatedRunTime: number;
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const demo = await scheduleDemoCall(qualifiedLead);
+  const pilot = await proposePilotProgram(demo);
+  const contract = await negotiateContract(pilot);
+  return await onboardCustomer(contract);
+}
+
+export async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  const industryMatch = await validateNaicsCode(lead.naicsCode);
+  const sizeQualification = await assessPlantSize(lead.plantSize, lead.machineCount);
+  const painPointAnalysis = await analyzePainPoints(lead.currentYieldLoss, lead.plannerHoursPerDay);
+  
+  if (industryMatch && sizeQualification && painPointAnalysis.score > 7) {
+    return {
+      ...lead,
+      qualified: true,
+      estimatedValue: calculateEstimatedValue(lead),
+      recommendedTier: recommendSubscriptionTier(lead)
+    };
+  }
+  
+  throw new Error('Lead does not meet qualification criteria');
+}
+
+export async function scheduleDemoCall(lead: QualifiedLead): Promise<DemoSession> {
+  const availableSlots = await getAvailableDemoSlots();
+  const demoRequest = await sendDemoInvitation(lead, availableSlots);
+  const sampleData = await prepareSampleNesting(lead.company);
+  
+  return {
+    leadId: lead.id,
+    scheduledTime: demoRequest.selectedTime,
+    demoType: 'live_nesting',
+    sampleData,
+    expectedOutcomes: ['yield_improvement_demo', 'roi_calculation', 'pilot_proposal']
+  };
+}
+
+export async function proposePilotProgram(demo: DemoSession): Promise<PilotProposal> {
+  const baselineMetrics = await establishBaseline(demo.leadId);
+  const pilotScope = await definePilotScope(baselineMetrics);
+  const successCriteria = await defineSuccessCriteria(baselineMetrics);
+  
+  return {
+    duration: '6-8 weeks',
+    scope: pilotScope,
+    investment: calculatePilotInvestment(pilotScope),
+    successCriteria,
+    moneyBackGuarantee: true,
+    expectedROI: calculateExpectedROI(baselineMetrics)
+  };
+}
+
+// Product Development Processes
+export async function developOptimizationEngine(): Promise<OptimizationEngine> {
+  const aiModels = await trainNestingModels();
+  const orSolver = await integrateORTools();
+  const postProcessors = await developPostProcessors();
+  const validationSuite = await createValidationSuite();
+  
+  return {
+    nestingEngine: aiModels,
+    schedulingEngine: orSolver,
+    postProcessors,
+    validationSuite,
+    version: await generateVersionNumber()
+  };
+}
+
+export async function trainNestingModels(): Promise<AIModels> {
+  const trainingData = await collectFoamCuttingData();
+  const featureEngineering = await extractFoamFeatures(trainingData);
+  const modelTraining = await trainDeepLearningModels(featureEngineering);
+  const modelValidation = await validateModelAccuracy(modelTraining);
+  
+  if (modelValidation.accuracy < 0.95) {
+    throw new Error('Model accuracy below threshold');
+  }
+  
+  return modelTraining;
+}
+
+export async function certifyPostProcessor(machine: Machine): Promise<CertifiedPostProcessor> {
+  const machineSpecs = await analyzeMachineCapabilities(machine);
+  const postProcessor = await developCustomPostProcessor(machineSpecs);
+  const testPrograms = await generateTestPrograms(machine.type);
+  const validationResults = await runValidationTests(postProcessor, testPrograms);
+  
+  if (validationResults.passRate < 0.98) {
+    throw new Error('Post-processor validation failed');
+  }
+  
+  return {
+    machineId: machine.id,
+    postProcessor,
+    certificationDate: new Date(),
+    validationResults
+  };
+}
+
+// Revenue Generation Flows
+export async function processSubscriptionBilling(customer: Customer): Promise<BillingResult> {
+  const usage = await calculateMonthlyUsage(customer);
+  const baseSubscription = await calculateBaseSubscription(customer.subscriptionTier);
+  const machineAddOns = await calculateMachineAddOns(customer.sites);
+  const moduleCharges = await calculateModuleCharges(customer);
+  
+  const totalAmount = baseSubscription + machineAddOns + moduleCharges;
+  const invoice = await generateInvoice(customer, totalAmount, usage);
+  const paymentResult = await processPayment(invoice);
+  
+  return {
+    customerId: customer.id,
+    amount: totalAmount,
+    invoice,
+    paymentResult,
+    nextBillingDate: calculateNextBillingDate()
+  };
+}
+
+export async function deliverProfessionalServices(serviceRequest: ServiceRequest): Promise<ServiceDelivery> {
+  const projectScope = await defineProjectScope(serviceRequest);
+  const resourceAllocation = await allocateEngineers(projectScope);
+  const timeline = await createProjectTimeline(projectScope);
+  
+  const deliverables = await executeServiceDelivery(projectScope, resourceAllocation);
+  const qualityAssurance = await performQualityReview(deliverables);
+  const customerAcceptance = await obtainCustomerAcceptance(deliverables);
+  
+  return {
+    serviceRequestId: serviceRequest.id,
+    deliverables,
+    hoursSpent: resourceAllocation.totalHours,
+    customerSatisfaction: customerAcceptance.rating,
+    completionDate: new Date()
+  };
+}
+
+export async function calculatePerformanceBasedPricing(customer: Customer): Promise<PerformancePayment> {
+  const baseline = await getBaselineMetrics(customer);
+  const currentMetrics = await getCurrentMetrics(customer);
+  const materialSavings = await calculateMaterialSavings(baseline, currentMetrics);
+  
+  if (materialSavings.percentage > baseline.threshold) {
+    const sharedSavings = materialSavings.dollarAmount * 0.15; // 15% of verified savings
+    return {
+      customerId: customer.id,
+      savingsAchieved: materialSavings,
+      paymentDue: sharedSavings,
+      verificationReport: await generateSavingsReport(materialSavings)
+    };
+  }
+  
+  return { customerId: customer.id, paymentDue: 0, savingsAchieved: materialSavings };
+}
+
+// Operational Procedures
+export async function executeOptimizationWorkflow(orders: Order[]): Promise<NestingResult> {
+  const materialClustering = await clusterOrdersByMaterial(orders);
+  const geometryNormalization = await normalizePartGeometries(orders);
+  const constraintValidation = await validateMachineConstraints(orders);
+  
+  const nestingResults = await performAINesting(materialClustering, geometryNormalization);
+  const scheduleOptimization = await optimizeProductionSchedule(nestingResults, constraintValidation);
+  const programGeneration = await generateMachinePrograms(scheduleOptimization);
+  
+  return {
+    yield: nestingResults.yield,
+    wastePercentage: nestingResults.wastePercentage,
+    cutPrograms: programGeneration.programs,
+    pickLists: await generatePickLists(scheduleOptimization),
+    estimatedRunTime: scheduleOptimization.totalRunTime
+  };
+}
+
+export async function collectMachineData(machine: Machine): Promise<MachineData> {
+  const performanceMetrics = await gatherPerformanceMetrics(machine);
+  const qualityData = await collectQualityMetrics(machine);
+  const maintenanceStatus = await checkMaintenanceStatus(machine);
+  
+  return {
+    machineId: machine.id,
+    timestamp: new Date(),
+    performance: performanceMetrics,
+    quality: qualityData,
+    maintenance: maintenanceStatus,
+    utilization: await calculateUtilization(performanceMetrics)
+  };
+}
+
+export async function provideCustomerSupport(supportTicket: SupportTicket): Promise<SupportResolution> {
+  const ticketClassification = await classifyTicket(supportTicket);
+  const knowledgeBaseSearch = await searchKnowledgeBase(ticketClassification);
+  
+  if (knowledgeBaseSearch.autoResolvable) {
+    return await autoResolveTicket(supportTicket, knowledgeBaseSearch.solution);
+  }
+  
+  const engineerAssignment = await assignSupportEngineer(ticketClassification);
+  const resolution = await resolveWithEngineer(supportTicket, engineerAssignment);
+  const satisfactionSurvey = await sendSatisfactionSurvey(supportTicket.customerId);
+  
+  return {
+    ticketId: supportTicket.id,
+    resolution,
+    resolutionTime: calculateResolutionTime(supportTicket),
+    customerSatisfaction: satisfactionSurvey.rating
+  };
+}
+
+// Decision-Making Workflows
+export async function analyzeROI(customer: Customer): Promise<ROIAnalysis> {
+  const currentCosts = await calculateCurrentCosts(customer);
+  const projectedSavings = await projectMaterialSavings(customer);
+  const implementationCosts = await calculateImplementationCosts(customer);
+  const ongoingCosts = await calculateOngoingCosts(customer);
+  
+  const paybackPeriod = calculatePaybackPeriod(implementationCosts, projectedSavings);
+  const fiveYearNPV = calculateNPV(projectedSavings, ongoingCosts, 5);
+  
+  return {
+    customerId: customer.id,
+    currentAnnualCosts: currentCosts,
+    projectedAnnualSavings: projectedSavings,
+    implementationCost: implementationCosts,
+    paybackPeriodMonths: paybackPeriod,
+    fiveYearNPV,
+    recommendedAction: paybackPeriod <= 6 ? 'proceed' : 'negotiate'
+  };
+}
+
+export async function planCapacity(sites: Site[]): Promise<CapacityPlan> {
+  const currentCapacity = await assessCurrentCapacity(sites);
+  const demandForecast = await forecastDemand(sites);
+  const bottleneckAnalysis = await identifyBottlenecks(currentCapacity, demandForecast);
+  
+  const optimizationRecommendations = await generateOptimizationRecommendations(bottleneckAnalysis);
+  const investmentRequirements = await calculateInvestmentRequirements(optimizationRecommendations);
+  
+  return {
+    currentUtilization: currentCapacity.utilization,
+    projectedDemand: demandForecast,
+    bottlenecks: bottleneckAnalysis,
+    recommendations: optimizationRecommendations,
+    investmentRequired: investmentRequirements,
+    expectedROI: await calculateCapacityROI(optimizationRecommendations)
+  };
+}
+
+export async function processQualityFeedback(machineData: MachineData[]): Promise<QualityImprovement> {
+  const qualityTrends = await analyzeQualityTrends(machineData);
+  const rootCauseAnalysis = await performRootCauseAnalysis(qualityTrends);
+  const processAdjustments = await recommendProcessAdjustments(rootCauseAnalysis);
+  
+  const implementationPlan = await createImplementationPlan(processAdjustments);
+  const validationTests = await planValidationTests(implementationPlan);
+  
+  return {
+    qualityIssues: qualityTrends.issues,
+    rootCauses: rootCauseAnalysis,
+    recommendations: processAdjustments,
+    implementationPlan,
+    expectedImprovement: await projectQualityImprovement(processAdjustments)
+  };
+}
+
+// Continuous Improvement Loop
+export async function continuousImprovement(customer: Customer): Promise<ImprovementPlan> {
+  const performanceData = await collectPerformanceData(customer);
+  const benchmarkComparison = await compareToBenchmarks(performanceData);
+  const improvementOpportunities = await identifyImprovementOpportunities(benchmarkComparison);
+  
+  const prioritizedActions = await prioritizeImprovements(improvementOpportunities);
+  const implementationRoadmap = await createImplementationRoadmap(prioritizedActions);
+  
+  return {
+    customerId: customer.id,
+    currentPerformance: performanceData,
+    benchmarks: benchmarkComparison,
+    opportunities: improvementOpportunities,
+    roadmap: implementationRoadmap,
+    expectedBenefits: await calculateExpectedBenefits(prioritizedActions)
+  };
+}
+```
+
+These TypeScript functions encode BunWise's core business processes as executable workflows, representing how the foam optimization startup operates from customer acquisition through continuous improvement. Each function includes proper typing, error handling, and async patterns that reflect real-world business operations in the foam fabrication industry.
