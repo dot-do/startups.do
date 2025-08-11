@@ -344,7 +344,420 @@ landingPage:
       Track KPIs and refine rules to continuously reduce variance and labor
       time.
 ---
+
 # ReconDock AI — ASN-to-Receiving Reconciliation Agent
+
+## Business Workflow Functions
+
+```typescript
+// Core Data Types
+interface Lead {
+  id: string
+  company: string
+  contactName: string
+  email: string
+  phone: string
+  warehouseCount: number
+  currentWMS: string
+  receiptVolume: number
+  painPoints: string[]
+  source: 'inbound' | 'referral' | 'event' | 'content'
+}
+
+interface Customer {
+  id: string
+  company: string
+  facilities: Facility[]
+  contractValue: number
+  implementationStatus: 'pending' | 'in-progress' | 'live'
+  billingTier: 'starter' | 'professional' | 'enterprise'
+}
+
+interface Facility {
+  id: string
+  location: string
+  wmsType: string
+  receiptVolume: number
+  connectorStatus: 'not-configured' | 'testing' | 'live'
+}
+
+interface ASNReceipt {
+  id: string
+  facilityId: string
+  vendorId: string
+  poNumber: string
+  asnData: any
+  packingListData: any
+  wmsReceiptData: any
+  reconciliationStatus: 'pending' | 'matched' | 'exception' | 'resolved'
+  exceptions: Exception[]
+}
+
+interface Exception {
+  id: string
+  type: 'over' | 'short' | 'damage' | 'uom-mismatch' | 'missing-lot' | 'asn-without-receipt'
+  severity: 'low' | 'medium' | 'high' | 'critical'
+  lineItems: string[]
+  confidenceScore: number
+  suggestedAction: string
+  vendorCommunicationDraft?: string
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead)
+  const proposal = await generateProposal(qualifiedLead)
+  const contract = await negotiateContract(proposal)
+  return await onboardCustomer(contract)
+}
+
+export async function qualifyLead(lead: Lead): Promise<Lead & { qualified: boolean; score: number }> {
+  // Score based on warehouse count, receipt volume, and pain points
+  const volumeScore = Math.min(lead.receiptVolume / 1000, 10) // Max 10 points for 1000+ receipts/day
+  const facilityScore = Math.min(lead.warehouseCount * 2, 10) // Max 10 points for 5+ facilities
+  const painScore = lead.painPoints.length * 2 // 2 points per pain point
+  
+  const totalScore = volumeScore + facilityScore + painScore
+  const qualified = totalScore >= 15 && lead.receiptVolume >= 100
+  
+  if (qualified) {
+    await scheduleDemo(lead)
+    await sendQualificationEmail(lead)
+  }
+  
+  return { ...lead, qualified, score: totalScore }
+}
+
+export async function generateProposal(lead: Lead): Promise<{
+  monthlyFee: number
+  implementationFee: number
+  usageFee: number
+  roi: number
+  paybackMonths: number
+}> {
+  const baseMonthlyFee = lead.warehouseCount * 2000 // $2k per facility
+  const implementationFee = lead.warehouseCount * 15000 // $15k per facility
+  const usageFee = lead.receiptVolume * 30 * 0.05 // $0.05 per receipt line
+  
+  // Calculate ROI based on labor savings
+  const currentLaborCost = lead.receiptVolume * 30 * 0.33 // $0.33 per line in labor
+  const projectedSavings = currentLaborCost * 0.7 // 70% labor reduction
+  const totalMonthlyCost = baseMonthlyFee + usageFee
+  const monthlySavings = projectedSavings - totalMonthlyCost
+  const roi = (monthlySavings * 12) / implementationFee
+  const paybackMonths = implementationFee / monthlySavings
+  
+  return {
+    monthlyFee: baseMonthlyFee,
+    implementationFee,
+    usageFee,
+    roi,
+    paybackMonths
+  }
+}
+
+export async function negotiateContract(proposal: any): Promise<any> {
+  // Handle pricing negotiations, terms, and pilot agreements
+  const pilotTerms = await generatePilotTerms(proposal)
+  const finalTerms = await handlePricingNegotiation(proposal)
+  return await createContract(finalTerms)
+}
+
+export async function onboardCustomer(contract: any): Promise<Customer> {
+  const customer = await createCustomerRecord(contract)
+  await scheduleImplementationKickoff(customer)
+  await provisionInfrastructure(customer)
+  await assignCustomerSuccessManager(customer)
+  return customer
+}
+
+// Product Development Workflows
+export async function developReconciliationEngine(): Promise<void> {
+  await buildDataIngestionPipeline()
+  await trainReconciliationModels()
+  await developExceptionClassification()
+  await buildVendorCommunicationTemplates()
+  await createWMSTaskOrchestration()
+}
+
+export async function buildDataIngestionPipeline(): Promise<void> {
+  await implementEDIConnectors(['856', '810', '850'])
+  await buildOCRPipeline() // For PDF packing lists
+  await createWMSAPIConnectors(['Manhattan', 'BlueYonder', 'SAP_EWM', 'Oracle_WMS'])
+  await implementGS1LabelParsing()
+}
+
+export async function trainReconciliationModels(): Promise<void> {
+  const trainingData = await collectHistoricalReconciliationData()
+  await trainSKUMatchingModel(trainingData)
+  await trainQuantityVarianceModel(trainingData)
+  await trainUOMConversionModel(trainingData)
+  await trainLotSerialMatchingModel(trainingData)
+  await validateModelAccuracy() // Target >92% accuracy
+}
+
+export async function developExceptionClassification(): Promise<void> {
+  await buildExceptionTaxonomy()
+  await trainConfidenceScoring()
+  await implementRootCauseAnalysis()
+  await createEscalationRules()
+}
+
+// Revenue Generation Workflows
+export async function generateRevenue(customer: Customer): Promise<{
+  monthlyRecurring: number
+  usage: number
+  addOns: number
+  total: number
+}> {
+  const monthlyRecurring = await calculateSubscriptionRevenue(customer)
+  const usage = await calculateUsageRevenue(customer)
+  const addOns = await calculateAddOnRevenue(customer)
+  
+  await processMonthlyBilling(customer, {
+    subscription: monthlyRecurring,
+    usage,
+    addOns
+  })
+  
+  return {
+    monthlyRecurring,
+    usage,
+    addOns,
+    total: monthlyRecurring + usage + addOns
+  }
+}
+
+export async function calculateSubscriptionRevenue(customer: Customer): Promise<number> {
+  const baseFeePerFacility = customer.billingTier === 'enterprise' ? 3000 : 
+                            customer.billingTier === 'professional' ? 2000 : 1000
+  return customer.facilities.length * baseFeePerFacility
+}
+
+export async function calculateUsageRevenue(customer: Customer): Promise<number> {
+  let totalUsage = 0
+  for (const facility of customer.facilities) {
+    const receiptsProcessed = await getMonthlyReceiptCount(facility.id)
+    const ratePerReceipt = customer.billingTier === 'enterprise' ? 0.03 : 
+                          customer.billingTier === 'professional' ? 0.05 : 0.10
+    totalUsage += receiptsProcessed * ratePerReceipt
+  }
+  return totalUsage
+}
+
+export async function processChargebackRecovery(customer: Customer): Promise<number> {
+  const discrepanciesFound = await identifyChargeableDiscrepancies(customer)
+  const recoveryAmount = await calculateRecoveryValue(discrepanciesFound)
+  const performanceFee = recoveryAmount * 0.15 // 15% of recovery
+  
+  await generateChargebackDocumentation(discrepanciesFound)
+  await submitVendorChargebacks(discrepanciesFound)
+  
+  return performanceFee
+}
+
+// Operational Workflows
+export async function processASNReconciliation(asnReceipt: ASNReceipt): Promise<ASNReceipt> {
+  const normalizedData = await normalizeInboundData(asnReceipt)
+  const reconciliationResult = await performReconciliation(normalizedData)
+  const exceptions = await classifyExceptions(reconciliationResult)
+  
+  if (exceptions.length > 0) {
+    await generateVendorCommunications(exceptions)
+    await createWMSTasks(exceptions)
+    await notifyReceivingTeam(exceptions)
+  }
+  
+  return {
+    ...asnReceipt,
+    reconciliationStatus: exceptions.length > 0 ? 'exception' : 'matched',
+    exceptions
+  }
+}
+
+export async function normalizeInboundData(asnReceipt: ASNReceipt): Promise<any> {
+  const normalizedASN = await parseEDI856(asnReceipt.asnData)
+  const normalizedPackingList = await extractPackingListData(asnReceipt.packingListData)
+  const normalizedWMSData = await standardizeWMSReceipt(asnReceipt.wmsReceiptData)
+  
+  return {
+    asn: normalizedASN,
+    packingList: normalizedPackingList,
+    wmsReceipt: normalizedWMSData
+  }
+}
+
+export async function performReconciliation(data: any): Promise<any> {
+  const skuMatches = await matchSKUs(data.asn.lineItems, data.wmsReceipt.lineItems)
+  const quantityVariances = await compareQuantities(skuMatches)
+  const uomDiscrepancies = await validateUnitOfMeasure(skuMatches)
+  const lotSerialIssues = await validateLotSerial(skuMatches)
+  
+  return {
+    matches: skuMatches,
+    variances: quantityVariances,
+    uomIssues: uomDiscrepancies,
+    lotIssues: lotSerialIssues
+  }
+}
+
+export async function classifyExceptions(reconciliationResult: any): Promise<Exception[]> {
+  const exceptions: Exception[] = []
+  
+  // Classify quantity variances
+  for (const variance of reconciliationResult.variances) {
+    if (Math.abs(variance.difference) > variance.tolerance) {
+      exceptions.push({
+        id: generateId(),
+        type: variance.difference > 0 ? 'over' : 'short',
+        severity: calculateSeverity(variance),
+        lineItems: [variance.lineItem],
+        confidenceScore: variance.confidence,
+        suggestedAction: await generateSuggestedAction(variance)
+      })
+    }
+  }
+  
+  // Classify UOM mismatches
+  for (const uomIssue of reconciliationResult.uomIssues) {
+    exceptions.push({
+      id: generateId(),
+      type: 'uom-mismatch',
+      severity: 'medium',
+      lineItems: [uomIssue.lineItem],
+      confidenceScore: uomIssue.confidence,
+      suggestedAction: 'Verify unit of measure conversion with vendor'
+    })
+  }
+  
+  return exceptions
+}
+
+// Decision-Making Workflows
+export async function makeExceptionDecision(exception: Exception): Promise<{
+  action: 'auto-resolve' | 'escalate' | 'vendor-contact' | 'manual-review'
+  reasoning: string
+  confidence: number
+}> {
+  const riskScore = await calculateRiskScore(exception)
+  const historicalPattern = await analyzeHistoricalPattern(exception)
+  const vendorProfile = await getVendorProfile(exception)
+  
+  if (exception.severity === 'low' && exception.confidenceScore > 0.9) {
+    return {
+      action: 'auto-resolve',
+      reasoning: 'Low severity with high confidence - within tolerance',
+      confidence: 0.95
+    }
+  }
+  
+  if (exception.severity === 'critical' || riskScore > 0.8) {
+    return {
+      action: 'escalate',
+      reasoning: 'Critical exception or high risk score requires immediate attention',
+      confidence: 0.98
+    }
+  }
+  
+  if (vendorProfile.communicationPreference === 'automated' && exception.confidenceScore > 0.7) {
+    return {
+      action: 'vendor-contact',
+      reasoning: 'Vendor accepts automated communications and confidence is sufficient',
+      confidence: 0.85
+    }
+  }
+  
+  return {
+    action: 'manual-review',
+    reasoning: 'Exception requires human judgment',
+    confidence: 0.75
+  }
+}
+
+export async function optimizeReceivingPerformance(facilityId: string): Promise<{
+  recommendations: string[]
+  projectedImprovement: number
+  implementationPriority: 'high' | 'medium' | 'low'
+}> {
+  const currentMetrics = await getCurrentPerformanceMetrics(facilityId)
+  const benchmarkData = await getBenchmarkData()
+  const improvementOpportunities = await identifyImprovementAreas(currentMetrics, benchmarkData)
+  
+  const recommendations = []
+  let projectedImprovement = 0
+  
+  if (currentMetrics.firstPassMatchRate < 0.85) {
+    recommendations.push('Improve vendor data quality through training')
+    projectedImprovement += 0.15
+  }
+  
+  if (currentMetrics.exceptionResolutionTime > 4) {
+    recommendations.push('Implement automated vendor communications')
+    projectedImprovement += 0.25
+  }
+  
+  if (currentMetrics.linesPerLaborHour < benchmarkData.p75) {
+    recommendations.push('Optimize receiving task prioritization')
+    projectedImprovement += 0.20
+  }
+  
+  return {
+    recommendations,
+    projectedImprovement,
+    implementationPriority: projectedImprovement > 0.3 ? 'high' : 
+                           projectedImprovement > 0.15 ? 'medium' : 'low'
+  }
+}
+
+// Helper Functions (referenced but not fully implemented)
+async function scheduleDemo(lead: Lead): Promise<void> { /* Implementation */ }
+async function sendQualificationEmail(lead: Lead): Promise<void> { /* Implementation */ }
+async function generatePilotTerms(proposal: any): Promise<any> { /* Implementation */ }
+async function handlePricingNegotiation(proposal: any): Promise<any> { /* Implementation */ }
+async function createContract(terms: any): Promise<any> { /* Implementation */ }
+async function createCustomerRecord(contract: any): Promise<Customer> { /* Implementation */ }
+async function scheduleImplementationKickoff(customer: Customer): Promise<void> { /* Implementation */ }
+async function provisionInfrastructure(customer: Customer): Promise<void> { /* Implementation */ }
+async function assignCustomerSuccessManager(customer: Customer): Promise<void> { /* Implementation */ }
+async function implementEDIConnectors(types: string[]): Promise<void> { /* Implementation */ }
+async function buildOCRPipeline(): Promise<void> { /* Implementation */ }
+async function createWMSAPIConnectors(systems: string[]): Promise<void> { /* Implementation */ }
+async function implementGS1LabelParsing(): Promise<void> { /* Implementation */ }
+async function collectHistoricalReconciliationData(): Promise<any> { /* Implementation */ }
+async function trainSKUMatchingModel(data: any): Promise<void> { /* Implementation */ }
+async function trainQuantityVarianceModel(data: any): Promise<void> { /* Implementation */ }
+async function trainUOMConversionModel(data: any): Promise<void> { /* Implementation */ }
+async function trainLotSerialMatchingModel(data: any): Promise<void> { /* Implementation */ }
+async function validateModelAccuracy(): Promise<void> { /* Implementation */ }
+async function buildExceptionTaxonomy(): Promise<void> { /* Implementation */ }
+async function trainConfidenceScoring(): Promise<void> { /* Implementation */ }
+async function implementRootCauseAnalysis(): Promise<void> { /* Implementation */ }
+async function createEscalationRules(): Promise<void> { /* Implementation */ }
+async function getMonthlyReceiptCount(facilityId: string): Promise<number> { /* Implementation */ }
+async function identifyChargeableDiscrepancies(customer: Customer): Promise<any[]> { /* Implementation */ }
+async function calculateRecoveryValue(discrepancies: any[]): Promise<number> { /* Implementation */ }
+async function generateChargebackDocumentation(discrepancies: any[]): Promise<void> { /* Implementation */ }
+async function submitVendorChargebacks(discrepancies: any[]): Promise<void> { /* Implementation */ }
+async function parseEDI856(data: any): Promise<any> { /* Implementation */ }
+async function extractPackingListData(data: any): Promise<any> { /* Implementation */ }
+async function standardizeWMSReceipt(data: any): Promise<any> { /* Implementation */ }
+async function matchSKUs(asnItems: any[], wmsItems: any[]): Promise<any[]> { /* Implementation */ }
+async function compareQuantities(matches: any[]): Promise<any[]> { /* Implementation */ }
+async function validateUnitOfMeasure(matches: any[]): Promise<any[]> { /* Implementation */ }
+async function validateLotSerial(matches: any[]): Promise<any[]> { /* Implementation */ }
+async function generateId(): string { /* Implementation */ }
+async function calculateSeverity(variance: any): 'low' | 'medium' | 'high' | 'critical' { /* Implementation */ }
+async function generateSuggestedAction(variance: any): Promise<string> { /* Implementation */ }
+async function generateVendorCommunications(exceptions: Exception[]): Promise<void> { /* Implementation */ }
+async function createWMSTasks(exceptions: Exception[]): Promise<void> { /* Implementation */ }
+async function notifyReceivingTeam(exceptions: Exception[]): Promise<void> { /* Implementation */ }
+async function calculateRiskScore(exception: Exception): Promise<number> { /* Implementation */ }
+async function analyzeHistoricalPattern(exception: Exception): Promise<any> { /* Implementation */ }
+async function getVendorProfile(exception: Exception): Promise<any> { /* Implementation */ }
+async function getCurrentPerformanceMetrics(facilityId: string): Promise<any> { /* Implementation */ }
+async function getBenchmarkData(): Promise<any> { /* Implementation */ }
+async function identifyImprovementAreas(current: any, benchmark: any): Promise<any[]> { /* Implementation */ }
+```
 
 Generated for NAICS 493190 — Other Warehousing and Storage.
 Service: ASN-to-Receiving Reconciliation Agent
