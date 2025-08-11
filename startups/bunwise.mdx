@@ -305,3 +305,324 @@ landingPage:
 
 Generated for NAICS 326150 — Urethane and Other Foam Product (except Polystyrene) Manufacturing.
 Service: Cutting Nesting Optimizer & Scheduler
+
+## Business Workflow Functions
+
+```typescript
+// Types for business entities
+interface Lead {
+  id: string;
+  company: string;
+  contactInfo: ContactInfo;
+  plantSize: 'small' | 'medium' | 'large';
+  currentChallenges: string[];
+  estimatedVolume: number;
+  timeline: string;
+}
+
+interface Customer {
+  id: string;
+  company: string;
+  subscription: SubscriptionTier;
+  plantLocations: PlantLocation[];
+  onboardingStatus: OnboardingStatus;
+  kpis: CustomerKPIs;
+}
+
+interface OptimizationJob {
+  id: string;
+  customerId: string;
+  orders: Order[];
+  bunInventory: BunInventory[];
+  constraints: MachineConstraints;
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+}
+
+interface NestingResult {
+  jobId: string;
+  layouts: CutLayout[];
+  materialUtilization: number;
+  estimatedYieldGain: number;
+  machinePrograms: MachineProgram[];
+  pickLists: PickList[];
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  try {
+    const qualifiedLead = await qualifyLead(lead);
+    const demo = await scheduleDemoSession(qualifiedLead);
+    const pilot = await proposePilotProgram(demo);
+    const contract = await negotiateContract(pilot);
+    return await onboardCustomer(contract);
+  } catch (error) {
+    await logAcquisitionFailure(lead.id, error);
+    throw new Error(`Customer acquisition failed: ${error.message}`);
+  }
+}
+
+async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  const qualificationCriteria = await getQualificationCriteria();
+  const plantAssessment = await assessPlantFit(lead);
+  const roiPotential = await calculateROIPotential(lead);
+  
+  if (roiPotential.paybackMonths <= 6 && plantAssessment.score >= 7) {
+    return await createQualifiedLead(lead, plantAssessment, roiPotential);
+  }
+  
+  throw new Error('Lead does not meet qualification criteria');
+}
+
+async function scheduleDemoSession(qualifiedLead: QualifiedLead): Promise<DemoSession> {
+  const demoData = await prepareDemoData(qualifiedLead);
+  const session = await createDemoSession(qualifiedLead, demoData);
+  await sendDemoInvitation(session);
+  return session;
+}
+
+async function proposePilotProgram(demo: DemoSession): Promise<PilotProposal> {
+  const pilotScope = await definePilotScope(demo.feedback);
+  const timeline = await createPilotTimeline(pilotScope);
+  const pricing = await calculatePilotPricing(pilotScope);
+  
+  return await generatePilotProposal(pilotScope, timeline, pricing);
+}
+
+// Product Development Processes
+export async function developOptimizationEngine(): Promise<EngineVersion> {
+  try {
+    const requirements = await gatherRequirements();
+    const algorithms = await developNestingAlgorithms(requirements);
+    const scheduler = await buildFiniteCapacityScheduler(requirements);
+    const postProcessors = await certifyPostProcessors(requirements.machineTypes);
+    
+    const engine = await integrateComponents(algorithms, scheduler, postProcessors);
+    const testResults = await runValidationTests(engine);
+    
+    if (testResults.passRate >= 0.95) {
+      return await releaseEngineVersion(engine, testResults);
+    }
+    
+    throw new Error('Engine validation failed');
+  } catch (error) {
+    await logDevelopmentFailure(error);
+    throw error;
+  }
+}
+
+async function trainAIModels(trainingData: TrainingDataset): Promise<AIModels> {
+  const nestingModel = await trainNestingModel(trainingData.nestingExamples);
+  const schedulingModel = await trainSchedulingModel(trainingData.schedulingExamples);
+  const yieldPredictionModel = await trainYieldModel(trainingData.yieldData);
+  
+  return {
+    nesting: nestingModel,
+    scheduling: schedulingModel,
+    yieldPrediction: yieldPredictionModel
+  };
+}
+
+async function certifyPostProcessors(machineTypes: MachineType[]): Promise<PostProcessor[]> {
+  const processors: PostProcessor[] = [];
+  
+  for (const machineType of machineTypes) {
+    const processor = await developPostProcessor(machineType);
+    const certification = await runCertificationTests(processor, machineType);
+    
+    if (certification.passed) {
+      processors.push(processor);
+    }
+  }
+  
+  return processors;
+}
+
+// Revenue Generation Flows
+export async function processSubscriptionRevenue(customer: Customer): Promise<RevenueResult> {
+  try {
+    const usage = await calculateMonthlyUsage(customer);
+    const billing = await generateBilling(customer, usage);
+    const payment = await processPayment(billing);
+    
+    await updateCustomerAccount(customer.id, payment);
+    await trackRevenueMetrics(payment);
+    
+    return {
+      customerId: customer.id,
+      amount: payment.amount,
+      status: 'processed',
+      nextBillingDate: billing.nextDate
+    };
+  } catch (error) {
+    await handlePaymentFailure(customer.id, error);
+    throw error;
+  }
+}
+
+async function upsellCustomer(customer: Customer): Promise<UpsellResult> {
+  const usageAnalysis = await analyzeCustomerUsage(customer);
+  const recommendations = await generateUpsellRecommendations(usageAnalysis);
+  
+  if (recommendations.length > 0) {
+    const proposal = await createUpsellProposal(customer, recommendations);
+    await scheduleUpsellMeeting(customer, proposal);
+    return { status: 'proposed', recommendations };
+  }
+  
+  return { status: 'no_opportunities', recommendations: [] };
+}
+
+async function trackPerformanceBasedRevenue(customer: Customer): Promise<PerformanceRevenue> {
+  const baseline = await getCustomerBaseline(customer.id);
+  const currentMetrics = await getCurrentPerformanceMetrics(customer.id);
+  const savings = await calculateVerifiedSavings(baseline, currentMetrics);
+  
+  if (savings.materialSavingsPercent > baseline.threshold) {
+    const revenueShare = savings.dollarSavings * 0.15; // 15% revenue share
+    return await processPerformancePayment(customer.id, revenueShare);
+  }
+  
+  return { amount: 0, reason: 'threshold_not_met' };
+}
+
+// Operational Procedures
+export async function executeOptimizationWorkflow(job: OptimizationJob): Promise<NestingResult> {
+  try {
+    await validateJobInputs(job);
+    const preprocessedData = await preprocessOrderData(job.orders);
+    const nestingResult = await runNestingOptimization(preprocessedData, job.bunInventory, job.constraints);
+    const schedule = await generateProductionSchedule(nestingResult, job.constraints);
+    const programs = await generateMachinePrograms(nestingResult, job.constraints.machineTypes);
+    const pickLists = await generatePickLists(nestingResult);
+    
+    const result: NestingResult = {
+      jobId: job.id,
+      layouts: nestingResult.layouts,
+      materialUtilization: nestingResult.utilization,
+      estimatedYieldGain: nestingResult.yieldGain,
+      machinePrograms: programs,
+      pickLists: pickLists
+    };
+    
+    await saveOptimizationResult(result);
+    await notifyCustomer(job.customerId, result);
+    
+    return result;
+  } catch (error) {
+    await logOptimizationFailure(job.id, error);
+    throw error;
+  }
+}
+
+async function collectMachineData(customerId: string): Promise<MachineData> {
+  const machines = await getCustomerMachines(customerId);
+  const data: MachineData = {
+    runtimes: [],
+    scrapRates: [],
+    qualityMetrics: [],
+    downtimeEvents: []
+  };
+  
+  for (const machine of machines) {
+    const runtime = await collectRuntimeData(machine.id);
+    const scrap = await collectScrapData(machine.id);
+    const quality = await collectQualityData(machine.id);
+    const downtime = await collectDowntimeData(machine.id);
+    
+    data.runtimes.push(runtime);
+    data.scrapRates.push(scrap);
+    data.qualityMetrics.push(quality);
+    data.downtimeEvents.push(downtime);
+  }
+  
+  return data;
+}
+
+async function manageRemnantInventory(customerId: string): Promise<RemnantManagementResult> {
+  const remnants = await scanRemnantInventory(customerId);
+  const cataloged = await catalogRemnants(remnants);
+  const recommendations = await generateRemnantRecommendations(cataloged);
+  
+  await updateRemnantDatabase(customerId, cataloged);
+  await notifyPlanners(customerId, recommendations);
+  
+  return {
+    totalRemnants: cataloged.length,
+    reusableRemnants: recommendations.length,
+    potentialSavings: recommendations.reduce((sum, r) => sum + r.estimatedValue, 0)
+  };
+}
+
+// Decision-Making Workflows
+export async function optimizePricingStrategy(marketData: MarketData): Promise<PricingStrategy> {
+  try {
+    const competitorAnalysis = await analyzeCompetitorPricing(marketData);
+    const customerValueAnalysis = await analyzeCustomerValue();
+    const costAnalysis = await analyzeCostStructure();
+    
+    const pricingModel = await generatePricingModel(
+      competitorAnalysis,
+      customerValueAnalysis,
+      costAnalysis
+    );
+    
+    const scenarios = await runPricingScenarios(pricingModel);
+    const optimalStrategy = await selectOptimalStrategy(scenarios);
+    
+    await validatePricingStrategy(optimalStrategy);
+    return optimalStrategy;
+  } catch (error) {
+    await logPricingDecisionFailure(error);
+    throw error;
+  }
+}
+
+async function planCapacityExpansion(demandForecast: DemandForecast): Promise<CapacityPlan> {
+  const currentCapacity = await assessCurrentCapacity();
+  const capacityGap = await calculateCapacityGap(currentCapacity, demandForecast);
+  
+  if (capacityGap.shortfall > 0) {
+    const expansionOptions = await generateExpansionOptions(capacityGap);
+    const costBenefitAnalysis = await analyzeCostBenefit(expansionOptions);
+    const recommendedPlan = await selectOptimalExpansion(costBenefitAnalysis);
+    
+    return recommendedPlan;
+  }
+  
+  return { action: 'no_expansion_needed', timeline: null };
+}
+
+async function prioritizeFeatureDevelopment(customerFeedback: CustomerFeedback[]): Promise<FeaturePriority[]> {
+  const featureRequests = await extractFeatureRequests(customerFeedback);
+  const impactAnalysis = await analyzeFeatureImpact(featureRequests);
+  const effortEstimates = await estimateDevelopmentEffort(featureRequests);
+  
+  const priorityMatrix = await calculatePriorityMatrix(impactAnalysis, effortEstimates);
+  const roadmap = await generateDevelopmentRoadmap(priorityMatrix);
+  
+  return roadmap.features;
+}
+
+async function makeInvestmentDecision(opportunity: InvestmentOpportunity): Promise<InvestmentDecision> {
+  const riskAssessment = await assessInvestmentRisk(opportunity);
+  const roiProjection = await projectROI(opportunity);
+  const strategicAlignment = await assessStrategicAlignment(opportunity);
+  
+  const score = await calculateInvestmentScore(riskAssessment, roiProjection, strategicAlignment);
+  
+  if (score >= 7.5 && roiProjection.paybackMonths <= 18) {
+    return {
+      decision: 'approve',
+      amount: opportunity.requestedAmount,
+      conditions: await generateApprovalConditions(opportunity),
+      timeline: opportunity.timeline
+    };
+  }
+  
+  return {
+    decision: 'reject',
+    reason: 'Insufficient ROI or high risk',
+    alternativeRecommendations: await generateAlternatives(opportunity)
+  };
+}
+```
