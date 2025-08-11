@@ -336,7 +336,458 @@ landingPage:
     - Enable staff co-pilot; refine based on feedback.
     - Expand to new categories and seasonal programs.
 ---
-# FitFindr AI for Music Retail
 
-Industry: Musical Instrument and Supplies Retailers
-Service: Guided Selling & Fit Finder Chatbot
+# FitFindr - Musical Instrument Fit & Recommendation Platform
+
+## Core Business Process Functions
+
+### Customer Acquisition Workflows
+
+```typescript
+interface Lead {
+  id: string;
+  retailerId: string;
+  contactInfo: ContactInfo;
+  businessProfile: BusinessProfile;
+  source: 'namm' | 'shopify-app' | 'referral' | 'content' | 'outbound';
+  monthlyTraffic: number;
+  catalogSize: number;
+  currentPlatform: string;
+}
+
+interface Customer {
+  id: string;
+  retailerId: string;
+  subscriptionTier: 'starter' | 'growth' | 'pro' | 'enterprise';
+  onboardingStatus: OnboardingStatus;
+  integrations: Integration[];
+  contractTerms: ContractTerms;
+}
+
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  try {
+    const qualifiedLead = await qualifyLead(lead);
+    const demo = await scheduleDemoSession(qualifiedLead);
+    const pilot = await proposePilotProgram(demo);
+    const contract = await negotiateContract(pilot);
+    const customer = await onboardCustomer(contract);
+    
+    await trackAcquisitionMetrics(lead, customer);
+    return customer;
+  } catch (error) {
+    await logAcquisitionError(lead, error);
+    throw error;
+  }
+}
+
+export async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  const fitScore = await calculateFitScore(lead);
+  
+  if (fitScore < 0.6) {
+    throw new Error('Lead does not meet qualification criteria');
+  }
+  
+  const businessNeeds = await assessBusinessNeeds(lead);
+  const technicalRequirements = await evaluateTechnicalRequirements(lead);
+  
+  return {
+    ...lead,
+    fitScore,
+    businessNeeds,
+    technicalRequirements,
+    qualificationDate: new Date()
+  };
+}
+
+export async function scheduleDemoSession(lead: QualifiedLead): Promise<DemoSession> {
+  const demoFlow = await selectDemoFlow(lead.businessProfile);
+  const customizedDemo = await prepareDemoEnvironment(lead, demoFlow);
+  
+  return await bookDemoSlot(lead, customizedDemo);
+}
+```
+
+### Product Development Processes
+
+```typescript
+interface InstrumentCategory {
+  id: string;
+  name: string;
+  fitParameters: FitParameter[];
+  ontologyRules: OntologyRule[];
+  accessoryMappings: AccessoryMapping[];
+}
+
+interface FitRecommendation {
+  primaryProduct: Product;
+  accessories: Product[];
+  confidence: number;
+  reasoning: string[];
+  alternatives: Product[];
+}
+
+export async function developFitFinderFlow(category: InstrumentCategory): Promise<FitFinderFlow> {
+  try {
+    const expertKnowledge = await gatherExpertKnowledge(category);
+    const ontologyRules = await buildOntologyRules(expertKnowledge);
+    const conversationalFlow = await designConversationalFlow(category, ontologyRules);
+    const testResults = await validateFlowAccuracy(conversationalFlow);
+    
+    if (testResults.accuracy < 0.85) {
+      return await refineFitFinderFlow(conversationalFlow, testResults);
+    }
+    
+    return await deployFitFinderFlow(conversationalFlow);
+  } catch (error) {
+    await logDevelopmentError(category, error);
+    throw error;
+  }
+}
+
+export async function generateRecommendations(
+  customerInput: CustomerInput,
+  inventory: InventorySnapshot
+): Promise<FitRecommendation> {
+  const fitProfile = await analyzeFitRequirements(customerInput);
+  const availableProducts = await filterByInventory(fitProfile.matches, inventory);
+  
+  if (availableProducts.length === 0) {
+    return await generateSubstitutionRecommendations(fitProfile, inventory);
+  }
+  
+  const primaryProduct = await selectBestMatch(availableProducts, fitProfile);
+  const accessories = await recommendAccessories(primaryProduct, inventory);
+  
+  return {
+    primaryProduct,
+    accessories,
+    confidence: fitProfile.confidence,
+    reasoning: fitProfile.reasoning,
+    alternatives: availableProducts.slice(1, 4)
+  };
+}
+
+export async function updateOntologyRules(
+  category: string,
+  performanceData: PerformanceData[]
+): Promise<void> {
+  const insights = await analyzePerformancePatterns(performanceData);
+  const ruleUpdates = await generateRuleUpdates(insights);
+  
+  await validateRuleUpdates(ruleUpdates);
+  await deployRuleUpdates(category, ruleUpdates);
+  await notifyStakeholders(category, ruleUpdates);
+}
+```
+
+### Revenue Generation Flows
+
+```typescript
+interface SubscriptionTier {
+  name: string;
+  monthlyPrice: number;
+  sessionLimit: number;
+  features: string[];
+  overage: number;
+}
+
+interface RevenueEvent {
+  customerId: string;
+  type: 'subscription' | 'overage' | 'onboarding' | 'addon';
+  amount: number;
+  timestamp: Date;
+  metadata: Record<string, any>;
+}
+
+export async function calculateRevenue(
+  customer: Customer,
+  usageData: UsageData,
+  billingPeriod: BillingPeriod
+): Promise<RevenueCalculation> {
+  try {
+    const baseSubscription = await calculateSubscriptionRevenue(customer, billingPeriod);
+    const overageCharges = await calculateOverageCharges(customer, usageData);
+    const addonRevenue = await calculateAddonRevenue(customer, billingPeriod);
+    const performanceBonus = await calculatePerformanceBonus(customer, usageData);
+    
+    const totalRevenue = baseSubscription + overageCharges + addonRevenue + performanceBonus;
+    
+    await recordRevenueEvent({
+      customerId: customer.id,
+      type: 'subscription',
+      amount: totalRevenue,
+      timestamp: new Date(),
+      metadata: { billingPeriod, breakdown: { baseSubscription, overageCharges, addonRevenue, performanceBonus } }
+    });
+    
+    return {
+      totalRevenue,
+      breakdown: { baseSubscription, overageCharges, addonRevenue, performanceBonus },
+      billingPeriod
+    };
+  } catch (error) {
+    await logRevenueError(customer.id, error);
+    throw error;
+  }
+}
+
+export async function processSubscriptionUpgrade(
+  customer: Customer,
+  newTier: SubscriptionTier
+): Promise<UpgradeResult> {
+  const currentUsage = await getCurrentUsage(customer);
+  const projectedSavings = await calculateProjectedSavings(currentUsage, newTier);
+  
+  if (projectedSavings <= 0) {
+    throw new Error('Upgrade would not provide cost savings');
+  }
+  
+  const prorationAmount = await calculateProration(customer, newTier);
+  const upgradeResult = await executeUpgrade(customer, newTier, prorationAmount);
+  
+  await notifyCustomerOfUpgrade(customer, upgradeResult);
+  return upgradeResult;
+}
+
+export async function trackConversionMetrics(
+  sessionData: SessionData[]
+): Promise<ConversionMetrics> {
+  const conversionRate = await calculateConversionRate(sessionData);
+  const averageOrderValue = await calculateAOV(sessionData);
+  const attachRate = await calculateAttachRate(sessionData);
+  
+  return {
+    conversionRate,
+    averageOrderValue,
+    attachRate,
+    sessionCount: sessionData.length,
+    period: sessionData[0]?.timestamp
+  };
+}
+```
+
+### Operational Procedures
+
+```typescript
+interface InventoryUpdate {
+  retailerId: string;
+  products: ProductInventory[];
+  timestamp: Date;
+  source: 'pos' | 'erp' | 'manual' | 'api';
+}
+
+interface SystemHealth {
+  apiLatency: number;
+  recommendationAccuracy: number;
+  inventoryFreshness: number;
+  errorRate: number;
+  uptime: number;
+}
+
+export async function processInventoryUpdate(update: InventoryUpdate): Promise<void> {
+  try {
+    await validateInventoryData(update);
+    await updateInventoryCache(update);
+    await refreshRecommendationEngine(update.retailerId);
+    await notifyAffectedSessions(update);
+    
+    await recordInventoryMetrics(update);
+  } catch (error) {
+    await handleInventoryError(update, error);
+    throw error;
+  }
+}
+
+export async function monitorSystemHealth(): Promise<SystemHealth> {
+  const [apiLatency, accuracy, freshness, errorRate, uptime] = await Promise.all([
+    measureApiLatency(),
+    calculateRecommendationAccuracy(),
+    checkInventoryFreshness(),
+    calculateErrorRate(),
+    measureUptime()
+  ]);
+  
+  const health = { apiLatency, recommendationAccuracy: accuracy, inventoryFreshness: freshness, errorRate, uptime };
+  
+  if (health.errorRate > 0.05 || health.apiLatency > 3000) {
+    await triggerAlert(health);
+  }
+  
+  return health;
+}
+
+export async function executeDataBackup(): Promise<BackupResult> {
+  const backupId = generateBackupId();
+  
+  try {
+    const customerData = await backupCustomerData();
+    const ontologyData = await backupOntologyRules();
+    const analyticsData = await backupAnalyticsData();
+    
+    const backupResult = await storeBackup(backupId, {
+      customerData,
+      ontologyData,
+      analyticsData,
+      timestamp: new Date()
+    });
+    
+    await verifyBackupIntegrity(backupResult);
+    return backupResult;
+  } catch (error) {
+    await logBackupError(backupId, error);
+    throw error;
+  }
+}
+```
+
+### Decision-Making Workflows
+
+```typescript
+interface ABTestConfig {
+  name: string;
+  variants: TestVariant[];
+  trafficSplit: number[];
+  successMetrics: string[];
+  duration: number;
+}
+
+interface BusinessDecision {
+  id: string;
+  type: 'pricing' | 'feature' | 'integration' | 'expansion';
+  context: DecisionContext;
+  options: DecisionOption[];
+  recommendation: string;
+  confidence: number;
+}
+
+export async function makeDataDrivenDecision(
+  decisionType: string,
+  context: DecisionContext
+): Promise<BusinessDecision> {
+  try {
+    const historicalData = await gatherHistoricalData(decisionType);
+    const marketData = await collectMarketIntelligence(context);
+    const customerFeedback = await analyzeCustomerFeedback(context);
+    
+    const options = await generateDecisionOptions(historicalData, marketData, customerFeedback);
+    const analysis = await performDecisionAnalysis(options);
+    
+    const recommendation = await selectRecommendation(analysis);
+    
+    return {
+      id: generateDecisionId(),
+      type: decisionType,
+      context,
+      options,
+      recommendation: recommendation.option,
+      confidence: recommendation.confidence
+    };
+  } catch (error) {
+    await logDecisionError(decisionType, error);
+    throw error;
+  }
+}
+
+export async function runABTest(config: ABTestConfig): Promise<ABTestResult> {
+  const testId = await initializeABTest(config);
+  
+  try {
+    await allocateTraffic(testId, config.trafficSplit);
+    const results = await collectTestResults(testId, config.duration);
+    const analysis = await analyzeTestResults(results, config.successMetrics);
+    
+    const winner = await determineWinner(analysis);
+    await implementWinningVariant(testId, winner);
+    
+    return {
+      testId,
+      winner,
+      results: analysis,
+      implementationDate: new Date()
+    };
+  } catch (error) {
+    await stopABTest(testId);
+    throw error;
+  }
+}
+
+export async function optimizePricingStrategy(
+  customerSegment: CustomerSegment,
+  competitorData: CompetitorData[]
+): Promise<PricingRecommendation> {
+  const elasticityAnalysis = await analyzePriceElasticity(customerSegment);
+  const competitivePosition = await analyzeCompetitivePosition(competitorData);
+  const valuePerception = await measureValuePerception(customerSegment);
+  
+  const optimalPricing = await calculateOptimalPricing({
+    elasticity: elasticityAnalysis,
+    competition: competitivePosition,
+    value: valuePerception
+  });
+  
+  return {
+    recommendedPricing: optimalPricing,
+    expectedImpact: await projectRevenueImpact(optimalPricing),
+    implementationPlan: await createPricingImplementationPlan(optimalPricing)
+  };
+}
+```
+
+## Customer Personas
+
+### Primary Segment: Mid-Market Musical Instrument Retailers
+
+**Sarah Martinez - E-commerce Manager**
+- Company: 150-employee musical instrument chain with 25 stores and Shopify Plus
+- Pain Points: 35% cart abandonment on instrument purchases, customers calling stores for sizing help
+- Goals: Increase online conversion rates, reduce return rates, scale expert guidance
+- Buying Criteria: ROI measurement, integration ease, inventory accuracy
+- Quote: "Our customers need expert guidance online, but we can't staff chat 24/7"
+
+**David Chen - Operations Director**
+- Company: Regional music store chain with 50,000 SKUs across instruments and accessories
+- Pain Points: Inconsistent product recommendations, high return rates on fit-sensitive items
+- Goals: Standardize expertise across channels, improve accessory attach rates
+- Buying Criteria: Inventory integration, staff training requirements, measurable outcomes
+- Quote: "We need our online store to be as knowledgeable as our best sales associate"
+
+### Secondary Segment: Specialty Instrument Retailers
+
+**Maria Rodriguez - Owner/Buyer**
+- Company: High-end violin shop specializing in orchestral instruments
+- Pain Points: Complex sizing requirements, international customers needing remote guidance
+- Goals: Serve customers globally, maintain expertise reputation, increase online sales
+- Buying Criteria: Accuracy for specialized instruments, multilingual support, brand alignment
+- Quote: "Violin sizing is an art - the system needs to understand the nuances"
+
+**James Thompson - Guitar Department Manager**
+- Company: Large music store with extensive guitar and bass selection
+- Pain Points: String gauge confusion, pickup compatibility questions, setup requirements
+- Goals: Reduce pre-sales questions, improve customer satisfaction, increase bundle sales
+- Buying Criteria: Guitar-specific knowledge, integration with existing POS, staff adoption
+- Quote: "Every guitarist has different needs - the recommendations need to be spot-on"
+
+## Market Research Insights
+
+### Musical Instrument E-commerce Market
+- **Market Size**: $1.8B online musical instrument sales growing 12% annually
+- **Pain Point Validation**: 42% of instrument purchases involve sizing or compatibility concerns
+- **Return Rates**: 15-25% return rates for fit-sensitive categories vs 8% average e-commerce
+
+### Customer Behavior Patterns
+- **Research Phase**: 73% of customers research specifications before purchasing instruments
+- **Expert Guidance**: 68% prefer expert recommendations over generic product filters
+- **Mobile Usage**: 45% of instrument research happens on mobile devices
+
+### Competitive Landscape
+- **Generic Solutions**: Current chatbots achieve 23% recommendation acceptance rates
+- **Specialized Gap**: No existing solutions focus specifically on musical instrument fit and compatibility
+- **Integration Challenges**: 67% of music retailers report difficulty integrating recommendation tools
+
+### Technology Adoption
+- **E-commerce Platforms**: 78% of target customers use Shopify, BigCommerce, or Magento
+- **POS Integration**: 84% require real-time inventory synchronization
+- **Mobile Optimization**: 71% need mobile-responsive recommendation interfaces
+
+Generated for Musical Instrument and Accessories Retailers.
+Service: Expert-grade fit and bundle recommendations for musical gear.
