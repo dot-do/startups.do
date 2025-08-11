@@ -310,3 +310,401 @@ landingPage:
 
 Generated for NAICS 332431 — Metal Can Manufacturing.
 Service: Real-time OEE and Loss Tree for Can Lines
+
+## Business Workflow Functions
+
+```typescript
+// Core business types
+interface Lead {
+  company: string;
+  contactName: string;
+  title: string;
+  email: string;
+  phone: string;
+  plantLocations: string[];
+  canLineCount: number;
+  currentOEE: number;
+  painPoints: string[];
+  source: 'direct' | 'partner' | 'event' | 'referral';
+}
+
+interface QualifiedLead extends Lead {
+  budget: number;
+  timeline: string;
+  decisionMakers: string[];
+  technicalRequirements: TechnicalRequirements;
+}
+
+interface TechnicalRequirements {
+  plcTypes: string[];
+  historianSystems: string[];
+  networkAccess: 'vpn' | 'dmz' | 'direct';
+  securityRequirements: string[];
+  integrationNeeds: string[];
+}
+
+interface Customer {
+  id: string;
+  company: string;
+  tier: 'standard' | 'pro' | 'enterprise';
+  contractValue: number;
+  linesDeployed: number;
+  plantCount: number;
+  onboardingStatus: 'pending' | 'in-progress' | 'complete';
+}
+
+interface PlantOnboarding {
+  customerId: string;
+  plantId: string;
+  lineConfigurations: LineConfiguration[];
+  dataConnections: DataConnection[];
+  deploymentTimeline: string;
+  status: 'planning' | 'installation' | 'testing' | 'live';
+}
+
+interface LineConfiguration {
+  lineId: string;
+  lineType: 'body-maker' | 'decorator' | 'necker' | 'seamer' | 'ends-press';
+  canSizes: string[];
+  standardRates: Record<string, number>;
+  plcTags: PLCTagMapping[];
+}
+
+interface PLCTagMapping {
+  tagName: string;
+  dataType: string;
+  purpose: 'run-status' | 'speed' | 'count' | 'reject' | 'downtime-reason';
+  scalingFactor?: number;
+}
+
+interface DataConnection {
+  type: 'opc-ua' | 'mqtt' | 'historian' | 'database';
+  endpoint: string;
+  credentials: string;
+  status: 'connected' | 'disconnected' | 'error';
+}
+
+interface OEEMetrics {
+  lineId: string;
+  timestamp: Date;
+  availability: number;
+  performance: number;
+  quality: number;
+  oee: number;
+  shift: string;
+  sku: string;
+}
+
+interface LossEvent {
+  id: string;
+  lineId: string;
+  timestamp: Date;
+  duration: number;
+  category: 'downtime' | 'speed-loss' | 'quality-loss' | 'microstop';
+  reasonCode: string;
+  description: string;
+  impact: number;
+  rootCauseHints: string[];
+}
+
+interface Alert {
+  id: string;
+  lineId: string;
+  type: 'oee-drop' | 'sustained-loss' | 'quality-issue' | 'anomaly';
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  message: string;
+  actionItems: string[];
+  recipients: string[];
+  status: 'open' | 'acknowledged' | 'resolved';
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const proposal = await generateProposal(qualifiedLead);
+  const contract = await negotiateContract(proposal);
+  return await onboardCustomer(contract);
+}
+
+export async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  // Validate lead meets minimum criteria
+  if (lead.canLineCount < 2) {
+    throw new Error('Minimum 2 can lines required for pilot');
+  }
+  
+  // Assess technical fit
+  const technicalRequirements = await assessTechnicalRequirements(lead);
+  
+  // Validate budget and timeline
+  const budget = await estimateBudget(lead.canLineCount, technicalRequirements);
+  
+  return {
+    ...lead,
+    budget,
+    timeline: '90-day pilot + 6-month rollout',
+    decisionMakers: await identifyDecisionMakers(lead),
+    technicalRequirements
+  };
+}
+
+export async function generateProposal(qualifiedLead: QualifiedLead): Promise<string> {
+  const roiCalculation = await calculateROI(qualifiedLead);
+  const technicalArchitecture = await designTechnicalArchitecture(qualifiedLead);
+  const implementationPlan = await createImplementationPlan(qualifiedLead);
+  
+  return await buildProposalDocument({
+    customer: qualifiedLead,
+    roi: roiCalculation,
+    architecture: technicalArchitecture,
+    implementation: implementationPlan,
+    pricing: await calculatePricing(qualifiedLead)
+  });
+}
+
+export async function negotiateContract(proposal: string): Promise<Customer> {
+  // Contract negotiation workflow
+  const terms = await reviewContractTerms(proposal);
+  const signedContract = await executeContract(terms);
+  
+  return await createCustomerRecord(signedContract);
+}
+
+// Product Development Processes
+export async function developOEEEngine(): Promise<void> {
+  await buildDataIngestionPipeline();
+  await implementOEECalculationEngine();
+  await createLossClassificationSystem();
+  await buildAlertingSystem();
+  await developUserInterface();
+  await conductSystemTesting();
+}
+
+export async function buildDataIngestionPipeline(): Promise<void> {
+  await implementOPCUAConnector();
+  await implementMQTTConnector();
+  await implementHistorianConnector();
+  await buildDataNormalizationLayer();
+  await implementDataValidation();
+}
+
+export async function implementOEECalculationEngine(): Promise<void> {
+  await buildAvailabilityCalculator();
+  await buildPerformanceCalculator();
+  await buildQualityCalculator();
+  await implementSKUNormalization();
+  await buildShiftAggregation();
+}
+
+export async function createLossClassificationSystem(): Promise<void> {
+  await buildCanSpecificTaxonomy();
+  await trainMLClassificationModels();
+  await implementMicrostopDetection();
+  await buildRootCauseAnalysis();
+  await createLossTreeVisualization();
+}
+
+// Revenue Generation Flows
+export async function generateRevenue(customer: Customer): Promise<number> {
+  const subscriptionRevenue = await processSubscriptionBilling(customer);
+  const servicesRevenue = await deliverProfessionalServices(customer);
+  const addOnRevenue = await sellPremiumAddOns(customer);
+  
+  return subscriptionRevenue + servicesRevenue + addOnRevenue;
+}
+
+export async function processSubscriptionBilling(customer: Customer): Promise<number> {
+  const monthlyRate = getSubscriptionRate(customer.tier);
+  const totalLines = customer.linesDeployed;
+  
+  return await chargeMonthlySaaSFee(customer.id, monthlyRate * totalLines);
+}
+
+export async function deliverProfessionalServices(customer: Customer): Promise<number> {
+  let servicesRevenue = 0;
+  
+  if (customer.onboardingStatus === 'pending') {
+    servicesRevenue += await chargeOnboardingFee(customer);
+  }
+  
+  servicesRevenue += await deliverTrainingServices(customer);
+  servicesRevenue += await provideCIWorkshops(customer);
+  
+  return servicesRevenue;
+}
+
+export async function sellPremiumAddOns(customer: Customer): Promise<number> {
+  let addOnRevenue = 0;
+  
+  addOnRevenue += await offerPredictiveMaintenanceModule(customer);
+  addOnRevenue += await offerEnterpriseDataConnector(customer);
+  addOnRevenue += await offerMultiPlantBenchmarking(customer);
+  
+  return addOnRevenue;
+}
+
+// Operational Procedures
+export async function onboardPlant(plantOnboarding: PlantOnboarding): Promise<void> {
+  await conductSiteAssessment(plantOnboarding);
+  await installEdgeGateways(plantOnboarding);
+  await configureDataConnections(plantOnboarding);
+  await mapPLCTags(plantOnboarding);
+  await calibrateLineStandards(plantOnboarding);
+  await trainOperators(plantOnboarding);
+  await goLiveWithMonitoring(plantOnboarding);
+}
+
+export async function configureDataConnections(plantOnboarding: PlantOnboarding): Promise<void> {
+  for (const connection of plantOnboarding.dataConnections) {
+    await establishConnection(connection);
+    await validateDataFlow(connection);
+    await configureSecuritySettings(connection);
+  }
+}
+
+export async function mapPLCTags(plantOnboarding: PlantOnboarding): Promise<void> {
+  for (const lineConfig of plantOnboarding.lineConfigurations) {
+    await discoverAvailableTags(lineConfig.lineId);
+    await mapTagsToOEEMetrics(lineConfig.plcTags);
+    await validateTagMappings(lineConfig);
+  }
+}
+
+export async function monitorSystemHealth(): Promise<void> {
+  await checkDataConnectionStatus();
+  await validateOEECalculations();
+  await monitorAlertQuality();
+  await trackSystemPerformance();
+  await generateHealthReport();
+}
+
+// Decision-Making Workflows
+export async function generateIntelligentAlerts(metrics: OEEMetrics[]): Promise<Alert[]> {
+  const alerts: Alert[] = [];
+  
+  for (const metric of metrics) {
+    const anomalies = await detectAnomalies(metric);
+    const contextualAlerts = await generateContextualAlerts(metric, anomalies);
+    alerts.push(...contextualAlerts);
+  }
+  
+  return await filterAndPrioritizeAlerts(alerts);
+}
+
+export async function detectAnomalies(metrics: OEEMetrics): Promise<LossEvent[]> {
+  const historicalBaseline = await getHistoricalBaseline(metrics.lineId, metrics.sku);
+  const anomalies: LossEvent[] = [];
+  
+  if (metrics.oee < historicalBaseline.oee * 0.95) {
+    anomalies.push(await createOEEDropEvent(metrics, historicalBaseline));
+  }
+  
+  if (metrics.performance < historicalBaseline.performance * 0.9) {
+    anomalies.push(await createSpeedLossEvent(metrics, historicalBaseline));
+  }
+  
+  return anomalies;
+}
+
+export async function performRootCauseAnalysis(lossEvent: LossEvent): Promise<string[]> {
+  const historicalPatterns = await analyzeHistoricalPatterns(lossEvent);
+  const correlatedEvents = await findCorrelatedEvents(lossEvent);
+  const equipmentStatus = await checkEquipmentStatus(lossEvent.lineId);
+  
+  return await generateRootCauseHypotheses({
+    lossEvent,
+    historicalPatterns,
+    correlatedEvents,
+    equipmentStatus
+  });
+}
+
+export async function optimizeProductionSchedule(
+  currentSchedule: any[],
+  oeeMetrics: OEEMetrics[]
+): Promise<any[]> {
+  const lineCapabilities = await assessLineCapabilities(oeeMetrics);
+  const bottleneckAnalysis = await identifyBottlenecks(oeeMetrics);
+  
+  return await rebalanceSchedule({
+    currentSchedule,
+    lineCapabilities,
+    bottleneckAnalysis
+  });
+}
+
+export async function calculateBusinessImpact(lossEvents: LossEvent[]): Promise<{
+  lostProduction: number;
+  revenueImpact: number;
+  improvementOpportunity: number;
+}> {
+  let lostProduction = 0;
+  let revenueImpact = 0;
+  
+  for (const event of lossEvents) {
+    const productionLoss = await calculateProductionLoss(event);
+    const revenueLoss = await calculateRevenueLoss(productionLoss);
+    
+    lostProduction += productionLoss;
+    revenueImpact += revenueLoss;
+  }
+  
+  const improvementOpportunity = await calculateImprovementPotential(lossEvents);
+  
+  return {
+    lostProduction,
+    revenueImpact,
+    improvementOpportunity
+  };
+}
+
+// Continuous Improvement Workflows
+export async function executeContinuousImprovement(customer: Customer): Promise<void> {
+  const performanceBaseline = await establishPerformanceBaseline(customer);
+  const improvementTargets = await setImprovementTargets(performanceBaseline);
+  
+  while (true) {
+    const currentMetrics = await collectCurrentMetrics(customer);
+    const gaps = await identifyPerformanceGaps(currentMetrics, improvementTargets);
+    
+    if (gaps.length > 0) {
+      const actionPlan = await createActionPlan(gaps);
+      await executeImprovementActions(actionPlan);
+      await measureImprovementResults(actionPlan);
+    }
+    
+    await wait(24 * 60 * 60 * 1000); // Wait 24 hours
+  }
+}
+
+// Helper functions (pseudocode implementations)
+async function assessTechnicalRequirements(lead: Lead): Promise<TechnicalRequirements> {
+  // Implementation would assess PLC types, network access, etc.
+  throw new Error('Not implemented');
+}
+
+async function estimateBudget(lineCount: number, requirements: TechnicalRequirements): Promise<number> {
+  const basePrice = 2000; // $2000/line/month
+  const setupCost = 25000; // $25k setup per plant
+  return (lineCount * basePrice * 12) + setupCost;
+}
+
+async function identifyDecisionMakers(lead: Lead): Promise<string[]> {
+  return ['VP Operations', 'Plant Manager', 'IT Director'];
+}
+
+async function calculateROI(lead: QualifiedLead): Promise<any> {
+  // ROI calculation based on OEE improvement potential
+  throw new Error('Not implemented');
+}
+
+async function getSubscriptionRate(tier: string): Promise<number> {
+  const rates = { standard: 1500, pro: 2500, enterprise: 3500 };
+  return rates[tier] || rates.standard;
+}
+
+async function wait(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Additional helper functions would be implemented here...
+```
