@@ -346,7 +346,332 @@ landingPage:
     - Weekly insight reports and threshold tuning to your operation.
     - Scale to additional barns with one-click provisioning.
 ---
+
 # Flock Health Early Warning (Audio/Video + IoT)
 
 Generated for NAICS 112320 — Broilers and Other Meat Type Chicken Production.
 Service: Flock Health Early Warning (Audio/Video + IoT)
+
+## Business Workflow Functions
+
+```typescript
+// Core business types
+interface Lead {
+  id: string;
+  companyName: string;
+  contactName: string;
+  email: string;
+  phone: string;
+  farmSize: number; // number of houses
+  location: string;
+  currentMonitoringMethod: string;
+  painPoints: string[];
+  budget: number;
+  timeline: string;
+}
+
+interface Customer {
+  id: string;
+  lead: Lead;
+  contractSigned: boolean;
+  subscriptionTier: 'Essential' | 'Pro' | 'Enterprise';
+  housesDeployed: number;
+  monthlyRevenue: number;
+  onboardingComplete: boolean;
+  healthScore: number;
+}
+
+interface DeploymentSite {
+  id: string;
+  customerId: string;
+  houseNumber: string;
+  location: string;
+  hardwareInstalled: boolean;
+  calibrationComplete: boolean;
+  goLiveDate: Date;
+  monthlySubscription: number;
+}
+
+interface Alert {
+  id: string;
+  siteId: string;
+  timestamp: Date;
+  severity: 'Low' | 'Medium' | 'High' | 'Critical';
+  alertType: 'Respiratory' | 'Heat Stress' | 'Ventilation' | 'Behavioral' | 'Environmental';
+  confidence: number;
+  evidenceClip?: string;
+  actionTaken?: string;
+  resolved: boolean;
+}
+
+interface HealthMetrics {
+  siteId: string;
+  dailyHealthScore: number;
+  mortalityRate: number;
+  fcr: number; // Feed Conversion Ratio
+  condemnationRate: number;
+  alertsGenerated: number;
+  falsePositiveRate: number;
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const demo = await scheduleDemoAndSiteAssessment(qualifiedLead);
+  const pilot = await proposePilotProgram(demo);
+  const contract = await negotiateContract(pilot);
+  return await onboardCustomer(contract);
+}
+
+export async function qualifyLead(lead: Lead): Promise<Lead> {
+  // Validate farm size (minimum 2 houses for viable deployment)
+  if (lead.farmSize < 2) {
+    throw new Error('Farm size below minimum threshold');
+  }
+  
+  // Score lead based on pain points and budget
+  const painPointScore = calculatePainPointScore(lead.painPoints);
+  const budgetFit = assessBudgetFit(lead.budget, lead.farmSize);
+  
+  if (painPointScore < 3 || !budgetFit) {
+    throw new Error('Lead does not meet qualification criteria');
+  }
+  
+  return {
+    ...lead,
+    qualified: true,
+    score: painPointScore
+  };
+}
+
+export async function scheduleDemoAndSiteAssessment(lead: Lead): Promise<DemoSession> {
+  const availableSlots = await getAvailableDemoSlots();
+  const demoSession = await bookDemoSession(lead, availableSlots[0]);
+  
+  // Prepare customized demo based on lead's pain points
+  const customDemo = await prepareDemoContent(lead.painPoints);
+  
+  // Schedule on-site assessment if lead is qualified
+  const siteAssessment = await scheduleSiteAssessment(lead.location);
+  
+  return {
+    demo: demoSession,
+    customContent: customDemo,
+    siteAssessment: siteAssessment
+  };
+}
+
+export async function proposePilotProgram(demo: DemoSession): Promise<PilotProposal> {
+  const siteRequirements = await assessSiteRequirements(demo.siteAssessment);
+  const hardwareCosts = calculateHardwareCosts(siteRequirements);
+  const subscriptionTier = recommendSubscriptionTier(demo.lead);
+  
+  return await generatePilotProposal({
+    duration: '90 days',
+    houses: Math.min(demo.lead.farmSize, 4), // Start with max 4 houses
+    hardwareCosts,
+    subscriptionTier,
+    successMetrics: definePilotSuccessMetrics(),
+    expansionPath: planExpansionPath(demo.lead.farmSize)
+  });
+}
+
+// Product Development Processes
+export async function developAndDeployModel(modelType: string): Promise<ModelVersion> {
+  const trainingData = await collectAndLabelTrainingData(modelType);
+  const model = await trainModel(trainingData);
+  const validatedModel = await validateModelPerformance(model);
+  const optimizedModel = await optimizeForEdgeDeployment(validatedModel);
+  return await deployModelToProduction(optimizedModel);
+}
+
+export async function collectAndLabelTrainingData(modelType: string): Promise<TrainingDataset> {
+  // Collect audio/video data from pilot sites
+  const rawData = await collectDataFromPilotSites(modelType);
+  
+  // Engage veterinarians and growers for labeling
+  const labelingTasks = await createLabelingTasks(rawData);
+  const labeledData = await coordinateLabelingWithExperts(labelingTasks);
+  
+  // Validate data quality and consistency
+  const qualityCheckedData = await validateDataQuality(labeledData);
+  
+  return await createTrainingDataset(qualityCheckedData);
+}
+
+export async function validateModelPerformance(model: Model): Promise<Model> {
+  const testResults = await runModelValidation(model);
+  
+  // Ensure minimum performance thresholds
+  if (testResults.sensitivity < 0.85 || testResults.precision < 0.80) {
+    throw new Error('Model performance below required thresholds');
+  }
+  
+  // Test on diverse farm conditions
+  const fieldValidation = await runFieldValidation(model);
+  
+  return await certifyModelForDeployment(model, testResults, fieldValidation);
+}
+
+// Revenue Generation Flows
+export async function processSubscriptionRevenue(customer: Customer): Promise<RevenueRecord> {
+  const monthlyCharges = calculateMonthlyCharges(customer);
+  const invoice = await generateInvoice(customer, monthlyCharges);
+  const payment = await processPayment(invoice);
+  
+  // Track revenue metrics
+  const revenueMetrics = await updateRevenueMetrics(customer, payment);
+  
+  // Identify upsell opportunities
+  const upsellOpportunities = await identifyUpsellOpportunities(customer);
+  
+  return {
+    customer: customer.id,
+    amount: payment.amount,
+    date: new Date(),
+    metrics: revenueMetrics,
+    upsellOpportunities
+  };
+}
+
+export async function expandCustomerDeployment(customer: Customer): Promise<ExpansionResult> {
+  // Analyze pilot performance to justify expansion
+  const pilotResults = await analyzePilotPerformance(customer);
+  
+  if (pilotResults.roiMultiplier < 3.0) {
+    throw new Error('Pilot ROI insufficient for expansion recommendation');
+  }
+  
+  // Propose expansion to remaining houses
+  const expansionProposal = await createExpansionProposal(customer, pilotResults);
+  const approvedExpansion = await negotiateExpansion(expansionProposal);
+  
+  return await executeExpansionDeployment(approvedExpansion);
+}
+
+// Operational Procedures
+export async function deployHardwareToSite(site: DeploymentSite): Promise<DeploymentResult> {
+  const hardwareKit = await prepareHardwareKit(site);
+  const installer = await scheduleInstaller(site.location);
+  const installation = await executeInstallation(site, hardwareKit, installer);
+  const calibration = await performSystemCalibration(installation);
+  
+  return await activateMonitoring(site, calibration);
+}
+
+export async function processAlert(alert: Alert): Promise<AlertResponse> {
+  // Validate alert confidence and severity
+  const validatedAlert = await validateAlert(alert);
+  
+  if (validatedAlert.confidence < 0.7) {
+    return await suppressLowConfidenceAlert(validatedAlert);
+  }
+  
+  // Generate actionable guidance
+  const actionableGuidance = await generateActionableGuidance(validatedAlert);
+  
+  // Send alert to appropriate stakeholders
+  const notification = await sendAlertNotification(validatedAlert, actionableGuidance);
+  
+  // Track alert for learning
+  const alertTracking = await trackAlertForLearning(validatedAlert);
+  
+  return {
+    alert: validatedAlert,
+    guidance: actionableGuidance,
+    notification,
+    tracking: alertTracking
+  };
+}
+
+export async function performDailyHealthAssessment(siteId: string): Promise<HealthMetrics> {
+  const environmentalData = await collectEnvironmentalData(siteId);
+  const audioAnalysis = await analyzeAudioSignatures(siteId);
+  const videoAnalysis = await analyzeVideoPatterns(siteId);
+  const historicalTrends = await getHistoricalTrends(siteId);
+  
+  const healthScore = await calculateDailyHealthScore({
+    environmental: environmentalData,
+    audio: audioAnalysis,
+    video: videoAnalysis,
+    trends: historicalTrends
+  });
+  
+  return await updateHealthMetrics(siteId, healthScore);
+}
+
+// Decision-Making Workflows
+export async function prioritizeServiceVisits(integrator: Integrator): Promise<ServicePriority[]> {
+  const allSites = await getIntegratorSites(integrator.id);
+  const healthScores = await Promise.all(
+    allSites.map(site => getCurrentHealthScore(site.id))
+  );
+  
+  const riskAssessments = await Promise.all(
+    allSites.map(site => assessRiskFactors(site))
+  );
+  
+  const prioritizedSites = await rankSitesByPriority(allSites, healthScores, riskAssessments);
+  
+  return await generateServiceRoutes(prioritizedSites);
+}
+
+export async function optimizePricingStrategy(marketData: MarketData): Promise<PricingStrategy> {
+  const competitorAnalysis = await analyzeCompetitorPricing(marketData);
+  const customerValueAnalysis = await analyzeCustomerValue();
+  const costStructure = await getCurrentCostStructure();
+  
+  const optimalPricing = await calculateOptimalPricing({
+    competitors: competitorAnalysis,
+    value: customerValueAnalysis,
+    costs: costStructure
+  });
+  
+  return await implementPricingStrategy(optimalPricing);
+}
+
+export async function makeExpansionDecision(opportunity: ExpansionOpportunity): Promise<ExpansionDecision> {
+  const marketAnalysis = await analyzeMarketOpportunity(opportunity);
+  const resourceRequirements = await assessResourceRequirements(opportunity);
+  const riskAssessment = await assessExpansionRisks(opportunity);
+  const financialProjection = await projectFinancialImpact(opportunity);
+  
+  const decision = await evaluateExpansionCriteria({
+    market: marketAnalysis,
+    resources: resourceRequirements,
+    risks: riskAssessment,
+    financials: financialProjection
+  });
+  
+  if (decision.approved) {
+    return await executeExpansionPlan(opportunity, decision);
+  } else {
+    return await deferExpansionOpportunity(opportunity, decision.reasons);
+  }
+}
+
+// Helper functions (referenced but not implemented)
+async function calculatePainPointScore(painPoints: string[]): Promise<number> {
+  // Implementation would score based on alignment with product capabilities
+  return painPoints.length * 2;
+}
+
+async function assessBudgetFit(budget: number, farmSize: number): Promise<boolean> {
+  const estimatedCost = farmSize * 150; // $150/house/month average
+  return budget >= estimatedCost * 0.8; // 80% of estimated cost
+}
+
+async function getAvailableDemoSlots(): Promise<TimeSlot[]> {
+  // Implementation would check calendar availability
+  return [];
+}
+
+async function definePilotSuccessMetrics(): Promise<SuccessMetrics> {
+  return {
+    mortalityReduction: 0.5, // percentage points
+    fcr_improvement: 0.02,
+    alertAccuracy: 0.85,
+    falsePositiveRate: 0.25
+  };
+}
+```
