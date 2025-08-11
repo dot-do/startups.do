@@ -1,0 +1,300 @@
+---
+name: ThermoDemand AI for Bottled Water
+slug: thermodemand
+service:
+  title: SKU/Channel Demand Forecasting with Weather & Promotions
+  description: >-
+    Weekly forecast at SKU x customer/channel level incorporating seasonality,
+    weather, holidays, and promos to feed S&OP and production planning.
+  targetUsers:
+    - S&OP Manager
+    - Demand Planner
+    - Sales Ops
+  triggers:
+    - Weekly S&OP cycle
+    - New POS/EDI data arrival
+    - New promo calendar upload
+  inputs:
+    - 'Historical shipments (SKU, customer, qty, date)'
+    - POS/scan or EDI 852 (optional)
+    - 'Promo calendar (discount, feature/display)'
+    - Weather history/forecast by ship-to region
+    - Holidays/events
+    - Price history (optional)
+  steps:
+    - Ingest data via secure upload/API
+    - 'Clean/map SKUs, customers, calendars'
+    - Train hierarchical time-series + gradient boosting models
+    - Blend external regressors (weather/promo) with cross-validation
+    - Generate base + constrained forecast; create scenario variants
+    - Publish to dashboard/API; flag anomalies for planner review
+  tools:
+    - Python
+    - Pandas
+    - Prophet
+    - XGBoost
+    - darts
+    - Azure/AWS S3
+    - Power BI/Looker
+    - NOAA/VisualCrossing API
+  outputs:
+    - 12–78 week forecast CSV/API
+    - 'Forecast accuracy dashboard (MAPE, WAPE)'
+    - Anomaly list and SKU notes
+    - Scenario files (base/optimistic/pessimistic)
+  pricingModel:
+    - Setup fee + monthly per plant or per 100 SKUs
+    - Optional savings-share on inventory/service uplift
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 9
+    overall: 9
+  risks:
+    - Sparse POS data or frequent SKU changes
+    - Promo metadata quality
+    - Demand shocks causing drift
+  dependencies:
+    - ERP/EDI export (SAP/Oracle/NetSuite)
+    - POS feeds (NielsenIQ/Circana/Amazon VC)
+    - Weather API key
+leanCanvas:
+  problem:
+    - >-
+      Weather- and promo-driven demand volatility causes 10–25% weekly swings at
+      SKU x customer/channel, leading to stockouts during heat waves and excess
+      inventory during cool periods.
+    - >-
+      Most existing forecasting tools operate at brand/region level, not SKU x
+      customer/channel weekly granularity required by production planners and
+      account teams.
+    - >-
+      Promotions and retail price changes are not systematically quantified;
+      uplift factors are guessed or applied uniformly, resulting in bias and
+      poor replenishment.
+    - >-
+      Manual overrides and spreadsheet workflows create latency (1–2 week
+      delays) and errors; no single source of truth feeding S&OP and production
+      planning.
+    - >-
+      High changeover and expediting costs from misaligned production (rush
+      runs, overtime, co-packer premium fees, suboptimal line sequencing).
+    - >-
+      Service-level penalties and lost sales due to low fill rates; retailers
+      increasingly scorecard suppliers on on-time/in-full (OTIF), with
+      chargebacks eroding margins.
+  solution:
+    - >-
+      Automated data pipelines ingest orders/shipments, retailer POS (where
+      available), promotions/TPR, holiday/events, and hyper-local weather; map
+      locations to microclimates and channels.
+    - >-
+      Hierarchical forecasting (SKU → pack → brand → plant; customer → channel →
+      region) with exogenous drivers (temperature, heat index, precipitation,
+      holidays, promotions) and built-in bias control.
+    - >-
+      Near-term demand sensing (0–3 weeks) that updates daily with new weather
+      forecasts and POS signals; heat-wave surge detector with incremental
+      volume recommendations by SKU/channel.
+    - >-
+      Promo uplift modeling using price, display, feature, and historical
+      elasticity by channel; scenario planning to test promo calendars and price
+      points.
+    - >-
+      Production-aware outputs: constraint-ready weekly signals (baseline +
+      incremental weather/promo lift) with suggested line sequencing and safety
+      stock guidance.
+    - >-
+      Explainability: driver attribution (e.g., +8% due to temp anomaly),
+      forecast value add vs. naïve/existing model, and segment-based targets
+      (A/B/C, X/Y/Z).
+    - >-
+      One-click integration to S&OP/ERP/APS (SAP IBP/APO, Oracle, Blue Yonder,
+      OMP, Anaplan) and data lakes; secure API and flat-file exports.
+    - >-
+      PoC-to-production playbook: 8–12 week pilot on 2–3 plants and top 200
+      SKUs/channels; success criteria tied to WMAPE, fill rate, and expedite
+      cost reduction.
+  uniqueValueProp: >-
+    Weather- and promo-aware weekly forecasts at SKU x customer/channel that
+    improve accuracy 20–40% vs. current baseline, cut stockouts 15–30%, and
+    reduce expedites/changeovers—live in 6–8 weeks and integrated with
+    SAP/Oracle/Blue Yonder.
+  unfairAdvantage: >-
+    Category-specific weather elasticity models and microclimate mapping tuned
+    on bottled water demand patterns (e.g., differential response by pack size
+    and channel), combined with promo-price-display feature engineering and
+    hierarchical reconciliation. Prebuilt connectors to common beverage ERPs/APS
+    and a governance framework that proves FVA vs. current systems, enabling
+    guaranteed lift pilots and rapid time-to-value.
+  customerSegments:
+    - >-
+      Mid-market bottled water manufacturers ($50M–$1B revenue) with 1–8 plants
+      and DSD or wholesaler distribution.
+    - >-
+      Large enterprises (>$1B) with multiple brands and plants serving grocery,
+      convenience, club, mass, and foodservice.
+    - >-
+      Private-label bottlers and co-packers supporting retailer brands (high
+      SKU/channel complexity, promo-driven).
+    - >-
+      Roles: VP/Director of Supply Chain, S&OP leaders, Demand Planning
+      Managers, Sales Ops/Trade Promotion, Plant Scheduling/Production Planning,
+      Finance (working capital/expedites).
+  channels:
+    - >-
+      Direct sales to supply chain and S&OP leaders at bottled water
+      manufacturers (ABM on LinkedIn + email sequences).
+    - >-
+      Alliances with S&OP/APS vendors (SAP, Blue Yonder, OMP, Anaplan) and
+      listing on their marketplaces for co-sell.
+    - >-
+      Partnerships with weather data providers for co-marketing (heatwave
+      playbooks) and bundled offerings.
+    - >-
+      System integrators/CPG consultancies for implementation and change
+      management.
+    - >-
+      Industry associations and events: IBWA, Beverage Forum, Pack Expo; thought
+      leadership webinars and white papers on weather-driven demand.
+    - >-
+      Founder-led pilots with 6–12 target lighthouse accounts; publish case
+      studies with quantified lift.
+    - >-
+      Content marketing targeting planners: weekly heat risk outlooks by region,
+      ROI calculators, and templates for S&OP decks.
+  revenueStreams:
+    - >-
+      SaaS subscription: tiered by active SKU x customer/channel combinations
+      and regions (e.g., Base $4,000/month up to 5,000 combos; +$0.40–$0.80 per
+      additional combo/month).
+    - >-
+      Premium add-ons: retailer POS connectors, advanced demand sensing
+      (intra-week updates), event data, capacity-optimized scheduling
+      suggestions.
+    - >-
+      Professional services: data onboarding, integrations, promo data hygiene
+      (typ. $20k–$100k one-time depending on scope).
+    - >-
+      Enterprise support/SLA and private VPC deployment surcharge (10–20%
+      uplift).
+    - >-
+      Optional performance-based bonus tied to agreed KPIs (e.g., share of
+      expedite cost reduction).
+  costStructure:
+    - >-
+      Cloud compute/storage and MLOps (~20–30% of COGS; scales with SKU/channel
+      volume).
+    - >-
+      Third-party data (weather APIs, event calendars, optional POS syndication)
+      with volume-based fees.
+    - >-
+      Data engineering and applied science team (model R&D, feature store
+      maintenance).
+    - 'Go-to-market: sales, partner management, content, events.'
+    - >-
+      Customer success and solution architecture for onboarding and ongoing
+      governance.
+    - 'Security/compliance (SOC 2), monitoring, and DevOps.'
+    - Partner revenue shares/marketplace fees (5–20% depending on channel).
+  keyMetrics:
+    - >-
+      Forecast accuracy: weekly WMAPE by SKU x customer/channel (target: A/X
+      items ≤10–15%, portfolio ≤18–25%).
+    - >-
+      Bias (mean percentage error) within ±5% for top 80% of volume; drift
+      alerts when outside bounds for 2 weeks.
+    - >-
+      Forecast Value Add (FVA) vs. naïve and current system (target: +15–35%
+      relative improvement).
+    - >-
+      Promo uplift MAE and hit rate for promo vs. non-promo weeks (target:
+      uplift error ≤20% for A SKUs).
+    - >-
+      Service level/fill rate improvement (+2–5 pts within 3–6 months) and OOS
+      reduction (15–30%).
+    - >-
+      Inventory efficiency: days of supply -7–12% without hurting service;
+      safety stock right-sizing by segment.
+    - >-
+      Operations: expedite freight/overtime/co-packer premium hours -10–25%;
+      changeovers -10–20%.
+    - >-
+      Adoption: % SKUs/channels covered, planner active users/week, override
+      ratio <15% for A/X items.
+    - >-
+      Time-to-value: pilot live in ≤8 weeks; full roll-out ≤16 weeks;
+      integration defects <2% of feeds/month.
+    - 'Commercial: logo count, ARR, NRR >110%, gross margin >70% by month 18.'
+storyBrand:
+  character: >-
+    Demand planning and S&OP leaders at bottled water manufacturers who need
+    reliable SKU x customer/channel forecasts.
+  problem: >-
+    External: weather- and promo-driven swings make weekly demand unpredictable.
+    Internal: spreadsheets and lagging signals cause stockouts, excess
+    inventory, overtime, and retailer penalties. Philosophical: you shouldn’t
+    have to guess when data can tell you.
+  guide: >-
+    We understand the whiplash of heatwaves and promo spikes. Our beverage ops
+    and data science team delivers an AI forecast that blends seasonality, local
+    weather, holidays, and promotions into weekly SKU x channel predictions
+    ready for S&OP and production planning.
+  plan: >-
+    1) Connect POS, shipments, promo calendars, and locations. 2) Run a 6-week
+    pilot on priority SKUs/channels to validate accuracy and ROI. 3) Go live:
+    automated weekly forecasts via API/files into S&OP and production systems
+    with ongoing model tuning and support.
+  callToAction: Book a 30-minute demo or start a low-risk pilot.
+  success: >-
+    Right product, right place, right time; higher service levels with fewer
+    expedites; lower inventory and waste; smoother production schedules;
+    confident S&OP meetings and stronger retailer relationships.
+  failure: >-
+    Ongoing guesswork: heatwave stockouts, cool-week overstock, rush and penalty
+    costs, eroded shelf space, and continued firefighting.
+landingPage:
+  hero:
+    title: Weather- & Promo-Aware Demand Forecasts for Bottled Water
+    subtitle: >-
+      Weekly SKU x customer/channel predictions to power S&OP and production
+      planning.
+    ctaText: See it on your data
+    ctaHref: /demo
+  problem:
+    - 'Heat waves and promos spike demand, causing stockouts or excess inventory.'
+    - Top-down forecasts miss channel and customer variability.
+    - Manual spreadsheets can’t keep up with weekly reforecasts.
+    - 'Ignoring weather, holidays, and events degrades accuracy.'
+    - 'S&OP and production run on stale inputs, driving changeovers and overtime.'
+    - Service levels slip across distributors and retail channels.
+  solution:
+    - 'AI forecasting at SKU x customer/channel, updated weekly.'
+    - 'Integrates hyperlocal weather, seasonality, holidays, and promo plans.'
+    - Models promo uplift and price elasticity by SKU and channel.
+    - Delivers probabilistic ranges (P10/P50/P90) for safety stock decisions.
+    - 'API/CSV outputs plug into S&OP, MRP, and distribution planning.'
+    - Explainable drivers and exception flags to focus planner attention.
+  features:
+    - Hyperlocal temperature and heat index signals tuned for bottled water.
+    - Promo and price uplift modeling per SKU and channel.
+    - 'Granular hierarchy: brand > SKU > pack size > customer/channel > region.'
+    - Weekly reforecasting; alerting during extreme weather windows.
+    - Scenario planning for promos and weather outlooks.
+    - 'Accuracy tracking (MAPE/WAPE, bias) by SKU and channel.'
+    - 'Explainability: top drivers and feature attributions per forecast.'
+    - Service-level targets with recommended safety stocks.
+    - Secure API/CSV exports and ERP/WMS integrations.
+    - Automated data quality checks and anomaly detection.
+  steps:
+    - 'Connect data: sales/shipments, locations, promos, prices, calendars.'
+    - Map hierarchies and service levels; set horizons and cutoffs.
+    - Train and validate on history; benchmark accuracy vs. baseline.
+    - Review forecasts and drivers; approve exceptions and overrides.
+    - 'Publish to S&OP/ERP; align production, procurement, and distribution.'
+    - Monitor weekly; track accuracy and continuously improve.
+---
+# ThermoDemand AI for Bottled Water
+
+Industry: Bottled Water Manufacturing
+Service: SKU/Channel Demand Forecasting with Weather & Promotions

@@ -1,0 +1,325 @@
+---
+name: AgSKU Optimizer
+slug: agsku
+service:
+  title: SKU-level Demand & Pricing Optimizer
+  description: >-
+    Forecast demand and recommend buy/sell price bands by SKU/grade/region using
+    market, weather, and seasonality signals.
+  targetUsers:
+    - Pricing Managers
+    - Traders
+    - GMs
+  triggers:
+    - Weekly pricing cycle
+    - Large market move (>2%)
+    - Inventory threshold breach
+  inputs:
+    - Historical sales and quotes
+    - On-hand and on-order inventory
+    - Futures/spot benchmarks (CME/ICE/USDA AMS)
+    - Weather and seasonality signals
+    - Exchange rates
+    - Lead times and MOQs
+  steps:
+    - Ingest and clean internal sales/inventory/lead-time data
+    - 'Pull external signals (USDA AMS, futures, FX, weather)'
+    - Train/refresh time-series models; test accuracy
+    - Optimize bid/ask bands and recommended spreads by SKU/market
+    - Simulate margin and inventory runout scenarios
+    - Publish price sheets; push to ERP/CRM; send alerts on deviations
+  tools:
+    - Python (Prophet/NeuralProphet/sktime)
+    - USDA AMS API
+    - Nasdaq Data Link/Quandl for futures
+    - Open-Meteo/NOAA API
+    - Google Sheets/Excel
+    - Email/Slack webhooks
+  outputs:
+    - Weekly price sheet (CSV/XLSX)
+    - SKU demand forecast and confidence bands
+    - 'Exception alerts (price, margin, stockout risk)'
+  pricingModel:
+    - One-time setup + monthly subscription
+    - Optional performance bonus tied to realized gross-margin uplift
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 9
+  risks:
+    - Data quality gaps or SKU redefinitions break models
+    - >-
+      Regulatory/antitrust risk if using competitor pricing—use only public
+      benchmarks/internal data
+    - Overfitting during volatile periods
+  dependencies:
+    - Access to ERP/CRM data (read-only)
+    - API keys for USDA/futures/FX/weather
+    - Pricing approval workflow/thresholds
+leanCanvas:
+  problem:
+    - >-
+      Volatile commodity prices (weather, crop progress, logistics) cause
+      inconsistent margins and missed opportunities for wholesalers trading
+      cotton, tobacco, wool, hides, hay, oilseeds and other raw materials.
+    - >-
+      Pricing is set with spreadsheets and broker intel, lacking
+      SKU/grade/region granularity; bid/offer bands are too wide or misaligned
+      with basis and seasonality.
+    - >-
+      Forecasting demand by SKU/grade is ad hoc; weekly MAPE commonly 25–40%,
+      driving overstock/stockouts and excess working capital.
+    - >-
+      Inventory turns are low (3–6x/year typical) and aged lots (>120 days) rise
+      after shocks; quality/grade mismatches increase markdowns.
+    - >-
+      Sales and procurement decisions are siloed; no closed-loop learning to
+      align quotes, replenishment, and hedging to realized outcomes.
+    - >-
+      Limited use of external signals (weather, NDVI, futures/basis, freight,
+      macro indices) in day-to-day pricing decisions.
+    - >-
+      ERP/OMS systems (SAP B1, Dynamics, NetSuite) lack embedded predictive
+      pricing; integration friction blocks adoption of analytics.
+  solution:
+    - >-
+      Forecasting engine: weekly/daily demand forecasts at SKU/grade/region with
+      explainability (key drivers: weather anomalies, NDVI, futures/basis,
+      seasonality, customer order cadence).
+    - >-
+      Dynamic price banding: recommended bid/offer ranges by SKU/grade/region
+      with confidence intervals; auto-updated as signals shift; guardrails for
+      min margin and inventory age.
+    - >-
+      Basis and futures alignment: integrate ICE/CME where applicable; compute
+      optimal basis adjustments; alert on spread anomalies and hedge
+      suggestions.
+    - >-
+      Inventory-aware pricing: incorporate current stock, lot age/quality,
+      storage costs; recommend allocation and markdowns for slow movers.
+    - >-
+      Tender/contract optimizer: suggest price ladders, volume breaks, and
+      validity windows; simulate win probability and margin outcomes.
+    - >-
+      What-if scenarios: stress test weather shocks, freight spikes, and
+      currency moves on demand and price bands; set automated triggers.
+    - >-
+      Closed-loop learning: ingest wins/losses, realized prices, and customer
+      feedback to recalibrate models weekly.
+    - >-
+      Integrations: prebuilt connectors for NetSuite, Microsoft Dynamics 365,
+      SAP Business One; EDI/S3/REST ingestion; SSO (Okta/Azure AD).
+    - >-
+      Operationalization: pricing API and web app for quoting; alerts via
+      email/Teams/Slack; audit trails and versioned recommendations.
+    - >-
+      Pilot playbook: 8–12 week pilot covering 3–5 key commodities and 2–3
+      regions; success criteria pre-agreed (MAPE, margin, hit rate).
+  uniqueValueProp: >-
+    SKU/grade/region-level demand forecasts and dynamic buy/sell price bands
+    that fuse market, weather, and seasonality signals—embedded into your
+    quoting and purchasing workflows—to lift margin 150–300 bps, reduce DIO
+    10–20 days, and increase bid win rate 5–10% within 90 days.
+  unfairAdvantage: >-
+    Domain-specific models that incorporate agricultural grade/quality
+    attributes and regional basis, combined with a growing anonymized network
+    dataset of quote outcomes and realized prices—powering superior
+    price-response curves and faster learning than generic pricing tools. Deep
+    ERP/EDI integrations reduce time-to-value and lock in daily operational use.
+  customerSegments:
+    - >-
+      Mid- to large-sized Other Farm Product Raw Material Merchant Wholesalers
+      (NAICS 424590) with $25M–$1B revenue, 50–5,000 SKUs, multi-region trade.
+    - >-
+      Category/commodity managers and pricing teams handling cotton grades,
+      tobacco leaf positions, wool micron grades, hides/skins grades, hay
+      quality.
+    - >-
+      Sales leadership responsible for tender/contract pricing to mills,
+      tanneries, processors, exporters.
+    - >-
+      Procurement and inventory planners managing buy windows, storage capacity,
+      and quality segregation.
+    - >-
+      Hedging/risk managers coordinating with futures/forwards/basis where
+      applicable.
+  channels:
+    - >-
+      Account-based marketing targeting VP Sales/Pricing/Procurement at NAICS
+      424590 firms via LinkedIn and curated lists; 200 target accounts/quarter;
+      SQL goal 20/quarter.
+    - >-
+      Partnerships with data vendors (Barchart cmdty, DTN, Fastmarkets, The
+      Jacobsen) for co-marketing webinars and bundled trials; target 3 partners
+      in year 1.
+    - >-
+      ERP/ISV marketplaces and VARs (Microsoft AppSource, NetSuite SuiteApp)
+      with rev-share; enable 5 reseller partners in first 12 months.
+    - >-
+      Industry events and associations (International Cotton Association,
+      National Hay Association, Leather & Hide Council, Tobacco Assoc. events);
+      sponsor 4 events/year; collect 150 MQLs.
+    - >-
+      Lighthouse pilots with 3–5 mid/large wholesalers; publish 2 ROI case
+      studies (margin uplift, DIO reduction) in first 9 months.
+    - >-
+      Referral program for brokers/agents (finder’s fee 10% Y1 ACV) and customer
+      referrals (1 month free per referral).
+    - >-
+      Content-led growth: monthly commodity pricing insights newsletter;
+      quarterly benchmark report on SKU-level margins and turns (opt-in,
+      anonymized).
+    - >-
+      Outbound SDR motion: 2 SDRs, 40 touches/account over 4 weeks; pilot offer:
+      90-day paid pilot $15k with clear success metrics.
+  revenueStreams:
+    - >-
+      SaaS subscription tiered by SKU count and regions: Small (up to 250 SKUs,
+      2 regions) $2k/month; Mid (up to 1,000 SKUs, 5 regions) $6k/month;
+      Enterprise (unlimited) $15k/month.
+    - >-
+      Implementation/onboarding fee: $10k–$75k based on integrations and data
+      complexity.
+    - >-
+      Premium data add-ons (satellite enrichment, advanced weather ensembles,
+      specialized price series): $500–$3,000/month.
+    - >-
+      Value-share option for enterprise: 5–10% of measured gross margin uplift
+      above baseline, with floor subscription.
+    - >-
+      Professional services (custom models, hedging policy design, pricing
+      playbooks): $200/hour or fixed-scope packages.
+    - API overage fees beyond included call volumes and refresh rates.
+  costStructure:
+    - >-
+      Data licensing (market prices, futures/basis, freight indices, premium
+      weather/satellite): $200k–$600k/year at scale.
+    - >-
+      Cloud compute and storage (training, inference, time-series DB):
+      $15k–$40k/month.
+    - >-
+      Engineering, data science, and product salaries: core team 8–15 FTEs
+      ($1.8M–$4M/year).
+    - 'Sales and marketing (SDRs, events, ads, partnerships): $800k–$2M/year.'
+    - 'Customer success and solutions engineering: 2–6 FTEs ($300k–$900k/year).'
+    - >-
+      Security/compliance (SOC 2 Type II), pen tests, legal/insurance:
+      $150k–$400k/year.
+    - >-
+      Implementation costs (connectors, ETL maintenance, EDI mappings):
+      $100k–$300k/year.
+  keyMetrics:
+    - >-
+      Forecast accuracy: weekly MAPE per SKU/grade/region ≤12% within 90 days;
+      coverage ≥90% of revenue SKUs.
+    - >-
+      Gross margin uplift: +150–300 bps vs 6-month baseline, normalized for
+      market; track realized vs recommended price.
+    - >-
+      Inventory efficiency: DIO reduction 10–20 days; inventory turns +15–30%;
+      aged inventory (>120 days) −30–50%.
+    - >-
+      Commercial performance: bid/tender win rate +5–10%; quote cycle time −30%;
+      price override rate <20%.
+    - >-
+      Adoption: WAU/MAU >60% for pricing users; recommendation acceptance rate
+      >50% after 60 days.
+    - >-
+      Alert precision/recall: >70% precision on actioned alerts; <5%
+      false-positive rate on critical alerts.
+    - >-
+      Time-to-value: pilot setup ≤3 weeks; first recommendations ≤10 business
+      days post data handoff.
+    - >-
+      Data freshness: external signals latency <2 hours; ERP/OMS syncs hourly or
+      better.
+    - >-
+      Compliance/audit: 100% of price changes traceable with reason codes; zero
+      critical P1 incidents/quarter.
+storyBrand:
+  character: >-
+    Pricing and supply leaders at Other Farm Product Raw Material Merchant
+    Wholesalers who must profitably buy, price, and sell volatile SKUs across
+    grades and regions.
+  problem: >-
+    Volatile markets, weather, and seasonality make demand hard to predict;
+    spreadsheets lag; mispricing and wrong bets cause stockouts, write-downs,
+    and margin leakage.
+  guide: >-
+    SKU-level Demand & Pricing Optimizer is your AI co-pilot for ag raw
+    materials—combining market, weather, and historical signals to forecast
+    demand and set defensible buy/sell price bands with proven accuracy.
+  plan: >-
+    1) Connect ERP, inventory, and sales data. 2) Run a 4–6 week pilot to
+    calibrate models by SKU/grade/region. 3) Go live with daily forecasts, price
+    bands, and alerts integrated to quoting and procurement.
+  callToAction: >-
+    Book a 30-minute demo to start a pilot and receive a sample forecast pack
+    for your top SKUs.
+  success: >-
+    Higher gross margins, better fill rates and turns, lower carrying costs and
+    write-downs, pricing decisions in minutes, and confidence through volatile
+    seasons.
+  failure: >-
+    Without it: margin erosion, stranded inventory, stockouts, missed market
+    windows, and reactionary pricing when weather or markets shift.
+landingPage:
+  hero:
+    title: SKU-level Demand & Pricing Optimizer for Farm Raw Material Wholesalers
+    subtitle: >-
+      AI forecasts demand and sets buy/sell price bands by SKU, grade, and
+      region using live market, weather, and seasonality signals.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - Volatile markets and weather shocks whiplash demand and supply.
+    - Thin margins eroded by mispriced buys/sells and slow reactions.
+    - Manual spreadsheets can’t keep pace with daily changes.
+    - Regional and grade variability makes pricing inconsistent.
+    - Stockouts and overstock tie up cash and miss sales.
+    - 'Signals are scattered across market feeds, ERP, and emails.'
+    - Limited forward visibility hampers procurement and quoting.
+  solution:
+    - >-
+      Unify market, weather, seasonality, and historical data into one source of
+      truth.
+    - Generate SKU/grade/region demand forecasts daily or weekly.
+    - Recommend buy/sell price bands with confidence levels to protect margin.
+    - 'Incorporate inventory, contracts, and logistics into every recommendation.'
+    - 'Run what-if scenarios for weather shocks, price moves, and promotions.'
+    - Trigger real-time alerts on anomalies and opportunities.
+    - 'Sync guidance directly into ERP, procurement, and sales quoting tools.'
+  features:
+    - SKU/grade/region forecasting with explainable drivers.
+    - Dynamic buy/sell price bands with confidence intervals.
+    - 'Weather, crop, and logistics disruption signals integrated.'
+    - Market benchmarks and spot prices ingestion to stay current.
+    - 'Margin guardrails: min margin, carry cost, spoilage, freight.'
+    - Regional arbitrage and transfer pricing suggestions.
+    - >-
+      Grade normalization (moisture, purity, sieve/size) for apples-to-apples
+      pricing.
+    - Quoting assist by customer tier and region.
+    - Inventory-aware reorder and liquidation cues.
+    - 'API, CSV, and ERP integrations (SAP, NetSuite, Microsoft Dynamics).'
+    - 'Role-based dashboards for procurement, sales, and finance.'
+    - Audit trails and approval workflows for pricing changes.
+  steps:
+    - >-
+      Connect data: SKUs, grades, regions, order history, inventory, and market
+      feeds.
+    - >-
+      Configure constraints: margin floors, carry costs, contract terms,
+      units/currencies.
+    - 'Train models on seasonality, market trends, and weather patterns.'
+    - >-
+      Review forecasts and price bands; adjust guardrails and acceptance
+      thresholds.
+    - Sync recommendations to ERP/CRM and enable in quoting workflows.
+    - 'Monitor alerts, run what-if scenarios, and continuously refine settings.'
+---
+# AgSKU Optimizer
+
+Industry: Other Farm Product Raw Material Merchant Wholesalers
+Service: SKU-level Demand & Pricing Optimizer

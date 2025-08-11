@@ -1,0 +1,361 @@
+---
+name: RigSight QA
+slug: rigsight
+naics:
+  primary: '334514'
+  occupations: []
+service:
+  title: Flow Lab/Test Stand Data QA and Drift Detection
+  description: >-
+    Analyzes calibration/verification runs to flag anomalies, drift, and
+    unstable meter factors across rigs and operators.
+  targetUsers:
+    - Test engineering
+    - Quality
+    - Operations
+  triggers:
+    - New batch test data exported
+    - Periodic QC review
+  inputs:
+    - CSV/TSV exports from NI TestStand/LabVIEW or PLC historian
+    - Meter model master specs
+    - 'Rig metadata (temperature, viscosity, prover data)'
+  steps:
+    - Ingest and normalize runs
+    - Outlier and stability checks (control charts)
+    - Fit meter curves; compare to golden baselines
+    - Drift detection by serial/batch/rig/operator
+    - Generate NCR suggestions and retest instructions
+  tools:
+    - Python/pandas/scikit-learn
+    - Stat models (ARIMA/Prophet for drift)
+    - InfluxDB/Timescale or local files
+    - Visualization (Plotly/Grafana)
+  outputs:
+    - QA report with flags and charts
+    - List of suspect meters/runs
+    - Recommended actions/retests
+  pricingModel:
+    - Setup + per-batch analysis
+    - Monthly analytics subscription
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 4
+    modelCapability: 4
+    overall: 4
+  risks:
+    - Data quality/format variance
+    - Hidden biases from rig differences
+    - Access to controlled calibration data
+  dependencies:
+    - Export pipeline or secure data share
+    - Meter spec baselines
+leanCanvas:
+  problem:
+    - >-
+      Calibration and verification runs often contain subtle anomalies
+      (temperature/pressure spikes, entrained air, unstable flow regime) that
+      operators miss, causing erroneous meter factors and costly rework.
+    - >-
+      Meter factor drift across rigs, fluids, and operators is detected late
+      (after customer complaints or warranty returns), leading to scrap,
+      recalls, or returns.
+    - >-
+      Lack of standardized, cross-rig analytics prevents early detection of
+      drift or bias introduced by rig hardware changes, maintenance, or software
+      updates.
+    - >-
+      Manual spreadsheet SPC and ad hoc scripts are slow, inconsistent, and do
+      not scale; evidence packs for ISO/IEC 17025 audits are labor-intensive to
+      compile.
+    - >-
+      Existing SCADA/LIMS/DAQ tools capture data but provide limited
+      domain-specific QA analytics (e.g., proving run gate checks per API/AGA,
+      change-point drift detection, operator influence analysis).
+    - >-
+      Test stand downtime from chasing false anomalies and unstable runs
+      increases cost/test and misses shipment dates.
+  solution:
+    - >-
+      Ingest calibration/verification run data from test stands (OPC UA, MQTT
+      Sparkplug, Modbus/TCP, CSV, SQL) and automatically segment runs by rig,
+      product, fluid, operator, and conditions.
+    - >-
+      Physics- and standard-aware QA checks: proving run gate checks, stability
+      windows, Reynolds/viscosity sanity checks, temperature/pressure
+      compensation validation, leak/air entrainment heuristics.
+    - >-
+      Drift and anomaly detection: change-point detection on meter factor and
+      key tags; cross-rig bias detection; operator influence analysis; factor
+      stability index per meter model/size/fluid.
+    - >-
+      SPC at scale: automated X̄-R, EWMA, CUSUM charts per rig/operator/product;
+      automated alerts with prioritized root-cause hypotheses based on tag
+      correlations and maintenance history.
+    - >-
+      Compliance and traceability: auto-generate ISO/IEC 17025-friendly evidence
+      packs with data lineage, audit trail, and acceptance criteria mapping to
+      API/AGA/OIML procedures.
+    - >-
+      Dashboards and APIs: live rig heatmaps, factor stability scores,
+      out-of-tolerance run queue, and REST/SQL export to MES/QMS/LIMS; optional
+      on-prem edge gateway for low-latency scoring.
+    - >-
+      Continuous improvement: operator coaching insights, run recipe
+      recommendations, and what-changed analysis after maintenance/software
+      updates.
+  uniqueValueProp: >-
+    Detect drift and unstable meter factors early, across rigs and operators,
+    with physics-informed AI that turns raw calibration runs into actionable QA
+    decisions and audit-ready evidence—cutting rework, escapes, and downtime.
+  unfairAdvantage: >-
+    A curated, cross-rig labeled dataset and physics-informed detection models
+    tailored to meter proving and calibration workflows, plus a connector
+    library that reduces time-to-value from months to days and produces
+    audit-ready evidence packs aligned to industry standards.
+  customerSegments:
+    - >-
+      Primary: QA/Metrology Directors and Flow Lab Managers at totalizing fluid
+      meter manufacturers (NAICS 334514).
+    - >-
+      Secondary: Test stand OEMs/integrators and third-party calibration labs
+      serving meter OEMs.
+    - >-
+      Tertiary: Operations/Manufacturing Engineering and Reliability teams
+      responsible for yield, throughput, and compliance (ISO/IEC 17025, API/AGA,
+      OIML).
+    - >-
+      Economic buyer: VP of Operations/Quality; Technical champions: Lab
+      lead/Metrologist; Users: Test stand operators and data/quality engineers.
+  channels:
+    - >-
+      Direct enterprise sales to QA/Metrology Directors at NAICS 334514 OEMs via
+      targeted outreach and referrals.
+    - >-
+      Partnerships with test stand OEMs/integrators and IIoT platforms (e.g.,
+      Inductive Automation Ignition, PTC Kepware, AVEVA PI) to bundle connectors
+      and co-sell.
+    - >-
+      Technical content marketing: whitepapers on meter factor drift detection,
+      webinars with case studies, and ROI calculators; publish example notebooks
+      and demo datasets.
+    - >-
+      Industry events and associations: present workshops at measurement/flow
+      conferences and QA/metrology groups; engage in standards committees and
+      roundtables.
+    - >-
+      Marketplaces: listings on industrial app exchanges and major cloud
+      marketplaces to streamline procurement.
+    - >-
+      Land-and-expand: start with one lab/rig pilot; expand across rigs, lines,
+      and sites post-ROI validation.
+  revenueStreams:
+    - >-
+      SaaS subscription per active rig/test stand: $600–$1,200 per rig per
+      month, includes connectors, dashboards, and standard models.
+    - >-
+      Enterprise plan: site license starting at $120,000/year for up to 150 rigs
+      across multiple sites, with volume discounts.
+    - >-
+      Professional services: onboarding/integration ($15,000–$50,000 per site),
+      historical data backfill and model tuning ($200/hour), and ISO evidence
+      pack configuration.
+    - >-
+      Optional on-prem/edge appliance subscription: $150 per rig per month for
+      managed gateway; or perpetual license plus annual support (18–22%).
+    - >-
+      Premium support and SLAs: 24/7 support at 15% of ARR; validation
+      documentation pack for ISO/IEC 17025 at $10,000/site.
+    - >-
+      Training and certification: operator and quality engineer training
+      $1,500/person with annual refreshers.
+  costStructure:
+    - >-
+      R&D: data science and software engineering salaries for time-series ML,
+      connectors, and physics-informed checks.
+    - >-
+      Cloud/infra: ingestion, compute for scoring, object storage for run
+      archives, monitoring, and security tooling.
+    - >-
+      Edge hardware and software maintenance for gateway images and connector
+      certifications.
+    - >-
+      Customer success/onboarding and professional services teams for
+      integrations and model validation.
+    - >-
+      Sales and marketing: field AE/SE teams, events, content, and partner
+      enablement.
+    - >-
+      Compliance and legal: information security audits, data processing
+      agreements, and standard alignment documentation.
+    - Insurance and general/admin overhead.
+  keyMetrics:
+    - >-
+      Model performance: detection precision >90%, recall >80% on labeled
+      anomalies; median detection lag <2 runs; false positive rate <5% per 100
+      runs.
+    - >-
+      Operational: uptime 99.5%+, data latency <30 seconds for alerts, connector
+      success rate >99%.
+    - >-
+      Customer value: rework rate reduction ≥25% in 6 months; scrap reduction
+      ≥15%; test stand downtime reduction ≥10%; calibration yield improvement
+      ≥5%.
+    - >-
+      Adoption: weekly active QA users/rig; % rigs onboarded per site; alert
+      review-to-close time; % alerts with confirmed root cause.
+    - >-
+      Business: number of contracted rigs, ARR, logo retention >95%, net revenue
+      retention >115%, CAC payback <12 months, gross margin >70%.
+    - >-
+      Quality/compliance: % runs with complete evidence pack; audit findings
+      related to data integrity reduced to zero within 12 months.
+storyBrand:
+  character: >-
+    Calibration, quality, and metrology leaders at totalizing fluid meter and
+    counting device manufacturers (NAICS 334514) who must trust every test-stand
+    run to release product on time.
+  problem: >-
+    External: Meter-factor drift, rig/operator variability, noisy/unstable runs,
+    and false pass/fail create rework, delays, warranty risk, and audit
+    exposure.
+
+    Internal: Teams are stuck in spreadsheets and manual plots, never fully
+    confident they caught drift early.
+
+    Philosophical: Test data should be as precise and trustworthy as the meters
+    you ship.
+  guide: >-
+    We understand the pressure to ship accurate meters fast. Our metrology + ML
+    team has analyzed millions of calibration/verification runs. Methods align
+    with ISO/IEC 17025 practices and API MPMS principles, delivering explainable
+    flags that operators and auditors trust.
+  plan: >-
+    - Connect your rigs: CSV/API ingest for historical and live runs (flow
+    labs/test stands).
+
+    - Baseline and monitor: Per model/rig/operator drift and anomaly detection
+    with explainable metrics and thresholds.
+
+    - Resolve and improve: Review flags in a dashboard, auto-generate CAPA-ready
+    reports, coach operators, and stabilize meter factors.
+
+    Assurances: Secure, read-only connectors; on-prem or private cloud; you own
+    your data.
+  callToAction: >-
+    Direct: Schedule a demo and start a 30-day pilot on your historical runs.
+
+    Transitional: Download a sample anomaly report and ROI estimate; get the
+    Flow Lab QA checklist.
+  success: >-
+    You release meters faster with stable factors, catch issues before shipment,
+    reduce rework and line stops, pass audits with confidence, cut warranty
+    costs, and run a predictable, high-throughput flow lab.
+  failure: >-
+    Without this, drift hides in plain sight, bad meters ship, audits escalate,
+    scrap and rework rise, schedules slip, and customer trust erodes.
+landingPage:
+  hero:
+    title: Flow Lab/Test Stand Data QA & Drift Detection
+    subtitle: >-
+      AI that audits calibration runs and flags anomalies, drift, and unstable
+      meter factors across rigs and operators. Built for Totalizing Fluid Meter
+      & Counting Device Manufacturing (NAICS 334514).
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - >-
+      Undetected meter-factor drift creates rework, warranty risk, and field
+      returns.
+    - 'Manual spreadsheet QA is slow, subjective, and hard to scale.'
+    - Rig-to-rig and operator variability hides bias and false passes/fails.
+    - >-
+      QA rules (repeatability, linearity, uncertainty) are applied
+      inconsistently.
+    - Post-maintenance instability goes unnoticed until lots are blocked.
+    - Data review bottlenecks delay lot release and revenue.
+    - 'Limited traceability across runs, standards, rigs, and operators.'
+    - Outliers and noisy sensors mask true performance.
+    - 'No early warning on standard degradation, leaks, or air entrainment.'
+    - Difficult to evidence ISO 9001/17025-aligned practices during audits.
+  solution:
+    - >-
+      Analyze every calibration/verification run in real time or batch with a
+      unified QA engine.
+    - >-
+      Trend meter-factor drift with condition-aware models (flow, viscosity,
+      temperature, pressure).
+    - Normalize across rigs and operators to detect bias and instability.
+    - >-
+      Enforce automated QA gates: stability, repeatability, linearity, R&R with
+      robust outlier checks.
+    - Trigger alerts to Teams/Slack/Email when thresholds are breached.
+    - Generate audit-ready reports and lot-release packs automatically.
+    - Maintain full digital traceability with role-based access and audit logs.
+    - 'Integrate with historians, PLC/SCADA, MES/ERP, LIMS, and flat files.'
+    - >-
+      Deploy in cloud or on‑prem (including air‑gapped) with enterprise
+      security.
+    - >-
+      Track KPIs like first-pass yield, rig downtime, and calibration cycle
+      health.
+  features:
+    - >-
+      Baseline builder: ingest 12–24 months to establish normal bands by product
+      family and rig.
+    - 'Drift index: quantify and threshold meter-factor drift with watchlists.'
+    - >-
+      Stability maps: visualize factor vs flow/viscosity/temp; flag
+      nonlinearity.
+    - >-
+      Uncertainty engine: combine standard, rig, sensor, and repeatability per
+      GUM; highlight exceedances.
+    - >-
+      Outlier defense: Hampel, Grubbs, robust regression; configurable by rig
+      and media.
+    - >-
+      SPC charts with automatic rules (e.g., Western Electric) and
+      auto-annotations.
+    - >-
+      Rig health signatures: detect leaks, air, cavitation from pressure/flow
+      noise and variability.
+    - >-
+      Operator effect analysis: blind scoring to surface training needs and
+      bias.
+    - >-
+      Auto-retest guidance: recommended conditions to confirm or clear
+      anomalies.
+    - >-
+      Certificate and report generator with NIST-traceable references; PDF/CSV
+      exports.
+    - >-
+      Role-based access control, audit trails, and optional e-signatures (21 CFR
+      Part 11-ready).
+    - >-
+      APIs and connectors: OPC UA, Modbus/TCP, MQTT; PI, Ignition, Kepware;
+      SAP/Oracle; S3/Azure Blob; CSV.
+    - Data partitioning and anonymization for suppliers and contract labs.
+    - >-
+      Multi-media support (water, oils, solvents) with viscosity/temperature
+      compensation.
+    - 'Lot-release automation: push dispositions and certificates to MES/ERP.'
+  steps:
+    - 'Connect data sources: rigs, historian, PLC/SCADA, MES/ERP, LIMS, or CSV.'
+    - Import historical runs to build baselines and control limits.
+    - 'Configure QA templates by product family, rig, and media.'
+    - Run in shadow mode 2–4 weeks to validate alerts and thresholds.
+    - >-
+      Go live: real-time scoring, alerts, and dashboards for labs and
+      production.
+    - >-
+      Review queue: triage anomalies, assign dispositions, and log corrective
+      actions.
+    - Auto-generate certificates and push results to MES/ERP for lot release.
+    - >-
+      Continuous improvement: weekly drift reports and rig/operator performance
+      insights.
+---
+# RigSight QA
+
+Generated for NAICS 334514 — Totalizing Fluid Meter and Counting Device Manufacturing.
+Service: Flow Lab/Test Stand Data QA and Drift Detection

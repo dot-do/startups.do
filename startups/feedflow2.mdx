@@ -1,0 +1,368 @@
+---
+name: FeedFlow AI
+slug: feedflow2
+naics:
+  primary: '311119'
+  occupations: []
+service:
+  title: SKU-Level Demand Forecasting and Mill Production Planning
+  description: >-
+    Forecasts demand by customer/region/SKU and creates feasible weekly
+    production plans that respect capacity and changeover constraints.
+  targetUsers:
+    - Supply Chain/Planning
+    - Sales Ops
+    - Plant schedulers
+  triggers:
+    - Weekly/monthly S&OP cycle
+    - Large order booked or cancellation
+    - 'Seasonality shifts (e.g., backyard poultry)'
+  inputs:
+    - Historical shipments/orders by SKU/customer/region
+    - 'Promotions, price changes, holidays'
+    - 'Capacity, run rates, changeover matrices'
+    - Inventory and open orders
+  steps:
+    - Clean and reconcile sales/ERP data
+    - Train hierarchical time-series models with exogenous variables
+    - Generate forecasts with uncertainty intervals
+    - Optimize weekly schedule respecting capacity/changeovers
+    - Publish buy-build plan and ATP; iterate with sales
+  tools:
+    - Nixtla StatsForecast/Prophet/LightGBM
+    - OR-Tools for scheduling
+    - ERP/MES API
+    - Visualization (Metabase/Power BI)
+  outputs:
+    - 12–18 month rolling forecast with accuracy metrics
+    - Weekly production schedule and changeover plan
+    - Material requirements and capacity alerts
+  pricingModel:
+    - Monthly subscription by SKU/site + setup
+    - Optional performance bonus tied to forecast MAPE
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 4.5
+    overall: 4.5
+  risks:
+    - Data quality gaps and item substitutions
+    - Sudden market shocks
+    - Operational constraints not captured
+  dependencies:
+    - ERP data access
+    - Defined capacity and changeover parameters
+    - Promo/calendar data feeds
+leanCanvas:
+  problem:
+    - >-
+      Volatile, highly seasonal demand at the SKU/customer/region level
+      (impacted by animal placements, weather, and promotions) causes frequent
+      stockouts and overproduction; most planners still rely on spreadsheets and
+      judgmental overrides.
+    - >-
+      Weekly production plans are often infeasible because they ignore real
+      capacity constraints: pelletizer rates, mixer batch sizes, bagging line
+      throughput, sanitation/flush for medicated vs non‑medicated products,
+      allergen segregation, and limited shift/labor availability.
+    - >-
+      Sequence-dependent changeovers and sanitation requirements are not
+      optimized, leading to 10–25% of scheduled hours lost to setups and
+      flushes.
+    - >-
+      Working capital is tied up in slow-moving finished goods; inventory turns
+      lag peers (e.g., 6–8 turns vs 10–12 for best-in-class); obsolescence and
+      write-offs occur due to short shelf life on certain supplements/premixes.
+    - >-
+      Service levels and OTIF suffer (often 90–94%), driving costly expedites
+      and customer dissatisfaction; sales lacks reliable capable-to-promise
+      (CTP) dates for large orders.
+    - >-
+      Data needed for planning is fragmented across ERP, MES, formulation
+      systems, and spreadsheets; master data quality issues (BOMs, routings,
+      calendars) erode trust in plans.
+    - >-
+      No easy way to run scenarios (e.g., commodity shortages, unplanned
+      downtime, demand surges) and pick an optimal, auditable production plan.
+  solution:
+    - >-
+      Data ingestion and harmonization from ERP (orders/shipments, customers),
+      MES (production history, downtime), formulation/BOM, routings,
+      calendars/shifts, capacities, QC/hold, lot attributes
+      (medicated/non‑medicated), and distribution lanes.
+    - >-
+      SKU-customer-region hierarchical, probabilistic demand forecasting with
+      reconciliation across hierarchy; intermittent-demand handling for slow
+      movers; bias control; automatic event/seasonality detection (weather,
+      placements, holidays).
+    - >-
+      Causal features for demand: animal placement schedules, regional weather
+      (heating/cooling degree days), commodity price signals, promos/contracts;
+      automated feature selection and model governance.
+    - >-
+      Constraint-aware weekly production planning using mixed-integer
+      optimization: lot sizing, line assignment, sequence-dependent setup/flush,
+      labor/shift limits, maintenance windows, campaign planning for
+      premixes/additives, and shelf-life constraints; multi-mill production and
+      intersite transfers.
+    - >-
+      Scenario planning and CTP: simulate demand surges, capacity losses, or
+      ingredient constraints; provide order-level promise dates and feasible
+      expedite options (with cost impact).
+    - >-
+      Plan execution alignment: daily finite-capacity resequencing to absorb
+      short-term changes while maintaining plan stability; schedule-adherence
+      tracking.
+    - >-
+      User experience for planners: explainable forecasts (drivers, confidence
+      intervals), constraint diagnostics (what limited production), and guided
+      overrides with guardrails.
+    - >-
+      Prebuilt connectors for SAP, Microsoft Dynamics 365, Infor, and common
+      MES; APIs for weather and commodity data; SSO and audit trails for
+      compliance.
+    - >-
+      Implementation playbook: 8–12 week pilot for 1–2 mills and 200–500 SKUs
+      with success criteria (WMAPE, service level, changeover reduction).
+  uniqueValueProp: >-
+    Raise fill rate to 97%+, cut changeover hours by 20%+, and reduce finished
+    goods inventory by 15–25% in 90 days via SKU-level probabilistic forecasting
+    and constraint-aware weekly production plans purpose-built for feed mills.
+  unfairAdvantage: >-
+    A feed-mill–specific optimization and forecasting stack with proven
+    constraint libraries (medicated segregation, setup/flush, bagging vs bulk),
+    prebuilt ERP/MES connectors, and an implementation playbook that delivers
+    measurable KPI lift within 90 days—difficult for generic APS/IBP tools to
+    replicate quickly.
+  customerSegments:
+    - >-
+      Mid-market to large Other Animal Food Manufacturers (NAICS 311119)
+      operating 1–20 mills producing livestock and specialty feeds (poultry,
+      swine, beef/dairy, equine, aquaculture, wild bird).
+    - >-
+      Integrated producers with captive feed mills and distribution
+      (poultry/swine/beef/dairy integrators).
+    - >-
+      Cooperatives and regional feed manufacturers with premix/supplement lines
+      and bagged/bulk distribution.
+    - >-
+      Roles: VP Supply Chain, Director of Operations, Plant Manager, Master
+      Scheduler, Demand Planner, Sales Operations/Customer Service (for
+      ATP/CTP).
+  channels:
+    - >-
+      Direct enterprise sales to target ICPs (North American manufacturers with
+      2–15 mills, >200 SKUs, SAP or Dynamics ERP).
+    - >-
+      Pilot-led land-and-expand: 8–12 week paid pilot with clear exit criteria;
+      convert to multi-site rollouts with volume pricing.
+    - >-
+      Partnerships with ERP/MES integrators and Value-Added Resellers (SAP,
+      Microsoft, Infor ecosystems) to co-sell and implement connectors.
+    - >-
+      Industry associations and events: AFIA, IPPE, World Pork Expo, Poultry
+      Tech Summits; sponsored workshops on constraint-aware planning.
+    - >-
+      Thought leadership and content: case studies with quantified ROI,
+      whitepapers on medicated segregation planning, webinars on forecast value
+      add and WMAPE.
+    - >-
+      Outbound to top 200 U.S. feed producers and integrators; ABM campaigns
+      targeting VP Supply Chain/Operations and Plant Managers.
+    - >-
+      Referral program for consultants specializing in feed formulation and mill
+      operations; success-based referral fees.
+    - >-
+      Pricing transparency with a ROI calculator (inventory and changeover
+      savings) to accelerate CFO buy-in.
+  revenueStreams:
+    - >-
+      SaaS subscription per site per month, tiered by SKU count and users:
+      indicative $3,000–$20,000/site/month (average $8,000–$12,000).
+    - >-
+      One-time implementation fee for data integration, modeling, and go-live:
+      $30,000–$150,000 per project depending on scope.
+    - >-
+      Optional modules/add-ons: multi-mill network optimization, advanced CTP,
+      custom data connectors, premium analytics.
+    - >-
+      Usage-based optimization compute (above included runs) for large scenario
+      batches or peak planning windows.
+    - Training and certification packages for planners and plant schedulers.
+    - >-
+      Premium support/SLA (24x7) and dedicated customer success manager for
+      enterprise plans.
+  costStructure:
+    - >-
+      Personnel: data science/OR, software engineering, integrations, customer
+      success, and domain SMEs (~45–55% of costs).
+    - >-
+      Sales and marketing: AE/SE comp, events, content, channel programs
+      (~15–25%).
+    - >-
+      Cloud infrastructure and MLOps: storage, compute, orchestration,
+      monitoring (~8–12%).
+    - >-
+      Optimization solver licenses/support (e.g., commercial MIP solvers)
+      (~3–6%).
+    - 'Third-party data (weather, commodity indices) (~1–3%).'
+    - >-
+      Security/compliance (SOC 2 audits, pen tests), insurance (cyber,
+      liability) (~2–4%).
+    - Implementation partners/contractors for peak workload (~2–5%).
+  keyMetrics:
+    - >-
+      Forecast accuracy: WMAPE by ABC class (targets: A SKUs ≤10–15%, B ≤15–20%,
+      C ≤25–35%); Bias within ±5%.
+    - >-
+      Forecast Value Add (FVA) vs naive: positive FVA in ≥80% of SKU-families
+      within 2 quarters.
+    - >-
+      Service level/OTIF: achieve ≥97% on priority SKUs; reduce expedites by
+      10–20%.
+    - >-
+      Schedule adherence (plan vs actual start/finish): ≥90% weekly; plan
+      stability: <20% of orders moved week-to-week.
+    - >-
+      Changeover hours: reduce by ≥20%; sanitation/flush events minimized
+      subject to policy; sequence efficiency index up ≥15%.
+    - >-
+      Capacity utilization: balanced within 75–90% on constrained resources
+      without breaching labor/overtime thresholds; overtime hours -15%.
+    - >-
+      Inventory: finished goods turns +2 within 6 months; days of supply down
+      15–25%; write-offs -20%.
+    - >-
+      Time-to-first-feasible-plan after data onboarding: ≤2 weeks; average plan
+      compute time: <15 minutes for a 1-mill, 1,000-SKU weekly horizon.
+    - >-
+      User adoption: ≥90% weekly active planners; override rate <20% after 3
+      months with no degradation in accuracy.
+    - >-
+      Commercial: pilot-to-contract conversion ≥50%; ARR per customer expansion
+      ≥25% by month 18; gross retention ≥95%; CAC payback <12 months.
+storyBrand:
+  character: >-
+    Operations, planning, and supply chain leaders at Other Animal Food (NAICS
+    311119) mills who need reliable SKU/customer/region forecasts and a feasible
+    weekly production plan that respects capacity and changeover constraints.
+  problem: >-
+    External: Volatile orders by dealer/co-op and region, seasonal swings, SKU
+    proliferation, ingredient variability, and strict allergen/medication
+    changeovers.
+
+    Internal: Spreadsheet-driven planning, siloed data, forecasts that miss at
+    SKU-customer level, and schedules that ignore true line rates, batching, and
+    setup times.
+
+    Philosophical: It should not be guesswork to decide what to make next week.
+  guide: >-
+    Empathy: We know feed mills live between stockouts and overstock, juggling
+    medicated/allergen sequences, pack changes, and tight service commitments.
+
+    Authority: Purpose-built for 311119. Models formulas, routings, batching,
+    changeover matrices, line speeds, and pack formats. Proven to raise schedule
+    adherence and service while cutting changeovers and inventory. Secure,
+    integrates with ERP/MES, and delivers explainable AI forecasts.
+  plan: >-
+    1) Connect and model: Pull orders/shipments, BOM/formulas, routings,
+    capacities, and changeover matrices; map to your lines and SKUs.
+
+    2) Calibrate and pilot: Tune SKU-customer/region forecasts and constraints;
+    run side-by-side for 4–6 weeks to validate accuracy and feasibility.
+
+    3) Go live: Produce a weekly finite-capacity plan and daily sequences;
+    enable what-if scenarios; monitor KPIs with continuous learning.
+  callToAction: >-
+    Primary: Book a 30-minute planning assessment.
+
+    Secondary: Download the sample forecast-accuracy benchmark and the mill
+    readiness checklist.
+  success: |-
+    - 10–25% improvement in SKU-customer/region forecast MAPE
+    - 15–30% fewer changeovers or setup hours
+    - 2–5% throughput lift with higher schedule adherence
+    - 10–20% lower finished goods inventory while maintaining 95–98% OTIF
+    - Planners generate a feasible weekly plan in hours, not days
+    - Fewer expedites and more confident commitments to dealers and integrators
+  failure: |-
+    - Another year of spreadsheet firefighting and tribal-knowledge scheduling
+    - Stockouts on priority SKUs with excess of slow movers
+    - Overtime, expediting costs, and missed margins
+    - Idle lines waiting on ingredients or extended allergen/medicated cleanouts
+    - Lost customer trust and planner burnout
+landingPage:
+  hero:
+    title: SKU-Level Demand Forecasting & Mill Production Planning
+    subtitle: >-
+      For Other Animal Food Manufacturing (NAICS 311119). Accurate forecasts by
+      customer/region/SKU with feasible weekly plans that respect capacity, run
+      rates, and changeovers.
+    ctaText: Book a 30‑min demo
+    ctaHref: /demo
+  problem:
+    - Volatile dealer and co‑op orders create whiplash across mills.
+    - >-
+      Hundreds of SKUs and species segregation make spreadsheet planning
+      fragile.
+    - >-
+      Frequent changeovers, sanitation, and flush requirements inflate downtime
+      and waste.
+    - Lines swing between overload and idle time; overtime and OEE suffer.
+    - >-
+      Stockouts trigger rush freight; overproduction ties up cash and silo
+      space.
+    - >-
+      Seasonal demand by region (calving, chick placement, fair season) is hard
+      to anticipate.
+    - >-
+      Material constraints and ionophore/medication rules complicate safe
+      sequencing.
+  solution:
+    - 'ML forecasts at customer, region, and SKU granularity on weekly horizons.'
+    - >-
+      Finite‑capacity plans across mills, lines, and shifts using true run rates
+      and setup matrices.
+    - >-
+      Optimized sequencing to minimize changeovers, sanitation, and
+      medicated/non‑medicated conflicts.
+    - >-
+      Plans respect silos, batching, extrusion, pelleting, bagging, and crew
+      availability.
+    - >-
+      Material‑feasible schedules that check premix, micro‑ingredients, and
+      supplier lead times.
+    - >-
+      What‑if scenarios for price changes, promotions, plant downtime, and
+      demand spikes.
+    - Live integration with ERP/MES/WMS via API or flat files; rapid onboarding.
+  features:
+    - 'Demand models tuned for ag seasonality, weather, and regional calendars.'
+    - Customer‑level forecasts with service‑level targets by SKU and channel.
+    - ABC/XYZ segmentation to focus safety stock where it matters.
+    - Automatic weekly plan with pegged orders and build‑ahead guidance.
+    - Setup matrix and allergen/medication rules to enforce safe sequencing.
+    - Changeover‑aware lot sizing to reduce flush waste and cleanouts.
+    - 'Capacity heatmaps by mill, line, and shift with bottleneck alerts.'
+    - Raw‑material availability checks with reorder prompts and vendor ETAs.
+    - 'Exception alerts for forecast bias, stockout risk, and capacity overloads.'
+    - One‑click export to production orders with audit trail and approvals.
+    - >-
+      Explainable AI: drivers, seasonality, and confidence intervals for every
+      SKU.
+    - Secure cloud or private VPC deployment; SSO and SOC 2–ready controls.
+  steps:
+    - >-
+      Connect data: SKUs, BOMs, routings, run rates, orders, and inventory from
+      ERP/MES/WMS.
+    - >-
+      Calibrate: 24+ months of history, seasonality, service targets by region
+      and channel.
+    - 'Simulate: validate forecast accuracy and capacity scenarios with planners.'
+    - 'Go live: generate weekly finite plans and push orders back to ERP.'
+    - 'Optimize: monthly model refresh and planner coaching with KPIs.'
+---
+# FeedFlow AI
+
+Generated for NAICS 311119 — Other Animal Food Manufacturing.
+Service: SKU-Level Demand Forecasting and Mill Production Planning

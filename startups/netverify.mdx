@@ -1,0 +1,303 @@
+---
+name: NetVerify AI — Gerber vs IPC‑D‑356A Netlist Compare
+slug: netverify
+naics:
+  primary: '334412'
+  occupations: []
+service:
+  title: Netlist Extraction and Compare (Gerber vs IPC-D-356A)
+  description: >-
+    Extracts netlist from CAM data and compares to IPC-D-356A to catch
+    opens/shorts before e-test.
+  targetUsers:
+    - CAM engineers
+    - Quality/ET test engineering
+  triggers:
+    - Pre-tooling signoff
+    - Suspected data integrity issue
+  inputs:
+    - Gerbers (copper + soldermask)
+    - NC drill files
+    - IPC-D-356A (if available)
+    - Layer stack mapping
+  steps:
+    - Reconstruct connectivity graph from copper and drills
+    - Normalize and align to stack map; handle soldermask tenting
+    - Compare to IPC-D-356A nets; diff mismatches
+    - Localize suspects and render annotated evidence
+  tools:
+    - pcb-tools connectivity
+    - Graph algorithms (NetworkX)
+    - Tracespace for visuals
+  outputs:
+    - Mismatch report (opens/shorts/nets added/removed)
+    - Annotated images of suspect regions
+    - Machine-readable diff (JSON)
+  pricingModel:
+    - Per comparison
+    - Bundle with DFM service
+  humanInLoop: false
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 7.5
+    overall: 8
+  risks:
+    - Ambiguous layer mapping causing false results
+    - Complex impedance splits/thermal shapes misinterpreted
+    - Missing/incorrect IPC-D-356A file
+  dependencies:
+    - Correct stack mapping
+    - Clean CAM data without polarity mistakes
+leanCanvas:
+  problem:
+    - >-
+      E‑test aborts and first‑article delays caused by mismatched or incorrect
+      IPC‑D‑356A files (wrong net names, missing nets, layer mis‑registration)
+      that are only discovered at test time.
+    - >-
+      Manual, engineer‑dependent netlist extraction from Gerber/ODB++ is slow
+      (15–45 minutes/job), inconsistent, and error‑prone for features like
+      copper pours, teardrops, via‑in‑pad, blind/buried vias, and split planes.
+    - >-
+      Lack of a fast, auditable, coordinate‑level discrepancy report to
+      communicate issues to customers and to close CAPA/8D actions.
+    - >-
+      Existing CAM tool compares often require manual setup, layer mapping, and
+      tuning; performance and accuracy degrade on complex HDI builds and mixed
+      data quality.
+    - >-
+      Unnecessary scrap/rework and fixture churn from late discovery of
+      shorts/opens; avoidable WIP holds that hurt OTD and customer satisfaction.
+    - >-
+      Insufficient process visibility: no aggregated metrics on data‑induced
+      test failures, recurring customer issues, or engineer time spent on
+      netlist verification.
+  solution:
+    - >-
+      Agent monitors job drop‑folders or PLM/ERP triggers; ingests Gerber
+      RS‑274X/X2, ODB++, Excellon/NC drill, and IPC‑D‑356/356A.
+    - >-
+      Auto‑aligns/measures layer stack and drill to copper; infers padstacks,
+      blind/buried via spans, split planes, teardrops; resolves ambiguous
+      connections with an ML model trained on real fab datasets.
+    - >-
+      Extracts a golden netlist from image/shape data and compares it to
+      supplied IPC‑D‑356A; highlights open/short/missing nets, polarity errors,
+      and layer mapping issues.
+    - >-
+      Generates an interactive, coordinate‑level discrepancy report
+      (PDF/HTML/CSV) with CAM cross‑probe links and screenshots; exports
+      exception nets to CAM tools for rapid fix/validation.
+    - >-
+      Provides guardrails: blocks e‑test job release in MES until discrepancies
+      are dispositioned; maintains audit logs for QA/CAPA.
+    - >-
+      APIs and plugins for Genesis 2000/InCAM/UCAMX/CAM350/Valor; optional
+      on‑prem appliance for ITAR/EAR and air‑gapped sites.
+  uniqueValueProp: >-
+    Automated, high‑accuracy ‘golden netlist’ extraction from Gerber/ODB++ with
+    AI and one‑click comparison to IPC‑D‑356A, delivering a coordinate‑level
+    discrepancy report in minutes. Reduce e‑test aborts 30–60%, cut CAM
+    verification time 20–40 minutes/job, and improve first‑pass yield and OTD —
+    with auditable artifacts for QA and customer communication.
+  unfairAdvantage: >-
+    A proprietary, continuously growing dataset of real fab jobs and discrepancy
+    labels powering ML models that outperform rules‑only CAM compares on complex
+    pours and HDI; deep, production‑grade integrations with major CAM/MES flows;
+    and an audit‑ready workflow that converts detection into rapid, documented
+    resolution. Early partnerships and compliance posture (ITAR-capable, SOC 2
+    roadmap) raise switching barriers.
+  customerSegments:
+    - >-
+      Primary: Bare PCB manufacturers (NAICS 334412) — mid to large CAM
+      departments, HDI/rigid-flex fabs, quick‑turn shops needing fast FA and
+      high OTD.
+    - >-
+      Secondary: E‑test service bureaus and flying‑probe providers validating
+      customer‑supplied 356A before test.
+    - >-
+      Secondary: EMS/OEM NPI and supplier quality engineering teams performing
+      incoming data/package validation.
+    - >-
+      Personas: CAM Manager, Quality Manager, Test Engineering Lead,
+      Plant/Operations Manager, IT/Compliance (for on‑prem/ITAR).
+  channels:
+    - >-
+      Direct sales to CAM/QA/Test leaders at PCB fabs via targeted outreach and
+      referrals.
+    - >-
+      Partnerships and OEM/reseller channels with CAM vendors (e.g.,
+      Frontline/Orbotech, Ucamco, DownStream) and e‑test OEMs
+      (flying‑probe/bed‑of‑nails).
+    - >-
+      Presence at IPC APEX EXPO, productronica, electronica; technical papers
+      and live demos with real job data (sanitized).
+    - >-
+      Technical content marketing: application notes, ‘Gerber vs 356A pitfalls’
+      whitepapers, ROI calculators, and webinar series with case studies.
+    - >-
+      Pilot-first GTM: 60–90 day POC on 2–3 product families with success
+      criteria (abort reduction, time saved, false positive rate).
+    - >-
+      Community and standards engagement: IPC workgroups, trainings on proper
+      356A creation to elevate credibility.
+  revenueStreams:
+    - >-
+      SaaS subscription per site (includes X jobs/month): Starter
+      $1.5k–$3k/month (up to 2 CAM seats), Growth $4k–$8k/month (multi‑seat,
+      APIs), Enterprise custom (unlimited seats, on‑prem, SSO, priority
+      support).
+    - >-
+      Usage-based add‑on: $0.50–$1.50 per unique design revision beyond plan
+      quota; or $0.02–$0.05 per net for very large boards (capped).
+    - >-
+      On‑prem appliance license: annual term + 20% support/maintenance; hardware
+      provided by customer or as managed appliance.
+    - >-
+      Professional services: integrations (MES/PLM), custom rule packs, data
+      migration, and training ($150–$220/hr or fixed‑fee packages).
+    - >-
+      Premium support/SLA tiers and compliance add‑ons (ITAR program handling,
+      dedicated VPC).
+  costStructure:
+    - >-
+      R&D: ML/vision engineers, CAM domain experts, full‑stack developers
+      (largest fixed cost).
+    - >-
+      Data infrastructure: GPU/CPU inference, storage for job
+      artifacts/screenshots, CI/CD and MLOps; cloud or on‑prem deployment
+      tooling.
+    - >-
+      Integrations and field engineering: plugin development, customer
+      onboarding, solution architects.
+    - >-
+      Security/compliance: SOC 2/ISO 27001 audits, penetration testing, secure
+      SDLC, ITAR controls.
+    - >-
+      Support/CS and documentation: self‑serve knowledge base, training content,
+      localization.
+    - >-
+      Sales/marketing: industry events, demos, POCs, partner MDF, ROI case study
+      development.
+    - >-
+      G&A: legal (IP, contracts), insurance, admin, office/lab equipment (test
+      boards, fixtures).
+  keyMetrics:
+    - >-
+      Time‑to‑result: median <5 minutes from job ingest to discrepancy report;
+      95th percentile <12 minutes.
+    - >-
+      Catch rate prior to e‑test: ≥90% of data‑induced opens/shorts detected
+      pre‑test on pilot boards.
+    - >-
+      False positive rate: <2% of reported discrepancies require no action after
+      engineer review.
+    - >-
+      Reduction in e‑test aborts: 30–60% decrease vs. 90‑day baseline; measured
+      as aborts per 100 jobs.
+    - >-
+      Engineer time saved: 15–40 minutes per job that previously required manual
+      compare; tracked via plugin telemetry.
+    - >-
+      First‑pass yield at e‑test: +1–3 percentage points improvement for
+      new/revised designs.
+    - >-
+      Adoption: % of jobs auto‑checked before CAM release (target ≥85% by month
+      3).
+    - >-
+      MTTD/MTTR for data issues: median time to detect <10 min; median time to
+      resolution <2 hours.
+    - >-
+      Net revenue retention (NRR): ≥115% via seat expansion and usage; Gross
+      margin: ≥75% after 12 months.
+    - 'COGS per job (inference): target <$0.05 at scale.'
+storyBrand:
+  character: >-
+    CAM, process, and quality engineers at bare PCB manufacturers (NAICS 334412)
+    who must ensure netlist integrity and on‑time delivery.
+  problem: >-
+    Gerber vs IPC‑D‑356A mismatches can hide opens/shorts until e‑test; manual
+    checks are slow and error‑prone, creating deadline pressure and fear of
+    costly escapes.
+  guide: >-
+    We understand the pace and risk of CAM. Our AI service—built by PCB
+    manufacturing experts—extracts netlists from CAM data and compares them to
+    IPC‑D‑356A to catch issues early with precision.
+  plan: >-
+    1) Upload Gerbers and drill files plus IPC‑D‑356A. 2) AI extracts/normalizes
+    the CAM netlist and compares it to IPC‑D‑356A, pinpointing discrepancies by
+    net, layer, and coordinates. 3) Review the actionable report, fix upstream,
+    and release with confidence; optional API fits into your CAM flow.
+  callToAction: Start a pilot—upload a sample job or book a 15‑minute demo today.
+  success: >-
+    Catch opens/shorts before e‑test, raise first‑pass yield, cut scrap and
+    re‑spins, shorten CAM cycles, and deliver zero‑defect boards with a clear
+    audit trail.
+  failure: >-
+    Without this check, hidden mismatches trigger e‑test surprises, rework,
+    missed ship dates, expensive returns, and eroded customer trust.
+landingPage:
+  hero:
+    title: AI Netlist Extraction & Compare for Bare PCB Manufacturing
+    subtitle: >-
+      Extract connectivity from Gerber/ODB++ and validate against IPC‑D‑356A to
+      catch opens and shorts before e‑test. Built for NAICS 334412 shops.
+    ctaText: Book a Demo
+    ctaHref: /demo
+  problem:
+    - >-
+      Opens/shorts discovered at e‑test trigger scrap, rework, and schedule
+      slip.
+    - Manual CAM checks for netlist mismatches are slow and inconsistent.
+    - >-
+      Gerber‑only jobs lack explicit netlists; aligning with IPC‑D‑356A is
+      error‑prone.
+    - >-
+      Panelization and complex stacks (blind/buried/microvias) complicate
+      verification.
+    - No centralized audit trail or feedback loop across shifts and sites.
+    - Pressure to deliver zero‑defect first articles with shrinking cycle times.
+  solution:
+    - >-
+      AI reconstructs a netlist from CAM data and compares it to IPC‑D‑356A pre
+      e‑test.
+    - >-
+      Instantly flags opens, shorts, missing/extra connections, and pin/polarity
+      issues.
+    - Interactive layer viewer pinpoints defects for fast disposition.
+    - 'Generates a clean netlist and exception report for CAM, MES, and test.'
+    - Automates checks via REST API/CLI; integrates with existing CAM flows.
+    - Deploy on‑prem/air‑gapped with full traceability and role‑based controls.
+  features:
+    - 'Inputs: Gerber RS‑274X/X2, ODB++, IPC‑D‑356A, Excellon/NC drill (ZIP/TGZ).'
+    - 'Panel‑aware: recognizes step‑and‑repeat, coupons, and tooling features.'
+    - 'Auto layer stack detection and registration (copper, mask, paste, drills).'
+    - >-
+      AI pad/via classification; supports blind/buried/microvias and split
+      planes.
+    - Differential pair and net class preservation with D‑356A name mapping.
+    - >-
+      Cross‑probing viewer with layer overlays, filters, and one‑click zoom to
+      error.
+    - >-
+      Rules and whitelists per customer/job; learns approved exceptions to cut
+      noise.
+    - 'Reports: PDF/CSV with screenshots, timestamps, and pass/fail summaries.'
+    - 'API/automation: REST, webhooks, and CLI for unattended batch runs.'
+    - 'Security: SSO, RBAC, audit logs; encryption in transit/at rest.'
+    - 'Deployment: Windows/Linux, Docker; offline licensing for secure sites.'
+    - 'Performance: typical 6–12 layer jobs analyze in minutes, 24/7 at scale.'
+  steps:
+    - Upload CAM package (Gerber/ODB++) and IPC‑D‑356A file.
+    - System parses layers/drills and reconstructs the copper‑based netlist.
+    - >-
+      Automated compare highlights opens, shorts, missing/extra nets, and pin
+      issues.
+    - Review in the viewer; accept true exceptions or flag fixes back to CAM.
+    - Export clean netlist and exception report; push results to MES/e‑test.
+    - 'Close the loop: approved exceptions are learned for future jobs.'
+---
+# NetVerify AI — Gerber vs IPC‑D‑356A Netlist Compare
+
+Generated for NAICS 334412 — Bare Printed Circuit Board Manufacturing.
+Service: Netlist Extraction and Compare (Gerber vs IPC-D-356A)

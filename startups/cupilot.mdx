@@ -1,0 +1,308 @@
+---
+name: CUPilot Pre‑Underwrite AI
+slug: cupilot
+service:
+  title: AI Pre‑Underwriting Summarizer (Consumer/Auto/Personal)
+  description: >-
+    Summarizes loan files, computes key ratios, flags stipulations, and proposes
+    decision drafts/counter-offers.
+  targetUsers:
+    - Underwriting
+    - Lending Ops
+    - Branch LOs
+  triggers:
+    - New application reaches ‘docs received’
+    - Credit pull completed
+    - Income docs uploaded
+  inputs:
+    - Application/LOS data
+    - Credit reports (3 bureaus)
+    - Income docs (paystubs/W2/VOI)
+    - Vehicle data (if auto)
+    - Policy matrices
+  steps:
+    - Pull file from LOS; normalize data
+    - Extract income; compute DTI/LTV/PTI; verify with policy thresholds
+    - Detect missing/invalid stips; suggest cures
+    - Draft decision memo with comparable terms/counter-offers
+    - Produce email/SMS for member and task list for LO
+    - Push summary back to LOS and notify underwriter
+  tools:
+    - MeridianLink/nCino/Encompass APIs
+    - Experian/Equifax/TransUnion data
+    - OCR (Textract)
+    - Policy engine (simple rules)
+    - Azure OpenAI/Claude for memo drafting
+  outputs:
+    - Underwriting summary page
+    - Calculated ratios and pass/fail grid
+    - Decision/counter-offer draft
+    - Stipulation checklist
+  pricingModel:
+    - Setup (policy ingestion)
+    - 'Per-file fee (e.g., $3–$8)'
+    - Optional per-seat reviewer
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 4
+    overall: 4.5
+  risks:
+    - Data errors from OCR/LOS mapping
+    - Potential disparate impact if used beyond assistive scope
+    - Outdated policy matrices leading to bad suggestions
+  dependencies:
+    - LOS API/SFTP feed
+    - Credit bureau integration
+    - Policy documents and pricing sheets
+    - Access to rate sheets/NADA/KBB if auto
+leanCanvas:
+  problem:
+    - >-
+      Underwriters spend 20–40 minutes per file aggregating documents, computing
+      DTI/PTI/LTV, and writing notes, creating bottlenecks during peak volume.
+    - >-
+      Manual ratio calculations and missing stipulations drive 10–20% rework
+      rates and inconsistent decisions across underwriters and branches.
+    - >-
+      Loan Origination Systems (LOS) contain unstructured notes; managers lack
+      standardized, audit-ready rationales for actions required by ECOA/Reg B
+      and NCUA.
+    - >-
+      Indirect auto channels (e.g., dealer-arranged) create high-volume
+      variability; staff struggle to keep SLAs for response times, hurting
+      dealer/membership experience.
+    - >-
+      Staffing is tight: hiring experienced underwriters is costly (fully loaded
+      $80–110k/FTE) and training cycles are long; backlogs increase pull-through
+      drop-off and member churn.
+    - >-
+      Regulatory pressure requires consistent documentation of reasons for
+      approval/denial/counter-offer and auditable decision trails; manual
+      processes are error-prone.
+  solution:
+    - >-
+      Ingest application data and documents from LOS via native connectors;
+      normalize and enrich with bureau and employer/income data when available.
+    - >-
+      Automatically compute key ratios (DTI, PTI, LTV/CLTV, residual income,
+      verification of capacity) and check against CU policy thresholds and risk
+      tiers.
+    - >-
+      Flag missing/invalid stipulations (proof of income, collateral docs, POI
+      gaps, POF, POI frequency mismatches, ID, residence, insurance) with
+      evidence citations.
+    - >-
+      Generate draft decision memos: approve/decline/counter‑offer with reasons,
+      conditions, and alternative structures (e.g., lower amount, longer term,
+      co‑signer).
+    - >-
+      Provide an explainability pane linking each recommendation to the specific
+      document/extract and policy rule that triggered it (Reg B‑ready
+      rationale).
+    - >-
+      Offer an underwriter console to review, edit, and finalize; track
+      overrides and feedback to continuously improve models (human‑in‑the‑loop).
+    - >-
+      Deliver dashboards for managers: cycle time, rework rate, override rate,
+      stip miss rate, SLA adherence, and fair lending documentation coverage.
+    - >-
+      Expose APIs and webhooks to push summaries and decisions back to LOS
+      notes, tasks, and audit logs; support PDF export for audits.
+    - >-
+      Security/compliance by design: SOC 2 Type II, data residency in US, PII
+      encryption at rest/in transit, role‑based access, detailed audit trails. 
+  uniqueValueProp: >-
+    1‑click, audit‑ready pre‑underwriting summaries that compute key ratios,
+    flag missing stips, and draft decision/counter‑offer options aligned to your
+    credit policy—cutting decision cycle time by 40%+ and reducing rework while
+    improving consistency and compliance.
+  unfairAdvantage: >-
+    A CU‑tuned, explainable LLM+policy engine trained on diverse credit union
+    policies and annotated decision trails, delivered through native LOS
+    connectors and backed by audit‑grade rationale—hard to replicate quickly by
+    generic AI vendors or LOS incumbents.
+  customerSegments:
+    - >-
+      US credit unions with assets >$300M focused on consumer lending (auto,
+      personal, credit card), especially 2,000–3,000 applications/month
+      operations.
+    - >-
+      Large/mega credit unions (> $1B assets) with centralized underwriting and
+      indirect auto programs.
+    - CUSOs that provide shared underwriting/loan processing to member CUs.
+    - Credit union lending BPO providers and outsourced underwriting desks.
+    - >-
+      Core/LOS‑modernized CUs using MeridianLink Consumer, Origence (CUDL),
+      Temenos Infinity, nCino, Jack Henry Symitar, Fiserv DNA, or Corelation
+      KeyStone.
+  channels:
+    - >-
+      Direct sales to Chief Lending Officers, Underwriting Managers, and CIOs at
+      mid‑to‑large CUs.
+    - >-
+      Partnerships with CUSOs and LOS marketplaces (MeridianLink Marketplace,
+      Origence Partner Network, Temenos Exchange).
+    - >-
+      Co‑marketing with data/OCR partners (Ocrolus, Argyle/Truv/Plaid Income) to
+      bundle verification + pre‑underwriting.
+    - >-
+      Speaking/demo slots at CUNA, NAFCU, Origence User Conference, Jack Henry
+      Connect, and state CU league events.
+    - >-
+      Webinars with early adopter case studies; targeted outbound to CUs with
+      high indirect auto volume.
+    - >-
+      Land‑and‑expand via 60–90 day pilots and success-based pricing, then
+      enterprise rollouts across product lines.
+  revenueStreams:
+    - 'Tiered SaaS: platform fee + per‑file usage.'
+    - >-
+      Example pricing: $1,500–$6,000/month base (by asset size/features) plus
+      $1.25–$3.00 per processed file; volume discounts at >10k files/month.
+    - >-
+      Enterprise/unlimited plans for mega CUs; optional private VPC or on‑prem
+      premium.
+    - >-
+      Implementation/connector fee ($10k–$40k) based on LOS integration depth
+      and SSO/security requirements.
+    - >-
+      Compliance add‑ons: annual model validation pack, audit bundle, and fair
+      lending monitoring dashboard.
+    - >-
+      Professional services: policy digitization, custom decision templates,
+      training.
+  costStructure:
+    - >-
+      Cloud inference and storage (LLM/OCR/embedding) proportional to files
+      processed.
+    - Third‑party OCR/document AI licensing or usage fees.
+    - >-
+      Engineering (ML, integrations, security), product, and SME underwriting
+      staff for policy encoding.
+    - >-
+      Compliance and security (SOC 2 audits, penetration testing, vendor due
+      diligence tooling).
+    - >-
+      Sales/marketing (conference booths, partner rev share 10–20%, solution
+      engineering).
+    - >-
+      Customer success and support (training, policy updates, quarterly model
+      validations).
+    - 'Legal/insurance (E&O, cyber liability).'
+  keyMetrics:
+    - >-
+      Minutes saved per file (target: 20–30 minutes) and % reduction in decision
+      cycle time (target: ≥40%).
+    - 'Underwriter throughput (files/person/day) uplift (target: +50–100%).'
+    - >-
+      Ratio accuracy vs. human benchmark (target: ≥99% within tolerance); stip
+      detection precision/recall (≥95%/≥92%).
+    - >-
+      Rework rate due to missed stips/errors (target: reduce from baseline by
+      ≥50%).
+    - >-
+      Decision draft adoption rate (percent finalized without major edits;
+      target: ≥70% by month 3).
+    - >-
+      Pull‑through rate and member response time improvement (e.g., same‑day
+      decisions increase from 55% to 80%).
+    - >-
+      Compliance coverage: decisions with documented Reg B reasons (target:
+      100%) and audit log completeness (100%).
+    - >-
+      Override rate by policy area (monitor for policy gaps); model drift
+      alerts/month (target: <2).
+    - >-
+      Uptime/SLA (≥99.9%) and mean time to resolve support tickets (<8 business
+      hours).
+    - >-
+      Pilot ROI: cost to value ratio (operational savings ≥3x subscription
+      within 90 days).
+storyBrand:
+  character: >-
+    Credit union lending teams (loan officers, underwriters, managers) handling
+    consumer/auto/personal loans who need to decide quickly without missing
+    risk.
+  problem: >-
+    Loan files are scattered and manual to review; computing ratios, reconciling
+    documents, and tracking stipulations eats time and causes inconsistent
+    decisions—leaving teams stressed while members wait.
+  guide: >-
+    AI Pre-Underwriting Summarizer: a security-first, audit-ready AI copilot
+    built for credit unions. We understand underwriting pressure and compliance
+    needs, and we deliver explainable summaries, key ratios, stip flags, and
+    draft decisions/counter-offers aligned to your policy.
+  plan: >-
+    1) Connect your LOS and document sources; 2) Configure your policy, ratios,
+    and stip rules; 3) Receive summarized files with computed ratios, flagged
+    stips, and decision/counter-offer drafts for quick review and export.
+  callToAction: Schedule a 30-minute demo or start a low-risk pilot with sample loan files.
+  success: >-
+    Cut decision prep time, standardize underwriting, speed member approvals,
+    raise pull-through, reduce rework, and maintain clear, audit-ready rationale
+    on every loan.
+  failure: >-
+    Keep losing time to manual review, miss critical stips, deliver uneven
+    decisions, frustrate members, and invite avoidable compliance headaches.
+landingPage:
+  hero:
+    title: AI Pre‑Underwriting Summarizer for Credit Unions
+    subtitle: >-
+      Automate consumer, auto, and personal loan pre‑underwriting—concise
+      summaries, key ratios, stip flags, and decision drafts in minutes.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - 'Manual pre‑underwriting drags—PDFs, emails, spreadsheets, and rekeying.'
+    - Inconsistent ratios and checklists slow decisions and create risk.
+    - Missing stipulations trigger back‑and‑forth and member frustration.
+    - Managers review routine files instead of focusing on edge cases.
+    - Audit trails and documentation are time‑consuming to assemble.
+  solution:
+    - Ingests loan files and produces a decision‑ready pre‑underwriting packet.
+    - >-
+      Computes DTI, PTI, LTV, income stability, and other ratios with cited
+      sources.
+    - 'Flags missing documents, policy exceptions, and required conditions.'
+    - >-
+      Drafts approve/decline/counter‑offer recommendations you can accept or
+      edit.
+    - >-
+      Fits into existing LOS workflows with human‑in‑the‑loop controls and
+      auditability.
+  features:
+    - >-
+      Multi‑document intake: application, paystubs, W‑2/1099, bank statements,
+      credit reports.
+    - >-
+      Ratio engine: DTI, PTI, LTV, residual income, collateral and employment
+      checks.
+    - 'Explainable outputs: every figure linked to a document and page reference.'
+    - 'Stipulation detection: auto‑generated checklists and condition tracking.'
+    - >-
+      Counter‑offer builder: amount, term, rate, collateral, and conditions
+      suggestions.
+    - Policy exception highlights with standardized rationale notes.
+    - Credit memo templates and one‑page summaries for quick review.
+    - 'Realtime queues, alerts, and SLA timers for faster turnarounds.'
+    - APIs and connectors for common LOS/core systems; SSO support.
+    - >-
+      Security & compliance: encryption, role‑based access, audit logs;
+      GLBA/NCUA‑aligned.
+    - 'Deployment options: cloud or on‑premises.'
+    - Version history and examiner‑ready audit trail.
+  steps:
+    - 1) Connect your LOS or upload documents.
+    - >-
+      2) AI parses docs and credit data; extracts income, liabilities,
+      collateral, and trade lines.
+    - 3) Calculates ratios and detects missing items and policy exceptions.
+    - 4) Generates a concise summary with approve/decline/counter‑offer drafts.
+    - 5) Reviewer edits/approves and pushes back to LOS; member is notified.
+    - 6) Track outcomes and refine rules with feedback.
+---
+# CUPilot Pre‑Underwrite AI
+
+Industry: Credit Unions
+Service: AI Pre‑Underwriting Summarizer (Consumer/Auto/Personal)

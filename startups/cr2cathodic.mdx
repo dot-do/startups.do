@@ -1,0 +1,322 @@
+---
+name: 'CR2: Cathodic Protection & Corrosion Risk Ranker'
+slug: cr2cathodic
+service:
+  title: Cathodic Protection & Corrosion Risk Ranker
+  description: >-
+    Monitors CP assets, flags underprotection, and prioritizes digs/repairs
+    using multi-factor risk scoring.
+  targetUsers:
+    - Corrosion engineers
+    - Integrity management
+  triggers:
+    - Daily CP data ingest
+    - New CIS/DCVG survey uploaded
+  inputs:
+    - Rectifier currents/voltages
+    - Pipe-to-soil potentials (instant-off where available)
+    - CIS/DCVG survey results
+    - 'Coating age/type, soil corrosivity (SSURGO)'
+    - 'AC/DC interference sources, crossings'
+    - ILI corrosion anomalies
+  steps:
+    - Normalize CP measurements and detect outliers
+    - Spatially join CP data to pipeline segments
+    - Score risk using thresholds and contextual factors
+    - Propose mitigation actions and schedule follow-ups
+    - Generate maps and dig candidate list
+    - Track closure and measure effectiveness
+  tools:
+    - Historian or CP monitoring platform API
+    - GIS (Esri)
+    - Soil/land datasets
+    - Python scoring pipeline
+    - Power BI/Grafana
+  outputs:
+    - Risk-ranked segment list and map
+    - Mitigation recommendations
+    - Compliance reports for CP criteria
+  pricingModel:
+    - Setup per system
+    - Monthly subscription per 100 miles
+    - Optional per-report generation fee
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 7
+    overall: 7.5
+  risks:
+    - Survey frequency gaps
+    - Mixed measurement methods consistency
+    - False sense of protection without instant-off
+  dependencies:
+    - CP data feeds and survey files
+    - GIS centerline
+    - Access to ILI anomaly database
+leanCanvas:
+  problem:
+    - >-
+      Underprotection is detected late due to infrequent surveys (e.g., monthly
+      rectifier checks, annual CIS) and limited telemetry coverage, allowing
+      corrosion to progress between readings.
+    - >-
+      Data is fragmented across SCADA/RTU logs, rectifier telemetry,
+      CIS/DCVG/ACVG surveys, coupon/off-potential data, ILI anomalies,
+      soil/resistivity maps, work orders, and GIS; manual reconciliation is
+      slow, error-prone, and inconsistent.
+    - >-
+      Prioritizing digs/repairs is subjective; likelihood (corrosion activity)
+      is weakly linked to consequence (HCA/MCA, diameter, pressure, product,
+      receptors), leading to suboptimal risk-per-dollar allocation.
+    - >-
+      Regulatory pressure (PHMSA Gas Mega Rule, 49 CFR 192 Subpart O; AMPP/NACE)
+      requires demonstrable, documented risk-based decisions and CP
+      effectiveness; audit findings can trigger CAPEX and fines.
+    - >-
+      Dynamic drivers (AC/DC interference, seasonal soil moisture/salinity,
+      coating condition) cause CP variability; operators lack predictive alerts
+      and root-cause context.
+    - >-
+      Field resources are constrained; false alarms and low-priority truck rolls
+      waste budget and extend backlogs for high-risk assets.
+    - >-
+      Cost of unnecessary digs is high ($25k–$200k per dig); missing high-risk
+      defects can cause incidents costing $1M–$50M+ including downtime and
+      penalties.
+    - >-
+      Aging coating systems and legacy assets increase corrosion likelihood;
+      integrating ILI signals and CP data remains technically challenging.
+  solution:
+    - >-
+      Unified data fabric that ingests and normalizes CP and integrity data
+      (rectifier/coupon/test station telemetry, CIS/DCVG/ACVG, ILI anomalies,
+      work orders, GIS, weather/soil), resolving timestamps and locations to
+      pipeline centerline and HCA/MCAs.
+    - >-
+      Physics-informed ML risk scoring (PoF × CoF) using CP criteria (e.g., AMPP
+      21424, formerly SP0169), coating type/age, soil resistivity/moisture, AC
+      interference, ILI metal loss/fatigue, pressure cycles, and leak/repair
+      history.
+    - >-
+      Continuous monitoring to detect underprotection, trend drifts, and AC/DC
+      interference; predictive alerts with lead time targets (≥7–14 days) and
+      root-cause hypotheses.
+    - >-
+      Automated, explainable prioritization of digs/repairs: ranks segments by
+      marginal risk-reduction-per-dollar; generates quarterly dig lists and
+      justifications.
+    - >-
+      What-if scenario planning: simulate rectifier adjustments, coupon
+      additions, grounding/bonding, or coating repairs and estimate risk and
+      cost impacts before field action.
+    - >-
+      Work management integration: push recommended interventions and inspection
+      tasks into SAP PM/IBM Maximo; two-way status sync for closure and
+      learning.
+    - >-
+      Regulatory and audit pack: evidence trails, decision logs, criteria
+      thresholds, and change management aligned to PHMSA Subpart O and operator
+      IM plans.
+    - >-
+      Field support: mobile-ready maps, offline packages, and photo/reading
+      capture to improve data quality and shorten feedback loops.
+  uniqueValueProp: >-
+    Continuously monitor CP performance and rank corrosion risk by segment with
+    explainable, standards-aligned AI—predict underprotection up to 14 days
+    sooner, reduce unnecessary digs by 20–40%, and concentrate 50–70% of annual
+    corrosion risk reduction in the top 10–20% of interventions, with
+    audit-ready traceability.
+  unfairAdvantage: >-
+    Explainable, physics-informed risk models trained on cross-operator,
+    outcomes-labeled datasets; deep, prebuilt integrations into CP/ILI/GIS/EAM
+    ecosystems; audit-ready decision governance mapped to PHMSA/AMPP; and a
+    growing data network effect that improves predictions and optimization over
+    time.
+  customerSegments:
+    - >-
+      Natural gas transmission pipeline operators (Integrity Management, CP
+      Engineering, Operations Control)
+    - Underground gas storage operators
+    - Midstream gas gathering operators (regulated segments/MCAs)
+    - >-
+      Pipeline integrity service firms/EPCs (channel partners/resellers;
+      occasional managed-service buyers)
+    - >-
+      Large gas distribution utilities with transmission-class assets (secondary
+      segment)
+    - >-
+      Regulatory/compliance stakeholders as influencers (PHMSA, state
+      regulators, CSA in CA)
+  channels:
+    - >-
+      Direct enterprise sales to top 100 North American transmission operators
+      (account-based marketing). Target: 30 discovery calls/quarter, 10
+      qualified pilots/year, 6 conversions/year.
+    - >-
+      12-week paid pilot program ($50k fixed for up to 3,000 miles; includes 3
+      connectors, training, and ROI analysis). Success criteria: ≥25% reduction
+      in underprotected segments vs baseline, ≥20% fewer low-value digs
+      identified, ≥7-day average alert lead time, and ≥80% of executed digs
+      falling within top-40% risk-ranked segments.
+    - >-
+      Partnerships with remote CP monitoring OEMs (e.g., Abriox, MobiLtex,
+      Farwest/CPRemote) for co-selling and data integration; rev-share on
+      upsells to analytics tier (10–20%).
+    - >-
+      Alliances with ILI vendors (ROSEN, Baker Hughes PII, NDT Global) to
+      combine CP/ILI risk models in joint integrity assessments; pursue referral
+      agreements.
+    - >-
+      GIS/EAM ecosystem partnerships (Esri Partner Network, SAP, IBM Maximo) to
+      list connectors on marketplaces and ride existing procurement vehicles.
+    - >-
+      Industry events/content: AMPP Annual Conference, PPIM, AGA/INGAA meetings;
+      publish case studies/whitepapers and host webinars on “Risk-per-dollar
+      optimization for CP.”
+    - >-
+      Digital marketing: corrosion risk maturity assessment quiz and ROI
+      calculator; targeted ads to job titles (Integrity Manager, CP Engineer).
+    - >-
+      Compliance-first procurement: prequalification on ISNetworld/Avetta;
+      security due diligence playbook to shorten vendor approval cycles.
+  revenueStreams:
+    - >-
+      SaaS subscription (per mile per year): Monitor tier $200–$300/mi/yr; Risk
+      & Optimization tier $500–$800/mi/yr; Enterprise tier $900–$1,200/mi/yr
+      (includes SSO, premium SLA, and unlimited read-only users).
+    - >-
+      Device telemetry add-on: $3–$8 per connected CP device per month
+      (rectifier/test station/coupon).
+    - >-
+      Integration and data onboarding fees: $25k–$150k one-time per operator
+      (scope-dependent).
+    - >-
+      Professional services: model calibration, historical data cleanup,
+      regulatory report setup ($180–$250/hour or packaged).
+    - >-
+      Managed service (optional): 24/7 monitoring and monthly risk review board
+      ($10k–$30k/month/operator).
+  costStructure:
+    - >-
+      Personnel: ML/data engineers, CP/integrity SMEs, full-stack engineers,
+      integrations team, QA, security/compliance, customer success,
+      sales/marketing.
+    - >-
+      Cloud infrastructure: ingestion (IoT/streaming), compute for ML
+      scoring/simulation, storage (hot/cold), GIS map services,
+      monitoring/observability (aim for 70–80% gross margin at scale).
+    - >-
+      Third-party data/licensing: weather (NOAA/ECMWF), soil/resistivity maps
+      (SSURGO/ESRI), satellite soil moisture (SMAP), and basemaps.
+    - >-
+      Security/compliance: SOC 2 Type II/ISO 27001 audits, pen tests,
+      vulnerability management, insurance (tech E&O/cyber).
+    - >-
+      Field validation/pilots: travel, safety training, PPE, and potential
+      subcontracting with CP service firms.
+    - >-
+      Sales/marketing: conferences (booth + travel), content creation, partner
+      MDF, lead gen tools.
+    - Partner commissions/revenue share for OEM/integrator channels.
+    - >-
+      R&D for physics-informed models, AC interference simulation, and patent
+      filings.
+  keyMetrics:
+    - >-
+      Product/analytics: percentage of CP assets with telemetry coverage; mean
+      time to detect (MTTD) underprotection; average prediction lead time
+      (days); alert precision/recall; false alarm rate; data latency (<15 min
+      for telemetry); proportion of segments with DQS ≥0.8; miles risk-scored
+      per day.
+    - >-
+      Operational outcomes (per operator): reduction in underprotected segments
+      (% vs baseline); digs avoided (count, $ saved); marginal risk reduction
+      per $1,000; truck rolls avoided; average time from alert to mitigation;
+      audit findings reduced.
+    - >-
+      Business: ARR, gross margin, CAC payback (<12 months target),
+      pilot-to-production conversion rate (>50%), sales cycle length (<9 months
+      target), net revenue retention (>120% with land-and-expand), contracted
+      miles under management, partner-sourced pipeline (%).
+    - >-
+      Model governance: drift detection rate, calibration error (Brier score) on
+      PoF, stability of top-decile risk ranking QoQ, explainability coverage (%
+      of decisions with human-readable rationale).
+storyBrand:
+  character: >-
+    Pipeline integrity and corrosion engineers at natural-gas operators who want
+    clear, defensible priorities for CP maintenance, digs, and repairs to keep
+    assets protected and compliant.
+  problem: >-
+    External—disconnected CP data, drifting potentials, limited crews, and audit
+    pressure; Internal—uncertainty about where risk is highest and what to do
+    next; Philosophical—safety, environmental stewardship, and compliance
+    shouldn’t rely on guesswork.
+  guide: >-
+    We’re corrosion engineers and data scientists who understand PHMSA/CFR 192
+    expectations and field realities. We bring a transparent, auditable AI risk
+    engine that monitors CP assets, flags underprotection, and prioritizes
+    action.
+  plan: >-
+    1) Connect CIS, rectifier/test-station, SCADA, ILI, and work-order data via
+    API/SFTP. 2) AI flags underprotection, weights threats, and ranks segments
+    for digs/repairs with multi-factor scoring. 3) Issue work packs, track
+    remediation, and verify CP restoration with closed-loop reporting. No
+    rip-and-replace; your data stays yours; start with one district.
+  callToAction: >-
+    Direct—Book a 30-minute demo and scope a 90-day pilot. Transitional—Request
+    a sample risk report and validate on your historical digs.
+  success: >-
+    Auditable priorities, fewer emergency digs, optimized CP spend, improved
+    safety and reliability, confident regulatory responses, and proactive
+    mitigation that prevents leaks and downtime.
+  failure: >-
+    Avoid NOPVs and fines, unplanned outages, gas releases, escalating corrosion
+    damage, crew overtime, and wasted budget chasing low-risk anomalies.
+landingPage:
+  hero:
+    title: AI Corrosion Risk Ranker for Natural Gas Pipelines
+    subtitle: >-
+      Unify CP data, flag underprotection, and send crews to the highest‑risk
+      digs first.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - 'CP data is siloed across surveys, rectifiers, ILI, and GIS.'
+    - >-
+      Underprotection goes unnoticed between checks, raising failure and
+      compliance risk.
+    - Too many anomalies; limited crews and budget force guesswork.
+    - 'Manual ranking is slow, inconsistent, and hard to defend in audits.'
+    - Trends and interference effects are hard to quantify in one view.
+    - Work orders and field proof are fragmented and hard to trace.
+  solution:
+    - Continuously monitors CP assets and survey results in one platform.
+    - Multi‑factor AI risk scoring ranks segments for digs and repairs.
+    - Instant alerts on underprotection and degrading trends.
+    - 'Auto‑prioritized dig list with cost, impact, and location context.'
+    - 'Field‑ready work packages with routing, photos, and closeout evidence.'
+    - Compliance‑ready reports with full traceability and audit trails.
+  features:
+    - 'Connectors for CIS/DCVG/ACVG, ILI, rectifiers/RMUs, coupons, SCADA, GIS.'
+    - 'Unified CP dashboard with potentials, currents, and survey overlays.'
+    - 'Configurable risk model with weights, thresholds, and rules by region.'
+    - Segment‑level heatmaps and maps of hotspots and risk clusters.
+    - Trend and forecast analytics to predict time‑to‑threshold.
+    - Real‑time alerts via email/SMS and configurable escalation.
+    - 'Auto‑generate work orders; integrate with SAP PM, Maximo, or API.'
+    - What‑if planning to maximize risk reduced per dollar spent.
+    - 'Mobile field app for verification, photos, and notes—offline capable.'
+    - 'One‑click, audit‑ready compliance and dig summary reports.'
+  steps:
+    - Connect your data sources and import history.
+    - Set risk weights and thresholds to match your standards.
+    - Review the baseline heatmap and top‑priority dig list.
+    - Validate on sample segments and tune the model.
+    - Enable alerts and push work orders to field teams.
+    - Track outcomes and export compliance-ready reports.
+---
+# CR2: Cathodic Protection & Corrosion Risk Ranker
+
+Industry: Pipeline Transportation of Natural Gas
+Service: Cathodic Protection & Corrosion Risk Ranker

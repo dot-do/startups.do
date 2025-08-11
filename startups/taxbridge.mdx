@@ -1,0 +1,312 @@
+---
+name: TaxBridge OCR
+slug: taxbridge
+service:
+  title: Tax Document OCR & Data Extraction to Workpapers
+  description: >-
+    Parse W-2, 1099, 1098, K-1 and other tax docs to structured fields mapped to
+    import templates for common tax software.
+  targetUsers:
+    - CPA/EA tax firms
+    - Outsourced workpaper teams
+  triggers:
+    - Document upload to portal
+    - Batch processing window
+  inputs:
+    - Scanned or native PDFs (W-2/1099/1098/K-1)
+    - Tax software import specs (Drake/ProConnect/UltraTax)
+  steps:
+    - OCR and key-value extraction per form type
+    - Normalize payer/payee names and EIN/TIN
+    - Validate totals and cross-field checks
+    - Map to software-specific CSV/XML templates
+    - Route low-confidence fields to reviewer
+    - Export workpapers and mapping logs
+  tools:
+    - 'OCR (AWS Textract, Google DocAI)'
+    - LLM for field normalization
+    - Form-specific parsers
+    - Spreadsheet/CSV generator
+  outputs:
+    - Per-form structured JSON/CSV
+    - Software import files
+    - Exception queue and confidence report
+  pricingModel:
+    - Per-document ($0.50–$3)
+    - 'Volume bundle (per 1,000 pages)'
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 4
+    overall: 4.3
+  risks:
+    - OCR errors on low-quality scans
+    - Mapping mismatches with software versions
+    - PII handling and retention policies
+  dependencies:
+    - Access to up-to-date import templates
+    - Secure file storage
+    - Client consent for automated parsing
+leanCanvas:
+  problem:
+    - >-
+      Tax firms spend 15–45 minutes per return rekeying data from
+      W-2s/1099s/1098s/K-1s into tax software, creating a seasonal capacity
+      bottleneck.
+    - >-
+      Human data entry introduces 1–3% field error rates that cause rejects,
+      IRS/state notices, and rework.
+    - >-
+      Existing vendor tools are either generic OCR (poor mapping to tax
+      software) or locked to a single ecosystem; multi-software firms need one
+      pipeline.
+    - >-
+      K-1s, consolidated 1099s, and brokerage statements have highly variable
+      layouts; current tools underperform without expensive templating.
+    - >-
+      Firms lack an audit trail linking extracted fields to source documents and
+      reviewer signoff, complicating workpaper standards and peer review.
+    - >-
+      Tax seasonality makes staffing expensive; firms need elastic throughput
+      (Jan–Apr) without year-round fixed costs.
+    - >-
+      Security/compliance requirements (SOC 2, IRS e-file security, FTC
+      Safeguards) raise barriers to adopting offshore or non-compliant
+      solutions.
+  solution:
+    - >-
+      High-accuracy OCR + AI extraction trained on U.S. tax forms (W-2;
+      1099-MISC/NEC/DIV/INT/B/SSA/1099-K; 1098-MORT/T/E; 5498; 1095-A;
+      consolidated 1099 brokerage; K-1 for 1065/1120S/1041; and common state
+      equivalents).
+    - >-
+      Field normalization and validation (EIN/SSN checksum, state/local wage box
+      logic, payer/payee name normalization, address parsing, withholding sum
+      checks).
+    - >-
+      Confidence scoring and exception routing; reviewer UI with side-by-side
+      document view, field highlights, tick marks, and audit trail.
+    - >-
+      One-click export mapped to import templates for Lacerte, ProSeries,
+      ProConnect Tax, UltraTax CS, CCH Axcess/ProSystem fx, Drake; JSON/CSV
+      exports for others.
+    - >-
+      Deduplication and client matching across uploads; multi-year carryforward
+      of known payers and mappings.
+    - >-
+      Bulk ingestion via portal, email-in, watch folders
+      (ShareFile/SmartVault/Dropbox), TWAIN scanner, and REST API.
+    - >-
+      Human-in-the-loop verification option for complex packets (brokerage/K-1)
+      with SLAs (e.g., 2-hour standard, 30-minute rush).
+    - >-
+      Enterprise controls: SSO/SAML, RBAC, PII redaction, data retention
+      policies, IP allowlists, detailed access logs, and environment options
+      (US-only).
+    - >-
+      Compliance posture: SOC 2 Type II, encryption in transit/at rest, vendor
+      risk program; alignment with IRS Publication 1075 where applicable; FTC
+      Safeguards Rule support.
+  uniqueValueProp: >-
+    Turn messy tax source documents into validated, audit-ready workpapers and
+    one-click imports to your tax software with 99%+ field accuracy, confidence
+    scoring, and human-in-the-loop when needed—cutting 20–40 minutes per return
+    while meeting SOC 2 and IRS security expectations.
+  unfairAdvantage: >-
+    Tax-native extraction with certified, multi-vendor import mappings plus an
+    audit-first reviewer UI and elastic human verification—backed by proprietary
+    payer/K-1/brokerage datasets and a seasonal operations playbook that
+    competitors without tax focus or single-ecosystem tools cannot match.
+  customerSegments:
+    - >-
+      Mid-market CPA firms (10–300 preparers) using UltraTax, CCH Axcess,
+      Lacerte/ProSeries, Drake; high volume 1040 and pass-through returns.
+    - >-
+      Large regional/national firms (300+ preparers) needing enterprise
+      controls, SSO, and on-prem/private cloud options.
+    - >-
+      Tax franchises (H&R Block franchisees, Jackson Hewitt, Liberty) seeking
+      consistent workflows across locations.
+    - >-
+      Boutique tax practices (1–10 preparers) that want usage-based pricing
+      during peak season.
+    - Outsourced tax processing providers/BPOs supporting U.S. firms.
+    - >-
+      Family offices and wealth managers processing brokerage tax packets and
+      K-1s for HNW clients.
+  channels:
+    - >-
+      Account-based marketing on LinkedIn targeting partners/ops managers at the
+      top 5,000 CPA firms; goal: CTR ≥ 1.5%, MQL→SQL 20%, CAC payback < 9
+      months.
+    - >-
+      Partnerships with tax software ecosystems: build certified import/export
+      connectors and co-marketing with Thomson Reuters (UltraTax), Wolters
+      Kluwer (CCH Axcess), Intuit (Lacerte/ProSeries), Drake; reseller rev-share
+      10–20%.
+    - >-
+      Industry conferences and booths: AICPA ENGAGE, Thomson Reuters SYNERGY,
+      CCH Connections, NATP, IRS Nationwide Tax Forums; demo-to-trial conversion
+      ≥ 35%.
+    - >-
+      Content marketing: technical guides (e.g., “K-1 extraction pitfalls”),
+      benchmark whitepapers (field accuracy by form), and webinars with pilot
+      customers; target organic demo requests ≥ 50/month by year 1.
+    - >-
+      Direct outbound to franchises and regional firms with a 30-day seasonal
+      pilot (Oct–Dec) to lock-in for filing season; pilot-to-paid conversion ≥
+      60%.
+    - >-
+      Integration listings/marketplaces (Intuit, Thomson Reuters, Wolters
+      Kluwer) and DMS partners (SmartVault, ShareFile).
+    - >-
+      Referral program for consultants/MSPs serving CPA firms ($1,000 per
+      closed/won mid-market deal).
+    - >-
+      Pricing incentives for early commitment: pre-season credits and priority
+      HITL SLAs.
+  revenueStreams:
+    - >-
+      Usage-based pricing per extracted page/field bundle with tiered discounts
+      (e.g., $0.10–$0.35/page simple forms; $1–$3/page complex brokerage/K-1).
+    - >-
+      Per-return bundles for 1040 workflows (e.g., $6–$12 per return up to X
+      pages).
+    - >-
+      Annual enterprise contracts with minimum volume commits and lower per-unit
+      rates; true-up after season.
+    - >-
+      Add-on fees for human-verified extraction (e.g., $0.75/page standard,
+      $1.50/page rush) with SLA tiers.
+    - >-
+      Implementation/onboarding packages (data connectors, SSO, role setup):
+      $2k–$25k depending on size.
+    - >-
+      Premium features: private cloud/on-prem, custom form training, dedicated
+      support, and enhanced audit/compliance reporting.
+  costStructure:
+    - >-
+      Cloud compute for OCR/vision/LLM inference (target COGS ≤ 20% of revenue
+      at scale).
+    - >-
+      Human-in-the-loop verification workforce (elastic staffing Jan–Apr; target
+      verification cost ≤ $0.25/page on average).
+    - 'Engineering/ML, product, and QA headcount.'
+    - 'Sales and marketing (ABM, events, partner MDF).'
+    - >-
+      Compliance and security (SOC 2 Type II audits, penetration tests, security
+      tooling, logging).
+    - >-
+      Storage and bandwidth (document retention with lifecycle policies to
+      minimize cost).
+    - Customer success and solution engineering for integrations.
+    - General and administrative expenses.
+  keyMetrics:
+    - >-
+      Field-level accuracy by form (goal: W-2 ≥ 99.2%, 1099-INT/DIV/MISC/NEC ≥
+      98.8%, 1098 ≥ 98.5%, K-1 ≥ 97.0%, consolidated 1099 ≥ 97.5%).
+    - >-
+      Auto-accept rate without human review (goal: W-2 ≥ 85%, 1099s ≥ 75%, 1098s
+      ≥ 80%, K-1/brokerage ≥ 55% in year 1, ≥ 70% in year 2).
+    - >-
+      Exception rate and average handle time per exception (goal: < 3 minutes
+      per exception).
+    - >-
+      End-to-end cycle time from upload to importable file (P50 ≤ 2 min simple
+      forms; P90 ≤ 10 min complex packets).
+    - Import success rate into tax software on first attempt (≥ 99.5%).
+    - >-
+      Time saved per return (measured via time-motion studies): target 20–40
+      minutes; cost savings ≥ $20/return at $60/hr labor.
+    - Throughput per reviewer (≥ 400 pages/day with keyboard workflow).
+    - >-
+      Seasonal scalability: maintain SLOs at 10x Jan–Apr volume spike, 99.9%
+      platform uptime.
+    - >-
+      Security metrics: mean time to detect/respond (MTTD < 5 min, MTTR < 30 min
+      for security incidents), 100% MFA/SSO adoption for enterprise.
+    - >-
+      Sales metrics: lead→demo ≥ 25%, demo→pilot ≥ 50%, pilot→paid ≥ 60%, net
+      revenue retention ≥ 115%.
+    - >-
+      Gross margin: ≥ 70% year 1, ≥ 80% year 3 via model optimization and volume
+      discounts.
+storyBrand:
+  character: >-
+    Tax and accounting firms who want clean, import-ready workpapers without
+    manual data entry.
+  problem: >-
+    Rekeying W-2s, 1099s, 1098s, K-1s and other tax docs from messy PDFs is slow
+    and error-prone, spikes during busy season, and mapping to each software’s
+    import template creates review risk and burnout.
+  guide: >-
+    We understand busy season pressure. Our tax-trained OCR and extraction map
+    fields to common tax software (e.g., Lacerte, ProSystem fx/CCH Axcess,
+    UltraTax, Drake) with field-level confidence, cross-form checks, encryption,
+    audit logs, and onshore processing options to support IRS 7216 obligations.
+  plan: >-
+    1) Upload docs via portal or API; 2) AI classifies, OCRs, and extracts with
+    confidence scores and validations; 3) You review flagged items; 4) Export
+    import-ready CSV/XML to your software. Start with a low-risk pilot; no
+    long-term contract.
+  callToAction: Start a free pilot on sample returns or book a 15-minute demo.
+  success: >-
+    Less manual entry, faster prep and review, fewer errors and notices,
+    audit-ready workpapers, capacity to handle peak volume, happier clients, and
+    higher margins.
+  failure: >-
+    Continue wasting hours on data entry, introduce errors and rework, miss
+    deadlines, burn out staff, and increase compliance risk.
+landingPage:
+  hero:
+    title: Turn Tax Documents into Workpapers—Automatically
+    subtitle: >-
+      AI parses W‑2, 1099, 1098, K‑1 and more into structured fields mapped to
+      your tax software’s import templates. Less keying, faster prep, higher
+      accuracy.
+    ctaText: Book a Demo
+    ctaHref: /demo
+  problem:
+    - Manual data entry slows prep during peak season
+    - Inconsistent scans and formats lead to errors and rework
+    - K‑1s and multi-page forms consume review time
+    - Re-keying to Excel/CSV import templates wastes hours
+    - 'High risk on EINs, amounts, and checkboxes'
+    - Missed deadlines and squeezed margins
+  solution:
+    - AI OCR tuned for U.S. tax forms extracts line-item fields
+    - 'Automatic detection of W‑2, 1099 family, 1098, K‑1, and more'
+    - >-
+      Outputs mapped to Lacerte, UltraTax, CCH Axcess, ProSystem fx, Drake, and
+      generic templates
+    - Built-in math and consistency checks with confidence scoring
+    - One-click export to workpapers and import files
+    - Human-in-the-loop review with audit trail
+  features:
+    - >-
+      Form detection and variant handling (W‑2/W‑2C, 1099‑NEC/MISC/DIV/INT/B,
+      1098, K‑1 1065/1120S)
+    - Field-level accuracy with confidence scores
+    - 'Cross-form validation for IDs, totals, and box math'
+    - Auto client/entity matching and de-duplication
+    - Side-by-side viewer with annotations and change history
+    - 'Bulk upload, email-in, and secure client portal intake'
+    - 'Export to Excel, CSV, XML, and bookmarked PDF workpapers'
+    - Direct mappings to major tax software import specs
+    - 'Batch tracking, statuses, and SLA alerts'
+    - 'Role-based access, SSO, and detailed audit logs'
+    - Encryption in transit and at rest with retention controls
+    - 'PII redaction, watermarks, and download controls'
+    - REST API and webhooks to fit your workflow
+    - Onshore processing options available
+  steps:
+    - Upload or forward tax documents
+    - We detect forms and extract structured fields
+    - Review and resolve flagged items in the viewer
+    - Approve and export mapped workpapers/import files
+    - Push into your tax software or share with your team
+---
+# TaxBridge OCR
+
+Industry: Tax Preparation Services
+Service: Tax Document OCR & Data Extraction to Workpapers

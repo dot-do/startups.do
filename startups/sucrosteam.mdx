@@ -1,0 +1,342 @@
+---
+name: SucroSteam Optimizer
+slug: sucrosteam
+service:
+  title: Steam and Energy Optimization for Evaporation and Crystallization
+  description: >-
+    Advisory engine to reduce steam and electricity per ton sugar by optimizing
+    steam header splits, effect loading, vacuum targets, and crystallizer heat
+    duty.
+  targetUsers:
+    - Energy Manager
+    - Process Engineers
+    - Utilities Supervisor
+  triggers:
+    - High energy cost periods
+    - Throughput changes
+    - Weekly optimization review
+  inputs:
+    - 'Steam header pressures/flows, condensate temperatures'
+    - 'Evaporator effect temperatures, ΔP, levels'
+    - Crystallizer vacuum/temperature profiles
+    - Energy tariffs and boiler constraints
+  steps:
+    - >-
+      Ingest utilities/process data and constraints (min/max pressures,
+      turndown)
+    - Calibrate thermo model of multiple-effect evaporators and crystallizers
+    - Run Pyomo/OR-Tools optimization for target throughput and tariff window
+    - Generate setpoint recommendations and savings estimate
+    - Track realized savings vs baseline; auto-learn model corrections
+  tools:
+    - PI Web API/OPC UA
+    - 'Python (Pyomo, pandas, numpy)'
+    - OR-Tools/Gurobi (optional)
+    - Grafana for KPI tracking
+  outputs:
+    - Optimized setpoints per effect and vacuum level
+    - Steam split plan with predicted energy savings
+    - Deviation and realized savings report
+  pricingModel:
+    - Setup fee
+    - Monthly subscription
+    - Optional gain-share (% of verified energy savings)
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Unsafe setpoints if constraints are incomplete
+    - Latent equipment limits not captured
+    - Operator adoption/change management
+  dependencies:
+    - Utilities P&IDs and constraints
+    - Energy tariff data
+    - Operator approval workflow
+leanCanvas:
+  problem:
+    - >-
+      Beet sugar factories spend 30–50 USD per ton sugar on energy; 60–75% of
+      that is steam for evaporation and crystallization. Setpoints for steam
+      header splits, effect loading, vacuum, and crystallizer duty are often
+      based on heuristics and conservative margins, not data.
+    - >-
+      Multiple-effect evaporators and crystallizers run below theoretical
+      efficiency due to fouling, suboptimal vapor bleed strategies, bottlenecks,
+      and variability in juice purity/temperature; operators lack real-time
+      guidance to rebalance loads while respecting constraints.
+    - >-
+      Plants struggle to quantify and sustain savings because of seasonal
+      campaigns, changing beet quality, and weather effects; measurement and
+      verification (M&V) is rarely rigorous, undermining trust in continuous
+      optimization programs.
+    - >-
+      Existing APC/AI tools are generic, require heavy configuration, or lock
+      into OEM/DCS stacks; sugar-specific thermodynamics (boiling point
+      elevation, supersaturation, color formation, scaling risk) are not
+      embedded, limiting performance and adoption.
+    - >-
+      Electrical loads (vacuum systems, crystallizer drives, condensate return)
+      are not co-optimized with steam, missing 3–8% electricity saving
+      potential.
+  solution:
+    - >-
+      Deploy a sugar-thermodynamics–aware advisory engine that recommends steam
+      header splits (HP/MP/LP), vapor bleed routing, effect loading, and vacuum
+      targets to minimize total energy cost subject to throughput, purity, BPE,
+      and fouling constraints.
+    - >-
+      Crystallization optimizer that sets heat duty targets by pan/crystallizer,
+      manages supersaturation bands and seeding strategies, and synchronizes
+      vacuum and cooling profiles to reduce steam and power while maintaining
+      crystal size distribution (CSD) and color.
+    - >-
+      Soft sensors for Brix, purity, viscosity, and BPE using plant historian
+      data to improve observability of quality constraints without adding
+      hardware.
+    - >-
+      Closed-loop readiness: start with advisory-only (operator confirmation),
+      then optional APC layer for automated setpoint moves within guardrails.
+    - >-
+      M&V module using IPMVP Option C with normalization for beet quality (pol),
+      ambient temperature, and throughput; provides baselines, control periods,
+      confidence intervals, and guaranteed-savings reports.
+    - >-
+      Edge-to-cloud data pipeline integrating DCS and historians (e.g., OSIsoft
+      PI, AVEVA, Ignition), with on-prem edge for low latency and cloud for
+      modeling, optimization, and benchmarking.
+    - >-
+      Operator UX designed for shift handover: ranked advice with rationale,
+      constraint heatmaps per effect/crystallizer, and one-click acceptance with
+      setpoint write-back permissions.
+  uniqueValueProp: >-
+    Sugar-specific AI that continuously advises the lowest-energy setpoints for
+    evaporation and crystallization—cutting 8–15% steam and 3–8% electricity per
+    ton of sugar—while honoring product quality and process safety, with
+    auditable M&V and pay-for-performance pricing.
+  unfairAdvantage: >-
+    A sugar-specialized optimization stack (thermodynamics, supersaturation
+    kinetics, anti-scaling heuristics) trained on multi-plant, multi-campaign
+    datasets with validated M&V baselines—enabling faster deployment, stronger
+    operator trust, and guaranteed, auditable savings that generic APC/AI tools
+    or OEM add-ons can’t match.
+  customerSegments:
+    - 'Beet sugar producers (single-site plants, 3,000–20,000 t beet/day)'
+    - 'Multi-site sugar groups (EU, US, Turkey, Egypt, Central Asia)'
+    - >-
+      Plant managers and energy managers accountable for energy KPIs and CO2
+      intensity
+    - >-
+      Process engineers and control room supervisors of evaporation and
+      crystallization areas
+    - >-
+      OEMs and EPCs for evaporators/crystallizers seeking digital optimization
+      add-ons
+    - Utilities/program administrators offering industrial efficiency incentives
+  channels:
+    - >-
+      Direct enterprise sales to sugar groups (EU/US first), with executive
+      energy/COO sponsors and plant-level champions.
+    - >-
+      Pilot-led land-and-expand: 8–12 week pilot on evaporation+crystallization
+      during campaign; convert to multi-year subscriptions post-M&V.
+    - >-
+      Partnerships with OEMs (BMA, Fives Cail, Buckau-Wolf) to bundle the
+      optimizer with refurbishments and new lines.
+    - >-
+      Alliances with historian/DCS vendors (OSIsoft/AVEVA, Emerson, Yokogawa,
+      ABB) for co-selling and technical integration.
+    - >-
+      Industry events and societies: ESST/CEFS, ASSBT, EFFoST; present case
+      studies with verified M&V.
+    - >-
+      Utility/ESCO channels leveraging incentives for process efficiency and
+      fuel switching (where applicable).
+    - >-
+      Content and ABM: technical briefs on steam economy, supersaturation
+      control, and M&V; calculators for plant ROI; webinars timed pre-campaign.
+    - >-
+      Customer success playbook: pre-campaign readiness, mid-campaign
+      optimization sprints, post-campaign improvement plan.
+  revenueStreams:
+    - >-
+      Annual SaaS subscription per site (USD 120k–200k) based on throughput and
+      module scope (evaporation, crystallization, both).
+    - >-
+      One-time implementation/integration fee (USD 40k–80k) covering data
+      connectors, model calibration, and commissioning.
+    - >-
+      Performance fee: 10–25% of verified energy savings (capped) using agreed
+      M&V, or a per-ton-sugar fee (e.g., USD 1.50–3.00/t sugar) with a minimum.
+    - >-
+      Premium support and operator training packages; optional APC automation
+      module uplift (+USD 40k/year).
+    - >-
+      Enterprise/fleet license for groups (volume discounts, central
+      dashboards).
+  costStructure:
+    - >-
+      R&D: process modeling, optimization engine, M&V tooling; 5–8 FTEs
+      initially.
+    - >-
+      Deployment and customer success: integration engineers, data scientists,
+      process specialists; travel during first season.
+    - >-
+      Cloud and edge infrastructure: compute for modeling/optimization, data
+      storage; 10–20% of ARR.
+    - >-
+      Sales and marketing: technical marketing, conferences, demos, pilots;
+      15–25% of ARR in growth phase.
+    - Partnership and certification costs with OEMs/DCS/historians.
+    - 'Insurance, cybersecurity, and compliance audits.'
+    - >-
+      Contingency for on-site sensors (optional) if soft-sensor accuracy is
+      insufficient.
+  keyMetrics:
+    - >-
+      Steam intensity: target reduction 8–15% from baseline (e.g., from 1.5 to
+      1.3 t steam/t sugar).
+    - >-
+      Electricity intensity: target reduction 3–8% (e.g., from 120 to 112 kWh/t
+      sugar).
+    - 'Total energy intensity: GJ/t sugar; blended cost USD/t sugar.'
+    - >-
+      CO2 intensity: kg CO2/t sugar based on verified fuel mix; target reduction
+      8–15%.
+    - >-
+      Steam header stability: standard deviation of MP/LP header pressure
+      reduced by ≥30%.
+    - >-
+      Evaporator economy: kg water evaporated/kg live steam; increase by 0.5–1.0
+      points (e.g., 6.5 → 7.2).
+    - >-
+      Crystallizer performance: average batch time variance reduced by ≥20%; CSD
+      within spec ≥95% of batches; heat duty per batch -5–10%.
+    - >-
+      Constraint adherence: zero excursions beyond BPE, ΔT min, and scaling risk
+      thresholds; quality out-of-spec <1% of time.
+    - >-
+      Operator adoption: ≥80% of recommendations accepted or explained;
+      time-to-value <4 weeks from commissioning.
+    - >-
+      Model accuracy: soft sensor MAE <1.0 Brix, purity MAE <0.8 units; forecast
+      horizon stability (4–8 h) within ±5%.
+storyBrand:
+  character: >-
+    Beet sugar factory managers and process engineers who must hit cost, energy,
+    and quality targets without risking throughput or crystal quality.
+  problem: >-
+    External: Rising steam and power costs, CO2 pressure, variable beets, and
+    complex multi‑effect evaporators make setpoints hard to choose (steam header
+    splits, effect loading, vacuum targets, crystallizer heat duty). Internal:
+    Teams are stuck guessing and firefighting across shifts. Philosophical:
+    Making sugar shouldn’t waste energy or compromise crystal quality.
+  guide: >-
+    We understand campaign variability, pan-floor constraints, and the risk of
+    boilovers. Our team blends sugar process expertise with industrial AI and
+    has delivered measured energy cuts in beet factories. The advisory engine
+    learns from your historian/DCS to recommend optimal steam and power use
+    while respecting plant limits.
+  plan: >-
+    1) Connect & baseline: Integrate with historian/DCS, validate data, and
+    establish current steam/power per ton sugar. 2) Optimize: Deploy AI advisory
+    to recommend steam header splits, effect loading, vacuum targets, and
+    crystallizer heat duty; deliver setpoint guidance to dashboard or DCS. 3)
+    Prove & scale: M&V of savings, operator coaching, and optional closed‑loop
+    optimization. Low‑risk: no CAPEX, keep your constraints, cancel anytime.
+  callToAction: >-
+    Direct: Start a 4–8 week pilot this campaign. Transitional: Request a sample
+    savings report and readiness checklist.
+  success: >-
+    8–15% lower steam per ton sugar, 5–10% lower electricity, steadier pans and
+    vacuum, fewer boilovers, reduced molasses losses, maintained or improved
+    throughput and purity, lower CO2 intensity, and fast payback within the
+    campaign.
+  failure: >-
+    Continued overspend on steam and power, missed CO2 targets, unstable
+    crystallization and off‑spec massecuite, higher molasses losses, unnecessary
+    CAPEX, and operators stuck firefighting instead of optimizing.
+landingPage:
+  hero:
+    title: AI Steam & Energy Optimization for Beet Sugar Plants
+    subtitle: >-
+      Cut steam and power per ton of sugar by optimizing steam header splits,
+      effect loading, vacuum targets, and crystallizer heat duty—continuously
+      and safely.
+    ctaText: Request a Demo
+    ctaHref: '#demo'
+  problem:
+    - >-
+      Static setpoints waste energy as slice rate, purity, and ambient
+      conditions change.
+    - >-
+      Evaporator effects are unevenly loaded; header splits aren’t retuned after
+      stops or fouling.
+    - Conservative vacuum targets lengthen pan cycles and raise power draw.
+    - >-
+      Crystallizers run hotter/colder than needed, risking quality or wasting
+      heat.
+    - >-
+      Manual tuning can’t keep up with hourly variability; trade-offs aren’t
+      visible in real time.
+    - Fuel and electricity costs rise while CO2 targets tighten.
+  solution:
+    - >-
+      Real-time advisory engine that recommends optimal steam header splits
+      across effects and pans.
+    - Dynamic effect loading and vapor reuse strategy to minimize live steam.
+    - 'Vacuum optimization to balance boil time, quality, and kWh.'
+    - >-
+      Crystallizer heat duty guidance to hit supersaturation with minimal
+      energy.
+    - >-
+      Objective-driven control: minimize steam and kWh/ton under constraints for
+      throughput, Brix, purity, color.
+    - >-
+      Works with your DCS/SCADA; operator prompts or optional setpoint
+      write-back.
+    - >-
+      Learns across campaigns; adapts to beet quality, fouling, and ambient
+      shifts; supports what-if analysis.
+  features:
+    - 'Typical impact: 5–15% less steam and 2–6% less power per ton sugar.'
+    - >-
+      1–5 minute optimization cycle with robust handling of noisy/missing
+      sensors.
+    - 'Digital twin calibrated to your evaporators, pans, and crystallizers.'
+    - >-
+      Constraint handling: pan boil time, supersaturation window, ΔT, vacuum,
+      effect flooding/entrainment, color.
+    - >-
+      Savings dashboard: steam/ton, kWh/ton, CO2, $/day with baselines and
+      confidence bands.
+    - >-
+      Root-cause insights (e.g., vent steam losses, condensate backing, fouling
+      signatures).
+    - 'Operator UX: ranked setpoint changes with expected impact and rationale.'
+    - >-
+      Secure on‑prem/edge deployment; OPC UA/Modbus connectors; role-based
+      access and audit trail.
+    - APIs for historian/BI integration; CSV/REST export.
+  steps:
+    - >-
+      Connect: map historian/DCS tags for effects, pans, crystallizers, headers,
+      meters.
+    - >-
+      Baseline: analyze 30–90 days of data to quantify steam and power per ton
+      by operating window.
+    - 'Calibrate: build plant-specific model; validate against shift data.'
+    - >-
+      Optimize: run in shadow mode; tune constraints and verify predicted
+      savings.
+    - >-
+      Go live: enable operator guidance or write-back; track savings in real
+      time.
+    - 'Verify: weekly M&V reports with financial sign-off.'
+    - 'Scale: extend to additional lines, juice heaters, and condensate systems.'
+---
+# SucroSteam Optimizer
+
+Industry: Beet Sugar Manufacturing
+Service: Steam and Energy Optimization for Evaporation and Crystallization

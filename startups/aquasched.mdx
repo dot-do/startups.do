@@ -1,0 +1,311 @@
+---
+name: AquaSched AI
+slug: aquasched
+service:
+  title: Master Production Scheduling & Changeover Minimization
+  description: >-
+    Optimizes weekly line schedules to meet forecast, minimize changeovers, and
+    respect constraints (cleaning, allergens, labor).
+  targetUsers:
+    - Production Planner
+    - Plant Manager
+    - Operations Director
+  triggers:
+    - Weekly after forecast finalization
+    - Urgent rerun after rush orders or downtime
+  inputs:
+    - Forecast by SKU/week
+    - Line capabilities and speeds
+    - Changeover matrix/time by SKU family
+    - Shift calendar and labor limits
+    - Inventory and open orders
+    - Cleaning/SIP/CIP rules
+  steps:
+    - Import constraints and demand
+    - Formulate MILP with sequence-dependent changeovers
+    - 'Solve scenarios (service-first, cost-first)'
+    - Validate against constraints; generate feasible schedule
+    - Create picklists/line cards; export to MES/ERP
+    - Review exceptions with planner
+  tools:
+    - Python
+    - OR-Tools/Google CP-SAT
+    - Pulp/Pyomo
+    - Power BI
+    - CSV/API connectors
+  outputs:
+    - Optimized production schedule (by line/shift)
+    - Expected utilization/OEE estimate
+    - Changeover plan and labor allocation
+    - What-if scenario files
+  pricingModel:
+    - Setup fee + monthly per plant
+    - Optional per-optimization charge for ad-hoc runs
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Incomplete or outdated changeover matrices
+    - Hard constraints not modeled initially
+    - Planner trust/adoption
+  dependencies:
+    - ERP/MES exports
+    - Line capability data
+    - Labor calendars
+leanCanvas:
+  problem:
+    - >-
+      High changeover time due to SKU proliferation (bottle size, cap color,
+      label, still/sparkling, flavored) causes 10–25% of weekly available line
+      time to be lost.
+    - >-
+      Manual scheduling struggles to respect complex constraints (CIP/cleaning,
+      CO2 vs still, flavor/allergen cross-contact, tank changeovers,
+      labor/skills, maintenance windows, warehouse capacity).
+    - >-
+      Frequent rescheduling from demand fluctuations and upstream material
+      delays leads to poor schedule adherence (<80%) and OT costs.
+    - >-
+      Lack of scenario planning results in suboptimal decisions (e.g., batching
+      by customer due dates vs. minimizing sequence-dependent setups).
+    - >-
+      KPIs like OEE, on-time-in-full, and CIP resource consumption
+      (water/chemicals/energy) are not optimized together, leaving savings
+      untapped.
+    - >-
+      Planner time spent on schedule creation and firefighting (6–12
+      hrs/week/plant) reduces focus on continuous improvement.
+  solution:
+    - >-
+      Purpose-built optimization engine (MILP/CP hybrid) modeling
+      sequence-dependent setup times for bottle/cap/label/flavor/CO2 changes and
+      sanitation/CIP requirements.
+    - >-
+      Constraint library for beverage plants: still vs sparkling,
+      flavor/sweetener and allergen classes (where applicable), tank
+      availability, filler rate curves, packaging material availability, labor
+      skills/shift rules, maintenance windows, warehouse capacity and truck
+      pickup cutoffs.
+    - >-
+      Data integration with ERP/MES/CMMS (e.g., SAP PP/DS, Oracle, Microsoft
+      D365, Opcenter, Ignition, PI System) for demand, BOMs, inventory, work
+      centers, and downtime plans.
+    - >-
+      Scenario planning: compare “least changeover,” “OT-minimizing,” and
+      “due-date OTIF-maximizing” schedules with quantified KPIs per scenario.
+    - >-
+      Closed-loop execution: publish schedules to MES, capture actuals,
+      auto-learn setup times, and improve models weekly.
+    - >-
+      Explainability and what-if tools so planners can pin jobs, lock windows,
+      and watch the optimizer re-sequence around constraints.
+  uniqueValueProp: >-
+    Weekly production schedules that meet demand, cut changeovers by 25–40%,
+    respect all food safety and labor constraints, and increase line OEE by 3–6
+    points—generated in minutes with explainable trade-offs and one-click
+    deployment to the floor.
+  unfairAdvantage: >-
+    A beverage-specific optimization engine with proprietary setup/CIP matrices
+    and learned setup-time models, prebuilt integrations for common bottling
+    stacks, and a growing anonymized benchmark dataset enabling faster, more
+    accurate deployments than general-purpose APS tools.
+  customerSegments:
+    - >-
+      Mid-to-large bottled water producers with 2–10 high-speed PET/glass lines
+      and 30–200 SKUs (e.g., regional brands, private label co-packers).
+    - >-
+      Global brand owners’ regional plants (e.g., BlueTriton, Danone,
+      Coca-Cola/CCEP, PepsiCo) with complex portfolios and frequent promotions.
+    - >-
+      Co-packers handling multiple customers with tight SLAs and frequent
+      changeovers.
+    - >-
+      Vertically integrated water producers supplying retail/private label with
+      strong cost pressure.
+    - >-
+      Operations consulting firms and system integrators serving beverage plants
+      (channel partners).
+  channels:
+    - >-
+      Direct enterprise sales to plant managers, operations directors, and
+      supply chain leaders at bottled water producers (target list of 300
+      accounts in NA/EU).
+    - >-
+      Partnerships with beverage-focused system integrators
+      (SAP/Oracle/D365/MES) with referral and co-delivery agreements.
+    - >-
+      OEM/line builder alliances (Krones, Sidel) for co-marketing and inclusion
+      in digital upgrades.
+    - >-
+      Industry events and associations: IBWA, BevNET Live, Pack Expo, drinktec;
+      speaking slots and hands-on demos.
+    - >-
+      Content-led growth: case studies showing changeover reduction and OEE
+      gains; webinars on sequence-dependent setups and CIP optimization.
+    - >-
+      ABM campaigns targeting co-packers and private label producers with 2–5
+      lines; offer 8-week proof-of-value (PoV).
+  revenueStreams:
+    - >-
+      SaaS subscription per active packaging line: $3,000–$7,000 per line per
+      month depending on volume and modules.
+    - >-
+      Implementation/onboarding per site: $40,000–$120,000 (data integration,
+      model calibration, training).
+    - >-
+      Premium modules: multi-plant network optimization, sustainability/CIP
+      resource optimization, maintenance co-optimization (+$1,000–$2,000 per
+      line per month).
+    - >-
+      Professional services: continuous improvement sprints, custom integrations
+      ($200–$250/hour).
+    - >-
+      Optional performance-based fees for pilots (e.g., 10–20% of realized
+      savings for first 6 months).
+  costStructure:
+    - >-
+      R&D team (optimization engineers, data scientists, full-stack engineers,
+      QA): $2.5–$4.0M/year.
+    - >-
+      Solver licensing (e.g., Gurobi/CP-SAT mix) and cloud compute: $150–$400
+      per plant per month at scale; pilot phases higher.
+    - 'Implementation and customer success headcount: $1.2–$2.0M/year.'
+    - >-
+      Sales and marketing (field reps, events, content, partner MDF):
+      $1.5–$3.0M/year.
+    - >-
+      Security/compliance (SOC 2 Type II, ISO 27001), audits, and cyber
+      insurance: $200k–$500k/year.
+    - 'Travel and onsite time for discovery and go-lives: $3k–$10k per plant.'
+    - 'General admin and legal, IP protection: $300k–$600k/year.'
+  keyMetrics:
+    - >-
+      Operational KPIs: changeover hours/week/line (target −25–40% within 90
+      days), number of changeovers/week (−15–30%), schedule adherence (target
+      >95%), OEE (baseline +3–6 pts), OT hours (−20–40%), OTIF ≥98%, CIP
+      water/chemicals (−10–20%).
+    - >-
+      Financial KPIs: monthly savings per plant ($10k–$50k+ depending on size),
+      payback period (<6 months), ROI (>3× in year 1).
+    - >-
+      Adoption KPIs: planner time to create weekly schedule (to <30 minutes),
+      reschedule time (<5 minutes), user NPS (>50), weekly active users (>90% of
+      planners).
+    - >-
+      Platform KPIs: solver runtime (<10 minutes for 500+ jobs), schedule
+      feasibility rate (>99%), data pipeline success rate (>99.5%), system
+      uptime (>99.9%).
+    - >-
+      Go-to-market KPIs: pilot conversion rate (>60%), sales cycle length (<90
+      days mid-market, <180 days enterprise), CAC payback (<12 months),
+      partner-sourced pipeline (>30%).
+storyBrand:
+  character: >-
+    Operations leaders and planners at bottled water manufacturers who must meet
+    weekly demand at the lowest cost while keeping lines compliant,
+    labor-balanced, and efficient.
+  problem: >-
+    - External: Volatile orders, SKU proliferation (sizes and pack formats),
+    sequence‑dependent changeovers (bottle size, cap color, label),
+    sanitation/CIP windows, labor and maintenance constraints, dock/pickup
+    slots, differing line speeds.
+
+    - Internal: Constant firefighting in spreadsheets, weekend reschedules,
+    uncertainty about what’s actually feasible.
+
+    - Philosophical: You shouldn’t have to choose between service and
+    sanity—your schedule should respect reality and run with confidence.
+  guide: >-
+    - Empathy: We know the stress of balancing service, sanitation, and shift
+    limits on high‑throughput lines.
+
+    - Authority: Built by ex-planners and OR engineers using proven optimization
+    and simulation, configured for real plant constraints and changeover logic.
+  plan: >-
+    - 1) Connect: Pull forecast/orders, inventory, SKUs, BOMs/routings, line
+    calendars, changeover matrix, labor skills, maintenance windows.
+
+    - 2) Configure: Set service targets, lot sizes, sequence rules,
+    CIP/cleaning, labor and shift policies, changeover penalties.
+
+    - 3) Run: Generate the weekly master schedule, simulate what‑ifs, publish to
+    ERP/MES, and re-optimize as things change.
+
+    - Pilot: 4–6 week pilot on one plant with agreed success criteria (service
+    adherence, changeover hours, overtime, schedule stability).
+  callToAction: >-
+    - Direct: Start a pilot.
+
+    - Transitional: Request a sample schedule and ROI snapshot; get a
+    changeover‑matrix template.
+  success: |-
+    - Reliable weekly plan that hits service targets.
+    - Fewer changeovers and CIPs; longer runs and higher throughput.
+    - Predictable shifts and lower overtime; happier crews.
+    - Compliance and auditability built into every schedule.
+    - More cases out the door without new capex.
+  failure: >-
+    - Ongoing firefighting, missed orders, overtime blowouts, quality/sanitation
+    risks, whiplash schedules, morale erosion, and costly expedites or carrying
+    costs.
+landingPage:
+  hero:
+    title: AI Master Production Scheduling for Bottled Water
+    subtitle: >-
+      Build weekly line plans that hit forecast, cut changeovers, and honor
+      sanitation, allergen, and labor constraints.
+    ctaText: Request a demo
+    ctaHref: /request-demo
+  problem:
+    - Volatile demand across SKUs and pack sizes strains lines.
+    - 'Excess changeovers burn hours, water, and chemicals.'
+    - CIP/sanitation and allergen rules restrict sequencing.
+    - 'Labor coverage, skills, and breaks complicate shifts.'
+    - Spreadsheets can’t adapt fast to downtime or rush orders.
+  solution:
+    - AI creates optimal weekly schedules by line and shift.
+    - >-
+      Sequences to minimize changeovers and CIP cycles while meeting service
+      levels.
+    - >-
+      Respects constraints: cleaning, allergens, labor, maintenance, and
+      materials.
+    - 'Run what‑if scenarios in minutes for promos, outages, or delays.'
+    - 'Clear, executable plans with timestamps, crew assignments, and KPIs.'
+  features:
+    - >-
+      Bottled-water-aware sequencing: bottle size, cap color, label, pack size,
+      still vs sparkling.
+    - >-
+      Constraint modeler: rates, line eligibility, min runs, clean/flush times,
+      allergen segregation.
+    - 'Changeover minimization: smart batching to reduce swaps and rinse cycles.'
+    - >-
+      Demand alignment: service-level targets, safety stock, days-of-cover
+      controls.
+    - 'Labor & skills: crew rosters, certifications, breaks, overtime caps.'
+    - 'Maintenance windows: lockouts for PM; auto-reschedule around downtime.'
+    - >-
+      Scenario studio: compare alternatives; see diffs in changeover hours,
+      utilization, OTIF.
+    - 'Integrations: ERP/MES/WMS connectors and CSV/API import/export.'
+  steps:
+    - >-
+      Connect data: SKUs, rates, changeover matrix, labor rules, forecasts,
+      orders.
+    - >-
+      Configure constraints: CIP windows, allergen segregation, min run sizes,
+      maintenance.
+    - >-
+      Calibrate with your team: validate rates and transition times on a pilot
+      line.
+    - Generate the first weekly schedule and review KPIs.
+    - 'Adjust with drag‑and‑drop, lock decisions, and publish to shop floor/MES.'
+    - 'Monitor execution, re-optimize on events, and scale to more lines/plants.'
+---
+# AquaSched AI
+
+Industry: Bottled Water Manufacturing
+Service: Master Production Scheduling & Changeover Minimization

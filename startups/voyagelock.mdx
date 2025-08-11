@@ -1,0 +1,350 @@
+---
+name: VoyageLock Optimizer (Coastal & Great Lakes)
+slug: voyagelock
+service:
+  title: Voyage + Lock-Constrained Route Optimizer (Coastal & Great Lakes)
+  description: >-
+    Plan fuel- and time-efficient routes that respect locks, tides/water levels,
+    bridges, speed-restricted zones, and UKC constraints; monitor and
+    re-optimize en route.
+  targetUsers:
+    - Vessel operators (lakers/ATBs/coasters)
+    - Dispatchers/Schedulers
+    - Port captains
+    - Chartering
+  triggers:
+    - New voyage nomination or port rotation change
+    - Draft/cargo update
+    - Weather/ice/water-level change
+    - Lock/bridge closure notice
+  inputs:
+    - Origin/destination(s) and waypoints
+    - 'Vessel particulars (L/B/T, air draft, speed-power/fuel curves, UKC policy)'
+    - Cargo/draft and schedule windows
+    - Weather/waves/currents forecasts
+    - Water levels/tides
+    - Lock/bridge status and restrictions
+    - 'Speed-restriction zones (e.g., Right Whale)'
+    - ENC bathymetry/port drafts
+  steps:
+    - 'Ingest vessel, voyage, and constraint data'
+    - Assemble environmental and infrastructure feeds
+    - Generate feasible corridors (depth/air-draft checks)
+    - Estimate lock waits from status + AIS queues
+    - Optimize route and speed profile (fuel/ETA trade-off)
+    - 'Produce plan (route, ETAs, fuel, UKC, risks)'
+    - Optional human review
+    - Monitor and auto re-plan on changes; notify stakeholders
+  tools:
+    - AIS provider (Spire/Orbcomm/MarineTraffic)
+    - NOAA CO-OPS/PORTS (tides/water levels/currents)
+    - 'NWS Marine/NDFD, GFS/HRRR; wave models'
+    - NOAA/CHS ENCs
+    - GLERL water levels/ice
+    - SLSMC/SLSDC and USACE lock status
+    - OR-Tools or Pyomo optimization
+    - Mapbox/Leaflet for route export
+    - Email/Slack/MS Teams notifications
+  outputs:
+    - GeoJSON/GPX route with waypoints
+    - ETA schedule by leg/port
+    - Fuel and emissions estimate
+    - UKC/air-draft clearance table
+    - Risk/assumption log and change alerts
+  pricingModel:
+    - Per-voyage fee
+    - Per-vessel/month subscription (unlimited voyages)
+    - One-time setup for vessel curves
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8.5
+  risks:
+    - Routing liability vs. pilot/master authority
+    - 'Data latency/quality (AIS, lock status)'
+    - ENC licensing (Canada)
+    - Complex local rules not fully encoded
+  dependencies:
+    - AIS data subscription
+    - Access to vessel particulars and fuel curves
+    - Company UKC policy and port constraints
+    - Permission to distribute routing guidance
+leanCanvas:
+  problem:
+    - >-
+      Lock transits create unpredictable delays (1–12+ hours) due to queues,
+      draft/air-draft windows, and booking rules; manual planning rarely
+      accounts for dynamic queue and stage forecasts.
+    - >-
+      Operators lack a unified planner that simultaneously respects locks,
+      tides/water levels, bridge air-draft, speed restrictions, pilotage
+      windows, and under-keel clearance (UKC) while optimizing for fuel/time.
+    - >-
+      Great Lakes and near-coastal routes face volatile water levels and
+      weather-driven seiche; static plans cause missed windows and excess fuel
+      burn from speed-ups.
+    - >-
+      Current tools focus on blue-water weather routing; inland/coastal
+      constraints and lock/bridge rules are handled by experience and
+      spreadsheets, leading to inconsistent outcomes and safety risk.
+    - >-
+      Shoreside dispatch and vessel crews operate on different data timelines;
+      lack of real-time re-optimization causes unnecessary waiting and
+      demurrage.
+    - >-
+      Poor ETA accuracy to locks/ports/pilots undermines slot assignments, berth
+      planning, and tug scheduling, driving cost overruns.
+    - >-
+      Compliance risk: protected-species speed zones (coastal), local
+      security/safety zones, and draft/UKC rules require constant monitoring and
+      proof of compliance.
+  solution:
+    - >-
+      Multi-constraint routing engine that models locks, tides/water levels,
+      bridge clearance windows, local speed/traffic rules, pilotage, and UKC in
+      a single graph optimizer.
+    - >-
+      Real-time lock queue ingestion and ETA-synchronized lock appointment
+      management with predictive wait times and auto-rescheduling suggestions.
+    - >-
+      Dynamic re-optimization onboard and shoreside when conditions change
+      (water level, weather, traffic, lock outages), with explainable
+      recommendations.
+    - >-
+      UKC and squat calculator using bathymetry, water levels, wave/swell
+      (coastal), vessel particulars, and speed profile; alerts for predicted
+      low-clearance events.
+    - >-
+      Bridge air-draft planner using tidal stages/Seaway levels, adjustable
+      ballast scenarios, and clearance margins with time windows.
+    - >-
+      Speed and fuel optimizer that balances arrival windows, compliance zones,
+      and fuel curves; supports “arrive just-in-time” to minimize lock wait and
+      berth idle.
+    - >-
+      What-if simulators for dispatch to compare routes/slots, quantify
+      fuel/time/demurrage trade-offs, and export to charter party/ops plans.
+    - >-
+      APIs/SDKs to integrate with ECDIS, dispatch/maintenance (e.g., Helm
+      CONNECT), and AIS/telemetry; offline-ready onboard app with periodic sync.
+    - >-
+      Compliance mode: automatic logging and evidence packs for speed-restricted
+      zones, UKC margins, and local notices to mariners.
+  uniqueValueProp: >-
+    AI voyage planning and real-time re-optimization that minimize fuel and
+    delay while provably respecting locks, tides/water levels, bridge air-draft,
+    speed-restricted zones, and UKC—purpose-built for Coastal and Great Lakes
+    trades.
+  unfairAdvantage: >-
+    Purpose-built, lock- and bridge-aware optimizer with real-time queue and
+    water-level coupling, validated by Great Lakes/coastal pilots;
+    feedback-trained models on regional traffic; authority partnerships for data
+    access and credibility; integration footprints with ECDIS/dispatch platforms
+    that raise switching costs.
+  customerSegments:
+    - >-
+      Great Lakes bulk operators (lakers, Canadian lakers) carrying iron ore,
+      coal, aggregates, grain.
+    - >-
+      ATB/tug-barge coastal operators (US East Coast, Gulf, Great Lakes/St.
+      Lawrence).
+    - >-
+      Short-sea/coaster general cargo and project cargo carriers in US/Canada
+      coastal trades.
+    - >-
+      Charterers/shippers with demurrage exposure in Great Lakes/coastal
+      corridors.
+    - >-
+      Marine logistics/dispatch centers and port agents coordinating locks,
+      pilots, tugs, and berths.
+    - >-
+      Insurers/P&I clubs and class societies seeking risk-reduction tools for
+      UKC and compliance.
+    - >-
+      ECDIS/voyage planning vendors and fleet management platforms seeking
+      lock-aware optimization modules via API.
+  channels:
+    - >-
+      Direct sales to Great Lakes and coastal operators; start with 5–10
+      flagship pilots covering lakers and ATBs.
+    - >-
+      Partnerships with ECDIS/voyage planning vendors (e.g., NAVTOR,
+      Wärtsilä/Transas) to offer a lock-aware optimization module.
+    - >-
+      Integration partnerships with dispatch/maintenance platforms (e.g., Helm
+      CONNECT) and port community systems for berth/slot data.
+    - >-
+      Formal collaboration with SLSMC/USACE for pilot programs and data access;
+      co-branded case studies.
+    - >-
+      AIS/data partners (Spire/ORBCOMM/ExactEarth) for bundled offers to their
+      maritime customers.
+    - >-
+      Industry events/webinars: Inland Marine Expo, Great Lakes Waterways
+      Conference, Breakbulk Americas; publish ROI and safety case studies.
+    - >-
+      Targeted outreach via LinkedIn and trade associations (AWO, Chamber of
+      Marine Commerce); account-based marketing to top 50 operators.
+    - >-
+      Insurer/class endorsements (P&I clubs, class societies) offering premium
+      credits for UKC/compliance usage.
+    - >-
+      Channel incentives for maritime consultancies/pilots/port agents who
+      influence routing and operations.
+  revenueStreams:
+    - >-
+      SaaS per vessel per month: Lite $350, Pro $1,200, Enterprise $2,000+
+      (includes advanced data, re-optimization, APIs).
+    - >-
+      Per-voyage pricing for ad-hoc users: $150–$400 per transit (locks/bridges
+      included).
+    - >-
+      Enterprise fleet license and shoreside seats; annual contracts with volume
+      discounts.
+    - >-
+      Premium data add-ons (satellite AIS, high-resolution metocean, bathymetry
+      enhancements).
+    - >-
+      Professional services: integrations, custom KPIs, historical studies (ROI,
+      demurrage analysis).
+    - >-
+      Value-based pricing option: shared savings on fuel/demurrage (e.g., 10–20%
+      of verified savings).
+  costStructure:
+    - >-
+      Data licensing: satellite AIS, premium metocean/wave models, commercial
+      bathymetry; $15–$60 per vessel per month typical.
+    - >-
+      Cloud compute for optimization/ML and realtime ingest; $0.50–$2 per
+      vessel-day depending on data intensity.
+    - Engineering and data science team; 8–12 FTE in year 1–2.
+    - >-
+      Maritime domain experts (masters/pilots) on retainer for validation and
+      customer training.
+    - >-
+      Sales and customer success; travel for pilots and onboard
+      installations/training.
+    - >-
+      Integrations/certifications: ECDIS vendor integrations, cybersecurity
+      hardening, SOC2/ISO27001 over time.
+    - >-
+      Support and incident response 24/7 during lock seasons; documentation and
+      training content.
+  keyMetrics:
+    - >-
+      Operational: median ETA error to locks/ports (target <15 min after 3
+      months), lock wait time reduction (target 20–35%), fuel savings vs
+      baseline (target 3–7% ATB/lakers), UKC alert prevention count per 1,000
+      nm.
+    - >-
+      Adoption: vessels onboarded, active weekly users (bridge + dispatch), seat
+      utilization >70%, number of fleets using just-in-time scheduling.
+    - >-
+      Reliability: data freshness SLA for lock queue/water levels (<5 min),
+      system uptime >99.5%, re-optimization latency <30 sec for 500 nm routes.
+    - >-
+      Financial: ARR, net revenue retention >120%, logo churn <8% annually,
+      gross margin >70%, CAC payback <12 months.
+    - >-
+      Engagement: plans per voyage (>3), re-optimizations triggered per voyage
+      (1–4), what-if scenarios run per port call (>2).
+    - >-
+      Compliance/safety: % time in compliance zones without violations (>99%),
+      zero UKC excursions, audit packs generated per voyage (100%).
+    - >-
+      Time-to-value: first ROI outcome (fuel/time saving) within 2 voyages;
+      pilot-to-contract conversion >60%.
+storyBrand:
+  character: >-
+    Coastal and Great Lakes freight operators, dispatchers, and captains who
+    must deliver safely, on time, and on budget across lock- and
+    bridge‑constrained waterways.
+  problem: >-
+    Manual or generic routing can’t reliably account for lock/bridge windows,
+    tides and water levels, UKC limits, speed‑restricted zones, and
+    traffic—leading to missed slots, delays, excess fuel burn, compliance risk,
+    and blown ETAs.
+  guide: >-
+    Voyage + Lock‑Constrained Route Optimizer is an AI co‑pilot built for
+    constrained coastal and Great Lakes routes. We understand the pressure of
+    narrow safety margins and tight schedules, and we combine live AIS, official
+    hydrographic data, lock/bridge schedules, water‑level and tide forecasts,
+    bathymetry, and your UKC policy to produce safe, efficient routes.
+  plan: >-
+    1) Connect: Import vessel particulars, draft/UKC policy, lanes, and data
+    feeds (AIS/ECDIS/dispatch). 2) Optimize: Generate fuel‑ and time‑efficient
+    routes respecting locks, bridge clearances, tide/water levels,
+    speed‑restricted zones, and UKC; forecast ETAs and fuel. 3) Navigate &
+    adapt: Monitor conditions and traffic, re‑optimize en route, and deliver
+    updated wheelhouse guidance and compliance logs.
+  callToAction: >-
+    Start a pilot on your busiest lanes or book a 30‑minute demo with a free
+    route study.
+  success: >-
+    On‑time arrivals, lower fuel and emissions, fewer lock waits, predictable
+    ETAs, documented UKC and speed compliance, improved safety margins, and
+    higher fleet utilization and profitability.
+  failure: >-
+    Missed lock windows, tide/clearance surprises, speed/no‑wake violations,
+    unnecessary fuel burn and overtime, uncertain ETAs, and heightened
+    grounding/collision risk that erodes customer trust and margins.
+landingPage:
+  hero:
+    title: Voyage+ Lock‑Constrained Route Optimizer
+    subtitle: >-
+      AI routing for Coastal & Great Lakes freight. Respect locks, tides/water
+      levels, bridges, speed zones, and UKC—cut fuel, hit ETAs, and re‑optimize
+      en route.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - Missed lock windows and queues derail ETAs and schedules
+    - >-
+      Tides/water levels shift draft and air draft, raising grounding/bridge
+      risk
+    - Speed‑restricted and no‑wake zones add uncertainty and fuel waste
+    - >-
+      Manual replanning across charts, notices, and weather is slow and
+      error‑prone
+    - 'Unplanned delays drive demurrage, overtime, and customer penalties'
+  solution:
+    - >-
+      Plan end‑to‑end routes that thread locks, tides, bridges, and restricted
+      zones
+    - Hit target ETAs with precise lock/bridge timing and water‑level forecasts
+    - Lower fuel burn with optimized speed profiles and safe UKC margins
+    - Monitor live conditions and re‑optimize automatically during voyage
+    - Prove safety and savings with auditable UKC and arrival reports
+  features:
+    - >-
+      Lock‑aware routing for Coastal & Great Lakes, incl. Seaway locks and
+      bridge openings
+    - >-
+      Queue and cycle‑time predictions for locks with appointment window
+      alignment
+    - 'Tide, surge, and lake‑level forecasts; dynamic draft and air‑draft checks'
+    - 'UKC and squat calculations using bathymetry, speed, density, wave state'
+    - Speed‑restricted and no‑wake zone compliance with cost/ETA trade‑offs
+    - >-
+      Weather, wind, wave, and current routing; ice and seasonal closure
+      awareness
+    - 'Scenario modes: earliest arrival, lowest fuel, or on‑time with margin'
+    - En‑route re‑optimization using live AIS/GNSS and updated notices
+    - Smart ETAs for ports and locks; proactive deviation and no‑go alerts
+    - Multi‑stop voyage planning with berth/lock window targeting
+    - 'Route export (RTZ/GPX), ECDIS/PPU overlays; REST API and webhooks'
+    - >-
+      Fleet dashboard with fuel/emissions savings and safety compliance
+      reporting
+  steps:
+    - 'Connect your vessels and lanes; import draft, cargo, and constraints'
+    - 'Set goals (fuel, ETA, safety margins) and lock/bridge preferences'
+    - Generate the optimal route and schedule with UKC/air‑draft assurance
+    - 'Sail with live monitoring; receive alerts for queues, levels, and weather'
+    - Re‑optimize on the fly and export reports at arrival
+---
+# VoyageLock Optimizer (Coastal & Great Lakes)
+
+Industry: Coastal and Great Lakes Freight Transportation
+Service: Voyage + Lock-Constrained Route Optimizer (Coastal & Great Lakes)

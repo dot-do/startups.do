@@ -1,0 +1,326 @@
+---
+name: LineSight NOC AI
+slug: linesight2
+naics:
+  primary: '517111'
+  occupations: []
+service:
+  title: NOC Ticket Triage and Auto-Remediation Suggestions
+  description: >-
+    AI agent correlates alarms, enriches tickets, proposes safe actions, and
+    routes/executes with approval.
+  targetUsers:
+    - NOC managers
+    - Tier 1-2 engineers
+  triggers:
+    - New NMS alarm
+    - New/updated incident in ITSM
+    - Device flaps repeatedly
+  inputs:
+    - NMS alarms/syslog/SNMP traps
+    - Topology/CMDB
+    - Runbooks/KB
+    - Device health metrics
+  steps:
+    - Ingest and deduplicate alarms
+    - Correlate by topology/impact
+    - Classify root-cause and severity
+    - Enrich ITSM ticket with context and probable fix
+    - Propose command bundle; request human approval
+    - 'If approved, execute via automation and update ticket'
+  tools:
+    - ServiceNow/Jira APIs
+    - SolarWinds/Zabbix/Datadog APIs
+    - NetBox/CMDB
+    - Ansible/pyATS/Netmiko
+    - Slack/Teams
+    - Elasticsearch/Kafka
+  outputs:
+    - Updated/enriched tickets
+    - Suggested remediation steps
+    - Approval logs and post-mortem summary
+  pricingModel:
+    - Base monthly platform fee
+    - + per-ticket processed or per-device tier
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - False positives/negatives
+    - Over-permissioned automation
+    - Incomplete/dated runbooks
+  dependencies:
+    - Secure VPN/API access
+    - Read/Write ITSM integration
+    - Runbook library
+    - RBAC for automation
+leanCanvas:
+  problem:
+    - >-
+      High alarm noise and duplicate tickets in wired carrier NOCs cause alert
+      fatigue; typical carriers see 1–5 million events/day with >60% being
+      non-actionable.
+    - >-
+      MTTR is elongated by manual correlation and enrichment; L1 analysts spend
+      30–45% of time gathering context (topology, change windows, historical
+      incidents).
+    - >-
+      Runbook adherence is inconsistent; risky manual fixes and tribal knowledge
+      increase change failure rate (CFR) and SLA penalties.
+    - >-
+      Siloed tools (NMS, OSS/BSS, ticketing, telemetry) slow handoffs; routing
+      to the wrong resolver group occurs in 10–25% of cases.
+    - >-
+      Auto-remediation is underutilized due to safety/governance concerns and
+      lack of explainability/audit trails.
+    - >-
+      Regulatory/compliance (SOX, SOC2, ISO) require strong change approvals and
+      traceability that current scripts/automation lack.
+    - >-
+      Staffing constraints: NOC attrition and difficulty staffing 24x7 coverage
+      increase overtime and cost without improving service levels.
+  solution:
+    - >-
+      Ingest multi-source alarms/telemetry (SNMP traps, syslog, streaming
+      telemetry/gNMI, NetFlow/IPFIX, vendor EMS/NMS) and normalize to a common
+      event model.
+    - >-
+      Topology-aware correlation using a telecom-grade graph (L0–L3) to collapse
+      symptoms to root cause and estimate blast radius/customer impact.
+    - >-
+      Ticket enrichment with device config diffs, maintenance window context,
+      recent changes, historical incidents, and SLA tier; push to
+      ServiceNow/BMC/Jira with structured fields.
+    - >-
+      Action proposals with safety scores and required approvals; generate
+      CLI/NETCONF/REST playbooks aligned to change policies; support
+      simulate/dry-run.
+    - >-
+      Closed-loop execution: route to correct resolver group; auto-execute
+      zero/low-risk actions under pre-approved conditions; capture outcomes and
+      auto-learn.
+    - >-
+      Explainable AI: show why the root cause was inferred and why a remediation
+      is safe; full audit trail for compliance.
+    - >-
+      Continuous learning: reinforcement from analyst feedback; drift detection
+      and model validation against golden datasets.
+  uniqueValueProp: >-
+    Cut MTTR 30–50% and deflect up to 40% of L1 tickets by correlating alarms
+    into single root-cause tickets, enriching with real-time topology and risk,
+    and proposing safe, auditable actions that auto-execute with
+    approval—purpose-built for wired carrier networks.
+  unfairAdvantage: >-
+    A telecom-tuned correlation engine and domain knowledge graph seeded with
+    vendor MIBs/telemetry schemas and enriched by real postmortems; an
+    explainable, safety-first automation layer with digital-twin simulation and
+    strict approval workflows that satisfy carrier governance—reducing risk
+    while enabling measurable MTTR and SLA gains.
+  customerSegments:
+    - >-
+      Tier-1 and Tier-2 US wired carriers and integrated cable MSOs operating
+      large IP/MPLS, optical transport, and access networks (25k–250k+ network
+      elements).
+    - Regional fiber and wholesale Ethernet providers (2k–25k network elements).
+    - >-
+      Broadband ISPs and LECs modernizing legacy OSS stacks (500–10k network
+      elements).
+    - >-
+      Managed network service providers operating multi-tenant networks for
+      enterprises.
+  channels:
+    - >-
+      Direct enterprise sales to carriers; land-and-expand via NOC and network
+      engineering leadership (VP Network Ops, Director NOC).
+    - >-
+      Co-sell and marketplace listings with ServiceNow, Cisco, Juniper, and
+      cloud marketplaces (Azure/GCP) for private offers and committed-spend
+      drawdown.
+    - >-
+      Systems integrators/OSS partners (Accenture, Tech Mahindra, Amdocs,
+      Netcracker, Ciena Blue Planet, Itential) for delivery and account access.
+    - >-
+      Industry events and communities (TM Forum DTW, MEF, NANOG, SCTE Cable-Tec
+      Expo, NTCA) and targeted executive roundtables.
+    - >-
+      Buyer enablement: 6–8 week paid pilot with clear success criteria and ROI
+      model; reference architectures and case studies.
+    - >-
+      Account-based marketing focusing on top 200 US/Canada carriers;
+      telemetry-driven outreach using public network incident data and hiring
+      signals.
+  revenueStreams:
+    - >-
+      Annual subscription by tier, inclusive of platform and support: Starter
+      (up to 5k devices, 500k events/day) $180k ARR; Growth (up to 25k devices,
+      3M events/day) $600k ARR; Enterprise (up to 100k devices, 12M events/day)
+      $1.5M ARR; Ultra (custom, >100k devices) from $2.2M ARR.
+    - >-
+      Usage add-on for high-volume ingestion above tier limits: $12–$25 per
+      million events processed/month, volume discounted.
+    - >-
+      Automation pack add-ons (advanced playbooks, digital twin, zero-touch
+      change windows): $100k–$300k ARR per pack.
+    - >-
+      Professional services: integrations, data mapping, runbook codification,
+      and change policy modeling at $220/hour or fixed-scope packages
+      ($75k–$350k).
+    - >-
+      Premium support/SRE co-pilot (24x7 designated engineer, <15-min P1 SLA):
+      +15% of ARR.
+    - >-
+      Training and certification for NOC and network engineering teams:
+      $1,500/user or $50k enterprise unlimited.
+  costStructure:
+    - >-
+      R&D and product (AIOps/ML, network automation SMEs, graph engineering):
+      12–18 FTEs in year 1–2; $2.5M–$5M/year.
+    - >-
+      COGS targets: <25% of ARR. Cloud/infra for ingestion, storage (hot/cold),
+      and model serving: $10–$20 per million events all-in; on-prem SKU reduces
+      variable costs but increases support.
+    - >-
+      Professional services delivery bench and partner enablement: $1M–$2M/year
+      depending on backlog.
+    - >-
+      Security/compliance: SOC 2 Type II, ISO 27001 audits, pen tests:
+      $250k–$500k/year.
+    - >-
+      Sales/marketing: enterprise AEs and SEs for 8–12 month sales cycles;
+      $2M–$4M/year; channel MDF/joint marketing $300k/year.
+    - >-
+      Support and customer success (24x7 follow-the-sun): $1M–$2M/year by year
+      2.
+    - >-
+      Licensing/partnership fees for connectors and OEM components (where
+      applicable): $150k–$400k/year.
+  keyMetrics:
+    - >-
+      Operational (customer environments): MTTR reduction 30–50% within 90 days;
+      alarm noise reduction 60–80%; ticket deflection to automation 25–40%;
+      auto-routing accuracy ≥90%; CFR reduction 20–30%; SLA breach rate down
+      15–25%.
+    - >-
+      Model quality: root-cause precision ≥0.8, recall ≥0.75 on labeled test
+      sets; false-positive remediation proposals <3%; suggestion acceptance rate
+      ≥60% by month 3.
+    - >-
+      Throughput and scale: sustained 10k events/second per cluster; p99
+      correlation latency <2 seconds; enrichment time <5 seconds/ticket; 99.95%
+      platform availability.
+    - >-
+      Business: ARR, NRR ≥120%, gross margin ≥70%, CAC payback ≤12 months,
+      pipeline coverage 3x, win rate ≥25% in head-to-head AIOps/OSS deals.
+    - >-
+      Cost efficiency: cloud cost per million events ≤$15 (blended), storage
+      cost per TB/month ≤$18 hot, ≤$3 cold.
+    - >-
+      Adoption: active analyst MAU, median time-to-first-automation <21 days,
+      number of playbooks in production, percent of changes executed via
+      platform.
+storyBrand:
+  character: >-
+    NOC leaders at wired telecommunications carriers (NAICS 517111) responsible
+    for 24/7 network reliability and SLA performance.
+  problem: >-
+    External: alarm storms, ticket ping-pong, and siloed tools slow triage and
+    jeopardize SLAs. Internal: overworked teams and low trust in automation.
+    Philosophical: keeping fixed-line networks reliable should not require
+    heroics.
+  guide: >-
+    We understand carrier-grade operations and the risk of change. Our AI agent
+    correlates alarms, enriches tickets, proposes safe, reversible actions, and
+    routes or executes with approvals—integrating with your OSS/BSS and ITSM
+    with full audit trails.
+  plan: >-
+    1) Connect to NMS/OSS, logs, and ITSM; baseline data. 2) Calibrate
+    correlation and safe-action policies; define approval workflows. 3) Pilot in
+    one domain; review KPIs; expand with guardrailed auto-execution.
+  callToAction: >-
+    Primary: Schedule a 30-minute assessment to scope a pilot. Transitional:
+    Download the solution brief or book a live demo.
+  success: >-
+    Reduced alert noise and escalations, faster MTTR, fewer SLA penalties,
+    happier customers, and a NOC that scales without adding headcount.
+  failure: >-
+    Persisting alert overload, slow restorations, penalties and churn,
+    burned-out engineers, and growing operational risk.
+landingPage:
+  hero:
+    title: Carrier-Grade AI for NOC Triage & Auto-Remediation
+    subtitle: >-
+      For Wired Telecommunications Carriers (NAICS 517111). Correlate alarms,
+      enrich tickets, propose safe actions, and route or execute with
+      approval—cut MTTR and truck rolls.
+    ctaText: Get a demo
+    ctaHref: /demo
+  problem:
+    - Alarm storms bury true root cause; noise explodes during outages.
+    - Ticket backlogs and manual triage slow restorations and increase MTTR.
+    - >-
+      Critical context is scattered across OSS/BSS, CMDB, and
+      topology—swivel-chairing wastes time.
+    - Runbooks vary by shift; on-call fatigue risks errors.
+    - 'Misrouted tickets bounce between L1/L2/L3, leading to SLA penalties.'
+    - After-hours incidents trigger avoidable truck rolls and overtime.
+  solution:
+    - >-
+      Correlates multi-layer alarms and suppresses duplicates to surface
+      probable root cause.
+    - >-
+      Enriches every ticket with topology, CMDB data, customer impact, and SLA
+      context.
+    - >-
+      Prioritizes by customer tier, circuit count, and revenue-at-risk to focus
+      effort.
+    - 'Proposes safe, reversible actions with blast-radius and rollback plan.'
+    - >-
+      Routes to the right resolver group; enables one-click execution with
+      approval.
+    - 'Learns from outcomes to improve recommendations, routing, and automation.'
+  features:
+    - >-
+      Multi-source ingestion: SNMP traps, syslog, streaming telemetry,
+      NetConf/REST, TL1/CLI.
+    - >-
+      Multi-vendor coverage: Cisco, Juniper, Nokia, Ciena, Adtran, Calix, and
+      more.
+    - >-
+      Topology-aware correlation across optical, transport, and IP/MPLS layers
+      (L0–L3).
+    - 'Ticketing integrations: ServiceNow, BMC Remedy, Jira Service Management.'
+    - 'Noise reduction: time-windowing, dependency modeling, and deduplication.'
+    - 'Impact modeling: affected circuits/customers and SLA exposure.'
+    - >-
+      Policy-driven approvals by device class, change type, and maintenance
+      window.
+    - 'Safe automation: pre-checks, dry runs, guardrails, and automatic rollback.'
+    - 'Resolver routing based on skills, geography, outage domain, and history.'
+    - >-
+      ChatOps: approve and execute from Slack or Microsoft Teams with full audit
+      trail.
+    - >-
+      Playbook library: standardized MOPs/runbooks and golden configs, versioned
+      and testable.
+    - 'Compliance-ready audit logging, change history, and RBAC.'
+    - >-
+      Metrics and reporting: MTTR, alarm reduction, FCR, ticket aging, and SLA
+      risk.
+    - Open APIs/webhooks for OSS/BSS integration and data export.
+  steps:
+    - >-
+      Connect monitoring, ticketing, and source-of-truth systems
+      (CMDB/topology).
+    - Auto-discover devices and dependencies; ingest topology and inventory.
+    - 'Define priorities, guardrails, and approval policies aligned to SLAs.'
+    - Run in shadow mode to validate correlations and action recommendations.
+    - >-
+      Go live: one-click approvals and executions; graduate to auto-execute by
+      policy.
+---
+# LineSight NOC AI
+
+Generated for NAICS 517111 — Wired Telecommunications Carriers.
+Service: NOC Ticket Triage and Auto-Remediation Suggestions

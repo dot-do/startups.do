@@ -1,0 +1,292 @@
+---
+name: FoulGuard AI — Evaporator Fouling Prediction & Cleaning Scheduler
+slug: foulguard
+service:
+  title: Evaporator Fouling Prediction and Cleaning Scheduler
+  description: >-
+    Predicts fouling rate per effect and recommends optimal CIP/cleaning windows
+    to balance capacity loss vs downtime.
+  targetUsers:
+    - Evaporation Lead
+    - Maintenance Planner
+    - Process Engineers
+  triggers:
+    - Heat transfer coefficient decline
+    - ΔP thresholds reached
+    - Weekly planning meeting
+  inputs:
+    - 'Effect temperatures, ΔP, steam/condensate data'
+    - Run time since last clean
+    - Cleaning duration and effectiveness history
+    - Throughput forecast
+  steps:
+    - Compute real-time U-value proxies and fouling index per effect
+    - Forecast fouling trajectory with survival/time-to-failure models
+    - Simulate cleaning timing vs production loss tradeoff
+    - Recommend cleaning calendar and integrate with CMMS
+    - Track prediction accuracy and update model
+  tools:
+    - PI/OPC UA
+    - 'Python (lifelines, statsmodels)'
+    - CMMS API (SAP PM/Maximo)
+    - Grafana
+  outputs:
+    - Optimal cleaning schedule with justification
+    - Risk of capacity loss by effect
+    - CMMS work orders (draft)
+  pricingModel:
+    - Setup fee
+    - Monthly subscription per evaporator train
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 9
+    overall: 9
+  risks:
+    - Unplanned fouling modes not in history
+    - Inaccurate run logs
+    - Coordination with production schedule
+  dependencies:
+    - Historical runs and cleaning logs
+    - CMMS access
+    - Throughput plan
+leanCanvas:
+  problem:
+    - >-
+      Evaporator fouling in beet sugar plants reduces heat-transfer coefficients
+      10–40% over a few days, forcing frequent CIP and causing 2–8% capacity
+      loss during campaigns.
+    - >-
+      Cleaning is often scheduled by fixed intervals or operator intuition,
+      leading to suboptimal timing: either cleaning too early (excess
+      downtime/chemicals) or too late (lost throughput/steam penalties).
+    - >-
+      Unplanned stops for emergency cleaning can cost $10k–$50k per event in
+      lost margin and overtime, plus quality risks from unstable brix and longer
+      pan cycles.
+    - >-
+      Energy intensity rises as fouling increases; a 10% drop in overall U
+      commonly increases steam per tonne sugar by 2–4%, impacting energy costs
+      and CO2 footprint.
+    - >-
+      Plants lack effect-level fouling visibility; DCS/historian data exist but
+      are not converted into actionable, economic cleaning decisions with
+      crew/utility constraints.
+    - >-
+      CIP consumes chemicals and water (acid/alkali, 20–60 m³/event), with
+      safety exposure and effluent load that must be minimized while maintaining
+      capacity.
+  solution:
+    - >-
+      Compute real-time effect-level heat-transfer performance and fouling
+      resistance (Rf) from historian data (Q=U·A·ΔTlm) using physics-informed ML
+      to separate process disturbances from true fouling.
+    - >-
+      Forecast fouling trajectories per effect (24–168 hours ahead) with
+      uncertainty bounds and compute the economic optimum CIP time (clean-now vs
+      wait) given current prices (steam, chemicals), product margins, and
+      constraints (crew, tank availability, safety).
+    - >-
+      Generate a rolling cleaning plan and suggest cleaning windows aligned with
+      low-load periods or scheduled stops; automatically re-optimize as
+      conditions change.
+    - >-
+      Provide what-if simulation: impact of delaying/advancing CIP by X hours on
+      throughput, steam, and campaign-end KPI.
+    - >-
+      Integrate with DCS/CMMS to issue work orders, reserve chemicals, and
+      allocate crews; push operator advisories and interlocks (advisory-only)
+      via OPC UA/PI AF notifications.
+    - >-
+      Continuously learn by reconciling predicted vs actual post-CIP recovery in
+      U and time-to-refoul; adapt to juice quality, hardness, and process
+      chemistry changes during the campaign.
+  uniqueValueProp: >-
+    Predicts effect-level fouling rates and economically optimizes CIP timing to
+    maximize daily slice rate and minimize steam, downtime, and
+    chemicals—delivering 1–3% more throughput and 2–5% lower energy per tonne
+    with payback inside one campaign.
+  unfairAdvantage: >-
+    A beet-specific, physics-informed ML engine that estimates effect-level
+    fouling resistance in real time and optimizes CIP timing economically,
+    reinforced by cross-plant benchmarks and OEM/chemical partnerships—difficult
+    to replicate without specialized datasets and domain models.
+  customerSegments:
+    - >-
+      Primary: Beet sugar factories (8,000–20,000 t/day slice rate) with
+      multi-effect evaporators (5–7 effects).
+    - >-
+      Decision makers: Factory managers, process/evaporation engineers,
+      production managers, utilities/energy managers.
+    - >-
+      Influencers: Maintenance/CIP supervisors, control room operators, data/OT
+      engineers, environmental managers.
+    - >-
+      Secondary/partners: Evaporator OEMs (e.g., BMA, Fives), chemical/CIP
+      vendors (e.g., Ecolab/Nalco, Veolia, Buckman), system integrators
+      (Rockwell, Siemens), historians (OSIsoft PI/AVEVA, AspenTech).
+  channels:
+    - >-
+      Direct enterprise sales to sugar producers’ corporate
+      engineering/operations.
+    - >-
+      Regional SIs/OT partners for integration and support (Rockwell, Siemens,
+      Schneider partners).
+    - >-
+      OEM channel partnerships bundled with evaporator upgrades/retrofits (BMA,
+      Fives).
+    - Co-selling with chemical/CIP vendors offering performance guarantees.
+    - >-
+      Industry associations and events: ESST/VDZ, ASSBT, SMRI, IIRB; technical
+      webinars and whitepapers with campaign ROI case studies.
+    - >-
+      Land-and-expand: pilot one factory/effect, then roll out across all
+      effects and sister plants.
+  revenueStreams:
+    - >-
+      Annual SaaS subscription per site, tiered by plant size/effects (typical
+      $60k–$150k/site/year).
+    - One-time onboarding/integration fee ($30k–$80k/site).
+    - >-
+      Performance-based bonus option: share of verified savings above threshold
+      (e.g., 10–20% of incremental value).
+    - Premium support/SLA (24/7 campaign coverage) +$10k–$30k/year.
+    - >-
+      Add-on modules (juice heaters, pan/condenser fouling), enterprise
+      analytics, and benchmarking packages.
+    - Training and certification for operators/engineers.
+  costStructure:
+    - 'R&D: data science, process modeling, optimizer development.'
+    - >-
+      Implementation: site assessments, historian/OPC integration, model tuning,
+      commissioning.
+    - >-
+      Cloud/on-prem infrastructure and monitoring; security/compliance (IEC
+      62443, SOC 2).
+    - 'Customer success: campaign support engineers, training, documentation.'
+    - 'Sales/marketing: demos, pilots, travel to sites, industry events.'
+    - >-
+      Partnership fees and reseller margins; liability insurance and
+      legal/commercial.
+    - Continuous model maintenance and feature development.
+  keyMetrics:
+    - >-
+      Operational impact: increase mean time between cleanings (MTBC) per effect
+      by 10–30%; reduce unplanned stops by ≥50%.
+    - >-
+      Energy intensity: reduce steam per tonne sugar by 2–5%; target absolute
+      steam savings ≥0.05–0.15 t steam/t sugar (site baseline dependent).
+    - >-
+      Throughput: increase average slice rate by 1–3% during campaign; reduce
+      total CIP downtime by 10–25%.
+    - >-
+      Chemicals and water: cut CIP chemical usage by 10–20%; reduce CIP water by
+      10–20%.
+    - >-
+      Prediction quality: fouling rate forecast MAPE <10%; post-CIP recovery
+      prediction error <15%; schedule adherence >85%.
+    - >-
+      Financial: verified savings ≥$300k–$1.0M per 120-day campaign for 10–15
+      kt/d sites; payback <90 days.
+    - >-
+      Adoption: operator recommendation acceptance rate >70%; number of effects
+      under active control; time-to-value <6 weeks.
+storyBrand:
+  character: >-
+    Operations and process engineers at beet sugar factories who must keep
+    multi‑effect evaporators running at peak capacity through campaign.
+  problem: >-
+    Fouling builds unevenly by effect, slashing U‑values, raising steam/ton, and
+    forcing reactive CIPs. Teams are stuck guessing when to clean and trading
+    capacity for downtime—when they should have clear, data‑backed windows that
+    maximize tons and minimize lost time.
+  guide: >-
+    We understand campaign pressure and the cost of a bad CIP call. Our
+    sugar‑process experts pair physics‑informed ML with plant data to predict
+    per‑effect fouling and the ROI of each clean—validated on real evaporator
+    trains.
+  plan: >-
+    - Connect: Secure read‑only link to historian/DCS and past CIP records.
+
+    - Predict: Model per‑effect fouling rate, capacity loss, and steam impact in
+    real time.
+
+    - Schedule: Receive optimal CIP windows and weekly clean plan integrated
+    with shift and maintenance schedules.
+  callToAction: >-
+    Direct: Book a 30‑minute demo or start a 6‑week pilot on one train.
+    Transitional: Download the ROI calculator and sample cleaning schedule.
+  success: >-
+    Higher slice rate and steadier pan feed, 2–5% more throughput, 3–8% steam
+    savings, 30–50% fewer emergency cleans, predictable CIP windows, better
+    sugar quality, and a calmer, confident operations plan.
+  failure: >-
+    Continued capacity loss, energy overruns, unplanned downtime, missed
+    shipments, over/under‑cleaning, and crews stuck in constant firefighting.
+landingPage:
+  hero:
+    title: Predict Fouling. Plan CIP. Keep Evaporators at Peak Duty.
+    subtitle: >-
+      AI for beet sugar plants that forecasts per-effect fouling and schedules
+      optimal cleaning windows to maximize throughput while minimizing downtime,
+      steam, and sugar losses.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - Heat transfer decay is invisible until capacity drops.
+    - Fixed-interval CIP either wastes uptime or comes too late.
+    - Steam use and sugar degradation rise as fouling builds.
+    - >-
+      Daily variability (beet quality, mud load, syrup Brix) breaks
+      rules-of-thumb.
+    - 'Unplanned cleans disrupt pans, crystallization, and logistics.'
+    - No per-effect visibility; decisions rely on lagging KPIs.
+    - Reactive cleaning drives excess chemical and water use.
+    - Maintenance windows misalign with production targets.
+  solution:
+    - Continuous per-effect fouling rate prediction from live plant data.
+    - Optimizer balances capacity loss vs cleaning downtime and utilities.
+    - Recommended cleaning windows with confidence and economic impact.
+    - Rolling 7–30 day plan aligned to campaigns and shift patterns.
+    - Real-time alerts when predicted U-value crosses thresholds.
+    - 'What-if scenarios for beet quality, steam price, and production targets.'
+    - Integrations to historian and CMMS for auto work orders.
+    - 'Simple dashboards for operations, maintenance, and energy teams.'
+  features:
+    - Per-effect fouling curves and forecasted U-value and duty.
+    - >-
+      Economic optimizer with tunable costs (throughput, steam, sugar loss,
+      labor).
+    - >-
+      Recommended CIP window, duration, and priority across the evaporator
+      train.
+    - 'Adaptive models that learn by season, variety, mud load, and lime use.'
+    - >-
+      Explainable drivers: delta T, vacuum, Brix, purity, condensate
+      temperature.
+    - 'Live KPIs: duty loss, steam per ton beet, color risk indicators.'
+    - Scenario planning for campaign start/finish and planned down days.
+    - 'Shift-level alerts via email, SMS, and Teams/Slack.'
+    - 'Historian connectors: PI, OPC UA, Modbus; CSV import option.'
+    - 'CMMS integration: SAP PM, Maximo, Infor; work order suggestions.'
+    - REST API and exports for production planning and reporting.
+    - On-prem or private cloud deployment; IT-friendly and secure.
+    - Role-based access and audit trail for cleans and overrides.
+    - Fast commissioning; low-maintenance MLOps and health monitoring.
+  steps:
+    - >-
+      Connect data: steam flow, temperatures, pressures, Brix, logs, and clean
+      history.
+    - Calibrate baseline heat transfer and cleaning effectiveness per effect.
+    - Validate in shadow mode for 1–2 weeks to tune thresholds and costs.
+    - >-
+      Go live: receive recommended cleaning windows and economic impact per
+      effect.
+    - Approve or adjust; auto-create and schedule CMMS work orders.
+    - Monitor execution; models learn from each clean and update forecasts.
+    - 'Review monthly: throughput, downtime, steam intensity, and savings.'
+---
+# FoulGuard AI — Evaporator Fouling Prediction & Cleaning Scheduler
+
+Industry: Beet Sugar Manufacturing
+Service: Evaporator Fouling Prediction and Cleaning Scheduler

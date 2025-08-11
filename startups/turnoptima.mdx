@@ -1,0 +1,323 @@
+---
+name: TurnOptima AI — Cycle-Time + Cutting Parameter Recommender (Turning)
+slug: turnoptima
+service:
+  title: Cycle-Time + Cutting Parameter Recommender (Turning)
+  description: >-
+    Suggests tools and feeds/speeds per feature; estimates cycle time and
+    optimizes for cost/throughput.
+  targetUsers:
+    - CAM programmers
+    - Process engineers
+    - Estimators
+  triggers:
+    - New part routing
+    - Continuous improvement pass
+  inputs:
+    - Features from model/drawing
+    - Material/grade
+    - Machine model/limits
+    - Tool library and insert grades
+    - Coolant availability
+  steps:
+    - Map features to tool families (CNMG/VNMG/parting/groove/thread)
+    - Pull vendor feeds/speeds and adjust for rigidity/overhang
+    - Sequence ops and estimate cycle time
+    - 'Run what-if (tooling variants, DOC/feeds)'
+    - Export parameter sheet or update CAM ops
+  tools:
+    - MachiningCloud/Sandvik CoroPlus Data
+    - In-house parameter DB
+    - Python calc engine
+    - Fusion 360/Mastercam/NX API (optional)
+    - NC Viewer for sanity checks
+  outputs:
+    - 'Parameter sheet (feeds, speeds, DOC)'
+    - Cycle-time estimate by op
+    - Recommended tool list
+  pricingModel:
+    - Per-part
+    - Monthly subscription for unlimited parts
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 7
+    modelCapability: 6.5
+    overall: 6.8
+  risks:
+    - Unsafe parameters if machine/tooling context wrong
+    - Vendor data gaps
+    - Shop-specific practices not encoded
+  dependencies:
+    - Tool library access
+    - Machine limits and holders
+    - Material database
+leanCanvas:
+  problem:
+    - >-
+      Quoting inaccuracy: cycle time estimates often vary ±20–40%, leading to
+      lost bids or margin erosion.
+    - >-
+      Inconsistent feeds/speeds rely on tribal knowledge; parameter selection
+      changes by programmer/shift and isn’t captured systemically.
+    - >-
+      Suboptimal cutting conditions increase cycle time by 10–30% and tool costs
+      by 5–15%.
+    - >-
+      Difficulty selecting the right tool for a
+      feature/material/tolerance/finish, especially for small shops with diverse
+      work.
+    - >-
+      Manual iteration to meet tolerance and surface finish targets (Ra)
+      increases programming time and trials on the machine.
+    - >-
+      Lack of closed-loop learning from actual production data (tool wear,
+      spindle load, alarms), so settings don’t improve over time.
+    - >-
+      Vendor calculators are biased to their tool families and not integrated
+      with CAM, machine limits, or shop constraints.
+    - >-
+      High-mix/low-volume turning makes it hard to standardize process
+      parameters across materials (e.g., 4140, 17-4PH, Inconel).
+  solution:
+    - >-
+      CAM-integrated AI recommender for turning: suggests tool, SFM (G96/G97),
+      feed/rev, depth of cut (ap), multi-pass strategies (rough/finish) per
+      feature (OD/ID, face, groove, thread, bore, drill).
+    - >-
+      Optimization modes: Throughput (maximize MRR within power, rigidity, and
+      chatter limits) and Cost (minimize cost/part factoring tool life, insert
+      cost, and changeover).
+    - >-
+      Physics-informed ML: blends machining physics (cutting force, power,
+      temperature, chip thinning, stability lobes) with empirical data from
+      actual runs (spindle load, tool life, scrap).
+    - >-
+      Cycle time estimator: per-operation and part-level time with setup, tool
+      changes, and probing; accuracy target ±10% after calibration.
+    - >-
+      Tolerance/finish-aware: maps GD&T and Ra to recommended nose radius,
+      insert grade/geometry, lead angle, and finishing passes.
+    - >-
+      Risk scoring: confidence score per recommendation; guardrails for small
+      diameters/overhangs, interrupted cuts, hard materials, thin walls.
+    - >-
+      Closed-loop learning: ingests machine and tool-wear data to auto-tune
+      recommendations by material, tool, and machine model.
+    - >-
+      Tooling marketplace integration: cross-vendor catalogs (Sandvik,
+      Kennametal, Seco, Iscar, Walter, etc.) with in-stock/lead time filters.
+    - >-
+      Quoting workflow: exports costed cycle times with markup, machine rate,
+      and tool amortization to ERP/CPQ; scenario compare by machine/cell.
+    - >-
+      APIs and plugins: Mastercam, Fusion 360, Esprit, Siemens NX; ERP/MES
+      connectors; optional on-prem gateway for air-gapped shops.
+  uniqueValueProp: >-
+    1-click, data-driven turning parameters and cycle-time digital twin that
+    chooses the right tool, feeds/speeds, and pass strategy per feature to hit
+    tolerance/finish at lowest cost or highest throughput—improving quoting
+    accuracy to within ±8–10% and cutting average cycle time by 10–20% within 60
+    days.
+  unfairAdvantage: >-
+    Closed-loop, physics-informed ML trained on real production turning data
+    across multiple shops and tool brands—embedded directly in CAM and quoting
+    workflows, tool-vendor agnostic, with measurable ROI and risk-aware
+    guardrails that competitors without telemetry or shop integration cannot
+    easily replicate.
+  customerSegments:
+    - >-
+      Precision turned-part job shops (10–250 employees) with 3–40 CNC lathes;
+      high-mix/low-volume focus.
+    - >-
+      Contract manufacturers serving aerospace, medical, hydraulics/pneumatics,
+      semiconductor, and automotive Tier 2.
+    - >-
+      Captive/OEM machining departments seeking throughput gains on legacy
+      lathes and automated cells.
+    - >-
+      CNC programmers, process engineers, manufacturing engineers, and toolroom
+      managers.
+    - >-
+      Estimators/quoters who need accurate cycle times and cost breakdowns
+      quickly.
+    - >-
+      Tooling distributors and cutting tool OEMs seeking data-driven
+      recommendations embedded in sales workflows.
+  channels:
+    - >-
+      Direct sales to SMB/mid-market job shops via SDR/AE motion focused on ROI
+      pilots (6–8 weeks).
+    - >-
+      Partnerships and co-selling with CAM vendors (Autodesk, Mastercam,
+      Hexagon/Esprit, Siemens NX) via app stores and VARs.
+    - >-
+      Alliances with tooling OEMs and distributors (Sandvik, Kennametal, Seco,
+      Iscar, Walter, MSC) for bundled trials and MDF-funded workshops.
+    - >-
+      Machine OEM/ecosystem partners (Haas, Okuma, Mazak, DMG Mori) and IIoT
+      platforms (MachineMetrics, Tulip) for integration demos.
+    - >-
+      Content-led growth: practical playbooks, case studies, machining
+      calculators; communities (Practical Machinist, r/Machinists, LinkedIn
+      groups).
+    - >-
+      Industry events: IMTS, EMO, WESTEC, PMTS; live cut demos with before/after
+      cycle time and tool-life data.
+    - >-
+      Self-serve free trial (limited ops/day) and usage-based API for quoting
+      software partners.
+  revenueStreams:
+    - >-
+      SaaS: $200/seat/month (Programmer), $500/seat/month (Pro with optimization
+      and quoting), volume discounts.
+    - >-
+      Per-machine add-on: $250/machine/month for closed-loop learning from
+      machine data and tool-life tracking.
+    - 'Enterprise/on-prem: from $50k/year plus SSO/SOC2/ISO options.'
+    - 'Usage-based quoting API: $0.50–$1.00 per quote beyond plan quota.'
+    - >-
+      Professional services: $5k–$25k for onboarding, tool library
+      normalization, custom material models, and ROI studies.
+    - >-
+      Marketplace referral fees/affiliates on tooling purchases when recommended
+      SKUs are bought.
+    - >-
+      Training/certification for programmers and process engineers (e.g.,
+      $1,500/person).
+  costStructure:
+    - 'R&D/engineering (ML, CAM plugin dev, physics models, QA).'
+    - >-
+      Cloud and MLOps (training, inference, data pipelines, monitoring):
+      $15–$35k/month at 100 customers; scales with telemetry.
+    - >-
+      Licensing/tool data: paid access to tool catalogs/material data and
+      standards.
+    - 'Sales & marketing: SDR/AE comp, partner co-marketing, event booths/demos.'
+    - >-
+      Customer success and applications engineering (machinists/process
+      engineers) for pilots and onboarding.
+    - >-
+      Security/compliance: SOC2, ISO 27001, code signing for plugins; cyber
+      insurance.
+    - Edge/on-prem gateway development and maintenance.
+    - 'Support and documentation, localization for EU/Asia.'
+    - 'General & administrative (legal, finance, HR).'
+  keyMetrics:
+    - >-
+      Time-to-first-recommendation (TTFR): target <30 minutes from plugin
+      install to first accepted suggestion.
+    - >-
+      Recommendation acceptance rate: target >60% of suggested ops accepted
+      within 90 days.
+    - >-
+      Cycle time reduction: median 10–20% within 60 days post-pilot; track
+      per-machine and per-material.
+    - >-
+      Quoting accuracy (MAPE vs. actual): improve to ≤10% within 90 days;
+      stretch goal ≤8% by 6 months.
+    - >-
+      Tool life variance: reduce standard deviation by 20% and increase median
+      life by 10% in optimized ops.
+    - >-
+      Programming time reduction: 25–40% for turning ops setup compared to
+      baseline.
+    - >-
+      Closed-loop coverage: % of machines streaming data; target >70% within 120
+      days for connected customers.
+    - >-
+      Net revenue retention (NRR): >120% via seat expansion, machine add-ons,
+      and API usage.
+    - 'Churn: <8% annual logo churn in SMB; <4% in mid-market.'
+    - >-
+      Sales KPIs: pilot-to-paid conversion >50%; average payback <3 months; CAC
+      payback <9 months.
+storyBrand:
+  character: >-
+    Process planners, CNC programmers, and estimators at precision turned‑part
+    manufacturers who must hit cost and delivery on high‑mix turning.
+  problem: >-
+    Choosing tools and feeds/speeds per feature and estimating cycle time is
+    slow and inconsistent across materials and machines—creating quote risk,
+    delays, and margin erosion. It shouldn’t require tribal knowledge to make
+    good machining decisions.
+  guide: >-
+    Cycle‑Time + Cutting Parameter Recommender (Turning) is your AI
+    guide—trained on cutting data, tooling catalogs, and shop constraints—to
+    deliver proven, physics‑aware recommendations with clear rationale.
+  plan: >-
+    1) Upload part/CAD or features, material, machine, and tooling library. 2)
+    Get per‑feature tool picks, feeds/speeds, and cycle‑time with cost vs.
+    throughput optimization. 3) Validate and export to CAM/Machine; start with a
+    low‑risk pilot and ROI review.
+  callToAction: >-
+    Direct: Start a 14‑day pilot or book a 30‑min demo. Transitional: Download a
+    sample report and ROI calculator.
+  success: >-
+    Confident quotes, consistent parameters, 10–30% faster cycles, higher
+    throughput and OEE, fewer crashes/scrap, captured know‑how, on‑time
+    delivery, and stronger margins.
+  failure: >-
+    Avoid late jobs, over/under‑machining, tool breakage, rework,
+    tribal‑knowledge bottlenecks, and profit bleed from inconsistent cutting
+    parameters.
+landingPage:
+  hero:
+    title: AI Cycle-Time & Cutting Parameter Recommender for Turning
+    subtitle: >-
+      Suggests tools and feeds/speeds per feature, estimates cycle time, and
+      optimizes for cost or throughput—built for precision turned parts.
+    ctaText: Request a demo
+    ctaHref: /request-demo
+  problem:
+    - Quoting and process planning take hours; results vary by programmer.
+    - Tool and parameter choices rely on tribal knowledge and past jobs.
+    - Cycle-time guesses miss margins and underutilize spindles.
+    - 'Balancing cost, tool life, and throughput is trial-and-error.'
+    - Picking tools per feature/material is manual and error-prone.
+    - Changes in machine constraints trigger costly CAM rework.
+  solution:
+    - >-
+      AI proposes tooling and per-feature feeds/speeds from CAD/drawing and
+      material.
+    - Instant cycle-time breakdown by operation with clear assumptions.
+    - 'Optimization modes: lowest cost, fastest throughput, or balanced.'
+    - 'Machine-aware limits ensure safe, achievable parameters on your lathes.'
+    - 'Learns from your run data to calibrate speeds, tool life, and time models.'
+    - One-click exports for CAM/quotes with confidence and risk flags.
+  features:
+    - >-
+      Feature recognition: OD/ID turning, facing, grooving, threading, drilling,
+      boring, parting
+    - Tooling recommender using vendor catalogs and shop standards
+    - >-
+      Machine-aware limits: power, torque, max rpm, rigidity, bar/chuck
+      constraints
+    - Material library with chip control guidance and heat considerations
+    - 'Feeds/speeds engine with SFM, chipload, DOC/WOC per pass'
+    - 'Rough/finish pass planning, spring passes, dwell/peck cycles'
+    - 'Threading support by standard, pitch, depth, insert geometry'
+    - 'Cycle-time model incl. tool changes, rapids, indexing, bar feed, cutoff'
+    - Tool life estimates and cost-per-part with auto tool-change alerts
+    - Finish/tolerance-aware derating and stability margins
+    - Chatter/deflection heuristics with confidence scoring
+    - Sub-spindle and multi-channel support (where applicable)
+    - 'What-if comparisons across machines, tools, and strategies'
+    - 'Export ops sheets, tool lists, and cycle-time reports (CSV/PDF)'
+    - API for quoting/CAM; SSO and on-prem options
+    - 'Versioning, audit trail, and assumptions log'
+    - Metric/imperial units; supports multiple languages
+    - 'User roles, approvals, and template governance'
+  steps:
+    - Upload CAD/drawing (or import from CAM) and select material and lot size.
+    - >-
+      Choose machine(s) and constraints; pick cost, throughput, or balanced
+      mode.
+    - 'Review recommended tools, feeds/speeds, and per-feature cycle times.'
+    - Adjust assumptions; compare what-if scenarios across machines or tools.
+    - 'Export ops sheet, tool list, and quote summary to your systems.'
+    - 'Optional: Calibrate with run data to lock in your shop’s actuals.'
+---
+# TurnOptima AI — Cycle-Time + Cutting Parameter Recommender (Turning)
+
+Industry: Precision Turned Product Manufacturing
+Service: Cycle-Time + Cutting Parameter Recommender (Turning)

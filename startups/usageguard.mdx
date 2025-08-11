@@ -1,0 +1,332 @@
+---
+name: UsageGuard AI — Revenue Assurance for Wired Carriers
+slug: usageguard
+naics:
+  primary: '517111'
+  occupations: []
+service:
+  title: 'Revenue Assurance: Usage-to-Billing Reconciliation'
+  description: Detects leakage by reconciling CDR/UDR usage with rating and invoicing.
+  targetUsers:
+    - Finance/RA
+    - Billing operations
+  triggers:
+    - Nightly batch
+    - Pre-bill dry run
+  inputs:
+    - CDR/UDR streams
+    - Rating tables/plans
+    - Invoices/mediation logs
+    - Customer master data
+  steps:
+    - Normalize and link usage to accounts/plans
+    - 'Detect anomalies (unrated, misrated, duplicate, late)'
+    - Quantify leakage and rank by value/risk
+    - Open cases with evidence and fix path
+  tools:
+    - Snowflake/BigQuery
+    - dbt/SQL
+    - Python
+    - Grafana/Metabase
+    - ServiceNow/Jira
+  outputs:
+    - Leakage report with $ impact
+    - Case queue with remediation steps
+    - Trend KPIs
+  pricingModel:
+    - Monthly fee
+    - + bounty % of recovered revenue (cap)
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 9
+  risks:
+    - PII handling
+    - False positives creating workload
+    - Access to billing data constraints
+  dependencies:
+    - Secure data share
+    - Data dictionary
+    - Read-only billing/mediation access
+leanCanvas:
+  problem:
+    - >-
+      Revenue leakage of 0.5–2.0% of billed revenue due to mismatches between
+      network usage (CDR/UDR), rating, and invoicing—often undetected for
+      months.
+    - >-
+      Fragmented OSS/BSS stacks (switch logs, mediation, rating, billing,
+      invoicing, taxation) lack end-to-end lineage, causing blind spots and high
+      manual reconciliation effort (5–20 FTEs in mid/large carriers).
+    - >-
+      Legacy, rules-only controls miss novel leakage patterns (new plan
+      launches, promotions, migrations to fiber/VoIP/UCaaS) and degrade over
+      time; high false positives overwhelm teams.
+    - >-
+      Slow detection (monthly/quarterly) increases write-offs, disputes, and
+      customer churn; revenue at risk accumulates between bill runs.
+    - >-
+      Regulatory and audit pressure (CPNI, SOX, SOC, state PUCs) requires
+      traceable, explainable reconciliations; current spreadsheets/scripts are
+      not audit-ready.
+    - >-
+      Complex interconnect/wholesale and enterprise services (SIP trunks,
+      Ethernet, IP transit) produce high-volume, heterogeneous records that are
+      hard to normalize and match.
+    - >-
+      Billing transformations (Amdocs/CSG/Netcracker/Oracle BRM migrations)
+      frequently introduce leakage; carriers lack a safe “rating re-simulation”
+      test harness before cutover.
+  solution:
+    - >-
+      Unified data ingestion from switches (SIP/SS7/AMA/EMI), mediation (e.g.,
+      DigitalRoute, Openet), rating (Amdocs/CSG/Oracle BRM/Netcracker),
+      billing/invoice/GL, and tax engines (Avalara/SureTax)—batch and streaming.
+    - >-
+      Deterministic and probabilistic matching engine: schema harmonization,
+      fuzzy joins, tolerance windows, sequence validation, and duplicate/split
+      detection with per-record lineage.
+    - >-
+      Rating re-simulation: re-rate usage against current/tariff catalogs to
+      detect rating defects, plan misconfigurations, discount leakage, and
+      taxation anomalies.
+    - >-
+      Invoice conformance: verify that rated items, taxes/fees/surcharges,
+      proration, and credits align with invoice lines; reconcile to GL to ensure
+      revenue completeness.
+    - >-
+      AI anomaly detection: unsupervised models (isolation forest/autoencoders)
+      and supervised classifiers on historical leak patterns; drift monitoring
+      and explainability for audits.
+    - >-
+      Exception management workflows: severity scoring, ownership, SLAs,
+      auto-remediation playbooks, and bi-directional ticketing
+      (ServiceNow/Jira).
+    - >-
+      Partner/interconnect reconciliation: compare interconnect CDRs and
+      settlements; detect disputes, cascade rating errors, and reconcile off-net
+      charges.
+    - >-
+      Change impact sandbox: pre-production what-if tests for new plans,
+      mediation/rating changes, and migrations; can run against production-like
+      data.
+    - >-
+      Security and compliance: SOC 2 Type II, role-based access, PII
+      tokenization, on-prem/VPC or hybrid deployment, full audit trails.
+    - >-
+      Dashboards and KPIs: leakage by product/region/partner, time-to-detect,
+      match rates, and financial impact; executive and analyst views.
+  uniqueValueProp: >-
+    Cut usage-to-billing leakage by 20–50 bps within 90 days through end-to-end,
+    explainable AI reconciliation of CDR/UDR→mediation→rating→invoice—99.9%
+    deterministic match rates, <2% false positives, and auditable lineage on
+    every record.
+  unfairAdvantage: >-
+    Wired-specific reconciliation IP: a large, curated library of controls and
+    connectors to Metaswitch/Ribbon/BroadWorks, IPDR/DOCSIS, and enterprise SIP
+    workflows; explainable AI with per-record lineage; and a pilot model that
+    ties fees to recovered leakage, accelerating stakeholder buy-in. Anonymized
+    benchmark data across carriers improves detection out-of-the-box.
+  customerSegments:
+    - >-
+      Primary: Mid-to-large US/Canada wired carriers (ILECs/CLECs, fiber ISPs,
+      cable MSOs offering voice/UCaaS, wholesale/long-distance) with >50k subs
+      or >$100M revenue.
+    - >-
+      Economic buyers: CFO, VP Finance, Head of Revenue Assurance/Controls, VP
+      Billing Operations.
+    - >-
+      Users/Champions: Revenue Assurance analysts, Billing Ops managers,
+      Mediation/Rating SMEs, Internal Audit/Compliance, Interconnect/Wholesale
+      settlements teams.
+    - >-
+      Early adopters: Carriers undergoing BSS/mediation modernization or network
+      migrations (copper→fiber, TDM→VoIP/SIP), and those adding usage-based
+      broadband or enterprise SIP trunking.
+  channels:
+    - >-
+      Direct enterprise sales to CFO/RA/Billing Ops with an ROI-backed 6–8 week
+      proof-of-value using read-only data extracts.
+    - >-
+      Alliances with BSS/OSS vendors (CSG, Netcracker, Amdocs, Oracle) and
+      mediation providers (DigitalRoute) to bundle with transformation projects.
+    - >-
+      Cloud marketplaces (AWS/Azure/GCP) for streamlined procurement and
+      committed spend drawdown.
+    - >-
+      SI/consulting partners (Accenture, Tech Mahindra, Deloitte, TCS) for
+      implementation at Tier-1/Tier-2 carriers.
+    - >-
+      Industry associations/events: NTCA, INCOMPAS, SCTE Cable-Tec Expo, TM
+      Forum; publish whitepapers and leakage benchmarks for wired carriers.
+    - >-
+      Content and ABM: ROI calculators, case studies by product line (SIP
+      trunks, enterprise Ethernet, VoIP), webinars with partner co-marketing.
+    - >-
+      Pilot-to-production motion: success-fee pilots tied to recovered leakage;
+      convert to subscription with volume-based pricing.
+  revenueStreams:
+    - >-
+      Tiered subscription priced by monthly record volume (e.g., $15k/month up
+      to 5B records/year; $40k for 5–20B; enterprise pricing above 20B), plus
+      platform base fee.
+    - >-
+      Add-on modules: interconnect/wholesale reconciliation, tax/fee
+      conformance, change impact sandbox, and managed detection and response
+      (MDR-RA).
+    - >-
+      Professional services: onboarding, connector customization, data mapping,
+      and training (fixed-fee packages).
+    - >-
+      Optional success-based fees for pilot phase (e.g., 5–10% of recovered
+      leakage, capped).
+    - >-
+      Premium support/SLA packages and dedicated environment fees (private
+      cloud/on-prem).
+  costStructure:
+    - >-
+      R&D and product (data engineering, ML, telco SMEs): $350k–$500k per senior
+      FTE annually fully loaded; 12–18 core FTEs in years 1–2.
+    - >-
+      Cloud/infra: storage ($20–30/TB-month), compute (Spark/Databricks/K8s;
+      $3k–$10k/month per active environment), streaming (Kafka/Kinesis),
+      observability.
+    - >-
+      Professional services team for onboarding (implementation engineers,
+      solution architects).
+    - >-
+      Sales and marketing: enterprise AEs/SEs, partner managers, events, and
+      content.
+    - >-
+      Compliance/security: SOC 2 Type II audits, pen tests, data privacy
+      counsel, cyber insurance.
+    - Partner fees/marketplaces margin (5–15%) and SI referral commissions.
+    - Customer support and success (24x7 for premium SLAs).
+  keyMetrics:
+    - >-
+      Leakage recovered ($/month and % of billed revenue): target 20–50 bps
+      improvement within 90 days, 50–100 bps over 12 months.
+    - >-
+      Match rate (usage→invoice): target ≥99.9% deterministic; monitor variance
+      by product/region.
+    - >-
+      False positive rate on exceptions: target <2% sustained; precision/recall
+      per control family.
+    - >-
+      Time-to-detect and MTTR: detect within <24 hours for high-risk services;
+      MTTR <5 business days for P1 issues.
+    - >-
+      Coverage: % of traffic/products under automated reconciliation (goal >95%
+      of usage and 100% of invoices).
+    - >-
+      Data freshness: median latency from usage capture to reconciliation (<15
+      min streaming, <6 hrs batch).
+    - >-
+      Automation rate: % exceptions with auto-remediation or auto-closure (>40%
+      by month 6).
+    - >-
+      Pilot ROI multiple: recovered $ / subscription fee (target ≥5x in pilot,
+      ≥10x annually).
+    - Net revenue retention (NRR) >120%; Gross margin >70% by year 2.
+    - >-
+      Implementation time: first 20 controls live in ≤8 weeks; full scope in ≤16
+      weeks.
+storyBrand:
+  character: >-
+    Revenue, billing, and network ops leaders at wired telecom carriers (NAICS
+    517111) who need every billable event captured, rated, and invoiced
+    accurately.
+  problem: >-
+    Usage-to-billing gaps across CDR/UDR, mediation, rating, and invoicing
+    create leakage, disputes, and margin erosion; manual audits are slow and
+    incomplete.
+  guide: >-
+    An AI revenue assurance partner specializing in usage-to-billing
+    reconciliation, with telecom-domain expertise, prebuilt connectors, and
+    audited security to reconcile CDR/UDR, rating, and billing at scale.
+  plan: >-
+    1) Connect CDR/UDR, mediation, rating, and billing feeds. 2) Run AI
+    reconciliation to flag variances and root causes. 3) Resolve via guided
+    workflow and monitor continuously.
+  callToAction: >-
+    Schedule a 30-minute demo or start a risk-free 30-day pilot with sample
+    data.
+  success: >-
+    Recover lost revenue, reduce credits and disputes, speed month-end close,
+    improve audit readiness, and launch new offers with confidence through near
+    real-time assurance.
+  failure: >-
+    Continue leaking revenue, face clawbacks and audit findings, frustrate
+    customers with billing errors, and miss growth targets.
+landingPage:
+  hero:
+    title: Stop Revenue Leakage from Usage‑to‑Billing Gaps
+    subtitle: >-
+      AI reconciliation for Wired Telecommunications Carriers — match every
+      CDR/UDR to rating and invoicing in near real time.
+    ctaText: Start a Pilot
+    ctaHref: '#get-started'
+  problem:
+    - Usage leakage from missing or duplicate CDRs and mediation drops
+    - 'Rating errors from catalog drift, misconfigured plans, and rerate misses'
+    - 'Invoices that fail to capture actual usage, discounts, or surcharges'
+    - Siloed OSS/BSS make end-to-end reconciliation slow and opaque
+    - Manual spreadsheets increase OPEX and audit exposure
+    - Customer and partner disputes lack item-level proof
+  solution:
+    - >-
+      Continuously reconcile CDR/UDR usage to rated events and invoice line
+      items
+    - >-
+      AI detects anomalies, variance breaches, and completeness gaps across the
+      chain
+    - >-
+      Root-cause classification across switch, mediation, rating, billing, and
+      invoicing
+    - 'Policy-driven tolerances with auto-workflows to rerate, rebill, or credit'
+    - Dashboards with drill-down to session and call-detail evidence
+    - Immutable audit trail for compliance and dispute resolution
+  features:
+    - >-
+      Connectors for switches, mediation, rating, billing, ERP, and data lakes
+      via Kafka, SFTP, REST, S3
+    - >-
+      Built-in adapters for common CDR/UDR schemas across voice, Ethernet,
+      broadband, and wholesale
+    - >-
+      Deterministic and fuzzy matching to align usage, rated records, and
+      invoice lines
+    - >-
+      Sequence and completeness checks to catch missing, late, or out-of-order
+      records
+    - >-
+      Duplicate, partial, and overlap detection to prevent over- or
+      under-billing
+    - Tariff and catalog validation to flag plan drift and misapplied discounts
+    - Rerating simulation to quantify impact before executing adjustments
+    - >-
+      Variance thresholds with ML baselines that adapt to traffic patterns and
+      seasonality
+    - Root-cause tagging and deduped case queues for efficient operations
+    - 'One-click exports to BSS/ERP for adjustments, credits, and rebills'
+    - 'Role-based access, encryption in transit/at rest, and detailed audit logs'
+    - >-
+      Deploy in your VPC or as managed SaaS; scales to billions of records per
+      day
+  steps:
+    - >-
+      Connect data feeds from switches, mediation, rating, billing, and
+      invoicing systems
+    - Map schemas and define business keys for correlation
+    - 'Set tolerance policies, variance thresholds, and workflows'
+    - Backfill historical data to establish baselines and train models
+    - Run daily and intraday reconciliations with real-time dashboards
+    - Investigate flagged leakage with root-cause evidence at record level
+    - 'Export rerates, credits, or rebill actions to downstream systems'
+    - Monitor KPIs and continuously tune rules to reduce leakage over time
+---
+# UsageGuard AI — Revenue Assurance for Wired Carriers
+
+Generated for NAICS 517111 — Wired Telecommunications Carriers.
+Service: Revenue Assurance: Usage-to-Billing Reconciliation

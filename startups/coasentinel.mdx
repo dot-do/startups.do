@@ -1,0 +1,342 @@
+---
+name: COA Sentinel
+slug: coasentinel
+service:
+  title: COA Parsing & Quality Variance Triage
+  description: >-
+    Parses lab COAs and lot photos to detect anomalies vs. specs; routes
+    exceptions for QA decisions.
+  targetUsers:
+    - Quality Managers
+    - Warehouse Ops
+    - Buyers/Traders
+  triggers:
+    - New COA received or lot check-in
+    - IoT reading out of range
+  inputs:
+    - 'COA PDFs (moisture, aflatoxin, pesticide residues, fiber length, etc.)'
+    - Lot photos or short videos
+    - Spec library by SKU/grade/buyer
+    - IoT/handheld readings (moisture/temp)
+  steps:
+    - OCR and extract COA metrics; normalize units
+    - Compare to SKU/buyer specs and regulatory thresholds
+    - 'Image-based visual checks (color, contamination cues)'
+    - Score risk; propose disposition (accept/hold/retest/divert)
+    - Generate exception report and notify responsible owner
+  tools:
+    - AWS Textract
+    - LLM-based field extraction with schema validation
+    - Simple CV models for image QA
+    - Rules/threshold engine
+    - Slack/Email for alerts
+  outputs:
+    - Structured COA data per lot
+    - Pass/fail and exception list with reasons
+    - Disposition suggestions and audit trail
+  pricingModel:
+    - Per-COA/lot processed
+    - Volume discounts
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 7
+    overall: 8
+  risks:
+    - >-
+      Model may miss subtle contaminants—tool is assistive, not a QA release
+      authority
+    - Low-quality scans/photos reduce accuracy
+    - Spec misalignment across buyers
+  dependencies:
+    - Spec library by SKU/buyer
+    - Access to COAs and lot images
+    - QA SOPs for final decisions
+leanCanvas:
+  problem:
+    - >-
+      Manual COA parsing and photo review are slow (5–12 minutes per COA; 2–3
+      per lot), error-prone, and create QA bottlenecks during harvest/peak
+      seasons.
+    - >-
+      COA formats vary wildly by lab (PDF, image, CSV), leading to missed
+      critical fields (e.g., aflatoxin, pesticide residues) and inconsistent
+      data entry into ERP/LIMS.
+    - >-
+      Specs differ by buyer/commodity/season; applying the correct spec and
+      tolerance windows is inconsistent across teams and locations.
+    - >-
+      Late detection of out-of-spec lots causes rework, chargebacks, missed ship
+      windows, and deteriorating supplier/buyer relationships.
+    - >-
+      QA staffing is thin; onboarding new staff to commodity-specific risk
+      factors is costly; tribal knowledge isn’t captured in systems.
+    - >-
+      Audit readiness (SQF, BRCGS, FSMA) is burdensome; reconciling COAs, photo
+      evidence, and decision rationale for audits consumes days of effort.
+    - >-
+      Existing OCR or generic document AI tools lack commodity-specific field
+      extraction and validation logic (units, LOQs, methods), forcing heavy
+      customization.
+    - >-
+      Photo-based quality issues (foreign matter, mold, insect damage, color
+      variance) are often missed until downstream, increasing claims risk.
+  solution:
+    - >-
+      Universal COA ingestion (email, SFTP, API, portal upload) with
+      commodity-aware extraction of critical fields (e.g., aflatoxin B1/total,
+      Salmonella, E. coli, heavy metals, pesticide residues, moisture, ash,
+      volatile oil).
+    - >-
+      Spec and tolerance engine that maps lots to the correct buyer/commodity
+      spec (versioned, effective-dated) and validates units, methods, LOQs, and
+      conversions.
+    - >-
+      Photo analysis models for foreign matter, mold/insect damage, color/grade
+      variance, broken/defect ratio; supports mobile capture at
+      intake/warehouse.
+    - >-
+      Risk scoring that prioritizes exceptions (critical vs. major vs. minor)
+      and recommends disposition (accept/hold/rework/reject) with rationale and
+      references.
+    - >-
+      Human-in-the-loop triage workspace with audit trails, side-by-side COA
+      parsing, image annotations, and one-click ERP/LIMS updates.
+    - >-
+      Integrations with common ERPs (NetSuite, SAP Business One, MS Dynamics
+      365, Sage X3, Infor M3) and lab partners (SGS, Eurofins, Intertek) via
+      APIs/EDI.
+    - >-
+      Continuous learning: system improves from QA decisions; configurable
+      feedback loops to tighten precision/recall by commodity and supplier.
+  uniqueValueProp: >-
+    AI that reads any lab COA and lot photo, applies your buyer/commodity specs,
+    flags anomalies with confidence scores, and routes only true exceptions to
+    QA—cutting QA cycle time by 60–80% and reducing quality-related chargebacks
+    by 30–50%.
+  unfairAdvantage: >-
+    Commodity- and method-aware extraction and validation models trained on a
+    large, curated corpus of COAs and defect images, plus a living spec/rules
+    library and first-party integrations with major labs and ERPs—creating
+    switching costs and performance levels generic OCR/document AI cannot match.
+  customerSegments:
+    - >-
+      Primary: NAICS 424590 Other Farm Product Raw Material Merchant Wholesalers
+      (spices/botanicals, nuts, oilseeds, gums/resins, wool, raw rubber, tobacco
+      leaf, hides/skins).
+    - >-
+      Decision-makers: VP/Director of Quality, Operations, Supply Chain; QA
+      Managers; Heads of Compliance; CIO/IT for integrations.
+    - >-
+      Secondary influencers: Independent/commercial labs; processors’ QA teams
+      (spice processors, nutraceutical ingredients, pet food) who demand
+      compliant COAs; 3PLs offering value-added QC services.
+    - >-
+      Early adopters profile: Multi-site wholesalers handling 10k–100k lots/year
+      with diverse supplier base (>50 suppliers) and multiple lab relationships
+      (>5 labs).
+  channels:
+    - >-
+      Direct sales to QA/Operations leaders via targeted outreach to NAICS
+      424590 firms (ICP: 10k–100k lots/year).
+    - >-
+      Partnerships with independent labs (e.g., Eurofins, SGS, Intertek)
+      offering joint onboarding and co-marketing; lab portal plug-ins.
+    - >-
+      ERP marketplace listings and SI partners: NetSuite SuiteApp, MS AppSource,
+      SAP PartnerEdge; rev-share for integration deployments.
+    - >-
+      Industry events and associations: ASTA (American Spice Trade Association),
+      IFT, IPEC, NOPA; sponsor QA tracks and present case studies.
+    - >-
+      Content-led marketing: COA benchmarking reports, spec template library,
+      and ROI calculators; webinars on mycotoxins/pesticides/compliance.
+    - >-
+      Pilot-led land-and-expand: 60–90 day pilots in 1–2 sites, then rollouts
+      across commodities and locations; reference customers in 6 months.
+  revenueStreams:
+    - >-
+      SaaS subscription tiers: Starter $1,000/month (up to 5,000 lots/year),
+      Growth $3,000/month (up to 50,000 lots/year), Enterprise $6,000+/month
+      (custom SLAs, >50,000 lots).
+    - >-
+      Usage-based per-lot fee: $0.50/lot (Starter), $0.35/lot (Growth),
+      $0.20/lot (Enterprise); first 1,000 lots/month included per tier.
+    - >-
+      One-time onboarding/integration fees: $10k–$40k depending on ERP/LIMS
+      complexity and lab connections.
+    - 'Premium support/SLA (24/7, <2h response) add-on: +15% of subscription.'
+    - >-
+      Professional services: spec harmonization, supplier risk scoring, data
+      migration; $150–$220/hour.
+    - >-
+      Analytics/benchmarks add-on: supplier/lab performance insights and
+      commodity risk dashboards: $500–$2,000/month.
+  costStructure:
+    - >-
+      Cloud infrastructure (GPU/CPU, storage, data transfer): $20k–$60k/month at
+      scale; optimized via serverless OCR and model batching.
+    - >-
+      Data labeling and model training (COA fields, defect images):
+      $10k–$40k/month early-stage; decreasing as active learning matures.
+    - >-
+      Engineering and integrations (API, ERP connectors, lab adapters): 6–10
+      FTEs; $1.5M–$2.5M/year.
+    - 'Security/compliance (SOC 2 Type II, pen tests, DLP): $150k–$300k/year.'
+    - 'Customer success and support: 2–4 FTEs; $300k–$700k/year.'
+    - 'Sales/marketing (events, content, partner MDF): $300k–$800k/year.'
+    - >-
+      Insurance and legal (data processing agreements with labs/clients):
+      $50k–$150k/year.
+  keyMetrics:
+    - >-
+      COA parsing accuracy on critical fields (target ≥98%; monitor per
+      lab/commodity); non-critical fields ≥95%.
+    - >-
+      Exception detection precision/recall (critical defects recall ≥95%,
+      precision ≥90%); track false positive rate by rule.
+    - First-pass auto-approval rate (target 60–75% after 90 days; >80% mature).
+    - >-
+      Mean QA cycle time from COA receipt to disposition (target <15 minutes
+      median; <60 minutes P95).
+    - Manual minutes per lot (baseline 8–15 min; target 2–4 min; savings ≥60%).
+    - 'Chargebacks/claims rate per 1,000 lots (reduce by 30–50% within 6 months).'
+    - >-
+      Supplier and lab risk scores (trend improvement; % of high-risk suppliers
+      reduced by 20% in 12 months).
+    - 'Uptime SLA (≥99.9%), and time-to-ingest COA (P95 <2 minutes).'
+    - >-
+      User adoption: weekly active QA users/total seats >70%; satisfaction (CSAT
+      ≥4.5/5, NPS ≥40).
+    - >-
+      Sales KPIs: pilot-to-paid conversion ≥60%; average sales cycle 60–120
+      days; net revenue retention ≥115%.
+storyBrand:
+  character: >-
+    Ops/QA leader at an Other Farm Product Raw Material Merchant Wholesaler who
+    needs every inbound lot to meet spec without slowing shipments or risking
+    compliance.
+  problem: >-
+    - External: COAs arrive in inconsistent formats from many labs; units and
+    limits vary; photo checks miss color/foreign matter; receiving is rushed and
+    audit exposure is real.
+
+    - Internal: Constant worry about missing an out‑of‑spec lot and triggering
+    rework, returns, or a recall.
+
+    - Philosophical: Quality decisions should be fast, factual, and
+    traceable—data chaos shouldn’t put safety or margins at risk.
+  guide: >-
+    - Empathy: We’ve lived inbound QC and supplier variability—we know the
+    pressure at the dock door and during audits.
+
+    - Authority: AI trained on industry COAs and lot images; normalizes and
+    validates units; secure, audit‑ready, and integrates with ERP/WMS/QMS;
+    proven with leading wholesalers.
+  plan: >-
+    1) Connect specs, suppliers, and lab formats; set thresholds and routing
+    rules.
+
+    2) Auto‑ingest COAs and lot photos; AI parses, normalizes, and compares to
+    specs.
+
+    3) Exceptions are triaged to QA with evidence; click
+    Accept/Quarantine/Reject; updates sync back via API.
+  callToAction: >-
+    - Direct: Book a 30‑minute demo and start a 30‑day pilot on your recent
+    lots.
+
+    - Transitional: Send sample COAs/photos for a free normalization test and
+    exception heatmap/ROI snapshot.
+  success: >-
+    - Faster, confident receiving; significant reduction in manual QA effort.
+
+    - Fewer chargebacks, returns, and supplier disputes; stronger scorecards.
+
+    - Audit‑ready traceability and documentation; safer product, protected
+    margins, and happier customers.
+  failure: >-
+    - Keep sifting through messy COAs, miss variances, and face delays, rework,
+    fines, or recalls.
+
+    - Burn out the QA team, erode margins, damage relationships, and risk lost
+    contracts.
+landingPage:
+  hero:
+    title: AI COA Parsing & Quality Variance Triage
+    subtitle: >-
+      Reads lab COAs and lot photos, flags out-of-spec and out-of-trend, and
+      routes exceptions to QA—built for farm raw material wholesalers.
+    ctaText: Request a demo
+    ctaHref: '#demo'
+  problem:
+    - COAs arrive in dozens of formats; manual review is slow and error-prone.
+    - Lot photos live in inboxes and drives with no automated quality checks.
+    - Subtle variance and trend drift get missed until customers complain.
+    - >-
+      Spec rules vary by product, vendor, and customer—hard to maintain at
+      scale.
+    - >-
+      Lot release stalls while teams reconcile units, methods, and detection
+      limits.
+    - >-
+      Exceptions aren’t prioritized, causing delays and occasional out-of-spec
+      shipments.
+    - >-
+      Audit trails are fragmented across emails, spreadsheets, and storage
+      links.
+  solution:
+    - >-
+      Normalize any COA into structured data in minutes—analytes, methods,
+      units, limits.
+    - >-
+      Computer vision inspects lot photos for labeling, packaging integrity, and
+      contamination.
+    - ML flags out-of-spec and out-of-trend vs. product/customer spec libraries.
+    - >-
+      Priority-scored exceptions route to the right QA owner with SLAs and
+      reminders.
+    - One-click approve/hold/rework with full traceability synced to ERP/LIMS.
+    - Supplier performance insights expose chronic variance and trend drift.
+  features:
+    - 'Multi-format COA ingestion: PDF, images, XLSX, email attachments, EDI.'
+    - OCR tuned for lab docs with unit conversion and LOD/LOQ handling.
+    - >-
+      Spec libraries per product, vendor, and customer with versioning and
+      effective dates.
+    - 'Rule engine for thresholds, methods, and moisture/density conversions.'
+    - 'Anomaly detection across lot history: outliers, drift, seasonal effects.'
+    - >-
+      Photo QA: label-to-COA match, broken seals, foreign material, color
+      variance.
+    - 'Duplicate/altered COA detection via hashes, metadata, and content checks.'
+    - >-
+      Risk scoring by variance severity, customer criticality, and product
+      class.
+    - 'Exception queues with routing, SLAs, and escalation workflows.'
+    - >-
+      Integrations: ERP/LIMS/WMS via API and SFTP; S3/SharePoint connectors;
+      email intake.
+    - 'Immutable audit trail linking COAs, photos, comments, and decisions.'
+    - Supplier scorecards and trend dashboards exportable to CSV/PDF.
+    - >-
+      Enterprise security: SSO, role-based access, encryption in transit and at
+      rest.
+    - 'Flexible deployment: cloud or private VPC.'
+  steps:
+    - Connect your inbox/storage and ERP/LIMS.
+    - 'Import or define specs per product, vendor, and customer.'
+    - Forward COAs and lot photos or enable auto-ingest from labs and suppliers.
+    - >-
+      AI parses and standardizes data, then checks against specs and historical
+      trends.
+    - Exceptions are prioritized and routed to QA for approve/hold/rework.
+    - >-
+      Decisions and holds sync back to ERP/LIMS; stakeholders notified
+      automatically.
+    - Monitor supplier trends and refine specs and rules as needed.
+---
+# COA Sentinel
+
+Industry: Other Farm Product Raw Material Merchant Wholesalers
+Service: COA Parsing & Quality Variance Triage

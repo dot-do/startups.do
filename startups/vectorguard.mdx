@@ -1,0 +1,344 @@
+---
+name: VectorGuard AI
+slug: vectorguard
+naics:
+  primary: '334511'
+  occupations: []
+service:
+  title: Sensor Anomaly Detection Pipeline (Radar/Sonar/IMU/GNSS)
+  description: >-
+    Set up an AI pipeline to detect data quality issues, rare events, and
+    drifting sensors from lab/flight/sea logs with active-learning labeling.
+  targetUsers:
+    - Sensor algorithm teams
+    - Reliability/test engineers
+    - Field quality
+  triggers:
+    - Spike in false alarms/field returns
+    - New dataset from flight/sea trials
+    - Pre-production reliability gate
+  inputs:
+    - Time-series logs (HDF5/PCAP/CSV)
+    - Event labels (if any)
+    - Platform/environment metadata
+  steps:
+    - Profile and time-align multi-sensor logs
+    - 'Extract domain features (spectral, statistical, kinematics)'
+    - 'Train unsupervised/weakly-supervised detectors (IForest, LSTM-AE)'
+    - Surface candidate anomalies; human-in-the-loop labeling UI
+    - Calibrate thresholds; define alert rules and KPIs
+    - Automate batch scoring and weekly drift reports
+    - Integrate alerts with Slack/JIRA/Email
+  tools:
+    - Python/NumPy/Pandas
+    - Scikit-learn/PyTorch/MLflow
+    - Great Expectations
+    - Grafana/ELK
+    - Kafka/S3 (optional)
+  outputs:
+    - Deployed anomaly model + thresholds
+    - Anomaly dashboard
+    - Weekly drift and health reports
+    - Labeled snippets for retraining
+  pricingModel:
+    - Setup fee + monthly monitoring
+    - Usage-based per GB/log-hour
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 7
+    overall: 7.5
+  risks:
+    - False positives/negatives impacting ops
+    - Concept drift reducing performance
+    - Data rights/PII in logs
+  dependencies:
+    - Access to data lake or secure file drop
+    - Compute quota for training
+    - SME guidance on thresholds and KPIs
+leanCanvas:
+  problem:
+    - >-
+      Sensor-intensive programs (radar/sonar/IMU/GNSS) generate terabytes per
+      mission; teams lack scalable tools to find rare faults, intermittent
+      dropouts, or drift across long logs.
+    - >-
+      Late discovery of sensor drift or miscalibration causes costly
+      re-flights/sea trials and schedule slips (weeks to months) during V&V and
+      production ramp.
+    - >-
+      Existing test and DAQ stacks (HIL/SIL, loggers) provide basic thresholds
+      but not explainable, cross-sensor anomaly detection with active-learning
+      labels tied to mission context.
+    - >-
+      Data quality issues (time-sync, saturation, quantization, multipath,
+      carrier lock loss, thermal effects) propagate into algorithms
+      (navigation/trackers) and certification artifacts, increasing safety risk
+      and audit burden.
+    - >-
+      Labeling rare events is slow and inconsistent; SMEs spend high-cost hours
+      combing logs without systematic capture of rationales or inter-rater
+      agreement.
+    - >-
+      Operational constraints (air-gapped networks, export control/ITAR) make
+      cloud-first ML tools impractical; on-prem MLOps for signal data is
+      underdeveloped.
+    - >-
+      Programs need evidence for standards (ARP4754A/4761, DO-178C/DO-160G, IEC
+      61508/IEC 61162) but lack repeatable, queryable data quality and anomaly
+      reports.
+  solution:
+    - >-
+      Turnkey connectors ingest lab/flight/sea logs (ARINC 429/664, NMEA
+      0183/2000, ROS2 bag, CAN, UDP, vendor ICDs) with deterministic time-sync
+      and metadata capture.
+    - >-
+      Signal-intelligence feature engines: Allan variance/PSD for IMU;
+      carrier/phase residuals and DOP for GNSS; CFAR/track residuals, clutter
+      maps for radar; beamformed SNR, reverberation indices for sonar.
+    - >-
+      Hybrid anomaly detection: unsupervised (isolation forests, VAE), weakly
+      supervised and rule-augmented detectors with human-in-the-loop triage and
+      explanations.
+    - >-
+      Drift detection and health scoring: CUSUM/ADWIN/KS tests on feature
+      distributions; rolling calibration checks; environment-normalized
+      baselines (temp, vibration, sea state).
+    - >-
+      Active-learning labeling workbench: query strategies (uncertainty,
+      diversity, novelty), SME rationale capture, inter-rater agreement, and
+      lineage back to raw data segments.
+    - >-
+      ModelOps for secure environments: offline training pipelines, versioned
+      datasets/models, reproducible evals, and automated, auditable reports
+      aligned to program gates and safety cases.
+    - >-
+      Deployment modes: on-prem HPC/K8s or secure gov cloud; streaming
+      (near-real-time) or batch from data lakes; APIs into HIL/SIL rigs for test
+      automation.
+    - >-
+      Reporting and alerting: anomaly timelines, drift dashboards, and executive
+      metrics (re-test hours avoided, detection lead time, false alarms)
+      exportable to PLM/QMS/requirements tools.
+  uniqueValueProp: >-
+    Deploy an air-gapped, domain-tuned AI pipeline that detects data quality
+    issues, rare events, and sensor drift in radar/sonar/IMU/GNSS logs, cutting
+    re-test time 20–40%, surfacing drifts weeks earlier, and converting SME
+    knowledge into reusable, auditable labels via active learning.
+  unfairAdvantage: >-
+    A cross-sensor, air-gapped AI stack with active-learning tailored to
+    radar/sonar/IMU/GNSS, backed by proprietary domain feature libraries and
+    de-identified anomaly/drift corpora; prebuilt connectors to
+    aerospace/maritime data buses; and a compliance-ready ModelOps process that
+    plugs into safety/cert workflows.
+  customerSegments:
+    - >-
+      NAICS 334511 OEMs and Tier 1 suppliers: radar, sonar, IMU/INS, GNSS
+      receivers, avionics suites, maritime navigation systems.
+    - >-
+      Aerospace and defense primes/integrators (air, sea, space, land) running
+      flight/sea trials and production test lines.
+    - >-
+      Autonomous and UAS/UUV platform manufacturers using multi-sensor fusion
+      stacks.
+    - >-
+      Subsystem vendors and test houses (HIL/SIL, environmental chambers)
+      requiring automated data quality assurance.
+    - >-
+      Government labs and program offices overseeing T&E with strict data
+      governance (DoD/DOE/NASA/NOAA/NAVSEA/AFLCMC).
+    - >-
+      Roles: V&V leads, Chief Engineers for Sensors/Navigation, Data/Test
+      Engineering managers, Reliability/Quality heads, Safety/Certification
+      engineers, Program Managers.
+  channels:
+    - >-
+      Direct enterprise sales to NAICS 334511 OEMs and primes targeting V&V,
+      Test, and Quality leaders.
+    - >-
+      Defense innovation pathways: SBIR/STTR (AFWERX/AFVentures, NAVSEA/NIWC),
+      OTA consortia, pilot OT awards leading to production.
+    - >-
+      Partnerships with test/HIL vendors (NI, dSPACE, Spirent, Keysight), data
+      platforms (Databricks, Snowflake, Azure Gov), and sensor OEMs
+      (Hexagon/NovAtel, Safran, Collins, Teledyne).
+    - >-
+      Conferences and standards engagement: IEEE RadarConf, ION GNSS+, OCEANS,
+      AUVSI XPONENTIAL, I/ITSEC, Sea-Air-Space; working groups (RTCA, SAE,
+      IEEE).
+    - >-
+      Thought leadership: benchmark datasets (de-identified), whitepapers on
+      drift detection in GNSS/IMU, webinars with partners, and case studies
+      quantifying re-test savings.
+    - >-
+      Targeted ABM and capture: account-specific ROI calculators, program
+      milestone-aligned pilots, and capture support for proposals where our
+      pipeline is an enabling capability.
+  revenueStreams:
+    - >-
+      Annual subscription per program/site (SaaS or on-prem license):
+      $200k–$800k based on data volume, connectors, and users.
+    - >-
+      Professional services: deployment/integration, data onboarding, algorithm
+      customization ($150k–$500k per engagement).
+    - >-
+      Premium support and maintenance (15–20% of license) including SLAs for
+      air-gapped patches and model update reviews.
+    - >-
+      Training and enablement: SME and annotator training, MLOps for secure
+      environments ($10k–$50k).
+    - >-
+      Usage-based compute/storage for managed deployments; on-prem capacity
+      planning advisory.
+    - >-
+      Optional incident response retainer for test campaigns and critical
+      flight/sea trials.
+  costStructure:
+    - >-
+      R&D staff (signal processing/ML engineers, data engineers,
+      safety/reliability SMEs).
+    - Field engineering and professional services for integrations and pilots.
+    - >-
+      Gov/defense compliance: ITAR/EAR controls, RMF, secure build pipelines,
+      SOC 2/ISO 27001 audits, penetration testing.
+    - >-
+      Compute and tooling: on-prem test lab, GPU/CPU clusters, CI/CD, test
+      equipment rentals (GNSS simulators, IMU rate tables).
+    - >-
+      Sales and capture: senior AE/SE pairs, proposal support, conferences,
+      demos, travel to secure facilities.
+    - >-
+      Insurance and legal: E&O, cyber, export counsel, IP protection; facilities
+      with secure rooms.
+    - >-
+      Partner channel margins (10–25%) where applicable; customer success and
+      support staffing.
+  keyMetrics:
+    - >-
+      Model performance: anomaly precision ≥0.90 at recall ≥0.80 on
+      program-defined gold sets; drift detection lead time ≥2 weeks before
+      baseline methods.
+    - >-
+      Operational ROI: 20–40% reduction in re-test hours; ≥30% fewer schedule
+      slips attributable to sensor data issues; ≥25% reduction in false alarms
+      in downstream algorithms.
+    - >-
+      Labeling efficiency: ≥60% SME time reduction via active learning; ≥0.75
+      inter-rater kappa; ≥5,000 labeled events/annotator/week on curated queues.
+    - >-
+      Time-to-value: data ingest to first actionable findings ≤2 weeks; pilot to
+      production conversion ≥50%; integration to HIL/SIL ≤6 weeks.
+    - >-
+      System performance: ingest throughput ≥5 GB/s on-prem; alerting MTTD <1
+      hour; uptime ≥99.9% in managed deployments.
+    - >-
+      Security/compliance: zero high-severity audit findings; patch SLAs ≤15
+      days for critical CVEs; change-control audit pass rate 100%.
+    - >-
+      Commercial: ACV $300k–$700k median; sales cycle 6–12 months; net revenue
+      retention ≥120%; CAC payback ≤18 months.
+storyBrand:
+  character: >-
+    OEM and Tier-1 engineering leaders in radar, sonar, IMU, and GNSS building
+    search, detection, navigation, and guidance systems who need trustworthy
+    sensor data from lab, flight, and sea tests to ship reliable instruments
+    faster.
+  problem: >-
+    Villain: sensor drift, rare failure modes, and noisy logs hiding in
+    terabytes of data. External: inconsistent data quality stalls tests and
+    masks defects. Internal: teams can’t trust logs, burn time in manual triage,
+    and fear late-stage surprises. Philosophical: high-stakes systems deserve
+    data you can trust, not guesswork.
+  guide: >-
+    Empathy: we’ve wrestled with flaky sensors, brittle heuristics, and schedule
+    pressure in aerospace and maritime test campaigns. Authority: domain-aware
+    AI for Radar/Sonar/IMU/GNSS, proven anomaly pipelines, active-learning
+    labeling workflows, and traceable MLOps aligned to regulated environments.
+  plan: >-
+    Simple plan: 1) Assess and baseline—ingest sample logs, map sensors, define
+    anomaly taxonomy, and set KPIs. 2) Deploy pipeline—stream/ batch detection,
+    drift monitoring, and active-learning labeling integrated with your data
+    lake, test rigs, and CI/CD. 3) Iterate and validate—human-in-the-loop
+    review, thresholds tuning, model versioning, and audit-ready reports.
+    Deliverables: dashboards, alerts, labeled event catalogs, and integration to
+    issue tracking.
+  callToAction: >-
+    Direct: schedule a 30-minute discovery call and submit sample logs for a
+    free anomaly baseline. Transitional: download the pipeline checklist and
+    example detection report.
+  success: >-
+    Earlier detection of rare events and drifting sensors, faster test cycles,
+    fewer NFF returns, higher reliability, smoother certification evidence, and
+    confident releases for search, detection, navigation, and guidance
+    instruments.
+  failure: >-
+    Hidden drift triggers mission aborts, rework, and delays; defects escape to
+    customers; certification setbacks mount; teams drown in logs while critical
+    anomalies go unnoticed.
+landingPage:
+  hero:
+    title: 'Sensor Anomaly Detection Pipeline for Radar, Sonar, IMU, and GNSS'
+    subtitle: >-
+      Detect data quality issues, rare events, and sensor drift in lab, flight,
+      and sea logs with an active-learning AI pipeline.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - >-
+      Hidden anomalies and intermittent faults buried in terabytes of sensor
+      logs
+    - Sensor drift goes unnoticed until mission or test failures
+    - Rare events lack labels; manual triage is slow and costly
+    - Multi-sensor time sync and alignment complicate investigation
+    - Late defect discovery drives re-tests and schedule slips
+    - Fragmented lab/field tooling breaks traceability
+    - Inconsistent calibration and firmware changes mask root cause
+    - Auditable data quality evidence is hard to produce for reviews
+  solution:
+    - >-
+      Unified AI pipeline for Radar/Sonar/IMU/GNSS anomaly detection and drift
+      monitoring
+    - >-
+      Active-learning loop surfaces the most informative events for fast
+      labeling
+    - Automated multi-sensor alignment and context-aware detection
+    - Ranked incident queues with human-in-the-loop review and approval
+    - Continuous model updates with versioned datasets and audit trails
+    - 'Flexible deployment: on-prem, VPC, or air-gapped environments'
+    - APIs and connectors for common engineering log formats
+    - Dashboards that turn raw logs into actionable data quality metrics
+  features:
+    - >-
+      Batch and streaming ingestion (ROS/ROS2, PCAP, HDF5, CSV, MAT, custom
+      binaries)
+    - >-
+      Sensor-specific detectors (range–Doppler, beam intensity, accelerometer
+      bias, GNSS solution quality)
+    - 'Unsupervised, semi-supervised, and rule-based hybrid detection'
+    - >-
+      Drift watchers: bias, scale, noise floor, clock skew, interference
+      patterns
+    - Uncertainty-aware sampling to prioritize rare and novel events
+    - >-
+      Cross-sensor consistency checks (e.g., GNSS vs INS; radar vs navigation
+      truth)
+    - Automatic time sync and calibration change detection
+    - 'Explainability: channel/axis/band attribution and contributing features'
+    - Incident timelines with overlays and quick playback for triage
+    - 'Role-based access, project workspaces, encryption, and audit logs'
+  steps:
+    - Connect your data sources and choose deployment (on-prem/VPC/air-gapped)
+    - >-
+      Ingest historical logs to pre-train baselines; set up live streams if
+      needed
+    - >-
+      Auto-profile sensors and align streams; generate initial anomaly
+      candidates
+    - Label top-ranked events with active-learning suggestions; refine detectors
+    - 'Deploy monitors to lab rigs, flight/sea tests, or edge devices'
+    - Track data quality KPIs and iterate models with versioned releases
+---
+# VectorGuard AI
+
+Generated for NAICS 334511 — Search, Detection, Navigation, Guidance, Aeronautical, and Nautical System and Instrument Manufacturing.
+Service: Sensor Anomaly Detection Pipeline (Radar/Sonar/IMU/GNSS)

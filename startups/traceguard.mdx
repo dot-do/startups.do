@@ -1,0 +1,306 @@
+---
+name: TraceGuard AI DFM Precheck
+slug: traceguard
+naics:
+  primary: '334412'
+  occupations: []
+service:
+  title: AI DFM Precheck for Bare PCB CAM Data
+  description: >-
+    Automated pre-CAM DFM scan of Gerber/ODB++/IPC-2581 to flag
+    manufacturability risks and produce fix suggestions aligned to fab rules.
+  targetUsers:
+    - CAM engineers
+    - Pre-CAM/Engineering
+    - Customer engineering liaison
+  triggers:
+    - Customer uploads new design for quote or build
+    - Internal ECO received
+    - Before panelization
+  inputs:
+    - Gerber RS-274X or ODB++ or IPC-2581
+    - Excellon NC drill/rout
+    - >-
+      Layer stack and capabilities (min trace/space, annular ring, soldermask
+      dam, etch/registration tolerances)
+    - Optional IPC-D-356A netlist
+  steps:
+    - Parse layers and drills; auto-detect layer mapping
+    - >-
+      Run rule deck against geometry (trace/space, annular ring, aspect ratio,
+      soldermask clearance, copper-to-edge, thermal reliefs, teardrops, acid
+      traps)
+    - 'Optional: extract netlist and compare to IPC-D-356A'
+    - Prioritize issues by severity and yield impact
+    - >-
+      Auto-generate suggested fixes (e.g., add teardrops, merge drills, increase
+      mask expansion)
+    - Export annotated visuals and machine-readable violations
+  tools:
+    - pcb-tools/gerber (Python)
+    - Shapely/GEOS for geometry
+    - Tracespace/gerber-to-svg for rendering
+    - Custom rule engine with IPC-2221/6012 params
+    - FastAPI for upload/report API
+  outputs:
+    - DFM report (HTML/PDF) with severity-ranked findings
+    - Annotated layer overlays (PNG/SVG)
+    - Machine-readable violations (JSON/CSV)
+    - Updated rule deck (.json/.yaml) or .dru for CAD
+  pricingModel:
+    - Per-design tiered (2/6/12 layers)
+    - Monthly subscription with usage cap
+    - 'Add-on: rush (24h)'
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8.5
+  risks:
+    - Gerber dialect inconsistencies causing false flags
+    - Incomplete/incorrect fab rules lead to over/under-reporting
+    - IP sensitivity of design data
+  dependencies:
+    - Accurate capability/rule deck
+    - Layer mapping conventions
+    - Secure file transfer/storage
+leanCanvas:
+  problem:
+    - >-
+      Manual pre-CAM DFM reviews at bare PCB fabs are slow (20–60 minutes per
+      job), inconsistent across engineers, and delay RFQ-to-quote turnaround by
+      24–48 hours.
+    - >-
+      Design data arrives in mixed formats (Gerber/ODB++/IPC-2581) with missing
+      or ambiguous information, leading to repeated customer back-and-forth and
+      engineering change orders (ECOs).
+    - >-
+      Existing rule-based DFM tools are either designer-focused (not
+      fab-specific) or require heavy setup; they rarely propose concrete,
+      fabrication-aligned fixes.
+    - >-
+      High-mix, low-volume fabs struggle to scale CAM throughput without adding
+      headcount; labor shortages and tribal knowledge increase risk of DFM
+      escapes and scrap.
+    - >-
+      Quoting teams need fast manufacturability risk scores to price accurately
+      (NRE, lead time) but lack reliable automation integrated with fab-specific
+      rules and capabilities.
+  solution:
+    - >-
+      Automated import and normalization of Gerber X2, ODB++, and IPC-2581 with
+      project completeness checks (stackup, drill map, impedance notes, fab
+      drawing).
+    - >-
+      Hybrid rules+ML engine that detects common and fab-specific DFM violations
+      (e.g., annular ring, solder mask slivers, copper-to-edge, acid traps,
+      plane voids, slot/drill conflicts) and assigns risk scores tied to the
+      fab’s process limits.
+    - >-
+      Fix suggestions with parameterized actions (e.g., increase mask clearance
+      by 3 mil on U3 pads; add teardrops on all BGA escapes below 5 mil drill;
+      convert routed slots to plated slots with min web X) and optional
+      auto-generated patch layers for CAM tools.
+    - >-
+      One-click DFM report for customers with annotated images, violation list,
+      proposed fixes, and impact on cost/lead time; supports fab-branded PDFs
+      and shareable links.
+    - >-
+      APIs and connectors to common CAM/quoting workflows (Frontline
+      Genesis/InCAM Pro, UcamX, CAM350, internal quoting systems) to trigger
+      checks at import and push back accepted patches.
+    - >-
+      Rule-deck management with versioning per line/capability (e.g., LDI vs.
+      contact print, 2L vs. HDI), plus what-if simulation against capability
+      changes.
+  uniqueValueProp: >-
+    AI-driven pre-CAM DFM that parses Gerber/ODB++/IPC-2581, flags
+    manufacturability risks with fab-specific rule decks, and generates fix
+    suggestions and patch artifacts — cutting CAM touch time by 50–70% and
+    shrinking RFQ-to-quote SLA to same day while reducing DFM escapes.
+  unfairAdvantage: >-
+    Compound data advantage from multi-fab, multi-process labeled outcomes plus
+    closed-loop learning on accepted fixes; fix-suggestion engine that outputs
+    CAM-ready patch layers; deep workflow integrations and compliance options
+    (on-prem/ITAR) that are costly for incumbents to replicate.
+  customerSegments:
+    - >-
+      Primary: NAICS 334412 Bare Printed Circuit Board manufacturers (North
+      America first), mid-size and large high-mix fabs with 5–50 CAM/quote
+      engineers.
+    - >-
+      Secondary: Global PCB fabricators (EU, APAC) seeking English-language
+      support and ITAR-safe options for U.S. customers.
+    - >-
+      Tertiary: PCB brokers/marketplaces and design bureaus that want
+      pre-submission DFM screening aligned to specific fab rules.
+  channels:
+    - Direct sales to PCB fabs (operations/CAM leadership and quoting managers).
+    - >-
+      Pilot-led selling via 60–90 day proof-of-value with ROI targets and case
+      studies.
+    - >-
+      Partnerships with industry associations (IPC) and participation at IPC
+      APEX EXPO; technical webinars with CAM leaders.
+    - >-
+      Technology partnerships/integrations with CAM vendors (Frontline/KLA,
+      Ucamco, DownStream) and quoting systems; listing in their partner
+      ecosystems where possible.
+    - >-
+      Co-branded designer precheck portals offered through participating fabs to
+      shift-left adoption and create pull from OEMs/design bureaus.
+    - >-
+      Content marketing: DFM best-practice reports by stackup class and feature
+      size; benchmark reports by industry segment.
+  revenueStreams:
+    - >-
+      SaaS subscription (per site) + usage: Standard $2,000/month/site includes
+      1,500 jobs, then $0.60/job; Pro $5,000/month/site includes 5,000 jobs,
+      then $0.40/job.
+    - >-
+      On-prem/air-gapped appliance for ITAR and restricted networks:
+      $120,000/year/site plus maintenance.
+    - >-
+      Designer/bureau plan: $199/month for 200 jobs, then $1.00/job; optional
+      per-fab rule deck bundles.
+    - >-
+      Enterprise add-ons: custom integrations ($10–50k), priority SLAs
+      ($15k/year), advanced analytics ($12k/year).
+    - >-
+      Professional services: rule-deck calibration, historical job backfill and
+      model tuning ($5–30k per engagement).
+  costStructure:
+    - >-
+      R&D: ML engineers, CAM domain experts, and backend team (~$2.5–3.5M/year
+      for 10–14 FTEs in years 1–2).
+    - >-
+      Compute/storage: $0.03–0.10/job (cloud CPU/GPU mix, object storage,
+      egress), with 50%+ savings for batch/on-prem.
+    - >-
+      Security/compliance: SOC 2 Type II ($60–100k/year), pen tests
+      ($25–40k/year), ITAR/GovCloud overhead.
+    - >-
+      Sales/marketing: 2–4 AEs + 1–2 SEs; events (IPC APEX), content, and pilots
+      ($400–800k/year).
+    - >-
+      Customer success: onboarding, rule-deck maintenance, support (2–3 FTEs
+      initially).
+    - Licensing/integration costs for connectors/SDKs where applicable.
+  keyMetrics:
+    - >-
+      Jobs scanned per site per month and percent auto-cleared without human
+      edits (target 30–60% after 90 days).
+    - >-
+      Median pre-CAM touch time per job (target reduction from 30 to ≤12
+      minutes).
+    - RFQ-to-quote SLA (target same-day quoting for ≥80% of incoming jobs).
+    - >-
+      False-positive rate on violations (target ≤5% after calibration) and
+      precision/recall for top-20 violation classes (target ≥95% precision, ≥92%
+      recall).
+    - Fix suggestion acceptance rate (target ≥60% suggestions accepted/applied).
+    - Reduction in customer back-and-forth iterations (target ≥50%).
+    - >-
+      DFM escape rate and scrap rework rate (target 0.5–2.0% absolute
+      improvement in first-pass yield over 6 months).
+    - 'Revenue per site, gross margin per job, logo retention (>95%), NPS (>40).'
+storyBrand:
+  character: >-
+    PCB fabricators (NAICS 334412)—CAM leads, process engineers, and quoting
+    teams who must accept customer PCB data quickly without sacrificing yield or
+    on-time delivery.
+  problem: >-
+    External: Inbound Gerber/ODB++/IPC-2581 often violates shop rules, creating
+    CAM backlogs, email ping-pong, rework, and delays. Internal: Teams fear
+    missing DFM risks during manual checks and losing margin on fast-turn jobs.
+    Philosophical: Clean data should build right the first time—DFM shouldn’t be
+    a bottleneck.
+  guide: >-
+    Empathy: We know the pressure of same-day turns, thin margins, and
+    inconsistent customer datasets. Authority: Built with veteran PCB
+    manufacturing engineers; supports Gerber/ODB++/IPC-2581; rule libraries
+    aligned to IPC-6012 and your fab’s capabilities; integrates via API and
+    exports CAM-ready annotations.
+  plan: >-
+    Process: 1) Upload or API-push design data. 2) Select or import your fab
+    rule profile (or auto-detect). 3) Receive a ranked DFM risk report with
+    pinpointed issues and rule-aligned fix suggestions; export notes to CAM or
+    customer. Agreement: Data stays in your tenant or on-prem; no changes to
+    golden data without approval.
+  callToAction: >-
+    Direct: Start a pilot or request a demo. Transitional: Download a sample DFM
+    report or run a sandbox on example boards.
+  success: >-
+    Shorter quote-to-CAM cycles, first-pass acceptances, fewer CAM tickets,
+    predictable lead times, higher yield, and more won rush orders—engineers
+    focus on value-add, not triage.
+  failure: >-
+    Without it: hidden DFM defects, late-stage surprises, scrap/rework, margin
+    erosion, missed ship dates, CAM burnout, and lost customers.
+landingPage:
+  hero:
+    title: AI DFM Precheck for Bare PCB CAM Data
+    subtitle: >-
+      Instantly scan Gerber/ODB++/IPC-2581, flag manufacturability risks, and
+      output fix suggestions aligned to your fab rules—before CAM.
+    ctaText: Start free scan
+    ctaHref: /start-scan
+  problem:
+    - Manual DFM checks slow quotes and CAM throughput.
+    - Back-and-forth with customers over fab limits wastes days.
+    - 'Missed risks drive scrap, rework, and yield loss.'
+    - Inconsistent rules across shifts and sites create variability.
+    - Multi-format file handling increases errors and touch time.
+    - Sales lacks clear pass/fail criteria for fast go/no-go decisions.
+  solution:
+    - Automated pre-CAM DFM scan mapped to your capability rules.
+    - AI-generated fix suggestions with clear rationale and redlines.
+    - Consistent DFM score to standardize accept/warn/fail outcomes.
+    - 'Shareable, customer-facing reports to cut iterations.'
+    - API integration to gate RFQs and auto-route clean jobs to CAM.
+    - Deploy in cloud or on-prem with audit trails and SSO.
+  features:
+    - 'Format support: Gerber X2/X3, ODB++, IPC-2581; ZIP/TGZ auto-unwrap.'
+    - >-
+      Rules engine: min trace/space, annular ring, hole-to-copper,
+      copper-to-edge, mask clearance, sliver width, via-in-pad flags.
+    - >-
+      Drill/plating checks: tool sizes, finished vs. plated, aspect ratio
+      limits.
+    - >-
+      Geometric risk: acid traps, acute angles, missing teardrops, copper
+      thieving needs, thermal relief connectivity.
+    - >-
+      Panel/route checks: route-to-copper, tab/rail spacing, fiducials, tooling
+      holes.
+    - >-
+      Risk classification: pass/warn/fail with per-rule tolerances and DFM
+      score.
+    - >-
+      Fix suggestions: targeted pad/clearance growth, mask swell, width/spacing
+      adjustments; exportable change list.
+    - >-
+      Interactive viewer: layer stack preview, redline overlays, clickable
+      violations, heatmap by severity.
+    - 'Outputs: annotated PDF, CSV/JSON for MES/ERP, sharable web link.'
+    - 'Workflow: assign, comment, approve; customer acknowledgment/e-signoff.'
+    - 'Integrations: REST API, webhook events; SSO via SAML/OIDC.'
+    - >-
+      Security: project isolation, encryption at rest/in transit, full audit
+      logs.
+    - 'Performance: million-feature scans in seconds with parallel compute.'
+    - 'Optional: netlist compare (IPC-D-356) when provided.'
+    - 'Localization: metric/imperial, rule libraries by customer/process.'
+  steps:
+    - Upload Gerber/ODB++/IPC-2581 (drag-and-drop or API).
+    - 'Select a fab rule set (by customer, class, or auto-detect).'
+    - 'Run AI Precheck to get DFM score, risks, and fix suggestions.'
+    - >-
+      Review redlines; accept suggestions or request design updates; export
+      report/JSON.
+    - Push green jobs directly to CAM and quote with confidence.
+---
+# TraceGuard AI DFM Precheck
+
+Generated for NAICS 334412 — Bare Printed Circuit Board Manufacturing.
+Service: AI DFM Precheck for Bare PCB CAM Data

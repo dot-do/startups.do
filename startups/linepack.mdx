@@ -1,0 +1,285 @@
+---
+name: Linepack Forecast and Constraint Advisor (LFCA)
+slug: linepack
+service:
+  title: Linepack Forecast and Constraint Advisor
+  description: >-
+    Short-term forecast of linepack, pressures, and constraints with advisories
+    for nominations and compressor setpoints.
+  targetUsers:
+    - Control room
+    - System planning
+    - Commercial scheduling
+  triggers:
+    - Hourly forecast refresh
+    - Before gas day
+    - Planned outage entered
+  inputs:
+    - Current flows/pressures by segment/station
+    - Nominations/schedules from EBB
+    - Compressor availability and planned maintenance
+    - Weather-driven demand proxies
+    - Recent linepack history
+  steps:
+    - Ingest latest operational and nomination data
+    - Estimate demand profiles and boundary conditions
+    - Run fast surrogate or hydraulic simulation for 24–72h
+    - Identify pressure minima/constraints and required compressor load
+    - 'Generate advisories (setpoint changes, reroutes, curtailments)'
+    - Publish dashboard and message summary to control room
+  tools:
+    - Historian/EBB interfaces
+    - Hydraulic tools (PipelineStudio/Synergi Gas/SPS) or ML surrogate
+    - Python forecasting (Prophet/SARIMAX)
+    - Power BI/Grafana
+    - Teams/Slack
+  outputs:
+    - Linepack/pressure forecast charts
+    - Constraint list with recommended actions
+    - What-if scenario snapshots
+  pricingModel:
+    - Setup + model calibration fee
+    - Monthly subscription per system
+    - Optional per-scenario what-if credits
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 7
+    overall: 7.5
+  risks:
+    - Model mismatch vs. actual hydraulics
+    - Incomplete nomination or outage data
+    - Operator trust/overreliance
+  dependencies:
+    - Access to nominations/schedules
+    - Compressor maps/availability
+    - Validated network model or surrogate
+leanCanvas:
+  problem:
+    - >-
+      Control rooms lack accurate short-term visibility (2–72 hours) of linepack
+      and nodal pressures, leading to conservative operations, fuel overuse, and
+      avoidable OFOs/curtailments.
+    - >-
+      Constraint conditions (compressor limits, valve outages, temperature
+      impacts, simultaneous nominations) are identified too late; advisories are
+      reactive, not proactive.
+    - >-
+      Fragmented tools: physics simulators, spreadsheets, and SCADA trend views
+      don’t produce actionable, ranked setpoint/nominations guidance with
+      quantified risk.
+    - >-
+      Financial leakage from imbalance penalties and excess compressor fuel
+      burn; limited ability to validate ROI of operating decisions in real time.
+    - >-
+      Operational risk: inconsistent decision-making across shifts; lack of
+      standardized, auditable advisories that align with procedures and
+      regulatory expectations.
+  solution:
+    - >-
+      Hybrid physics + ML forecasts: transient hydraulic digital twin calibrated
+      with ML state estimation and bias correction; updates every 5 minutes to 1
+      hour.
+    - >-
+      Constraint detection and ranking: forecasted breaches of MAOP/MOP, station
+      limits, suction/discharge bands, temperature-dependent constraints, and
+      linepack minima/maxima with probability and lead time.
+    - >-
+      Advisory engine: generates feasible, ranked compressor setpoint and
+      nomination adjustments; simulates outcomes; presents expected
+      savings/risks and compliance checks.
+    - >-
+      What-if sandbox: controllers/planners test nominations, outage scenarios,
+      weather swings; instant KPIs and constraint impact deltas.
+    - >-
+      Closed-loop readiness: optional move from advisory-only to supervised
+      auto-tuning of station setpoints under MOC and alarm/override policies.
+    - >-
+      Operational integration: read-only historian/SCADA ingestion,
+      scheduling/nominations APIs (NAESB/EDI where applicable), weather feeds,
+      compressor maps; on-prem or VPC deployment.
+    - >-
+      Explainability & audit: rationale, sensitivity, and traceability for each
+      advisory; shift handover reports and post-event back-casts for continuous
+      improvement.
+  uniqueValueProp: >-
+    Actionable, explainable short-term forecasts (2–72h) of linepack, pressures,
+    and constraints that translate into prioritized nomination and compressor
+    setpoint advisories—reducing fuel and penalties while improving throughput
+    reliability. Delivered as a secure, OT-friendly, physics-plus-ML service
+    with measurable ROI in under 90 days.
+  unfairAdvantage: >-
+    Explainable, closed-loop-ready advisory engine that unifies physics-based
+    simulation with ML state estimation, trained on multi-operator datasets and
+    compressor performance libraries—deployed through OT-safe, read-only
+    integrations and audited workflows tailored to control room operations.
+  customerSegments:
+    - >-
+      Gas transmission pipeline operators (interstate/intrastate) with >1,000
+      miles and multiple compressor stations.
+    - >-
+      Storage operators (depleted fields, salt caverns) integrated with
+      transmission networks.
+    - >-
+      Large LDCs/TSOs managing city-gates and high-pressure networks with daily
+      nomination schedules.
+    - >-
+      Gas-fired power portfolio owners with firm transport who need predictable
+      delivery pressures (secondary buyer segment via operator-partnerships).
+  channels:
+    - >-
+      Direct enterprise sales to pipeline operators and storage operators
+      (account-based marketing to operations, planning, and CIO/OT security).
+    - >-
+      Systems integrators and OT/SCADA partners (Honeywell, Emerson, ABB,
+      Siemens) for deployment/integration services.
+    - >-
+      Partnerships with simulation vendors (DNV Synergi Gas, AVEVA
+      PipelineStudio, PSI/SIMONE) to augment models with AI forecasting and
+      advisories.
+    - >-
+      Industry forums and pilots via PSIG, AGA Operations, INGAA, GPA Midstream,
+      ENTSOG members; publish peer-reviewed case studies.
+    - >-
+      Regulatory and standards engagement (API RP 1165/1164-aligned HMI/cyber
+      approaches) to de-risk procurement.
+    - >-
+      Customer-led lighthouse pilots converting to enterprise rollouts;
+      expansion playbooks across additional systems and regions.
+  revenueStreams:
+    - >-
+      Annual SaaS subscription per pipeline system, tiered by network
+      size/complexity (e.g., $200k–$1.2M ARR per system).
+    - >-
+      One-time implementation/integration fee ($150k–$500k depending on
+      connectors, data quality, and model build).
+    - >-
+      Premium modules: storage co-optimization, weather-driven load inference,
+      outage planning ($50k–$200k/yr add-ons).
+    - >-
+      Professional services: model validation, change management, training
+      ($250/hour or fixed-scope packages).
+    - >-
+      Optional performance-based bonus tied to realized fuel savings/penalty
+      reduction with caps (e.g., 10–20% of verified savings).
+  costStructure:
+    - >-
+      COGS per customer: cloud compute/storage and data egress
+      ($3k–$8k/month/system), 24/7 support on-call rotation, observability
+      tools.
+    - >-
+      R&D: data scientists, pipeline simulation engineers, OT cybersecurity;
+      ~$4–6M/yr at seed/Series A scale.
+    - >-
+      Implementation: 2–4 FTE for 8–16 weeks per system (integration, model
+      build, UAT).
+    - >-
+      Compliance/security: SOC 2 Type II/ISO 27001 audits, penetration tests, OT
+      security assessments ($150k–$300k/yr).
+    - Liability and cyber insurance ($100k–$250k/yr).
+    - >-
+      Sales/marketing: enterprise sales, conferences, pilots ($0.8–$1.5M/yr
+      initially).
+  keyMetrics:
+    - >-
+      Pressure forecast MAPE at critical nodes (target ≤1.5% over 24h; alarm if
+      >3%).
+    - System linepack absolute percentage error (target ≤2% over 24h).
+    - Constraint detection precision/recall (target ≥90%/≥80% after 60 days).
+    - Average advisory lead time before constraint (target ≥90 minutes).
+    - Advisory acceptance rate by controllers (target ≥60% within 90 days).
+    - >-
+      Realized savings: compressor fuel reduction (target 5–10%), imbalance
+      penalties reduction (10–25%), curtailed volume reduction (≥15%).
+    - >-
+      Throughput reliability: % of hours in-pressure-band at city-gates (target
+      ≥98.5%).
+    - System availability/SLA (≥99.9%).
+    - >-
+      Time-to-pilot (contract to first advisory in control room) ≤12 weeks;
+      time-to-ROI ≤90 days post go-live.
+    - >-
+      Model drift index and retraining cadence (drift < threshold in 95% weeks;
+      retraining ≤ quarterly unless triggered).
+storyBrand:
+  character: >-
+    Pipeline gas control teams and schedulers at natural gas transmission
+    operators who must deliver nominations safely, reliably, and efficiently.
+  problem: >-
+    Shifting nominations, variable supply and demand, and tight pressure limits
+    create uncertainty; without short-term visibility, teams risk pressure
+    violations, curtailments, imbalance penalties, lost throughput, and excess
+    compressor fuel use.
+  guide: >-
+    Linepack Forecast and Constraint Advisor combines physics-based pipeline
+    models with AI to forecast linepack, pressures, and constraints, delivering
+    practical advisories for nominations and compressor setpoints. Built by
+    pipeline optimization experts who understand gas control and SCADA/EMS
+    workflows.
+  plan: >-
+    1) Connect SCADA, nominations, compressor, and weather data. 2) Calibrate
+    and validate short-term forecasts. 3) Deliver 6-72 hour forecasts and
+    actionable advisories via dashboard and API, with alerts integrated into
+    existing workflows.
+  callToAction: Request a demo and start a 60-90 day pilot on your priority corridor.
+  success: >-
+    Early warning of constraints, higher delivery reliability, improved
+    throughput, reduced compressor fuel and related emissions, and confident
+    day-ahead and intraday decisions backed by clear, auditable recommendations.
+  failure: >-
+    Without it, operators fly blind into intraday swings, leading to pressure
+    excursions, costly over-compression, imbalance charges, avoidable
+    curtailments, and unhappy shippers.
+landingPage:
+  hero:
+    title: Linepack Forecast & Constraint Advisor
+    subtitle: >-
+      Short-term AI forecasts of linepack, pressures, and constraints with
+      proactive advisories for nominations and compressor setpoints.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - Linepack swings drive over/under nominations and imbalance charges.
+    - Limited look-ahead to pressure and constraint risks across the network.
+    - Manual what-ifs and spreadsheets can’t keep up with changing flows.
+    - 'Compressor settings optimized locally, not system-wide.'
+    - 'Weather, outages, and market shifts create surprise constraints.'
+    - 'Data is noisy; operators need clear, dispatchable actions.'
+  solution:
+    - >-
+      Forward visibility: 1–96 hour forecasts of linepack, station pressures,
+      and constraint probabilities.
+    - >-
+      Actionable advisories for nominations, compressor setpoints, and flow
+      rebalancing.
+    - Proactive alerts before approaching pressure or capacity limits.
+    - 'What-if scenarios for outages, nomination changes, and market cases.'
+    - >-
+      Integrates with SCADA/EMS, nominations/scheduling, compressor maps, and
+      weather feeds.
+    - 'Transparent explanations, operator overrides, and auditability.'
+  features:
+    - Segment- and station-level forecasts updated intraday
+    - Constraint probability heatmaps and watchlists
+    - Compressor setpoint recommendations with fuel and pressure tradeoffs
+    - Nomination and scheduling advisor
+    - Automated alerts via email/SMS/ops center
+    - 'Scenario builder: outages, nominations, temperature impacts'
+    - Hybrid hydraulic + ML modeling
+    - 'Explainability: drivers, sensitivities, and confidence bands'
+    - REST API and data export to EMS/SCADA/PI historians
+    - 'SSO, RBAC, and enterprise security'
+    - On-prem or private cloud deployment
+    - 'Backtesting, KPIs, and forecast accuracy dashboards'
+  steps:
+    - 'Connect data: SCADA/EMS tags, nominations, compressor maps, weather.'
+    - 'Calibrate to your hydraulics, constraints, and operating policies.'
+    - Run rolling 1–96 hour forecasts every hour.
+    - Review advisories for nominations and compressor setpoints.
+    - Simulate scenarios and approve recommendations.
+    - 'Dispatch, monitor outcomes, and continuously improve.'
+---
+# Linepack Forecast and Constraint Advisor (LFCA)
+
+Industry: Pipeline Transportation of Natural Gas
+Service: Linepack Forecast and Constraint Advisor

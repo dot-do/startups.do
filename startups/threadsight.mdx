@@ -1,0 +1,378 @@
+---
+name: ThreadSight AI
+slug: threadsight
+service:
+  title: SKU-Granular Demand Forecasting & Production Planning
+  description: >-
+    Forecast yarn/thread demand and generate an optimized weekly machine plan
+    and raw fiber procurement plan.
+  targetUsers:
+    - Operations Manager
+    - Production Planner
+    - Supply Chain Lead
+  triggers:
+    - Weekly planning cycle
+    - Large order intake/change
+    - Seasonal planning window
+  inputs:
+    - Historical sales/orders by SKU/customer/region
+    - Open orders/backlog
+    - Machine capacities and calendars
+    - Changeover matrix and batch-size rules
+    - Lead times for fibers/chemicals
+    - Holidays and planned downtime
+  steps:
+    - Connect to ERP/MES via API/CSV
+    - 'Clean and map SKUs, units, calendars'
+    - Forecast demand (hierarchical)
+    - Run capacity optimization with changeovers
+    - Generate fiber/chemicals purchase plan
+    - Publish plan for review and approval
+  tools:
+    - Python/Pandas
+    - Prophet/XGBoost
+    - OR-Tools (MIP)
+    - Google Sheets/Excel Online
+    - Power BI/Tableau
+    - 'ERP connectors (SAP BAPI/OData, Odoo API, CSV)'
+  outputs:
+    - SKU-level demand forecast
+    - Weekly machine assignment (Gantt)
+    - Fiber/chemicals purchase plan
+    - Service level and utilization report
+    - What-if scenarios
+  pricingModel:
+    - One-time setup
+    - Monthly subscription
+    - Performance bonus (stockouts/OT savings)
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 4
+    overall: 5
+  risks:
+    - Poor data hygiene in ERP
+    - Sudden market swings
+    - Planner adoption/resistance
+  dependencies:
+    - ERP/MES data access
+    - BOMs and routings
+    - Accurate changeover and capacity data
+leanCanvas:
+  problem:
+    - >-
+      Volatile, SKU-level demand causes frequent stockouts of fast movers (e.g.,
+      color/tex/customer-specific threads) and overstock of slow movers, tying
+      up 10–20% excess working capital.
+    - >-
+      Manual, spreadsheet-based planning struggles with thousands of SKUs,
+      complex BOMs (fiber blends, dye lots), and machine constraints (ring
+      spinning, winding, twisting, dyeing) leading to 5–15% lost capacity from
+      suboptimal sequencing and avoidable changeovers.
+    - >-
+      Forecasts provided by sales are inconsistent, not statistically grounded,
+      and rarely at the SKU-customer level; MAPE typically >35% at weekly
+      granularity.
+    - >-
+      Raw fiber procurement (cotton, PSF, viscose) is decoupled from true
+      blended demand; lead-time and price volatility cause rush buys and quality
+      misalignment, adding 1–3% to COGS.
+    - >-
+      Poor plan adherence and lack of scenario planning force reactive
+      firefighting; OTIF below 90%, premium freight and overtime are common.
+    - >-
+      ERP/MES modules are generic; textile-specific constraints (blend ratios,
+      shade bands, cone/dye lot relationships, minimum lot sizes, bobbin-to-cone
+      conversions) are not modeled well, causing plan infeasibility.
+    - >-
+      Lack of unified data model across ERP (orders/BOM), MES (machine states),
+      WMS (inventory, lots), LIMS (quality) blocks end-to-end visibility and
+      continuous improvement.
+  solution:
+    - >-
+      Data integration layer ingests orders, shipments, BOMs/blend recipes,
+      routings, calendars, machine states, inventory by lot, quality grades from
+      ERP/MES/WMS/LIMS (SAP, Infor, Oracle, Dynamics, Datatex, Coats Digital,
+      custom).
+    - >-
+      Probabilistic, hierarchical SKU-customer-week forecasting using gradient
+      boosting + Prophet/ETS ensembles with Bayesian reconciliation across
+      hierarchy (product-family → count/tex → blend → color → customer).
+    - >-
+      Cold-start logic via attribute similarity (count/ply/finish/color,
+      channel, geography) for new/seasonal SKUs; promotion and event tagging;
+      manual overrides with audit trail.
+    - >-
+      Optimization engine (MILP/CP-SAT) for weekly finite-capacity scheduling
+      across spinning/winding/twisting/dyeing with: setup/changeover times,
+      shade banding, minimum lot sizes, shift calendars, preventive maintenance,
+      and labor constraints.
+    - >-
+      Raw fiber procurement optimizer aligning blend ratios and quality
+      requirements to demand distribution and supplier MOQs/lead times; includes
+      hedge timing recommendations using commodity price signals (ICE cotton,
+      PTA).
+    - >-
+      Scenario sandbox: what-if simulations for service level targets, overtime,
+      outsourcing, postponement (dye-in-greige), and alternate blends; compare
+      KPIs and costs before commit.
+    - >-
+      Plan execution cockpit: commit weekly plan, track plan adherence,
+      re-optimize on exceptions (machine down, rush order), with alerts
+      (stockout risk, expiring lots, underutilization).
+    - >-
+      Explainability: forecast drivers, confidence intervals, backtests
+      (MAPE/WAPE) by family/plant/customer; constraint visualizations and
+      bottleneck identification.
+    - >-
+      APIs and UI: role-based dashboards, Excel plugin for planner workflows;
+      integration to purchase requisitions, production orders, and allocation in
+      ERP; audit logs.
+    - >-
+      Security and compliance: SSO, RBAC, data encryption, private VPC; optional
+      on-prem gateway for MES connectivity.
+  uniqueValueProp: >-
+    SKU-granular demand forecasts and an optimized, constraint-aware weekly
+    machine and fiber procurement plan purpose-built for yarn/thread mills—cut
+    inventory 10–20%, raise OTIF by 3–6 points, and unlock 5–8% more throughput
+    within 90 days.
+  unfairAdvantage: >-
+    A textile-specific optimization library (blend-aware, dye/shade constraints,
+    cone/bobbin conversions) and anonymized benchmarking dataset enabling
+    faster, more accurate SKU-level plans than generic APS/IBP tools; plus
+    prebuilt connectors that cut implementation time to under 12 weeks.
+  customerSegments:
+    - >-
+      Mid-market and enterprise yarn mills (ring-spun, open-end, air-jet)
+      producing cotton, poly-cotton, viscose, acrylic yarns.
+    - >-
+      Industrial sewing thread manufacturers serving apparel, footwear,
+      automotive, and upholstery OEMs.
+    - >-
+      Vertically integrated textile groups with spinning +
+      weaving/knitting/dyeing operations seeking SKU-level synchronization.
+    - >-
+      Geographies: South Asia (India, Bangladesh, Pakistan), East/Southeast Asia
+      (China, Vietnam, Indonesia), Turkey, EMEA textile clusters, Mexico/LatAm,
+      US regional mills.
+    - >-
+      Buyer roles: COO/Operations VP, Head of Planning/S&OP, Supply Chain
+      Director, Plant Manager, Demand Planning Manager, CFO (inventory/working
+      capital).
+  channels:
+    - >-
+      Direct sales to mills via industry-savvy AEs/SEs in India, Bangladesh,
+      Turkey, Vietnam, and Mexico.
+    - >-
+      Alliances with ERP/MES SIs and regional resellers (SAP/Datatex partners)
+      for co-selling and implementation.
+    - >-
+      Industry events and associations: ITMA, Techtextil, ITMF, SIMA, BTMA,
+      Texprocil; secure speaker slots and live demos.
+    - >-
+      Founder-led pilots with 3–5 anchor customers producing published case
+      studies and ROI calculators.
+    - >-
+      Content and account-based marketing: technical whitepapers on blend-aware
+      forecasting, webinars with commodity experts, and planner tooling demos;
+      LinkedIn and WeChat outreach to named accounts.
+    - >-
+      Cloud marketplaces (AWS/Azure) and OEM referrals from machine vendors
+      (Rieter, Saurer, Murata, Trützschler, Uster) for credibility and lead-gen.
+  revenueStreams:
+    - >-
+      SaaS subscription per plant tiered by active SKUs and throughput: up to
+      1,000 SKUs — $5,000/month; 1,001–5,000 — $8,000/month; >5,000 —
+      $12,000/month.
+    - >-
+      Optimization compute add-on beyond monthly quota: $2 per 1,000 solver
+      minutes.
+    - >-
+      Implementation package (8–12 weeks): $25,000–$80,000 depending on
+      integrations and data hygiene.
+    - 'Premium support/SLA (24x5, <2h response): 15% of ARR.'
+    - 'Training and certification for planners: $5,000 per cohort.'
+    - >-
+      Managed Planning-as-a-Service (optional): $3,000–$8,000/month per plant
+      for weekly plan runs and governance.
+    - >-
+      Value-share bonus (optional): 10% of first-year verified inventory
+      carrying cost savings above baseline.
+  costStructure:
+    - >-
+      R&D: ML engineers, OR scientists, data engineers, and textile SME
+      salaries.
+    - >-
+      Cloud infrastructure: ingestion, storage (hot/cold), training/serving, and
+      solver compute; observability and security tooling.
+    - Implementation/integration costs and partner fees.
+    - 'Sales and marketing: AEs/SEs, events, content, travel, and demos.'
+    - 'Customer success and support, including enablement and ROI governance.'
+    - >-
+      Data subscriptions: commodity prices (ICE/CTCotton, PTA), quality
+      datasets, currency feeds.
+    - 'Compliance and admin: SOC2/ISO27001, legal, finance.'
+  keyMetrics:
+    - >-
+      Forecast accuracy (MAPE) at SKU-week shipped basis: baseline 35–45%;
+      target ≤20% in 90 days, ≤15% in 6 months for A-class SKUs.
+    - >-
+      Service level (cycle service level) and OTIF: baseline 85–90%; target
+      92–96% in 6 months.
+    - >-
+      Inventory turns and working capital: +15–30% turns improvement; 10–20%
+      reduction in finished goods and WIP days on hand.
+    - >-
+      Machine utilization and OEE: +3–7 points; changeover hours reduced 15–25%;
+      plan adherence ≥85% weekly.
+    - >-
+      Expedite costs and overtime: ≥30% reduction in premium freight; ≥20%
+      reduction in overtime within 6 months.
+    - >-
+      Raw fiber purchase cost variance vs. index: reduce unfavorable variance by
+      0.5–1.5% via blend and timing optimization.
+    - >-
+      Time-to-value: first pilot plan in 4 weeks; full go-live in 8–12 weeks;
+      planner adoption ≥80% by week 6.
+    - Net revenue retention ≥120%; logo churn <5%; CAC payback <12 months.
+storyBrand:
+  character: >-
+    Operations, planning, and supply chain leaders at fiber, yarn, and thread
+    mills who want reliable SKU‑week forecasts and a clear weekly machine and
+    fiber procurement plan to hit service targets at the lowest cost.
+  problem: >-
+    External: Volatile orders, seasonal mix, and constraints (blend, twist,
+    dye‑lot, cone size) make accurate planning hard. Internal: Teams firefight
+    in spreadsheets; plans shift late; confidence is low across sales,
+    production, and purchasing. Philosophical: Mill teams shouldn’t have to
+    choose between service and margin—they should have both.
+  guide: >-
+    Empathy: We know mill realities—changeovers, spin/wind/twist bottlenecks,
+    fiber grade availability, dye‑lot limits. Authority: Mill‑proven AI for
+    SKU‑granular forecasting and optimized machine/procurement plans; secure,
+    fast to pilot, integrates with ERP/MES.
+  plan: >-
+    1) Connect and calibrate: ingest orders, BOMs/recipes, routings, capacities,
+    inventory; train SKU/market forecasts. 2) Pilot (4–6 weeks): compare to
+    baseline, validate weekly machine plans and fiber buys with your team. 3) Go
+    live: weekly S&OP cadence with alerts and one‑click machine + procurement
+    plans; continuous model tuning—no rip‑and‑replace.
+  callToAction: >-
+    Primary: Start a 6‑week pilot. Transitional: Book a 30‑minute assessment or
+    request a sample forecast/plan from your last 12 months of data.
+  success: >-
+    Higher forecast accuracy at SKU/week, 95%+ OTIF with lower inventory, fewer
+    changeovers and expedites, higher asset utilization, fewer fiber stockouts,
+    aligned sales‑to‑shop‑floor plan everyone trusts.
+  failure: >-
+    Without this: continued guesswork, excess WIP and write‑offs, overtime and
+    unplanned downtime, late orders and lost customers, margin erosion.
+landingPage:
+  hero:
+    title: >-
+      SKU-Granular Demand Forecasting & Production Planning for Fiber, Yarn, and
+      Thread Mills
+    subtitle: >-
+      AI that predicts SKU-location demand and turns it into an optimized weekly
+      machine schedule and raw fiber buy plan—so you hit OTIF with less
+      inventory and fewer changeovers.
+    ctaText: Book a Demo
+    ctaHref: /demo
+  problem:
+    - >-
+      Volatile orders by count, color, blend, and package type lead to stockouts
+      and overstock.
+    - >-
+      Manual Excel planning cannot honor machine speeds, changeovers, and
+      maintenance windows across lines.
+    - >-
+      Procurement buys fiber late or in the wrong mix, causing rush premiums and
+      quality mismatches.
+    - >-
+      Forecasts lack SKU-location detail and struggle with seasonality,
+      promotions, and new SKUs.
+    - >-
+      Planners spend days reconciling ERP demand, MES capacity, dyehouse
+      constraints, and inventory.
+    - >-
+      Dye/color batching and short runs drive excess setups and missed delivery
+      dates.
+  solution:
+    - >-
+      AI forecast at SKU-location-customer with explainability and accuracy
+      tracking.
+    - >-
+      Weekly finite schedule that respects speeds, changeovers, dye batches,
+      shifts, and OTIF priorities.
+    - >-
+      Raw fiber procurement plan by blend and supplier with lead times, MOQs,
+      and quality specs.
+    - >-
+      Scenario planning for demand surges, machine downtime, and fiber price
+      changes.
+    - >-
+      One-click export to ERP/MES and alerts for forecast drift, capacity
+      overload, or supply risk.
+    - Simple planner overrides and approvals with full audit trail.
+  features:
+    - >-
+      Hierarchical forecasting with auto-aggregation and disaggregation across
+      SKU, color, count, twist, package, customer, and region.
+    - >-
+      Attribute-based models for count/denier/tex, blend, twist, finish, and
+      color to handle new or sparse SKUs.
+    - >-
+      MAPE, WAPE, and bias dashboards with versioning, approvals, and
+      explainability.
+    - >-
+      Finite capacity scheduling across spin frames, twisters, winders, dyeing,
+      and packing.
+    - Changeover-aware batching by color and count to reduce setups and waste.
+    - >-
+      Service-level targets and safety stock by SKU/customer with forward
+      inventory projections.
+    - >-
+      Fiber procurement optimizer with supplier lead times, MOQs, yield/waste,
+      and blend recipes.
+    - Quality-aware planning using HVI attributes and lot compatibility rules.
+    - >-
+      Multi-plant and multi-warehouse planning with interplant transfers and
+      priorities.
+    - >-
+      Maintenance and downtime calendars, shift patterns, and labor constraints
+      built in.
+    - >-
+      Scenario sandbox for price, demand, and capacity changes with side-by-side
+      KPIs.
+    - >-
+      Native connectors for SAP, Oracle, Infor, Microsoft Dynamics, and common
+      MES/WMS.
+    - 'API-first platform with SSO, role-based permissions, and audit-ready logs.'
+    - Cloud or private VPC deployment; on-prem available; SOC 2-ready security.
+  steps:
+    - >-
+      Connect ERP/MES/WMS data; upload BOMs, routings, machine calendars, and
+      supplier info.
+    - >-
+      Auto-train baseline models and validate with backtests and target
+      accuracy.
+    - >-
+      Review forecast by SKU/location/customer; apply planner adjustments as
+      needed.
+    - >-
+      Generate weekly machine schedule and dye batches; confirm constraints and
+      priorities.
+    - >-
+      Create fiber purchase plan by supplier and delivery week; check budget and
+      risk exposure.
+    - >-
+      Approve and publish plans; export to ERP/MES and notify production and
+      purchasing.
+    - >-
+      Monitor OTIF, utilization, and forecast accuracy; run scenarios and
+      continuously improve.
+---
+# ThreadSight AI
+
+Industry: Fiber, Yarn, and Thread Mills
+Service: SKU-Granular Demand Forecasting & Production Planning

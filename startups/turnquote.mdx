@@ -1,0 +1,335 @@
+---
+name: TurnQuote AI
+slug: turnquote
+service:
+  title: RFQ-to-Quote Assistant for Turned Parts
+  description: >-
+    Parses drawings/models and auto-builds quotes with cycle-time, material, and
+    routing for lathes/Swiss.
+  targetUsers:
+    - Estimators
+    - Sales engineers
+    - Owners
+  triggers:
+    - New RFQ email/upload
+    - 'CRM deal stage: Qualification'
+  inputs:
+    - PDF/TIFF drawing
+    - STEP/IGES model
+    - Material/grade
+    - Annual/lot qty
+    - Finish/heat treat
+    - Target lead time
+  steps:
+    - Ingest RFQ from email/portal
+    - 'OCR + GD&T parse; detect diameters, threads, grooves, knurls'
+    - 'Estimate bar size, material usage, scrap'
+    - Select process (Swiss vs. 2-axis/YY live tooling)
+    - Cycle-time model by feature and tool changes
+    - 'Cost build-up (setup, run, secondary ops, overhead)'
+    - Flag risks/clarifications
+    - Generate quote PDF/email and CRM entry
+  tools:
+    - AWS Textract/Tesseract
+    - OpenCascade/Autodesk Forge
+    - Custom turning feature recognizer
+    - Pricing spreadsheet/engine
+    - HubSpot/Salesforce API
+    - Gmail/Outlook API
+    - Google Docs/Word API
+  outputs:
+    - Quote PDF with price/lead time
+    - Routing + op list
+    - Risk/assumption list
+    - Clarification email draft
+  pricingModel:
+    - Per-RFQ fee
+    - Monthly subscription + usage tier
+    - Success bonus on won POs (optional)
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Misread tolerances/surface finish
+    - Underquoting due to missing ops/fixturing
+    - Liability if quote errors
+  dependencies:
+    - Access to RFQ inbox/portal
+    - Material/overhead rates
+    - Machine/process catalog
+leanCanvas:
+  problem:
+    - >-
+      RFQs for turned parts arrive in high volume and require 30–90 minutes each
+      to quote manually, causing missed due dates and low response rates.
+    - >-
+      Estimating cycle time on lathes/Swiss (including live tooling, cross/axial
+      ops, bar handling, cutoff, secondary ops) is error-prone, leading to
+      margin leakage or lost bids.
+    - >-
+      Material usage and bar size selection are manually calculated with
+      spreadsheets; waste and remnant handling are inconsistently applied.
+    - >-
+      Expertise is concentrated in a few senior estimators; shops risk delays
+      when they are unavailable and struggle to train new staff.
+    - >-
+      No closed-loop: actual run-times and scrap rates rarely feed back into
+      quoting models, so accuracy does not improve over time.
+    - >-
+      Duplicative data entry across CAD/PDF, email, ERP/MES, and CRM leads to
+      errors and rework.
+    - >-
+      Compliance and IP security (ITAR/DFARS/AS9100 contexts) make cloud tools
+      risky without proper controls, slowing adoption.
+    - >-
+      Routing definitions differ by customer/job; manual handoffs between
+      estimating, programming, and scheduling generate misalignment and late
+      changes.
+  solution:
+    - >-
+      Automated drawing/CAD ingestion: extract features, tolerances, materials,
+      finishes, quantities, and revisions from PDFs and 3D models (STEP,
+      Parasolid).
+    - >-
+      Turned-feature recognition specialized for lathes/Swiss: OD/ID turning,
+      grooves, threads, drilling/tapping (axial/cross), knurling, part-off,
+      sub-spindle transfer, live-tool milling.
+    - >-
+      Cycle-time estimation: hybrid physics (feeds/speeds, engagement, tool
+      changes, bar advance, chucking/collet) + ML calibrated to actual run-time
+      history by machine/tool/material.
+    - >-
+      Material and bar stock optimization: recommend bar size, stickout, remnant
+      strategy, cutoff allowance, and expected waste; compute material cost with
+      supplier feeds or shop price lists.
+    - >-
+      Auto-routing: propose ops sequence (lathe/Swiss primary, secondary
+      deburr/part cleaning, inspection steps, heat treat/plating if required)
+      with setup and queue times.
+    - >-
+      Quote builder: cost breakdown (material, machine time, setup, tooling,
+      overhead, risk), target margin/price ladders by qty tier, lead-times;
+      one-click push to ERP/CRM.
+    - >-
+      Human-in-the-loop review: estimators can edit features, ops, feeds/speeds,
+      and pricing rules with full audit trail and versioning.
+    - >-
+      Closed-loop learning: ingest actuals from ERP/MES/CNC to reduce estimate
+      error over time; highlight biggest drivers of variance for process
+      improvement.
+    - >-
+      Risk flags: callouts that affect time/cost (tight GD&T, surface finish,
+      small diameter L/D, exotic alloys, required certs) and suggest
+      mitigations.
+    - >-
+      Security: tenant isolation, optional US-only/ITAR-compliant hosting, SSO,
+      audit logs, data residency controls.
+  uniqueValueProp: >-
+    From RFQ to accurate, review-ready quotes for turned parts in minutes—not
+    hours—by parsing prints/models, auto-estimating cycle-time, material, and
+    routing for lathes/Swiss. Hybrid physics+ML models calibrated to each shop’s
+    machines and tooling deliver <10% cycle-time MAPE post-calibration, boosting
+    on-time quote rate, win rate, and margin confidence while meeting ITAR-grade
+    security.
+  unfairAdvantage: >-
+    A closed-loop, shop-calibrated modeling stack purpose-built for lathes/Swiss
+    that blends physics and ML and learns from each customer’s actual run-times.
+    Over time this yields a proprietary, anonymized benchmarking dataset for
+    turned parts and OEM-specific machine templates that competitors without
+    vertical focus or feedback loops struggle to match. Optional ITAR-compliant
+    deployment and on-prem edge parsing further raise the barrier to entry.
+  customerSegments:
+    - >-
+      Primary: Precision Turned Product Manufacturers (NAICS 332721), 20–200
+      employees, 6–60 turning centers (CNC lathes/Swiss), handling 200–1,500
+      RFQs/month.
+    - >-
+      Personas: Estimators/quoting engineers, sales engineers, operations
+      managers, owners/CFOs focused on win rate and gross margin, and
+      programmers who validate cycle-time realism.
+    - >-
+      Verticals: Medical device, aerospace/defense (ITAR),
+      connectors/electronics, automotive Tier 2/3, fluid power/hydraulics.
+    - >-
+      Secondary: Larger captive/OEM machining departments with high RFQ
+      throughput; marketplaces and contract manufacturers seeking faster bid
+      turns; ERP/CAM vendors needing embedded quoting AI.
+  channels:
+    - >-
+      Direct sales to mid-market PTPM shops; land-and-expand via 90-day paid
+      pilots tied to ROI targets.
+    - >-
+      Alliances with ERP/CAM resellers and machine OEMs (ProShop, JobBOSS2/E2,
+      Epicor VARs; Autodesk/Mastercam resellers; Citizen/Star/Tsugami
+      distributors).
+    - >-
+      Industry associations and events: PMPA, NTMA, SME; trade shows like PMTS,
+      IMTS, EASTEC/WESTEC; sponsor estimator tracks and demos.
+    - >-
+      Content-led growth: turned-part DFM guides, cycle-time benchmark reports,
+      ROI calculator, webinar series with customer case studies.
+    - >-
+      Targeted ABM on LinkedIn and trade journals to estimators/ops leaders;
+      retarget traffic from pricing/ROI tools.
+    - >-
+      Referral program for consultants and tooling vendors (e.g., Sandvik,
+      Kennametal) with revenue share.
+    - >-
+      Marketplace partnerships (e.g., Paperless Parts ecosystem, ProShop partner
+      listings) for app directory lead flow.
+  revenueStreams:
+    - >-
+      SaaS subscription per site with tiered RFQ volume: Starter $1,500/month
+      (up to 200 RFQs), Pro $4,000/month (up to 1,000 RFQs), Enterprise custom
+      (SLA, ITAR hosting, SSO, on-prem connector).
+    - 'Usage overages: $8–$15 per additional RFQ processed beyond tier.'
+    - >-
+      Implementation/onboarding package: $8,000–$40,000 depending on
+      integrations and historical data ingestion/cleansing.
+    - >-
+      Premium add-ons: real-time material price feeds, ITAR-compliant hosting
+      surcharge, advanced analytics, custom machine templates.
+    - >-
+      Professional services: bespoke model tuning, process mapping, quote audit
+      projects.
+  costStructure:
+    - >-
+      R&D: ML/vision engineering, manufacturing process modeling, integration
+      development.
+    - >-
+      Cloud infrastructure: secure storage, CPU/GPU inference, data pipelines,
+      monitoring, backups.
+    - >-
+      Compliance and security: SOC 2, ITAR/DFARS posture, pen tests, audit
+      tooling.
+    - >-
+      Go-to-market: sales salaries/commissions, channel partner fees,
+      events/tradeshows, content production, paid media.
+    - >-
+      Customer success and onboarding: solution architects, data engineers,
+      support.
+    - >-
+      Data labeling/curation and synthetic dataset generation for turned
+      features.
+    - >-
+      General & administrative: legal (ITAR/TAA), insurance, finance, office,
+      recruiting.
+  keyMetrics:
+    - 'Time-to-first-quote: <7 days from contract to first automated quote.'
+    - >-
+      Quote turnaround time: reduce median from 48–72 hours to <8 hours; % of
+      quotes delivered same day ≥70%.
+    - 'Estimator productivity: RFQs processed per FTE per week; target 3–5x lift.'
+    - >-
+      Cycle-time estimate accuracy: MAPE ≤10% post-calibration by machine
+      family; track by material and feature class.
+    - 'Material estimate accuracy: ±5–8% vs actual issuance after calibration.'
+    - >-
+      Win rate: +3–8 percentage points vs pre-deployment baseline on comparable
+      RFQs.
+    - >-
+      Gross margin variance: reduce absolute estimate vs actual variance by
+      ≥50%.
+    - >-
+      Adoption: % of RFQs auto-generated to review-ready state ≥80%; user NPS
+      ≥40.
+    - >-
+      Data loop closure: % of completed jobs with actuals ingested ≥90% within 7
+      days.
+    - >-
+      Commercial KPIs: ARR, net revenue retention ≥115%, CAC payback <12 months,
+      logo retention ≥95%.
+    - >-
+      System reliability: parsing success rate ≥98%, P0 uptime ≥99.9%, average
+      RFQ parse latency <120 seconds per 10-page drawing.
+storyBrand:
+  character: >-
+    Estimators and operations leaders at precision turned-parts manufacturers
+    who want fast, consistent, profitable quotes for lathes and Swiss work.
+  problem: >-
+    External: RFQ packages arrive in mixed formats; manual time studies,
+    material calcs, and routing take hours and delay responses. Internal:
+    Estimators are overloaded and worry about mispricing. Philosophical: Quoting
+    a turned part shouldn’t take days or rely on tribal knowledge.
+  guide: >-
+    We understand the pressure to respond fast without sacrificing margin. Our
+    RFQ-to-Quote Assistant parses drawings/CAD, estimates cycle-time, material,
+    and routing for lathes/Swiss, and is built by manufacturing and AI experts
+    with secure, shop-tested workflows.
+  plan: >-
+    1) Upload the RFQ package (PDFs, prints, STEP). 2) AI extracts features and
+    auto-builds cycle-time, material, and routing. 3) Review, adjust levers, and
+    export the quote to ERP/CRM.
+  callToAction: Book a 20-minute demo or start a pilot with a sample RFQ.
+  success: >-
+    Quotes in minutes with consistent pricing, clear routings, and traceable
+    assumptions; higher win rates, protected margins, and scalable quoting
+    capacity without adding headcount.
+  failure: >-
+    Late, inconsistent quotes; lost bids and margin erosion; estimator burnout;
+    reliance on tribal knowledge and error-prone spreadsheets.
+landingPage:
+  hero:
+    title: RFQ-to-Quote Assistant for Turned Parts
+    subtitle: >-
+      Turn RFQs into production-ready quotes in minutes. AI reads
+      drawings/models and auto-builds cycle time, material, and routing for CNC
+      lathes and Swiss.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - RFQs pile up; quotes take hours or days.
+    - Manual parsing of PDFs/models risks missed features and underquotes.
+    - Estimates vary by estimator and rely on tribal knowledge.
+    - Slow responses lose work to faster shops.
+    - Re-entering data into ERP introduces errors and delays.
+  solution:
+    - Upload a drawing or model—get a complete quote in minutes.
+    - >-
+      AI extracts features, tolerances, and quantities; calculates cycle time
+      for your machines.
+    - >-
+      Auto-selects material and bar size; builds routing with setup, ops, and
+      inspection.
+    - >-
+      Outputs costed, multi-quantity pricing with lead time, DFM flags, and a
+      confidence score.
+    - One-click export to ERP/CRM and shop-branded quote PDFs.
+  features:
+    - 'PDF, STEP, and DXF ingestion with title-block data capture.'
+    - >-
+      Turning feature recognition: OD/ID, grooves, tapers, threads, knurls,
+      chamfers, cross-holes.
+    - >-
+      Lathe/Swiss-aware cycle models: main/sub-spindle, live tools, bar feed,
+      part-off, deburr.
+    - >-
+      Tooling libraries and feeds/speeds rules tuned to your machines and
+      materials.
+    - Auto material and bar stock selection with drop/scrap factors.
+    - >-
+      Smart routing: setup, operations, inspection, packaging, and outside
+      services.
+    - Multi-quantity scaling and changeover logic.
+    - Tolerance and surface-finish adjustments for cycle and QA time.
+    - 'DFM risk flags for deep holes, thin walls, and unsupported features.'
+    - Confidence score with explainable assumptions; fully editable parameters.
+    - 'Quote templates with branding, terms, and lead time.'
+    - ERP/CRM export and open API.
+    - 'User roles, approvals, and audit trail.'
+    - 'Secure deployment options: cloud or private instances.'
+    - Learns from your historical jobs to improve estimates over time.
+  steps:
+    - Upload RFQ files (PDF/STEP/DXF).
+    - Confirm quantities and material—or let AI suggest.
+    - Review detected features and machine-aware routing.
+    - 'Adjust tooling, tolerances, and risk factors as needed.'
+    - 'Generate price, lead time, and a customer-ready quote.'
+    - Export to ERP/CRM and send the quote.
+---
+# TurnQuote AI
+
+Industry: Precision Turned Product Manufacturing
+Service: RFQ-to-Quote Assistant for Turned Parts

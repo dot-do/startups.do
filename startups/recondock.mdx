@@ -1,0 +1,350 @@
+---
+name: ReconDock AI — ASN-to-Receiving Reconciliation Agent
+slug: recondock
+naics:
+  primary: '493190'
+  occupations: []
+service:
+  title: ASN-to-Receiving Reconciliation Agent
+  description: >-
+    Automatically reconciles vendor ASNs and packing lists with WMS receipts,
+    flags discrepancies, drafts vendor communications, and creates receiving
+    tasks.
+  targetUsers:
+    - Receiving manager
+    - Inventory control
+    - 3PL operations
+  triggers:
+    - New EDI 856 ASN received
+    - Truck check-in event
+    - 'Scheduled pre-receiving batch (e.g., hourly)'
+  inputs:
+    - EDI 850/856/855
+    - WMS PO/receipt data
+    - PDF/email packing lists
+    - Vendor item master/UPC mappings
+    - Scanner logs
+  steps:
+    - Ingest and normalize ASNs/packing lists; OCR PDFs if needed
+    - Match expected vs. received at item/lot/serial/qty level
+    - >-
+      Score discrepancies (over/short/damage, barcode mismatch) and propose root
+      cause
+    - >-
+      Auto-draft vendor discrepancy email with evidence; request photos if
+      needed
+    - Create WMS receiving/inspection tasks; hold/clear recommendations
+    - 'Log KPIs (dock-to-stock, discrepancy rate) and publish report'
+  tools:
+    - 'EDI translator (e.g., Cleo/SPS)'
+    - 'OCR (e.g., Google Vision/Tesseract)'
+    - LLM for correspondence/templates
+    - WMS API connector
+    - Slack/Teams and email API
+  outputs:
+    - Reconciliation report
+    - Receiving/inspection task list
+    - Vendor discrepancy email drafts
+    - Exception queue with recommended actions
+  pricingModel:
+    - Setup fee (mapping)
+    - Per-location monthly
+    - Per-ASN overage tier
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 4
+    overall: 4.5
+  risks:
+    - Incorrect SKU/UPC mapping leading to false exceptions
+    - Limited WMS API access
+    - Vendor pushback on automated claims
+    - Data latency from EDI providers
+  dependencies:
+    - WMS API credentials
+    - EDI feed access
+    - Vendor/SKU cross-reference tables
+    - SOP for discrepancy handling
+leanCanvas:
+  problem:
+    - >-
+      Manual ASN/packing list vs. WMS receipt reconciliation consumes 1–3 FTEs
+      per 100 receipts/day (10–20 seconds/line; 3,000–6,000 lines/day = 8–17
+      hours/day).
+    - >-
+      3–8% of receipt lines contain exceptions (over/short/damage,
+      unit-of-measure mismatches, lot/serial/expiry issues, PO vs. ASN
+      variances), delaying putaway and increasing dock-to-stock time by 0.5–1.5
+      days.
+    - >-
+      Inconsistent vendor communication leads to slow dispute resolution and
+      missed chargebacks; 0.2–0.8% margin leakage due to unclaimed discrepancies
+      or write-offs.
+    - >-
+      WMS-native tools often lack cross-document reconciliation (ASN + packing
+      list + receipt) and automated task creation, so exceptions linger and
+      receiving throughput suffers.
+    - >-
+      Data fragmentation (EDI 856, PDF/email packing lists, WMS APIs) creates
+      blind spots; leaders lack vendor scorecards, exception aging, and
+      root-cause insights.
+    - >-
+      Workforce volatility and training gaps cause error-prone receiving and
+      compliance risk (GS1-128/UCC-128 label handling, lot traceability,
+      FDA/FSMA for certain categories).
+  solution:
+    - >-
+      Ingest and normalize inbound data: EDI 856/810/850 via EDI partners/SFTP,
+      PDF/email packing lists (OCR), GS1/UCC-128 label scans, and WMS receipts
+      via APIs or flat files.
+    - >-
+      Reconcile at carton/pallet/line: match SKUs/GTINs/UPCs, quantities, UoM,
+      lot/serial/expiry, PO/line, and handling unit IDs with configurable
+      tolerances and rules (substitution/pack-size mapping).
+    - >-
+      Flag and classify exceptions (OS&D, UoM mismatch, missing lot/expiry, ASN
+      without receipt, receipt without ASN, duplicate ASN, label/readability
+      issues) with confidence scores.
+    - >-
+      Draft vendor communications: pre-filled discrepancy emails with line-level
+      deltas, photos/signatures, chargeback calculations, and response-by dates;
+      route by vendor profile; optionally post to vendor portal.
+    - >-
+      Create WMS tasks automatically: recount, reweigh, rescan label,
+      quarantine, capture photos, cycle count, or escalate; push via WMS API/RPA
+      with SLA timers.
+    - >-
+      Provide dashboards: first-pass match rate, exception aging, vendor
+      scorecards, receiving lines per labor hour, and recovery dollars captured;
+      export to BI or push webhooks.
+    - >-
+      Human-in-the-loop UI: operators review flagged exceptions, accept/modify
+      draft emails, and one-click push tasks; feedback trains models for
+      vendor-specific patterns.
+    - >-
+      Security and compliance: SOC 2-ready architecture, audit trails, PII
+      minimization, role-based access, SSO, VPC peering/PrivateLink;
+      configurable data retention.
+  uniqueValueProp: >-
+    Cut receiving exception time by 60–80% and increase dock-to-stock throughput
+    20–40% by automatically reconciling ASNs and packing lists with WMS
+    receipts, drafting vendor-ready discrepancy emails, and creating directed
+    receiving tasks—plug-in connectors, human-in-the-loop, and measurable ROI in
+    60 days.
+  unfairAdvantage: >-
+    Pre-trained reconciliation models and a growing library of vendor-specific
+    mappings across multiple WMS/EDI stacks, enabling high first-pass match
+    rates within weeks; automated vendor communications and WMS task
+    orchestration not offered by EDI networks or most WMS out-of-the-box;
+    anonymized cross-client benchmarks for vendor scorecards; rapid integration
+    via reusable connectors and an on-prem agent for legacy systems; enterprise
+    security posture and auditability tailored to 3PL needs.
+  customerSegments:
+    - >-
+      Mid-market 3PLs (NAICS 493190) with 1–20 facilities and mixed
+      B2B/ecommerce inbound, handling vendor ASNs and packing lists.
+    - >-
+      Specialized warehousing operations (chemicals/hazmat, paper/bulk,
+      records/document storage with kitting) that receive palletized case-level
+      goods with ASNs.
+    - >-
+      Retailer/brand-owned DCs using 3PL services or running their own WMS but
+      with fragmented vendor compliance processes.
+    - >-
+      Industrial distributors and CPG manufacturers with multi-vendor inbound,
+      needing lot/serial tracking and tight receiving SLAs.
+    - >-
+      Primary buyers: VP/Director of Operations, WMS/IT Manager, Receiving
+      Manager, Vendor Compliance Manager, CFO/Controller.
+  channels:
+    - >-
+      Direct sales to 3PLs and specialized warehouses; target buyers: Ops/IT/WMS
+      leaders via ABM and SDR outreach.
+    - >-
+      Partnerships with EDI networks (SPS, TrueCommerce, Cleo) and WMS
+      vendors/SIs for co-selling, marketplace listings, and referral fees.
+    - >-
+      Industry events and associations: IWLA, WERC, CSCMP EDGE, MODEX,
+      ProMat—demo kiosks with live reconciliation benchmarks.
+    - >-
+      Content and proof: publish “Inbound ASN Exception Benchmarks” report; ROI
+      calculator; 30–60 day pilot offers with success criteria.
+    - >-
+      Customer advocacy: lighthouse case studies, webinars with partners, and
+      referenceable logos in verticals (apparel, consumer goods, industrial).
+    - >-
+      Outbound plays: geo-target 1–20 site operators; intent data on WMS
+      upgrades/EDI projects; offer integration quick-starts.
+  revenueStreams:
+    - >-
+      Platform subscription per warehouse: $1,000–$3,000/month based on features
+      and SLAs.
+    - >-
+      Usage-based fee: $0.03–$0.10 per receipt line reconciled (tiered by
+      volume); or $0.50–$1.50 per receipt handled for low-line-count operations.
+    - >-
+      Implementation/integration fee: $5,000–$25,000 per site depending on
+      WMS/EDI complexity; optional fixed-fee pilot package ($15k for 60 days).
+    - >-
+      Add-ons: vendor portal ($500/site/month), advanced analytics
+      ($500/site/month), premium support (24/7, $1,000/site/month), on-prem
+      connector ($500/site/month).
+    - >-
+      Optional performance-based: 10–20% of incremental discrepancy recovery for
+      chargeback programs (capped).
+    - >-
+      Annual contracts with volume commits and partner/reseller margins
+      (10–25%).
+  costStructure:
+    - >-
+      Engineering and data science (core reconciliation engine, connectors,
+      rules, UI).
+    - >-
+      Cloud infrastructure (compute, storage, VPC, OCR/LLM per-page/usage
+      costs), observability, and security tooling; estimated $0.005–$0.02 per
+      line all-in variable cost at scale.
+    - >-
+      Implementation and customer success (solution architects, WMS/EDI mapping,
+      vendor onboarding playbooks).
+    - >-
+      Sales and marketing (SDRs, events, partner enablement, content), 15–25% of
+      revenue early-stage.
+    - >-
+      Compliance and enterprise readiness (SOC 2 Type II audit, pen tests,
+      insurance, legal).
+    - Partner fees and rev-share for marketplaces and EDI integrations.
+    - 'Support (tiered, 12x5 to 24x7) and documentation/training content.'
+  keyMetrics:
+    - >-
+      First Pass Match Rate (FPMR): target 85%+ at go-live, >92% in 90 days
+      through learning.
+    - >-
+      Exception Rate: baseline vs. post-implementation reduction (target
+      -30–50%).
+    - >-
+      Average Time-to-Resolution (TTR) for exceptions: reduce from 24–72 hours
+      to <4 hours median.
+    - 'Receiving productivity: lines per labor hour (LPLH) uplift +20–40%.'
+    - >-
+      Auto-resolved percentage: % of receipts with no human touch (target 50–70%
+      by day 90).
+    - >-
+      Email draft acceptance rate without edits (target 60–80%); vendor response
+      SLA compliance (responses within 2 business days >70%).
+    - >-
+      Backlog age: 90th percentile exception age; target <24 hours after 60
+      days.
+    - >-
+      Chargeback/discrepancy recovery: incremental $/month and capture rate
+      (target +0.1–0.3% of inbound COGS equivalent, where applicable).
+    - >-
+      Parsing accuracy: packing list line extraction precision/recall >98% after
+      vendor training.
+    - >-
+      Implementation speed: time-to-first-site live <4 weeks; connector reuse
+      rate across clients >70%.
+storyBrand:
+  character: >-
+    Receiving supervisors and ops managers at Other Warehousing & Storage (NAICS
+    493190) who want first-pass-accurate inbound and on-time dock-to-stock.
+  problem: >-
+    External: ASNs/packing lists don’t match WMS receipts; manual reconciliation
+    and vendor back-and-forth. Internal: teams firefight and distrust inventory.
+    Philosophical: inbound data should reconcile itself.
+  guide: >-
+    Built by warehouse ops + data engineers; deep WMS integration experience;
+    proven at 3PL sites; we empathize with dock realities and own exception
+    setup.
+  plan: >-
+    1) Connect WMS + vendor ASN/packing feeds. 2) Auto-reconcile and flag
+    discrepancies with reason codes. 3) Auto-create receiving tasks and
+    templated vendor emails; monitor dashboard and tune rules.
+  callToAction: >-
+    Direct: Start a 30-day pilot at one facility. Transitional: Request a free
+    inbound accuracy audit and ROI estimate.
+  success: >-
+    Faster dock-to-stock, 99%+ matches, fewer chargebacks, clean inventory,
+    auditable vendor accountability, happier teams and customers.
+  failure: >-
+    Ongoing manual matching, missed SLAs, bad inventory, vendor disputes,
+    chargebacks, and higher receiving labor.
+landingPage:
+  hero:
+    title: ASN-to-Receiving Reconciliation Agent
+    subtitle: >-
+      Automatically match ASNs, packing lists, and WMS receipts. Flag variances,
+      draft vendor follow‑ups, and create receiving tasks—so dock‑to‑stock moves
+      faster.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - Manual ASN-to-receipt checks slow down receiving and tie up labor.
+    - Late discrepancy discovery drives inventory drift and chargebacks.
+    - 'Inconsistent vendor docs, UOM, and label formats create errors.'
+    - Exception details live in spreadsheets and email threads—no audit trail.
+    - 'Vendors get notified late, prolonging disputes and backorders.'
+    - >-
+      WMS tasks for rework/putaway are created ad hoc, causing floor
+      bottlenecks.
+  solution:
+    - >-
+      Real-time auto-reconciliation across ASNs, packing lists, and WMS
+      receipts.
+    - >-
+      Exception-first workflow that highlights line/case/carton deltas with
+      evidence.
+    - 'Auto-drafted vendor communications ready to send, with line-level diffs.'
+    - 'One-click creation of receiving, rework, and putaway tasks in your WMS.'
+    - >-
+      Configurable tolerance rules per vendor/SKU to auto-accept minor
+      variances.
+    - 'Live dashboards for variance rate, dock-to-stock, and vendor scorecards.'
+    - >-
+      Seamless integrations via EDI, SFTP, email, and APIs for major WMS
+      platforms.
+  features:
+    - 'Ingest EDI 856 ASNs, PDFs/CSVs from email/SFTP, and WMS receipts via API.'
+    - >-
+      Match on PO, SKU, lot/serial, UOM, carton/pallet IDs with fuzzy logic and
+      rules.
+    - >-
+      Variance classification: over/short, substitutions, damage, label/UOM
+      mismatch.
+    - Per-vendor tolerances and auto-accept policies to reduce noise.
+    - >-
+      Drafted vendor emails with line-level diffs, attachments, and CC
+      lists—editable before send.
+    - Auto-create prioritized receiving/putaway/rework tasks in WMS with SLAs.
+    - Real-time alerts to Slack/Teams/email; subscription-based notifications.
+    - Role-based approvals with audit trails and immutable event logs.
+    - Dashboards and exports for claims/chargebacks and vendor scorecards.
+    - Bulk resolution actions and one-click reconciliation on recurring issues.
+    - Supports carton SSCC and pallet IDs; GS1 label parsing.
+    - >-
+      Works with Manhattan, Blue Yonder, SAP EWM, Oracle WMS, 3PL Central,
+      Deposco, and custom via REST/AS2/SFTP.
+    - >-
+      High availability, encryption in transit/at rest, and detailed access
+      controls.
+    - >-
+      Fast deployment: cloud-hosted with optional on‑prem connector for legacy
+      WMS.
+  steps:
+    - Connect your WMS and EDI/SFTP/email sources.
+    - 'Import vendor formats and set tolerances, SLAs, and routing rules.'
+    - 'Map SKUs, UOMs, and lot/serial fields; choose matching preferences.'
+    - Run a pilot lane to validate exceptions and approvals.
+    - >-
+      Go live—agent reconciles inbound shipments and drafts vendor outreach
+      24/7.
+    - >-
+      Review exceptions, approve resolutions, and auto-create WMS tasks with one
+      click.
+    - >-
+      Track KPIs and refine rules to continuously reduce variance and labor
+      time.
+---
+# ReconDock AI — ASN-to-Receiving Reconciliation Agent
+
+Generated for NAICS 493190 — Other Warehousing and Storage.
+Service: ASN-to-Receiving Reconciliation Agent

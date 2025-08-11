@@ -1,0 +1,283 @@
+---
+name: AquaWatt Sentinel
+slug: aquawatt
+service:
+  title: Water and Energy Intensity Anomaly Detection
+  description: >-
+    Monitors kWh/m3 and m3/1,000 bottles to spot leaks, fouling, or process
+    drift and recommend corrective actions.
+  targetUsers:
+    - Utilities/Facilities Manager
+    - Sustainability Lead
+    - Plant Engineer
+  triggers:
+    - Hourly/daily meter data arrival
+    - Threshold breaches
+  inputs:
+    - Energy meters by line/utility
+    - 'Flow meters (raw, treated, reject)'
+    - Production counts by SKU/line
+    - Ambient conditions (optional)
+  steps:
+    - Ingest and align meters with production
+    - Compute normalized intensity KPIs
+    - Train seasonal baselines and anomaly detectors
+    - Alert on deviations; root-cause by segment
+    - 'Recommend checks (e.g., valve leaks, CIP schedule)'
+  tools:
+    - Python
+    - Pandas
+    - Facebook Kats/darts
+    - Power BI
+    - Ignition/PI Web API
+  outputs:
+    - Anomaly alerts with magnitude and cost impact
+    - Pareto of biggest offenders
+    - Weekly action list
+  pricingModel:
+    - Monthly subscription per plant
+    - Optional success fee on verified savings
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Meter calibration errors
+    - Data alignment (time drift)
+    - Attribution to specific causes may need site input
+  dependencies:
+    - Meter/SCADA connectivity or CSV
+    - Production counts by time bucket
+leanCanvas:
+  problem:
+    - >-
+      Undetected leaks, fouling (e.g., RO membranes, heat exchangers), and
+      compressed-air losses cause 2–10% waste in water and energy, but plants
+      rarely spot issues before KPIs drift significantly.
+    - >-
+      Plants monitor totals (kWh, m3) but lack line/SKU-normalized intensity
+      (kWh/m3 and m3/1,000 bottles), making it hard to identify true anomalies
+      vs. mix effects or ambient conditions.
+    - >-
+      Manual analysis across SCADA/PLC, historians (e.g., PI), and CMMS is slow;
+      root cause investigations take days and are often inconclusive.
+    - >-
+      Production changes (speed, SKU, bottle size, resin %, ambient temperature)
+      create shifting baselines that defeat static alarms/control limits.
+    - >-
+      ESG and regulatory pressure requires auditable intensity reduction and
+      event logs; current reporting is manual and lagging.
+    - >-
+      Unplanned downtime from process drift (e.g., membrane failure, chiller
+      inefficiency) leads to scrap, rework, and missed orders.
+  solution:
+    - >-
+      Edge-to-cloud data pipeline integrates flow meters, energy meters, line
+      sensors, production schedule/ERP, and historian tags; normalizes to kWh/m3
+      and m3/1,000 bottles per line/SKU/shift.
+    - >-
+      Multivariate anomaly detection (seasonal baselines, change-point
+      detection, isolation forests) using context (line speed, bottle size,
+      ambient temp, resin %, maintenance state).
+    - >-
+      Prescriptive playbooks map anomaly signatures to likely causes (e.g.,
+      rising RO dP, compressor duty cycling, blow molder oven zoning) with
+      priority, safety notes, and step-by-step checks.
+    - >-
+      Closed-loop workflow: push corrective actions to CMMS (SAP PM, Maximo)
+      with severity, parts list, and estimated savings; track MTTR and verify
+      post-fix intensity regression to baseline.
+    - >-
+      What-if and ROI calculator quantifies savings for accepted actions;
+      ongoing benchmarking across similar lines/sites identifies best practices.
+    - >-
+      Automated ESG/CSR-ready intensity reports with traceable event logs and
+      variance explanations.
+  uniqueValueProp: >-
+    Detect, explain, and act on energy and water intensity anomalies by line and
+    SKU in near real time—cut 3–8% energy and 2–5% water within 90 days, with
+    prescriptive, CMMS-integrated actions and auditable ESG reporting. Typical
+    payback < 6 months.
+  unfairAdvantage: >-
+    Domain-tuned intensity models and prescriptive playbooks purpose-built for
+    bottled water lines (blow molder + filler + utilities), combined with
+    cross-plant benchmarks and turnkey CMMS workflow integration that general
+    EMS/anomaly tools lack.
+  customerSegments:
+    - >-
+      Mid-to-large bottled water manufacturers (500k–5M bottles/day) with
+      in-house maintenance and OPEX teams.
+    - >-
+      Global brands and contract packers with multiple plants seeking cross-site
+      benchmarking.
+    - >-
+      Regional bottlers upgrading from manual spreadsheets to digital/AI energy
+      and water management.
+    - >-
+      Operations Excellence and Sustainability leaders tasked with intensity
+      reduction targets (Scope 2 energy, water ratio) and CDP/ESG reporting.
+    - >-
+      System integrators serving beverage plants (Inductive Automation/Ignition,
+      AVEVA PI, Siemens, Rockwell) looking to add AI value.
+  channels:
+    - >-
+      Direct sales to Plant Managers, Maintenance Managers, and
+      OPEX/Sustainability leaders at beverage companies.
+    - >-
+      Partnerships with system integrators (Ignition/PI specialists) who bundle
+      the service into modernization projects.
+    - >-
+      OEM alliances with blow molder/filler vendors (Krones, Sidel) and water
+      treatment OEMs for co-selling on upgrades.
+    - >-
+      Industry events and associations: Drinktec, PACK EXPO, IBWA, BevNET; live
+      demos with plant data (sanitized).
+    - >-
+      Account-based marketing on LinkedIn targeting titles (Plant Manager,
+      Reliability Manager, Director of Sustainability) with ROI calculators and
+      case studies.
+    - >-
+      Utility and energy efficiency programs leveraging rebates/incentives for
+      monitoring-based commissioning (MBCx).
+    - >-
+      Pilot-first motion: 60–90 day paid pilots on one line/site with
+      outcome-based success criteria and executive readout.
+  revenueStreams:
+    - >-
+      SaaS subscription per plant with tiering by number of lines: Starter (1–2
+      lines): $4k–$7k/month; Standard (3–6 lines): $8k–$15k/month; Enterprise
+      (7+ lines/multi-site): custom.
+    - >-
+      One-time onboarding/integration fee: $30k–$80k per plant depending on data
+      sources and CMMS integration.
+    - >-
+      Premium support and managed monitoring (virtual energy manager):
+      +$3k–$8k/month per plant.
+    - 'Benchmarking and ESG reporting add-on: $1k–$3k/month per plant.'
+    - >-
+      Professional services: root cause workshops, change management, operator
+      training ($1.5k/day).
+    - Revenue share on utility incentives where applicable.
+  costStructure:
+    - >-
+      Implementation labor (data engineering, SI partners): ~25–35% of costs
+      initially, 10–15% steady-state.
+    - >-
+      Cloud infrastructure (ingest, storage, inference, monitoring): ~10–15%
+      COGS; optimized via edge aggregation and downsampling.
+    - 'Data science/MLOps and product engineering: ~25–30%.'
+    - 'Customer success/managed monitoring: ~10–15%.'
+    - 'Sales and marketing (ABM, events, demos): ~10–15%.'
+    - >-
+      Security/compliance, insurance, and certifications (SOC 2/ISO 27001):
+      ~3–5%.
+    - 'Partner commissions/referral fees: ~5–10% of ARR on referred deals.'
+  keyMetrics:
+    - >-
+      Savings realized: monthly kWh saved and m3 saved vs. pre-baseline; target
+      3–8% energy, 2–5% water within 90 days.
+    - >-
+      Intensity variance reduction: 20–40% reduction in standard deviation of
+      kWh/m3 and m3/1,000 bottles by line/SKU.
+    - >-
+      Detection performance: mean time to detect (MTTD) < 5 minutes for
+      sustained >15% deviations; false positive rate < 1/line/week;
+      precision/recall > 0.8.
+    - >-
+      Actionability: recommendation acceptance rate > 60%; closed-loop
+      verification rate > 80% within 7 days.
+    - >-
+      Operational KPIs: MTTR for anomaly-related work orders reduced by 25%;
+      unplanned downtime incidents related to utilities/process drift reduced by
+      15–30%.
+    - >-
+      Financial KPIs: payback < 6 months; net savings/plant $50k–$250k/year
+      depending on size and energy tariffs.
+    - >-
+      Adoption: daily active users in control room, monthly executive report
+      opens; >70% of shifts interacting weekly.
+storyBrand:
+  character: >-
+    Bottled water operations leaders seeking lower kWh/m3 and m3/1,000 bottles
+    without risking throughput.
+  problem: >-
+    Hidden leaks, fouling, and process drift quietly raise energy and water
+    intensity; traditional alarms miss it, eroding margins and ESG performance.
+  guide: >-
+    Industrial AI + beverage process engineering team with a repeatable method
+    to detect intensity anomalies and recommend corrective actions.
+  plan: >-
+    1) Connect SCADA/flow/power/production data; 2) Baseline kWh/m3 and m3/1,000
+    bottles models; 3) Monitor, alert, and rank anomalies; 4) Act on
+    recommendations and verify savings.
+  callToAction: >-
+    Start a 60-day pilot: share 6–12 months of data to get a live dashboard and
+    prioritized actions.
+  success: >-
+    Early leak detection, stable process, lower kWh/m3 and m3/1,000 bottles,
+    audit-ready reporting, higher OEE and margins.
+  failure: >-
+    Rising utility costs, water loss, unplanned downtime, failed audits, and
+    missed sustainability targets.
+landingPage:
+  hero:
+    title: AI Anomaly Detection for Water & Energy Intensity
+    subtitle: >-
+      Monitor kWh/m3 and m3/1,000 bottles in real time to catch leaks, fouling,
+      and process drift—then get clear corrective actions.
+    ctaText: Request a demo
+    ctaHref: '#demo'
+  problem:
+    - 'Hidden leaks and fouling drive up kWh/m3 and water per 1,000 bottles.'
+    - Daily reports miss short-lived spikes and slow drifts.
+    - 'Line changeovers, SKUs, and shifts mask true performance.'
+    - Teams chase alarms without clear root cause or next steps.
+    - Sustainability and cost targets slip without early warning.
+    - 'Maintenance is reactive, causing avoidable downtime and waste.'
+  solution:
+    - >-
+      Continuously computes kWh/m3 and m3/1,000 bottles per line, SKU, and
+      shift.
+    - >-
+      Learns normal patterns; flags abnormal intensity with severity and
+      duration.
+    - >-
+      Diagnoses likely causes (leaks, membrane scaling, fouling, valve issues,
+      RO reject drift).
+    - 'Prescribes actions with expected savings, time-to-impact, and confidence.'
+    - Routes alerts to Teams/Slack/Email/CMMS with full context and trends.
+    - >-
+      Delivers measurable reductions in water and energy use and faster issue
+      resolution.
+  features:
+    - 'Real-time intensity tracking: kWh/m3 and m3/1,000 bottles by line and SKU.'
+    - 'Adaptive anomaly models with seasonality, demand, and ambient context.'
+    - >-
+      Root-cause hints using correlations to flow, pressure, reject ratio, CIP
+      tags.
+    - >-
+      Prescriptive playbooks for leak checks, filter change, RO tuning,
+      compressor fixes.
+    - >-
+      Savings, cost, and CO2e impact estimation with tariff and emission
+      factors.
+    - Multi-site benchmarking with best-practice flags and target setting.
+    - 'Connectors: OPC UA, Modbus, MQTT, AVEVA PI, Ignition, SQL, CSV.'
+    - Edge + cloud deployment; on-prem option for data residency.
+    - 'Role-based dashboards for Ops, Maintenance, and Sustainability.'
+    - 'Alerting to Email/SMS/Teams/Slack; CMMS integration (SAP PM, Maximo).'
+    - 'Audit trail, explainability, and confidence scores for every alert.'
+    - 'Enterprise security: SSO/SCIM, RBAC, encryption in transit/at rest.'
+  steps:
+    - 'Connect data: flow/energy meters, bottle counts, SCADA/historian, CMMS.'
+    - 'Baseline learning for 2–4 weeks by line, SKU, shift, and operating mode.'
+    - 'Set targets, thresholds, and alert routes; enable playbooks.'
+    - Pilot on a priority line; validate accuracy and savings.
+    - Roll out across lines/sites; integrate with CMMS and messaging.
+    - Review weekly insights; tune models and track ROI and sustainability KPIs.
+---
+# AquaWatt Sentinel
+
+Industry: Bottled Water Manufacturing
+Service: Water and Energy Intensity Anomaly Detection

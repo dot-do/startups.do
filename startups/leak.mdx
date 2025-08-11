@@ -1,0 +1,338 @@
+---
+name: >-
+  Leak Detection Fusion (Pressure + External Sensing) — AI service for Pipeline
+  Transportation of Natural Gas
+slug: leak
+service:
+  title: Leak Detection Fusion (Pressure + External Sensing)
+  description: >-
+    Fuses SCADA imbalance with satellite methane, LDAR, acoustic/fiber DAS to
+    produce a leak likelihood map and dispatch guidance.
+  targetUsers:
+    - Leak detection engineers
+    - Control room
+    - Integrity management
+  triggers:
+    - Pressure/flow imbalance threshold
+    - New satellite plume alert
+    - Acoustic/DAS event
+  inputs:
+    - 'SCADA flow/pressure, linepack calc'
+    - Pipeline GIS centerlines and stations
+    - 'Satellite methane (e.g., GHGSat/Kayrros)'
+    - Fixed gas sensors/LDAR/DAS events
+    - Wind/weather data
+    - Valve statuses and outages
+  steps:
+    - Ingest time-windowed signals and external alerts
+    - Spatially align events to pipeline segments in GIS
+    - Run hydraulic balance and mass-balance residuals
+    - Bayesian/ensemble fusion to compute leak likelihood per segment
+    - Estimate size/location bounds; simulate isolation valves impact
+    - Generate incident brief and patrol plan; push notifications
+    - Capture feedback from field to refine priors
+  tools:
+    - Historian/SCADA read-only
+    - GIS (Esri ArcGIS)
+    - Weather APIs (NOAA)
+    - External methane alert APIs (where contracted)
+    - Timeseries DB (TimescaleDB/InfluxDB)
+    - Bayesian modeling libs
+    - 'Teams/Slack, PagerDuty'
+  outputs:
+    - Leak likelihood heatmap (GIS layer)
+    - Incident brief with evidence and recommended next steps
+    - Patrol/dispatch task with segment and milepost
+  pricingModel:
+    - Setup fee per pipeline system
+    - Monthly platform fee + per-mile fee for fusion
+    - Optional per-alert fee if using premium satellite data
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 7
+    modelCapability: 7
+    overall: 7
+  risks:
+    - External data latency/coverage gaps
+    - False negatives liability concerns
+    - GIS misalignment causing mislocation
+    - Access to premium satellite feeds
+  dependencies:
+    - Read-only SCADA/historian
+    - GIS centerline with stationing
+    - Contracts for satellite/LDAR data
+    - Incident response SOPs
+leanCanvas:
+  problem:
+    - >-
+      Pipeline operators struggle to detect and localize leaks quickly using
+      single-modality tools (SCADA pressure/flow imbalance or periodic LDAR)
+      leading to long time-to-detect (days-weeks) and costly, unfocused truck
+      rolls.
+    - >-
+      External methane observations (satellite/airborne/mobile) are episodic,
+      noisy, weather-dependent, and rarely reconciled with real-time hydraulics
+      or operations logs, causing false positives/negatives and alert fatigue.
+    - >-
+      Regulatory and financial pressure is rising (PHMSA leak detection/repair
+      requirements; EPA Methane Emissions Reduction Program fee $900–$1,500/ton
+      CH4; growing ESG scrutiny), but existing systems don’t provide defensible,
+      auditable, fused evidence and dispatch guidance.
+    - >-
+      Operators lack an integrated geospatial risk picture that fuses SCADA
+      anomalies, RTTM results, methane plume detections, fiber DAS/acoustic
+      events, and work orders to prioritize high-likelihood leaks and minimize
+      safety/environmental impact.
+    - >-
+      Integration friction (SCADA historians, GIS, WMS like Maximo/SAP, fiber
+      DAS, satellite vendors) delays deployments and prevents scale.
+  solution:
+    - >-
+      Data fusion engine: Bayesian/probabilistic inference that combines
+      hydraulic residuals (pressure/flow/RTTM), methane plume detections
+      (satellite/airborne/mobile), fiber DAS/acoustic signatures, weather,
+      terrain, and operations logs to produce a per-segment leak likelihood
+      (0–1) and estimated leak rate with uncertainty bands.
+    - >-
+      Real-time geospatial UI: A dynamic map showing pipeline centerline, HCAs,
+      land use, wind vectors, candidate leak locations with confidence
+      intervals, and prioritized dispatch recommendations.
+    - >-
+      Dispatch guidance & workflow: Auto-generation of work orders (SAP PM/IBM
+      Maximo), crew routing, and skill/equipment matching; integrates with
+      existing OMS and notification systems.
+    - >-
+      Data connectors & normalization: Production-grade connectors to PI System
+      (AVEVA/OSIsoft), Honeywell/Emerson/Yokogawa SCADA, Esri GIS, fiber DAS
+      (Silixa/OptaSense), satellite providers (GHGSat, MethaneSAT, Carbon
+      Mapper, Satelytics), drone/mobile LDAR vendors; handles QA/QC and
+      metadata.
+    - >-
+      Backtesting & model governance: Replay historical incidents to quantify
+      precision/recall, P95 time-to-detect, and calibration; exportable audit
+      trails for regulators and insurers.
+    - >-
+      Compliance & reporting: Automated generation of PHMSA/EPA-ready reports
+      (event logs, evidence packages, repair timelines, emission estimates,
+      avoided emissions).
+  uniqueValueProp: >-
+    A single, auditable leak likelihood map and dispatch engine that fuses
+    SCADA/RTTM imbalances with satellite methane detections, LDAR, and fiber DAS
+    to cut time-to-detect/localize by 50–80%, reduce false-positive truck rolls
+    by 30–60%, and lower methane fee and compliance risk—delivered as a secure,
+    integrable SaaS with regulatory-ready reporting.
+  unfairAdvantage: >-
+    Field-validated, cross-modality labeled dataset and Bayesian fusion IP that
+    converts heterogeneous signals into calibrated leak probabilities and
+    dispatch guidance tied to HCA risk, with deep integrations to SCADA/GIS/WMS.
+    Early exclusive data/tasking agreements with key satellite/DAS partners and
+    regulatory-audited reporting workflows create defensible switching costs.
+  customerSegments:
+    - >-
+      Midstream natural gas transmission operators (interstate and intrastate)
+      managing 500–50,000+ miles of pipeline.
+    - >-
+      Large gathering system operators with high-emissions assets and active
+      LDAR programs.
+    - >-
+      Integrated energy companies with midstream divisions seeking enterprise
+      methane strategies.
+    - >-
+      Pipeline integrity service providers and system integrators (as
+      channel/white-label).
+    - >-
+      Insurers/reinsurers and financiers requiring independent methane risk
+      metrics (secondary market).
+  channels:
+    - >-
+      Direct enterprise sales to top 100 North American transmission operators;
+      land-and-expand by mileage.
+    - >-
+      Partnerships with pipeline integrity firms and SCADA/RTTM vendors to
+      co-sell/white-label.
+    - >-
+      Alliances with satellite methane providers and fiber DAS OEMs bundling
+      analytics with their data.
+    - >-
+      Cloud marketplaces (Azure, AWS) for procurement and IT compliance
+      acceleration.
+    - >-
+      Industry associations and conferences (AGA Operations, API Pipeline, PPIM)
+      with live demos and case studies.
+    - >-
+      Regulatory and insurer engagement: provide third-party-validated metrics
+      to de-risk operator compliance and premiums.
+  revenueStreams:
+    - >-
+      Per-mile annual SaaS subscription (analytics only): $300–$700/mi-year
+      tiered by features, data volume, and SLA.
+    - >-
+      Data pass-through/resell margin for external sources
+      (satellite/airborne/fiber): cost-plus 10–25% or bundled into higher tier
+      ($200–$600/mi-year typical blend).
+    - >-
+      One-time onboarding/integration fee: $50k–$250k depending on systems and
+      mileage.
+    - >-
+      Professional services: historical backtesting, model calibration, change
+      management ($200–$300/hr or fixed-scope).
+    - 'Premium support/SLA tiers (24/7, <5 min alert latency, dedicated TAM).'
+    - Optional per-incident surge support and forensic analysis packages.
+  costStructure:
+    - >-
+      COGS: external data licensing (satellite/airborne/fiber), cloud compute
+      (GPU inference, spatiotemporal databases), storage for high-rate
+      telemetry, map services.
+    - >-
+      R&D: data science/ML, Bayesian fusion engine, MLOps, domain modeling,
+      UI/UX.
+    - >-
+      Integration and delivery: solutions architects, partner enablement,
+      customer success.
+    - >-
+      Security and compliance: SOC 2/ISO 27001 audits, pen testing, SIEM,
+      incident response.
+    - >-
+      Sales/marketing: enterprise sales, conferences, POCs/pilots, case study
+      production.
+    - >-
+      Insurance/legal: data-sharing agreements, liability coverage, regulatory
+      advisory.
+  keyMetrics:
+    - >-
+      Time-to-detect (TTD) median/P90: target <3 hours for medium/large leaks
+      (>100 scfh) with continuous data; <24 hours when relying on periodic
+      satellite overpasses.
+    - >-
+      Time-to-localize (TTL) to within ±1 mile/±0.5 mile: target P90 <6
+      hours/<12 hours depending on modality coverage.
+    - >-
+      Precision/Recall by leak-size bin (scfh): small (<50), medium (50–500),
+      large (>500); target recall >0.8 for >500 scfh with precision >0.85; small
+      leaks recall improves with LDAR cadence.
+    - >-
+      False positives per 1,000 mi-month: target <1.5 with active fusion; <0.5
+      in non-HCA areas after calibration.
+    - >-
+      Methane emissions avoided (t CH4/year) and fee savings ($/year) per
+      operator; target 20–40% reduction year 1 vs baseline.
+    - >-
+      Truck rolls avoided and average cost per validated leak found; target
+      30–60% reduction in non-productive dispatch.
+    - >-
+      Alert acknowledgment and dispatch SLAs: P90 <30 minutes acknowledgment
+      within work hours; <2 hours off-hours.
+    - >-
+      Miles actively monitored and data coverage (% of miles with at least two
+      modalities). Target >70% dual-modality coverage on contracted mileage.
+    - >-
+      Integration latency (data ingest to decision): target <5 minutes for
+      SCADA/fiber; <24 hours for satellite when pass occurs.
+    - >-
+      Model calibration score (Brier score) trend and drift alerts frequency
+      (<1/month).
+storyBrand:
+  character: >-
+    Pipeline integrity, control-room, and environmental managers at natural-gas
+    transmission operators who want a reliable, fast, auditable way to detect,
+    locate, and prioritize leaks without adding alarm noise.
+  problem: >-
+    External: SCADA imbalances are noisy; satellite/LDAR/DAS data are siloed;
+    small/intermittent leaks evade single-sensor detection. Internal: Teams lack
+    confidence on when and where to dispatch. Philosophical: You shouldn’t have
+    to trade safety and emissions for uptime—leaks should be findable, provable,
+    and fixable fast. Villain: Data fragmentation and alarm fatigue.
+  guide: >-
+    Empathy: We understand control-room overload, field safety, and compliance
+    pressure. Authority: Fusion AI combines SCADA pressure/flow with satellite
+    methane, LDAR, and acoustic/fiber DAS to produce an explainable
+    leak-likelihood map, confidence scores, and recommended actions; integrates
+    with existing SCADA/PI/CMMS via secure APIs; aligned with PHMSA IM and EPA
+    reporting workflows.
+  plan: >-
+    Process: 1) Connect data sources (SCADA, satellite, LDAR, DAS). 2) Calibrate
+    on your network and history. 3) Fuse signals to generate leak-likelihood
+    maps. 4) Alert with location, size estimate, and dispatch guidance. 5) Close
+    the loop with evidence and reports. Agreement: read-only data access,
+    customer-controlled thresholds, measurable alert quality, and a pilot before
+    scale.
+  callToAction: >-
+    Primary: Schedule a data assessment and live demo. Transitional: Run a 60–90
+    day pilot on a priority segment using your historical events; receive a
+    leak-likelihood map and dispatch playbook.
+  success: >-
+    Faster detection and localization; fewer false alarms and truck rolls; lower
+    methane intensity and product loss; streamlined PHMSA/EPA and ESG reporting
+    with auditable evidence; improved safety and uptime; stronger stakeholder
+    trust.
+  failure: >-
+    Undetected or mislocated methane releases; emergency shutdowns and product
+    loss; regulatory fines and investigations; reputational damage; wasted OPEX
+    on noise-driven dispatch.
+landingPage:
+  hero:
+    title: Leak Detection Fusion
+    subtitle: >-
+      AI that fuses SCADA pressure/flow imbalance with satellite methane, LDAR,
+      and fiber/acoustic DAS to deliver a ranked leak likelihood map and
+      dispatch guidance for natural gas pipelines.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - >-
+      Signals are scattered across SCADA, satellite, LDAR, and DAS—triage is
+      slow and manual.
+    - False positives trigger costly truck rolls while real leaks hide in noise.
+    - Small or persistent leaks evade static thresholds and routine surveys.
+    - 'Slow detection increases methane emissions, loss, and regulatory exposure.'
+    - 'Dispatch lacks clear prioritization, confidence, and route optimization.'
+    - Compliance reporting and audit trails are fragmented across tools.
+  solution:
+    - >-
+      Unify every signal into one probabilistic leak map with confidence
+      scoring.
+    - >-
+      Prioritize action with dynamic risk ranking and next-best verification
+      guidance.
+    - >-
+      Accelerate detection via change detection and weather-aware plume
+      modeling.
+    - Reduce rollouts by matching the right verification method to each alert.
+    - Close the loop as crews confirm/deny; models learn and improve over time.
+    - 'Integrate with SCADA, GIS, and work management to automate workflows.'
+  features:
+    - >-
+      Bayesian fusion of SCADA imbalance + satellite methane + LDAR +
+      acoustic/fiber DAS.
+    - 'Leak likelihood surface with segment-level risk, bounds, and confidence.'
+    - >-
+      Automated alerts with severity, location, and recommended verification
+      method.
+    - Weather- and terrain-aware dispersion modeling with linepack context.
+    - >-
+      Route-optimized dispatch and work order creation (Maximo, SAP,
+      ServiceNow).
+    - 'APIs, web dashboard, and mobile field view (offline-capable).'
+    - Time-series change detection across surveys and operations.
+    - 'Configurable thresholds, roles, and escalation policies.'
+    - Audit-ready logs for PHMSA/OGMP and methane intensity reporting.
+    - 'Enterprise security with SSO, RBAC, and private deployment options.'
+  steps:
+    - >-
+      Connect data: SCADA/PI, GIS centerlines/valves, satellite and LDAR feeds,
+      fiber DAS.
+    - >-
+      Calibrate baselines per segment using historical operations and terrain
+      context.
+    - Run the fusion model to generate the live leak likelihood map.
+    - >-
+      Review prioritized alerts with confidence and recommended verification
+      steps.
+    - Dispatch crews via integrated work orders and route-optimized guidance.
+    - Capture field confirmations/repairs; system retrains with outcomes.
+    - Export compliance reports and methane KPIs to your data warehouse.
+---
+# Leak Detection Fusion (Pressure + External Sensing) — AI service for Pipeline Transportation of Natural Gas
+
+Industry: Pipeline Transportation of Natural Gas
+Service: Leak Detection Fusion (Pressure + External Sensing)

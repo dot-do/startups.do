@@ -1,0 +1,350 @@
+---
+name: OnboardCU Co‑pilot
+slug: onboardcu
+service:
+  title: Digital Member Onboarding + KYC Co‑pilot
+  description: >-
+    Automates KYC/IDV checks, document collection, and risk flag summarization
+    for new members; drafts decisions and member communications.
+  targetUsers:
+    - Retail/Branch Ops
+    - Risk/KYC
+    - Member Services
+  triggers:
+    - New online account application submitted
+    - KYC vendor hit/needs review
+    - Missing document after X hours
+  inputs:
+    - Application data (from LOS/online form)
+    - Government ID images/selfie
+    - Proof of address
+    - Watchlist/OFAC/KYC vendor responses
+    - Core/member history (if existing)
+  steps:
+    - Ingest application via API/webhook
+    - Extract/validate ID docs (OCR+IDV); face match if provided
+    - Cross-check watchlist/KYC vendor results; compute simple risk score
+    - Detect missing items; generate secure doc request link
+    - Draft decision recommendation and rationale for analyst
+    - Log actions and push status to LOS/core
+  tools:
+    - MeridianLink/Origination platform API
+    - Alloy/Socure/Trulioo/LexisNexis Risk
+    - DocuSign/Adobe Sign
+    - AWS Textract/Google Vision
+    - Azure OpenAI/Anthropic Claude (RAG+policy templates)
+    - Symitar/Fiserv/FIS read-only
+  outputs:
+    - KYC checklist with pass/fail
+    - Risk score with rationale
+    - Decision recommendation (approve/decline/review)
+    - Member email/SMS for missing items
+    - Audit log
+  pricingModel:
+    - One-time setup + policy tuning
+    - 'Per-application fee (e.g., $2–$6)'
+    - Optional volume tier discounts
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 4
+    overall: 4.5
+  risks:
+    - False accepts/rejects due to OCR/IDV quality
+    - Privacy/PII handling
+    - Over-reliance on AI rationale without human review
+  dependencies:
+    - Read-only access to LOS/core
+    - KYC vendor account and keys
+    - Document storage (S3/SharePoint/Box)
+    - Security review/DPA
+leanCanvas:
+  problem:
+    - >-
+      Credit unions lose applicants during onboarding due to slow, manual
+      KYC/IDV and document collection (median completion times 1–2 days; mobile
+      abandonment >20%).
+    - >-
+      Compliance teams face fragmented tools (IDV vendor, sanctions screening,
+      device risk, LOS) with no unified risk view, causing high false positives
+      and rework.
+    - >-
+      Exam readiness (NCUA/FFIEC) requires manual evidence gathering across
+      systems; preparing artifacts can take 40–80 staff hours per exam cycle.
+    - >-
+      High variability in policies across CUs leads to inconsistent decisions;
+      institutional knowledge lives in binders and staff heads, increasing
+      operational risk.
+    - >-
+      Data vendor costs are opaque and rising; credit unions struggle to manage
+      stack redundancy and optimize pass rates vs. fraud risk.
+    - >-
+      Member communications (conditional approvals, document requests, adverse
+      action) are inconsistent and time‑consuming to draft and QA for
+      compliance.
+    - >-
+      Small and mid‑size CUs lack data science and model governance resources to
+      safely deploy AI for onboarding risk summarization and decision support.
+  solution:
+    - >-
+      Unified onboarding risk engine that orchestrates IDV, sanctions/PEP
+      screening, device/behavioral signals, and document capture into a single
+      case.
+    - >-
+      AI co‑pilot generates a plain‑language risk summary mapped to CU policy
+      and BSA/AML (CIP, CDD/BO, OFAC), with draft approve/conditional/decline
+      recommendations and rationale.
+    - >-
+      Automated document collection via web/mobile SDKs with dynamic checklists,
+      selfie/liveness, and OCR data extraction; reminders and abandonment rescue
+      flows.
+    - >-
+      Drafted member communications (welcome, conditional approval requirements,
+      adverse action) with embedded disclosures, configurable templates, and
+      Spanish/English support.
+    - >-
+      Exam-ready audit package: immutable decision logs, vendor queries, policy
+      references, and evidence export for NCUA/FFIEC; configurable retention
+      policies.
+    - >-
+      Policy and workflow builder: no‑code rules, risk thresholds, exception
+      handling, dual control, and human-in-the-loop checkpoints.
+    - >-
+      Core/LOS integrations (MeridianLink, Origence, Symitar/Episys, Fiserv DNA,
+      FIS Horizon) to push approved member/account data and pull KYC-relevant
+      information.
+    - >-
+      Model governance: versioned prompts/models, explainability snapshots,
+      drift monitoring, and approval workflows to meet model risk management
+      expectations.
+  uniqueValueProp: >-
+    Onboard new members in minutes with exam-ready KYC. Our AI co‑pilot unifies
+    IDV, sanctions, fraud signals, and documents into a transparent risk
+    summary, proposes decisions and compliant member communications, and
+    produces one-click audit artifacts—reducing manual work 50–70% while
+    improving pass rates and compliance consistency.
+  unfairAdvantage: >-
+    Credit‑union‑specific policy packs and exam artifact generator integrated
+    with core/LOS systems, plus a growing consortium dataset (opt‑in,
+    privacy‑preserving) that improves risk summarization and pass rates across
+    participating CUs—difficult for generic KYC vendors to replicate.
+    Additionally, a transparent, CU‑friendly pricing model aligned to
+    application outcomes rather than opaque per‑query fees.
+  customerSegments:
+    - >-
+      Primary: US credit unions ($250M–$10B+ AUM) with digital account opening;
+      decision makers: VP/Director of Member Experience, Operations,
+      Compliance/BSA Officer, CIO.
+    - >-
+      Secondary: Credit Union Service Organizations (CUSOs) and league
+      associations seeking shared services for onboarding/KYC.
+    - >-
+      Early adopters: Digital-first CUs, SEG-based CUs with high monthly
+      application volume (2,000–30,000 apps/month).
+    - >-
+      Expansion adjacency: US community banks with similar BSA/AML/CIP
+      workflows.
+  channels:
+    - >-
+      CUSO and league partnerships: co-market via webinars and member lists;
+      target 3–5 CUSO partners in year 1 to reach 500+ CUs; revenue share
+      10–20%.
+    - >-
+      Core and LOS marketplaces: list in Jack Henry Symitar, Fiserv DNA, FIS,
+      MeridianLink, Origence; secure “preferred” status via prebuilt connectors
+      and joint case studies.
+    - >-
+      Land-and-expand pilots: 90‑day paid pilot with 2–3 branches and digital
+      channel; success criteria: >50% manual touch reduction, >20% abandonment
+      reduction, exam pack acceptance.
+    - >-
+      ABM outbound to 300 target CUs ($500M–$10B AUM): sequence to VP
+      Ops/Compliance; offer “Onboarding Diagnostic” using their anonymized data
+      to quantify savings.
+    - >-
+      Events and thought leadership: CUNA GAC, NAFCU, Jack Henry Connect,
+      MeridianLink LIVE, CULytics; publish benchmark reports on CU onboarding
+      KPIs.
+    - >-
+      Referral network: compliance consultants and regtech integrators; spiff
+      $3k per closed deal; co-develop policy packs.
+    - >-
+      Content and SEO: playbooks on NCUA exam prep for onboarding, KYC vendor
+      comparison calculator, ROI templates; target keywords: “credit union KYC
+      onboarding,” “OFAC screening credit union.”
+    - >-
+      Customer marketing: quarterly ops roundtables, feature flags for beta
+      users, case studies with ROI metrics; drive upsell to advanced analytics
+      and additional products.
+  revenueStreams:
+    - >-
+      SaaS subscription (tiered by assets/application volume): Starter
+      $1,200/month (up to 2,000 apps/mo); Growth $3,500/month (up to 10,000
+      apps/mo); Enterprise custom.
+    - >-
+      Usage-based fees: bundled per-completed-onboarding price that includes IDV
+      + sanctions + device risk + doc OCR; e.g., $0.90–$2.50 per onboarding
+      depending on mix/volume.
+    - >-
+      Add-ons: advanced analytics ($500–$1,500/month), additional data sources
+      (business KYC/UBO, enhanced PEP), multilingual comms, premium SLAs
+      (99.99%).
+    - >-
+      Implementation and training: $7,500–$25,000 one-time depending on
+      connectors and policy complexity.
+    - >-
+      Professional services: exam preparation package, policy tuning, vendor
+      optimization reviews.
+  costStructure:
+    - >-
+      COGS: third‑party data (IDV $0.60–$1.80, sanctions $0.05–$0.20, device
+      risk $0.05–$0.15 per check), LLM/compute ($0.02–$0.10 per case),
+      storage/encryption, and support; target blended COGS 20–35%.
+    - >-
+      R&D: 8–15 FTEs in year 1–2 (backend, data science, security,
+      integrations); $2.5M–$5M/year.
+    - >-
+      Compliance and security: SOC 2 Type II, penetration tests, privacy
+      counsel, model governance; $200k–$500k/year.
+    - >-
+      Sales/Marketing: 2–4 AEs, 1–2 partner managers, events/content;
+      $1.5M–$3M/year; CAC payback target <12 months.
+    - 'G&A/Insurance (E&O, cyber): $300k–$700k/year.'
+    - >-
+      Gross margin target 60–75% at scale; EBITDA breakeven by ~24–30 months
+      with 60–80 customers.
+  keyMetrics:
+    - >-
+      Onboarding cycle time: median under 10 minutes end-to-end; 90th percentile
+      under 45 minutes including conditional doc collection.
+    - >-
+      Auto-approval/straight-through processing rate: 65–85% while maintaining
+      predefined risk tolerance.
+    - >-
+      Manual touch rate: <0.6 touches per application; reduce by 50–70% from
+      baseline.
+    - >-
+      Abandonment rate: reduce by 20–40% in digital application funnel within 90
+      days.
+    - >-
+      False positive rate on sanctions/PEP/fraud alerts: reduce by 30–50% vs.
+      prior vendor stack; monitor precision/recall with monthly QA samples.
+    - >-
+      Cost per approved member: reduce by 25–50% (labor + vendor queries) with
+      target $2–$6 per application depending on signals used.
+    - >-
+      Exam readiness: time to assemble onboarding evidence <6 hours (from 40–80
+      hours); 100% audit trail coverage.
+    - >-
+      SLAs: 99.9% uptime; P95 risk summary latency <3s; document processing P95
+      <10s.
+    - >-
+      Quality metrics: communication template compliance error rate <0.5%; audit
+      exceptions per quarter = 0 material findings.
+    - >-
+      Commercial: net revenue retention >110%, logo retention >92%, average
+      sales cycle 90–180 days; pilot conversion rate >60%.
+    - >-
+      Implementation: time-to-live 2–6 weeks; support CSAT >4.6/5; NPS of
+      operations users >45.
+storyBrand:
+  character: >-
+    Credit union leaders in operations, compliance, and member services who want
+    fast, safe member onboarding without adding headcount.
+  problem: >-
+    - External: Manual KYC/IDV, scattered tools, and back-and-forth document
+    collection delay approvals.
+
+    - Internal: Teams fear missing risk flags and spend hours summarizing files.
+
+    - Philosophical: Members deserve a modern, secure, same-day account opening
+    experience.
+  guide: >-
+    We understand exam pressure, fraud volatility, and member expectations.
+    Built by fintech and compliance experts.
+
+    Proof: Audited KYC flows, human-in-the-loop AI, full audit trails, SOC 2
+    practices, and integrations with your core and LOS.
+  plan: >-
+    - Step 1: Connect data sources and map your CIP/CDD policy.
+
+    - Step 2: Configure risk thresholds and auto-requests for required
+    documents.
+
+    - Step 3: Launch the co‑pilot—AI runs checks, summarizes risk, drafts
+    decisions and member communications; staff review and approve.
+
+    - Agreement: 30‑day pilot with clear SLAs, exit anytime, exam-ready
+    documentation and training.
+  callToAction: |-
+    Direct: Start a 30‑day pilot.
+    Transitional: Request a sample KYC risk summary using your policy.
+  success: |-
+    - Approve good members in minutes.
+    - 50% faster onboarding and 60% fewer manual touches.
+    - Consistent, policy‑aligned decisions with complete audit trails.
+    - Lower fraud losses and fewer exam findings.
+    - Happier staff and higher member NPS.
+  failure: |-
+    - Lost applicants to faster competitors.
+    - Higher fraud and SAR backlogs.
+    - Examiner findings, rework, and rising cost per account.
+    - Burned‑out teams and inconsistent decisions.
+landingPage:
+  hero:
+    title: Digital Member Onboarding + KYC Co‑pilot for Credit Unions
+    subtitle: >-
+      Approve good members faster while staying exam‑ready. Automate IDV,
+      document collection, risk review, and member communications with a
+      human‑in‑the‑loop AI.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - 'Member drop‑off from long, complex onboarding'
+    - Manual KYC across multiple tools slows approvals and adds errors
+    - Chasing documents via email is frustrating and insecure
+    - Inconsistent risk decisions; audits are time‑consuming
+    - Staff time lost writing notices instead of serving members
+    - Integrations with core/KYC systems are brittle and costly
+  solution:
+    - >-
+      Single digital flow for application, IDV, and KYC/CIP checks on web and
+      mobile
+    - AI summarizes risk signals and proposes explainable decisions
+    - >-
+      Smart document requests with auto‑extract and validation to close gaps
+      fast
+    - >-
+      Pre‑drafted, compliant communications for approvals, exceptions, and
+      declines
+    - Configurable policies with human final approval and full audit trail
+    - 'Integrates with your core, CRM, and KYC vendors—no rip‑and‑replace'
+  features:
+    - >-
+      ID verification orchestration: government ID, selfie liveness, database
+      checks
+    - 'Sanctions, PEP, and adverse media screening with match resolution workflow'
+    - Eligibility and field‑of‑membership rules engine
+    - Document capture via link/web/mobile; OCR and data validation
+    - Auto‑fill account forms from verified data to reduce rekeying
+    - Risk scoring with evidence and reason codes; configurable thresholds
+    - Duplicate and synthetic identity detection signals
+    - Decision drafts and exception handling with queueing and SLAs
+    - Member messaging drafts for email/SMS with personalization and templates
+    - Case management with full audit trail and exportable case files
+    - 'APIs and drop‑in SDKs; connect to core, LOS, CRM, and KYC providers'
+    - 'Role‑based access, SSO, encryption, and consent tracking'
+    - 'Dashboards for funnel, approval time, and risk outcomes'
+    - Localization and accessibility support
+  steps:
+    - Connect your core/KYC providers and import policies
+    - 'Configure forms, eligibility rules, and document requirements'
+    - Brand the member flow and set up messaging templates
+    - Embed the SDK or hosted link in your site and mobile app
+    - Pilot with a branch or segment; tune thresholds with reviewer feedback
+    - Go live; monitor dashboards and export audit packs for exams
+---
+# OnboardCU Co‑pilot
+
+Industry: Credit Unions
+Service: Digital Member Onboarding + KYC Co‑pilot

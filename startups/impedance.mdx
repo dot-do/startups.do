@@ -1,0 +1,346 @@
+---
+name: Impedance Stackup & Tolerance Advisor (ISTA)
+slug: impedance
+naics:
+  primary: '334412'
+  occupations: []
+service:
+  title: Impedance Stackup & Tolerance Advisor
+  description: >-
+    Generates manufacturable stackups meeting target single-ended/differential
+    impedances with tolerance analysis and coupon outputs.
+  targetUsers:
+    - CAM/pre-CAM
+    - Signal integrity liaison
+    - Process engineering
+  triggers:
+    - Design indicates impedance targets
+    - Material change or shortage
+    - Yield/tolerance improvement requests
+  inputs:
+    - Target impedances and line geometries
+    - Available laminate/prepreg materials and copper foils
+    - 'Pressing constraints (ply counts, min dielectric)'
+    - Factory impedance measurement capability
+  steps:
+    - Estimate impedance using closed-form models for microstrip/stripline
+    - Search stackup combinations within material availability
+    - 'Run Monte Carlo tolerance (Dk/Df, etch, thickness, reg)'
+    - 'Score by manufacturability, cost, and tolerance hit-rate'
+    - Emit fab notes and impedance coupon geometries
+  tools:
+    - Python impedance formulas (Hammerstad/Wheeler)
+    - 'Material property DB (Isola, Panasonic, Shengyi)'
+    - NumPy/Pandas + SciPy optimization
+    - Report generator (WeasyPrint)
+  outputs:
+    - Stackup options (CSV/PDF) with tolerances
+    - Fab notes for impedance control
+    - Impedance coupon Gerbers
+    - Material BOM
+  pricingModel:
+    - Per stackup package
+    - Subscription with material DB updates
+    - 'Add-on: SI engineer review'
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 7
+    overall: 7.5
+  risks:
+    - Closed-form models less accurate than field solvers
+    - Material lot variability and supply constraints
+    - Press cycle realities may force deviations
+  dependencies:
+    - Up-to-date material DK/DF and thickness data
+    - Factory press/foil capability
+    - Impedance measurement method
+leanCanvas:
+  problem:
+    - >-
+      Quote and CAM engineers spend 1–4 hours per RF/high‑speed PCB quote
+      iterating stackups and impedance widths; back‑and‑forth with customers
+      extends quote cycle times to 1–3 days, hurting win rates.
+    - >-
+      Field‑solver tools and generic calculators don’t capture fab‑specific
+      process tolerances (etch, plating, press‑out, Dk variation), causing
+      coupon failures and rework; first‑pass impedance coupon pass rates are
+      often 80–90% instead of >98%.
+    - >-
+      Material data is scattered and inconsistent (supplier PDFs, varying Dk/Df
+      vs frequency/temp); updating libraries and press recipes is manual and
+      error‑prone.
+    - >-
+      Designers specify impractical stackups (exotic glass styles, impossible
+      dielectric/foil combos), forcing redesign late in the cycle and eroding
+      margins.
+    - >-
+      Lack of standardized, automated impedance coupon generation
+      (Gerber/ODB++/IPC‑2581) leads to manual mistakes, extra CAM time, and test
+      correlation issues.
+    - >-
+      Tolerance budgeting is rarely quantified at quote time; surprises during
+      TDR test cause schedule slips and scrap.
+    - >-
+      Limited visibility to cost/lead‑time tradeoffs for alternative
+      laminates/foil weights; opportunities to shift to equivalent, in‑stock
+      materials are missed.
+  solution:
+    - >-
+      AI optimizer generates manufacturable layer stacks that meet
+      single‑ended/differential impedance targets with explicit tolerance
+      analysis (etch, plating, dielectric, Dk/Df vs frequency/temp).
+    - >-
+      Fab‑specific capability models (press‑out, copper roughness, etch bias,
+      lamination recipes) continuously calibrated against the fab’s TDR results
+      for closed‑loop accuracy.
+    - >-
+      Comprehensive material library (Dk/Df vs frequency/temp/humidity, resin
+      content, glass style) normalized across vendors; flags
+      obsolete/out‑of‑stock items and suggests equivalents in inventory.
+    - >-
+      Automated coupon generator outputs Gerber X2/ODB++/IPC‑2581 with per‑panel
+      coupon placement guidance and IPC‑TM‑650 2.5.5.x test method
+      compatibility.
+    - >-
+      What‑if design: trade cost/lead‑time vs impedance tolerance; suggest
+      alternate foils/dielectrics/glass styles to maintain targets with better
+      availability.
+    - >-
+      APIs and plugins to EDA/CAM (Altium, Allegro, Xpedition, KiCad, Frontline
+      InCAM/Genesis, Ucamco) to push/pull stackups and design rules.
+    - >-
+      Secure multi‑tenant cloud with optional on‑prem for ITAR/DFARS; audit
+      logs, RBAC, SSO, SOC 2 roadmap.
+  uniqueValueProp: >-
+    AI‑guided, fab‑calibrated stackups that hit target impedances the first
+    time, with quantified tolerance budgets and ready‑to‑test coupons—cutting
+    quote time by 50%+ and boosting coupon pass rate to >98%.
+  unfairAdvantage: >-
+    Closed‑loop, fab‑calibrated models continuously trained on real coupon
+    measurements across multiple process windows and materials—delivering
+    prediction accuracy and tolerance realism competitors lack; coupled with
+    designer plugins that create demand pull to participating fabs, forming a
+    two‑sided network moat.
+  customerSegments:
+    - >-
+      Primary: North American and European PCB fabricators (NAICS 334412) with
+      controlled‑impedance capability (Class 2/3), 50–500 employees, 2–10
+      presses, in‑house TDR.
+    - >-
+      Secondary: OEM/ODM design teams (networking, aerospace/defense, medical,
+      compute) that demand controlled impedance and want fabricator‑ready
+      stackups.
+    - >-
+      Secondary: Design service bureaus and EMS providers that co‑develop
+      stackups with fabs.
+    - >-
+      Enablers/Partners: Laminate suppliers (Isola, Panasonic, Shengyi, Ventec,
+      EMC), EDA vendors (Altium, Cadence Allegro, Mentor Xpedition, KiCad),
+      CAM/MES vendors (Frontline/Orbotech, Ucamco), TDR equipment vendors
+      (Keysight, Teledyne LeCroy).
+  channels:
+    - >-
+      Direct sales to PCB fabs: target 200 North American/European fabs with
+      controlled impedance offerings; start with Quote/CAM engineering leaders.
+    - >-
+      Partnerships with laminate suppliers for co‑marketing and pre‑validated
+      material libraries; joint webinars and application notes.
+    - >-
+      EDA marketplace plugins (Altium, KiCad) offering a free “fabricator‑ready
+      stackup check” to drive designer adoption and pull‑through to preferred
+      fabs.
+    - >-
+      Integration partnerships with CAM/MES vendors (Frontline/Orbotech, Ucamco)
+      to embed stackup exchange and coupon generation into existing workflows.
+    - >-
+      Industry events and associations: IPC APEX EXPO, DesignCon, PCB West;
+      present measured case studies with partner fabs.
+    - >-
+      Content marketing: DFM notes, impedance/tolerance calculators, benchmark
+      reports comparing materials/glass styles; SEO on "impedance stackup," "PCB
+      coupon," "tolerance analysis."
+    - >-
+      Referral program for fabs: designers who submit projects via plugin route
+      to participating fabs; revenue share or lead‑gen credits.
+  revenueStreams:
+    - >-
+      SaaS for PCB fabs (site license): Starter $15k/year (10 users, 50
+      projects/month), Pro $40k/year (unlimited users, 300 projects/month),
+      Enterprise $90k+/year (SSO, on‑prem option, API, multi‑site, SLA).
+    - >-
+      Per‑seat for OEM/design teams: $3,000/user/year or $300/month; includes
+      export of stackups and coupons for designated fab partners.
+    - >-
+      API usage for high volume quoting: $0.05 per optimization run beyond plan
+      quota; volume discounts.
+    - >-
+      Professional services: fab calibration package $15–50k (material
+      characterization, TDR correlation, recipe tuning), custom integrations
+      $10–100k.
+    - >-
+      Sponsored material libraries/placements from laminate vendors:
+      $15–50k/year/vendor for co‑validation and data maintenance.
+    - >-
+      Training/certification courses for CAM/quote engineers: $1,500 per
+      attendee; private workshops $10k/day.
+  costStructure:
+    - >-
+      Core team: 10–14 FTEs in first 24 months (3 ML/optimization engineers, 2
+      SI/PI domain experts, 3 full‑stack engineers, 1 integrations engineer, 2
+      GTM/sales, 1 customer success); payroll/benefits ~$2.5–3.5M/year.
+    - >-
+      Cloud compute/storage: $8–15k/month (GPU for model training, CPU for
+      inference/Monte Carlo, secure backups).
+    - >-
+      Data acquisition and lab: $150–300k/year (coupon builds across partner
+      fabs, TDR time, laminate samples).
+    - >-
+      Sales/marketing: $300–600k/year (events booths, sponsorships, content,
+      ads, webinars).
+    - >-
+      Compliance and security: $80–200k/year (SOC 2, pen tests, SSO/SCIM
+      tooling, legal).
+    - >-
+      Partner integrations and licensing: $50–150k/year (SDKs, test equipment
+      interfaces, EDA marketplace fees).
+    - >-
+      General and administrative (legal, accounting, office, tools):
+      $200–350k/year.
+  keyMetrics:
+    - >-
+      Time‑to‑quote reduction at fab: target median from 24–72 hours to 8–24
+      hours; KPI: percentage of quotes delivered <24h.
+    - >-
+      First‑pass coupon pass rate: baseline 85–90% to >98%; KPI: monthly pass
+      rate and re‑spin count.
+    - >-
+      Impedance deviation: average delta from target reduced to <3% for SE and
+      <4% for diff; KPI: mean absolute percentage error from TDR.
+    - 'Cycle efficiency: projects per quote engineer per week; target +50%.'
+    - >-
+      Adoption: DAU/MAU of engineering users at each fab; target >60% monthly
+      active among licensed users.
+    - >-
+      Model calibration accuracy: correlation R² between predicted and measured
+      TDR >0.95 after 2 calibration cycles; KPI: Ppk/Cpk on impedance
+      distributions.
+    - >-
+      Designer pull‑through: number of designer‑initiated stackup requests
+      routed to partner fabs; target 20+/month/fab.
+    - >-
+      Revenue KPIs: ARR, net revenue retention >115%, sales cycle <90 days, logo
+      churn <5% annually.
+    - >-
+      Integration depth: number of active EDA/CAM integrations per fab (goal
+      ≥2), API share of projects (goal >30% by month 12).
+storyBrand:
+  character: >-
+    PCB fabrication shops (NAICS 334412) — CAM/stackup and process engineers who
+    must deliver impedance-controlled bare boards on time and within tolerance.
+  problem: >-
+    - External: Impedance targets shift; laminate Dk/t vary by lot;
+    trial-and-error stackups waste days; coupons are inconsistent;
+    back-and-forth with customers stalls orders.
+
+    - Internal: Uncertainty and pressure to hit Z0/Zdiff without overruns or
+    scrap.
+
+    - Philosophical: Hitting target impedance should be predictable, not
+    guesswork.
+  guide: >-
+    - Empathy: We’ve lived fab-side deadlines and late-night stackup scrambles.
+
+    - Authority: Built by former fab and SI engineers; uses proven field-solver
+    models with real laminate data and shop-specific tolerance models; outputs
+    coupons for IPC-TM-650 2.5.5.7 testing; secure, auditable, and
+    vendor-agnostic.
+  plan: >-
+    1) Set targets and constraints: Z0/Zdiff, layer count, material set, copper
+    weights, roughness, dielectric bounds.
+
+    2) Generate: AI proposes manufacturable stackups and runs tolerance analysis
+    across etch, plating, dielectric, and Dk variation; flags risk and
+    alternatives.
+
+    3) Approve & export: Stackup table, build notes, traveler text, coupon
+    Gerber/ODB++ and PDFs, share with customers and archive.
+  callToAction: >-
+    - Direct: Start free trial; Book a 20‑minute demo; Upload your material set
+    and targets.
+
+    - Transitional: Download a sample stackup pack and tolerance playbook; Try
+    the free impedance calculator.
+  success: >-
+    First‑pass impedance within tolerance; faster quotes and approvals; fewer
+    engineering cycles; standardized coupons and documentation; reduced scrap;
+    predictable yields; stronger margins and happier customers.
+  failure: >-
+    Continued guesswork; prolonged back‑and‑forth; missed impedance specs;
+    re‑spins and scrapped panels; late shipments; eroded margins and damaged
+    reputation.
+landingPage:
+  hero:
+    title: 'Impedance-perfect stackups, manufacturable on day one'
+    subtitle: >-
+      AI designs bare PCB stackups that hit target single‑ended and differential
+      impedances, with full tolerance analysis and ready‑to‑fabricate coupons.
+    ctaText: Generate a stackup
+    ctaHref: /get-started
+  problem:
+    - Manual impedance calcs ignore real shop tolerances and press behavior
+    - Back‑and‑forth with CAM slows builds and risks missed dates
+    - Material Dk/Df and thickness variation push impedance out of spec
+    - Coupon design is inconsistent and hard to audit
+    - Late etch/plating changes break Z0/Zdiff and raise scrap risk
+    - Vendor capabilities differ; portability costs time and yield
+  solution:
+    - >-
+      Vendor‑aware AI proposes stackups that meet Z0/Zdiff targets within your
+      tolerance window
+    - >-
+      Monte Carlo and worst‑case analysis across Dk, thickness, etch, and
+      plating growth
+    - Automatic impedance coupon generation with export‑ready files
+    - 'Export stackup tables and drawings to PDF, CSV, ODB++, or IPC‑2581'
+    - >-
+      What‑if exploration for materials, copper weights, weave styles, and
+      finishes
+    - 'Digital sign‑off artifacts for fast, traceable handoff to fabrication'
+  features:
+    - >-
+      Layer‑by‑layer synthesis for single‑ended, edge‑coupled, and broadside
+      differential pairs
+    - >-
+      Material models with frequency‑dependent Dk/Df and copper roughness
+      effects
+    - Pressed thickness prediction from core/prepreg selection and resin content
+    - Etch compensation and plating growth modeling tied to vendor process data
+    - >-
+      Shop capability profiles: laminates, cores, prepregs, copper weights, min
+      line/space
+    - Monte Carlo yield forecast with adjustable tolerance targets
+    - >-
+      Automatic impedance coupon generation with probe/fixture options; outputs
+      Gerber/DXF
+    - 'Stackup export: PDF drawing, CSV thickness table, ODB++/IPC‑2581 structure'
+    - 'CAD constraint import from Altium, Allegro, and KiCad layer maps'
+    - >-
+      DFM checks for dielectric builds, aspect ratios, min trace/space, and
+      impedance windows
+    - Cost and yield trade‑offs across material sets and copper distributions
+    - Shareable vendor link and change tracking for ECOs
+  steps:
+    - Pick a vendor profile or define materials and process limits
+    - Enter layer count and target Z0/Zdiff per layer with tolerance
+    - Optionally import constraints from your CAD stackup
+    - Generate optimized stackup options and review yield/cost trade‑offs
+    - 'Approve and export stackup drawing, tables, and impedance coupons'
+    - >-
+      Share with your fabricator or attach to your RFQ for immediate build
+      readiness
+---
+# Impedance Stackup & Tolerance Advisor (ISTA)
+
+Generated for NAICS 334412 — Bare Printed Circuit Board Manufacturing.
+Service: Impedance Stackup & Tolerance Advisor

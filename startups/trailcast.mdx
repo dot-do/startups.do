@@ -1,0 +1,321 @@
+---
+name: TrailCast AI
+slug: trailcast
+naics:
+  primary: '336214'
+  occupations: []
+service:
+  title: SKU/Option-Level Demand Forecasting for Dealers
+  description: >-
+    Forecast unit demand by model and option package at dealer/region
+    granularity to drive MPS/MRP.
+  targetUsers:
+    - VP Operations
+    - Sales Operations
+    - Demand Planner
+  triggers:
+    - Weekly schedule cycle
+    - New dealer inventory file received
+    - Month-end close
+  inputs:
+    - Historical sales by dealer/region/SKU
+    - Dealer inventory/on-hand
+    - Promotions/calendar
+    - Macroeconomic and seasonality data
+    - Pricing history
+  steps:
+    - Ingest and clean data from ERP/Dealer DMS
+    - 'Feature engineering (seasonality, price elasticity, regional factors)'
+    - Train/refresh hierarchical time-series models
+    - Generate forecasts with confidence bands
+    - Write back to planning sheets/dashboard and ERP buckets
+  tools:
+    - Python + Prophet/LightGBM
+    - BigQuery/Snowflake
+    - Google Sheets/Excel
+    - dbt
+    - Metabase/Looker
+    - OpenAI/Claude for insights summary
+  outputs:
+    - 12–26 week forecast by SKU-option-dealer
+    - Confidence intervals
+    - Forecast accuracy report (MAPE)
+    - CSV/Parquet + dashboard
+  pricingModel:
+    - Setup fee
+    - Monthly platform fee
+    - Per-SKU forecasted
+  humanInLoop: false
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 5
+    overall: 5
+  risks:
+    - Poor dealer data quality
+    - Promo effects not captured
+    - Sudden macro shocks
+  dependencies:
+    - Read-only ERP/CRM access
+    - Dealer feeds (EDI/CSV/API)
+leanCanvas:
+  problem:
+    - >-
+      OEMs and dealer networks routinely miss the model/option mix by region,
+      leading to stockouts of fast movers and yard congestion with slow movers
+      (dwell >120 days).
+    - >-
+      Current planning uses top-down sales quotas and spreadsheets;
+      SKU/option-level weekly WMAPE is often 35–55% with bias >10%, driving poor
+      MPS/MRP signals.
+    - >-
+      Long and variable component lead times (4–20 weeks) and model-year
+      changeovers cause bullwhip effects and costly expedites.
+    - >-
+      Dealer allocations are reactive, not predictive; promotions, seasonality,
+      and regional preferences (e.g., bunkhouse vs couples, cold-weather
+      packages) aren’t quantified.
+    - >-
+      NPI/new model-year forecasting lacks attribute-based analogs, causing
+      under- or over-build for new trims/options.
+    - >-
+      Disconnect between sales forecasts and operations; ERP/DRP/MRP aren’t fed
+      with dealer/SKU granular demand, limiting capacity planning and supplier
+      commitments.
+  solution:
+    - >-
+      Data ingestion layer connects to OEM ERP/MRP (e.g., Infor CSI, Epicor
+      Kinetic, Dynamics 365), dealer DMS (IDS, Lightspeed), registrations (SSI),
+      macro/leading indicators (fuel prices, consumer sentiment, weather).
+    - >-
+      Hierarchical, attribute-based ML: forecasts at dealer×SKU×option,
+      reconciled to brand/region totals; captures seasonality, promotions,
+      holidays, fuel price sensitivity, weather, and cannibalization across
+      trims.
+    - >-
+      New product introduction: cold-start via attribute embeddings (length,
+      weight, floorplan, price, insulation, appliance set) mapped to historical
+      analogs.
+    - >-
+      Weekly forecast cycles with exception-based review; consensus planning
+      workflow for Sales/Dealer overrides with bias tracking and governance.
+    - >-
+      Allocation optimizer: converts forecasts into dealer allocations with
+      service-level targets, capacity and component constraints.
+    - >-
+      MPS/MRP exports: push netted demand and option-component mix to ERP/MRP
+      via API/EDI; simulate supply scenarios (supplier MOQ, lead-time shifts,
+      labor constraints).
+    - >-
+      Scenario planning: what-if on price, promotions, option-package take
+      rates, and lead times; output impacts on OTIF, inventory, and cash.
+    - >-
+      Accuracy monitoring: live dashboards for WMAPE/MAPE/MASE, bias, coverage,
+      acceptance rate; automated model recalibration and drift alerts.
+  uniqueValueProp: >-
+    Forecast unit demand by model and option package at dealer/region
+    granularity with measurable accuracy (target: top-80% volume SKUs weekly
+    WMAPE ≤ 22%, bias within ±5%), enabling OEMs to raise dealer service levels
+    to ≥95%, cut finished-goods inventory 15–25%, and reduce expedites 20–40%.
+  unfairAdvantage: >-
+    Vertical depth in RV towables with option-level attribute embeddings and
+    dealer-level behavioral data, plus integrations with RV-specific DMS and
+    registration data. Proven 12-week pilot playbook with guaranteed KPI targets
+    and allocation optimizer tied directly to MPS/MRP—difficult for horizontal
+    planning tools to replicate quickly.
+  customerSegments:
+    - >-
+      Primary: North American towable RV and camper OEMs (NAICS 336214) with
+      50–500 dealers and 5–50 model lines; buyers include VP Operations, VP
+      Supply Chain, Director S&OP, VP Sales Planning.
+    - >-
+      Secondary: Large dealer groups seeking collaborative planning/allocations
+      with OEMs.
+    - >-
+      Influencers: Component suppliers (axles, appliances, cabinetry) seeking
+      better pull signals; ERP/MRP system integrators; dealer management system
+      (DMS) vendors.
+  channels:
+    - >-
+      Direct enterprise sales to OEM HQs in Elkhart County and broader NA; 4–9
+      month sales cycles with pilot-led entry.
+    - >-
+      Alliances with ERP/MRP SIs familiar with RV OEMs; referral revenue sharing
+      (10–15%).
+    - >-
+      Partnerships with DMS vendors (IDS, Lightspeed) and SSI (registrations)
+      for co-marketing and integrated workflows.
+    - >-
+      Industry events and associations: RVIA, RVDA, NATDA Trailer Show, Elkhart
+      Open House; sponsor sessions on dealer allocation science.
+    - >-
+      Content-led growth: case studies, benchmark reports (forecast accuracy,
+      dealer dwell), webinars with SSI and integrators.
+    - >-
+      Executive roundtables with Ops/S&OP leaders; on-site workshops in Elkhart
+      with pilot ROI templates.
+  revenueStreams:
+    - >-
+      SaaS subscription (OEM license): tiered by scale. Essentials: $6,000/month
+      (≤100 dealers, ≤2 brands); Pro: $12,000–$18,000/month; Enterprise: custom
+      (multi-brand, >300 dealers).
+    - >-
+      Add-ons: Allocation optimizer ($3,000–$7,000/month), Component mix-to-MRP
+      module ($2,000–$5,000/month), Dealer portal ($2,000/month).
+    - 'Usage-based option: $15–$40 per shipped unit/yr (hybrid with minimums).'
+    - >-
+      Implementation/onboarding: $50,000–$250,000 one-time depending on ERP/DMS
+      integrations and data remediation.
+    - >-
+      Professional services: S&OP design, change management, custom analytics
+      ($200–$300/hr or fixed-scope packages).
+    - >-
+      Data bundles: SSI, macro/weather enrichment pass-through plus margin
+      (10–20%).
+  costStructure:
+    - 'R&D: data science/engineering salaries, industry SMEs.'
+    - >-
+      Cloud infra: compute for weekly training/scoring, storage, data pipeline
+      orchestration; target COGS 15–25% of ARR at scale.
+    - 'Data licensing: registrations (SSI), weather/fuel/macros.'
+    - 'Implementation/support: integration engineers, CSMs, training.'
+    - 'Sales/marketing: AE/SE comp, events, partner MDF.'
+    - 'Compliance/security: SOC 2 audits, penetration testing.'
+    - General/administrative.
+  keyMetrics:
+    - >-
+      Forecast accuracy: weekly WMAPE ≤ 22% on top-80% volume SKUs; MAPE and
+      MASE tracked; bias within ±5%.
+    - 'Service level: dealer OTIF ≥ 95%; backorder rate ≤ 3%.'
+    - >-
+      Inventory: finished-goods days on hand -15–25%; component expedites
+      -20–40%; inventory turns +25–50%.
+    - >-
+      Financial: gross margin ≥ 75%; net revenue retention ≥ 115%; CAC payback ≤
+      12 months; LTV/CAC ≥ 5x.
+    - >-
+      Adoption: forecast acceptance rate ≥ 80%; override/bias scorecards by
+      team; time to publish weekly plan ≤ 24 hours; active planner MAU ≥ 90%.
+    - >-
+      Implementation: time-to-first-forecast ≤ 6 weeks; full pilot ≤ 12 weeks
+      with ROI ≥ 5x annualized.
+    - >-
+      Data health: ingestion success ≥ 99%; latency < 2 hours; drift alerts/week
+      and MTTR.
+storyBrand:
+  character: >-
+    RV/travel trailer manufacturers (NAICS 336214) and their dealer networks who
+    need SKU/option-level demand clarity by dealer and region to drive MPS/MRP
+    and keep the right units on lots.
+  problem: >-
+    External: Option/package proliferation, seasonality, promotions, and
+    fragmented dealer POS data make forecasts unreliable and inventory
+    imbalanced. Internal: Ops and sales teams are guessing, MPS/MRP swings,
+    expediting rises, and dealers lose confidence. Philosophical: You should
+    build what will sell—at the dealer that needs it—without gambling every
+    planning cycle.
+  guide: >-
+    Empathy: We understand the 336214 realities—short selling seasons, regional
+    preferences, complex option bundles, floorplan limits, and OEM–dealer data
+    gaps. Authority: Our AI service ingests dealer POS/wholesale, registrations,
+    quotes, and external signals (events, weather, fuel, macro); produces
+    explainable SKU/option forecasts with bias tracking; and integrates to your
+    ERP/MRP and dealer reporting.
+  plan: >-
+    1) Data readiness: sign NDA, review the data spec, set a secure feed for
+    dealer POS/wholesale and product master. 2) Pilot: select 2–3 regions and
+    key models; train/validate; review accuracy, service-level impact, and
+    inventory aging. 3) Rollout: automate weekly forecasts, push to MPS/MRP and
+    dealer views; monitor accuracy and continuously improve.
+  callToAction: >-
+    Direct: Book a 30-minute demo or start a low-risk pilot. Transitional:
+    Request the data checklist and a sample SKU/option forecast report.
+  success: >-
+    Confident, explainable forecasts by model and option package at
+    dealer/region level; higher dealer fill rates and turns; fewer stockouts and
+    end-of-season carryover; smoother MPS/MRP with fewer expedites; aligned
+    sales–ops decisions; working capital optimized and dealers satisfied.
+  failure: >-
+    Continued over/under-building, stranded option packages, aging inventory and
+    markdowns, dealer friction, reactive expediting, missed sales in peak
+    season, and capital tied up where demand never materializes.
+landingPage:
+  hero:
+    title: Option‑Level Demand Forecasting for RV Manufacturers
+    subtitle: >-
+      Predict unit demand by model and option package at each dealer and region.
+      Align MPS/MRP with real retail pull to cut stockouts and aged inventory.
+    ctaText: See it in action
+    ctaHref: /demo
+  problem:
+    - >-
+      Allocations based on last year miss shifting local tastes for floorplans
+      and option packages.
+    - 'Seasonality, RV shows, and regional events whipsaw dealer orders.'
+    - 'Price, incentives, fuel costs, and interest rates shift demand mix weekly.'
+    - New model years and option refreshes break simple history-based planning.
+    - Spreadsheets can’t translate retail signals into MPS/MRP fast enough.
+    - Long supplier lead times and complex BOMs make the wrong mix expensive.
+    - Aged inventory increases floorplan costs; stockouts lose retail sales.
+  solution:
+    - Weekly forecasts at dealer × model × option package granularity.
+    - >-
+      Ingests retail registrations, dealer POS, quotes/leads, web traffic,
+      shows/events, weather, fuel prices, and macro data.
+    - Generates recommended allocations and build mix with confidence intervals.
+    - >-
+      Rolls forecasts to components for BOM/MRP; flags at-risk parts and
+      suppliers.
+    - >-
+      What‑if scenarios for pricing, promos, capacity, supplier constraints, and
+      new model launches.
+    - 'APIs/exports to ERP/MRP (e.g., SAP, Infor, Epicor, NetSuite).'
+    - 'Accuracy tracking (MAPE/WAPE), bias control, and service‑level targets.'
+  features:
+    - >-
+      Dealer and region‑level forecasts with roll‑ups to territory and national
+      views.
+    - Option/package mix modeling including cannibalization across trims.
+    - >-
+      Cold‑start forecasting for new models via analogs and attribute
+      similarity.
+    - 'Event‑ and seasonality‑aware models (RV shows, holidays, weather).'
+    - Price and incentive elasticity estimation to guide promo planning.
+    - >-
+      Constraint‑aware planning (MOQs, lead times, line and supplier
+      capacities).
+    - Safety stock and weeks‑of‑supply recommendations per SKU/location.
+    - BOM explosion to component demand with supplier schedule outputs.
+    - >-
+      Allocation engine to recommend dealer build slots and inter‑dealer
+      transfers.
+    - Dealer collaboration portal for overrides and consensus S&OP.
+    - >-
+      Dashboards for turns, aged inventory, service levels, and forecast error
+      with alerts.
+    - 'Data connectors to DMS/CRM, ERP, inventory, and registration data sources.'
+    - 'Secure, role‑based access; audit trails and versioned forecasts.'
+  steps:
+    - >-
+      Connect data: shipments, dealer sales, quotes/leads, inventory, BOM,
+      capacities, supplier lead times.
+    - >-
+      Map product catalog: models, option packages, trims; link to BOM items and
+      effectivity dates.
+    - 'Define regions, dealers, planning horizons, and service‑level targets.'
+    - >-
+      Run baseline forecast; review accuracy and key drivers with
+      explainability.
+    - >-
+      Simulate scenarios (pricing, promos, capacity, new models) and compare
+      outcomes.
+    - >-
+      Approve allocations and build mix; export to MPS/MRP and supplier
+      schedules.
+    - >-
+      Monitor turns and exceptions; capture dealer feedback and continuously
+      improve.
+---
+# TrailCast AI
+
+Generated for NAICS 336214 — Travel Trailer and Camper Manufacturing.
+Service: SKU/Option-Level Demand Forecasting for Dealers

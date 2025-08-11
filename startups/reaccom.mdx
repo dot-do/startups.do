@@ -1,0 +1,333 @@
+---
+name: ReAccom Planner AI (Passenger Reaccommodation Planner Bot)
+slug: reaccom
+naics:
+  primary: '481111'
+  occupations: []
+service:
+  title: Passenger Reaccommodation Planner Bot
+  description: >-
+    During disruptions, builds prioritized reaccommodation lists, searches
+    partner/own inventory, drafts offers and communications; optionally triggers
+    ticketing queues.
+  targetUsers:
+    - AOCC/IOC
+    - Customer Care
+    - Contact Center Leads
+  triggers:
+    - Cancellation or long delay event
+    - Predicted large misconnect cohort on banked hub waves
+  inputs:
+    - 'Affected PNRs with fare class, status, SSRs'
+    - 'Reaccom policy, invol rules, protection hierarchies'
+    - Own and partner availability via GDS/NDC
+    - MCTs and station constraints
+    - Refund/waiver policies
+  steps:
+    - Ingest affected PAX list and policy
+    - Cluster passengers by priority and special needs
+    - Search feasible itineraries across own/partners (time/cost/eligibility)
+    - Reserve/queue holds where allowed; draft assignment list
+    - Generate personalized comms and consent flows
+    - Handover to agents for final issuance or auto-issue if permitted
+  tools:
+    - 'Amadeus/Sabre/Travelport APIs or NDC aggregator (e.g., Duffel)'
+    - ATPCO Routehappy for product attributes
+    - Twilio SendGrid/WhatsApp/SMS
+    - Internal policy rules engine
+  outputs:
+    - Prioritized reaccom spreadsheet with itinerary options and costs
+    - Held segments or queued PNRs
+    - Ready-to-send passenger messages and IVR scripts
+    - Ops dashboard with recovery progress
+  pricingModel:
+    - Setup + per-affected-passenger fee
+    - Optional success fee per completed reaccom
+    - 24/7 on-call surcharge during peak seasons
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 7
+    modelCapability: 8
+    overall: 7
+  risks:
+    - Ticketing/EMD errors and ADM exposure
+    - Partner inventory access and fees
+    - Policy compliance across markets
+    - High-load API rate limits
+  dependencies:
+    - GDS/NDC credentials and PCCs
+    - Reaccom and waiver policy codification
+    - Data sharing agreements with partners
+leanCanvas:
+  problem:
+    - >-
+      Disruptions (cancellations, misconnects, long delays) affect 3–6% of
+      passengers; manual reaccommodation takes 6–20 minutes per PNR, creating
+      spikes in AHT and call center backlogs.
+    - >-
+      Agents lack unified view of own and partner capacity; cross-airline
+      rebooking often requires manual GDS work, leading to slow offers and
+      higher involuntary denied boarding (IDB) risk.
+    - >-
+      Unoptimized prioritization (status, fare value, misconnect risk, special
+      service needs) leads to revenue dilution, VIP churn, and non-compliance
+      with duty-of-care rules (EU261/UK261/Canada APPR/US DOT expectations).
+    - >-
+      Inconsistent, delayed passenger communications drive low NPS/CSAT during
+      IRROPS and increase compensation outlays and refund leakage.
+    - >-
+      Ticketing/reissue/EMD processing is often a separate queue, causing offer
+      expiry, seat loss, and rework.
+    - >-
+      Limited analytics on disruption spend and performance hinders continuous
+      improvement and regulatory reporting.
+  solution:
+    - >-
+      Real-time ingest of flight status, PNR/ticket/EMD, inventory/seatmaps, and
+      partner availability via NDC/EDIFACT/GDS.
+    - >-
+      Dynamic, rules+AI prioritization by revenue value, loyalty tier,
+      connection urgency, SSR needs, group logic, and regulatory obligations.
+    - >-
+      Multi-objective optimizer to select reaccom options across own network and
+      eligible partners: minimize total disruption cost (compensation, hotels,
+      meals, reaccom fare) while maximizing show rate and NPS.
+    - >-
+      Automated offer drafting (rebook, travel credits, hotel/meal vouchers) and
+      multichannel outbound comms (SMS, email, WhatsApp, in-app) with self-serve
+      acceptance links.
+    - >-
+      Agent-assist UI for exceptions with explainable recommendations and
+      one-click ticketing queue triggers (reissue/EMD) via PSS/NDC.
+    - >-
+      Closed-loop analytics for cost, speed, acceptance, comp exposure, and
+      regulatory reporting; A/B test comms and offer strategies.
+  uniqueValueProp: >-
+    AI-driven IRROPS brain that builds prioritized passenger lists, searches
+    own/partner inventory in real time, drafts best-cost/best-experience offers
+    with compliant communications, and optionally auto-triggers
+    ticketing—cutting time-to-first-offer from minutes to seconds while lowering
+    comp spend and call volume.
+  unfairAdvantage: >-
+    A pre-integrated optimizer that combines policy-aware prioritization,
+    cross-carrier search, and cost-compliance modeling—plus a growing dataset of
+    disruption outcomes and acceptance behavior that continuously improves offer
+    quality and timing. Deep PSS/NDC connectors and airline-grade playbooks
+    reduce time-to-value versus generalist chatbots or PSS-native modules.
+  customerSegments:
+    - >-
+      Network carriers (global and regional) operating interline/JV/alliances
+      with complex IROPS handling.
+    - >-
+      LCC/ULCC carriers seeking low-cost automation with clear rules and
+      customer comms.
+    - >-
+      Regional/commuter airlines that rely on partners’ networks and need fast
+      reaccom decisions.
+    - >-
+      Airline groups/alliances and JV entities coordinating cross-carrier
+      rebooking.
+    - Airline contact centers and airport stations needing agent-assist tooling.
+  channels:
+    - >-
+      Direct enterprise sales to airline operations/customer care/IT leadership
+      (VP Ops, VP CX, CIO).
+    - >-
+      Partnerships/marketplaces with PSS/GDS/NDC aggregators (e.g., Amadeus,
+      Sabre, Navitaire, selected NDC tech partners).
+    - >-
+      System integrators and airline BPOs for implementation and managed
+      services.
+    - >-
+      Industry events and councils (IATA WPS, World Aviation Festival,
+      APEX/IFSA, AGIFORS) with case-study led talks.
+    - >-
+      Pilot-led land-and-expand: 8–12 week limited-scope pilots at a mid-size
+      carrier with shared savings.
+    - >-
+      Thought leadership and benchmarks on IRROPS KPIs; targeted ABM to top-200
+      carriers.
+  revenueStreams:
+    - >-
+      Annual SaaS subscription tiered by passenger volume and modules:
+      $120k–$600k per airline/year.
+    - >-
+      Usage-based fee per disrupted passenger touched by the system: $0.30–$1.20
+      depending on features (own-only vs cross-carrier + auto-ticketing).
+    - >-
+      One-time implementation/integration fee: $60k–$300k based on PSS/GDS scope
+      and regions.
+    - >-
+      Premium add-ons: cross-carrier optimizer, duty-of-care module, advanced
+      analytics, on-call SRE/24x7, language packs.
+    - >-
+      Optional managed service (NOC augmentation during major events): per-hour
+      or per-event pricing.
+  costStructure:
+    - >-
+      R&D and product (engineering/ML/domain SMEs): $350k–$600k/month burn at
+      scale.
+    - >-
+      Cloud infrastructure (prod+DR+comms): $25k–$120k/month depending on
+      traffic; spikes during mass IROPS.
+    - >-
+      Third-party data/APIs (flight status, NDC aggregators, comms like
+      SMS/WhatsApp/email): $10k–$80k/month.
+    - 'Integrations/professional services team: $100k–$250k/month.'
+    - >-
+      Security/compliance (SOC 2/ISO 27001 audits, pen tests, PII tooling):
+      $150k–$400k annually.
+    - >-
+      Sales/marketing and industry participation: $300k–$800k annually;
+      travel/trade shows.
+    - Support/SRE for 24/7 coverage during IROPS peaks.
+  keyMetrics:
+    - >-
+      Auto-resolution rate: % of disrupted PAX auto-offered-and-accepted without
+      agent; target 35–60% in 6 months.
+    - >-
+      Time-to-first-offer (TTFO): median seconds from disruption to offer;
+      target <60s for single-leg, <180s for complex PNRs.
+    - >-
+      Average Handling Time (AHT) reduction for agent-assisted cases: target
+      -40% to -70%.
+    - >-
+      Offer acceptance rate: target 60–85% depending on scenario; track by
+      channel and language.
+    - >-
+      Compensation spend per disrupted PAX: target -10% to -25% through smarter
+      options and timing.
+    - >-
+      Call/contact deflection: -30% to -50% during IROPS windows; measure IVR
+      containment and digital self-serve usage.
+    - 'IDB incidents and downgraded pax: reduce by 20–40%.'
+    - 'NPS/CSAT during IRROPS flows: +10 to +20 points.'
+    - >-
+      Ticketing queue SLA: >95% processed within 5 minutes of acceptance; <1%
+      expiry-related fallouts.
+    - >-
+      System reliability: 99.95% uptime; peak scaling within 5 minutes; error
+      rate <0.5% per 1k PNR ops.
+storyBrand:
+  character: >-
+    Airline IRROPS, network ops, and customer care teams who must rapidly rebook
+    disrupted passengers at scale without blowing costs or loyalty.
+  problem: >-
+    - External: Weather, ATC, maintenance, and crew legality trigger mass
+    disruptions; manual prioritization and cross-carrier rebooking are slow and
+    inconsistent.
+
+    - Internal: Teams face fragmented data, angry queues, and time pressure;
+    every minute raises costs and CSAT risk.
+
+    - Philosophical: Passengers deserve proactive, fair reaccommodation—no one
+    should wait hours when a seat exists.
+  guide: >-
+    - Empathy: We’ve lived IRROPS and understand DOT/EU261, crew, and partner
+    constraints in real-time recovery.
+
+    - Authority: Proven at airline scale; integrates with host/GDS/NDC and
+    interline partners; SOC 2/GDPR ready; delivers measurable recovery KPIs.
+  plan: |-
+    - Process:
+      1) Connect PNR, schedule, inventory, and partner data
+      2) Configure policies and priority rules (loyalty, misconnects, SSRs, crew/legal)
+      3) Bot builds prioritized reaccommodation lists, searches own/partner options, drafts offers and messaging
+      4) Human approves; bot triggers ticketing/queues and sends comms; track outcomes
+    - Agreement:
+      - Low-risk pilot on selected hubs/routes
+      - Human-in-the-loop by default; no passenger contact without approval
+      - Security, compliance, audit logs, and clear SLAs
+  callToAction: >-
+    - Direct: Request a live demo and launch a 30–60 day pilot.
+
+    - Transitional: Get the IRROPS ROI calculator, recovery playbook, and
+    readiness checklist.
+  success: >-
+    - Faster recovery (minutes, not hours) and higher CSAT/NPS
+
+    - More proactive reaccommodations; fewer overnights and waivers
+
+    - Lower disruption costs (hotels/vouchers/handling) and protected
+    revenue/loyalty
+
+    - Reduced agent handle time; consistent, compliant decisions and
+    communications
+  failure: |-
+    - Long queues, social blowups, and compensation overruns
+    - Missed connections, legality busts, and partner disputes
+    - Lost revenue, brand damage, and regulator scrutiny
+landingPage:
+  hero:
+    title: Passenger Reaccommodation Planner Bot
+    subtitle: >-
+      AI that prioritizes disrupted passengers, finds seats across your network
+      and partners, drafts offers, and triggers ticketing—recover faster with
+      lower cost.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - Manual spreadsheets slow recovery during IRROPS
+    - Limited visibility to partner inventory delays rebooking
+    - 'Generic rules miss VIP, loyalty, and SSR priorities'
+    - Inconsistent comms drive call spikes and low acceptance
+    - Ticketing backlogs stall issuance and boarding
+    - Rising compensation and hotel costs erode margins
+  solution:
+    - 'Real-time ranking of disrupted PNRs by policy, value, and duty of care'
+    - >-
+      Search across own, codeshare, and interline inventory with cabin/fare
+      protection
+    - >-
+      Build compliant itineraries honoring MCT, SSRs, co-terminals, and crew/ops
+      constraints
+    - Auto-draft personalized offers with accept/decline and alternates
+    - Push SMS/email/app notifications in the passenger’s language
+    - Trigger ticketing queues or auto-issue involuntaries with full audit trail
+  features:
+    - >-
+      Policy engine: cabin protection, fare class, loyalty tier, SSR/UMNR/WCHR,
+      downgrade rules, reaccom windows, co-terminals
+    - >-
+      Network and partner search: O&D, alternate airports, connection
+      optimization; interline and codeshare aware
+    - >-
+      Operationally aware: MCT, misconnections, crew legality windows, equipment
+      changes
+    - >-
+      Inventory and seat protection: seat maps, family/bassinet, premium cabin
+      rules
+    - 'Ancillary carryover: paid seats, bags, EMDs, pets-in-cabin where permitted'
+    - >-
+      Offer orchestration: branded templates, multi-language, two-tap
+      acceptance, valid-until timers
+    - >-
+      Agent console: overrides, hold/confirm, batch actions, notes, full audit
+      trail
+    - >-
+      Ticketing integration: queue creation or auto invol reissue; EMD handling;
+      NDC/PSS/GDS compatible
+    - >-
+      Communications: SMS, email, app push; deep links to accept/decline;
+      escalation to agent
+    - >-
+      Analytics & KPIs: time-to-recover, acceptance rate, revenue retained,
+      compensation avoided, call deflection
+    - >-
+      Security & compliance: SOC 2-ready, GDPR/CCPA, encryption at rest/in
+      transit, RBAC and SSO
+    - 'Deployment: cloud or private VPC; pilot in 4–6 weeks with ROI dashboard'
+  steps:
+    - >-
+      Connect PSS/GDS/NDC, DCS, flight status, loyalty, and partner agreement
+      data
+    - Define prioritization and protection policies by market and segment
+    - 'Configure offer templates, languages, and escalation paths'
+    - 'Set ticketing rules: auto-issue vs. queue routing and approvals'
+    - Run a controlled pilot on selected hubs/routes during IRROPS window
+    - Go live network-wide and refine with analytics-driven policies
+---
+# ReAccom Planner AI (Passenger Reaccommodation Planner Bot)
+
+Generated for NAICS 481111 — Scheduled Passenger Air Transportation.
+Service: Passenger Reaccommodation Planner Bot

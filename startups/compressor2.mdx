@@ -1,0 +1,333 @@
+---
+name: Compressor Station Anomaly Triage Agent (CSATA)
+slug: compressor2
+service:
+  title: Compressor Station Anomaly Triage Agent
+  description: >-
+    Detects and ranks abnormal compressor behavior, proposes likely causes and
+    actions, and opens tickets with context.
+  targetUsers:
+    - Control room supervisors
+    - Reliability engineers
+    - Maintenance planners
+  triggers:
+    - Alarm bursts
+    - Hourly health check
+    - Operator ad-hoc request
+  inputs:
+    - 'Historian tags (pressures, temps, vibration, power, suction/discharge)'
+    - Alarm/event logs
+    - Ambient weather
+    - Maintenance/work order history
+    - Setpoint schedules
+  steps:
+    - Pull last 24–72h of tags and alarms for target units
+    - Clean and align data; detect sensor dropouts
+    - Model expected behavior vs. ambient and load; flag anomalies
+    - Cluster alarms; rank by risk/production impact
+    - Generate probable-cause list with evidence and recommended checks
+    - Open/annotate ticket and notify on Teams/Slack/PagerDuty
+    - Track resolution outcome for model learning
+  tools:
+    - OSIsoft/AVEVA PI or historian API
+    - OPC-UA/MQTT gateways (read-only)
+    - Python/SQL + time-series libs
+    - Anomaly detection models (isolation forest/autoencoder)
+    - Grafana/Power BI for dashboards
+    - ServiceNow/Maximo/SAP PM API
+    - 'Teams/Slack, PagerDuty'
+  outputs:
+    - Triage report with ranked issues and recommended actions
+    - Auto-created/updated work orders with context
+    - Station health scorecard
+  pricingModel:
+    - One-time setup per station
+    - Monthly subscription per station
+    - Optional per-incident overage after N triages
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8.5
+  risks:
+    - False positives/negatives causing alarm fatigue
+    - Data quality gaps or historian latency
+    - Change management with control room procedures
+  dependencies:
+    - Read-only historian access
+    - Ticketing/EAM API access
+    - Asset metadata and P&IDs
+    - Operator SOPs for escalation
+leanCanvas:
+  problem:
+    - >-
+      Alarm floods and high false-positive rates in SCADA/historian systems
+      overwhelm control rooms, delaying true issue detection.
+    - >-
+      Unplanned compressor outages (surge, seal failure, valve wear, lube-oil
+      issues) are detected late, increasing MTTR and throughput losses.
+    - >-
+      Root-cause analysis depends on scarce rotating-equipment experts;
+      knowledge is fragmented across OEMs and shifts.
+    - >-
+      Tickets/work orders lack precise context (time window, tags, operating
+      regime), slowing field response and parts readiness.
+    - >-
+      Threshold/rule-based alarms do not adapt to seasonal load, ambient
+      conditions, or unit-specific behavior.
+    - >-
+      Multi-OEM fleets (centrifugal/recip; Solar, Siemens, GE/BH, Ariel) create
+      inconsistent diagnostics across sites.
+    - >-
+      Regulatory incident reporting (PHMSA) requires structured evidence and
+      audit trails that are manual and error-prone.
+    - >-
+      Cyber and data-transfer constraints (air-gapped, one-way diodes) hinder
+      advanced analytics deployment.
+    - >-
+      Inconsistent triage prioritization leads to suboptimal dispatch and
+      unnecessary shutdowns.
+    - >-
+      Retirements and turnover risk loss of institutional know-how for fault
+      signatures and corrective actions.
+  solution:
+    - >-
+      Non-intrusive data integration with historians (e.g., OSIsoft PI/AVEVA,
+      Aspen IP.21, Honeywell PHD) via read-only connectors/OPC UA; optional edge
+      agent for air-gapped sites.
+    - >-
+      Unit-specific baseline modeling that adapts to ambient conditions and
+      operating regimes (load, speed, suction/discharge pressure, temperature,
+      vibration, lube-oil variables).
+    - >-
+      Real-time anomaly scoring with severity and risk-of-impact (throughput
+      loss, emissions, equipment damage) using hybrid ML + physics-informed
+      features.
+    - >-
+      Triage reasoning using a compressor fault library (surge, fouling, valve
+      wear, seal leak, pulsation issues, bearing degradation, lube-oil faults)
+      with confidence ranking and differentiating look-alikes.
+    - >-
+      Action generator producing operator-verified steps (e.g., reduce load
+      5–10%, inspect lube filters, verify anti-surge controller) and parts
+      suggestions with estimated time-to-failure/urgency.
+    - >-
+      Auto-ticket creation in EAM/CMMS (ServiceNow, Maximo, SAP PM) with time
+      windows, tag snapshots, plots, and suggested work type/priority, plus
+      linkage to SOPs and MOC where relevant.
+    - >-
+      Alarm hygiene: suppression/de-duplication and dynamic thresholds compliant
+      with API RP 1167; reduces alarm floods without hiding safety-critical
+      alerts.
+    - >-
+      Human-in-the-loop feedback to accept/override diagnoses; system learns
+      from operator input and post-mortems to improve precision/recall.
+    - >-
+      Security-by-design deployment options: on-prem/edge, private VPC, or
+      hybrid; support for one-way data diodes and zero-trust access; full audit
+      trails.
+    - >-
+      Outcomes dashboard quantifying avoided downtime hours, MTTR reduction,
+      false alarm reduction, and emissions avoidance for ROI tracking and
+      compliance.
+  uniqueValueProp: >-
+    AI triage that continuously detects, ranks, and explains compressor
+    anomalies, recommends likely causes and actions, and auto-opens context-rich
+    tickets—cutting nuisance alarms 40–60%, reducing MTTR 20–30%, and preventing
+    costly unplanned downtime while supporting API/PHMSA-aligned auditability.
+  unfairAdvantage: >-
+    A curated, operator-verified compressor fault library spanning multi-OEM
+    fleets; production-proven connectors to major historians/EAMs; and
+    human-in-the-loop learning tied to API/PHMSA-aligned audit trails—creating a
+    data moat and compliance credibility that is hard to replicate.
+  customerSegments:
+    - Midstream natural gas transmission operators (interstate/intrastate).
+    - >-
+      Gas gathering and processing companies with booster/reinjection
+      compressors.
+    - Underground storage operators (withdrawal/injection compressors).
+    - LNG pipeline feed and plant utilities teams.
+    - Control room operators and shift supervisors.
+    - Reliability/maintenance engineering and rotating-equipment SMEs.
+    - Asset performance management (APM) and integrity management teams.
+    - >-
+      Third-party O&M service providers and system integrators supporting
+      pipeline assets.
+    - >-
+      Operations leadership (VPS Ops) focused on throughput, safety, and
+      compliance.
+  channels:
+    - >-
+      Direct enterprise sales targeting top 50 North American midstream
+      operators (ABM with 1:1 plays).
+    - >-
+      OEM/controls partnerships (Solar Turbines/Caterpillar Energy Solutions,
+      Siemens/Dresser-Rand, Baker Hughes/Nuovo Pignone, Ariel, Woodward, Bently
+      Nevada) for co-sell and referral.
+    - >-
+      SCADA/historian vendors and SIs (AVEVA/OSIsoft partners, Honeywell, ABB,
+      Emerson, Accenture, Wood, TechnipFMC) for integration bundles.
+    - >-
+      Cloud marketplaces (AWS/Azure) with private offers and committed-spend
+      alignment for IT procurement ease.
+    - >-
+      Industry associations and JIPs: PRCI, GPA Midstream, AGA—pilot programs
+      and validation studies.
+    - >-
+      Pilot-led GTM: 8–12 week paid pilots per region with clear success
+      criteria and executive sponsors; convert to multi-year rollouts.
+    - >-
+      Events and thought leadership: API Pipeline Conference, GPA Midstream
+      Convention, papers on alarm reduction and MTTR impact.
+    - >-
+      Customer success playbooks: operator training, brown-bag sessions, and
+      quarterly value reviews tied to KPIs.
+    - >-
+      Regulatory and cybersecurity alignment marketing (API 1164/1165/1167, TSA
+      Pipeline Security Directives, IEC 62443) to reduce buyer risk.
+  revenueStreams:
+    - >-
+      Annual subscription per compressor station: $30k–$60k, tiered by number of
+      compressor units and data rate.
+    - >-
+      Enterprise license (fleet-wide) with volume discounts and multi-year
+      commitments (5–15% discount).
+    - >-
+      Implementation/integration fees: $25k–$150k per site
+      (complexity-dependent, includes connectors and initial model calibration).
+    - 'Premium support/SLA (24x7, <15-min response): +15–25% of ARR.'
+    - >-
+      Professional services: tuning, incident investigations, OEM template
+      mapping, training ($200–$300/hr or packaged).
+    - >-
+      Optional edge appliance rental/managed service ($500–$1,500/month per
+      site).
+    - >-
+      Performance-based bonuses (shared savings) for qualified customers, capped
+      to reduce procurement friction.
+  costStructure:
+    - >-
+      R&D staff (ML engineers, data engineers, rotating-equipment SMEs,
+      reliability engineers).
+    - >-
+      Data labeling and incident reconstruction (internal SMEs + customer
+      workshops).
+    - >-
+      Cloud/edge infrastructure (compute, storage, streaming, monitoring) or
+      on-prem deployment packaging.
+    - Integration/implementation labor and SI partner margins.
+    - >-
+      Security/compliance: SOC 2 Type II, IEC 62443-4-1/-3-3 alignment, secure
+      SDLC, penetration tests.
+    - 'Customer success and support (24x7 on-call, runbooks, SRE).'
+    - 'Sales/marketing (ABM, events, pilots), legal, and insurance (cyber, E&O).'
+    - Hardware for edge appliances (if provided) and spares.
+    - >-
+      Certification/membership fees (PRCI/GPA Midstream) and participation in
+      JIPs.
+    - Depreciation/amortization of connector libraries and fault-model IP.
+  keyMetrics:
+    - >-
+      Precision/recall of anomaly triage per unit (target: precision ≥0.8,
+      recall ≥0.7 in production; improve quarterly).
+    - >-
+      False alarm reduction vs baseline alarm floods (target: 40–60% reduction
+      within 90 days).
+    - 'Mean triage latency (target: P95 <30s from event to recommendation).'
+    - >-
+      MTTR reduction for compressor-related incidents (target: 20–30% vs prior 6
+      months).
+    - >-
+      Avoided unplanned downtime (hours) and throughput protected (MMscf) per
+      station per quarter.
+    - >-
+      Ticket quality: % of tickets with complete context (target: >95%) and
+      time-to-open (target: <2 minutes).
+    - >-
+      Operator adoption: % of recommendations actioned (target: >60% at 6
+      months) and feedback provided (target: >50% of alerts).
+    - >-
+      Model drift incidents per quarter and time-to-retrain (target: <2 weeks
+      from detection).
+    - >-
+      Safety/compliance: % of incidents with complete audit trail (target:
+      100%), near-miss detection rate.
+    - >-
+      Commercial: pilot conversion rate (target: >60%), logo retention (>95%),
+      NRR (≥115%), CAC payback (<12 months).
+storyBrand:
+  character: >-
+    Pipeline operations leaders and control room engineers responsible for safe,
+    reliable compressor station uptime and throughput.
+  problem: >-
+    Subtle anomalies are missed while alarms are noisy; root causes are unclear,
+    leading to unplanned trips, wasted truck rolls, emissions risk, and
+    compliance exposure.
+  guide: >-
+    Compressor Station Anomaly Triage Agent: an AI service that continuously
+    detects and ranks abnormal compressor behavior, explains likely causes and
+    actions, and opens context-rich tickets in your CMMS. Integrates with your
+    historian/SCADA and keeps operators in control with clear confidence and
+    rationale.
+  plan: >-
+    1) Connect historian/SCADA and CMMS; define assets and operating envelopes.
+    2) Pilot to baseline, tune thresholds, and validate triage and ticket flows.
+    3) Go live with 24/7 ranked anomalies, cause hypotheses, recommended next
+    steps, auto-opened tickets, and weekly review summaries.
+  callToAction: Book a 30-minute demo and start a 60-day pilot at two stations.
+  success: >-
+    Teams focus on the right issues, MTTR drops, nuisance alarms decline, fewer
+    surprise outages and emission events, improved throughput and asset health,
+    and audit-ready context.
+  failure: >-
+    Do nothing and hidden degradation persists, alarms drown signal, outages and
+    callouts increase, OPEX climbs, and compliance exposure grows.
+landingPage:
+  hero:
+    title: Compressor Station Anomaly Triage Agent
+    subtitle: >-
+      Real-time detection, root-cause suggestions, and auto-ticketing for
+      natural gas compressor stations.
+    ctaText: Start a pilot
+    ctaHref: /start-pilot
+  problem:
+    - Unplanned compressor trips and derates erode throughput.
+    - Operators drown in alarms; real issues hide in the noise.
+    - Inconsistent triage across shifts increases risk and cost.
+    - Delayed escalation extends MTTR and impacts nominations.
+    - False positives cause unnecessary call-outs and fatigue.
+    - Limited context in tickets slows maintenance response.
+  solution:
+    - Continuously monitors telemetry to flag abnormal behavior early.
+    - 'Ranks events by severity, probability, and operational impact.'
+    - Explains likely causes with confidence and supporting signals.
+    - 'Recommends next actions, safety checks, and who to notify.'
+    - Auto-creates tickets in your CMMS/ITSM with full context.
+    - Learns from operator feedback to reduce noise over time.
+  features:
+    - >-
+      Multi-signal detection across vibration, temperature, pressure, flow,
+      power, and fuel rate.
+    - Models for reciprocating and centrifugal compressors.
+    - Context-aware scoring using station constraints and throughput.
+    - Root-cause hypotheses with feature attribution and signal traces.
+    - 'Playbooks for triage: setpoint checks, valve lineups, LOTO reminders.'
+    - 'One-click dispatch and auto-routing to SAP PM, Maximo, ServiceNow.'
+    - 'Historian and SCADA integrations: OPC UA, Modbus, PI, MQTT.'
+    - Edge and cloud deployment with store-and-forward resilience.
+    - Data quality monitoring and missing-signal handling.
+    - 'Role-based alerts via SMS, email, and Teams.'
+    - Audit trail and compliance-ready reporting.
+    - 'Secure by design: read-only data paths and least-privilege access.'
+  steps:
+    - Connect to your SCADA/historian through a secure connector.
+    - Ingest 60–90 days of data to learn normal operating envelopes.
+    - Validate station models and alert thresholds with your team.
+    - Review first anomalies with ranked causes in the console.
+    - Enable auto-ticketing and on-call notifications.
+    - 'Track outcomes: downtime avoided, MTTR, and false-alarm rate.'
+---
+# Compressor Station Anomaly Triage Agent (CSATA)
+
+Industry: Pipeline Transportation of Natural Gas
+Service: Compressor Station Anomaly Triage Agent

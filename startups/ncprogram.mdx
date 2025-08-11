@@ -1,0 +1,360 @@
+---
+name: >-
+  NC Program Safety Checker (Lathes/Swiss) — AI service for Precision Turned
+  Product Manufacturing
+slug: ncprogram
+service:
+  title: NC Program Safety Checker (Lathes/Swiss)
+  description: >-
+    Static and simulated checks of G-code for limits, overtravel, unsafe states,
+    and dialect issues.
+  targetUsers:
+    - NC programmers
+    - Leads/supervisors
+    - Quality
+  triggers:
+    - New/edited post
+    - Before first-article run
+  inputs:
+    - G-code
+    - Machine kinematics/limits
+    - Tool list/offsets
+    - Stock/bar setup
+  steps:
+    - Parse G/M codes and parameters
+    - 'Check speed/feed limits, canned cycle usage, safe start/stop blocks'
+    - Detect potential overtravel/axis reversal near chuck/sub
+    - Simulate key moves; flag rapids near fixtures
+    - Report dialect mismatches (Fanuc/Mori variants)
+    - Suggest fix patches
+  tools:
+    - G-code parser
+    - Machine model library
+    - 'NC simulation API (e.g., CAMotics, NC Viewer)'
+    - Rules engine
+    - Slack/Teams notifications
+  outputs:
+    - Risk report with line refs
+    - Annotated G-code with suggestions
+    - Go/No-Go summary
+  pricingModel:
+    - Per-program check
+    - Per-machine monthly
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 8
+    overall: 8
+  risks:
+    - False negatives on complex macros
+    - Machine-specific M-code quirks
+    - Liability if missed issue
+  dependencies:
+    - Access to post and machine parameter set
+    - Tool/offset sheets
+leanCanvas:
+  problem:
+    - >-
+      Expensive crashes and overtravel alarms on lathes/Swiss machines cause
+      unplanned downtime ($500–$1,500/hour) and scrap (single crash can cost
+      $10k–$100k+).
+    - >-
+      High-mix/low-volume work and frequent post edits create inconsistent
+      G-code quality and modal-state mistakes (units, G94/G95, G90/G91, coolant,
+      tool offsets).
+    - >-
+      Dialect differences (Fanuc vs Okuma OSP vs Siemens vs Mitsubishi vs Haas;
+      Swiss M-code packs for Citizen/Star/Tsugami) cause subtle, hard-to-catch
+      errors.
+    - >-
+      Manual program reviews are slow, inconsistent, and depend on a few
+      experts; turnover and shift work increase risk.
+    - >-
+      Full digital twin simulation tools are expensive, milling-centric, or lack
+      deep turning/Swiss safety-state checks; many shops skip or underuse them.
+    - >-
+      Existing backplotters rarely check machine limits, safety interlocks,
+      sub-spindle sync, or bar feeder/part catcher sequences.
+    - >-
+      OEM collision-avoidance options are machine-specific, costly, and don’t
+      catch dialect/post issues before DNC transfer.
+    - >-
+      Auditable safety processes for ISO 9001/13485/AS9100 require consistent
+      pre-machine validation, which is difficult to maintain.
+  solution:
+    - >-
+      Dialect-aware G-code static analysis: parse and lint turning/Swiss
+      programs for modal pitfalls (units, absolute/incremental, feed per rev vs
+      per minute), offset calls, canned cycles, macro ranges, tool call
+      consistency.
+    - >-
+      Machine envelope/limit checking: verify programmed moves against
+      configured axis travels, spindle speeds, torque limits,
+      chuck/tailstock/bushing positions, and turret index clearance envelopes.
+    - >-
+      Safety-state tracking: model chuck clamp/unclamp, spindle states, coolant,
+      live tooling engagement, synchronization (M-codes, wait codes), bar feeder
+      and part catcher sequences, sub-spindle handoffs.
+    - >-
+      Fast lightweight simulation for turning/Swiss: kinematics-aware motion
+      check (no heavy graphics required) to catch collisions/overtravel and
+      unsafe retractions; optional visual backplot and clearance cones.
+    - >-
+      Dialect packs: Fanuc, OSP, Siemens, Mitsubishi, Haas; Swiss OEM packs
+      (Citizen/Star/Tsugami) with M-code semantics and sync codes; customizable
+      post profiles per customer.
+    - >-
+      Integration points: CAM post-export hook, DNC/NC program managers (CIMCO,
+      Predator), MES/ERP (ProShop), and a REST API/CLI for CI pipelines;
+      optional on-prem agent.
+    - >-
+      Human-in-the-loop workflow: configurable policies to block/allow with
+      warnings, assign review tasks, capture e-signoff; auto-generate PDF/JSON
+      compliance reports attached to traveler/FAI.
+    - >-
+      Analytics and continuous learning: track incidents, near-misses,
+      false-positive/negative resolutions; adapt rules to shop-specific posts
+      and machines; library updates pushed monthly.
+  uniqueValueProp: >-
+    AI-driven, dialect-aware static analysis plus fast machine-aware simulation
+    for lathes and Swiss that flags overtravel, unsafe states, and post/dialect
+    mismatches before the program hits the machine—cutting crashes by 50%+ and
+    sign-off time by 30% while creating auditable safety trails.
+  unfairAdvantage: >-
+    Deep specialization in turning/Swiss safety states and dialect semantics
+    (beyond generic backplot or milling-focused simulation), combined with a
+    growing proprietary rule and machine-model library co-developed with
+    OEM/dealer partners and reinforced by anonymized real-world program feedback
+    loops. This enables faster, more accurate, and cheaper pre-machine safety
+    checks with auditable workflows that fit regulated shops.
+  customerSegments:
+    - >-
+      Precision Turned Product Manufacturers (NAICS 332721), 20–200 employees;
+      medical device, aerospace/defense, connectors, fluid/pneumatic fittings.
+    - >-
+      Swiss-type lathe shops (Citizen, Star, Tsugami) doing high-mix components
+      with tight tolerances and lights-out runs.
+    - >-
+      Contract manufacturers with 3+ CNC lathes/turning centers (Haas, Okuma,
+      Mazak, Doosan, DMG MORI) and centralized programming teams.
+    - >-
+      Tier-1/Tier-2 suppliers requiring documented program verification for
+      compliance (ISO 9001/13485/AS9100).
+    - >-
+      CAM programming teams using Esprit, Mastercam, PartMaker, GibbsCAM,
+      TopSolid, Fusion 360 for turning/Swiss toolpaths.
+    - >-
+      Quality/Manufacturing Engineering leaders seeking to reduce incidents and
+      speed up first-article approvals.
+    - >-
+      Machine tool dealers/tech centers that want a value-add safety layer with
+      their machine and training packages.
+    - >-
+      Industrial insurers and brokers interested in risk reduction at insured
+      shops.
+  channels:
+    - Direct sales to mid-market precision turned parts shops via SDR/AE motion.
+    - >-
+      Partnerships with CAM resellers (Esprit, Mastercam, PartMaker, GibbsCAM)
+      and machine tool dealers (Citizen/Star/Tsugami/Okuma/Mazak distributors).
+    - >-
+      Alliances with DNC/MES vendors (CIMCO, Predator, ProShop) to bundle safety
+      checks pre-DNC transfer.
+    - >-
+      Industrial insurers/brokers offering premium incentives for enrolled
+      shops; co-marketing with risk engineering teams.
+    - >-
+      Trade shows and events: PMTS, IMTS, WESTEC, regional Swiss open houses and
+      dealer demo days; live crash-prevention demos.
+    - >-
+      Content-led growth: case studies, crash cost calculators, “G-code safety”
+      guides for turning/Swiss, webinars with SMEs.
+    - >-
+      Bottom-up product-led growth: free CAM plugin for basic linting; upgrade
+      in-app to Pro/Enterprise.
+    - >-
+      Community and associations: PMPA, NTMA, SME chapters; sponsor technical
+      talks and training.
+  revenueStreams:
+    - >-
+      SaaS subscriptions: Starter $99/user/month (static lint, basic limit
+      checks); Pro $299/machine/month (machine-aware checks, dialect packs, team
+      admin); Enterprise $799/machine/month (digital-twin sim where supported,
+      SSO/on-prem, priority SLA).
+    - >-
+      Professional services: machine model onboarding ($2,000/machine), custom
+      rule packs ($150/hour), training/workshops ($2,500/team).
+    - >-
+      API usage: per-check overage for high-volume CI pipelines
+      ($0.05–$0.10/program after plan quota).
+    - >-
+      Premium support and validation: annual validation package for regulated
+      customers ($10k/year) with documented test protocols and audit assistance.
+    - >-
+      Co-marketing/partner bundles: revenue share with dealers/resellers (10–25%
+      of first-year ARR).
+  costStructure:
+    - >-
+      R&D engineering (parsers, rule engine, kinematics/simulation, plugins):
+      6–10 FTEs.
+    - 'Manufacturing domain SMEs and rule authors: 2–4 FTEs/contractors.'
+    - >-
+      Cloud infrastructure (compute, storage, CI): scale target <$0.005 per
+      static check; <$0.05 per simulated check; monthly $8k–$25k at early scale.
+    - >-
+      QA/lab and reference machines or OEM technical center access:
+      $5k–$15k/month (or in-kind via partners).
+    - >-
+      Sales/marketing: SDR/AE team, events (IMTS/PMTS booths), content
+      production; partner commissions 10–25%.
+    - >-
+      Customer success and support: 2–4 FTEs for onboarding, rule tuning,
+      enterprise SLAs.
+    - >-
+      Legal/insurance and certifications (SOC 2, ISO-aligned processes),
+      $50k–$150k/year.
+  keyMetrics:
+    - >-
+      Safety impact: reduce crash/overtravel incidents per 10,000 programs by
+      50% within 6 months of deployment (pilot KPI).
+    - >-
+      Quality gate effectiveness: 1–4% of submitted programs blocked or flagged
+      in first 90 days; <5% false positive rate after tuning; <1% false negative
+      on seeded failure set.
+    - >-
+      Time-to-approve: cut programmer/ME review time by 30% and first-article
+      setup time by 20% within 3 months.
+    - >-
+      Performance SLAs: static check p95 <5s; simulation p95 <60s; service
+      uptime ≥99.9%.
+    - >-
+      Coverage: support 90%+ of common Fanuc/OSP/Haas/Mitsubishi/Siemens turning
+      codes on day 1; reach 95% coverage of customer’s code usage within 60
+      days.
+    - >-
+      Adoption: weekly active programmers (WAP), programs checked per machine
+      per week, % of machines with policy enforcement enabled (>80% by month 3).
+    - >-
+      Commercial: logo retention ≥95% annually; net revenue retention ≥120%; CAC
+      payback <9 months; sales cycle 60–90 days mid-market.
+    - >-
+      Quality of models: simulation-vs-machine reality alignment ≥95% on
+      measured envelopes; rule regression suite pass rate ≥99% monthly.
+storyBrand:
+  character: >-
+    CNC programmers and process engineers in precision turned-part shops who
+    need to release safe, production-ready NC programs for lathes and Swiss
+    machines—fast and with confidence.
+  problem: >-
+    External: G-code mistakes, machine-dialect mismatches, and overtravel cause
+    crashes, scrap, and downtime. Internal: Prove-outs are stressful and slow;
+    confidence drops under delivery pressure. Philosophical: It shouldn’t take a
+    crash to learn—safety should be built into programming.
+  guide: >-
+    Empathy: We’ve stood at the machine sweating first-part runs; crashes are
+    costly and demoralizing. Authority: Built by CNC and AI veterans; validated
+    on thousands of lathe/Swiss programs; supports major controls (Fanuc, Okuma,
+    Mitsubishi; Citizen/Star/Tsugami) and shop workflows.
+  plan: >-
+    Process plan: 1) Upload/post G-code with machine and setup. 2) Run static
+    checks (limits, interlocks, unsafe states, dialect). 3) Simulate kinematics
+    for overtravel/collisions. 4) Get flagged lines with explanations and safe
+    edits. 5) Export verified code and a compliance report. Agreement plan:
+    Read-only by default, your approval for any edits, encrypted storage, easy
+    DNC/PLM integration.
+  callToAction: >-
+    Direct: Start a free safety scan or book a 20‑minute demo. Transitional:
+    Download a sample safety report and the Swiss/lathe crash‑prevention
+    checklist.
+  success: >-
+    Zero‑crash releases, faster prove‑outs, fewer tool and spindle incidents,
+    standardized programming across machines/shifts, on‑time shipments, and
+    measurable risk reduction per program.
+  failure: >-
+    Avoid crashes, broken tools, machine damage, overtime prove‑outs, missed
+    delivery dates, and costly rework triggered by subtle G‑code and dialect
+    errors.
+landingPage:
+  hero:
+    title: NC Program Safety Checker for Lathes & Swiss
+    subtitle: >-
+      AI preflight for G-code—catch overtravel, unsafe states, and dialect
+      mismatches before Cycle Start.
+    ctaText: Start free trial
+    ctaHref: /start-free-trial
+  problem:
+    - >-
+      Crashes and overtravel from tiny code oversights cost time, tools, and
+      spindles.
+    - >-
+      Dialect differences (Fanuc/Okuma/Siemens/Citizen/Star/Tsugami) trigger
+      alarms on the floor.
+    - Multi-channel sync and sub-spindle handoffs are hard to validate by eye.
+    - Last-minute prove-outs burn spindle time and derail schedules.
+    - 'Post quirks and shop edits create inconsistent, risky programs.'
+    - Manual checklists miss edge cases; tribal knowledge doesn’t scale.
+  solution:
+    - Automated static linting flags unsafe states and code smells in seconds.
+    - >-
+      Physics-aware simulation verifies limits, kinematics, and collisions
+      before the machine sees code.
+    - >-
+      Dialect-aware parsing prevents G/M-code incompatibilities per control and
+      machine.
+    - >-
+      Swiss-specific logic validates guide bushing, pickup, cutoff, re-grip, and
+      C-axis locking.
+    - Severity-ranked warnings with suggested fixes reduce rework and risk.
+    - >-
+      Export machine-safe code plus an audit-ready report for signoff and
+      traceability.
+  features:
+    - >-
+      Static checks: overtravel, rapid-to-stock, invalid modal states, orphaned
+      tool/offset calls, feed/speed sanity, G28/G53 misuse.
+    - >-
+      Simulation: axis envelopes, turret/part collisions, spindle sync, bar
+      feeder/part catcher paths, safe approach/retract.
+    - >-
+      Dialect packs: Fanuc/ISO, Okuma, Siemens, Mazak, Citizen, Star, Tsugami,
+      Tornos—tuned to your options and macros.
+    - >-
+      Multi-channel sync validation: wait codes, handshakes, and timing across
+      main/sub spindles and turrets.
+    - >-
+      Swiss lathe rules: guide bushing clearance, cutoff and pickup sequencing,
+      re-grip checks, C-axis lock/unlock states.
+    - >-
+      Threading/cycle checks: G76/G71/G72 parameter validation, canned cycle
+      ranges, plane and polar mode consistency.
+    - >-
+      Auto-fixes: safe retracts, plane/mode priming, speed clamp normalization,
+      coolant/spindle/chuck sequencing.
+    - >-
+      Tooling context: import tools from CAM, include stick-out and offsets;
+      verify reach and interference.
+    - >-
+      Severity scoring with plain-language explanations and direct code links;
+      visual diff of proposed changes.
+    - >-
+      Reports: versioned results, e-sign signoff, PPAP-ready artifacts with
+      timestamps and machine profiles.
+    - >-
+      Integrations: CAM plug-ins, DNC/MDC connectors, REST API/CLI; works
+      offline or in the cloud.
+    - >-
+      Security-first: on-prem option, end-to-end encryption, role-based access,
+      private machine libraries.
+  steps:
+    - Select your machine and control profile.
+    - Upload G-code or paste NC text.
+    - Import tools/offsets and set stock/bar diameter.
+    - Run static checks to catch immediate risks.
+    - Simulate kinematics and review the event timeline.
+    - Apply suggested fixes or approve changes with a visual diff.
+    - Export safe NC and a signed report; send to DNC or your machine.
+---
+# NC Program Safety Checker (Lathes/Swiss) — AI service for Precision Turned Product Manufacturing
+
+Industry: Precision Turned Product Manufacturing
+Service: NC Program Safety Checker (Lathes/Swiss)
