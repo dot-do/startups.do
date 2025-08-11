@@ -4,15 +4,30 @@ import { landingPricing } from './landingPricing'
 import { landingFaq } from './landingFaq'
 import { landingFeatures1 } from './landingFeatures1'
 import { landingMetadata } from './landingMetadata'
+import type { Hero1Props } from '@/components/landing/hero-1'
+import type { Features2Props } from '@/components/landing/features-2'
+import type { PricingProps } from '@/components/landing/pricing'
+import type { FaqProps } from '@/components/landing/faqs'
+import type { CtaProps } from '@/components/landing/cta'
 
 export type LandingSections = {
-  hero?: unknown
-  cta?: unknown
-  features1?: unknown
-  features2?: unknown
-  pricing?: unknown
-  faq?: unknown
-  metadata?: unknown
+  hero?: Omit<Hero1Props, 'className'>
+  cta?: CtaProps
+  features1?: unknown // TODO: Add Features1Props when available
+  features2?: Features2Props
+  pricing?: PricingProps
+  faq?: FaqProps
+  metadata?: {
+    title: string
+    description: string
+    keywords: string[]
+    ogTitle: string
+    ogDescription: string
+    ogImage?: string
+    twitterTitle: string
+    twitterDescription: string
+    canonicalUrl?: string
+  }
 }
 
 export async function generateLandingSections(

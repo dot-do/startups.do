@@ -87,4 +87,5 @@ import {
   };
   
   export { Faq };
+  export type { FaqProps, FaqItem };
   

@@ -65,3 +65,4 @@ const Cta = ({
 };
 
 export { Cta };
+export type { CtaProps };

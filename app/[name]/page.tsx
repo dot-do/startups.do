@@ -43,24 +43,24 @@ export default async function Page({ params }: { params: Promise<{ name: string 
     .filter(Boolean)
     .join('\n')
 
-  await cachedSectionsFor(name, businessIdea, additionalContext)
+  const sections = await cachedSectionsFor(name, businessIdea, additionalContext)
 
   return (
     <>
       <div className="mx-auto px-6 lg:px-8">
         <Navbar />
       </div>
-      <Hero1 />
+      <Hero1 {...(sections.hero || {})} />
       <main className="mx-auto max-w-7xl px-6 lg:px-8">
         <section id="features">
-          <Features2 />
+          <Features2 {...(sections.features2 || {})} />
         </section>
         <section id="pricing">
-          <Pricing />
+          <Pricing {...(sections.pricing || {})} />
         </section>
-        <Faq />
+        <Faq {...(sections.faq || {})} />
         <section id="contact">
-          <Cta />
+          <Cta {...(sections.cta || {})} />
         </section>
       </main>
       <Footer />
@@ -83,7 +83,7 @@ export async function generateMetadata({ params }: { params: Promise<{ name: str
     desc = (doc.data as any)?.tagline || `Explore the AI-generated startup concept for ${title}`
   } catch {}
   return {
-    title: `${title} - AI Generated Startup`,
+    title,
     description: desc
   }
 }
