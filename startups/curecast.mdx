@@ -316,3 +316,367 @@ landingPage:
 
 Generated for NAICS 327331 — Concrete Block and Brick Manufacturing.
 Service: Demand Forecasting & Capacity-Constrained Production Planning
+
+## Business Workflow Functions
+
+```typescript
+// Core business process types
+interface Lead {
+  id: string;
+  companyName: string;
+  contactInfo: ContactInfo;
+  plantCount: number;
+  pressLines: number;
+  skuCount: number;
+  currentPainPoints: string[];
+  estimatedRevenue: number;
+}
+
+interface QualifiedLead extends Lead {
+  fitScore: number;
+  decisionMakers: Contact[];
+  timeline: string;
+  budget: number;
+  technicalRequirements: TechnicalRequirements;
+}
+
+interface Customer {
+  id: string;
+  lead: QualifiedLead;
+  contractValue: number;
+  implementationPlan: ImplementationPlan;
+  onboardingStatus: OnboardingStatus;
+}
+
+interface ForecastData {
+  skuId: string;
+  plantId: string;
+  demandForecast: number[];
+  confidenceInterval: [number, number][];
+  seasonalFactors: number[];
+  weatherAdjustments: number[];
+}
+
+interface ProductionSchedule {
+  plantId: string;
+  scheduleWeeks: ScheduleWeek[];
+  capacityUtilization: number;
+  changeoverOptimization: ChangeoverPlan;
+  materialRequirements: MaterialPlan;
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  try {
+    // Step 1: Qualify the lead based on fit criteria
+    const qualifiedLead = await qualifyLead(lead);
+    
+    // Step 2: Generate customized proposal with ROI projections
+    const proposal = await generateProposal(qualifiedLead);
+    
+    // Step 3: Conduct technical discovery and demo
+    const technicalFit = await conductTechnicalDiscovery(qualifiedLead);
+    
+    // Step 4: Negotiate contract terms and pricing
+    const contract = await negotiateContract(proposal, technicalFit);
+    
+    // Step 5: Onboard new customer with implementation plan
+    return await onboardCustomer(contract);
+  } catch (error) {
+    throw new Error(`Customer acquisition failed: ${error.message}`);
+  }
+}
+
+export async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  // Calculate fit score based on plant size, SKU complexity, and pain points
+  const fitScore = calculateFitScore(lead);
+  
+  if (fitScore < 0.6) {
+    throw new Error('Lead does not meet minimum qualification criteria');
+  }
+  
+  // Identify decision makers and technical stakeholders
+  const decisionMakers = await identifyDecisionMakers(lead);
+  
+  // Assess technical requirements and integration complexity
+  const technicalRequirements = await assessTechnicalRequirements(lead);
+  
+  return {
+    ...lead,
+    fitScore,
+    decisionMakers,
+    timeline: estimateDecisionTimeline(lead),
+    budget: estimateBudget(lead),
+    technicalRequirements
+  };
+}
+
+export async function generateProposal(qualifiedLead: QualifiedLead): Promise<Proposal> {
+  // Calculate ROI projections based on plant characteristics
+  const roiProjections = await calculateROIProjections(qualifiedLead);
+  
+  // Determine pricing tier based on plant count and complexity
+  const pricingTier = determinePricingTier(qualifiedLead);
+  
+  // Create implementation timeline and milestones
+  const implementationPlan = await createImplementationPlan(qualifiedLead);
+  
+  return {
+    leadId: qualifiedLead.id,
+    roiProjections,
+    pricingTier,
+    implementationPlan,
+    contractTerms: generateContractTerms(qualifiedLead),
+    technicalSpecs: generateTechnicalSpecs(qualifiedLead)
+  };
+}
+
+// Product Development Processes
+export async function developForecastingModel(plantData: PlantData[]): Promise<ForecastModel> {
+  try {
+    // Step 1: Ingest and clean historical data
+    const cleanedData = await ingestAndCleanData(plantData);
+    
+    // Step 2: Feature engineering for seasonality, weather, projects
+    const features = await engineerFeatures(cleanedData);
+    
+    // Step 3: Train hierarchical ML models
+    const model = await trainHierarchicalModel(features);
+    
+    // Step 4: Validate model accuracy and performance
+    const validation = await validateModel(model, cleanedData);
+    
+    // Step 5: Deploy model with monitoring
+    return await deployModel(model, validation);
+  } catch (error) {
+    throw new Error(`Model development failed: ${error.message}`);
+  }
+}
+
+export async function optimizeSchedulingEngine(constraints: PlantConstraints): Promise<SchedulingEngine> {
+  // Model press capacity, molds, curing constraints
+  const capacityModel = await modelCapacityConstraints(constraints);
+  
+  // Optimize changeover sequences and color batching
+  const changeoverOptimizer = await buildChangeoverOptimizer(constraints);
+  
+  // Integrate material requirements planning
+  const mrpIntegration = await integrateMaterialPlanning(constraints);
+  
+  return {
+    capacityModel,
+    changeoverOptimizer,
+    mrpIntegration,
+    optimizationEngine: await buildOptimizationEngine(capacityModel, changeoverOptimizer)
+  };
+}
+
+// Revenue Generation Flows
+export async function generateRevenue(customer: Customer): Promise<RevenueResult> {
+  try {
+    // Step 1: Execute monthly subscription billing
+    const subscriptionRevenue = await processSubscriptionBilling(customer);
+    
+    // Step 2: Identify upsell opportunities
+    const upsellOpportunities = await identifyUpsellOpportunities(customer);
+    
+    // Step 3: Process implementation fees
+    const implementationRevenue = await processImplementationFees(customer);
+    
+    // Step 4: Deliver managed services if contracted
+    const managedServicesRevenue = await deliverManagedServices(customer);
+    
+    return {
+      totalRevenue: subscriptionRevenue + implementationRevenue + managedServicesRevenue,
+      subscriptionRevenue,
+      implementationRevenue,
+      managedServicesRevenue,
+      upsellPotential: upsellOpportunities
+    };
+  } catch (error) {
+    throw new Error(`Revenue generation failed: ${error.message}`);
+  }
+}
+
+export async function calculateROIProjections(qualifiedLead: QualifiedLead): Promise<ROIProjections> {
+  // Calculate forecast accuracy improvements
+  const forecastImprovements = estimateForecastAccuracyGains(qualifiedLead);
+  
+  // Calculate capacity utilization gains
+  const capacityGains = estimateCapacityUtilizationGains(qualifiedLead);
+  
+  // Calculate inventory reduction benefits
+  const inventoryReduction = estimateInventoryReduction(qualifiedLead);
+  
+  // Calculate changeover time savings
+  const changeoverSavings = estimateChangeoverTimeSavings(qualifiedLead);
+  
+  return {
+    annualSavings: forecastImprovements + capacityGains + inventoryReduction + changeoverSavings,
+    paybackPeriod: calculatePaybackPeriod(qualifiedLead),
+    threeYearROI: calculateThreeYearROI(qualifiedLead),
+    riskAdjustedROI: applyRiskAdjustments(qualifiedLead)
+  };
+}
+
+// Operational Procedures
+export async function executeImplementation(customer: Customer): Promise<ImplementationResult> {
+  try {
+    // Step 1: Data integration and validation
+    const dataIntegration = await integrateCustomerData(customer);
+    
+    // Step 2: Configure plant-specific constraints
+    const plantConfiguration = await configurePlantConstraints(customer);
+    
+    // Step 3: Train forecasting models on customer data
+    const modelTraining = await trainCustomerModels(customer, dataIntegration);
+    
+    // Step 4: Deploy scheduling optimization
+    const schedulingDeployment = await deploySchedulingOptimization(customer, plantConfiguration);
+    
+    // Step 5: User training and change management
+    const userTraining = await conductUserTraining(customer);
+    
+    // Step 6: Go-live and monitoring
+    const goLive = await executeGoLive(customer);
+    
+    return {
+      implementationId: generateImplementationId(),
+      customer,
+      dataIntegration,
+      modelTraining,
+      schedulingDeployment,
+      userTraining,
+      goLive,
+      status: 'completed',
+      goLiveDate: new Date()
+    };
+  } catch (error) {
+    throw new Error(`Implementation failed: ${error.message}`);
+  }
+}
+
+export async function generateDailySchedule(plantId: string, constraints: PlantConstraints): Promise<ProductionSchedule> {
+  // Step 1: Get latest demand forecast
+  const demandForecast = await getForecastData(plantId);
+  
+  // Step 2: Check current inventory and WIP
+  const inventoryStatus = await getInventoryStatus(plantId);
+  
+  // Step 3: Apply capacity constraints and optimization
+  const optimizedSchedule = await optimizeProductionSchedule(
+    demandForecast,
+    inventoryStatus,
+    constraints
+  );
+  
+  // Step 4: Generate material requirements
+  const materialRequirements = await generateMaterialRequirements(optimizedSchedule);
+  
+  return {
+    plantId,
+    scheduleWeeks: optimizedSchedule.weeks,
+    capacityUtilization: optimizedSchedule.utilization,
+    changeoverOptimization: optimizedSchedule.changeovers,
+    materialRequirements
+  };
+}
+
+// Decision-Making Workflows
+export async function makeCapacityDecision(scenario: CapacityScenario): Promise<CapacityDecision> {
+  try {
+    // Step 1: Analyze current capacity utilization
+    const utilizationAnalysis = await analyzeCapacityUtilization(scenario);
+    
+    // Step 2: Model demand scenarios
+    const demandScenarios = await modelDemandScenarios(scenario);
+    
+    // Step 3: Evaluate investment options
+    const investmentOptions = await evaluateInvestmentOptions(scenario);
+    
+    // Step 4: Calculate financial impact
+    const financialImpact = await calculateFinancialImpact(investmentOptions);
+    
+    // Step 5: Make recommendation
+    const recommendation = await generateCapacityRecommendation(
+      utilizationAnalysis,
+      demandScenarios,
+      financialImpact
+    );
+    
+    return {
+      scenario,
+      recommendation,
+      financialImpact,
+      riskAssessment: await assessCapacityRisks(recommendation),
+      implementationPlan: await createCapacityImplementationPlan(recommendation)
+    };
+  } catch (error) {
+    throw new Error(`Capacity decision failed: ${error.message}`);
+  }
+}
+
+export async function makePricingDecision(customer: Customer, proposal: Proposal): Promise<PricingDecision> {
+  // Analyze customer value and willingness to pay
+  const valueAnalysis = await analyzeCustomerValue(customer);
+  
+  // Compare with competitive alternatives
+  const competitiveAnalysis = await analyzeCompetitiveLandscape(customer);
+  
+  // Calculate minimum viable pricing
+  const costAnalysis = await calculateDeliveryCosts(customer);
+  
+  // Optimize pricing for win probability and margin
+  const pricingOptimization = await optimizePricing(
+    valueAnalysis,
+    competitiveAnalysis,
+    costAnalysis
+  );
+  
+  return {
+    recommendedPricing: pricingOptimization.pricing,
+    winProbability: pricingOptimization.winProbability,
+    expectedMargin: pricingOptimization.margin,
+    riskFactors: pricingOptimization.risks,
+    negotiationStrategy: await generateNegotiationStrategy(pricingOptimization)
+  };
+}
+
+export async function makeMultiPlantOptimizationDecision(
+  plants: PlantData[],
+  demand: DemandData[]
+): Promise<MultiPlantDecision> {
+  // Step 1: Analyze cross-plant capacity and constraints
+  const capacityAnalysis = await analyzeMultiPlantCapacity(plants);
+  
+  // Step 2: Optimize load balancing across plants
+  const loadBalancing = await optimizeLoadBalancing(plants, demand);
+  
+  // Step 3: Calculate transfer costs and lead times
+  const transferAnalysis = await analyzeTransferCosts(plants, loadBalancing);
+  
+  // Step 4: Generate optimal allocation plan
+  const allocationPlan = await generateAllocationPlan(
+    capacityAnalysis,
+    loadBalancing,
+    transferAnalysis
+  );
+  
+  return {
+    allocationPlan,
+    expectedSavings: calculateMultiPlantSavings(allocationPlan),
+    riskMitigation: await assessMultiPlantRisks(allocationPlan),
+    implementationSteps: await generateMultiPlantImplementation(allocationPlan)
+  };
+}
+
+// Helper function stubs (would be implemented separately)
+async function calculateFitScore(lead: Lead): Promise<number> { /* Implementation */ }
+async function identifyDecisionMakers(lead: Lead): Promise<Contact[]> { /* Implementation */ }
+async function assessTechnicalRequirements(lead: Lead): Promise<TechnicalRequirements> { /* Implementation */ }
+async function estimateDecisionTimeline(lead: Lead): Promise<string> { /* Implementation */ }
+async function estimateBudget(lead: Lead): Promise<number> { /* Implementation */ }
+async function conductTechnicalDiscovery(lead: QualifiedLead): Promise<TechnicalFit> { /* Implementation */ }
+async function negotiateContract(proposal: Proposal, technicalFit: TechnicalFit): Promise<Contract> { /* Implementation */ }
+async function onboardCustomer(contract: Contract): Promise<Customer> { /* Implementation */ }
+```
