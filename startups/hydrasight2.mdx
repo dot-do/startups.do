@@ -310,3 +310,408 @@ landingPage:
 
 Generated for NAICS 333996 — Fluid Power Pump and Motor Manufacturing.
 Service: Automated EOL Test Report Summarization & NCR Triage
+
+## Business Process Functions
+
+```typescript
+// Core data types for HydraSight2 business processes
+interface Lead {
+  id: string;
+  company: string;
+  contactName: string;
+  email: string;
+  phone: string;
+  naicsCode: string;
+  testVolume: number; // tests per day
+  currentPainPoints: string[];
+  testStandTypes: string[];
+  qmsSystem?: string;
+}
+
+interface Customer {
+  id: string;
+  company: string;
+  contractValue: number;
+  testStands: TestStand[];
+  subscriptionTier: 'basic' | 'enterprise' | 'premium';
+  onboardingStatus: 'pending' | 'in-progress' | 'complete';
+}
+
+interface TestStand {
+  id: string;
+  location: string;
+  type: string; // NI/LabVIEW, PLC, etc.
+  monthlyTestVolume: number;
+  connectedAt?: Date;
+}
+
+interface TestReport {
+  id: string;
+  serialNumber: string;
+  partNumber: string;
+  testPlan: string;
+  rawData: any; // CSV/PDF/DAQ data
+  timestamp: Date;
+  operator: string;
+  fixture: string;
+}
+
+interface ProcessedTestResult {
+  id: string;
+  reportId: string;
+  normalizedData: any;
+  kpis: HydraulicKPIs;
+  passFailDecision: 'pass' | 'fail';
+  reasonCodes: string[];
+  confidence: number;
+}
+
+interface HydraulicKPIs {
+  volumetricEfficiency: number;
+  mechanicalEfficiency: number;
+  overallEfficiency: number;
+  leakageRate: number;
+  pressureRipple: number;
+  temperatureRise: number;
+  noiseLevel: number;
+  torqueSpeedCurve: any;
+}
+
+interface NCR {
+  id: string;
+  testResultId: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  defectCodes: string[];
+  rootCause: string;
+  assignedTo: string;
+  status: 'open' | 'investigating' | 'resolved' | 'closed';
+  createdAt: Date;
+  targetCloseDate: Date;
+}
+
+interface RevenueEvent {
+  type: 'subscription' | 'usage' | 'services' | 'compliance';
+  amount: number;
+  customerId: string;
+  description: string;
+  timestamp: Date;
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const demo = await scheduleDemoCall(qualifiedLead);
+  const pilot = await proposePilotProgram(demo);
+  const contract = await negotiateContract(pilot);
+  return await onboardCustomer(contract);
+}
+
+export async function qualifyLead(lead: Lead): Promise<Lead> {
+  // Validate fluid power industry (NAICS 333996)
+  if (!lead.naicsCode.startsWith('333996')) {
+    throw new Error('Lead not in target fluid power industry');
+  }
+  
+  // Check minimum test volume threshold
+  if (lead.testVolume < 50) {
+    throw new Error('Test volume below minimum threshold for ROI');
+  }
+  
+  // Score lead based on pain points and test infrastructure
+  const painPointScore = calculatePainPointScore(lead.currentPainPoints);
+  const infraScore = assessTestInfrastructure(lead.testStandTypes);
+  
+  return {
+    ...lead,
+    qualificationScore: painPointScore + infraScore
+  };
+}
+
+export async function scheduleDemoCall(lead: Lead): Promise<any> {
+  const demoPackage = await prepareDemoEnvironment(lead);
+  const calendar = await findAvailableSlots(lead.timezone);
+  const invitation = await sendDemoInvitation(lead, calendar[0]);
+  
+  return {
+    demoId: generateId(),
+    scheduledFor: calendar[0],
+    customizedDemo: demoPackage,
+    attendees: [lead.contactName]
+  };
+}
+
+export async function proposePilotProgram(demo: any): Promise<any> {
+  const pilotScope = await definePilotScope(demo.lead);
+  const timeline = await createPilotTimeline(pilotScope);
+  const pricing = await calculatePilotPricing(pilotScope);
+  
+  return await sendPilotProposal({
+    scope: pilotScope,
+    timeline,
+    pricing,
+    successCriteria: definePilotSuccessCriteria(pilotScope)
+  });
+}
+
+// Product Development Processes
+export async function developTestConnector(testStandType: string): Promise<any> {
+  const requirements = await analyzeConnectorRequirements(testStandType);
+  const prototype = await buildConnectorPrototype(requirements);
+  const validation = await validateConnectorWithCustomer(prototype);
+  
+  if (validation.success) {
+    return await releaseConnectorToProduction(prototype);
+  } else {
+    return await iterateConnectorDesign(prototype, validation.feedback);
+  }
+}
+
+export async function enhanceKPILibrary(newKPI: any): Promise<any> {
+  const validation = await validateKPIFormula(newKPI);
+  const testing = await testKPIOnHistoricalData(newKPI);
+  const approval = await getEngineeringApproval(newKPI, testing);
+  
+  return await deployKPIToProduction(newKPI, approval);
+}
+
+export async function improveMLModel(trainingData: any[]): Promise<any> {
+  const preprocessed = await preprocessTrainingData(trainingData);
+  const model = await trainAnomalyDetectionModel(preprocessed);
+  const validation = await validateModelAccuracy(model);
+  
+  if (validation.accuracy >= 0.995) {
+    return await deployModelUpdate(model);
+  } else {
+    return await collectAdditionalTrainingData(validation.gaps);
+  }
+}
+
+// Revenue Generation Flows
+export async function generateRevenue(customer: Customer, month: Date): Promise<RevenueEvent[]> {
+  const events: RevenueEvent[] = [];
+  
+  // Subscription revenue
+  const subscriptionRevenue = await processSubscriptionBilling(customer, month);
+  events.push(subscriptionRevenue);
+  
+  // Usage-based revenue
+  const usageRevenue = await calculateUsageCharges(customer, month);
+  if (usageRevenue.amount > 0) {
+    events.push(usageRevenue);
+  }
+  
+  // Professional services revenue
+  const servicesRevenue = await billProfessionalServices(customer, month);
+  events.push(...servicesRevenue);
+  
+  return events;
+}
+
+export async function processSubscriptionBilling(customer: Customer, month: Date): Promise<RevenueEvent> {
+  const baseRate = getSubscriptionRate(customer.subscriptionTier);
+  const standCount = customer.testStands.length;
+  const amount = baseRate * standCount;
+  
+  await generateInvoice(customer, amount, month);
+  await processPayment(customer, amount);
+  
+  return {
+    type: 'subscription',
+    amount,
+    customerId: customer.id,
+    description: `Monthly subscription for ${standCount} test stands`,
+    timestamp: new Date()
+  };
+}
+
+export async function calculateUsageCharges(customer: Customer, month: Date): Promise<RevenueEvent> {
+  const usage = await getMonthlyTestVolume(customer, month);
+  const includedQuota = getIncludedQuota(customer.subscriptionTier);
+  const overage = Math.max(0, usage - includedQuota);
+  const rate = 0.03; // $0.03 per test over quota
+  
+  return {
+    type: 'usage',
+    amount: overage * rate,
+    customerId: customer.id,
+    description: `Usage charges for ${overage} tests over quota`,
+    timestamp: new Date()
+  };
+}
+
+// Operational Procedures
+export async function processTestData(report: TestReport): Promise<ProcessedTestResult> {
+  try {
+    // Normalize raw test data
+    const normalizedData = await normalizeTestData(report.rawData, report.testPlan);
+    
+    // Compute hydraulic KPIs
+    const kpis = await computeHydraulicKPIs(normalizedData);
+    
+    // Apply spec limits and make pass/fail decision
+    const decision = await makePassFailDecision(kpis, report.partNumber);
+    
+    // Store processed result
+    const result: ProcessedTestResult = {
+      id: generateId(),
+      reportId: report.id,
+      normalizedData,
+      kpis,
+      passFailDecision: decision.result,
+      reasonCodes: decision.reasonCodes,
+      confidence: decision.confidence
+    };
+    
+    await storeProcessedResult(result);
+    
+    // If failed, trigger NCR workflow
+    if (result.passFailDecision === 'fail') {
+      await createNCR(result);
+    }
+    
+    return result;
+    
+  } catch (error) {
+    await logProcessingError(report.id, error);
+    throw new Error(`Failed to process test report ${report.id}: ${error.message}`);
+  }
+}
+
+export async function normalizeTestData(rawData: any, testPlan: string): Promise<any> {
+  const schema = await getTestPlanSchema(testPlan);
+  const parser = await selectDataParser(rawData.format);
+  const parsed = await parser.parse(rawData);
+  
+  return await applySchemaMapping(parsed, schema);
+}
+
+export async function computeHydraulicKPIs(data: any): Promise<HydraulicKPIs> {
+  return {
+    volumetricEfficiency: await calculateVolumetricEfficiency(data),
+    mechanicalEfficiency: await calculateMechanicalEfficiency(data),
+    overallEfficiency: await calculateOverallEfficiency(data),
+    leakageRate: await calculateLeakageRate(data),
+    pressureRipple: await calculatePressureRipple(data),
+    temperatureRise: await calculateTemperatureRise(data),
+    noiseLevel: await calculateNoiseLevel(data),
+    torqueSpeedCurve: await generateTorqueSpeedCurve(data)
+  };
+}
+
+// Decision-Making Workflows
+export async function makePassFailDecision(kpis: HydraulicKPIs, partNumber: string): Promise<any> {
+  const specLimits = await getSpecLimits(partNumber);
+  const ruleEngine = await initializeRuleEngine(specLimits);
+  
+  // Apply deterministic rules first
+  const ruleResult = await ruleEngine.evaluate(kpis);
+  
+  if (ruleResult.confidence > 0.95) {
+    return ruleResult;
+  }
+  
+  // Use ML for borderline cases
+  const mlModel = await getAnomalyDetectionModel();
+  const mlResult = await mlModel.predict(kpis);
+  
+  return await combineRuleAndMLResults(ruleResult, mlResult);
+}
+
+export async function manageNCR(ncr: NCR): Promise<NCR> {
+  // Auto-classify root cause
+  const rootCause = await classifyRootCause(ncr);
+  ncr.rootCause = rootCause.category;
+  
+  // Route to appropriate team
+  const assignee = await routeNCR(ncr);
+  ncr.assignedTo = assignee;
+  
+  // Set target close date based on severity
+  ncr.targetCloseDate = calculateTargetCloseDate(ncr.severity);
+  
+  // Notify stakeholders
+  await notifyNCRStakeholders(ncr);
+  
+  // Track SLA compliance
+  await trackNCRSLA(ncr);
+  
+  return await updateNCR(ncr);
+}
+
+export async function createNCR(testResult: ProcessedTestResult): Promise<NCR> {
+  const ncr: NCR = {
+    id: generateId(),
+    testResultId: testResult.id,
+    severity: determineSeverity(testResult.reasonCodes),
+    defectCodes: testResult.reasonCodes,
+    rootCause: await suggestRootCause(testResult),
+    assignedTo: await determineAssignee(testResult),
+    status: 'open',
+    createdAt: new Date(),
+    targetCloseDate: new Date()
+  };
+  
+  return await manageNCR(ncr);
+}
+
+export async function optimizeOperations(customer: Customer): Promise<any> {
+  const metrics = await gatherOperationalMetrics(customer);
+  const bottlenecks = await identifyBottlenecks(metrics);
+  const recommendations = await generateOptimizationRecommendations(bottlenecks);
+  
+  return await implementOptimizations(customer, recommendations);
+}
+
+// Helper functions (referenced but not implemented)
+async function calculatePainPointScore(painPoints: string[]): Promise<number> { /* implementation */ }
+async function assessTestInfrastructure(standTypes: string[]): Promise<number> { /* implementation */ }
+async function prepareDemoEnvironment(lead: Lead): Promise<any> { /* implementation */ }
+async function findAvailableSlots(timezone: string): Promise<Date[]> { /* implementation */ }
+async function sendDemoInvitation(lead: Lead, slot: Date): Promise<any> { /* implementation */ }
+async function generateId(): string { /* implementation */ }
+async function definePilotScope(lead: Lead): Promise<any> { /* implementation */ }
+async function createPilotTimeline(scope: any): Promise<any> { /* implementation */ }
+async function calculatePilotPricing(scope: any): Promise<any> { /* implementation */ }
+async function sendPilotProposal(proposal: any): Promise<any> { /* implementation */ }
+async function definePilotSuccessCriteria(scope: any): any { /* implementation */ }
+async function negotiateContract(pilot: any): Promise<any> { /* implementation */ }
+async function onboardCustomer(contract: any): Promise<Customer> { /* implementation */ }
+
+// Additional helper functions for operational workflows
+async function getTestPlanSchema(testPlan: string): Promise<any> { /* implementation */ }
+async function selectDataParser(format: string): Promise<any> { /* implementation */ }
+async function applySchemaMapping(data: any, schema: any): Promise<any> { /* implementation */ }
+async function calculateVolumetricEfficiency(data: any): Promise<number> { /* implementation */ }
+async function calculateMechanicalEfficiency(data: any): Promise<number> { /* implementation */ }
+async function calculateOverallEfficiency(data: any): Promise<number> { /* implementation */ }
+async function calculateLeakageRate(data: any): Promise<number> { /* implementation */ }
+async function calculatePressureRipple(data: any): Promise<number> { /* implementation */ }
+async function calculateTemperatureRise(data: any): Promise<number> { /* implementation */ }
+async function calculateNoiseLevel(data: any): Promise<number> { /* implementation */ }
+async function generateTorqueSpeedCurve(data: any): Promise<any> { /* implementation */ }
+async function getSpecLimits(partNumber: string): Promise<any> { /* implementation */ }
+async function initializeRuleEngine(limits: any): Promise<any> { /* implementation */ }
+async function getAnomalyDetectionModel(): Promise<any> { /* implementation */ }
+async function combineRuleAndMLResults(rule: any, ml: any): Promise<any> { /* implementation */ }
+async function storeProcessedResult(result: ProcessedTestResult): Promise<void> { /* implementation */ }
+async function logProcessingError(reportId: string, error: Error): Promise<void> { /* implementation */ }
+async function classifyRootCause(ncr: NCR): Promise<any> { /* implementation */ }
+async function routeNCR(ncr: NCR): Promise<string> { /* implementation */ }
+async function calculateTargetCloseDate(severity: string): Date { /* implementation */ }
+async function notifyNCRStakeholders(ncr: NCR): Promise<void> { /* implementation */ }
+async function trackNCRSLA(ncr: NCR): Promise<void> { /* implementation */ }
+async function updateNCR(ncr: NCR): Promise<NCR> { /* implementation */ }
+async function determineSeverity(reasonCodes: string[]): string { /* implementation */ }
+async function suggestRootCause(result: ProcessedTestResult): Promise<string> { /* implementation */ }
+async function determineAssignee(result: ProcessedTestResult): Promise<string> { /* implementation */ }
+async function getSubscriptionRate(tier: string): number { /* implementation */ }
+async function generateInvoice(customer: Customer, amount: number, month: Date): Promise<void> { /* implementation */ }
+async function processPayment(customer: Customer, amount: number): Promise<void> { /* implementation */ }
+async function getMonthlyTestVolume(customer: Customer, month: Date): Promise<number> { /* implementation */ }
+async function getIncludedQuota(tier: string): number { /* implementation */ }
+async function billProfessionalServices(customer: Customer, month: Date): Promise<RevenueEvent[]> { /* implementation */ }
+async function gatherOperationalMetrics(customer: Customer): Promise<any> { /* implementation */ }
+async function identifyBottlenecks(metrics: any): Promise<any> { /* implementation */ }
+async function generateOptimizationRecommendations(bottlenecks: any): Promise<any> { /* implementation */ }
+async function implementOptimizations(customer: Customer, recommendations: any): Promise<any> { /* implementation */ }
+```
