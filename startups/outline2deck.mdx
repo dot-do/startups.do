@@ -288,3 +288,294 @@ landingPage:
 
 Industry: Graphic Design Services
 Service: Pitch Deck Design From Outline
+
+## Business Workflows
+
+### Customer Acquisition Workflows
+
+```typescript
+interface Lead {
+  id: string;
+  email: string;
+  source: 'product-hunt' | 'seo' | 'referral' | 'partnership' | 'ads';
+  companySize: 'startup' | 'smb' | 'enterprise';
+  useCase: 'fundraising' | 'sales' | 'marketing' | 'consulting';
+  urgency: 'immediate' | 'planning' | 'exploring';
+}
+
+interface Customer {
+  id: string;
+  email: string;
+  plan: 'pay-per-deck' | 'team' | 'enterprise';
+  brandKit?: BrandKit;
+  usage: DeckUsage[];
+}
+
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const onboardingFlow = await determineOnboardingFlow(qualifiedLead);
+  const trialDeck = await offerTrialDeck(qualifiedLead);
+  const conversion = await trackConversion(trialDeck);
+  return await completeOnboarding(conversion);
+}
+
+async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  const score = await calculateLeadScore(lead);
+  const segment = await segmentLead(lead);
+  const priority = await assignPriority(score, segment);
+  return { ...lead, score, segment, priority };
+}
+
+async function determineOnboardingFlow(lead: QualifiedLead): Promise<OnboardingFlow> {
+  if (lead.segment === 'enterprise') {
+    return await createEnterpriseOnboarding(lead);
+  }
+  if (lead.urgency === 'immediate') {
+    return await createFastTrackOnboarding(lead);
+  }
+  return await createStandardOnboarding(lead);
+}
+```
+
+### Product Development Workflows
+
+```typescript
+interface DeckRequest {
+  userId: string;
+  content: OutlineContent | NotionPage | GoogleDoc;
+  brandKit?: BrandKit;
+  template?: TemplateType;
+  exportFormat: 'pptx' | 'key' | 'gslides' | 'pdf';
+  urgency: 'standard' | 'rush';
+}
+
+interface GeneratedDeck {
+  id: string;
+  slides: Slide[];
+  brandCompliance: ComplianceScore;
+  qualityScore: QualityMetrics;
+  exportUrls: ExportUrls;
+}
+
+export async function generateDeck(request: DeckRequest): Promise<GeneratedDeck> {
+  const parsedContent = await parseContent(request.content);
+  const narrative = await mapToNarrative(parsedContent, request.template);
+  const brandedSlides = await applyBrandKit(narrative, request.brandKit);
+  const chartsAndVisuals = await generateVisuals(brandedSlides);
+  const qualityCheck = await performQualityCheck(chartsAndVisuals);
+  const exports = await generateExports(qualityCheck, request.exportFormat);
+  return await packageDeck(exports);
+}
+
+async function parseContent(content: OutlineContent | NotionPage | GoogleDoc): Promise<StructuredContent> {
+  const contentType = await detectContentType(content);
+  const extracted = await extractText(content, contentType);
+  const structured = await structureContent(extracted);
+  return await validateStructure(structured);
+}
+
+async function mapToNarrative(content: StructuredContent, template?: TemplateType): Promise<NarrativeStructure> {
+  const framework = await selectNarrativeFramework(content, template);
+  const mapped = await mapContentToFramework(content, framework);
+  const optimized = await optimizeFlow(mapped);
+  return await validateNarrative(optimized);
+}
+
+async function applyBrandKit(narrative: NarrativeStructure, brandKit?: BrandKit): Promise<BrandedSlides> {
+  const brand = brandKit || await getDefaultBrandKit();
+  const styled = await applyVisualIdentity(narrative, brand);
+  const consistent = await enforceConsistency(styled);
+  return await validateBrandCompliance(consistent);
+}
+```
+
+### Revenue Generation Workflows
+
+```typescript
+interface PaymentRequest {
+  userId: string;
+  deckId: string;
+  plan: 'starter' | 'pro' | 'team' | 'enterprise';
+  addOns: AddOn[];
+  paymentMethod: PaymentMethod;
+}
+
+interface RevenueEvent {
+  type: 'deck-purchase' | 'subscription' | 'addon' | 'refund';
+  amount: number;
+  userId: string;
+  timestamp: Date;
+}
+
+export async function processPayment(request: PaymentRequest): Promise<PaymentResult> {
+  const pricing = await calculatePricing(request);
+  const validation = await validatePayment(request, pricing);
+  const charge = await processCharge(validation);
+  const fulfillment = await fulfillOrder(charge);
+  return await recordRevenue(fulfillment);
+}
+
+async function calculatePricing(request: PaymentRequest): Promise<PricingBreakdown> {
+  const basePlan = await getPlanPricing(request.plan);
+  const addOnCosts = await calculateAddOns(request.addOns);
+  const discounts = await applyDiscounts(request.userId, basePlan);
+  const taxes = await calculateTaxes(request.userId, basePlan + addOnCosts - discounts);
+  return { basePlan, addOnCosts, discounts, taxes, total: basePlan + addOnCosts - discounts + taxes };
+}
+
+export async function manageSubscription(userId: string, action: SubscriptionAction): Promise<SubscriptionResult> {
+  const currentSub = await getCurrentSubscription(userId);
+  const updated = await updateSubscription(currentSub, action);
+  const billing = await adjustBilling(updated);
+  const notification = await notifyUser(userId, updated);
+  return await recordSubscriptionChange(updated);
+}
+
+async function trackRevenue(event: RevenueEvent): Promise<void> {
+  await recordInAnalytics(event);
+  await updateMRR(event);
+  await updateCustomerLTV(event.userId);
+  await triggerRevenueAlerts(event);
+}
+```
+
+### Operational Workflows
+
+```typescript
+interface QualityCheck {
+  deckId: string;
+  automated: AutomatedChecks;
+  human?: HumanReview;
+  status: 'pending' | 'approved' | 'needs-revision';
+}
+
+interface SupportTicket {
+  id: string;
+  userId: string;
+  type: 'technical' | 'billing' | 'feature-request' | 'bug';
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  status: 'open' | 'in-progress' | 'resolved' | 'closed';
+}
+
+export async function performQualityAssurance(deckId: string): Promise<QualityResult> {
+  const automated = await runAutomatedChecks(deckId);
+  const humanReview = await determineHumanReviewNeed(automated);
+  const finalCheck = await consolidateResults(automated, humanReview);
+  const approval = await makeApprovalDecision(finalCheck);
+  return await recordQualityResults(deckId, approval);
+}
+
+async function runAutomatedChecks(deckId: string): Promise<AutomatedChecks> {
+  const brandCompliance = await checkBrandCompliance(deckId);
+  const contentQuality = await analyzeContentQuality(deckId);
+  const technicalValidation = await validateTechnicalSpecs(deckId);
+  const accessibility = await checkAccessibility(deckId);
+  return { brandCompliance, contentQuality, technicalValidation, accessibility };
+}
+
+export async function handleSupportRequest(ticket: SupportTicket): Promise<SupportResult> {
+  const categorized = await categorizeTicket(ticket);
+  const routed = await routeToAgent(categorized);
+  const resolved = await resolveTicket(routed);
+  const feedback = await collectFeedback(resolved);
+  return await closeTicket(feedback);
+}
+
+async function manageInfrastructure(): Promise<void> {
+  await monitorSystemHealth();
+  await scaleResources();
+  await performBackups();
+  await updateSecurityPatches();
+  await optimizePerformance();
+}
+```
+
+### Decision-Making Workflows
+
+```typescript
+interface BusinessMetrics {
+  activation: number;
+  conversion: number;
+  churn: number;
+  cac: number;
+  ltv: number;
+  mrr: number;
+  qualityScore: number;
+}
+
+interface StrategicDecision {
+  type: 'pricing' | 'feature' | 'partnership' | 'expansion';
+  data: MetricsData;
+  recommendation: string;
+  confidence: number;
+  impact: 'low' | 'medium' | 'high';
+}
+
+export async function makeStrategicDecision(metrics: BusinessMetrics, context: BusinessContext): Promise<StrategicDecision> {
+  const analysis = await analyzeMetrics(metrics);
+  const opportunities = await identifyOpportunities(analysis, context);
+  const recommendations = await generateRecommendations(opportunities);
+  const prioritized = await prioritizeRecommendations(recommendations);
+  return await validateDecision(prioritized);
+}
+
+async function optimizePricing(metrics: BusinessMetrics): Promise<PricingStrategy> {
+  const elasticity = await analyzePriceElasticity(metrics);
+  const competition = await analyzeCompetitivePricing();
+  const value = await calculateValueMetrics(metrics);
+  const segments = await analyzeCustomerSegments(metrics);
+  return await recommendPricingChanges(elasticity, competition, value, segments);
+}
+
+export async function evaluatePartnership(partner: PartnerProposal): Promise<PartnershipDecision> {
+  const alignment = await assessStrategicAlignment(partner);
+  const revenue = await projectRevenueImpact(partner);
+  const resources = await assessResourceRequirements(partner);
+  const risks = await identifyRisks(partner);
+  const recommendation = await makePartnershipRecommendation(alignment, revenue, resources, risks);
+  return await documentDecision(recommendation);
+}
+
+async function planProductRoadmap(metrics: BusinessMetrics, feedback: CustomerFeedback[]): Promise<ProductRoadmap> {
+  const featureRequests = await analyzeFeatureRequests(feedback);
+  const usage = await analyzeUsagePatterns(metrics);
+  const competitive = await analyzeCompetitiveGaps();
+  const technical = await assessTechnicalFeasibility(featureRequests);
+  const prioritized = await prioritizeFeatures(featureRequests, usage, competitive, technical);
+  return await createRoadmap(prioritized);
+}
+```
+
+### Integration Workflows
+
+```typescript
+interface IntegrationConfig {
+  platform: 'notion' | 'google-docs' | 'salesforce' | 'hubspot';
+  credentials: AuthCredentials;
+  settings: PlatformSettings;
+}
+
+export async function setupIntegration(config: IntegrationConfig): Promise<IntegrationResult> {
+  const validated = await validateCredentials(config.credentials);
+  const configured = await configureIntegration(config, validated);
+  const tested = await testIntegration(configured);
+  const deployed = await deployIntegration(tested);
+  return await monitorIntegration(deployed);
+}
+
+async function syncWithCRM(userId: string, deckId: string): Promise<void> {
+  const crmConfig = await getCRMConfig(userId);
+  const deckData = await getDeckMetadata(deckId);
+  const mapped = await mapToCRMFields(deckData, crmConfig);
+  await updateCRMRecord(mapped);
+  await logSyncActivity(userId, deckId);
+}
+
+export async function handleWebhook(source: string, payload: WebhookPayload): Promise<void> {
+  const validated = await validateWebhook(source, payload);
+  const processed = await processWebhookData(validated);
+  const actions = await determineActions(processed);
+  await executeActions(actions);
+  await logWebhookActivity(source, payload);
+}
+```
