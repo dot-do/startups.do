@@ -1,0 +1,290 @@
+---
+name: ShellSafe AutoLog
+slug: shellsafe
+service:
+  title: eLogbook Auto-Drafter and Compliance Checker
+  description: >-
+    Pre-fills electronic trip reports, checks area compliance, and prepares
+    submissions for captain review/signature.
+  targetUsers:
+    - Captains
+    - Compliance admins
+    - Fleet managers
+  triggers:
+    - Trip end (dock geofence)
+    - 'Daily at 18:00 if a trip is detected'
+  inputs:
+    - GPS track or VMS/AIS pings
+    - Gear counts and species/size tallies (simple form)
+    - Regulatory area layers and rules
+    - Permit and vessel details
+  steps:
+    - Detect trip segments and effort zones from track
+    - Intersect with closures and restricted areas
+    - Pre-fill eLogbook fields and attach maps
+    - Flag potential violations/edge cases
+    - Produce submission-ready file; notify captain to review
+  tools:
+    - Geofencing in PostGIS
+    - NOAA/State closures shapefiles
+    - SAFIS eTrips/eVTR integrations where available
+    - Doc generation (PDF/JSON/CSV)
+    - LLM for rule explanations
+    - Email/SMS/Slack
+  outputs:
+    - Draft eLogbook for sign-off
+    - Compliance checklist and map
+    - Alert if any restricted overlap detected
+  pricingModel:
+    - Per-vessel monthly
+    - Per-draft fee for low-volume users
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Integration variability across jurisdictions
+    - Captain overrides introduce errors
+    - Liability if submissions are incorrect
+  dependencies:
+    - Access to track data
+    - Up-to-date regulation layers
+    - eLogbook platform APIs (where permitted)
+leanCanvas:
+  problem:
+    - >-
+      Captains spend 20–40 minutes per trip manually entering e-logbook data
+      (species codes, statistical areas, gear/effort, lat/long), increasing
+      fatigue and reducing time on operations.
+    - >-
+      Dynamic closures, rotational access areas, and overlapping state/federal
+      rules are hard to interpret at sea; inadvertent non-compliance risks fines
+      ($1,000–$10,000+) and license points.
+    - >-
+      Multiple, duplicative reporting systems (NOAA GARFO eVTR/SAFIS eTRIPS,
+      state trip reports, dealer reporting) create double entry and inconsistent
+      records.
+    - >-
+      Connectivity gaps offshore lead to delayed or failed submissions and
+      late-reporting violations.
+    - >-
+      Fleet managers lack real-time visibility into compliance risk and
+      reporting status across vessels/trips.
+    - >-
+      Existing e-logbook tools are manual-first, not integrated with VMS/AIS or
+      gear sensors, leading to error-prone data and rejected submissions.
+    - >-
+      Frequent regulation changes (closures, area codes, IFQ/ITQ updates)
+      require constant monitoring and re-training.
+  solution:
+    - >-
+      AI-assisted e-logbook auto-drafter that ingests VMS/AIS/GPS tracks and
+      known fishing patterns to propose tow/dredge events, statistical areas,
+      gear/effort, and species defaults.
+    - >-
+      Geofenced compliance engine that overlays current federal/state closures,
+      rotational access areas, and IFQ/ITQ rules to provide real-time pre-tow
+      alerts and catch/quota pre-checks.
+    - >-
+      Certified eVTR preparation and queued submission with captain e-signature;
+      resilient offline mode auto-syncs when connectivity returns.
+    - >-
+      Rules update service that continuously ingests regulator shapefiles,
+      bulletins, and notice-to-fishers to keep the onboard rulebook current.
+    - >-
+      Fleet dashboard with live compliance status, trip progress, submission
+      success, and violation-prevention analytics.
+    - >-
+      Dealer/processor and quota system integrations for pre-landing
+      reconciliation and reduced data discrepancies.
+  uniqueValueProp: >-
+    One-tap, regulation-ready trip reports with real-time area compliance.
+    ShellSafe AutoLog pre-fills 90–95% of required fields from VMS/AIS and prior
+    trips, flags violations before they happen, and submits eVTRs for captain
+    sign-off—even offline—cutting reporting time by 70%+ and reducing rejected
+    submissions to <1%.
+  unfairAdvantage: >-
+    Certified, regulator-aligned rules engine plus on-vessel auto-drafting
+    trained on real scallop/clam trip patterns; embedded distribution through
+    VMS partners and insurer incentives create switching costs and a trust moat.
+    Compliance Assurance program offers credits if a verified system error
+    causes a rejected submission, signaling confidence and reducing buyer risk.
+  customerSegments:
+    - >-
+      Primary: US Atlantic wild-capture shellfish fleets (sea scallop, surfclam,
+      ocean quahog) operating in federal waters with eVTR requirements.
+    - >-
+      Secondary: US Northeast/Mid-Atlantic lobster and crab vessels fishing
+      federal waters and subject to e-reporting mandates.
+    - >-
+      Tertiary: Canadian Atlantic and UK/EU scallop/crab fleets with mandatory
+      e-logbooks (vessels >10m).
+    - >-
+      Fleet owners/operators (5–50 vessels) seeking standardized compliance
+      processes and centralized oversight.
+    - >-
+      Dealers/processors offering landing services who value clean, timely data
+      for reconciliation.
+    - >-
+      Marine insurers/P&I clubs interested in risk reduction through
+      demonstrable compliance.
+    - >-
+      Regulatory bodies and fisheries cooperatives interested in pilot programs
+      that reduce reporting errors.
+  channels:
+    - >-
+      Pilot programs with leading scallop and clam fleets in New Bedford, MA and
+      Cape May, NJ (10–20 vessels per port) with dockside onboarding and 60–90
+      day trials.
+    - >-
+      Partnerships with VMS providers (e.g., CLS, Satlink, MetOcean) to bundle
+      or co-market the app, leveraging existing onboard hardware and customer
+      lists.
+    - >-
+      Affiliations with fishery associations/co-ops (e.g., Fisheries Survival
+      Fund; Garden State Seafood Association) for endorsements and group
+      pricing.
+    - >-
+      Regulatory collaboration: pursue GARFO/ACCSP certification and
+      regulator-led webinars to build trust and legitimacy.
+    - >-
+      Marine insurers/P&I clubs offering premium credits for fleets using
+      ShellSafe with verified compliance scores.
+    - >-
+      Events and field marketing: Seafood Expo North America (Boston),
+      Mid-Atlantic/Northeast fishery council meetings; on-dock demos and captain
+      breakfasts.
+    - >-
+      Referral program: $250 account credit per referred vessel activated;
+      reseller margin for dealers/shipyards that onboard fleets.
+    - >-
+      Content and SMS/email: weekly closure updates and compliance tips; short
+      video how-tos for captains and shore managers.
+  revenueStreams:
+    - >-
+      Per-vessel SaaS: $199/month base (auto-drafting, compliance alerts, eVTR
+      submissions); $299/month Pro (fleet dashboard, quota integrations, dealer
+      reconciliation).
+    - Annual plans with 15% discount; minimum 5-vessel fleet discount tiers.
+    - >-
+      One-time onboarding/integration fee: $300/vessel (waived for >15-vessel
+      fleets or association deals).
+    - >-
+      Professional services: custom rule integrations, historical data cleanup
+      ($150/hour).
+    - >-
+      Aggregated, anonymized analytics subscription for insurers/processors
+      (opt-in; no PII): $1,000–$3,000/year per partner.
+    - Hardware margins on optional rugged tablets and mounting kits (10–15%).
+  costStructure:
+    - >-
+      Core team: 6–8 engineers/data scientists ($1.6–$2.0M/yr), 2 compliance
+      analysts ($220–$280k/yr), 2–3 field success/onboarding reps
+      ($180–$240k/yr), 1 regulatory affairs ($130–$160k/yr), 2 sales
+      ($220–$260k/yr).
+    - >-
+      Cloud/geo infrastructure: $10k–$20k/month (compute, storage, maps/tiles,
+      monitoring).
+    - >-
+      Data acquisition/compliance updates (map/shapefiles, notices, legal
+      review): $5k–$10k/month.
+    - >-
+      Certification and audits (GARFO/ACCSP approvals, SOC 2 readiness):
+      $75k–$150k in year 1, $25k–$50k annually thereafter.
+    - 'Hardware/testing gear and demo vessels: $50k initial, $20k annually.'
+    - >-
+      Sales/marketing: $150k–$300k/yr (events, travel, collateral, referral
+      payouts).
+    - 'Insurance, legal, and compliance: $80k–$150k/yr.'
+  keyMetrics:
+    - >-
+      Average time to complete a trip report: baseline 25 min; target ≤7 min;
+      stretch ≤4 min within 90 days.
+    - >-
+      First-pass submission acceptance rate: target ≥99.0%; rejection reductions
+      ≥80% vs. baseline.
+    - >-
+      Compliance incidents prevented: ≥2 pre-tow alerts resolved per 100 trips;
+      ≥90% of alerts acknowledged before violation.
+    - >-
+      Active vessel retention (logo churn): monthly <1.5%; annual net revenue
+      retention ≥115%.
+    - >-
+      Fleet adoption rate: pilot conversion ≥60% to paid within 90 days;
+      referral rate ≥0.3 new vessels per active vessel per quarter.
+    - >-
+      Operational SLAs: 99.9% uptime; geofence alert latency ≤5 seconds; offline
+      queue success ≥99.5% within 24h of connectivity.
+    - 'Sales efficiency: CAC payback ≤6 months; LTV:CAC ≥4:1.'
+    - >-
+      Support: first-response time ≤10 minutes during fishing hours; CSAT
+      ≥4.6/5; NPS ≥40.
+storyBrand:
+  character: >-
+    Shellfish captains and fleet managers who need accurate, on‑time eLogbooks
+    and area compliance without losing fishing time.
+  problem: >-
+    External — Manual entry and map checks consume hours and cause rejected
+    reports. Internal — Constant worry about missing closures or making costly
+    mistakes. Philosophical — Time on the water shouldn’t be stolen by
+    paperwork.
+  guide: >-
+    eLogbook Auto‑Drafter & Compliance Checker acts like a trusted paperwork
+    deckhand—empathetic to reporting burdens and built with fisheries compliance
+    expertise to fit existing workflows.
+  plan: >-
+    1) Connect vessel, permits, and data sources. 2) Auto‑draft trip details
+    from GPS/plotter and prior runs. 3) Live area/season/limit checks. 4)
+    Captain reviews and e‑signs. 5) One‑click submit and archive.
+  callToAction: Book a 15‑minute setup and run your next trip on a free pilot.
+  success: >-
+    Every trip drafted and checked in minutes, fewer rejects, faster approvals,
+    clean audit trails, and more time fishing.
+  failure: >-
+    Missed closures, rejected submissions, fines, and lost fishing days from
+    manual, error‑prone reporting.
+landingPage:
+  hero:
+    title: Auto‑Drafted eLogbooks with Built‑In Compliance for Shellfish
+    subtitle: >-
+      AI pre-fills trip reports, checks area rules, and readies submissions for
+      captain review and signature.
+    ctaText: Request a Demo
+    ctaHref: /demo
+  problem:
+    - Hours lost to manual eLogbook entry after each trip
+    - Changing closures and area rules are hard to track in real time
+    - 'Entry errors trigger rejections, fines, and delays'
+    - 'Data scattered across GPS, VMS, and paper notes'
+    - Signatures and submissions get missed under time pressure
+  solution:
+    - Drafts your eLogbook automatically—before you tie up
+    - Geofenced checks against current shellfish area rules
+    - Flags missing or inconsistent fields with quick fixes
+    - 'Single flow for captain review, e‑signature, and submission prep'
+    - 'Clean, audit‑ready records for vessels and fleets'
+  features:
+    - Auto‑capture from GPS/VMS and wheelhouse inputs
+    - 'Rules engine for shellfish areas, seasons, gear, and size limits'
+    - Live closure and boundary alerts with safe‑area guidance
+    - 'Trip timeline: sets/tows, soak times, catch by area'
+    - Fast catch entry via quick forms or voice; size/grade tallies
+    - Pre‑filled fields mapped to major eLogbook formats
+    - 'Captain e‑signature with time, position, and device stamp'
+    - Submission prep with stored receipts and status tracking
+    - Fleet dashboard with compliance status and exceptions
+    - Offline‑first; syncs when connected
+    - Role‑based access and data privacy controls
+    - 'API, CSV, and PDF exports'
+  steps:
+    - 'Connect your vessel, fishery, and home port'
+    - Fish as usual—trip data drafts in the background
+    - Receive real‑time compliance guidance by area
+    - 'Review the draft, fix any flags, and e‑sign'
+    - Submit and store receipts; share with fleet or buyer
+---
+# ShellSafe AutoLog
+
+Industry: Shellfish Fishing
+Service: eLogbook Auto-Drafter and Compliance Checker

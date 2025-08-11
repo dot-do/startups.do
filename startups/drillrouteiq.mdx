@@ -1,0 +1,263 @@
+---
+name: DrillRouteIQ
+slug: drillrouteiq
+service:
+  title: NC Drill/Route Tool Table Rationalization
+  description: >-
+    Cleans and optimizes NC drill/rout programs to reduce tools and cycle time
+    without violating tolerances.
+  targetUsers:
+    - CAM/CNC programming
+    - Production engineering
+  triggers:
+    - Before tooling release
+    - Customer sends ECO with drill changes
+  inputs:
+    - Excellon NC drill/rout files
+    - Hole tolerances and plating allowances
+    - 'Router bit availability, min web/bridge'
+  steps:
+    - Parse tool tables and classify PTH/NPTH/slots
+    - Propose tool merging within tolerance; flag risky merges
+    - Optimize drill order and pecking/cycle parameters
+    - Generate rout path optimizations and break tabs
+    - Estimate machine time and tool wear impact
+  tools:
+    - pcb-tools/excellon parser
+    - Custom tolerance engine
+    - Heuristic route optimizer
+    - Report/preview via Tracespace/OpenCV
+  outputs:
+    - Cleaned NC drill/rout files
+    - Revised tool table and setup sheet
+    - Time estimate and merge justification report
+  pricingModel:
+    - Per job
+    - Monthly subscription for batch processing
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8.5
+  risks:
+    - Over-aggressive tool merging causing OOT holes
+    - 'Missing special processes (reaming, countersink)'
+    - Router path not reflecting fixture constraints
+  dependencies:
+    - Hole tolerance policy and plating targets
+    - Router/drill machine constraints
+    - Fixture/holding approach
+leanCanvas:
+  problem:
+    - >-
+      Excessive NC drill/router tool counts increase tool-change overhead (2–6
+      seconds/change) and idle time, stretching cycle time by 10–30%.
+    - >-
+      Manual tool-table consolidation in CAM is slow (15–45 min/job),
+      error-prone, and varies by engineer, leading to inconsistent results and
+      rework.
+    - >-
+      Fear of violating finished-hole tolerances and breakout constraints
+      prevents aggressive optimization; scrap events are costly and damage
+      delivery performance.
+    - >-
+      Machine-specific nuances (magazine limits, spindle acceleration, peck
+      cycles, feed/speed tables) are underutilized in current CAM flows, leaving
+      capacity on the table.
+    - >-
+      Fragmented data (ODB++/Gerber/Excellon from customers, machine logs, SPC)
+      prevents closed-loop optimization and proof of conformance.
+    - >-
+      Existing CAM tools offer basic mapping but lack automated, tolerance-aware
+      clustering and route/path optimization tuned to each machine and stack-up.
+  solution:
+    - >-
+      Ingest ODB++/Gerber/Excellon/Sieb&Meyer, derive hole classes
+      (plated/unplated, via types), and compute finished-hole tolerances from
+      design notes and IPC defaults.
+    - >-
+      Tolerance-aware tool clustering: reassign near-diameter tools within
+      allowed finished-hole tolerance and plating allowance; honor annular ring
+      and minimum land rules.
+    - >-
+      Machine-aware cycle-time model: simulates tool changes, traverses, spindle
+      accel, peck cycles, and feed/speed tables per machine to choose optimal
+      tool set and path order.
+    - >-
+      Routing optimizer: reorders routes (panel and board level) to minimize
+      non-cutting moves; manages tabs, lead-in/out, and breakout constraints.
+    - >-
+      Magazine-aware planning: respects maximum tools per program, prioritizes
+      common tools across jobs, and suggests global rack rationalization.
+    - >-
+      Formal verification: proves that each reassigned tool meets finished-hole
+      size, positional tolerances, and breakout constraints; generates an audit
+      report for QA.
+    - >-
+      Safe outputs: writes optimized NC programs (Excellon/Drill/Rout) and a
+      diff report; provides single-click rollback and A/B run labels.
+    - >-
+      Closed-loop learning: ingests machine logs and SPC (hole size Cpk,
+      breakouts) to refine models and shop-specific constraints.
+  uniqueValueProp: >-
+    Guaranteed tolerance-safe AI that consolidates NC drill/route tool tables
+    and reorders paths to cut tool changes and cycle time 10–25% per
+    job—validated per machine with an auditable report and one-click rollback.
+  unfairAdvantage: >-
+    Machine-calibrated digital twin and tolerance-verification engine trained on
+    diverse, real-world NC datasets—delivering provable, audit-ready
+    optimizations that are vendor-agnostic, safe by design, and continuously
+    improved from SPC feedback.
+  customerSegments:
+    - >-
+      Bare PCB manufacturers (quick-turn/high-mix) with 3–30 drill/router
+      machines, NA/EU/TW/JP.
+    - Mid-to-high volume PCB fabs seeking incremental capacity without capex.
+    - CAM engineering teams using UcamX/Genesis/InCAM/Valor/CAM350.
+    - 'Operations leaders focused on OEE, cycle time, and on-time delivery KPIs.'
+    - >-
+      Machine OEMs and distributors (Schmoll, Excellon, Lenz, Posalux) seeking
+      embedded optimization value-add.
+    - 'Captive PCB shops inside OEMs/ODMs (networking, aerospace, medical).'
+  channels:
+    - Direct sales to PCB fabs with a 60–90 day paid pilot and ROI guarantee.
+    - >-
+      OEM/channel partnerships with drill/router machine vendors and CAM
+      software resellers.
+    - >-
+      Thought leadership: IPC APEX, productronica, TPCA, JPCA papers and live
+      benchmarks.
+    - >-
+      Targeted outreach to quick-turn and aerospace/medical-certified fabs;
+      LinkedIn and industry forums.
+    - ROI calculator and interactive demo using anonymized sample jobs.
+    - >-
+      Customer success playbook: onsite/remote onboarding, operator training,
+      and certification for QA sign-off.
+  revenueStreams:
+    - >-
+      SaaS subscription per site + per active machine: Starter $1,200/month/site
+      + $300/machine; Pro $2,500/month/site + $600/machine (advanced routing +
+      MES APIs); Enterprise custom.
+    - >-
+      Optional usage pricing for small shops: $6–$15 per optimized job with
+      monthly minimum.
+    - >-
+      Professional services: onboarding/integration packages ($5k–$30k) and
+      custom rule libraries.
+    - OEM embedded licensing/revenue share for bundling with new machines.
+    - >-
+      Pay-by-savings option for pilots: 20–30% of verified first-year savings,
+      capped.
+  costStructure:
+    - 'R&D team (CAM/DFM experts, optimization/ML engineers).'
+    - >-
+      Field applications and customer success engineers for onboarding and
+      calibration.
+    - Cloud/compute for simulation and storage; on-prem packaging and support.
+    - 'Sales/marketing, industry events, and partner enablement.'
+    - >-
+      Security/compliance (SOC 2, ISO 27001), code signing, and
+      ITAR/EAR-exportable deployment options.
+    - >-
+      Data labeling and rule maintenance (IPC updates, customer-specific
+      tolerances).
+  keyMetrics:
+    - >-
+      Median tool count reduction per job (% and absolute). Target: 25–40%
+      reduction.
+    - >-
+      Cycle time reduction per machine per month (hours and %). Target: 10–25%
+      runtime reduction.
+    - >-
+      Tool changes avoided per job. Target: 30–60 fewer changes on typical
+      high-mix panels.
+    - 'CAM engineer touch time per job. Target: -15–30 minutes/job.'
+    - >-
+      First-pass yield unchanged or improved. Target: ≥99.5% FPY; hole-size Cpk
+      ≥1.33 on impacted classes.
+    - 'Adoption: % of jobs run through optimizer. Target: >70% by month 6.'
+    - 'Payback period at site level. Target: <60 days.'
+    - 'Delta OEE for drill/router workcenters. Target: +5–10 points.'
+    - 'Rollback rate of optimized programs. Target: <2% after month 3.'
+    - 'Support tickets per 100 jobs. Target: <1.'
+storyBrand:
+  character: >-
+    Bare PCB fabrication CAM/NC engineers and manufacturing leaders who need to
+    hit throughput and quality targets.
+  problem: >-
+    Bloated NC drill/route programs create too many tools, long cycle times, and
+    tedious manual cleanup—keeping teams under deadline pressure while fearing
+    tolerance violations.
+  guide: >-
+    We understand the pain of tool bloat and reruns. Our purpose-built AI for
+    bare-board NC drill/route tool table rationalization simplifies programs
+    while honoring tolerances, stack-ups, and customer specs.
+  plan: >-
+    1) Upload NC drill/rout files, stack-up, and allowed tolerances. 2) AI
+    cleans, consolidates, and simulates to produce a tolerance-safe tool table
+    and revised programs with a clear diff report. 3) You review, approve, and
+    deploy—optionally piloting on a single panel first.
+  callToAction: >-
+    Start a low-risk pilot on one live job or request a sample optimization
+    report.
+  success: >-
+    Fewer tools and faster cycles, fewer operator touches, improved OEE,
+    predictable on-time delivery, and consistent quality—without violating
+    tolerances.
+  failure: >-
+    Sticking with bloated programs means wasted spindle time, frequent tool
+    changes, higher consumable costs, missed deadlines, and scrap risk from
+    tolerance errors.
+landingPage:
+  hero:
+    title: NC Drill/Route Tool Table Rationalization
+    subtitle: >-
+      AI that cleans and optimizes NC drill and rout programs to cut tools and
+      cycle time without violating tolerances.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - Bloated tool tables drive excessive tool changes and downtime.
+    - Duplicate and near-duplicate diameters slip through manual CAM review.
+    - Cycle time is lost to non-optimized drill order and routing paths.
+    - Inconsistent NC formats and notes increase setup time and scrap risk.
+    - Tight tolerances make teams hesitant to consolidate tools.
+    - Tooling costs rise from stocking rarely used diameters.
+  solution:
+    - >-
+      Tolerance-aware consolidation that preserves annular ring and route
+      widths.
+    - >-
+      Optimized drill and rout sequencing to minimize head travel and
+      changeovers.
+    - >-
+      Standardized feeds, speeds, peck, and retract by material and stack
+      height.
+    - Mapping to your approved tool library with out-of-policy flagging.
+    - 'Clean, ready-to-run NC plus full audit trail and before/after diffs.'
+    - API and on-prem options to integrate with existing CAM/MES.
+  features:
+    - Supports Excellon/Sieb & Meyer drill and common rout formats.
+    - 'Configurable rules by hole class, layer pair, finish, and stack height.'
+    - Annular ring and slot kerf checks to prevent geometry violations.
+    - Panel-aware optimization and hit-count balancing across the field.
+    - Tool change minimization with travel path optimization.
+    - Peck/dwell tuning for microvias and deep drills.
+    - Approved-tool mapping with nearest-size substitution caps.
+    - 'What-if preview, savings estimate, and rollback at any time.'
+    - Detailed impact report per tool and feature with full traceability.
+    - 'Secure file handling, on-prem or private cloud deployment.'
+  steps:
+    - Upload NC drill/rout files and your tool library.
+    - >-
+      Set rules: max oversize/undersize, route kerf, min annular ring, layer
+      pairs.
+    - Run optimization and review suggested tool merges and sequence changes.
+    - Approve changes after checking cycle-time and tool-count deltas.
+    - 'Export cleaned NC, setup sheets, and reports; push to CAM/MES via API.'
+---
+# DrillRouteIQ
+
+Industry: Bare Printed Circuit Board Manufacturing
+Service: NC Drill/Route Tool Table Rationalization

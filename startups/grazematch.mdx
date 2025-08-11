@@ -1,0 +1,334 @@
+---
+name: GrazeMatch AI
+slug: grazematch
+service:
+  title: Pasture Biomass & Rotational Grazing Planner
+  description: >-
+    AI plans weekly rotations matching pasture growth to dual‑purpose herd
+    demand to maintain residuals and gain/milk targets.
+  targetUsers:
+    - Ranch/farm owners
+    - Herd managers
+    - Grazing consultants
+  triggers:
+    - Weekly satellite refresh
+    - User requests new plan
+    - Stocking rate changes
+    - Significant rainfall/heat event
+  inputs:
+    - Ranch boundary and paddock map (GeoJSON/KML)
+    - 'Herd inventory by class (lactating, dry, calves, growers) with avg weights'
+    - Desired residual height or kgDM/ha target
+    - Target rest period days
+    - Water/fence constraints
+    - Local calibration cuts (optional)
+    - Weather location
+  steps:
+    - Ingest ranch/paddock geometry and herd demand
+    - Pull cloud‑free NDVI/EVI and rainfall for last 2–4 weeks
+    - Estimate pasture biomass and growth (region‑specific coefficients)
+    - >-
+      Compute feed-on-offer vs herd demand; simulate rotation to hit
+      residuals/rest
+    - Generate 7–14 day move schedule and contingency plan
+    - Alert when paddocks reach target pre‑graze biomass; update with weather
+  tools:
+    - Sentinel Hub or Google Earth Engine
+    - USGS Landsat/Sentinel-2
+    - OpenWeather/Meteomatics
+    - Python GIS stack (geopandas/rasterio)
+    - Twilio/WhatsApp
+    - QGIS/Google Maps export
+  outputs:
+    - Weekly rotation plan (PDF/CSV) with move dates and paddock order
+    - Grazing map (KML) for phones
+    - 'KPIs: kgDM/ha, days ahead, utilization'
+  pricingModel:
+    - Setup fee (map + calibration)
+    - Monthly subscription tiered by hectares/headcount
+    - Optional per‑hectare satellite premium
+  humanInLoop: false
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 4
+    overall: 4
+  risks:
+    - Cloud cover/biomass calibration error causing over/under‑grazing
+    - Inaccurate paddock boundaries or herd counts
+    - Rapid growth shocks not captured
+  dependencies:
+    - Timely satellite imagery
+    - Weather API
+    - Accurate paddock maps
+leanCanvas:
+  problem:
+    - >-
+      Weekly rotation plans are manual, error‑prone, and take 2–6 hours/week,
+      leading to inconsistent paddock rest days and suboptimal residuals.
+    - >-
+      Pasture growth varies with weather; producers struggle to match biomass
+      supply (kg DM/ha) to herd demand (kg DM/cow/day) for mixed milk + weight
+      gain objectives.
+    - >-
+      Overgrazing below target residuals (e.g., <1,500–1,700 kg DM/ha) reduces
+      regrowth rates and pasture persistence, increasing feed costs 5–20%.
+    - >-
+      Supplement use and costs (grain, TMR, hay) are not dynamically optimized
+      against pasture growth forecasts, leading to 5–15% avoidable feed spend.
+    - >-
+      Data silos (milk meters, scales, plate meter, satellite, weather) hinder
+      timely, integrated decision‑making and benchmarking.
+    - >-
+      Limited visibility into paddock‑level performance (utilization %, growth
+      rates, rest intervals) prevents proactive adjustments, hurting milk solids
+      per hectare and average daily gain (ADG).
+    - >-
+      Labor constraints and seasonal workload spikes make it hard to
+      consistently monitor sward height/biomass and enforce back‑fencing/laneway
+      moves.
+    - >-
+      Regulatory and sustainability reporting (grazing records, nutrient plans,
+      carbon intensity) requires documentation most farms don’t have structured.
+  solution:
+    - >-
+      Deliver weekly, paddock‑level rotation plans with sequence, entry/exit
+      dates, allocation sizes, and target residuals (e.g., 1,600–1,800 kg
+      DM/ha).
+    - >-
+      Integrate biomass estimates (satellite NDVI/SAR + plate meter) with 7–14
+      day weather to forecast growth (kg DM/ha/day) and adjust rest days
+      dynamically.
+    - >-
+      Model dual‑purpose demand by class (lactating cows, dry cows, heifers,
+      finishers) including lactation stage, parity, BCS, and ADG targets to
+      recommend supplement rates or buffer feeding when needed.
+    - >-
+      Provide a real‑time grazing wedge, utilization analytics, and alerts when
+      paddocks are at risk of under/over‑grazing given forecasted growth and
+      herd movements.
+    - >-
+      Offer economic optimization: minimize feed cost/kg milk or /kg gain under
+      constraints (residual targets, animal performance, pasture persistence).
+    - >-
+      Enable mobile, offline field use to record actual residuals, moves, and
+      plate‑meter readings; auto‑replans based on deviations.
+    - >-
+      Integrate with milk meters, in‑parlor software, EID scales, and virtual
+      fencing to close the loop from plan to outcome.
+  uniqueValueProp: >-
+    An AI grazing planner that matches pasture growth to dual‑purpose herd
+    demand and production goals, optimizing weekly rotations to hit target
+    residuals, milk yield, and weight gain—reducing supplement costs and
+    planning time while improving pasture persistence.
+  unfairAdvantage: >-
+    Dual‑purpose‑specific modeling that ties biomass and rest‑day dynamics to
+    simultaneous milk and weight‑gain outcomes, validated with multi‑region
+    pilot data and closed‑loop integrations (milk meters, scales, and virtual
+    fencing). Partnerships with co‑ops and consultants create distribution and
+    embedded benchmarks competitors lack.
+  customerSegments:
+    - >-
+      Primary: Pasture‑based dual‑purpose (milk + beef) cattle farms, 50–1,000
+      head, using rotational or adaptive multi‑paddock grazing.
+    - >-
+      Secondary: Grazing consultants, nutritionists, and veterinarians advising
+      dual‑purpose herds.
+    - >-
+      Cooperatives/processors seeking supply‑chain consistency (milk solids/ha,
+      animal welfare, sustainability).
+    - >-
+      Large ranches/dairy‑beef integrators (1,000–10,000 head) with multiple
+      blocks/paddocks and seasonal calving.
+    - >-
+      Ag lenders/insurers valuing productivity and risk metrics; conservation
+      programs (e.g., NRCS/EQIP) that support grazing planning.
+  channels:
+    - >-
+      Direct sales to ICP regions with high pasture usage: pilot clusters in
+      Wisconsin/Upper Midwest (US), Ireland, New Zealand, southern
+      Brazil/Uruguay, and Colombia (Antioquia/Cundinamarca).
+    - >-
+      Co‑op/processor partnerships (e.g., DFA, Fonterra, Arla, FrieslandCampina)
+      bundling with sustainability or milk quality programs.
+    - >-
+      Grazing consultants and extension specialists as resellers/affiliates with
+      revenue share and exclusive local territories.
+    - >-
+      Ag retailers/equipment dealers (plate meters, EID scales, virtual fencing)
+      bundling software with hardware sales.
+    - >-
+      Content and community: grazing webinars, pasture walks, field‑day demos,
+      and case studies showing KPIs (utilization, supplement savings, milk/ha).
+    - >-
+      Digital demand gen: targeted ads on producer media, podcasts, YouTube farm
+      tours; lead magnets like a free grazing wedge template.
+    - >-
+      Freemium/trial: 30‑day trial with 3 paddocks live; paid unlock for full
+      farm and integrations.
+    - >-
+      Government/conservation programs (NRCS/EQIP, EU eco‑schemes) where
+      software supports grazing management plans; reimbursement pathways.
+  revenueStreams:
+    - >-
+      SaaS per‑farm subscription (choose one metric): per hectare: $2–$4/ha/year
+      (typical 80–200 ha = $160–$800/year); or per head: $0.75–$1.50/head/month
+      (typical 150–400 head = $1,350–$7,200/year).
+    - >-
+      Pro tier add‑ons: hardware integrations (milk meters, scales, collars,
+      virtual fencing) +$100–$300/month/farm; satellite premium
+      (higher‑frequency Planet) +$0.50–$1/ha/month.
+    - >-
+      Advisory services: seasonal grazing plan setup, drought/surge playbooks,
+      and on‑farm training: $750–$3,000 per engagement.
+    - >-
+      Enterprise/co‑op licensing: volume pricing with aggregated benchmarking
+      and sustainability dashboards; $50k–$500k/year depending on scale.
+    - >-
+      Data/insights: anonymized benchmarking subscriptions for
+      lenders/insurers/processors (opt‑in), $10k–$100k/year.
+    - >-
+      Implementation/training packages: $500–$2,000 per farm for onboarding
+      where required.
+  costStructure:
+    - >-
+      COGS per farm/month: cloud compute & storage $5–$12; weather APIs $1–$3;
+      satellite imagery (mostly free Sentinel; optional Planet) $0–$20;
+      SMS/notifications $1–$3; map tiles $1–$2.
+    - >-
+      R&D: ML/data engineering team (4–8 FTEs) $700k–$1.8M/year;
+      agronomy/grazing science (2–4 FTEs) $250k–$600k/year.
+    - >-
+      Go‑to‑market: ag sales + customer success (3–8 FTEs) $400k–$1.2M/year;
+      travel, events, demos $100k–$300k/year; partner commissions 10–20%.
+    - >-
+      General & admin: compliance, insurance, legal (ag liability), accounting
+      $150k–$300k/year.
+    - 'Support/onboarding tooling: knowledge base, LMS, help desk $25k–$75k/year.'
+    - >-
+      Contingency/data acquisition (drought years, high‑res imagery, field
+      trials) $50k–$200k/year.
+  keyMetrics:
+    - >-
+      Biomass prediction accuracy: RMSE ≤200 kg DM/ha on paddocks with
+      plate‑meter validation; bias <5%.
+    - >-
+      Operational outcomes: - Target residual hit rate ≥80% of paddocks/week. -
+      Pasture utilization ≥75%. - Pasture growth forecast MAE ≤10 kg DM/ha/day.
+    - >-
+      Animal performance: +3–8% milk/ha or +0.05–0.15 kg MS/cow/day; +0.05–0.15
+      kg/day ADG on growing stock, controlled for weather/season.
+    - >-
+      Feed economics: 5–15% reduction in supplement use (kg DM/cow/day) at
+      equivalent milk/ADG; feed cost per kg milk down 3–10%.
+    - 'Time savings: 2–4 hours/week reduction in planning and record‑keeping.'
+    - >-
+      Engagement: weekly active farms ≥65%; plan adherence ≥70%; replan latency
+      <24 hours after deviations.
+    - >-
+      Commercial: CAC payback <9 months; Net revenue retention >110%; churn <2%
+      monthly; LTV/CAC >3x within 18 months.
+    - >-
+      Onboarding: time‑to‑first‑value <14 days; % farms connected to at least
+      one data source >60% by day 30.
+storyBrand:
+  character: >-
+    Dual‑purpose cattle ranchers and mixed farmers who need to match pasture
+    growth with herd demand—without overgrazing or missing milk/gain targets.
+  problem: >-
+    External: Growth varies weekly; herd demand shifts; paddock sizing, rest
+    periods, and residuals are hard to get right.
+
+    Internal: Guesswork causes decision fatigue and uncertainty.
+
+    Philosophical: You shouldn’t have to choose between profitability, animal
+    performance, and land stewardship.
+  guide: >-
+    Empathy: We’ve managed and modeled rotational grazing; we know the pressure
+    of weather, markets, and animal welfare.
+
+    Authority: AI forecasts growth and optimizes rotations across diverse herds;
+    built with agronomy and animal science; field‑tested plans that hit
+    residuals and milk/gain targets.
+  plan: >-
+    Process Plan:
+
+    1) Connect pasture maps and herd data (stocking, milk/gain targets).
+
+    2) Calibrate growth with local weather and simple sward checks.
+
+    3) Receive weekly rotation: paddock order, area, rest days, and residuals
+    matched to demand.
+
+    4) Adjust in‑app; AI learns and refines each week.
+
+    Agreement Plan: Clear metrics (covers, residuals, milk/ADG), your data stays
+    yours, cancel anytime.
+  callToAction: >-
+    Direct: Start a 30‑day pilot on your current paddocks.
+
+    Transitional: Download a sample rotation and ROI worksheet; join a 20‑minute
+    onboarding webinar.
+  success: >-
+    Consistent residuals, higher milk and ADG from grass, lower bought‑in feed,
+    healthier soils, simpler weekly decisions, resilient pastures, and confident
+    profitability.
+  failure: >-
+    Over/under‑grazing, suppressed milk and ADG, higher supplement costs,
+    pasture decline, stressed managers, and missed profit.
+landingPage:
+  hero:
+    title: Pasture Biomass & Rotational Grazing Planner
+    subtitle: >-
+      AI weekly rotations that match pasture growth to dual‑purpose herd
+      demand—protect residuals and hit milk and gain targets.
+    ctaText: Plan My Rotation
+    ctaHref: /start
+  problem:
+    - Forage supply and herd demand rarely line up by hand.
+    - 'Over/undergrazing cuts milk, growth, and pasture recovery.'
+    - >-
+      Dual‑purpose herds complicate moves across milkers, replacements, and
+      finishers.
+    - 'Spreadsheets, wedges, and plate‑meter notes don’t stay synced.'
+    - Weather swings make residual management a guessing game.
+    - 'Hidden costs: wasted supplement, lost rest days, and labor inefficiency.'
+  solution:
+    - AI forecasts growth and demand to schedule weekly rotations by paddock.
+    - Maintains target residuals and pre‑graze covers to protect regrowth.
+    - Optimizes milk yield and ADG with precise daily pasture allocations.
+    - >-
+      Auto‑adjusts for rain, heat, and quality; recommends buffer feed when
+      needed.
+    - >-
+      One plan for milkers and beef groups—supports split herds and
+      leader–follower.
+    - Simple move sheets and real‑time alerts keep crews aligned.
+  features:
+    - Dynamic grazing wedge with pre/post‑graze targets.
+    - 'Growth data from satellite, plate meter, and local rainfall.'
+    - Milk meter and scale data to track response and ADG.
+    - 'Herd demand engine (lactation stage, BW, growth, supplement).'
+    - >-
+      Paddock mapping with rest days, back‑fencing, lanes, and water
+      constraints.
+    - >-
+      Weekly rotation builder with move times, area per break, and expected
+      output.
+    - Residual tracking and variance heatmap for rapid correction.
+    - 'Scenario planning: drought, surplus, stockpile, first/second grazer.'
+    - Feed budget and buffer feed recommendations by group.
+    - Offline mobile logging; printable and shareable move sheets.
+    - 'Integrations and imports: sensors, milk meters, scales, weather, CSV/API.'
+    - Compliance-friendly records for audits and regen reporting.
+  steps:
+    - Map paddocks and set pre‑graze and residual targets.
+    - 'Connect data: satellite/plate meter, rainfall, milk meters, and weights.'
+    - 'Define herds, lactation stages, target milk/ADG, and supplements.'
+    - 'Generate weekly rotation with move timing, areas, and allocations.'
+    - 'Execute moves and log covers/residuals on mobile, even offline.'
+    - Review outcomes; AI adapts next week and flags surplus/deficit early.
+---
+# GrazeMatch AI
+
+Industry: Dual-Purpose Cattle Ranching and Farming
+Service: Pasture Biomass & Rotational Grazing Planner

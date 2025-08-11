@@ -1,0 +1,301 @@
+---
+name: RouteForge AI
+slug: routeforge
+service:
+  title: Daily Route and Dispatch Planner (VRP)
+  description: >-
+    Generates optimized last-mile/mid-mile routes with time windows, capacities,
+    and driver shifts.
+  targetUsers:
+    - Transportation Planner
+    - Dispatch Supervisor
+    - 3PL Operations Manager
+  triggers:
+    - Daily order cutoff reached
+    - Late order arrival needing re-optimization
+  inputs:
+    - 'Orders with addresses, time windows, service priorities'
+    - Vehicle capacities and attributes
+    - Driver shifts/HOS constraints
+    - Depot locations
+    - Historical service times (optional)
+    - Road restrictions
+  steps:
+    - Geocode and validate addresses
+    - 'Build VRP with time windows, capacities, and shift rules'
+    - Solve and sequence routes; check feasibility and KPIs
+    - Create driver manifests and turn-by-turn links
+    - Publish routes via CSV/API; notify via Slack/Email
+    - Re-opt for late adds or exceptions
+  tools:
+    - OR-Tools VRP
+    - OSRM/Mapbox/Google Maps Matrix API
+    - PostGIS/GeoPandas
+    - Airflow/Prefect for scheduling
+    - Slack/Email APIs
+  outputs:
+    - Optimized route plans with ETAs
+    - Driver manifests and load sheets
+    - Fleet utilization and cost estimates
+  pricingModel:
+    - Subscription per active vehicle/month
+    - One-time setup and data onboarding
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - 'Unmodeled practical constraints (gates, docks)'
+    - Geocoding inaccuracies
+    - Driver adoption of new routes
+  dependencies:
+    - Order feed from TMS/WMS/ERP
+    - API key for mapping
+    - Driver roster and vehicle master
+leanCanvas:
+  problem:
+    - >-
+      Manual planning for last-/mid-mile routes takes 2–6 hours daily per
+      dispatcher and does not scale with demand volatility.
+    - >-
+      Missed time windows and SLA breaches (5–15%) cause refund credits, lost
+      contracts, and lower NPS.
+    - >-
+      Under/over-utilized vehicles increase cost per stop; typical fleets drive
+      10–25% more miles than necessary.
+    - >-
+      Real-time disruptions (late pickups, traffic, cancellations) require
+      re-planning; most tools cannot re-optimize mid-shift in seconds.
+    - >-
+      Data silos across OMS/WMS/TMS/telematics block accurate ETAs and capacity
+      planning.
+    - >-
+      Compliance with driver shifts/HOS, vehicle restrictions, and customer
+      constraints is difficult to encode and audit.
+    - >-
+      SMB/mid-market fleets lack data science resources to tune solvers,
+      forecast service times, and quantify ROI.
+    - >-
+      Sustainability targets (CO2 per stop) lack operational levers without
+      optimized routing and consolidation.
+  solution:
+    - >-
+      Cloud SaaS + API for daily and intra-day Vehicle Routing Problem (VRP)
+      with time windows, capacities, skills, pickup-delivery, and multi-depot.
+    - >-
+      Real-time dispatcher console: live map, capacity view, ETA risk flags,
+      exception queue, and one-click re-optimization.
+    - >-
+      Driver app SDK/integrations for turn-by-turn navigation, barcode/PoD
+      capture, and on-device stop confirmations.
+    - >-
+      Explainable solver: shows constraint trade-offs (e.g., why a stop moved)
+      and quantifies KPI impact of overrides.
+    - >-
+      Scenario Studio: what-if planning (add vehicles, change depot hours,
+      simulate traffic) with A/B KPI comparison.
+    - >-
+      Streaming ETA engine using historical and live traffic; learns
+      location-specific service times automatically.
+    - >-
+      Integration layer: prebuilt connectors for Shopify/ShipStation/Shippo,
+      Oracle/SAP/Blue Yonder TMS/WMS, Geotab/Samsara telematics, and
+      project44/FourKites visibility.
+    - >-
+      Sustainability and cost dashboards: cost per stop, miles per stop, CO2 per
+      package, route density, and SLA adherence.
+    - >-
+      Security and compliance: SOC 2 Type II roadmap, data residency options
+      (US/EU), SSO/SCIM, audit trails.
+  uniqueValueProp: >-
+    AI-powered, explainable route and dispatch planning that cuts planning time
+    by 90%, miles by 10–20%, and late deliveries by 50–80%. Live re-optimization
+    in under 60 seconds with compliance-aware constraints, API-first
+    integration, and scenario simulation for continuous improvement.
+  unfairAdvantage: >-
+    Explainable, compliance-aware re-optimization engine that learns per-stop
+    service times and balances fairness, cost, and SLA risk in real time;
+    combined with a consulting-first channel (white-label) and a growing
+    anonymized dataset that improves ETAs and solver heuristics across
+    customers.
+  customerSegments:
+    - >-
+      Regional 3PLs and parcel/courier networks (10–500 vehicles) handling B2C
+      and B2B last mile.
+    - >-
+      Retail/grocery/CPG brands running mid-mile store replenishment and
+      DC-to-store transfers.
+    - >-
+      Direct-store-delivery (DSD) and beverage/foodservice distributors
+      (recurrent routes + time windows).
+    - >-
+      Industrial/B2B distributors (MRO, HVAC, medical supplies) with scheduled
+      and same-day drops.
+    - >-
+      Pharmacy/medical courier services with strict time windows and
+      chain-of-custody.
+    - >-
+      Logistics consulting firms and SIs offering process and distribution
+      optimization; white-label and co-delivery of projects.
+  channels:
+    - >-
+      Direct sales to SMB/mid-market fleets via inside sales and SDRs; 30-day
+      pilot-to-contract motion.
+    - >-
+      Consulting/SI partnerships (co-sell/white-label) with boutique logistics
+      firms and supply chain practices; referral and revenue-share agreements.
+    - >-
+      Marketplaces and integrations: Shopify, ShipStation/Shippo, Geotab/Samsara
+      app marketplaces, SAP Store, Azure/AWS Marketplace.
+    - >-
+      Content-led inbound: ROI calculators, playbooks by vertical (grocery, DSD,
+      courier), case studies, and webinars with partners.
+    - >-
+      Events and associations: Manifest, Home Delivery World, CSCMP EDGE,
+      MODEX/ProMat; regional courier and 3PL associations.
+    - >-
+      Targeted ABM campaigns on 1,000 named accounts; LinkedIn and trade media
+      with proof of ROI assets.
+  revenueStreams:
+    - >-
+      Subscription per active vehicle/asset per month (tiered): $25 Starter
+      (planning only), $45 Growth (planning + dispatch + SDK), $70 Enterprise
+      (SAML, advanced SLA, premium support).
+    - >-
+      Usage-based compute for large-scale or frequent re-optimizations beyond
+      plan (e.g., $0.0008 per stop solved).
+    - Enterprise license + data residency add-on (annual commitment).
+    - >-
+      Implementation/onboarding packages ($5k–$50k) covering data cleanup,
+      integration, and change management.
+    - >-
+      White-label/OEM pricing for consulting partners (discounted volume seats +
+      joint services).
+    - 'Premium support/SLA (24x7, <15 min response) and training subscriptions.'
+    - >-
+      Professional services: custom constraints, KPI dashboards, and network
+      design studies.
+  costStructure:
+    - >-
+      Cloud compute and storage (solver workers, streaming, and analytics);
+      target COGS < 25% of ARR.
+    - >-
+      Mapping/traffic/geocoding licensing (HERE/TomTom/OSM hybrid) and SMS/push
+      notification costs.
+    - >-
+      Engineering and AI/OR research team (solver optimization, ETA models,
+      connectors).
+    - >-
+      Sales and marketing (SDR, AE, events, content), partner enablement, and
+      solution consulting.
+    - >-
+      Customer success, onboarding, and support; training content and
+      certification.
+    - >-
+      Security/compliance (SOC 2 Type II, pen tests), observability, and SRE for
+      99.9%+ uptime.
+    - >-
+      Data acquisition for model training (anonymized aggregates), QA, and
+      labeling.
+    - >-
+      Legal and insurance (contracts with service-level penalties common in
+      logistics).
+  keyMetrics:
+    - >-
+      Operational KPIs: planning time per day per dispatcher (target: <30 min),
+      on-time rate (target: >98%), miles per stop (reduction: 10–20%), stops per
+      route (increase: 5–15%).
+    - >-
+      Financial KPIs: cost per stop (reduction target: 8–15%), fuel cost
+      reduction, labor savings (dispatcher hours, overtime).
+    - >-
+      Sustainability KPIs: CO2 per package (reduction: 5–12%), empty miles
+      (reduction: 10–20%).
+    - >-
+      Reliability KPIs: solver success rate (>99.5%), re-optimization latency
+      P95 (<60s for 1,500 stops), API availability (>99.9%).
+    - >-
+      Adoption KPIs: active fleets, active vehicles, dispatcher WAU/MAU, mobile
+      app DAU, feature utilization (re-optimizations per day).
+    - >-
+      Business KPIs: CAC payback (<9 months), gross margin (>70%), net revenue
+      retention (>115%), logo churn (<8% annually), ARR growth.
+    - >-
+      Implementation KPIs: time-to-first optimized route (<7 days), time-to-ROI
+      (<90 days), data quality score (>95% valid addresses).
+storyBrand:
+  character: >-
+    Ops leaders, dispatchers, and logistics consultants at parcel, retail,
+    field-service, and 3PL fleets who must plan daily last-/mid-mile routes
+    within time windows, capacities, and driver shifts.
+  problem: >-
+    Manual, spreadsheet-based planning can’t keep pace with volatile demand and
+    complex constraints—causing late deliveries, empty miles, overtime, and
+    missed SLAs.
+  guide: >-
+    We understand the pressure to hit on-time and cost targets. Our team blends
+    process/logistics consulting with production-grade VRP and AI proven on
+    millions of stops.
+  plan: >-
+    1) Connect orders, drivers, and depots via API/CSV; 2) Set rules—time
+    windows, capacities, skills, shifts, priorities; 3) Auto-generate, dispatch,
+    and re-optimize routes with live tracking and KPIs.
+  callToAction: Book a 15-minute demo or start a 14-day pilot.
+  success: >-
+    Planning time down 90%, miles down 10–25%, on-time 98%+, higher utilization,
+    lower cost per stop, happier drivers and customers.
+  failure: >-
+    Persisting with manual planning leads to SLA misses, excess fuel and
+    overtime, underutilized fleets, customer churn, and planner burnout.
+landingPage:
+  hero:
+    title: Daily Route & Dispatch Planner (VRP)
+    subtitle: >-
+      AI-optimized last- and mid-mile routes with time windows, capacities, and
+      driver shifts. Plan in minutes. Deliver on time. Spend less.
+    ctaText: Get a demo
+    ctaHref: /demo
+  problem:
+    - Daily planning takes hours across spreadsheets and maps.
+    - >-
+      Time windows, driver shifts, and capacity limits collide—routes fail
+      midday.
+    - Static routes ignore traffic and same-day changes.
+    - >-
+      Dispatch lacks visibility; customers get vague ETAs and more support
+      tickets.
+    - Low drop density drives up cost and emissions.
+    - 'Hard to test new depots, fleet mixes, or policies before committing.'
+  solution:
+    - 'One-click VRP respecting time windows, capacities, and labor rules.'
+    - 'Balanced routes by shift, skill, and vehicle; automated load sequencing.'
+    - 'Real-time re-optimization for late orders, traffic, and driver absences.'
+    - 'Live ETAs, customer notifications, and exception alerts.'
+    - API + dashboard with seamless import/export to TMS/ERP.
+    - 'Scenario planner to simulate cost, on-time %, and CO2 before rollout.'
+  features:
+    - 'Multi-depot VRP/VRPTW with pickups, deliveries, and returns.'
+    - 'Vehicle constraints: volume/weight, compartments, temperature, skills.'
+    - 'Shift rules: start/end times, breaks, hours-of-service compliance.'
+    - Traffic-aware travel times and configurable service durations.
+    - 'Multi-objective optimization: on-time %, cost, distance, workload balance.'
+    - Auto load building and stop sequencing; zone/territory adherence.
+    - Route locking with drag-and-drop edits and instant re-score.
+    - 'Driver app integration: turn-by-turn, barcode/PoD, notes.'
+    - 'Live tracking, geofencing, and proactive delay alerts.'
+    - Customer ETA links and messaging.
+    - Cost and CO2 calculators with post-run KPIs.
+    - 'Secure API, CSV import, and native integrations.'
+  steps:
+    - Connect orders and fleet data (API or CSV).
+    - 'Set objectives and constraints (time windows, capacities, shifts).'
+    - Click Optimize to generate feasible daily routes.
+    - 'Review, tweak, and lock routes; auto-dispatch to drivers.'
+    - Track progress and handle exceptions with one-click re-balance.
+    - 'Analyze KPIs and export routes, costs, and ETAs to your systems.'
+---
+# RouteForge AI
+
+Industry: Process, Physical Distribution, and Logistics Consulting Services
+Service: Daily Route and Dispatch Planner (VRP)

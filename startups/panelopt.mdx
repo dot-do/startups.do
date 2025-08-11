@@ -1,0 +1,345 @@
+---
+name: PanelOpt AI
+slug: panelopt
+service:
+  title: Automated Panelization & Step-and-Repeat Optimizer
+  description: >-
+    Optimizes panel layout, railings, coupons, fiducials, V-score/tab-route
+    strategy to maximize utilization and throughput.
+  targetUsers:
+    - CAM engineers
+    - Production planners
+  triggers:
+    - Job approved for tooling
+    - Panel size or coupon spec change
+    - Utilization improvement initiative
+  inputs:
+    - Unit board CAM data (Gerber/ODB++)
+    - Target panel size/usable area and rail requirements
+    - 'Coupon specification (impedance, CAF, solderability)'
+    - 'Routing/V-score constraints (bit diameters, min web, bridge)'
+    - AOI/Etch/AOI rail and fiducial requirements
+  steps:
+    - Detect board outline and keepouts; calculate nestability
+    - Solve step-and-repeat with constraints (utilization vs. manufacturability)
+    - 'Place coupons, fiducials, serialization, tooling holes'
+    - 'Generate V-score or tab-route paths, drill merge plan'
+    - 'Simulate utilization, drill/rout time and estimated yield impacts'
+    - Export panel CAM and documentation
+  tools:
+    - Python + Shapely/rtree for geometry
+    - Open-source gerber panelizer libs
+    - Google OR-Tools (ILP/CP-SAT) for nesting
+    - CairoSVG/Tracespace for visualization
+  outputs:
+    - Panel ODB++ or stepped Gerbers/Excellon
+    - Combined NC drill/rout files and tool tables
+    - 'Panel documentation (coordinates, coupons, fiducials)'
+    - Utilization and time estimate report
+  pricingModel:
+    - Per panelization run
+    - Subscription for unlimited runs
+    - Optimization success fee (share of material savings)
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 7.5
+    overall: 8
+  risks:
+    - Factory-specific router/V-score constraints not captured
+    - Coupon compliance issues if specs outdated
+    - Over-optimization causing handling/warp risks
+  dependencies:
+    - Accurate machine/process constraints
+    - Coupon standards (IPC-2221/2141/6012)
+    - Factory preferences for rails/fiducials
+leanCanvas:
+  problem:
+    - >-
+      Panelization and step-and-repeat currently take 30–90 minutes per job for
+      skilled CAM engineers; in high-mix shops this consumes 20–35% of daily CAM
+      time.
+    - >-
+      Panel utilization varies by 2–7 percentage points between operators/tools,
+      causing avoidable laminate waste and margin erosion.
+    - >-
+      Manual trade-offs across routing vs V-score, tab density, rail dimensions,
+      coupon placement, fiducials, and AOI/drill constraints are inconsistent
+      and error-prone.
+    - >-
+      High-mix, low-volume fabs struggle to pool small orders effectively,
+      leading to under-filled panels and longer queues.
+    - >-
+      Coupon and fiducial compliance to IPC and customer-specific requirements
+      requires tribal knowledge; mistakes trigger re-spins and delivery delays.
+    - >-
+      Inadequate rail design and depanelization strategy cause breakage and
+      downstream handling issues, increasing scrap 0.3–1.5%.
+    - >-
+      Suboptimal drill/rout path planning and tool changes add 5–15% machine
+      time per panel.
+    - >-
+      Iterating with customers to approve panel drawings (rail size, coupon
+      type, serialization) causes 1–3 extra back-and-forth cycles and slips TAT
+      by 4–12 hours.
+    - >-
+      Operator scarcity: senior CAM engineers are hard to hire/retain;
+      onboarding to panelization best practices takes 6–12 months.
+    - >-
+      Existing CAM modules are deterministic with limited plant-specific
+      learning; they don’t adapt to real yield/throughput feedback or dynamic
+      line capabilities.
+    - >-
+      Different press/LDI formats and panel sizes across lines require multiple
+      templates; maintaining them across shifts/sites leads to drift and
+      confusion.
+  solution:
+    - >-
+      AI-driven, multi-objective panel layout optimizer that balances
+      utilization, manufacturability, and throughput using plant-specific
+      constraints (press sizes, LDI windows, drill/rout limits, AOI formats).
+    - >-
+      Automated selection/placement of rails, break-off tabs, mouse-bites,
+      fiducials, and coupons with rules mapped to IPC and customer
+      specifications; generates dimensioned panel drawings for approval.
+    - >-
+      Strategy engine to choose V-score vs tab-route (or hybrid), optimize tab
+      density and positions for minimal stress and downstream depanelization
+      reliability.
+    - >-
+      Order pooling and schedule-aware step-and-repeat: groups compatible jobs
+      to fill panels while respecting delivery dates, material types, and copper
+      thickness constraints.
+    - >-
+      Toolpath-aware drill/rout optimization to reduce air moves and tool
+      changes; estimates machine time and flags bottlenecks before release.
+    - >-
+      Risk scoring: predicts warp/bow and rout stress risks based on board size,
+      stack-up, copper balance, and historical plant data; recommends
+      rail/coupon adjustments.
+    - >-
+      One-click outputs in ODB++/IPC-2581/Gerber X2, including NC drill/rout,
+      V-score maps, serialization, panel drawings (PDF/DXF), and BOM of
+      rails/coupons.
+    - >-
+      Closed-loop learning: ingests AOI/AFX defects, scrap causes, machine logs,
+      and operator adjustments to refine future panelization automatically.
+    - >-
+      Deployment options: on-prem or private cloud (VPC), with connectors to
+      UcamX/Genesis/InCAM, CAM350, Valor NPI, ERP/MES for job metadata.
+    - >-
+      What-if simulator and ROI estimator: compares candidate panels on
+      utilization, cycle time, and predicted yield; maintains audit trail for
+      customer/regulatory reviews.
+  uniqueValueProp: >-
+    Boost PCB panel utilization and throughput with a learning, constraint-aware
+    optimizer that encodes your plant’s real capabilities. Achieve 3–8% better
+    material usage, 20–50% faster CAM panelization, and measurable reductions in
+    rework and scrap—delivered as an integrated, auditable, one-click flow.
+  unfairAdvantage: >-
+    A closed-loop, plant-specific optimizer trained on real outcomes
+    (AOI/scrap/machine time) plus a deep rules library that encodes IPC and
+    customer-specific constraints. The combination of solver + learned risk
+    models, OEM CAM integrations, and anonymized benchmarking makes results hard
+    to replicate with generic CAM modules or in-house scripts.
+  customerSegments:
+    - >-
+      Quick-turn PCB fabricators (prototyping, high-mix/low-volume) with 1–3 CAM
+      teams and tight SLAs (24–72 hours).
+    - >-
+      Mid-volume, regional fabs serving industrial, medical, instrumentation
+      with moderate panel variety.
+    - >-
+      Large fabs with multiple lines (press, LDI/exposure, drill/rout, AOI)
+      targeting throughput and material savings at scale.
+    - >-
+      Captive PCB shops inside EMS/OEMs seeking consistent, auditable
+      panelization rules across regions.
+    - >-
+      CAM software vendors (Ucamco, Siemens Valor/Frontline, Downstream) as
+      OEM/technology partners.
+    - >-
+      Design service bureaus and NPI centers that generate initial
+      step-and-repeat proposals for customer approval.
+  channels:
+    - >-
+      Direct sales to fabrication sites; land-and-expand by line/site, starting
+      with a pilot cell.
+    - >-
+      OEM partnerships and plug-ins with Ucamco (UcamX/Integr8tor), Siemens
+      (Valor/Frontline InCAM/Genesis), Downstream (CAM350).
+    - >-
+      System integrators/resellers specializing in CAM/DFM deployments in North
+      America, Europe, and Southeast Asia.
+    - >-
+      Industry conferences and trade shows: IPC APEX EXPO, Productronica,
+      electronica, CPCA/ITE, JPCA; live demos with plant data.
+    - >-
+      Technical webinars and white papers (case studies: +5% utilization, -40%
+      CAM time) and a public ROI calculator using user-entered job mix.
+    - >-
+      Targeted outreach to quick-turn fabs and regional leaders via LinkedIn
+      Ads, IPC member directories, and email campaigns.
+    - >-
+      Freemium trial in sandbox mode with synthetic jobs; paid pilot with
+      on-site support and success criteria.
+    - >-
+      Content partnerships with laminate vendors and standards bodies (IPC) for
+      co-marketing and best-practice guides.
+  revenueStreams:
+    - >-
+      SaaS subscription per named CAM seat: $6,000–$12,000/year (average
+      $8,000), includes updates and standard support.
+    - >-
+      Usage-based add-on: $0.50–$2.00 per approved panelization (credits),
+      suitable for low-seat, high-throughput sites.
+    - >-
+      Enterprise/site license: $60,000–$300,000/year for unlimited seats per
+      site with SLA, SSO, and dedicated support.
+    - >-
+      Professional services: integration, rulebook digitization, custom coupon
+      libraries, and on-site enablement ($15,000–$100,000 per engagement).
+    - >-
+      Premium support and training: 24/7 and quarterly optimization audits
+      (10–20% of license).
+    - >-
+      Data/benchmarking add-on: anonymized industry KPIs and best-practice
+      templates (optional, opt-in, $10,000/year per group).
+  costStructure:
+    - >-
+      Core engineering team (optimization/operations research, CAM domain
+      experts, connectors): $2.5–4.0M/year.
+    - 'Go-to-market (AE/SEs, marketing, travel, trade shows): $1.0–2.0M/year.'
+    - >-
+      Cloud/compute and on-prem packaging (CI/CD, license management):
+      $150k–450k/year.
+    - >-
+      Data security/compliance (SOC 2 Type II, ISO 27001, penetration tests):
+      $100k–300k/year.
+    - >-
+      Professional services and pilots (travel, on-site, demo labs):
+      $200k–600k/year.
+    - >-
+      Licensing/partnership fees for SDKs/connectors where applicable:
+      $50k–200k/year.
+    - 'Contingency and legal (IP, contracts, regional reps): $100k–300k/year.'
+  keyMetrics:
+    - >-
+      Average panel utilization improvement vs baseline (% points). Target: +3–8
+      points within 90 days.
+    - 'CAM panelization time per job (minutes). Target: -40–60%.'
+    - 'First-pass customer approval rate for panel drawings (%). Target: >95%.'
+    - 'Scrap rate attributable to panel/rail/tab issues (%). Target: -20–40%.'
+    - 'Drill/rout machine time per panel (minutes). Target: -5–15%.'
+    - >-
+      Operator adoption: % of jobs using automated panelization. Target: >80% by
+      month 3 post-pilot.
+    - >-
+      Order pooling effectiveness: % of panels pooled; material waste reduction
+      (sheets/month).
+    - >-
+      Payback period for each site (months). Target: <3 months; ROI >5x in year
+      1.
+    - >-
+      Support metrics: panelization defects per 100 jobs; time-to-resolution;
+      NPS from CAM engineers.
+    - >-
+      Pipeline metrics: pilots started/quarter, pilot-to-paid conversion rate
+      (>60%), average ARR/site.
+storyBrand:
+  character: >-
+    PCB fabs and CAM/process engineers who must turn diverse customer designs
+    into high‑yield, machine‑ready panels fast.
+  problem: >-
+    Manual panelization and step‑and‑repeat decisions (rails, coupons,
+    fiducials, V‑score/tab‑route) consume time, invite errors, and waste
+    laminate—while teams face tight turns, utilization targets, and DFM risk.
+  guide: >-
+    We understand the pressure of slim margins and hot due dates. Our AI
+    optimizer encodes IPC best practices and your fab rules to deliver
+    consistent, production‑ready panels.
+  plan: >-
+    1. Ingest Gerber/ODB++/IPC‑2581 plus your panel sizes, machines, and DFM
+    rules.
+
+    2. Auto‑optimize layout, railings, coupons, fiducials, V‑score/tab‑route,
+    and tooling to your constraints.
+
+    3. Export machine‑ready outputs (NC/drill, scoring/router, AOI/fixture data)
+    and push to CAM/ERP.
+  callToAction: >-
+    Start a pilot on one product family or schedule a 30‑minute demo. Get an API
+    key and a starter rules pack.
+  success: >-
+    Higher utilization, faster CAM throughput, consistent IPC‑aligned panels,
+    fewer re‑spins and line interruptions, smoother downstream setup,
+    predictable cost and lead time.
+  failure: >-
+    Ongoing material waste, CAM firefighting, inconsistent panels, avoidable DFM
+    exceptions, missed ship dates, and scrap.
+landingPage:
+  hero:
+    title: Automated Panelization & Step‑and‑Repeat Optimizer
+    subtitle: >-
+      AI that designs bare PCB panels—rails, coupons, fiducials, and
+      V‑score/tab‑route—optimized for utilization and throughput.
+    ctaText: Get a demo
+    ctaHref: /demo
+  problem:
+    - Manual panelization burns CAM hours and delays starts.
+    - Underutilized panels waste laminate and plating capacity.
+    - Inconsistent rails/coupons/fiducials cause rework and scrap.
+    - V‑score vs tab‑route choices slow AOI/e‑test and depanelization.
+    - Panel‑level DFM misses trigger late changes and schedule risk.
+    - Multi‑design nesting is tedious and error‑prone.
+  solution:
+    - >-
+      Auto‑build best‑fit panels with rails, coupons, and fiducials to your
+      factory rules.
+    - Maximize material utilization and line throughput within machine limits.
+    - Co‑optimize V‑score and tab‑route for clean depanelization and fast test.
+    - Enforce panel‑level DFM to prevent late rework.
+    - Generate shop‑floor‑ready outputs and documentation in minutes.
+    - Run what‑if scenarios; standardize best practices across shifts and sites.
+  features:
+    - 'Input: Gerber X2, ODB++, IPC‑2581, DXF.'
+    - >-
+      Rules engine for panel size, margins, web widths, tooling holes,
+      AOI/e‑test clearances, drill/router limits.
+    - >-
+      Smart rail builder: stiffeners, breakouts, fiducials, barcodes, panel
+      text.
+    - >-
+      Coupon library with auto‑placement: impedance, plating, AOI/e‑test
+      coupons.
+    - 'Multi‑design nesting with demand mix, MOQ, and rotation constraints.'
+    - >-
+      V‑score/tab‑route co‑optimization with mouse‑bite spacing and score lines
+      output.
+    - Copper balance and thieving guidance to reduce warpage.
+    - >-
+      Throughput optimizer aligned to drill/router tables, AOI, and e‑test bed
+      sizes.
+    - >-
+      One‑click exports: panelized CAD, NC drill/route, V‑score layers, panel
+      drawing, traveler.
+    - >-
+      API + CAM integration (REST, export to Genesis/UCAM workflows); cloud or
+      on‑prem.
+    - >-
+      DFM dashboard with violations, utilization, takt estimates, and cost per
+      panel.
+    - 'Audit trail, templates, and versioned rule sets per product family.'
+  steps:
+    - Upload CAD or link an existing CAM job.
+    - Select a template or import factory rules and equipment constraints.
+    - 'Run optimization; review utilization, takt, and DFM reports.'
+    - 'Fine‑tune rails, coupons, and V‑score/tab‑route preferences if needed.'
+    - >-
+      Approve and export panelized files, NC programs, and documentation to
+      CAM/ERP/MES.
+---
+# PanelOpt AI
+
+Industry: Bare Printed Circuit Board Manufacturing
+Service: Automated Panelization & Step-and-Repeat Optimizer

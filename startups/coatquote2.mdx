@@ -1,0 +1,332 @@
+---
+name: CoatQuote AI
+slug: coatquote2
+service:
+  title: RFQ-to-Quote + Spec/Alternate Matching Agent
+  description: >-
+    Automatically ingests RFQs, maps specs to your catalog, checks compliance
+    and stock, and drafts margin-safe quotes with approved alternates.
+  targetUsers:
+    - Inside Sales
+    - CSR
+    - Sales Ops
+    - Product Managers
+  triggers:
+    - RFQ email to quotes@
+    - Web form RFQ submission
+    - CRM opportunity moves to Proposal stage
+  inputs:
+    - Customer account + pricing/contract terms
+    - 'Catalog with attributes (resin type, sheen, VOC, pack size)'
+    - SDS/TDS links
+    - 'Inventory, lead times, costs'
+    - Historical quotes/wins
+  steps:
+    - Ingest RFQ (email/PDF/Excel) and parse line items/specs
+    - Vector-search specs against catalog and approved alternates
+    - Check stock/lead time; flag hazmat ship constraints
+    - 'Price via rules (margin floors, contract), run quick elasticity check'
+    - 'Draft quote with alternates, compliance statements, and delivery dates'
+    - Route to rep for approval if outside guardrails; push to ERP/CPQ
+    - Email/PDF the quote and log to CRM
+  tools:
+    - Email/IMAP
+    - Unstructured.io or GCP Document AI (PDF/Excel parsing)
+    - Vector DB (Pinecone/Weaviate)
+    - LLM (OpenAI/Anthropic)
+    - 'ERP/CPQ API (NetSuite, SAP B1, D365BC)'
+    - CRM (Salesforce/HubSpot)
+  outputs:
+    - Quote PDF/HTML
+    - ERP/CPQ sales quote record
+    - Alternates list with rationale
+    - Win/loss attribution notes
+  pricingModel:
+    - One-time setup + monthly subscription
+    - 'Per-quote fee (e.g., $1–$3)'
+    - Optional gainshare on margin uplift
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 8
+    overall: 9
+  risks:
+    - Wrong alternates or spec mismatch
+    - Margin leakage if pricing rules are wrong
+    - Compliance labeling omissions
+  dependencies:
+    - ERP/CPQ access
+    - Catalog data with attributes
+    - Price lists/contracts
+    - SDS/TDS repository
+    - Shared quotes inbox
+leanCanvas:
+  problem:
+    - >-
+      RFQs arrive via email/PDF/portals in inconsistent formats, requiring
+      manual parsing that consumes 15–40 minutes per RFQ and delays responses.
+    - >-
+      Spec compliance is complex (VOC by state/county, LEED v4, MIL/OEM specs,
+      hazmat shipping, packaging sizes) and errors create legal/brand risk.
+    - >-
+      Alternate/equivalent matching is tribal knowledge; mis-matches lead to
+      rework, substitutions rejected by customers, or lost bids.
+    - >-
+      Inventory and lead-time checks are not embedded in quoting, causing quotes
+      for out-of-stock items and delayed fulfillment.
+    - >-
+      Margin leakage from inconsistent pricing and missing customer-specific
+      terms/rebates is common (1–3% GM impact).
+    - >-
+      Sales teams lack a single source of truth for approved alternates and
+      compliance rules; onboarding new hires takes months.
+    - >-
+      Quote cycle times exceed customer expectations (often 24–72 hours),
+      lowering win rates in time-sensitive jobs.
+    - >-
+      Limited analytics on RFQ throughput, win/loss reasons, and spec compliance
+      prevent continuous improvement.
+    - >-
+      Fragmented systems (ERP, PIM, pricing tools, spreadsheets) increase
+      swivel-chair work and error rates.
+    - >-
+      Inadequate audit trails and approvals create risk in regulated markets and
+      large public bids.
+  solution:
+    - >-
+      Ingest RFQs from email inboxes, portals, EDI, and file uploads (PDF,
+      Excel, images); auto-deduplicate and thread by opportunity.
+    - >-
+      Parse line items and specs with domain-tuned AI (OCR + LLM + NER) to
+      identify product, package size/finish/base, color system, and regulatory
+      constraints.
+    - >-
+      Map items to distributor catalog with confidence scoring; propose approved
+      alternates when exact matches are unavailable or non-compliant.
+    - >-
+      Check compliance against jurisdictional VOC limits, LEED v4 credits,
+      OEM/MIL specs, and hazmat shipping constraints; flag exceptions with
+      rationale.
+    - >-
+      Query ERP for real-time price, stock by branch/DC, lead-times, and
+      customer-specific terms/rebates; compute margin-safe pricing using rules
+      and guardrails.
+    - >-
+      Draft quotes with line-level notes, alternates, substitutions, and
+      compliance statements; route for approval based on thresholds and risk.
+    - >-
+      Publish quotes back to ERP/CRM; generate branded PDFs and optional e-sign;
+      write structured audit logs.
+    - >-
+      Closed-loop learning: capture win/loss and customer feedback to improve
+      mappings, alternates, and pricing recommendations over time.
+  uniqueValueProp: >-
+    Turn unstructured RFQs into margin-safe, spec-compliant quotes with approved
+    alternates in minutes—not days—boosting win rate and gross margin while
+    reducing risk.
+  unfairAdvantage: >-
+    A growing, proprietary equivalence and compliance dataset specific to
+    paint/coatings distribution—built from real RFQs, quotes, customer
+    approvals, and win/loss feedback—improves matching and alternates over time.
+    Combined with deep ERP integrations and a coatings-specific rules engine
+    (VOC/LEED/MIL/OEM), this creates switching costs and accuracy competitors
+    without the dataset cannot easily replicate.
+  customerSegments:
+    - >-
+      Primary: Mid-to-large Paint, Varnish, and Supplies Merchant Wholesalers
+      (NAICS 424950) with 3+ branches and 10+ inside sales/estimators.
+    - >-
+      Secondary: Regional coatings distributors serving construction, industrial
+      maintenance, marine, OEM finishing, and facility management sectors.
+    - >-
+      Buying centers: VP Sales/COO (time-to-quote, win rate), CFO (margin
+      control), CIO/IT (integration/security), Pricing Manager (margin
+      governance), Sales Ops (workflow).
+    - >-
+      Users: Inside sales/estimators, product managers, branch managers, bid
+      desk teams, compliance officers.
+    - >-
+      Early adopters: Distributors on Epicor Prophet 21, Infor SX.e/CloudSuite
+      Distribution, D365 BC/FO, NetSuite, SAP B1 with moderate IT openness.
+  channels:
+    - >-
+      Direct sales to top 600 North American distributors (NAICS 424950) with
+      targeted outreach by region and ERP system.
+    - >-
+      Partnerships with ERP resellers/VARs (Epicor P21, Infor, D365, NetSuite,
+      SAP B1) and PIM/catalog vendors (Unilog, Inriver).
+    - >-
+      Industry associations and events: NAW, PDRA, AMPP (formerly SSPC/NACE),
+      CoatingsTech Conference; sponsor RFQ automation sessions/webinars.
+    - >-
+      Content-led growth: RFQ automation benchmark report, spec compliance
+      guides by state, ROI calculator, and case studies.
+    - >-
+      Outbound sequences to bid desks and sales ops on LinkedIn + email,
+      offering a 6-week pilot tied to measurable KPIs.
+    - >-
+      Customer referrals and manufacturer alliances for approved alternates
+      libraries and co-marketing.
+    - >-
+      Marketplace listings in ERP app stores; co-sell motions with systems
+      integrators.
+  revenueStreams:
+    - >-
+      SaaS subscription (tiered by monthly processed line items and features):
+      Starter $2,500/month (up to 5k lines), Pro $6,000/month (up to 25k),
+      Enterprise custom/VPC.
+    - >-
+      Usage overage: $0.03–$0.06 per additional processed line item beyond plan
+      limits.
+    - >-
+      One-time implementation/integration fee: $15,000–$50,000 depending on ERP
+      and data readiness.
+    - >-
+      Add-ons: Compliance Pack ($1,000/month), Advanced Alternates Library
+      ($1,500/month), Premium Support/SLA ($1,000/month), Additional ERP
+      connectors ($500/month each).
+    - >-
+      Optional outcome-based bonus: up to 10% of measured incremental gross
+      margin lift over baseline for first 6 months (capped).
+    - >-
+      Professional services: catalog normalization, data cleanup, custom
+      compliance rules ($200–$250/hour).
+  costStructure:
+    - >-
+      R&D/Engineering (LLM/OCR development, rules engine, connectors): 35–45% of
+      operating costs.
+    - >-
+      Cloud infrastructure and inference (GPU/CPU, storage, vector DB, OCR):
+      scales with volume, target COGS 18–28% of revenue.
+    - >-
+      Data acquisition/annotation (SDS/TDS ingestion, regulatory updates,
+      alternates curation): 5–10%.
+    - 'Integrations and professional services delivery: 10–15%.'
+    - >-
+      Sales and marketing (direct reps, partner commissions, events, content):
+      15–25%.
+    - >-
+      Customer success/support (onboarding, training, account management):
+      8–12%.
+    - 'Security/compliance (SOC 2, pen tests, monitoring, audit tooling): 3–6%.'
+    - 'G&A/legal/insurance (incl. product liability considerations): 3–6%.'
+  keyMetrics:
+    - >-
+      Customer value metrics: reduce median RFQ-to-quote cycle time from 24–48h
+      to under 1h within 90 days.
+    - >-
+      Auto-quote coverage: ≥70% of line items processed without human
+      intervention by month 3; ≥85% with human-in-the-loop within 6 months.
+    - >-
+      Mapping accuracy: ≥95% precision and ≥92% recall on item/spec matches at
+      go-live; sustained with weekly regression tests.
+    - >-
+      Gross margin impact: +1.0–2.5 percentage points on quoted business within
+      6 months (baseline-adjusted).
+    - >-
+      Win rate uplift: +5–10% on comparable bids within 2 quarters (measured vs
+      pre-pilot baseline).
+    - >-
+      Compliance: <0.5% compliance-related exceptions per 1,000 lines; zero
+      critical violations.
+    - >-
+      Quote quality: alternate acceptance rate ≥60%; override rate on AI pricing
+      <15% after month 3.
+    - >-
+      Operational: time-to-value (first auto-quoted RFQ) < 14 days; full rollout
+      < 60 days; 99.9% uptime.
+    - >-
+      Financial: net revenue retention ≥115%; gross margin on services ≥70%; CAC
+      payback < 12 months; logo churn < 6% annually.
+storyBrand:
+  character: >-
+    Paint, varnish, and supplies wholesalers who need to turn messy RFQs into
+    fast, accurate, margin-safe quotes with compliant products or approved
+    alternates.
+  problem: >-
+    External: RFQs arrive in many formats; specs are dense; alternates need
+    approval; inventory and pricing move; manual matching is slow and
+    error‑prone. Internal: Teams feel overloaded and worry about missed
+    deadlines, non‑compliant quotes, and margin leakage. Philosophical: Winning
+    work shouldn’t require all‑nighters—buyers deserve accurate, on‑time,
+    compliant quotes.
+  guide: >-
+    We understand bid desks and inside sales drown in RFQs and spec sheets. Our
+    coatings‑aware AI ingests RFQs, maps specs to your catalog, checks
+    compliance and stock, and drafts margin‑guarded quotes with approved
+    alternates—integrating with your existing catalog, pricing, and inventory,
+    and keeping a human in the loop.
+  plan: >-
+    Process: 1) Connect catalog, pricing, and inventory; 2) Forward RFQs (email,
+    PDF, portal); 3) Review and send AI‑drafted, margin‑safe, compliant quotes
+    with alternates. Agreement: You set approval rules and margins; full audit
+    trail; security by design; no ERP changes required.
+  callToAction: >-
+    Direct: Book a demo or start a pilot. Transitional: Request sample output
+    and the Spec‑to‑Quote checklist.
+  success: >-
+    Quotes go out in minutes, not days; more bids submitted on time; higher win
+    rates; protected margins with guardrails; approved alternates that move
+    inventory; fewer errors and rework; scale RFQ throughput without adding
+    headcount.
+  failure: >-
+    Missed bid windows, lost deals to faster competitors, margin erosion from
+    mistakes, dead stock that never moves, compliance risk, and burned‑out
+    teams.
+landingPage:
+  hero:
+    title: Turn RFQs into Margin‑Safe Quotes in Minutes
+    subtitle: >-
+      AI agent for paint, coatings, and sundries wholesalers. Ingests RFQs, maps
+      specs to your catalog, checks compliance and stock, and drafts quotes with
+      approved alternates.
+    ctaText: Get a demo
+    ctaHref: /demo
+  problem:
+    - RFQs pile up in inboxes; manual parsing slows response times.
+    - 'Spec-heavy jobs require brand, VOC, and section checks—eats sales hours.'
+    - Missed alternates and substitutions leave margin on the table.
+    - Unknown stock and vendor ETAs cause delays and lost bids.
+    - Pricing mistakes and unguarded discounts erode margin.
+    - 'Quotes stall waiting for data sheets, SDS, and submittals.'
+  solution:
+    - >-
+      Auto‑ingest RFQs (email, PDF, Excel, portals) and extract line items and
+      specs.
+    - >-
+      Map specs to your catalog and approved alternates; flag non‑compliant
+      items.
+    - >-
+      Check live branch inventory and vendor lead times; honor MOQs and case
+      packs.
+    - Draft margin‑guarded quotes with customer/contract pricing and alternates.
+    - >-
+      Auto‑attach product data sheets, SDS, and compliance notes; one‑click
+      send.
+    - Continuously learns from wins/losses to sharpen alternates and pricing.
+  features:
+    - Multi‑format RFQ ingestion with OCR and table extraction.
+    - 'Spec/section matching (e.g., Div 09), brand/series recognition.'
+    - VOC/LEED/regulatory checks by job location and product class.
+    - Color/tint formula awareness and can‑size/UoM conversions.
+    - >-
+      Approved alternates and value‑engineering suggestions with compliance
+      notes.
+    - Real‑time inventory by branch and vendor ETA visibility.
+    - 'Hazmat/DOT shipping class, case pack, and MOQ logic baked in.'
+    - 'Customer/contract pricing, rebates, and margin guardrails.'
+    - Quote composer with ready‑to‑send emails and PDS/SDS/submittal packets.
+    - 'ERP/WMS sync for items, pricing, customers, and order creation.'
+    - 'Approvals, audit trail, and quoting SLA alerts.'
+    - 'Analytics on win rate, cycle time, and margin lift.'
+  steps:
+    - 'Connect your inbox, catalog, and ERP/WMS.'
+    - 'RFQs arrive; the agent extracts line items, specs, and sections.'
+    - 'It matches items, checks compliance and stock, and proposes alternates.'
+    - 'You review the drafted, margin‑safe quote with attachments and send.'
+    - Track status and convert accepted quotes into orders in one click.
+---
+# CoatQuote AI
+
+Industry: Paint, Varnish, and Supplies Merchant Wholesalers
+Service: RFQ-to-Quote + Spec/Alternate Matching Agent

@@ -1,0 +1,321 @@
+---
+name: ThermoHerd AI
+slug: thermoherd
+service:
+  title: Heat Stress and Health Early Warning (THI‑based)
+  description: >-
+    Forecasts heat stress effects on milk and ADG; sends mitigation actions and
+    water/shade checks.
+  targetUsers:
+    - Owners/managers
+    - Herd staff
+  triggers:
+    - THI forecast exceeds threshold
+    - High nighttime lows
+    - Low wind forecast
+  inputs:
+    - Farm geolocation
+    - Herd classes and counts
+    - 'Infrastructure options (shade, fans, sprinklers)'
+    - Historical production and health events (optional)
+  steps:
+    - Pull hourly forecast and compute THI/black‑globe indices
+    - Estimate milk loss/ADG impact by class
+    - 'Recommend timed mitigations (cooling, ration tweaks, electrolytes)'
+    - Schedule labor tasks and alerts; verify post‑event outcomes
+  tools:
+    - Meteomatics/OpenWeather/NOAA
+    - Rules engine
+    - Twilio SMS/WhatsApp
+    - Google Calendar
+  outputs:
+    - Daily risk score and action list
+    - Projected loss vs. mitigations
+    - Post‑event KPI summary
+  pricingModel:
+    - Monthly subscription per site
+    - Per‑alert SMS cost pass‑through
+  humanInLoop: false
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 5
+    overall: 5
+  risks:
+    - Forecast errors
+    - Infrastructure availability limits impact
+    - Overuse of water/energy costs
+  dependencies:
+    - Reliable weather API
+    - User‑provided infrastructure data
+leanCanvas:
+  problem:
+    - >-
+      Heat stress regularly reduces milk yield (3–15% per heat event) and
+      average daily gain (ADG) (0.05–0.2 kg/day) in dual‑purpose herds, eroding
+      margins.
+    - >-
+      Producers lack hyperlocal, actionable early warnings that translate
+      temperature‑humidity index (THI) into herd‑specific losses and
+      step‑by‑step mitigation actions.
+    - >-
+      Water and shade checks are inconsistent; trough flow rates, tank levels,
+      and shade coverage are rarely verified before heat events.
+    - >-
+      Existing tools are either high‑capex sensor platforms or generic weather
+      apps; few quantify economic impact or fit low‑connectivity workflows
+      (SMS/WhatsApp/USSD).
+    - >-
+      Labor and cost constraints demand simple, timed playbooks (e.g., shift
+      feeding, add electrolytes, reschedule handling) rather than generic
+      advice.
+    - >-
+      Data (weather, sensors, milk weights, weights/ADG) is fragmented; ROI from
+      mitigation isn’t tracked, undermining sustained adoption.
+    - >-
+      Co‑ops/processors and insurers have limited visibility into heat risk,
+      losses, and mitigation compliance across their supplier base.
+  solution:
+    - >-
+      3–10 day hyperlocal THI forecasts (1–5 km grid, microclimate downscaling),
+      daily and hourly, with confidence bands and lead‑time indicators.
+    - >-
+      Herd‑specific risk modeling that translates forecast THI into predicted
+      milk loss (L/cow/day) and ADG loss (kg/day), adjusted for breed,
+      acclimatization, parity, and historical performance.
+    - >-
+      Automated, timed mitigation schedules: water flow verification, shade area
+      checks, ration adjustments (electrolytes, buffers), work rescheduling,
+      sprinkling/fans where available, with pre‑event reminders (48h/24h/6h).
+    - >-
+      Low‑connectivity delivery and data capture: WhatsApp/SMS/USSD checklists
+      with simple Y/N/photo prompts; offline mobile app sync when coverage
+      returns.
+    - >-
+      Water and shade verification loop: calculate required trough flow (L/min)
+      and shade m² per head by forecast heat category; prompt fixes and track
+      completion rates.
+    - >-
+      Integrations with common sensors (temp/humidity loggers, water meters, ear
+      tags, boluses) and farm software (BoviSync, DairyComp, Afimilk, Stellapps)
+      to auto‑calibrate risk and validate outcomes.
+    - >-
+      Economic impact dashboard: avoided milk loss, preserved ADG,
+      mortality/morbidity avoided, ROI of interventions, by event and season.
+    - >-
+      Team/role workflow: owner, foreman, workers get role‑appropriate tasks and
+      reminders; escalation if critical checks fail.
+    - >-
+      Insurer/co‑op portal for portfolio heat risk, mitigation compliance, and
+      bonus/premium credit administration.
+    - >-
+      Localized playbook libraries by region and resource level (no‑capex,
+      low‑capex, high‑capex options), multi‑language support.
+  uniqueValueProp: >-
+    AI early warning that converts hyperlocal THI forecasts into herd‑specific,
+    timed mitigation playbooks and verified water/shade checks, predicting milk
+    and ADG losses and quantifying avoided loss in dollars per head—delivered
+    via WhatsApp/SMS for low‑connectivity operations.
+  unfairAdvantage: >-
+    A proprietary, regionally calibrated THI→milk/ADG loss and economics engine
+    for dual‑purpose systems, coupled with an offline‑first, checklist‑driven
+    mitigation workflow that verifies water/shade readiness. Continuous outcome
+    labeling from real farms (actions taken → losses avoided) improves models
+    over time and underpins insurer‑backed ROI guarantees.
+  customerSegments:
+    - >-
+      Primary: Dual‑purpose cattle producers 20–500 head in tropical/subtropical
+      regions (India, Pakistan, Mexico, Brazil’s North/Northeast, Colombia,
+      Indonesia, Philippines, Nigeria, Kenya, Ethiopia).
+    - >-
+      Secondary: Large estates/ranches (500–5,000 head) seeking centralized risk
+      management and SOP compliance.
+    - >-
+      Dairy co‑ops and milk collection networks seeking supply stability (e.g.,
+      regional unions in India/LatAm).
+    - >-
+      Processors and aggregators purchasing from dual‑purpose smallholders
+      needing volume assurance during heat waves.
+    - >-
+      Livestock insurers and ag‑fintechs needing risk scoring and loss
+      prevention to lower claims and defaults.
+    - >-
+      Veterinary networks, feed suppliers, and ag retailers who can distribute
+      and embed mitigation products (electrolytes, shade nets, sprinklers).
+  channels:
+    - >-
+      Dairy co‑ops and milk collection centers bundling alerts to members with a
+      revenue share.
+    - >-
+      Veterinary networks and feed retailers offering the service plus
+      electrolytes/buffers bundles.
+    - >-
+      Insurers/ag‑fintechs offering premium credits or lower interest to
+      subscribers with ≥80% mitigation compliance.
+    - >-
+      Partnerships with sensor vendors and water/shade equipment suppliers
+      (bundled starter kits).
+    - >-
+      Digital acquisition: WhatsApp bot onboarding, localized landing pages,
+      ag‑marketplaces, and webinars with extension agencies.
+    - >-
+      On‑farm demos and field days with lead users; referral incentives for
+      foremen and veterinarians.
+    - >-
+      Government/NGO programs (climate adaptation) subsidizing first‑season
+      deployments in heat‑prone districts.
+  revenueStreams:
+    - >-
+      Per‑head SaaS: $0.20–$0.60/head/month based on volume; minimum
+      $15/farm/month tier for smallholders.
+    - >-
+      Co‑op/enterprise plan: $0.10–$0.25/head/month across aggregated herds with
+      portfolio dashboards and API access.
+    - >-
+      Usage fees: SMS at cost + 10%; WhatsApp included up to fair‑use; voice IVR
+      optional add‑on.
+    - >-
+      Insurance risk services: per‑policy fee ($0.05–$0.10/head/month) or
+      premium credit sharing tied to compliance KPIs.
+    - >-
+      Professional services: setup/training $200–$1,000/site depending on size;
+      seasonal audits of water/shade assets.
+    - >-
+      Hardware referral/affiliate margins (5–15%) on meters, shade nets,
+      sprinklers/fans.
+    - >-
+      Data/API licensing for processors and researchers (aggregated,
+      anonymized).
+  costStructure:
+    - >-
+      Weather data and mapping APIs (ECMWF/NOAA/MeteoBlue/satellite):
+      $0.02–$0.06/farm/month at scale.
+    - >-
+      Cloud compute/storage and model serving: $0.03–$0.10/farm/month depending
+      on forecast cadence and integrations.
+    - >-
+      Messaging (SMS/WhatsApp/voice): $0.01–$0.05/farm/day depending on channel
+      usage and country rates.
+    - >-
+      ML/engineering/product staff, agronomy/veterinary advisors, and field
+      support teams.
+    - Sales/partner commissions (10–25%) and channel enablement costs.
+    - >-
+      Localization, translations, and regulatory/compliance (data privacy,
+      telecom approvals).
+    - 'Travel/pilots, on‑farm demos, and customer success.'
+    - 'R&D: validation trials, model improvement, and academic partnerships.'
+  keyMetrics:
+    - >-
+      Model performance: THI forecast MAE ≤1.5, heat event recall ≥80%, lead
+      time ≥48h for Moderate/Severe events.
+    - >-
+      Prediction accuracy: milk loss RMSE ≤0.8 L/cow/day; ADG loss RMSE ≤0.07
+      kg/day across validation herds.
+    - >-
+      Engagement: alert read rate ≥75%, action checklist completion ≥70% per
+      event, critical task completion ≥85% (water/shade).
+    - >-
+      Outcomes: seasonal milk preserved ≥10–30 L/cow; ADG preserved ≥0.03–0.1
+      kg/day during heat periods; heat‑related morbidity down ≥15%.
+    - >-
+      Economic impact: avoided loss ≥$8–$25/cow/season; ROI ≥3× for smallholders
+      and ≥5× for mid‑size ranches.
+    - 'Adoption/retention: WAU/MAU ≥60%, monthly churn ≤2%, NPS ≥40.'
+    - >-
+      Enterprise compliance: co‑op member compliance ≥70% within 60 days;
+      insurer claims reduction ≥15–25% in participating cohorts.
+    - >-
+      Unit economics: ARPU $0.30/head/month; gross margin ≥75%; LTV:CAC ≥3
+      within 12 months.
+storyBrand:
+  character: >-
+    Dual‑purpose cattle ranchers and mixed farmers who want to protect herd
+    health, milk yield, and weight gains despite rising heat.
+  problem: >-
+    - External: Heat stress cuts milk and ADG, raises disease risk, and exposes
+    water/shade failures.
+
+    - Internal: Uncertainty on when to act; alarm fatigue; thin staffing during
+    heat waves.
+
+    - Philosophical: Farmers shouldn’t lose profit to predictable weather risks.
+  guide: >-
+    - Empathy: We’ve seen heat waves erase months of careful feeding and
+    breeding overnight.
+
+    - Authority: THI‑based AI using local forecasts and on‑farm context,
+    vet‑reviewed playbooks, and field‑tested alerts focused on milk/ADG
+    outcomes.
+  plan: >-
+    - Connect: Add farm location, herd groups, production targets; optional
+    sensors.
+
+    - Get: 7–10 day THI outlook with milk/ADG impact estimates and risk scoring.
+
+    - Act: Timed mitigation actions, water/shade checks, and staff tasking.
+
+    - Commitments: No hardware lock‑in; data private; cancel anytime; fast
+    onboarding.
+  callToAction: >-
+    - Direct: Start a 30‑day pilot; Book a live demo.
+
+    - Transitional: Download the heat‑stress checklist; Get an ROI estimate; Try
+    sample SMS alerts.
+  success: |-
+    - Maintain milk yield and ADG through heat events.
+    - Fewer dehydration, mastitis, and fertility setbacks.
+    - Verified water and shade uptime across paddocks.
+    - Lower treatment costs and mortality risk.
+    - Confident, timely crew actions and simpler compliance.
+    - More predictable deliveries and improved margins.
+  failure: |-
+    - Lost liters of milk and slower weight gains.
+    - Heat waves catch the farm off‑guard.
+    - Water outages, shade crowding, and stress injuries.
+    - Emergency vet bills and higher mortality.
+    - Fertility dips, missed contracts, and eroded margins.
+    - Burned‑out staff and reactive decision‑making.
+landingPage:
+  hero:
+    title: THI‑Based Heat Stress Early Warning for Dual‑Purpose Cattle
+    subtitle: >-
+      Forecast milk and ADG impacts. Get timed actions and water/shade checks
+      that protect productivity and animal welfare.
+    ctaText: Start Free Trial
+    ctaHref: /get-started
+  problem:
+    - Heat spikes silently cut milk yield and ADG before visible stress.
+    - Generic weather apps miss ranch‑level THI and animal thresholds.
+    - 'Delayed response wastes feed, water, and labor; raises health risks.'
+    - 'Teams lack clear checklists for shade, water, and schedule shifts.'
+    - Hard to quantify losses or know which paddocks to prioritize.
+  solution:
+    - AI converts THI forecasts into milk and ADG impact predictions by group.
+    - 'Early, location‑specific alerts with severity, timing, and duration.'
+    - 'Action playbooks: shade, cooling, feeding/milking shifts, stocking tweaks.'
+    - Automated water/shade audits with pass/fail checks and reminders.
+    - 'Simple notifications via app, SMS, or WhatsApp; offline friendly.'
+    - Integrates with on‑farm sensors and local weather stations.
+  features:
+    - 10‑day THI forecast at hourly steps with Alert/Action/Emergency tiers.
+    - Milk/ADG impact models tuned for dual‑purpose breeds and stages.
+    - Pen/paddock heat maps and priority ranking.
+    - 'Water security checks: trough spacing, flow‑rate targets, refill alerts.'
+    - 'Cooling guidance: shade cloth, sprinklers/misters, bedding, air movement.'
+    - 'Feeding schedule tips: night feeding/milking, buffers, electrolytes, DCAD.'
+    - 'Health watch: panting risk, fertility hit, acidosis/lameness likelihood.'
+    - Multi‑channel alerts (app/SMS/WhatsApp) with team assignments.
+    - 'ROI dashboard: milk saved, ADG preserved, heat‑stress days avoided.'
+    - 'Easy integrations: weather stations, IoT temp‑humidity, herd software.'
+  steps:
+    - 'Add ranch locations and groups (lactating, dry, growing).'
+    - Connect weather/sensor data or use our local feed.
+    - Optionally calibrate with recent milk and weight records.
+    - Receive heat alerts and step‑by‑step actions with due times.
+    - Run water/shade checklists; assign tasks; verify completion.
+    - Track outcomes and ROI; the model auto‑refines over time.
+---
+# ThermoHerd AI
+
+Industry: Dual-Purpose Cattle Ranching and Farming
+Service: Heat Stress and Health Early Warning (THI‑based)

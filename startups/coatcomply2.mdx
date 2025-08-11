@@ -1,0 +1,334 @@
+---
+name: CoatComply SDS AI
+slug: coatcomply2
+service:
+  title: 'SDS/TDS Ingestion, Extraction, and Compliance Library'
+  description: >-
+    Centralizes supplier SDS/TDS, extracts key hazards/handling data, and
+    generates customer-ready SDS bundles per order/customer.
+  targetUsers:
+    - Compliance/EHS
+    - Product Management
+    - CSR
+  triggers:
+    - New supplier SDS/TDS arrives
+    - Regulatory update detected
+    - New product onboarding
+  inputs:
+    - Supplier PDFs/links
+    - Existing SDS/TDS folder drives
+    - 'Regulatory mappings (GHS, HMIS, DOT/UN)'
+  steps:
+    - Watch folders/email for SDS/TDS; fetch latest versions
+    - 'OCR/parse and extract fields (GHS, VOC, flash point, UN#, PG)'
+    - Validate against product master and flag deltas
+    - Generate structured records in a compliance datastore
+    - Auto-attach correct SDS to quotes/orders by jurisdiction
+    - Notify EHS when out-of-date or missing documents
+  tools:
+    - OCR (AWS Textract/Adobe PDF Services)
+    - Unstructured.io
+    - LLM with extraction prompts
+    - Compliance DB (Postgres/BigQuery)
+    - Change-detection jobs
+    - Optional Chemwatch/UL WERCS integrations
+  outputs:
+    - Normalized SDS/TDS dataset
+    - Currency report (current/missing/outdated)
+    - Per-order SDS bundle PDFs
+    - Compliance deltas report
+  pricingModel:
+    - Setup fee + per-document processing
+    - Monthly subscription by SKU count
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 9
+    overall: 9
+  risks:
+    - Mis-extraction of safety fields
+    - Outdated documents causing liability
+    - Jurisdictional mismatches
+  dependencies:
+    - Access to supplier SDS/TDS
+    - Product-to-SDS mapping keys
+    - Legal disclaimers and review workflow
+leanCanvas:
+  problem:
+    - >-
+      Wholesalers receive thousands of disparate SDS/TDS from hundreds of
+      suppliers; formats, versions, and languages vary widely, making
+      centralization and search slow and error-prone.
+    - >-
+      Manual extraction of hazards, PPE, transport, VOC, and handling data from
+      PDFs is time-consuming (0.1–0.3 FTE per 1,000 documents) and error-prone,
+      increasing compliance risk.
+    - >-
+      SDS bundles are not consistently attached to orders/shipments or tailored
+      to customer/location requirements (e.g., GHS/OSHA vs. WHMIS vs. CLP),
+      creating audit gaps and potential fines.
+    - >-
+      Version drift (outdated SDS) and supplier-induced changes are hard to
+      detect; audit trails and document retention requirements are cumbersome
+      without systemized governance.
+    - >-
+      Existing SDS tools focus on authoring or static repositories, not on
+      high-accuracy data extraction and per-order SDS bundling integrated with
+      ERP/EDI/e-commerce.
+    - >-
+      Regulatory monitoring (OSHA HazCom 2012, GHS, WHMIS 2015, EU CLP/REACH) is
+      fragmented; mapping product hazards to evolving rules is manual and
+      inconsistent.
+  solution:
+    - >-
+      Centralized SDS/TDS library that ingests via email dropbox, SFTP, vendor
+      portal, or API; deduplicates, versions, and normalizes documents across
+      suppliers/languages.
+    - >-
+      AI extraction (OCR + NER) of hazards, H/P statements, pictograms, PPE,
+      storage/handling, transport (UN/IMDG/IATA), VOC/solvent content, flash
+      point, product identifiers; with confidence scoring and human-in-the-loop
+      QA where needed.
+    - >-
+      Automated SDS bundling: When an order is created (via ERP/e-comm/EDI),
+      generate and attach the right SDS package (language, regulation set,
+      latest version) by ship-to location and customer profile.
+    - >-
+      Regulatory mapping and monitoring: Aligns extracted fields to OSHA
+      HazCom/GHS/WHMIS/CLP schemas, tracks version currency, flags gaps and
+      supplier updates, and maintains audit trails.
+    - >-
+      APIs and plugins for ERP/WMS/e-commerce (Epicor, Infor, MS Dynamics 365,
+      SAP B1, NetSuite; Shopify/BigCommerce B2B) to embed search, bundle, and
+      print/attach flows.
+    - >-
+      Dashboards and alerts: coverage %, staleness, extraction accuracy,
+      non-compliant orders, supplier responsiveness, and audit readiness KPIs.
+  uniqueValueProp: >-
+    Turn messy supplier SDS/TDS into a governed, searchable compliance data
+    layer that auto-generates the right, current SDS bundle per
+    order/customer—cutting compliance time by 70%+ and reducing audit risk to
+    near-zero.
+  unfairAdvantage: >-
+    A domain-tuned SDS/TDS extraction stack with proprietary labeled datasets
+    for coatings and a per-order SDS bundling engine tightly integrated with
+    ERPs/EDI—delivering measurable compliance outcomes (≥99.5% bundle coverage)
+    competitors focused on static repositories or authoring do not offer.
+    Accumulating network effects from supplier relationships and
+    document/version telemetry further improve accuracy and time-to-update.
+  customerSegments:
+    - >-
+      Primary: Paint, varnish, and supplies merchant wholesalers (NAICS 424950),
+      including architectural, industrial, and specialty coatings distributors.
+    - >-
+      Secondary: Adhesives/sealants distributors, auto refinish coatings
+      distributors, and industrial MRO wholesalers carrying hazardous mixtures.
+    - >-
+      Buyer personas: EHS/Compliance Managers, Operations Directors,
+      Quality/Regulatory Leads, IT/ERP Owners, Branch Managers.
+    - >-
+      Geographies: US/Canada (OSHA/WHMIS), EU/UK (REACH/CLP), with multilingual
+      support for supplier docs globally.
+  channels:
+    - >-
+      Direct sales with account-based marketing targeting top 1,000 North
+      American/EU distributors in coatings and adjacent chemicals.
+    - >-
+      Partnerships with ERP/EDI vendors and resellers (Epicor, Infor, Microsoft,
+      SAP B1 partners) and listing on their marketplaces.
+    - >-
+      Alliances with label/printing vendors (Seagull Scientific BarTender,
+      NiceLabel) and SDS authoring houses for co-sell into distributor networks.
+    - >-
+      Industry associations and events: American Coatings Show, ACA/CPCA events,
+      BCF (UK), FEICA (adhesives) with workshops and demos.
+    - >-
+      Content-led demand gen: SDS gap audits, compliance calculators, benchmark
+      reports (SDS coverage %, version currency), webinars with regulatory SMEs.
+    - >-
+      Land-and-expand via pilots in one region/branch, expanding to all
+      locations and adjacent product lines post-ROI proof.
+  revenueStreams:
+    - >-
+      Subscription (ARR) by active documents under management and feature tier:
+      Starter (up to 2,000 docs) $8k–$12k/yr; Pro (up to 10,000 docs)
+      $20k–$40k/yr; Enterprise (25,000+ docs) $60k–$150k/yr.
+    - >-
+      Usage-based charges for OCR/AI extraction beyond tier quotas ($0.02–$0.05
+      per page) and translation credits.
+    - >-
+      Implementation/onboarding (data migration, ERP/EDI integration) $5k–$50k
+      one-time depending on complexity.
+    - >-
+      Managed validation service priced per document or per hour for human QA
+      (e.g., $1.50–$3.00 per doc).
+    - >-
+      Premium add-ons: Dedicated tenant, data residency, enhanced SLA (99.95%),
+      regulatory advisory packs, custom reporting.
+    - >-
+      Professional services for custom workflows and supplier onboarding
+      programs.
+  costStructure:
+    - >-
+      R&D: ML/NLP engineers, backend engineers, data engineers; ongoing model
+      training and evaluation.
+    - >-
+      Cloud infrastructure: compute for OCR/LLM inference, storage for
+      documents/embeddings, search infrastructure, monitoring; target COGS
+      18–28% of ARR.
+    - >-
+      Human-in-the-loop QA operations; scalable vendor/contractor pool for peak
+      loads.
+    - >-
+      Security/compliance: SOC 2 Type II, penetration testing, DLP, key
+      management; annual cost $100k–$250k.
+    - >-
+      Sales and marketing: AEs/SEs/SDRs, partner enablement, industry events,
+      content; CAC payback target <12 months.
+    - >-
+      Customer success and support: onboarding, integration engineering,
+      training, and renewal management.
+    - >-
+      Regulatory domain expertise: SMEs to maintain mapping to
+      GHS/OSHA/WHMIS/CLP and curate update feeds.
+  keyMetrics:
+    - >-
+      Document ingestion velocity: median time from receipt to
+      searchable/approved <24 hours; P95 <72 hours.
+    - >-
+      Extraction quality: field-level F1 score for critical fields ≥97%;
+      low-confidence rate <5% routed to QA; post-QA accuracy ≥99.5%.
+    - >-
+      Coverage and currency: ≥95% of active SKUs have current SDS; version lag
+      (time since supplier update to system update) median <7 days.
+    - >-
+      Operational efficiency: hours saved vs. baseline; target 70%+ reduction in
+      manual SDS handling time per 1,000 docs.
+    - >-
+      Bundling compliance: ≥99.5% of hazardous orders have correct SDS bundle
+      attached before shipment; exception rate <0.5%.
+    - >-
+      Audit readiness: time to fulfill audit request <4 hours; complete audit
+      trail retrieval success 100%.
+    - >-
+      Supplier responsiveness: avg days to obtain missing/updated SDS by
+      supplier; drive ≥20% improvement via analytics nudges.
+    - >-
+      Platform reliability: API uptime ≥99.9%; median API latency <300 ms for
+      lookup/bundling endpoints.
+    - >-
+      Commercial metrics: ACV, gross margin ≥70%, logo retention ≥95%, net
+      revenue retention ≥115%, CAC payback <12 months.
+    - >-
+      Time-to-value: implementation to first automated SDS bundle ≤30 days for
+      mid-market; ≤60 days for enterprise multi-ERP.
+storyBrand:
+  character: >-
+    Primary customer: Operations/Compliance Managers at Paint, Varnish, and
+    Supplies Merchant Wholesalers (NAICS 424950)
+
+    Desire: Instantly deliver accurate, compliant SDS/TDS bundles for every
+    order and customer—without manual work.
+  problem: >-
+    External: Supplier SDS/TDS are scattered, inconsistent, and frequently
+    updated; manual extraction of hazards/handling/shipping is slow and
+    error-prone; varying regs (GHS/OSHA/WHMIS/REACH/DOT) create complexity.
+
+    Internal: Teams feel stretched, anxious about audits and shipment delays,
+    and tired of copy/paste rework.
+
+    Philosophical: Compliance should accelerate sales and safety—every customer
+    deserves accurate, accessible safety data at the moment of fulfillment.
+  guide: >-
+    Empathy: We understand the chaos of wrangling hundreds of SDS/TDS across
+    suppliers, versions, and formats.
+
+    Authority: Purpose-built AI for coatings chemicals; robust parsing across
+    diverse SDS layouts; regulatory mapping; version control; audit trails;
+    secure by design; human-in-the-loop QA when needed.
+  plan: >-
+    Process Plan:
+
+    1) Ingest: Connect supplier portals/email drops/SFTP/S3 and bulk-import
+    PDFs.
+
+    2) Extract & Normalize: Parse hazards, handling/storage, transport,
+    first-aid, composition; map to GHS/OSHA/WHMIS/REACH; de-duplicate and
+    version.
+
+    3) Deliver: Auto-generate customer-ready, branded SDS bundles per
+    order/customer via API, web portal, or ERP/WMS plug-in.
+
+    Agreement Plan:
+
+    - Security: Encryption, role-based access, audit logs.
+
+    - Compliance Confidence: Document provenance, timestamps, change history.
+
+    - Support & SLAs: Onboarding assistance, uptime and response targets.
+  callToAction: >-
+    Direct: Book a demo; Start a pilot with your top suppliers; Connect your
+    first data source.
+
+    Transitional: Get a free SDS readiness report; Download a sample bundle;
+    Review the extraction schema.
+  success: >-
+    Faster fulfillment with zero copy/paste; always-current, audit-ready SDS
+    bundles; less rework and fewer shipment holds; win and retain enterprise
+    accounts with strict compliance requirements; safer customers and reduced
+    risk.
+  failure: >-
+    Manual bottlenecks persist; outdated/missing SDS trigger audits, fines, and
+    shipment delays; lost bids and chargebacks; safety incidents and
+    reputational damage.
+landingPage:
+  hero:
+    title: 'SDS/TDS Automation for Paint, Varnish & Supply Wholesalers'
+    subtitle: >-
+      Centralize supplier documents, extract hazards, and deliver customer-ready
+      bundles per order—automatically.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - 'Supplier SDS/TDS live in emails, portals, and PDFs—hard to find.'
+    - Manual hazard extraction is slow and error‑prone.
+    - Outdated sheets create audit risk and customer complaints.
+    - Order-specific SDS bundles take hours to assemble.
+    - No clear version control or change history.
+    - ERP/WMS lack structured hazard data for labels and shipping.
+    - Regional rules and languages add complexity.
+    - 'Transport data (UN, packing group) is buried and inconsistent.'
+  solution:
+    - 'One library for all supplier SDS/TDS, continuously updated.'
+    - 'AI extracts hazards, handling, transport, and VOC from any format.'
+    - 'Maps documents to SKUs, aliases, and private labels.'
+    - 'One-click, customer-ready SDS bundles per quote/order/shipment.'
+    - 'Structured data feeds ERP, WMS, and e‑commerce.'
+    - 'Versioning, approvals, and full audit trails.'
+    - 'Multi-language, GHS-aligned outputs with your branding.'
+    - APIs and connectors for rapid integration.
+  features:
+    - 'Smart ingestion: email, PDF, scans, portals, SFTP with OCR/table capture.'
+    - 'Field extraction: H/P statements, pictograms, PPE, storage, first aid.'
+    - 'Transport data: UN number, class, packing group, IMDG/IATA/DOT.'
+    - 'Regulatory flags: TSCA, REACH SVHC, Prop 65, WHMIS, more.'
+    - 'TDS data: VOC, solids, viscosity, coverage, cure, application.'
+    - 'SKU mapping with aliases, supplier updates, and private-label links.'
+    - 'Version control, expirations, alerts, and approval workflows.'
+    - 'Bundle automation: region, language, branding, cover sheets, index.'
+    - Customer portal with secure downloads and audit logs.
+    - 'Warehouse rules: segregation, temp/storage classes, incompatibilities.'
+    - GHS/workplace label generation and print/PDF output.
+    - 'APIs/webhooks; connectors for NetSuite, SAP B1, Acumatica, Epicor P21.'
+  steps:
+    - 'Connect suppliers, ERP/WMS, and upload existing SDS/TDS.'
+    - AI ingests and normalizes documents; extracts key fields.
+    - Review suggested mappings and set region/language rules.
+    - 'Auto-generate SDS/TDS bundles per quote, order, or shipment.'
+    - 'Sync structured hazard data to labels, picking, and shipping.'
+    - 'Track coverage and changes with dashboards, alerts, and audits.'
+---
+# CoatComply SDS AI
+
+Industry: Paint, Varnish, and Supplies Merchant Wholesalers
+Service: SDS/TDS Ingestion, Extraction, and Compliance Library

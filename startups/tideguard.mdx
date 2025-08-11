@@ -1,0 +1,281 @@
+---
+name: TideGuard — HAB & Sanitation Closure Early Warning for Shellfish
+slug: tideguard
+service:
+  title: HAB and Sanitation Closure Early Warning
+  description: >-
+    Predicts and alerts on harmful algal blooms and regulatory shellfish
+    sanitation closures by area/bed with proactive recommendations.
+  targetUsers:
+    - Owner-operators
+    - Captains
+    - Fleet managers
+    - Shellfish dealers
+  triggers:
+    - 'Daily at 04:00 local'
+    - When new state/provincial closure bulletin posts
+    - When chlorophyll/FLH/SST cross risk thresholds
+    - Heavy rainfall event
+  inputs:
+    - Target beds/areas (polygons or GPS points)
+    - Recent catch/bed logs (optional)
+    - Regulatory closure shapefiles/feeds
+    - Satellite chlorophyll/FLH/SST
+    - River discharge/rainfall
+    - Local wind and current forecasts
+  steps:
+    - Ingest closure feeds and latest satellite/ocean data
+    - 'Score risk by bed using rules/model (e.g., chlorophyll, wind, runoff)'
+    - Check proximity to active/expected closures; compute closure probability
+    - >-
+      Generate map tiles and summary with recommended actions
+      (fish/hold/relocate)
+    - Push alerts via SMS/WhatsApp/Email with next 72h outlook
+    - Log outcomes for ongoing model calibration
+  tools:
+    - NOAA/NCCOS HAB forecasts
+    - NOAA ERDDAP/IOOS
+    - Copernicus Marine & Sentinel-3 OLCI/VIIRS
+    - USGS streamflow/rainfall
+    - NOAA NBM/GFS/WW3
+    - State/provincial shellfish sanitation feeds
+    - Mapbox/Leaflet
+    - Twilio/WhatsApp Business API
+    - 'Python (xgboost/lightgbm), PostGIS'
+  outputs:
+    - Daily HAB/closure risk index by bed (CSV/JSON)
+    - Interactive risk map (URL)
+    - Actionable alerts with confidence and timing
+    - 72h outlook PDF
+  pricingModel:
+    - Monthly subscription per vessel/bed cluster
+    - Setup fee for data/bed onboarding
+    - Message/alert overage billing
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 8
+    overall: 8
+  risks:
+    - False positives/negatives leading to lost trips
+    - Regulatory feed delays or format changes
+    - Cloud cover limits satellite data
+    - Liability if advice is misused
+  dependencies:
+    - Stable access to sanitation feeds
+    - Satellite/ocean forecast availability
+    - Messaging APIs
+    - Accurate bed polygons
+leanCanvas:
+  problem:
+    - >-
+      Unpredictable HABs and sanitation closures cause sudden harvest shutdowns,
+      lost revenue, and food safety risk.
+    - >-
+      Growers and wild-harvesters lack site-specific, short-term forecasts and
+      only receive coarse, delayed bulletins.
+    - >-
+      Regulators face pressure to protect public health while minimizing
+      unnecessary closures, but have limited predictive tools.
+    - >-
+      Buyers/distributors need supply visibility to reroute purchases before
+      closures disrupt demand.
+    - >-
+      Existing alerts are not actionable (what to do in next 24–72 hours), nor
+      integrated with farm/harvest workflows.
+  solution:
+    - >-
+      Fuse remote sensing (Sentinel-3 OLCI/VIIRS chlorophyll-a, SST, fronts),
+      oceanographic models (currents, wind), in-situ sensors, and historical
+      closure records to predict closure risk at the bed/area level.
+    - >-
+      Generate probabilistic forecasts (0–100% closure risk) at 1 km or finer
+      resolution with 6-hourly updates and 3–14 day horizons.
+    - >-
+      Deliver multi-channel alerts (SMS, app, email, VHF-synthesized brief) with
+      explainable drivers (e.g., wind-driven upwelling, toxins) and confidence
+      bands.
+    - >-
+      Provide proactive, region-specific playbooks (e.g., adjust harvest timing,
+      depuration planning, relay strategies, sampling prioritization).
+    - >-
+      Offer API and integrations with farm/harvest apps for scheduling, lot
+      tagging, and compliance logs.
+    - >-
+      Regulator dashboard for evidence-backed, defensible decisions; shared
+      situational awareness during events.
+  uniqueValueProp: >-
+    Forecast closures before they happen. TideGuard delivers site-level HAB and
+    sanitation closure risk forecasts 3–14 days ahead with clear probability
+    scores and step-by-step recommendations, reducing unplanned shutdown losses
+    by 20–40% and improving harvest utilization and safety compliance.
+  unfairAdvantage: >-
+    Proprietary, region-validated labeled dataset of closures and toxin
+    measurements fused with multi-sensor environmental drivers; regulator
+    collaborations enabling defensible thresholds; embedded integrations in farm
+    workflows and insurer-backed incentives that are hard for generalist
+    weather/ocean apps to replicate.
+  customerSegments:
+    - >-
+      Primary: Shellfish aquaculture growers (oysters, mussels, clams, scallops)
+      operating intertidal/subtidal beds; 1–50 sites per operation.
+    - >-
+      Primary: Wild-shellfish harvesters and harvester associations by coastal
+      area/bed.
+    - >-
+      Secondary: State shellfish sanitation programs and coastal resource
+      agencies (NSSP/ISSC-compliant).
+    - >-
+      Secondary: Processors, distributors, and buyers seeking supply-risk
+      visibility and procurement alerts.
+    - >-
+      Influencers: IOOS Regional Associations, NOAA/NCCOS HAB programs, academic
+      HAB labs, insurers underwriting aquaculture.
+    - >-
+      Early Beachhead Regions: Gulf of Maine (ME/MA/NH), Pacific NW (WA/OR/BC),
+      Florida Gulf Coast (Karenia brevis), Northern California
+      (Pseudo-nitzschia).
+  channels:
+    - >-
+      Direct sales to growers/harvester associations via regional reps and
+      webinars.
+    - >-
+      Partnerships with IOOS Regional Associations (NERACOOS, NANOOS, SECOORA,
+      GCOOS) to co-deploy pilots and data feeds.
+    - >-
+      Co-marketing and integrations with farm/harvest management platforms
+      (e.g., SmartOysters/Oyster Tracker).
+    - >-
+      Regulatory partnerships: state shellfish sanitation programs as enterprise
+      users and referral sources.
+    - >-
+      Insurance partnerships to offer premium credits for customers using
+      TideGuard safeguards.
+    - >-
+      Industry events and publications: ISSC meetings, Aquaculture America,
+      ICHA, Pacific Coast Shellfish Growers Association; case-study whitepapers.
+    - >-
+      Content marketing: weekly HAB outlook blog by region, earned media during
+      bloom seasons.
+    - >-
+      Distributor/buyer networks: offer supply-risk dashboards to preferred
+      procurement partners.
+  revenueStreams:
+    - >-
+      SaaS Subscriptions (Growers/Harvesters): $200–$600 per bed per year
+      (tiered by number of beds and forecast horizon), typical midsize farm
+      $3,000–$12,000 ARR.
+    - >-
+      Fleet/Association Plan: $5,000–$50,000/year for shared area licenses and
+      member seats.
+    - >-
+      Agency/Regulator Enterprise: $25,000–$150,000/year per state/region for
+      dashboards, custom models, and support.
+    - >-
+      Processor/Buyer Portal: $8,000–$40,000/year depending on volumes and
+      geographies.
+    - >-
+      Add-ons: Dedicated sensors/data assimilation ($5,000–$30,000 per
+      deployment), premium SLAs, custom integrations ($8,000–$25,000).
+    - >-
+      Insurance Partnerships: revenue-share from loss-prevention programs
+      (estimated $10–$50 per covered ton).
+  costStructure:
+    - >-
+      Personnel: ocean data scientists/ML engineers, coastal oceanographers,
+      full-stack engineers, DevOps/SRE, regulatory liaison; $2.5–$4.5M/year at
+      scale.
+    - >-
+      Cloud & Data: compute for nowcasting/forecasting, storage, model training;
+      $20k–$60k/month; satellites free (NASA/ESA) but pay for premium
+      weather/ocean feeds ($3k–$10k/month).
+    - >-
+      Field Ops & Sensors: partnerships and maintenance for in-situ stations,
+      occasional ship time; $50k–$300k/year depending on region coverage.
+    - 'Sales & Marketing: events, travel, pilots, content; $150k–$500k/year.'
+    - 'Compliance, Legal, Insurance (including E&O): $75k–$200k/year.'
+    - 'Customer Support & Training: $100k–$250k/year.'
+  keyMetrics:
+    - >-
+      Model skill: AUROC > 0.85 and Brier score < 0.18 in target regions; mean
+      lead time to closure alert ≥ 5 days.
+    - >-
+      Operational accuracy: True Positive Rate > 70% and False Alarm Rate < 20%
+      for closures; calibration slope 0.9–1.1.
+    - >-
+      Customer impact: 20–40% reduction in lost harvest days per season; 10–25%
+      increase in utilization before closures; 30% faster reopen via targeted
+      sampling.
+    - >-
+      Engagement: 70% monthly active users (MAU), >50% alert acknowledgment
+      rate, median time-to-action < 4 hours.
+    - >-
+      Commercial: Net revenue retention > 115%, logo churn < 8% annually, CAC
+      payback < 12 months, LTV/CAC > 4.
+    - >-
+      Adoption: Pilot-to-paid conversion > 60%, average seats per customer > 8,
+      API integration attach rate > 40%.
+storyBrand:
+  character: >-
+    Shellfish growers, harvesters, and managers who must keep beds open, safe,
+    and profitable
+  problem: >-
+    Unpredictable HABs and sanitation closures trigger sudden shutdowns, lost
+    product and trips, and compliance risk without timely bed-level insight
+  guide: >-
+    An AI early-warning partner combining ocean data, monitoring, and regulatory
+    context to deliver trusted, bed-level forecasts with clear next steps
+  plan: >-
+    1) Select beds and set thresholds 2) Connect data and notification channels
+    3) Receive advance risk alerts with recommended actions and document
+    decisions
+  callToAction: Start a 30-day pilot or book a live demo
+  success: >-
+    Confident harvest planning, fewer surprise closures, protected public
+    health, maintained buyer commitments, and maximized open-day revenue
+  failure: >-
+    Reactive operations, emergency shutdowns, recalls and penalties, lost
+    income, and brand damage
+landingPage:
+  hero:
+    title: HAB & Sanitation Closure Early Warning
+    subtitle: >-
+      AI forecasts and alerts for shellfish beds—predict blooms and regulatory
+      closures before they hit. Cut downtime, protect product, stay compliant.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - 'Closures hit with little notice, stranding product and crews.'
+    - 'Data is scattered across satellites, buoys, labs, and agencies.'
+    - 'Manual interpretation is slow, inconsistent, and easy to miss.'
+    - Lost harvest days and revenue from avoidable surprises.
+    - Reactive compliance and stressful audits.
+  solution:
+    - Bed-level forecasts for HAB and sanitation closures 1–14 days ahead.
+    - Real-time alerts mapped to your leases and beds.
+    - 'Proactive recommendations: harvest now, move gear, plan sampling.'
+    - 'Integrated regulatory feeds, rainfall, sewage, and runoff signals.'
+    - Compliance-ready logs and evidence for re-openings and audits.
+  features:
+    - Bed-level risk scores with confidence bands.
+    - 1–14 day HAB and bacteria closure probabilities.
+    - >-
+      Live map layers: chlorophyll, temperature, currents, rainfall, river
+      plumes.
+    - Regulatory rule modeling by state/province (conditional/seasonal areas).
+    - 'Automated alerts via SMS, email, and in-app.'
+    - 'Action plans tailored to species, permits, and site constraints.'
+    - Sampling planner to accelerate re-opening.
+    - API and dashboard; connect e-logbooks and farm software.
+    - 'Team roles, audit trail, and permission controls.'
+    - Offline field mode and printable compliance reports.
+  steps:
+    - Import or draw your beds/leases; connect local data feeds.
+    - 'Set thresholds, rules, and notification preferences.'
+    - Receive forecasts and alerts; follow recommended actions.
+    - Track outcomes and sampling; refine models with feedback.
+---
+# TideGuard — HAB & Sanitation Closure Early Warning for Shellfish
+
+Industry: Shellfish Fishing
+Service: HAB and Sanitation Closure Early Warning

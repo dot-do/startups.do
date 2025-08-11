@@ -1,0 +1,323 @@
+---
+name: ConsoliSense — Shipment Consolidation & Mode Selector
+slug: consolisense
+service:
+  title: Shipment Consolidation & Mode Selector
+  description: >-
+    Recommends consolidations and optimal mode (parcel vs LTL vs TL vs
+    intermodal) under SLAs and cutoffs.
+  targetUsers:
+    - Transportation Planner
+    - Ecommerce Fulfillment Lead
+    - 3PL Control Tower
+  triggers:
+    - Hourly batch of open orders
+    - Pre-carrier cutoff checks
+  inputs:
+    - Open orders with dims/weights and SLAs
+    - Carrier schedules and cutoffs
+    - Trailer/container capacities
+    - Rate cards and accessorials
+    - Facility shipping calendar
+  steps:
+    - Create look-ahead pools by lane and SLA
+    - Bin-pack items/pallets; form consolidation candidates
+    - Evaluate mode/service tradeoffs and costs
+    - Select plan; create tenders/labels
+    - Publish to TMS and notify dock
+  tools:
+    - OR-Tools/bin-packing heuristics
+    - Carrier APIs (labels/tenders)
+    - TMS connectors (REST/SFTP)
+    - Pandas/NumPy
+  outputs:
+    - Consolidation plan and tender list
+    - Estimated cost/service impact
+    - Exception queue for manual review
+  pricingModel:
+    - Per-shipment decision fee
+    - Monthly subscription with volume tiers
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Late schedule changes by carriers
+    - Inaccurate dimensions leading to busts
+    - Carrier rejections of planned consolidations
+  dependencies:
+    - Accurate rate tables and cutoffs
+    - TMS integration
+    - Packaging master data
+leanCanvas:
+  problem:
+    - >-
+      Freight overspend from suboptimal mode mix and missed consolidations
+      (typical 5–12% above attainable baseline in parcel/LTL-heavy networks).
+    - >-
+      Static routing guides and TMS rules can’t handle dynamic SLAs, cutoffs,
+      dock capacity, or carrier surcharges in real time, causing late shipments
+      and avoidable accessorials.
+    - >-
+      Data fragmentation across OMS/WMS/TMS and carrier rate tables delays
+      decisioning; manual analysts can’t evaluate all combinations under time
+      pressure.
+    - >-
+      Lack of reliable transit-time and SLA-attainment predictions leads to
+      conservative selections (defaulting to parcel/air), increasing
+      cost-to-serve.
+    - >-
+      Missed zone-skip and pool distribution opportunities due to unclear
+      consolidation windows or fear of SLA breach.
+    - >-
+      Inconsistent pack/dim assumptions inflate billable weight and cause mode
+      misclassification (parcel vs LTL).
+    - >-
+      Limited visibility into realized savings vs. plan and no closed-loop
+      learning to improve rules/thresholds.
+  solution:
+    - >-
+      AI-assisted decisioning engine that recommends consolidations and mode,
+      honoring SLAs, carrier cutoffs, dock capacities, packaging constraints,
+      and inventory availability.
+    - >-
+      Predictive ETA/transit model using historical carrier performance,
+      distance, service levels, weather/traffic signals, and blackout calendars
+      to estimate SLA attainment probabilities.
+    - >-
+      Dynamic hold-and-release policy optimizer to determine when to hold orders
+      for consolidation vs ship now, by risk tolerance and SLA class.
+    - >-
+      Rate and surcharge normalization: ingest carrier rate cards, accessorial
+      rules, DIM factors, fuel and peak surcharges to compute true
+      cost-to-serve.
+    - >-
+      What-if simulator: backtest 8–13 weeks of historical orders to quantify
+      savings and SLA impact; supports A/B policies by lane, customer, and node.
+    - >-
+      Execution adapters into TMS/WMS/OMS (e.g., OTM, SAP TM, Blue Yonder,
+      Manhattan, MercuryGate, Descartes, E2open) to publish shipments,
+      consolidations, and mode selections.
+    - >-
+      Real-time alerts for cutoff risk, consolidation window closing, and
+      exceptions; explainability panel showing the decision rationale.
+    - >-
+      Carbon-aware optimization mode that includes CO2e impact in tie-breakers
+      and reporting.
+  uniqueValueProp: >-
+    Reduce freight cost 5–15% and shipments 10–20% without sacrificing SLAs by
+    using an explainable AI/optimization engine that consolidates orders and
+    selects the optimal mode (parcel vs LTL vs TL vs intermodal) under real
+    cutoffs, capacity, and carrier constraints—deployable in 4–8 weeks with
+    measurable ROI in one quarter.
+  unfairAdvantage: >-
+    Explainable, SLA-aware optimization tuned for sub-day cutoffs and
+    consolidation windows; prebuilt connectors to major TMS/WMS; proprietary
+    rate/contract normalization library and anonymized performance benchmarks
+    enabling faster time-to-value and more accurate decisions than generic TMS
+    rules or one-off consulting models.
+  customerSegments:
+    - >-
+      Mid-market and enterprise omni-channel retailers and D2C brands (annual
+      freight spend $20M–$500M; 2–20 DCs; 2M+ annual parcels).
+    - >-
+      3PLs/4PLs offering value-added transportation management to ecommerce and
+      B2B clients.
+    - >-
+      CPG, health/beauty, consumer electronics, and industrial distributors with
+      mixed parcel/LTL/TL flows and strict SLAs.
+    - >-
+      Manufacturers with regional fulfillment and replenishment flows where
+      consolidation and mode switches impact service and cost.
+    - >-
+      High-growth ecommerce brands transitioning from parcel-dominant to mixed
+      parcel/LTL and exploring zone skipping/pool distribution.
+  channels:
+    - >-
+      Direct sales to Directors/VPs of Transportation, Logistics, and Ecommerce
+      Operations at parcel/LTL-heavy shippers.
+    - >-
+      Co-selling and marketplace listings with TMS/WMS partners (Oracle OTM, SAP
+      TM, Blue Yonder, Manhattan, MercuryGate, Descartes, E2open).
+    - >-
+      3PL/4PL partnerships to embed the engine in managed transportation
+      offerings.
+    - >-
+      Supply chain SIs/consultancies (Accenture, Deloitte, Chainalytics,
+      enVista) for implementation and change management.
+    - >-
+      Thought leadership and demand gen: ROI calculator, benchmark reports, case
+      studies, webinars; speaking at MODEX, CSCMP EDGE, Gartner Supply Chain.
+    - >-
+      60–90 day proof-of-value using 8–13 weeks of historical data; phased
+      rollout by DC/region after joint success criteria are met.
+    - >-
+      Targeted LinkedIn/ABM campaigns for firms with 2M+ parcels/year or >10k
+      LTL shipments/year; intent data on “mode optimization,” “zone skip,”
+      “parcel savings.”
+  revenueStreams:
+    - >-
+      SaaS subscription: platform fee tiered by shipment volume and number of
+      nodes ($60k–$180k/year base).
+    - >-
+      Usage-based decision fees: e.g., $0.01–$0.05 per parcel decision,
+      $0.20–$0.60 per LTL/TL decision, discounted at volume.
+    - >-
+      Implementation/integration fee ($30k–$150k) depending on connectors and
+      data readiness.
+    - >-
+      Premium add-ons: carbon optimization/reporting, advanced simulation
+      sandbox, premium support/SLAs.
+    - >-
+      Optional gainshare model for select customers (e.g., 15–25% of audited net
+      savings for first 12 months).
+    - >-
+      Professional services: data hygiene, rate-card normalization, policy
+      design, and onsite training.
+  costStructure:
+    - 'R&D: optimization engineers, data scientists, and domain SMEs.'
+    - >-
+      Cloud infra: compute for optimization workloads, databases, object
+      storage; observability stack.
+    - >-
+      Data acquisition/licensing: carrier performance datasets,
+      geocoding/traffic/weather APIs.
+    - 'Security/compliance: SOC 2 audits, pen tests, vulnerability management.'
+    - Integration and customer success teams for onboarding and support.
+    - 'Sales and marketing: AE/SEs, content, events, partner MDF.'
+    - 'Partner ecosystem costs: marketplace fees, rev-share with SIs/3PLs.'
+    - 'Insurance and legal: contracts, data processing addenda, IP protection.'
+  keyMetrics:
+    - >-
+      Freight cost per shipment and per pound/mile (target: 5–15% reduction
+      within 6 months).
+    - >-
+      Consolidation ratio: average orders per shipment, average weight per
+      shipment (target: +10–20%).
+    - >-
+      Mode mix optimization: shift from parcel to LTL/TL where viable (target:
+      +5–12% of volume reclassified with no SLA degradation).
+    - >-
+      SLA/OTIF attainment: maintain or improve by 1–3 percentage points
+      post-implementation.
+    - 'Recommendation adoption rate by site/user (target: >80% within 90 days).'
+    - >-
+      Prediction accuracy: transit-time MAE < 0.5 days for ground; on-time
+      classification AUC > 0.85.
+    - >-
+      Optimizer performance: P95 decision latency < 200ms (API), batch planning
+      < 15 minutes per 100k orders.
+    - >-
+      Savings realization vs forecast (target: >85% realization validated
+      against invoices).
+    - >-
+      Exception rate due to constraints (cutoff misses, capacity) trending down
+      20% by quarter two.
+    - >-
+      Commercial metrics: ASP, sales cycle length (target: < 120 days), CAC
+      payback < 12 months, NRR > 115%.
+storyBrand:
+  character: >-
+    Operations and logistics leaders at shippers, retailers, and 3PLs who want
+    on‑time delivery at the lowest total landed cost without adding headcount.
+  problem: >-
+    External: Fragmented orders, tight cutoffs, volatile rates, and siloed SLAs
+    cause suboptimal parcel/LTL/TL/intermodal choices.
+
+    Internal: Planners are forced to guess under time pressure and constantly
+    firefight exceptions.
+
+    Philosophical: Hitting SLAs shouldn’t require overspending or heroic effort.
+  guide: >-
+    Empathy: We’ve lived the late‑night rebooks, carrier fall‑downs, and
+    chargeback emails.
+
+    Authority: Built by logistics consultants, ex‑carrier pricing analysts, and
+    data scientists; our AI evaluates consolidation and mode trade‑offs against
+    your SLAs, cutoffs, rate cards, and service calendars.
+  plan: >-
+    Process plan:
+
+    1) Connect: Securely link ERP/WMS/TMS orders, rates, and SLA data.
+
+    2) Decide: AI recommends consolidations and optimal mode with cost/OTIF
+    trade‑offs and clear rationale.
+
+    3) Execute: Approve or auto‑apply in your TMS; monitor KPIs and iterate.
+
+    Agreement plan:
+
+    - Keep your carriers and SLAs; you control automation thresholds.
+
+    - Enterprise security and data governance.
+
+    - Start with a low‑risk pilot on historical shipments.
+  callToAction: |-
+    Direct: Book a 30‑minute fit assessment.
+    Transitional: Get a free historical lane analysis and ROI estimate.
+  success: >-
+    Meaningful freight cost reduction, higher trailer utilization, fewer
+    shipments and touches, improved OTIF and chargeback avoidance, stabilized
+    planning workload, and a clear audit trail for finance and customers.
+  failure: >-
+    Missed cutoffs, overspend from mode misselection, avoidable surcharges and
+    chargebacks, under‑utilized capacity, more exceptions, planner burnout, and
+    unhappy customers.
+landingPage:
+  hero:
+    title: AI Shipment Consolidation & Mode Selector
+    subtitle: >-
+      Cut freight spend and hit SLAs by auto-selecting parcel, LTL, TL, or
+      intermodal—and consolidating orders before cutoff.
+    ctaText: See a Live Demo
+    ctaHref: /demo
+  problem:
+    - Fragmented orders drive up cost and miss SLAs.
+    - Manual mode rules are brittle and hard to maintain.
+    - 'Cutoffs, dock calendars, and carrier capacity change daily.'
+    - WMS/OMS/TMS data silos hide consolidation opportunities.
+    - Overpaying for parcel when LTL fits—or running half-empty TL.
+    - 'No clear, real-time view of savings vs. service tradeoffs.'
+  solution:
+    - >-
+      AI groups shipments by location, time, and constraints; picks the optimal
+      mode under SLAs and cutoffs.
+    - >-
+      Scenario simulation to balance cost, OTIF, and capacity across waves and
+      nodes.
+    - Pushes executable plans to your TMS/WMS with labels and tenders.
+    - 'Real-time re-optimization on delays, weather, and carrier changes.'
+    - 'Policy- and compliance-aware: hazmat, dimensional limits, regional rules.'
+    - Transparent rationale and savings impact for every decision.
+  features:
+    - 'Smart Consolidation Engine across days, nodes, and waves.'
+    - >-
+      Mode selection across parcel, LTL, TL, and intermodal per lane and rate
+      card.
+    - 'SLA-, cutoff-, and calendar-aware planning with penalty modeling.'
+    - Dimensional and cartonization support; cube/weight/pallet optimization.
+    - Rate ingestion via API/EDI/files; supports tariffs and spot quotes.
+    - >-
+      Constraints: dock schedules, pickup windows, trailer utilization,
+      stackability.
+    - 'What‑if simulation, A/B holdouts, and sandbox routing guides.'
+    - Auto-tender and label generation via TMS connectors.
+    - 'Exception management with alerts, overrides, and approvals.'
+    - 'KPI dashboard: cost/order, OTIF, cube fill, consolidation rate, CO2.'
+    - 'Integrations: WMS/OMS/TMS, carrier APIs, visibility platforms.'
+    - 'Enterprise-grade security: SSO, RBAC, audit logs.'
+  steps:
+    - 'Connect carriers, rate cards, SLAs, cutoffs, and location calendars.'
+    - 'Stream orders, inventory availability, and capacity from WMS/OMS/TMS.'
+    - >-
+      Define policies: consolidation windows, OTD targets, constraints,
+      overrides.
+    - Run shadow mode to compare AI vs. business-as-usual and validate savings.
+    - Enable auto-recommend or auto-tender by rule and threshold.
+    - Monitor KPIs and exceptions; fine-tune policies and expand lanes.
+---
+# ConsoliSense — Shipment Consolidation & Mode Selector
+
+Industry: Process, Physical Distribution, and Logistics Consulting Services
+Service: Shipment Consolidation & Mode Selector

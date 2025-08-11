@@ -1,0 +1,267 @@
+---
+name: NetGuard.AI — Netlist Extraction and Compare for Bare PCB Manufacturers
+slug: netguard
+service:
+  title: Netlist Extraction and Compare (Gerber vs IPC-D-356A)
+  description: >-
+    Extracts netlist from CAM data and compares to IPC-D-356A to catch
+    opens/shorts before e-test.
+  targetUsers:
+    - CAM engineers
+    - Quality/ET test engineering
+  triggers:
+    - Pre-tooling signoff
+    - Suspected data integrity issue
+  inputs:
+    - Gerbers (copper + soldermask)
+    - NC drill files
+    - IPC-D-356A (if available)
+    - Layer stack mapping
+  steps:
+    - Reconstruct connectivity graph from copper and drills
+    - Normalize and align to stack map; handle soldermask tenting
+    - Compare to IPC-D-356A nets; diff mismatches
+    - Localize suspects and render annotated evidence
+  tools:
+    - pcb-tools connectivity
+    - Graph algorithms (NetworkX)
+    - Tracespace for visuals
+  outputs:
+    - Mismatch report (opens/shorts/nets added/removed)
+    - Annotated images of suspect regions
+    - Machine-readable diff (JSON)
+  pricingModel:
+    - Per comparison
+    - Bundle with DFM service
+  humanInLoop: false
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 7.5
+    overall: 8
+  risks:
+    - Ambiguous layer mapping causing false results
+    - Complex impedance splits/thermal shapes misinterpreted
+    - Missing/incorrect IPC-D-356A file
+  dependencies:
+    - Correct stack mapping
+    - Clean CAM data without polarity mistakes
+leanCanvas:
+  problem:
+    - >-
+      Netlist mismatches between CAM data (Gerber/ODB++) and customer-supplied
+      IPC-D-356A are discovered late at e-test, causing rework, retests, and
+      schedule slips.
+    - >-
+      Manual netlist extraction and compare is slow, error-prone, and varies by
+      operator, especially with complex stackups (blind/buried microvias,
+      via-in-pad, step-and-repeat) and ambiguous Gerber data.
+    - >-
+      Existing tools lack automation at scale (batch, API), robust handling of
+      poor or inconsistent input data, and closed-loop reporting to MES/CAM
+      workflows.
+    - >-
+      High-mix factories struggle to maintain consistent pre-test checks across
+      thousands of unique jobs/month, leading to avoidable escapes and delayed
+      shipments.
+    - >-
+      Security and compliance constraints (ITAR/EAR, customer NDAs) make
+      cloud-only solutions non-starters; on-prem capability is required without
+      sacrificing modern AI capabilities.
+  solution:
+    - >-
+      AI-assisted netlist extraction from Gerber RS-274X/X2 and ODB++ with drill
+      (Excellon/Sieb&Meyer), recognizing connectivity across polygons, thermals,
+      blind/buried vias, negative planes, and step-and-repeat panels.
+    - >-
+      Deterministic compare engine against IPC-D-356A with topology-aware
+      heuristics to precisely identify opens/shorts, missing/extra connections,
+      layer-to-layer mis-registrations, and polarity/unit mismatches.
+    - >-
+      Batch/API-driven workflow: drop a job or trigger via REST/CLI; receive
+      standardized discrepancy reports (JSON/CSV/PDF), annotated images, and
+      cross-probing back into CAM tools.
+    - >-
+      Panelization-aware checks: recognizes repeats, nets across sub-panels, and
+      fixture/testpoint mapping to project e-test risk and expected coverage.
+    - >-
+      Closed-loop integrations with CAM/MES (Genesis/InCAM, UcamX, CAM350,
+      Valor, Aegis/MES, Siemens Opcenter) for automated quality gates and
+      electronic signoff.
+    - >-
+      Secure deployment options: air-gapped on-prem appliance or private cloud
+      with SOC 2 controls; role-based access; audit logs.
+  uniqueValueProp: >-
+    Automatically extract a golden netlist from CAM data and compare it to
+    IPC-D-356A to catch opens/shorts before e-test, reducing scrap and retests,
+    accelerating preproduction by minutes per job, and integrating directly into
+    existing CAM/MES workflows with enterprise-grade security (on-prem or
+    private cloud).
+  unfairAdvantage: >-
+    A growing, cross-fab defect corpus and AI models tuned to real-world CAM
+    quirks (negative planes, odd aperture macros, panelization edge cases)
+    combined with deep, certified integrations into dominant CAM/MES tools and a
+    secure on-prem option suitable for ITAR/EAR environments. This
+    data+integration+security trifecta is difficult to replicate.
+  customerSegments:
+    - >-
+      Primary: Bare PCB fabrication plants (small to enterprise), especially
+      high-mix, quick-turn, defense/aerospace, automotive, medical.
+    - >-
+      Roles: CAM engineers, Preproduction/Process engineering, Quality/QA, Test
+      engineering (flying probe/bed-of-nails), Engineering management/Plant
+      managers.
+    - >-
+      Secondary: PCB brokers/traders with incoming QC, OEMs with incoming
+      inspection requirements, third-party CAM service bureaus, MES/CAM system
+      integrators.
+  channels:
+    - >-
+      Direct enterprise sales to mid/large PCB fabs; land-and-expand via
+      site-by-site rollouts.
+    - >-
+      Partnerships with CAM/MES vendors and system integrators to embed as a
+      quality gate plugin.
+    - >-
+      Technical marketing: webinars, whitepapers, and defect-taxonomy
+      benchmarks; presence at IPC APEX, productronica, CPCA.
+    - >-
+      Bottom-up adoption: free CLI/community edition with limited batch size,
+      converting engineering champions into buyers.
+    - >-
+      Targeted outbound to high-mix/quick-turn fabs and defense/aero suppliers;
+      ABM to multi-site manufacturers.
+    - >-
+      Case-study driven PR with early lighthouse fabs quantifying ROI; joint
+      customer references with testers/MES vendors.
+  revenueStreams:
+    - >-
+      SaaS subscription per site with usage tiers (e.g., Starter $12k/site/yr up
+      to 25k jobs; Pro $48k up to 150k jobs; Enterprise custom 150k+).
+    - 'Usage-based overages (e.g., $0.03–$0.08/job) beyond tier caps.'
+    - On-prem license + annual support/maintenance (15–22% of license).
+    - >-
+      Professional services: integrations, SOP development, custom rulepacks,
+      and model tuning.
+    - Training and certification for CAM/QA teams.
+    - Enterprise SLAs and premium support.
+  costStructure:
+    - >-
+      R&D: ML/algorithms, parsers, rule engines, integrations (40–50% of spend
+      in first 2 years).
+    - >-
+      Compute/Storage: GPU/CPU for model training and CI, artifact storage,
+      on-prem appliance BOM.
+    - 'Sales/Marketing: SEs for POCs, conferences, content, partner MDF.'
+    - >-
+      Customer Success/Support: onboarding, SOP customization, L2/L3 engineering
+      support.
+    - 'Security/Compliance: SOC 2, ITAR/EAR process controls, VAPT, code signing.'
+    - 'General & Administrative: legal (NDAs, DPAs), finance, HR.'
+  keyMetrics:
+    - >-
+      Defect detection performance on benchmark set: precision ≥99.5%, recall
+      ≥99.5% for open/short classes; false positive rate ≤0.5% of jobs flagged.
+    - >-
+      Operational performance: P50 processing ≤15s, P95 ≤60s for ≤12 layers;
+      success rate of automated ingestion ≥99.9%.
+    - >-
+      Customer outcomes: reduce e-test retest rate by 20–40%; first-pass yield
+      +0.3–1.0 percentage points; cut CAM QA time by 5–12 minutes on 10–30% of
+      jobs.
+    - >-
+      Adoption: % of jobs gated through NetGuard.AI (target ≥85% by month 3),
+      number of active sites, seats, and integrations per site.
+    - >-
+      Financial: MRR, ARR, expansion revenue, gross margin ≥80% (SaaS), net
+      dollar retention ≥120%, logo churn ≤5% annually, CAC payback ≤12 months.
+    - >-
+      Quality of life: support tickets per 1,000 jobs ≤1.0; time-to-resolution
+      P50 ≤8h; NPS ≥50.
+    - >-
+      Security/SLA: uptime ≥99.9% (cloud), mean time to patch critical vulns
+      ≤72h, audit findings = 0 blocker issues.
+storyBrand:
+  character: >-
+    CAM and test engineers at bare-board PCB manufacturers who must guarantee
+    netlist integrity before electrical test.
+  problem: >-
+    - External: Gerber/CAM and IPC-D-356A often diverge; manual checks are slow
+    and miss hidden opens/shorts that surface late at e-test.
+
+    - Internal: Pressure and uncertainty about escapes, late-night debug, and
+    missed ship dates.
+
+    - Philosophical: Quality shouldn’t depend on heroics—every net deserves
+    automatic, early verification.
+  guide: >-
+    - Empathy: We know the zero-escape pressure and tight turnarounds in bare
+    PCB manufacturing.
+
+    - Authority: AI purpose-built for PCB topology; standards-compliant
+    IPC-D-356A parsing; production-proven comparisons; integrates with common
+    CAM flows.
+  plan: >-
+    - Process: 1) Connect/upload Gerbers (or CAM) and IPC-D-356A. 2) AI extracts
+    a golden netlist from CAM and compares to IPC-D-356A. 3) Get a discrepancy
+    report with visual overlays and root-cause hints. 4) Approve fixes/ECO, then
+    export a clean netlist to e-test.
+
+    - Agreement: Read-only by default; secure (on‑prem/air‑gapped options);
+    simple subscription or per-panel pricing.
+  callToAction: >-
+    - Direct: Start a pilot on your next job.
+
+    - Transitional: Schedule a 20‑minute demo or download a sample discrepancy
+    report.
+  success: >-
+    Find and fix opens/shorts before e-test, boost first-pass yield, shorten
+    CAM/test cycles, reduce scrap/rework, provide an auditable QA trail, and
+    ship on time with confidence.
+  failure: >-
+    Undetected opens/shorts slip to e-test or the customer, triggering scrap,
+    retests, chargebacks, delays, and reputational damage.
+landingPage:
+  hero:
+    title: Catch Netlist Errors Before E‑Test
+    subtitle: >-
+      AI extracts a Gerber-based netlist and compares it to IPC‑D‑356A to flag
+      opens, shorts, and mismatches in minutes.
+    ctaText: Run a Free Compare
+    ctaHref: '#start'
+  problem:
+    - Manual CAM checks miss subtle opens/shorts
+    - E‑test finds issues late—wasting panels and time
+    - Net naming and testpoint conventions don’t align
+    - Panelization and step‑repeat complicate reviews
+    - Disparate CAM files slow engineers down
+    - 'No clear, visual proof of what changed and where'
+  solution:
+    - Automated netlist extraction from Gerber + drills
+    - One‑click compare against IPC‑D‑356A
+    - 'AI normalization of nets, pins, and testpoints'
+    - Instant visual diffs with precise coordinates
+    - 'Actionable reports for CAM, QA, and e‑test'
+    - API and UI workflows that fit your line
+  features:
+    - Supports Gerber RS‑274X/X2 and Excellon drills
+    - Layer stack inference and auto‑registration
+    - Drill‑to‑copper correlation (incl. blind/buried vias)
+    - Panel/step‑repeat awareness for accurate compare
+    - 'Detects opens, shorts, missing/extra connections, pin‑to‑net swaps'
+    - 'Net alias normalization (e.g., GND/GNDA) to cut false alarms'
+    - Interactive viewer with cross‑probe and filtering
+    - 'Exports: CSV, PDF, annotated images, and delta IPC‑D‑356A'
+    - REST API and CLI for batch jobs and CI pipelines
+    - 'Secure by design: encrypted in transit/at rest; optional on‑prem'
+  steps:
+    - Upload Gerber + Excellon + IPC‑D‑356A
+    - Auto‑parse and build artwork‑derived netlist
+    - Normalize nets/pins and align layers
+    - Run compare to flag opens/shorts/mismatches
+    - Review interactive map and root‑cause fast
+    - Export report or push results via API
+---
+# NetGuard.AI — Netlist Extraction and Compare for Bare PCB Manufacturers
+
+Industry: Bare Printed Circuit Board Manufacturing
+Service: Netlist Extraction and Compare (Gerber vs IPC-D-356A)

@@ -1,0 +1,301 @@
+---
+name: AquaLint — ET-based Irrigation AI for Cotton
+slug: aqualint
+service:
+  title: ET-based Irrigation Scheduling for Cotton
+  description: >-
+    Remote agent calculates field-level crop water use and produces weekly
+    irrigation schedules and alerts.
+  targetUsers:
+    - Irrigated cotton growers
+    - Farm managers
+    - Irrigation schedulers
+  triggers:
+    - Planting date set
+    - Weekly schedule run
+    - New satellite NDVI available
+    - Heatwave forecast detected
+    - Irrigation capacity update
+  inputs:
+    - Field boundary (GeoJSON/shapefile)
+    - Planting date and variety
+    - Irrigation system type and capacity
+    - Soil texture or plant-available water
+    - Flowmeter or pump logs (optional)
+    - Local water constraints/prices
+  steps:
+    - Pull weather and reference ET (ETo)
+    - Estimate Kc/growth stage from NDVI time series
+    - Run soil water balance and compute ETc and deficit
+    - Optimize irrigation events within system capacity and constraints
+    - Optional human QA
+    - Deliver schedule via SMS/email and dashboard
+  tools:
+    - OpenET API
+    - NASA POWER or NOAA weather APIs
+    - Sentinel-2 via Sentinel Hub or Google Earth Engine
+    - FAO-56 crop coefficient models
+    - Python Pandas/NumPy
+    - Mapbox for maps
+    - Twilio for SMS
+  outputs:
+    - 'Weekly irrigation plan (dates, runtime, inches/ha)'
+    - Soil water balance chart
+    - Zone map and CSV/JSON plan
+    - PDF summary
+  pricingModel:
+    - Per-acre per-month
+    - Season bundle
+    - Add-on for flowmeter integration
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 8
+    overall: 9
+  risks:
+    - Cloud cover affects NDVI-derived Kc
+    - Incorrect soil parameters
+    - Liability for under/over-watering
+    - Data gaps from weather APIs
+  dependencies:
+    - Field boundaries
+    - Weather/ET data access
+    - Satellite imagery access
+    - Basic soil parameters
+leanCanvas:
+  problem:
+    - >-
+      Growers lack per-field, timely guidance on when and how long to irrigate,
+      leading to over/under-watering and yield loss.
+    - >-
+      High variability in weather, soil, and system capacity makes rule-of-thumb
+      scheduling unreliable, especially under water or energy constraints.
+    - >-
+      Existing tools are sensor-heavy, hard to maintain at scale, or too generic
+      (not cotton-specific) to convert ET into actionable run-times.
+    - >-
+      Managing multiple pivots/sets across 500–10,000 acres overwhelms farm
+      managers, causing missed irrigation windows and inefficiencies.
+    - >-
+      Rising pumping costs and water limitations demand measurable water-use
+      efficiency gains and documentation for compliance and cost-share programs.
+    - >-
+      Consultants and dealers need scalable, defensible recommendations and
+      reporting to justify services and retain clients.
+  solution:
+    - >-
+      Remote agent computes daily field-level ETc using crop-stage-aware models
+      blending satellite canopy (Sentinel/Landsat/optional Planet) with local
+      weather forecasts and on-farm rainfall.
+    - >-
+      Weekly irrigation schedules translate ET deficits into actionable
+      run-times by system type (pivot, drip, set), capacity, and pump
+      constraints.
+    - >-
+      Proactive alerts (SMS/WhatsApp/app) when soil water drops below
+      thresholds, rain is forecast, or a schedule is missed; includes heatwave
+      surge recommendations.
+    - >-
+      Simple onboarding: import field boundaries, specify system capacity,
+      typical set lengths, and planting/emergence dates; optional soil texture
+      selection or auto-lookup.
+    - >-
+      Calibration loop: assimilate observed canopy growth and irrigation logs to
+      refine Kc and effective rainfall, improving accuracy mid-season.
+    - >-
+      Reporting: season-long water budget, cost savings, bales per acre-foot,
+      compliance and cost-share documentation, and consultant-branded reports.
+    - >-
+      Integrations and automations: API to pivot/drip controllers, pump
+      telemetry, and farm management systems; one-click run-time sync where
+      supported.
+  uniqueValueProp: >-
+    Cotton-specific, sensorless ET scheduling that turns satellite canopy and
+    hyperlocal weather into weekly, field-level run-time prescriptions and
+    alerts, improving water-use efficiency by 15–25% and increasing lint yields
+    by 3–8%, with simple SMS/app workflows and integrations to existing
+    irrigation hardware.
+  unfairAdvantage: >-
+    Validated, cotton-specific sensorless ET pipeline that converts satellite
+    canopy and localized weather into run-time prescriptions with documented
+    ROI, plus OEM/dealer distribution and closed-loop calibration from millions
+    of historical acre-days—hard to replicate quickly without data access and
+    partnerships.
+  customerSegments:
+    - >-
+      Primary: Irrigated cotton growers (500–10,000 acres) in the U.S. High
+      Plains, Delta, and Southwest; Australia; Brazil; and irrigated regions of
+      India and Pakistan.
+    - >-
+      Farm managers and operations leads responsible for scheduling
+      pivots/drip/sets across multiple fields.
+    - >-
+      Independent crop consultants and agronomists who advise 10–50+ growers and
+      want scalable scheduling.
+    - >-
+      Irrigation dealers/OEMs (pivot and drip) seeking value-added scheduling
+      and automation for their customers.
+    - >-
+      Secondary: Cotton gins/co-ops aggregating grower services; water
+      districts; lenders/insurers needing irrigation documentation and risk
+      reduction.
+  channels:
+    - >-
+      Irrigation dealers and OEM partner programs with revenue share (15–25%)
+      and embedded offers in controller UIs/marketplaces.
+    - >-
+      Independent crop consultant networks; white-label reports and per-acre
+      reseller pricing.
+    - >-
+      Co-ops/gins as aggregators offering negotiated per-acre pricing and
+      onboarding workshops pre-planting.
+    - >-
+      Regional pilots and field days with extension (Texas A&M AgriLife,
+      Mississippi State, University of Arizona) to generate third-party results.
+    - >-
+      Digital acquisition: targeted ads and webinars in cotton regions;
+      case-study-driven email to lists from associations and events (Beltwide
+      Cotton Conferences).
+    - >-
+      Utility/water district programs and NRCS EQIP/CTA cost-share alignment;
+      include service in conservation practice bundles.
+    - >-
+      Referrals and incentives: $0.50/acre credit for referring farms over 1,000
+      acres; early-bird pre-season discounts.
+  revenueStreams:
+    - >-
+      Per-acre seasonal subscription priced by feature tier and volume: Basic
+      Monitoring $4/acre; Standard Scheduling $8/acre; Pro Automation/API
+      $12/acre. Volume discounts at 2k/5k/10k acres.
+    - >-
+      Enterprise/aggregator pricing for co-ops/consultants (blended $5–$9/acre
+      with minimums).
+    - >-
+      OEM/API licensing to irrigation platforms: $25k–$150k/yr plus $1–$3/active
+      acre.
+    - >-
+      Professional services: onboarding/mapping/training $1–$2/acre; custom
+      integrations SOW-based.
+    - >-
+      Conservation and utility rebate capture services: 10–20% share of realized
+      rebates/grants when applicable.
+  costStructure:
+    - >-
+      Cloud compute and storage for daily ET modeling and imagery processing
+      ($0.50–$1.20/acre/season at scale).
+    - >-
+      Data acquisition: weather APIs, radar/gauge networks, optional
+      high-resolution imagery (Planet) for premium tiers.
+    - >-
+      R&D and agronomy staff for model development, calibration, and validation
+      trials in key regions.
+    - >-
+      Sales and partner enablement; dealer/OEM revenue share (15–25% of ARR from
+      partner-sourced acres).
+    - >-
+      Customer success and support (bilingual), onboarding, and training content
+      production.
+    - >-
+      Field validation costs: lysimeters/flow meters/soil moisture probes for
+      trials; travel and demo kits.
+    - >-
+      Compliance, security, and insurance; legal for data/privacy and partner
+      contracts.
+    - 'Marketing: events, digital ads, case study production.'
+  keyMetrics:
+    - >-
+      Model accuracy: ETc mean absolute error ≤0.7 mm/day; soil water balance
+      error ≤1.0 inch over 30 days vs. probes/lysimeter.
+    - >-
+      Water-use efficiency gain: +0.10–0.20 bales per acre-foot vs. prior
+      year/baseline fields.
+    - >-
+      Yield impact: +50–100 lb lint/acre on average where water-limited;
+      confidence intervals reported per region.
+    - >-
+      Water and energy savings: 2–6 acre-inches water and $8–$25/acre pumping
+      energy per season.
+    - >-
+      Schedule adherence: ≥70% of recommended hours completed within 72 hours;
+      missed-irrigation alerts resolved within 48 hours.
+    - >-
+      Customer economics: LTV/CAC ≥3; gross margin ≥70% at 50k acres; net
+      revenue retention ≥110% (acre expansion).
+    - >-
+      Adoption: active managed acres, weekly active users, alert open rate ≥75%,
+      time-to-value ≤14 days from onboarding.
+    - >-
+      Churn: seasonal acre churn ≤10%; NPS ≥45 among growers and ≥55 among
+      consultants/dealers.
+storyBrand:
+  character: >-
+    Cotton growers and irrigation managers who want confident, efficient
+    watering that protects yield and profit.
+  problem: >-
+    Weather swings, soil variability, and time pressure make irrigation
+    guesswork—causing over/under‑watering, wasted water and energy, and
+    avoidable yield and fiber‑quality losses.
+  guide: >-
+    We’re irrigation agronomists and AI engineers who understand the stakes; our
+    remote agent uses evapotranspiration (ET), crop coefficients, weather,
+    satellite, and soil data to deliver clear, field‑level recommendations.
+  plan: >-
+    1) Add field boundaries and system details; 2) AI estimates daily crop water
+    use and soil moisture; 3) Receive weekly irrigation schedules plus alerts
+    for rain, heat, or stress; 4) Irrigate with confidence and review results—no
+    new hardware, cancel anytime.
+  callToAction: >-
+    Book a demo now; or start a limited pilot and download a sample schedule
+    with an ROI worksheet.
+  success: >-
+    Right‑time, right‑amount irrigation; measurable water and energy savings;
+    steadier yields and fiber quality; fewer stress days; simpler crew planning;
+    compliance‑ready reports; peace of mind all season.
+  failure: >-
+    Missed irrigation windows, chronic crop stress, wasted water and energy,
+    rising pumping costs, regulatory headaches, and a season of second‑guessing.
+landingPage:
+  hero:
+    title: ET-based Irrigation Scheduling for Cotton
+    subtitle: >-
+      AI agent computes field-level crop water use and delivers weekly
+      irrigation plans and alerts—reducing water and energy waste while
+      protecting yield.
+    ctaText: Start Scheduling
+    ctaHref: /get-started
+  problem:
+    - Guesswork irrigation wastes water and risks crop stress.
+    - One-size-fits-all rotations ignore field variability.
+    - Weather swings make fixed calendars unreliable.
+    - Busy weeks lead to missed irrigation windows.
+    - 'Data is scattered across maps, sensors, and controllers.'
+  solution:
+    - 'Field-specific, ET-driven irrigation schedules updated weekly.'
+    - 'Alerts when irrigation is due, delayed by rain, or off target.'
+    - Clear pump runtime targets per field or zone.
+    - Works from satellite and forecast data; sensors optional.
+    - Mobile and SMS notifications to keep crews on time.
+  features:
+    - >-
+      Daily crop ET (evapotranspiration) modeled with forecast weather and
+      canopy cover.
+    - Cotton growth-stage Kc and field-level soil water balance.
+    - Rain-smart adjustments that shift sets around storm events.
+    - 'Zone-level schedules with flow, set size, and hour constraints.'
+    - 'Simple inputs: plant date, soil type, system capacity, allocation.'
+    - Pump hours and gallons/ac targets—ready for the crew.
+    - API hooks for controller and farm data integrations.
+    - 'Season dashboard: ETc vs. irrigation vs. rainfall and water-use summaries.'
+  steps:
+    - Add fields (draw or import) and planting dates.
+    - 'Set soil type, system capacity, and constraints.'
+    - Optionally connect sensors or equipment data.
+    - Receive weekly ET-based schedules with pump hours per field/zone.
+    - 'Get alerts for due irrigation, rain delays, and catch-up needs.'
+    - Adjust plans in one tap; updates sync to the crew.
+    - Review season reports to fine-tune next year’s strategy.
+---
+# AquaLint — ET-based Irrigation AI for Cotton
+
+Industry: Cotton Farming
+Service: ET-based Irrigation Scheduling for Cotton

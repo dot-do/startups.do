@@ -1,0 +1,293 @@
+---
+name: RecoverIQ
+slug: recoveriq2
+service:
+  title: Portfolio Triage & Recovery Likelihood Scoring
+  description: >-
+    Scores cases for recovery likelihood/ROI and recommends assignment method
+    and timing.
+  targetUsers:
+    - Lenders
+    - Forwarders
+    - Agency ops managers
+  triggers:
+    - Nightly batch import
+    - New portfolio onboard
+  inputs:
+    - Historical recovery outcomes
+    - 'Case attributes (DPD, balance, GPS/LPR presence)'
+    - Geography/seasonality
+    - Agent/vendor performance history
+  steps:
+    - Clean and join historical data; engineer features
+    - Train/refresh model; calibrate with recent results
+    - Score active cases and segment into workflows
+    - Recommend vendor/agent assignment and method (involuntary vs voluntary)
+    - Sync priorities into case management system
+  tools:
+    - Python/LightGBM
+    - BigQuery/Snowflake
+    - Airflow/Prefect
+    - 'Case management API (RDN, Clearplan, Backlot, internal)'
+  outputs:
+    - Per-case recovery probability and expected value
+    - Priority queues and SLA targets
+    - Assignment recommendations
+  pricingModel:
+    - Monthly SaaS + setup
+    - Optional performance bonus tied to lift
+  humanInLoop: false
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 8
+    overall: 9
+  risks:
+    - Data bias or drift reduces effectiveness
+    - Poor data quality/label leakage
+    - Change management with vendors/agents
+  dependencies:
+    - Clean historical labeled data
+    - CMS integration
+    - Governance for model updates
+leanCanvas:
+  problem:
+    - >-
+      Low precision in deciding which delinquent accounts to assign to
+      repossession versus cure/extension causes wasted fees and lost recoveries.
+    - >-
+      Assignments are often sent to the wrong channel (e.g., non-LPR vs. LPR
+      agent, skip trace vs. field visit) and at suboptimal times, lowering
+      capture probability and increasing cycle time.
+    - >-
+      Fragmented data (servicing, repo platforms, LPR, valuation, contact
+      history) prevents a consolidated ROI view to drive decisions.
+    - >-
+      Compliance risks (SCRA, bankruptcy, cease & desist) and poor audit trails
+      increase wrongful repossession exposure and regulatory findings.
+    - >-
+      Forwarders and agencies lack standardized, comparable case quality scores
+      to prioritize field work and allocate scarce agent capacity.
+    - >-
+      Lenders have limited real-time feedback loops from agent outcomes,
+      impairing model improvement and process tuning.
+  solution:
+    - >-
+      Portfolio triage score: per-account probability of recovery (with
+      confidence interval) and expected net proceeds (vehicle value minus fees).
+    - >-
+      ROI optimizer: recommends act-now vs. wait, and the best assignment
+      channel (LPR-enabled agent, traditional agent, skip trace, field visit,
+      impound check, voluntary surrender outreach).
+    - >-
+      Timing recommender: suggests day/time windows and dwell-time thresholds to
+      maximize capture probability and minimize storage/transport costs.
+    - >-
+      Compliance guardrails: automated checks for SCRA, bankruptcy, cease &
+      desist, consent flags, and state-specific rules; blocks or alters
+      recommendations accordingly; full audit log.
+    - >-
+      Data enrichment: vehicle valuation (e.g., Black Book/Manheim MMR), LPR
+      sighting density/recency, geospatial risk, historical
+      contact/Promise-to-Pay propensity, insurance/impound signals where
+      available.
+    - >-
+      Workflow integrations: APIs and connectors to RDN/iRepo/Clearplan and
+      major servicing systems; push scores/recommendations into existing queues;
+      agent mobile worklist export.
+    - >-
+      Closed-loop learning: captures agent outcome events (sighted, hooked,
+      recovered, no-contact, wrongful repo) to retrain models; A/B testing
+      framework with champion/challenger strategies.
+    - >-
+      Executive dashboard: portfolio heatmaps, expected vs. realized ROI,
+      compliance exceptions, vendor performance benchmarking, and what-if
+      scenario planning.
+  uniqueValueProp: >-
+    Auditable AI that predicts recovery likelihood and net ROI per case, then
+    recommends the optimal assignment method and timing—integrated into existing
+    repo/servicing workflows—to increase net recoveries 10–20%, cut cycle time
+    15–25%, and reduce vendor costs and compliance risk within 90 days.
+  unfairAdvantage: >-
+    Closed-loop outcome data across multiple lenders and forwarders creates a
+    unique training corpus for channel-and-timing optimization that single
+    lenders or rule engines cannot match. Combined with native integrations into
+    repo/servicing platforms and a compliance-first, fully auditable AI layer,
+    RecoverIQ delivers explainable recommendations that pass audits and improve
+    with scale.
+  customerSegments:
+    - >-
+      Primary: U.S. auto finance lenders (banks, captives, credit unions),
+      non-prime lenders, and Buy-Here-Pay-Here dealer groups managing
+      delinquency and repossessions.
+    - >-
+      Secondary: Forwarders/repo management companies (e.g., national networks)
+      seeking smarter assignment routing and capacity planning.
+    - >-
+      Secondary: Repossession agencies wanting prioritized worklists and
+      time-window guidance.
+    - >-
+      Adjacencies (Phase 2): Powersports, marine, RV lenders; small business
+      secured lenders; debt buyers and special servicers.
+  channels:
+    - >-
+      Direct enterprise sales to top-200 auto lenders, captives, and large
+      credit unions; land with pilot on a late-stage collection segment.
+    - >-
+      Partnerships with forwarders/repo management platforms (RDN,
+      iRepo/Clearplan) to embed scoring as an add-on and co-sell to their lender
+      base.
+    - >-
+      ISV/marketplace listings with major loan servicing platforms to reach
+      mid-market lenders.
+    - >-
+      Industry events and associations: Auto Finance Summit, NAF Association
+      Conference, Used Car Week, RMAI; workshops on compliant AI triage.
+    - >-
+      Content-led demand gen: whitepapers (e.g., "Cutting 5 Days from Repo Cycle
+      Time"), ROI calculators, and case studies; webinars with compliance
+      counsel.
+    - >-
+      Pilot motion: 12-week paid pilot (50k–200k accounts scored) with clear
+      success criteria (>8% lift in net recovery, >10% cycle-time reduction,
+      model calibration within ±3%).
+    - >-
+      Referral program for agencies/forwarders: revenue share for introducing
+      lender clients who adopt scoring.
+    - >-
+      Regulatory/compliance thought leadership: publish model documentation
+      templates and audit playbooks to reduce perceived AI risk.
+  revenueStreams:
+    - >-
+      SaaS subscription by monthly active accounts scored (MAAS): $0.35–$1.20
+      per account-month depending on volume and features.
+    - >-
+      API usage pricing for real-time recommendations beyond contracted MAAS
+      ($0.01–$0.03 per call).
+    - >-
+      Performance fee (optional): 5–15% of incremental net recovery versus
+      control on pilot or specific portfolios, with independent methodology
+      agreed upfront.
+    - >-
+      Enterprise implementation/onboarding: $25k–$150k one-time depending on
+      integrations and data mapping complexity.
+    - >-
+      Professional services: custom strategy design, compliance configuration,
+      and data quality remediation ($200–$350/hour or fixed-scope packs).
+  costStructure:
+    - >-
+      Cloud infrastructure (compute/storage/MLOps): scales with scoring volume;
+      target <$0.08 per 1,000 scores variable COGS.
+    - >-
+      Third-party data: vehicle valuation (Black Book/MMR), LPR signal
+      partnerships, address/phone verification, credit attributes (where
+      permitted); budget $250k–$1.2M/yr depending on coverage.
+    - >-
+      Security/compliance: SOC 2, penetration testing, legal counsel;
+      $150k–$400k/yr.
+    - >-
+      Product & engineering team: 6–12 FTE initially (ML, data engineering,
+      integrations, security); $1.5M–$3M/yr.
+    - 'GTM: sales, marketing, events, channel partnerships; $600k–$1.5M/yr.'
+    - 'Customer success and support: 2–5 FTE; $300k–$800k/yr.'
+    - 'Insurance and admin (E&O, cyber, GL): $75k–$200k/yr.'
+  keyMetrics:
+    - >-
+      Customer value KPIs: net recovery lift (% vs. control); days-to-recovery
+      reduction; average fee per recovery; wrongful repo rate;
+      assignment-to-hook rate; right-party contact rate; ROI per $1 of fees.
+    - >-
+      Model KPIs: AUC, calibration slope/intercept, stability (PSI<0.2), false
+      positive rate for wrongful-repo-sensitive segments, bias/fairness checks
+      across protected classes where applicable.
+    - >-
+      Operational KPIs: time from assignment to recommendation (<5 minutes
+      real-time, <2 hours batch), API latency (p95<300ms), data ingestion error
+      rate (<0.5%).
+    - >-
+      Commercial KPIs: ARR, gross margin (>75%), logo retention (>95%), net
+      revenue retention (>115%), LTV/CAC (>4:1), sales cycle length (<120 days).
+    - >-
+      Adoption KPIs: % of assignments following recommendations (>70% by month
+      3), coverage (% of delinquent portfolio scored), integration health (SLA
+      adherence).
+storyBrand:
+  character: >-
+    Collections and repossession leaders at lenders, forwarders, and recovery
+    agencies who want to maximize recoveries and ROI while reducing cycle time,
+    cost, and compliance risk.
+  problem: >-
+    External: Too many accounts, limited field capacity, noisy/incomplete data,
+    and guesswork on placements and timing. Internal: Pressure to hit targets
+    without wasting placements or burning vendors. Philosophical: Recoveries
+    should be data-driven, fair, and timely—not a gamble.
+  guide: >-
+    Empathy: We understand aging portfolios, staffing constraints, and
+    regulatory scrutiny. Authority: Built by operators and data scientists with
+    deep collections experience; transparent models, clear scorecards, and full
+    auditability.
+  plan: >-
+    Process: 1) Connect data via file upload or API 2) Get per-account recovery
+    likelihood and ROI scores 3) Receive recommended assignment channel and
+    timing 4) Prioritize, place, and monitor as the model learns from outcomes.
+    Agreement: Clear SLAs, transparent scoring criteria, and secure data
+    handling with configurable governance.
+  callToAction: >-
+    Direct: Book a demo; Start a pilot with a sample portfolio. Transitional:
+    Get a sample scorecard; Estimate ROI with our calculator.
+  success: >-
+    Higher recovery yield and ROI; Faster cycle times with optimal timing;
+    Better vendor utilization; Objective, defensible decisions; Clear reporting
+    and portfolio visibility.
+  failure: >-
+    Wasted agent spend on low-yield accounts; Longer aging and missed targets;
+    Inconsistent, hard-to-defend decisions; Strained vendor relationships and
+    increased compliance risk.
+landingPage:
+  hero:
+    title: Portfolio Triage & Recovery Likelihood Scoring
+    subtitle: >-
+      AI that ranks repossession cases by recovery ROI and prescribes the best
+      assignment method and timing.
+    ctaText: Request a demo
+    ctaHref: '#demo'
+  problem:
+    - Blanket assignments waste agent time and fees
+    - Low-yield accounts crowd out high-probability recoveries
+    - Manual triage is slow and driven by stale data
+    - No clear ROI view per case to justify spend
+    - Mistimed outreach lowers contact and recovery rates
+    - Vendor capacity and geography rarely optimized
+    - Compliance risk from inconsistent decisioning
+  solution:
+    - Score each account for recovery likelihood and expected ROI
+    - Prioritized worklists with next-best-action timing windows
+    - 'Assignment recommendations: in-house, forwarder, legal, skip, field'
+    - Capacity- and geography-aware routing to the right vendor
+    - Explainable scores with key drivers and policy guardrails
+    - Plug into your LOS/collections stack via API or batch
+    - Closed-loop learning from outcomes to keep improving
+  features:
+    - 'Recovery Probability, Expected Net ROI, Time-to-Recovery per case'
+    - >-
+      Configurable cost model: fees, transport/storage, depreciation,
+      days-to-sale
+    - 'Action Planner: method, cadence, and optimal timing recommendations'
+    - Vendor & territory matching with SLA and capacity constraints
+    - Reason codes and sensitivity analysis for every score
+    - Portfolio simulator to test policies before deploying
+    - 'Real-time API, nightly batch, and dashboard workflows'
+    - Outcome capture and continuous model retraining
+    - 'Role-based access, audit trails, and compliance controls'
+    - SOC2-ready security and data isolation
+  steps:
+    - 'Connect data (accounts, payments, collateral, vendor, outcomes)'
+    - Set policies and ROI assumptions; map assignment options
+    - Run portfolio scoring; review risk/ROI segmentation
+    - Publish prioritized worklists and auto-assign via API
+    - 'Execute, track results, and capture outcomes'
+    - 'Monitor lift, refine policies, and retrain models continuously'
+---
+# RecoverIQ
+
+Industry: Repossession Services
+Service: Portfolio Triage & Recovery Likelihood Scoring

@@ -1,0 +1,372 @@
+---
+name: FrostCast AI
+slug: frostcast
+service:
+  title: Weather- and Event-Aware Demand Forecasting (SKU x Channel)
+  description: >-
+    Forecast weekly demand for each SKU by customer/channel using POS/shipments,
+    weather, holidays, and promotion calendars to reduce stockouts and waste.
+  targetUsers:
+    - Sales Ops
+    - Supply Chain
+    - Finance
+  triggers:
+    - New POS/shipments ingested
+    - Weekly planning cycle
+    - New promo or price change added
+  inputs:
+    - Historical POS/shipments by SKU/channel
+    - Pricing and promos calendar
+    - Weather by market (hist/forecast)
+    - Holidays/events
+    - Inventory/on-hand
+    - Lead times
+  steps:
+    - Ingest and clean data; align to SKU/channel calendar
+    - 'Feature engineering (weather, promo flags, holidays, lagged features)'
+    - Train hierarchical models (ML + time series with cross-validation)
+    - 'Generate base and scenario forecasts (with/without promo, price)'
+    - Write back forecasts to planning sheet/ERP and notify stakeholders
+  tools:
+    - Python/Pandas
+    - LightGBM/XGBoost
+    - Prophet/sktime
+    - OpenWeather/Tomorrow.io API
+    - Snowflake/BigQuery
+    - Google Sheets API
+    - Power BI/Tableau
+    - Slack/Email
+  outputs:
+    - SKU x channel weekly forecast CSV/API
+    - 'Forecast accuracy dashboard (MAPE, bias)'
+    - Scenario sheets for promo/price
+    - Alert on anomalies
+  pricingModel:
+    - Setup fee + monthly subscription per SKU or per plant
+    - Optional per-scenario run fee
+  humanInLoop: false
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Poor POS granularity or latency
+    - Weather effects vary by market/SKU
+    - Promo data quality causing bias
+  dependencies:
+    - Access to POS/shipments
+    - Weather API key
+    - Calendar of promos/price
+leanCanvas:
+  problem:
+    - >-
+      Demand is highly weather- and holiday-sensitive; legacy forecasting misses
+      10–30% of heat-driven demand surges, driving stockouts and retailer
+      penalties.
+    - >-
+      Promotions and limited-time offers create cannibalization and halo effects
+      across SKUs and channels that current tools don’t quantify at the weekly
+      cadence planners need.
+    - >-
+      Forecasts are typically at aggregate brand or customer level; planners
+      need accurate, explainable weekly forecasts at SKU x customer/channel
+      granularity to plan production lines and cold-chain capacity.
+    - >-
+      High shrink and write-offs (5–15%) from overproduction after cold spells
+      or missed promotional alignment erode margins.
+    - >-
+      Manual data wrangling across POS portals, shipments, weather feeds, and
+      promotion calendars consumes planner time (>6–10 hours/week per planner)
+      and delays decisions.
+    - >-
+      Existing enterprise tools are slow to implement (6–12 months), lack
+      domain-specific weather/event features for frozen desserts, or are too
+      expensive for mid-market brands.
+    - >-
+      Inconsistent service levels (fill rate <95%) and biased forecasts cause
+      lost sales during weekends/heatwaves and excess inventory in shoulder
+      seasons.
+    - >-
+      New product introductions and seasonal novelties lack historicals; teams
+      need analog-based, transfer learning approaches that current systems lack.
+  solution:
+    - >-
+      Automated data ingestion from POS portals, EDI shipments, ERP, and
+      trade/promo calendars; enrich with high-resolution weather and
+      holiday/event features at store/region level.
+    - >-
+      Hierarchical probabilistic forecasting at SKU x channel x week with
+      weather- and event-lift modeling, cannibalization handling, and
+      cold-chain-aware seasonality.
+    - >-
+      Scenario planning for promos, price, and weather (e.g., +10°F heatwave)
+      with lift/sensitivity curves and confidence intervals.
+    - >-
+      New item forecasting via analogs, attribute similarity, and transfer
+      learning from category peers; dynamic lifecycle and phase-in/phase-out
+      modeling.
+    - >-
+      Explainability: per-forecast driver attributions (e.g., temperature,
+      holiday, promo) and bias monitoring at each hierarchy level.
+    - >-
+      APIs and connectors to ERP/APS/TMS (SAP, Oracle, Dynamics, Blue Yonder,
+      o9, Kinaxis) to feed MPS/MRP, deployment, and replenishment plans;
+      alerting for exceptions.
+    - >-
+      Continuous MLOps: automated retraining, backtesting, and Forecast Value
+      Add (FVA) tracking vs. naive and legacy benchmarks.
+  uniqueValueProp: >-
+    Weekly, explainable SKU x channel demand forecasts that fuse POS/shipments
+    with weather, holidays, and promotions to cut stockouts by 20–40%, reduce
+    waste by 10–25%, and improve forecast accuracy by 8–20 points vs. baseline
+    within 90 days.
+  unfairAdvantage: >-
+    Proprietary frozen-dessert feature engineering and lift curves tuned to
+    microclimates and seasonality, combined with a library of promo and
+    cannibalization effects specific to novelty formats and pack sizes; prebuilt
+    connectors to major ERPs/APS and retailer portals for 6–8 week deployments;
+    explainability tailored to S&OP. Model weights for weather/promo sensitivity
+    are learned across customers with privacy-preserving techniques,
+    accelerating accuracy for new logos while protecting data.
+  customerSegments:
+    - >-
+      Primary: Mid-market and enterprise ice cream and frozen dessert
+      manufacturers (regional to nationwide) with 100–2,500 SKUs and sales
+      through grocery, mass, club, convenience, e-comm, and foodservice.
+    - >-
+      Secondary: Private-label/co-pack manufacturers supplying retailers’
+      brands.
+    - >-
+      Secondary: Frozen novelty brands with heavy promo calendars and seasonal
+      SKUs.
+    - >-
+      Adjacent: DSD distributors and 3PLs managing frozen categories who need
+      better order forecasts; category managers at large retailers’ private
+      label divisions.
+  channels:
+    - >-
+      Direct sales to VP Supply Chain, Director Demand Planning, S&OP leaders at
+      target manufacturers; 1:1 outreach with a 30–45 day pilot offer.
+    - >-
+      Co-selling and referrals with ERP/APS SIs and cloud marketplaces (AWS,
+      Azure, GCP) for streamlined procurement.
+    - >-
+      Data partners (NIQ/Circana retailer portals, distributor portals) for
+      joint webinars and lead sharing.
+    - >-
+      Industry events: IDFA Ice Cream Technology Conference, Natural Products
+      Expo, Groceryshop, NRF Supply Chain; secure speaking slots with
+      weather-demand case studies.
+    - >-
+      Content and ABM: whitepapers on heatwave lift by region, promo
+      cannibalization benchmarks, ROI calculators; targeted LinkedIn ads to
+      demand planning personas.
+    - >-
+      Land-and-expand: start with top 100–300 SKUs and top 5 channels at one
+      plant; expand to full portfolio and additional regions within 2 quarters.
+    - >-
+      Customer proof and references: publish 2–3 case studies with verified KPIs
+      (service level, waste reduction, MAPE).
+    - >-
+      Pricing transparency and fast time-to-value: 6–8 week implementation
+      playbook, fixed-fee pilot, and standard connectors to reduce buyer
+      friction.
+  revenueStreams:
+    - >-
+      SaaS subscription: priced per active SKU x channel pair per month,
+      starting at $1.50 per pair; volume discounts; minimum $3,000/month per
+      tenant.
+    - >-
+      One-time implementation fee: $25,000–$100,000 depending on data complexity
+      and connectors.
+    - >-
+      Premium data enrichment: high-resolution weather and local events package
+      (+$0.25–$0.75 per store-region per month) or bundled tiers.
+    - >-
+      Professional services: promo modeling tune-ups, S&OP integration, custom
+      reports ($180–$220/hour) or packaged workshops.
+    - >-
+      Enterprise support/SLA tier (+15–25% uplift) with guaranteed retrain
+      cadence and priority support.
+    - >-
+      Multi-tenant private VPC deployment surcharge for regulated or large
+      enterprise clients.
+  costStructure:
+    - >-
+      Cloud compute and storage (forecasting, feature store, data lake): 15–25%
+      of COGS; autoscaling by retrain cycles.
+    - >-
+      3rd-party data licensing: weather/event APIs and retailer data connectors:
+      10–18% of COGS.
+    - >-
+      Data engineering, ML, and product team salaries and benefits (core R&D):
+      35–45% of Opex.
+    - 'Customer success and solutions engineering: 10–15% of Opex.'
+    - >-
+      Sales & marketing (events, content, ads, SDRs): 15–25% of Opex,
+      front-loaded in first 18 months.
+    - >-
+      Security/compliance (SOC 2, pen tests, monitoring) and legal/insurance:
+      5–8% of Opex.
+    - >-
+      Contingency and R&D budget for new models (e.g., TFT, hierarchical
+      Bayesian) and connectors: 5–10% of Opex.
+  keyMetrics:
+    - >-
+      Forecast accuracy: Weighted MAPE by SKU x channel x week ≤ 22% within 90
+      days; top 100 SKUs ≤ 18%.
+    - 'Bias: Mean forecast error between -2% and +2% at SKU-channel weekly level.'
+    - >-
+      Service level (fill rate): ≥ 98% on top 200 SKUs in peak season; ≥ 97%
+      overall.
+    - >-
+      Waste/shrink reduction: 10–25% reduction in write-offs vs. prior year,
+      normalized by volume.
+    - >-
+      Stockout reduction: 20–40% reduction in out-of-stocks during heat events
+      and holidays vs. baseline.
+    - 'Forecast Value Add (FVA): +25–50% vs. naive and legacy forecasts.'
+    - >-
+      Inventory turns: +10–20% improvement for novelties; markdown reduction
+      10–20%.
+    - >-
+      Time-to-value: first production forecasts live in 6–8 weeks; pilot ROI >
+      3x within 120 days.
+    - >-
+      Adoption: >70% planner usage weekly; >50% of plan changes driven by
+      explainable drivers (weather/promo).
+    - >-
+      Commercial: Pilot-to-paid conversion ≥ 60%; CAC payback ≤ 12 months; Net
+      revenue retention ≥ 115%.
+    - >-
+      Reliability: >99.5% API uptime; data pipeline SLA < 4 hours latency from
+      POS ingestion to forecast update.
+storyBrand:
+  character: >-
+    Operations and demand-planning leaders at ice cream and frozen dessert
+    brands who need accurate weekly SKU-by-customer/channel forecasts.
+  problem: >-
+    - External: Weather swings, holidays, and promotions drive unpredictable,
+    localized demand by SKU and channel; legacy forecasts miss it.
+
+    - Internal: Teams firefight stockouts, waste, costly changeovers, and
+    retailer penalties.
+
+    - Philosophical: When the sun comes out, cold treats should be in
+    stock—without throwing product away.
+  guide: >-
+    We understand the pressure of hot-weekend spikes and promo lifts. Our AI
+    service blends POS/shipments with hyperlocal weather, holiday, and promo
+    calendars to forecast weekly demand for every SKU x channel. Built by CPG
+    forecasting practitioners, integrates with your ERP/BI, and provides
+    transparent, auditable outputs.
+  plan: >-
+    - Process: 1) Connect POS, shipments, item master, and promo calendars; 2)
+    Calibrate per SKU x customer/channel with weather/event features; 3) Deliver
+    weekly forecasts and alerts via API/dashboard; 4) Monthly review to tune.
+
+    - Agreement: Clear data ownership and security, defined SLAs, pilot with
+    success metrics (service level, waste, forecast accuracy), easy exit if
+    goals aren’t met.
+  callToAction: >-
+    - Direct: Schedule a 30-minute demo or start an 8-week pilot on priority
+    SKUs/channels.
+
+    - Transitional: Download sample forecasts and the pilot checklist; get an
+    ROI estimate.
+  success: |-
+    - Higher on-shelf availability during heat spikes and promotions.
+    - Lower waste and obsolescence with smarter production and deployment.
+    - Fewer expedites and penalties; stronger retailer relationships.
+    - More predictable revenue, margin, and confident S&OP.
+  failure: |-
+    - Empty freezers on hot weekends and promo weeks.
+    - Excess inventory, write-offs, and melted margin.
+    - Overtime, rush freight, and strained retailer relationships.
+    - Lost sales opportunities and reactive planning.
+landingPage:
+  hero:
+    title: >-
+      Weather- and Event-Aware Demand Forecasting for Ice Cream & Frozen
+      Desserts
+    subtitle: >-
+      SKU × Channel weekly forecasts that turn heat waves, holidays, and promos
+      into accurate production and replenishment plans—cutting stockouts and
+      waste.
+    ctaText: Request a Demo
+    ctaHref: /demo
+  problem:
+    - >-
+      Demand spikes on hot days cause stockouts; cool spells leave excess
+      inventory and write-offs.
+    - >-
+      Promotions and holidays shift volume unpredictably across retailers and
+      regions.
+    - 'Forecasts stop at category or brand level, missing SKU × channel nuances.'
+    - >-
+      POS, shipments, weather, and promo calendars live in silos; planners spend
+      hours reconciling.
+    - Long lead times and frozen schedules make late forecast changes costly.
+    - Overproduction ties up cold storage and working capital.
+  solution:
+    - >-
+      Weekly SKU × channel forecasts that fuse POS, shipments, weather,
+      holidays, and promotion plans.
+    - >-
+      Microclimate modeling turns temperature, humidity, and heat index into
+      precise uplift by location.
+    - >-
+      Promotion- and price-lift models quantify expected bump by retailer and
+      tactic.
+    - >-
+      Holiday and event awareness captures weekend and school-break effects by
+      market.
+    - >-
+      Lead-time aware signals translate demand into production and DC
+      replenishment plans.
+    - >-
+      Scenario planning for heat waves and promo changes with instant impact on
+      forecasts.
+  features:
+    - >-
+      Prebuilt connectors for major retailers’ POS, distributor data, and cloud
+      storage.
+    - >-
+      14–28 day weather outlooks with daily resolution rolled into weekly
+      demand.
+    - >-
+      Explainable AI with factor contributions per forecast (weather, promo,
+      holiday, baseline).
+    - Confidence bands and service-level targets to size safety stock.
+    - >-
+      Exception-based workflows: flag SKUs/channels with risk of stockout or
+      overstock.
+    - 'Self-serve scenario sandbox for promos, pricing, and temperature shocks.'
+    - 'API and dashboards for planners; export to ERP/MRP, WMS, TMS.'
+    - >-
+      Perishability-aware planning including shelf-life and cold-chain
+      constraints.
+    - Multi-DC and region support with micro-market clustering.
+    - 'Secure by design: SOC 2-ready practices, SSO, and role-based access.'
+  steps:
+    - >-
+      Connect POS, shipment history, weather region mapping, and promo/holiday
+      calendars.
+    - >-
+      Configure SKUs, channels, locations, lead times, and service-level
+      targets.
+    - >-
+      Train on 24+ months of history; validate uplift accuracy by SKU and
+      retailer.
+    - >-
+      Go live in 2–4 weeks with automated weekly forecasts and daily updates as
+      signals change.
+    - Review exceptions; approve suggested production and DC replenishments.
+    - >-
+      Run what-if scenarios for heat waves and promos; continuously improve with
+      feedback.
+---
+# FrostCast AI
+
+Industry: Ice Cream and Frozen Dessert Manufacturing
+Service: Weather- and Event-Aware Demand Forecasting (SKU x Channel)

@@ -1,0 +1,285 @@
+---
+name: BedWise AI — CPUE Forecast & Rotation Planner
+slug: bedwise
+service:
+  title: Bed Productivity Forecast and Rotation Planner
+  description: >-
+    Forecasts CPUE by bed and recommends weekly rotation to maximize yield and
+    reduce bed stress.
+  targetUsers:
+    - Owner-operators
+    - Fleet managers
+    - Skippers
+  triggers:
+    - Weekly planning run
+    - After each trip (to assimilate new CPUE)
+  inputs:
+    - 'Historical trip logs (CPUE, tow time, bed IDs)'
+    - 'Environmental covariates (SST, chl-a, seasonality)'
+    - Regulatory closures and limits
+    - Effort capacity and crew availability
+  steps:
+    - Clean/standardize logs and join with environmental features
+    - Train/update forecasting model per bed (cross-validated)
+    - Simulate next-week yield under effort/closure constraints
+    - Propose rotation plan and expected catches by day
+    - Export plan and crew schedule; capture user feedback
+  tools:
+    - 'Python (pandas, xgboost/prophet)'
+    - PostGIS/QGIS
+    - NOAA ERDDAP/Copernicus Marine
+    - Google Sheets/Excel for overrides
+    - Email/Slack for delivery
+  outputs:
+    - Weekly bed rankings with expected CPUE (+/-)
+    - Rotation plan calendar (ICS/PDF)
+    - Sensitivity to weather/closure scenarios
+  pricingModel:
+    - Monthly subscription per vessel/fleet
+    - Initial model calibration fee
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 7
+    overall: 8
+  risks:
+    - Sparse or biased historical data
+    - Regime shifts reduce forecast skill
+    - Overfishing a bed if forecasts overestimate
+  dependencies:
+    - Access to historical logs
+    - Environmental data feeds
+    - Closure data
+leanCanvas:
+  problem:
+    - >-
+      Unpredictable bed-level CPUE leads to 10–25% of trip time spent
+      searching/experimenting with tows, lowering margins and increasing fuel
+      burn.
+    - >-
+      Over-harvesting high-yield beds causes stress and future depletion,
+      driving seasonal closures and quota cuts.
+    - >-
+      Skipper knowledge is siloed; co-ops and fleets struggle to coordinate
+      weekly bed rotation that balances yield, bycatch, and sustainability.
+    - >-
+      Regulatory complexity (rotating closures, size limits, protected habitats)
+      makes planning risky; accidental non-compliance triggers fines/grounds
+      closures.
+    - >-
+      Data exists (e-logbooks, VMS/AIS, surveys, ocean data) but is fragmented;
+      few tools convert it into bed-level, week-ahead tactical guidance.
+    - >-
+      Fuel is 20–40% of trip cost in many fleets; unnecessary tows/long transits
+      inflate cost per kg landed.
+  solution:
+    - >-
+      Spatiotemporal CPUE forecasts per bed (1–4 week horizon) with 50/80%
+      confidence bands, updated daily from logs, AIS/VMS, ocean/biophysical
+      data.
+    - >-
+      Weekly rotation planner that allocates effort across beds to maximize
+      expected kg/hour subject to rules (closures, minimum sizes), co-op
+      policies, and bed-stress caps.
+    - >-
+      On-vessel and shoreside apps (offline-capable) showing ranked bed
+      recommendations, tow start windows, and fuel/time trade-offs.
+    - >-
+      Co-op coordination mode: de-conflicts fleets to avoid crowding, sets
+      bed-level effort caps, and shares aggregate (not individual) intel to
+      maintain trust.
+    - >-
+      Compliance overlays: dynamic closures, habitat layers, bycatch risk
+      forecasts; alerts if planned tow risks non-compliance.
+    - >-
+      Learning loop: post-trip easy feedback (actual CPUE, size distribution)
+      retrains models; per-vessel calibration for gear and skipper effects.
+  uniqueValueProp: >-
+    Increase CPUE 8–15% and cut fuel per kg 10–20% by forecasting bed-level
+    productivity 1–4 weeks ahead and auto-generating a compliant weekly rotation
+    plan that spreads effort, protects stressed beds, and boosts sustainable
+    yield.
+  unfairAdvantage: >-
+    First mover with co-op-level coordination plus compliance-aware rotation
+    optimization, powered by a growing proprietary dataset of bed-level labeled
+    tows and stress indices; trusted pilot results and embedded onboard
+    workflows create switching costs and a data network effect.
+  customerSegments:
+    - >-
+      Primary: Wild shellfish fleets and co-ops (scallops, clams/quahogs,
+      oysters, cockles) in US/Canada, UK/EU, NZ/AU.
+    - >-
+      Secondary: Shellfish aquaculture farms managing lease beds that require
+      rotational harvest planning.
+    - >-
+      Tertiary: Processors/marketers contracting fleets and seeking stable
+      landings; fishery managers and co-management bodies interested in bed
+      health indicators.
+  channels:
+    - >-
+      Direct sales to co-ops and producer organizations; start with pilots in
+      2–3 target fisheries (e.g., US Atlantic scallop, US surfclam/ocean quahog,
+      UK/EU scallop).
+    - >-
+      Partnerships with e-logbook vendors and marine electronics dealers to
+      bundle BedWise within existing onboard workflows.
+    - >-
+      Processor-led programs: processors sponsor licenses for contracted fleets
+      in exchange for more stable landings; revenue-share on realized savings.
+    - >-
+      Regulatory and science partnerships (e.g., NOAA/DFO/IFREMER/CEFAS) to
+      validate models using survey data; letters of support for pilots and
+      grants.
+    - >-
+      Industry events and demo days: Seafood Expo North America/Global,
+      Shellfish Association conferences, co-op meetings; publish pilot case
+      studies.
+    - >-
+      Referral program: discounts to co-ops/fleets that onboard 5+ vessels;
+      fisher-to-fisher referrals with month-free incentives.
+    - >-
+      Content and trust-building: monthly bed health bulletins, technical notes
+      on forecast skill, and skipper spotlights; localized WhatsApp/FB groups
+      for support.
+  revenueStreams:
+    - >-
+      SaaS per-vessel subscription: $300–$700 per vessel per month depending on
+      fishery and features (offline, co-op mode, API).
+    - >-
+      Co-op/enterprise license: $50–$150 per active bed per month plus
+      $5,000–$30,000 annual platform fee for coordination features.
+    - >-
+      Onboarding/professional services: $7,500–$50,000 for historical data
+      cleansing, custom bed definitions, and co-op policy modeling.
+    - >-
+      Premium data add-ons: high-res ocean/imagery layers; $5,000–$20,000 per
+      year per org (where licensed).
+    - >-
+      Regulator/read-only analytics seats: $10,000–$75,000 per agency per year
+      (non-operational, monitoring only).
+    - >-
+      Training/capacity building: $3,000–$10,000 per cohort; on-vessel setup
+      packages with electronics partners.
+  costStructure:
+    - >-
+      Core team: data science/ML (3–5 FTE), backend/data engineering (3–4 FTE),
+      frontend/mobile (2 FTE), domain scientists (1–2 FTE), customer success (2
+      FTE), sales (1–2 FTE).
+    - >-
+      Cloud compute and storage: $8k–$20k/month at 100–300 vessels
+      (spatiotemporal training/serving, tiling maps, telemetry ingestion).
+    - >-
+      Data licensing: ocean reanalysis/satellite imagery $3k–$10k/month
+      depending on resolution and regions (use free NOAA/Copernicus where
+      possible).
+    - >-
+      Field pilots and travel: $2k–$5k per pilot vessel for sensors, onboard
+      time, and skipper stipends; insurance and legal for pilots.
+    - >-
+      Sales/marketing: $8k–$15k/month including events, content, and channel
+      partner margins.
+    - >-
+      Support and compliance: ISO27001/SOC2 over time; E&O and maritime
+      liability insurance.
+  keyMetrics:
+    - >-
+      Model accuracy: CPUE forecast MAPE ≤ 20% at 1-week horizon, ≤ 30% at 2–3
+      weeks; recall ≥ 70% for top-quartile CPUE events.
+    - >-
+      Economic impact: +8–15% CPUE per tow vs baseline; −10–20% fuel per kg
+      landed; −15–25% search/experimental tow time.
+    - >-
+      Sustainability: −20–40% Bed Stress Index on historically over-pressured
+      beds; reduction in bed-level variance of effort ≥ 25%.
+    - >-
+      Adoption/engagement: 75%+ weekly active vessels; 80% plan adherence;
+      median time-to-first-ROI < 4 weeks.
+    - >-
+      Customer outcomes: NPS ≥ 40; logo retention ≥ 90%; net revenue retention ≥
+      115%.
+    - >-
+      Go-to-market funnel: pilot conversion ≥ 60%; CAC payback ≤ 6 months;
+      average sales cycle 60–120 days; ACV $6k–$20k.
+    - >-
+      Data flywheel: % tows with feedback ≥ 70%; model refresh cadence weekly;
+      skill improvement QoQ ≥ 5% until plateau.
+storyBrand:
+  character: >-
+    Shellfish fishery managers, fleet owners, and coop leaders who want
+    predictable, sustainable harvests by bed
+  problem: >-
+    External CPUE swings, bed over-stress, and mistimed openings cause wasted
+    trips and closures. Internal planning feels like guesswork. Philosophical
+    sustainability should not require roulette
+  guide: >-
+    We understand the pressure to hit targets without harming stocks and provide
+    an AI that forecasts CPUE by bed and recommends weekly rotations to maximize
+    yield and reduce bed stress, trained on seasons of CPUE, tides, temperature,
+    and effort data
+  plan: >-
+    Step 1 Connect logbooks, VMS, and environmental feeds. Step 2 Receive weekly
+    CPUE forecasts by bed with a rotation plan. Step 3 Fish the plan, log
+    results, and let the model adapt
+  callToAction: >-
+    Start a 30-day pilot. Upload the last two seasons. Receive your first
+    rotation plan by Friday and align crews to the recommended beds
+  success: >-
+    Higher CPUE per hour, steadier landings, fewer closures, lower fuel and
+    labor waste, verified sustainability, and better margins
+  failure: >-
+    Without it you face boom-bust trips, stressed beds, emergency closures,
+    compliance risk, and lost revenue and reputation
+landingPage:
+  hero:
+    title: AI Bed Productivity & Rotation Planner
+    subtitle: >-
+      Forecast CPUE by bed and schedule weekly rotations to maximize yield,
+      protect stocks, and cut effort.
+    ctaText: Request a Demo
+    ctaHref: /demo
+  problem:
+    - Boom–bust CPUE from guessing which beds to work.
+    - Over‑pressured hot spots lead to bed stress and long recovery times.
+    - 'Static plans can’t adapt to weather, tides, or sudden closures.'
+    - Fuel and time wasted scouting unproductive beds.
+    - 'Fragmented data across logbooks, sensors, and charts.'
+    - Regulatory and stakeholder pressure to prove sustainable practices.
+  solution:
+    - 'Bed‑level CPUE forecasts 1–6 weeks ahead, updated daily.'
+    - Weekly rotation plans that balance yield with recovery windows.
+    - Go/hold recommendations per bed to prevent over‑harvest.
+    - 'Scenario planning for closures, quota shifts, and fleet changes.'
+    - Simple map view with targeted bed assignments and effort caps.
+    - Automated alerts when stress thresholds or compliance limits near.
+  features:
+    - >-
+      CPUE Forecast Engine using historical catch, effort, and environmental
+      drivers.
+    - >-
+      Recovery and stress modeling to set bed‑level effort caps and rest
+      periods.
+    - 'Adaptive weekly rotation scheduler with fleet, gear, and tide constraints.'
+    - 'Compliance overlays for closures, buffers, and protected areas.'
+    - >-
+      Environmental integrations: tides, wind, swell, temperature, salinity,
+      chlorophyll.
+    - Fleet coordination to avoid crowding and stabilize CPUE across vessels.
+    - Fuel and time optimization to cut scouting and transit miles.
+    - Confidence bands and rationale for every forecast and recommendation.
+    - 'Plug‑and‑play data connectors for e‑logbooks, AIS/VMS, sensors, and ERPs.'
+    - Mobile‑first deck view with offline caching and simple catch entry.
+    - >-
+      Automated reports for regulators and stakeholders showing bed health and
+      CPUE stability.
+    - API access for custom workflows and analytics.
+  steps:
+    - 'Connect data sources (e‑logbook, AIS/VMS, sensors, environmental feeds).'
+    - 'Define beds, quotas, seasons, and operational rules.'
+    - Generate the weekly rotation plan with bed‑level CPUE forecasts.
+    - Execute on water; log catches and effort via app.
+    - 'Review performance, adjust constraints, and publish next week’s plan.'
+---
+# BedWise AI — CPUE Forecast & Rotation Planner
+
+Industry: Shellfish Fishing
+Service: Bed Productivity Forecast and Rotation Planner

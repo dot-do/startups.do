@@ -1,0 +1,326 @@
+---
+name: Plan-to-Bid Takeoff Bot
+slug: plan
+service:
+  title: Plan-to-Bid Takeoff Bot
+  description: >-
+    Semi-automated drywall and insulation takeoffs from PDFs to produce BOM and
+    bid drafts.
+  targetUsers:
+    - Estimators
+    - Owners
+    - Project Managers
+  triggers:
+    - New ITB email detected
+    - Plans/specs uploaded to a designated folder
+  inputs:
+    - PDF plans and specs
+    - Addenda/revisions
+    - Unit rates and productivity assumptions
+    - Waste factors
+    - Bid form/alternates
+  steps:
+    - >-
+      Ingest PDFs; detect scale and levels from title blocks and dimension
+      callouts
+    - 'Extract wall types, layers, and fire/sound ratings from specs'
+    - >-
+      Identify partitions/ceilings; approximate quantities via dimensions and
+      room tags
+    - >-
+      Quantify drywall sheets, tapes/mud, beads, screws, insulation
+      areas/assemblies
+    - 'Apply waste, labor productivities, and markup; price alternates'
+    - Output BOM and bid sheet; flag low-confidence items for review
+  tools:
+    - 'Vision/PDF parsing (OpenAI Vision, Adobe PDF Services)'
+    - OCR (AWS Textract)
+    - 2D geometry/measurement library
+    - Google Drive/Sheets
+    - 'Optional: Procore/Autodesk Build plan links'
+  outputs:
+    - BOM (CSV/Excel)
+    - Bid summary (Excel)
+    - Client-ready proposal (PDF/Docx)
+    - Assumptions/notes log
+  pricingModel:
+    - Per-project (by sheet count/complexity)
+    - Optional review add-on per hour
+    - Subscription with usage credits for regular clients
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 7
+    overall: 8
+  risks:
+    - Mis-reads of scales or assembly types
+    - Liability for quantity errors
+    - Plan revisions missed
+  dependencies:
+    - Access to plans/specs
+    - Current unit rates/productivities
+    - Client’s preferred bid template
+leanCanvas:
+  problem:
+    - >-
+      Manual drywall/insulation takeoffs from PDFs are slow (4–12 hours per
+      medium project) and error-prone, delaying bids and limiting the number of
+      opportunities contractors can pursue.
+    - >-
+      Estimator shortages: small/mid-size contractors often lack dedicated
+      estimators or over-rely on a single expert, creating bottlenecks and
+      knowledge risk.
+    - >-
+      Inconsistent takeoff methods produce variable BOMs, waste factors, and
+      labor assumptions, leading to margin erosion and change-order disputes.
+    - >-
+      Revisions (addenda) require redoing takeoffs; errors slip through when
+      comparing plan versions manually.
+    - >-
+      Existing general-purpose tools (PlanSwift/Bluebeam/STACK) require
+      extensive manual tracing/clicking and do not auto-generate assemblies,
+      labor, or bid drafts for drywall/insulation specifics.
+    - >-
+      Vendor pricing and productivity factors are not linked; quoting requires
+      manual exports, spreadsheets, or rekeying into accounting/PM systems.
+    - >-
+      Small jobs are unprofitable to bid due to time cost, causing lost revenue
+      and strained GC relationships.
+  solution:
+    - >-
+      Upload PDF plans (single or multi-sheet); auto-detect sheet scales,
+      legends, and relevant layers (architectural, RCP, partition schedules).
+    - >-
+      AI extracts and classifies partition types from legends/schedules (e.g.,
+      GWB Type X, STC ratings), maps them to assemblies, and detects linear wall
+      segments per type; detects ceilings, soffits, shafts, and insulation zones
+      (R-values, vapor barriers).
+    - >-
+      Quantifies: board area by thickness/type (4x8/4x10/4x12), tape/mud,
+      screws, corner beads, backing, firestopping allowances; insulation square
+      footage/cubic footage by R-value and type (batts, blown, rigid).
+    - >-
+      Applies configurable waste factors, labor productivity libraries
+      (man-hours per LF/SF), and crew rates to produce a draft BOM and cost
+      breakdown (materials, labor, equipment, OH&P).
+    - >-
+      Human-in-the-loop QA workspace: highlight mismatches, measure/trace
+      corrections, lock assemblies; confidence scoring flags low-certainty areas
+      for review.
+    - >-
+      Revision compare: overlay addenda, show delta quantities/costs,
+      auto-generate change-order drafts.
+    - >-
+      One-click exports to Excel/CSV, QuickBooks Online/Enterprise items,
+      Procore/Autodesk/Buildertrend budgets; shareable bid PDF with scope
+      clarifications.
+    - >-
+      Project templates for recurring scopes (e.g., multifamily corridors, hotel
+      rooms) and vendor-linked item catalogs for live pricing.
+    - Activity log and audit trail for dispute resolution and internal training.
+  uniqueValueProp: >-
+    70% faster, traceable drywall & insulation takeoffs that convert PDFs into
+    audited quantities, assemblies, and a ready-to-send bid draft—integrated
+    with your supplier pricing and estimating workflow.
+  unfairAdvantage: >-
+    A vertically specialized AI + assembly engine for drywall/insulation trained
+    on proprietary annotated plan sets and partition schedules, combined with
+    distributor/manufacturer catalog integrations and a human-in-the-loop
+    workflow that delivers auditable bid drafts—not just quantities. The
+    feedback loop from thousands of contractor edits continuously improves
+    accuracy and templates.
+  customerSegments:
+    - >-
+      Small to mid-size specialty contractors focused on drywall and/or
+      insulation (5–100 field employees) bidding commercial TI, multifamily,
+      healthcare, education, and light industrial.
+    - >-
+      Residential drywall/insulation contractors doing tract/custom homes who
+      need faster takeoffs and repeatable templates.
+    - Freelance/outsourced estimators serving multiple contractors.
+    - >-
+      Estimating teams within larger drywall firms seeking AI-assisted
+      throughput and revision control.
+    - >-
+      Material distributors and manufacturers providing value-added estimating
+      support to their contractor networks.
+  channels:
+    - >-
+      Direct self-serve via website with interactive demo and 14-day/3-project
+      trial.
+    - >-
+      Partnerships with drywall/insulation distributors (L&W Supply, FBM, ABC
+      Supply) offering co-branded trials and lead-sharing.
+    - >-
+      Manufacturer programs with USG, CertainTeed, Owens Corning, Johns Manville
+      for contractor enablement bundles and rebates.
+    - >-
+      Marketplaces/integrations: Procore App Marketplace, Autodesk Construction
+      Cloud, QuickBooks Apps, Bluebeam plugins.
+    - >-
+      Trade associations and events: AWCI, INTEX Expo, World of Concrete;
+      sponsor estimator tracks and run live takeoff challenges.
+    - >-
+      Content marketing: YouTube tutorials, “Plan-to-Bid in 15 Minutes” series,
+      downloadable drywall/insulation assembly templates, STC/UL assembly cheat
+      sheets.
+    - >-
+      Outbound SDR to regional contractors (ENR Top Specialty lists;
+      Dodge/ConstructConnect bidders lists) with a 15-minute “Plan Review +
+      Pilot” offer.
+    - >-
+      Referral program for freelance estimators (20% commission first year) and
+      distributor sales reps (spiffs on activated accounts).
+    - >-
+      Localized workshops with distributors: “Bid 2x More Jobs with AI
+      Takeoffs,” including live plan takeoff clinics.
+  revenueStreams:
+    - >-
+      SaaS subscriptions: Starter $199/month (1 user, 10 projects/month, 200
+      sheets), Pro $499/month (3 users, unlimited sheets, 3,000 pages/month fair
+      use), Business $999/month (10 users, 10,000 pages/month), Enterprise
+      custom.
+    - >-
+      Usage add-ons: $0.10 per additional sheet processed beyond plan; $29 per
+      additional concurrent user.
+    - >-
+      Per-project pass: $99/project (up to 50 sheets) for occasional
+      bidders/freelancers.
+    - >-
+      Onboarding/training packages: $500–$2,500 for template setup, catalog
+      mapping, and team training.
+    - >-
+      Professional services: white-glove takeoff QA, historical estimate
+      backfill, custom productivity calibration ($150/hr).
+    - >-
+      API licensing/whitelabel for distributors/manufacturers (revenue share on
+      activated contractors).
+  costStructure:
+    - >-
+      Cloud compute (GPU inference) ~$0.03–$0.08 per sheet; storage/egress
+      ~$0.002 per sheet.
+    - >-
+      Core team: ML engineers, CV engineers, full-stack developers,
+      QA/estimating specialists; fully loaded monthly payroll $180k–$350k at
+      scale.
+    - >-
+      Data labeling/annotation for plan symbols and assemblies ($0.08–$0.20 per
+      annotated region); ongoing gold set maintenance.
+    - >-
+      Third-party services: PDF parsing/optimization, mapping services,
+      logging/monitoring, error tracking, security tools (~$8k–$20k/month).
+    - >-
+      Sales & marketing: paid ads ($5k–$30k/month), event sponsorships
+      ($10k–$50k/event), partner commissions (10–20%).
+    - >-
+      Customer success/support: chat + office hours; help center and tutorial
+      production.
+    - >-
+      Legal/insurance: E&O and cyber liability; SOC 2 Type II compliance in year
+      2.
+    - Payment processing fees 2.9% + $0.30 per transaction.
+  keyMetrics:
+    - >-
+      Model accuracy: area MAPE <3%, linear MAPE <2%, count F1 ≥ 0.90 on
+      validation sets.
+    - >-
+      Average time-to-first-BOM: <15 minutes for a 25–50 sheet set (AI pass +
+      minimal QA).
+    - 'Estimator time saved per project: baseline vs. with product (target ≥50%).'
+    - >-
+      Conversion: site-to-trial ≥5%, trial-to-paid ≥25%, payback period ≤6
+      months.
+    - >-
+      Activation: first successful takeoff within 48 hours of signup; ≥2
+      projects in first 30 days.
+    - >-
+      Retention: logo churn <2.5% monthly; Gross Revenue Retention ≥90%; NRR
+      ≥110%.
+    - >-
+      Average projects per account per month: target 8+ for SMB, 20+ for
+      mid-market.
+    - >-
+      QA workload: reviewer edits per sheet <5 on average after 90 days;
+      acceptance rate of AI suggestions ≥85%.
+    - >-
+      Accuracy SLA breaches (post-QA): <1% of projects result in quantity
+      dispute; resolve within 3 business days.
+    - >-
+      ARPA and LTV: ARPA ≥$350/month by month 6; LTV ≥$3,000 with CAC
+      $600–$1,200.
+    - 'Partner-sourced revenue: ≥25% of new MRR by month 18.'
+    - 'Support: first response <5 minutes (chat), CSAT ≥4.7/5, NPS ≥40.'
+storyBrand:
+  character: >-
+    Drywall and insulation contractors/estimators who need fast, accurate
+    takeoffs to bid competitively.
+  problem: >-
+    Manual takeoffs from PDFs are slow, error‑prone, and drain margins—wasting
+    nights and risking missed scope.
+  guide: >-
+    Plan-to-Bid Takeoff Bot understands the estimating crunch and specializes in
+    semi‑automated drywall and insulation takeoffs that turn PDFs into reliable
+    BOMs and bid drafts.
+  plan: >-
+    1) Upload plans as PDFs. 2) AI pre-populates quantities with flags for
+    review. 3) Approve, adjust, and export a BOM and bid draft to your template.
+  callToAction: Start a free sample takeoff or book a 15‑minute demo.
+  success: >-
+    Consistent, faster estimates; cleaner BOMs; more on-time bids; better win
+    rates; protected margins; evenings back.
+  failure: >-
+    Late, inaccurate bids; missed materials; costly change orders; lost
+    projects; burned-out teams.
+landingPage:
+  hero:
+    title: Plan-to-Bid Takeoff Bot
+    subtitle: >-
+      AI takeoffs for Drywall & Insulation Contractors. Upload plan PDFs; get
+      accurate quantities, a clean BOM, and a priced bid draft—fast.
+    ctaText: Upload a Plan
+    ctaHref: /get-started
+  problem:
+    - Manual takeoffs consume hours and weekends
+    - Missed sheets and addenda cause rework and margin hits
+    - Inconsistent assemblies create bid variance
+    - Spreadsheet copy/paste errors erode confidence
+    - 'Scope changes force slow, repetitive revisions'
+    - Hard to hand off or standardize between estimators
+  solution:
+    - Reads plan PDFs and callouts tuned for drywall and insulation
+    - >-
+      Detects wall types, ceilings, and insulation areas with heights, LF/SF,
+      layers, and ratings
+    - 'Builds a clean, grouped BOM by floor/area/assembly'
+    - >-
+      Generates a priced bid draft using your labor rates, crews, and material
+      pricing
+    - 'Interactive overlay to review, adjust, and approve quantities'
+    - 'One-click revisions for addenda, alternates, and unit prices'
+    - Exports to Excel/CSV/PDF and fits into your estimating workflow
+    - Audit trail and shareable links for internal review
+    - Human-in-the-loop checks when AI confidence is low
+  features:
+    - 'Drywall assemblies: board types, layers, stud gauge, FR/UL ratings'
+    - 'Insulation: batts, blown-in, rigid; cavity and continuous coverage'
+    - 'Openings & accessories: doors, frames, bead, tape, fasteners'
+    - Height-aware wall quantification with automatic room/level grouping
+    - 'Plan compare: highlights scope changes between versions'
+    - 'Cost templates, markups, alternates, and unit pricing'
+    - Import vendor price lists; map assemblies to preferred SKUs
+    - 'RFI helper: flags unclear notes and drafts questions'
+    - 'Collaboration: assign reviewers, comments, approvals'
+    - 'Data exports: Excel/CSV/PDF; API and webhooks'
+    - Permissions and roles; encrypted files at rest and in transit
+    - 'Train on your standards: company assemblies and naming'
+  steps:
+    - Upload your plan PDFs (single or multipage)
+    - Select drywall/insulation templates and pricing profiles
+    - 'Review the overlay, adjust assemblies and heights, approve quantities'
+    - Publish the BOM and auto-generate the bid draft
+    - Export or push to your estimating system
+---
+# Plan-to-Bid Takeoff Bot
+
+Industry: Drywall and Insulation Contractors
+Service: Plan-to-Bid Takeoff Bot
