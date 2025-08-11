@@ -307,7 +307,523 @@ landingPage:
     - Approve and automate replenishment and transfers
     - Monitor KPIs and refine quarterly with expert tuning
 ---
-# SparesSight AI
+
+# SparesightWorkflows
+
+## Customer Acquisition Workflows
+
+```typescript
+interface Lead {
+  company: string;
+  industry: string;
+  installedBaseSize: number;
+  spareParts: number;
+  currentSLA: string;
+  painPoints: string[];
+  contactInfo: ContactInfo;
+}
+
+interface QualifiedLead extends Lead {
+  fitScore: number;
+  urgency: 'high' | 'medium' | 'low';
+  decisionMakers: DecisionMaker[];
+  technicalRequirements: TechnicalRequirements;
+}
+
+interface Proposal {
+  customerId: string;
+  solution: SolutionConfiguration;
+  pricing: PricingStructure;
+  implementation: ImplementationPlan;
+  roi: ROIProjection;
+  timeline: ProjectTimeline;
+}
+
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const proposal = await generateProposal(qualifiedLead);
+  const contract = await negotiateContract(proposal);
+  return await onboardCustomer(contract);
+}
+
+export async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  const fitScore = await calculateFitScore(lead);
+  const decisionMakers = await identifyDecisionMakers(lead.company);
+  const technicalReqs = await assessTechnicalRequirements(lead);
+  
+  return {
+    ...lead,
+    fitScore,
+    urgency: determinePriority(fitScore, lead.painPoints),
+    decisionMakers,
+    technicalRequirements: technicalReqs
+  };
+}
+
+export async function generateProposal(lead: QualifiedLead): Promise<Proposal> {
+  const solution = await configureSolution(lead.technicalRequirements);
+  const pricing = await calculatePricing(lead.spareParts, solution);
+  const roi = await projectROI(lead, solution);
+  const timeline = await createImplementationTimeline(solution);
+  
+  return {
+    customerId: lead.company,
+    solution,
+    pricing,
+    implementation: await planImplementation(solution, lead),
+    roi,
+    timeline
+  };
+}
+
+export async function conductProofOfValue(customer: Customer): Promise<POVResults> {
+  const pilotScope = await definePilotScope(customer);
+  const baselineMetrics = await captureBaseline(pilotScope);
+  const pilotResults = await runPilot(pilotScope, 90); // 90-day POV
+  
+  return await measurePOVSuccess(baselineMetrics, pilotResults);
+}
+```
+
+## Product Development Processes
+
+```typescript
+interface ProductRequirement {
+  feature: string;
+  priority: 'critical' | 'high' | 'medium' | 'low';
+  customerRequests: number;
+  technicalComplexity: number;
+  businessValue: number;
+}
+
+interface DevelopmentSprint {
+  features: ProductRequirement[];
+  duration: number;
+  resources: DeveloperResource[];
+  deliverables: Deliverable[];
+}
+
+export async function developProduct(): Promise<ProductRelease> {
+  const requirements = await gatherRequirements();
+  const roadmap = await prioritizeRoadmap(requirements);
+  const sprints = await planSprints(roadmap);
+  
+  const features = [];
+  for (const sprint of sprints) {
+    const sprintResults = await executeSprint(sprint);
+    features.push(...sprintResults.completedFeatures);
+  }
+  
+  return await releaseProduct(features);
+}
+
+export async function gatherRequirements(): Promise<ProductRequirement[]> {
+  const customerFeedback = await collectCustomerFeedback();
+  const marketResearch = await conductMarketResearch();
+  const technicalDebt = await assessTechnicalDebt();
+  
+  return await synthesizeRequirements(customerFeedback, marketResearch, technicalDebt);
+}
+
+export async function enhanceForecastingEngine(): Promise<ForecastingModel> {
+  const historicalData = await collectHistoricalDemandData();
+  const reliabilityData = await gatherReliabilityMetrics();
+  
+  const model = await trainIntermittentDemandModel(historicalData, {
+    algorithm: 'croston-tsb-hybrid',
+    hierarchicalLevels: ['product-line', 'part-family', 'sku'],
+    reliabilityFeatures: reliabilityData
+  });
+  
+  const validatedModel = await validateModel(model);
+  return await deployModel(validatedModel);
+}
+
+export async function buildMultiEchelonOptimizer(): Promise<OptimizationEngine> {
+  const networkTopology = await mapSupplyNetwork();
+  const slaRequirements = await defineSLAConstraints();
+  const costParameters = await calibrateCostModel();
+  
+  const optimizer = await createOptimizer({
+    network: networkTopology,
+    constraints: slaRequirements,
+    objective: 'minimize-inventory-subject-to-sla',
+    solver: 'mixed-integer-programming'
+  });
+  
+  return await validateOptimizer(optimizer);
+}
+```
+
+## Revenue Generation Flows
+
+```typescript
+interface Subscription {
+  customerId: string;
+  tier: 'starter' | 'professional' | 'enterprise';
+  skuCount: number;
+  echelonCount: number;
+  monthlyRevenue: number;
+  addOns: AddOnService[];
+}
+
+interface RevenueMetrics {
+  mrr: number;
+  arr: number;
+  churnRate: number;
+  expansionRevenue: number;
+  customerLifetimeValue: number;
+}
+
+export async function generateRevenue(): Promise<RevenueMetrics> {
+  const subscriptions = await manageSubscriptions();
+  const implementations = await deliverImplementations();
+  const managedServices = await provideManagedServices();
+  const valueSharing = await captureValueBasedRevenue();
+  
+  return await calculateRevenueMetrics(subscriptions, implementations, managedServices, valueSharing);
+}
+
+export async function manageSubscriptions(): Promise<Subscription[]> {
+  const activeCustomers = await getActiveCustomers();
+  const subscriptions = [];
+  
+  for (const customer of activeCustomers) {
+    const usage = await trackUsage(customer);
+    const subscription = await calculateSubscriptionRevenue(customer, usage);
+    const expansions = await identifyExpansionOpportunities(customer, usage);
+    
+    if (expansions.length > 0) {
+      await proposeExpansion(customer, expansions);
+    }
+    
+    subscriptions.push(subscription);
+  }
+  
+  return subscriptions;
+}
+
+export async function deliverImplementation(customer: Customer): Promise<ImplementationRevenue> {
+  const scope = await defineImplementationScope(customer);
+  const timeline = await createProjectTimeline(scope);
+  const resources = await allocateResources(scope);
+  
+  const project = await executeImplementation({
+    customer,
+    scope,
+    timeline,
+    resources
+  });
+  
+  return await recognizeImplementationRevenue(project);
+}
+
+export async function captureValueBasedRevenue(customer: Customer): Promise<ValueBasedRevenue> {
+  const baseline = await establishInventoryBaseline(customer);
+  const currentMetrics = await measureCurrentPerformance(customer);
+  const reduction = await calculateInventoryReduction(baseline, currentMetrics);
+  
+  if (reduction.verified && reduction.percentage >= 0.15) {
+    const valueShare = reduction.savingsAmount * 0.15; // 15% share
+    return await invoiceValueBasedRevenue(customer, valueShare);
+  }
+  
+  return { amount: 0, reason: 'threshold-not-met' };
+}
+```
+
+## Operational Procedures
+
+```typescript
+interface DataIngestion {
+  source: 'ERP' | 'FSM' | 'PLM' | 'IoT' | 'Supplier';
+  format: string;
+  frequency: 'real-time' | 'hourly' | 'daily' | 'weekly';
+  quality: DataQualityMetrics;
+}
+
+interface InventoryPolicy {
+  sku: string;
+  location: string;
+  reorderPoint: number;
+  safetyStock: number;
+  minMax: { min: number; max: number };
+  slaTarget: string;
+  lastUpdated: Date;
+}
+
+export async function operateSystem(): Promise<OperationalMetrics> {
+  const dataIngestion = await ingestData();
+  const forecasting = await generateForecasts();
+  const optimization = await optimizeInventory();
+  const execution = await executeRecommendations();
+  
+  return await monitorPerformance();
+}
+
+export async function ingestData(): Promise<DataIngestion[]> {
+  const sources = await getConfiguredDataSources();
+  const ingestionResults = [];
+  
+  for (const source of sources) {
+    try {
+      const data = await extractData(source);
+      const cleanedData = await cleanAndValidateData(data);
+      const transformedData = await transformData(cleanedData, source.schema);
+      await loadData(transformedData, source.destination);
+      
+      ingestionResults.push({
+        source: source.type,
+        format: source.format,
+        frequency: source.frequency,
+        quality: await assessDataQuality(transformedData)
+      });
+    } catch (error) {
+      await handleIngestionError(source, error);
+    }
+  }
+  
+  return ingestionResults;
+}
+
+export async function generateForecasts(): Promise<ForecastResults> {
+  const demandHistory = await getDemandHistory();
+  const reliabilityData = await getReliabilityData();
+  const externalFactors = await getExternalFactors();
+  
+  const forecasts = await runForecastingModels({
+    history: demandHistory,
+    reliability: reliabilityData,
+    external: externalFactors,
+    models: ['croston', 'tsb', 'hierarchical', 'weibull-survival']
+  });
+  
+  return await validateAndEnsembleForecasts(forecasts);
+}
+
+export async function optimizeInventory(): Promise<InventoryPolicy[]> {
+  const forecasts = await getLatestForecasts();
+  const networkConfig = await getNetworkConfiguration();
+  const slaRequirements = await getSLARequirements();
+  const costParameters = await getCostParameters();
+  
+  const optimization = await runOptimization({
+    demand: forecasts,
+    network: networkConfig,
+    sla: slaRequirements,
+    costs: costParameters,
+    constraints: await getBusinessConstraints()
+  });
+  
+  return await generateInventoryPolicies(optimization);
+}
+
+export async function executeRecommendations(): Promise<ExecutionResults> {
+  const policies = await getApprovedPolicies();
+  const executionResults = [];
+  
+  for (const policy of policies) {
+    try {
+      if (policy.type === 'purchase-order') {
+        await createPurchaseOrder(policy);
+      } else if (policy.type === 'min-max-update') {
+        await updateERPMinMax(policy);
+      } else if (policy.type === 'transfer-order') {
+        await createTransferOrder(policy);
+      }
+      
+      executionResults.push({ policy: policy.id, status: 'executed' });
+    } catch (error) {
+      executionResults.push({ policy: policy.id, status: 'failed', error });
+      await escalateExecutionFailure(policy, error);
+    }
+  }
+  
+  return { results: executionResults };
+}
+```
+
+## Decision-Making Workflows
+
+```typescript
+interface Decision {
+  id: string;
+  type: 'inventory-policy' | 'supplier-change' | 'sla-adjustment' | 'obsolescence';
+  context: DecisionContext;
+  options: DecisionOption[];
+  recommendation: Recommendation;
+  approval: ApprovalWorkflow;
+}
+
+interface DecisionContext {
+  triggeredBy: string;
+  urgency: 'immediate' | 'high' | 'medium' | 'low';
+  impactedSKUs: string[];
+  businessImpact: BusinessImpact;
+  riskAssessment: RiskAssessment;
+}
+
+export async function makeDecision(trigger: DecisionTrigger): Promise<DecisionOutcome> {
+  const context = await analyzeDecisionContext(trigger);
+  const options = await generateDecisionOptions(context);
+  const recommendation = await generateRecommendation(options, context);
+  const approval = await routeForApproval(recommendation, context);
+  
+  return await executeDecision(approval);
+}
+
+export async function handleInventoryException(exception: InventoryException): Promise<Decision> {
+  const context = await analyzeException(exception);
+  const options = await generateResponseOptions(exception, context);
+  
+  if (context.urgency === 'immediate' && context.businessImpact.revenue > 100000) {
+    return await escalateToHuman(exception, options);
+  }
+  
+  const recommendation = await selectBestOption(options, context);
+  return await createDecision({
+    type: 'inventory-policy',
+    context,
+    options,
+    recommendation,
+    approval: await determineApprovalWorkflow(recommendation, context)
+  });
+}
+
+export async function manageSupplierRisk(riskEvent: SupplierRiskEvent): Promise<MitigationPlan> {
+  const impact = await assessSupplierImpact(riskEvent);
+  const alternatives = await identifyAlternativeSuppliers(riskEvent.affectedParts);
+  const mitigationOptions = await generateMitigationOptions(impact, alternatives);
+  
+  const selectedMitigation = await selectMitigation(mitigationOptions);
+  return await executeMitigationPlan(selectedMitigation);
+}
+
+export async function optimizeSLAPerformance(): Promise<SLAOptimizationResult> {
+  const currentPerformance = await measureSLAPerformance();
+  const gaps = await identifyPerformanceGaps(currentPerformance);
+  
+  const optimizationActions = [];
+  for (const gap of gaps) {
+    if (gap.type === 'stockout') {
+      optimizationActions.push(await increaseStockLevels(gap.affectedSKUs));
+    } else if (gap.type === 'excess-inventory') {
+      optimizationActions.push(await reduceStockLevels(gap.affectedSKUs));
+    } else if (gap.type === 'supplier-delay') {
+      optimizationActions.push(await adjustLeadTimes(gap.suppliers));
+    }
+  }
+  
+  return await implementOptimizations(optimizationActions);
+}
+
+export async function handleObsolescence(obsolescenceAlert: ObsolescenceAlert): Promise<ObsolescenceAction> {
+  const affectedInventory = await assessObsolescenceImpact(obsolescenceAlert);
+  const disposalOptions = await evaluateDisposalOptions(affectedInventory);
+  const supersessionPlan = await createSupersessionPlan(obsolescenceAlert);
+  
+  return await executeObsolescenceManagement({
+    disposal: disposalOptions.recommended,
+    supersession: supersessionPlan,
+    timeline: obsolescenceAlert.effectiveDate
+  });
+}
+```
+
+## Integration and Monitoring
+
+```typescript
+interface SystemHealth {
+  dataIngestion: HealthStatus;
+  forecasting: HealthStatus;
+  optimization: HealthStatus;
+  execution: HealthStatus;
+  performance: PerformanceMetrics;
+}
+
+export async function monitorSystemHealth(): Promise<SystemHealth> {
+  return {
+    dataIngestion: await checkDataIngestionHealth(),
+    forecasting: await checkForecastingHealth(),
+    optimization: await checkOptimizationHealth(),
+    execution: await checkExecutionHealth(),
+    performance: await measureSystemPerformance()
+  };
+}
+
+export async function generateInsights(): Promise<BusinessInsights> {
+  const inventoryTrends = await analyzeInventoryTrends();
+  const forecastAccuracy = await measureForecastAccuracy();
+  const slaPerformance = await analyzeSLAPerformance();
+  const costOptimization = await identifyCostOptimizations();
+  
+  return {
+    trends: inventoryTrends,
+    accuracy: forecastAccuracy,
+    sla: slaPerformance,
+    optimizations: costOptimization,
+    recommendations: await generateActionableRecommendations()
+  };
+}
+```
+
+## Customer Personas
+
+### Primary Segment: Analytical Instrument OEM Leadership
+
+**Dr. Sarah Mitchell - VP Global Service & Aftermarket**
+- Company: Leading chromatography equipment manufacturer with 50k+ installed base
+- Pain Points: Service parts inventory consuming 30% of working capital, 85% fill rate on critical parts
+- Goals: Achieve 97%+ fill rate while reducing inventory by 20%, improve regional SLA consistency
+- Buying Criteria: Proven ROI, ERP integration capabilities, domain expertise in analytical instruments
+- Quote: "We need intelligent optimization that understands our unique failure patterns and SLA commitments"
+
+**Michael Chen - Director of Service Logistics**
+- Company: Mass spectrometry OEM with global service network
+- Pain Points: Manual planning across 15 regions, frequent stockouts on long-lead items, obsolescence costs
+- Goals: Automate inventory planning, reduce expedite costs, improve planner productivity
+- Buying Criteria: Multi-echelon optimization, supplier integration, change management support
+- Quote: "Our planners spend 60% of their time firefighting instead of strategic planning"
+
+**Jennifer Rodriguez - CFO**
+- Company: Mid-size spectroscopy equipment manufacturer
+- Pain Points: Working capital tied up in service parts, unpredictable inventory carrying costs
+- Goals: Optimize working capital allocation, improve inventory turns, reduce obsolescence write-offs
+- Buying Criteria: Financial transparency, measurable ROI, audit-ready reporting
+- Quote: "Service parts inventory is our second-largest working capital investment after manufacturing"
+
+### Secondary Segment: Service Operations Teams
+
+**David Park - Global Spare Parts Planner**
+- Company: Elemental analysis equipment OEM
+- Pain Points: Intermittent demand patterns, complex supersession management, manual safety stock calculations
+- Goals: Improve forecast accuracy, automate routine decisions, focus on exception management
+- Buying Criteria: User-friendly interface, explainable recommendations, integration with existing tools
+- Quote: "I need a system that can handle our unique demand patterns and explain its recommendations"
+
+**Lisa Thompson - Regional Service Manager**
+- Company: Materials characterization equipment manufacturer
+- Pain Points: Inconsistent parts availability across regions, SLA penalties, customer escalations
+- Goals: Ensure parts availability for critical repairs, minimize customer downtime, meet SLA targets
+- Buying Criteria: Regional optimization capabilities, real-time visibility, mobile access
+- Quote: "When we don't have the right part, our customers' labs shut down - that's unacceptable"
+
+## Market Research Insights
+
+### Service Parts Management Market
+- **Market Size**: $4.2B service parts optimization market growing 12% annually
+- **Pain Point Validation**: 78% of OEMs report excess inventory while missing SLA targets
+- **Technology Gap**: Current solutions lack domain-specific models for analytical instruments
+
+### Analytical Instruments Industry
+- **Market Characteristics**: $65B global market with high service revenue dependency (30-40% of total revenue)
+- **Service Criticality**: Lab downtime costs average $50k-200k per day for pharmaceutical customers
+- **Inventory Challenges**: Unique failure patterns, long supplier lead times, complex supersession chains
+
+### ROI and Implementation
+- **Payback Period**: Target 12-18 months for inventory optimization investments
+- **Success Metrics**: Industry benchmarks show 15-30% inventory reduction potential
+- **Implementation Risk**: 67% of optimization projects fail due to poor data quality and change management
 
 Generated for NAICS 334516 — Analytical Laboratory Instrument Manufacturing.
 Service: Predictive Spare Parts Demand & Inventory Optimizer
