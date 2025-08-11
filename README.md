@@ -1,4 +1,4 @@
-# Startups.do — launch thousands of AI businesses
+# Startups.do
 
 Generate, evaluate, and assemble AI service companies at industrial scale— with **Devin** and the **`.do` platform**
 
