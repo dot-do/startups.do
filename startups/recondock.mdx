@@ -348,3 +348,456 @@ landingPage:
 
 Generated for NAICS 493190 — Other Warehousing and Storage.
 Service: ASN-to-Receiving Reconciliation Agent
+
+## Business-as-Code Workflows
+
+The following TypeScript functions encode ReconDock's core business processes as executable code:
+
+```typescript
+// Core data types for warehouse receiving reconciliation
+interface ASN {
+  id: string;
+  poNumber: string;
+  vendorId: string;
+  expectedItems: ReceiptLine[];
+  shipDate: Date;
+  expectedDeliveryDate: Date;
+  carrierInfo: CarrierInfo;
+}
+
+interface ReceiptLine {
+  sku: string;
+  gtin?: string;
+  upc?: string;
+  description: string;
+  expectedQuantity: number;
+  unitOfMeasure: string;
+  lotNumber?: string;
+  serialNumber?: string;
+  expiryDate?: Date;
+  handlingUnitId?: string;
+}
+
+interface WMSReceipt {
+  id: string;
+  poNumber: string;
+  receivedItems: ReceivedItem[];
+  receiptDate: Date;
+  receivingDock: string;
+  operatorId: string;
+}
+
+interface ReceivedItem extends ReceiptLine {
+  actualQuantity: number;
+  condition: 'good' | 'damaged' | 'expired';
+  photos?: string[];
+  notes?: string;
+}
+
+interface Exception {
+  type: 'over' | 'short' | 'damage' | 'uom_mismatch' | 'missing_lot' | 'asn_without_receipt' | 'receipt_without_asn';
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  confidenceScore: number;
+  lineItem: ReceiptLine;
+  variance: number;
+  rootCause?: string;
+  recommendedAction: string;
+}
+
+interface VendorCommunication {
+  vendorId: string;
+  subject: string;
+  body: string;
+  attachments: string[];
+  ccList: string[];
+  responseByDate: Date;
+  chargebackAmount?: number;
+}
+
+interface WMSTask {
+  id: string;
+  type: 'recount' | 'reweigh' | 'rescan_label' | 'quarantine' | 'capture_photos' | 'cycle_count' | 'escalate';
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  assignedTo?: string;
+  slaTimer: Date;
+  instructions: string;
+  relatedException: string;
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const proposal = await generateProposal(qualifiedLead);
+  const contract = await negotiateContract(proposal);
+  return await onboardCustomer(contract);
+}
+
+async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  // Assess 3PL facility size, receipt volume, current WMS
+  const facilityAssessment = await assessFacilitySize(lead.companyInfo);
+  const volumeAnalysis = await analyzeReceiptVolume(lead.operationalData);
+  const wmsCompatibility = await checkWMSCompatibility(lead.currentSystems);
+  
+  if (facilityAssessment.sites >= 1 && volumeAnalysis.dailyReceipts >= 100) {
+    return {
+      ...lead,
+      qualified: true,
+      estimatedROI: calculateROI(volumeAnalysis, facilityAssessment),
+      implementationComplexity: assessComplexity(wmsCompatibility)
+    };
+  }
+  
+  throw new Error('Lead does not meet qualification criteria');
+}
+
+async function generateProposal(lead: QualifiedLead): Promise<Proposal> {
+  const pricingTier = determinePricingTier(lead.facilitySize, lead.receiptVolume);
+  const implementationPlan = await createImplementationPlan(lead.wmsType, lead.ediProviders);
+  
+  return {
+    customerId: lead.id,
+    monthlySubscription: pricingTier.basePrice,
+    usageBasedFee: pricingTier.perLineRate,
+    implementationFee: implementationPlan.cost,
+    pilotPackage: createPilotOffer(lead),
+    roi: lead.estimatedROI,
+    timeline: implementationPlan.timeline
+  };
+}
+
+// Product Development Processes
+export async function developReconciliationEngine(): Promise<ReconciliationEngine> {
+  const trainingData = await gatherTrainingData();
+  const model = await trainReconciliationModel(trainingData);
+  const engine = await buildReconciliationEngine(model);
+  return await validateEngine(engine);
+}
+
+async function trainReconciliationModel(data: TrainingData): Promise<ReconciliationModel> {
+  // Train ML models for SKU/GTIN/UPC matching with fuzzy logic
+  const skuMatcher = await trainSKUMatcher(data.skuMappings);
+  const quantityValidator = await trainQuantityValidator(data.quantityVariances);
+  const exceptionClassifier = await trainExceptionClassifier(data.exceptions);
+  
+  return {
+    skuMatcher,
+    quantityValidator,
+    exceptionClassifier,
+    confidenceThresholds: optimizeThresholds(data.validationSet)
+  };
+}
+
+// Revenue Generation Flows
+export async function processSubscriptionRevenue(customer: Customer): Promise<Revenue> {
+  const usage = await calculateMonthlyUsage(customer.id);
+  const subscription = await generateSubscriptionInvoice(customer, usage);
+  const payment = await processPayment(subscription);
+  return await recordRevenue(payment);
+}
+
+async function calculateMonthlyUsage(customerId: string): Promise<UsageMetrics> {
+  const receipts = await getMonthlyReceipts(customerId);
+  const linesProcessed = receipts.reduce((total, receipt) => total + receipt.lineCount, 0);
+  const exceptionsHandled = await getExceptionsCount(customerId);
+  const tasksCreated = await getWMSTasksCount(customerId);
+  
+  return {
+    linesProcessed,
+    exceptionsHandled,
+    tasksCreated,
+    billingTier: determineBillingTier(linesProcessed)
+  };
+}
+
+// Core Operational Procedures
+export async function ingestASN(asnData: ASNData): Promise<ASN> {
+  try {
+    // Normalize inbound data from multiple sources
+    const normalizedASN = await normalizeASNData(asnData);
+    const validatedASN = await validateASNStructure(normalizedASN);
+    const enrichedASN = await enrichWithVendorMappings(validatedASN);
+    
+    await storeASN(enrichedASN);
+    await notifyReceivingTeam(enrichedASN);
+    
+    return enrichedASN;
+  } catch (error) {
+    await logIngestionError(error, asnData);
+    throw new IngestionError(`Failed to ingest ASN: ${error.message}`);
+  }
+}
+
+async function normalizeASNData(asnData: ASNData): Promise<NormalizedASN> {
+  switch (asnData.source) {
+    case 'edi_856':
+      return await parseEDI856(asnData.content);
+    case 'pdf_packing_list':
+      return await extractFromPDF(asnData.content);
+    case 'email_attachment':
+      return await parseEmailAttachment(asnData.content);
+    case 'gs1_label':
+      return await parseGS1Label(asnData.content);
+    default:
+      throw new Error(`Unsupported ASN source: ${asnData.source}`);
+  }
+}
+
+export async function reconcileReceipt(asn: ASN, wmsReceipt: WMSReceipt): Promise<ReconciliationResult> {
+  try {
+    // Core reconciliation logic with configurable tolerances
+    const matchResults = await performLineMatching(asn.expectedItems, wmsReceipt.receivedItems);
+    const exceptions = await identifyExceptions(matchResults);
+    const classifiedExceptions = await classifyExceptions(exceptions);
+    
+    const result: ReconciliationResult = {
+      asnId: asn.id,
+      receiptId: wmsReceipt.id,
+      matchRate: calculateMatchRate(matchResults),
+      exceptions: classifiedExceptions,
+      autoResolved: classifiedExceptions.filter(e => e.severity === 'low').length,
+      requiresReview: classifiedExceptions.filter(e => e.severity !== 'low').length,
+      timestamp: new Date()
+    };
+    
+    await storeReconciliationResult(result);
+    
+    if (result.exceptions.length > 0) {
+      await triggerExceptionWorkflow(result.exceptions);
+    }
+    
+    return result;
+  } catch (error) {
+    await logReconciliationError(error, asn.id, wmsReceipt.id);
+    throw new ReconciliationError(`Reconciliation failed: ${error.message}`);
+  }
+}
+
+async function performLineMatching(expected: ReceiptLine[], received: ReceivedItem[]): Promise<MatchResult[]> {
+  const matches: MatchResult[] = [];
+  
+  for (const expectedLine of expected) {
+    const bestMatch = await findBestMatch(expectedLine, received);
+    
+    if (bestMatch.confidence > 0.85) {
+      matches.push({
+        expectedLine,
+        receivedLine: bestMatch.item,
+        confidence: bestMatch.confidence,
+        variance: calculateVariance(expectedLine, bestMatch.item)
+      });
+    } else {
+      matches.push({
+        expectedLine,
+        receivedLine: null,
+        confidence: 0,
+        variance: expectedLine.expectedQuantity
+      });
+    }
+  }
+  
+  return matches;
+}
+
+export async function generateVendorCommunication(exceptions: Exception[]): Promise<VendorCommunication[]> {
+  const communicationsByVendor = groupExceptionsByVendor(exceptions);
+  const communications: VendorCommunication[] = [];
+  
+  for (const [vendorId, vendorExceptions] of communicationsByVendor) {
+    const vendorProfile = await getVendorProfile(vendorId);
+    const template = await getVendorTemplate(vendorProfile.communicationPreferences);
+    
+    const communication = await draftVendorEmail({
+      vendorId,
+      exceptions: vendorExceptions,
+      template,
+      vendorProfile
+    });
+    
+    communications.push(communication);
+  }
+  
+  return communications;
+}
+
+async function draftVendorEmail(params: VendorEmailParams): Promise<VendorCommunication> {
+  const { vendorId, exceptions, template, vendorProfile } = params;
+  
+  const subject = generateSubject(exceptions);
+  const body = await generateEmailBody(exceptions, template);
+  const attachments = await generateAttachments(exceptions);
+  const chargebackAmount = calculateChargebackAmount(exceptions);
+  
+  return {
+    vendorId,
+    subject,
+    body,
+    attachments,
+    ccList: vendorProfile.ccList || [],
+    responseByDate: addBusinessDays(new Date(), vendorProfile.responseSLA || 2),
+    chargebackAmount
+  };
+}
+
+export async function createWMSTasks(exceptions: Exception[]): Promise<WMSTask[]> {
+  const tasks: WMSTask[] = [];
+  
+  for (const exception of exceptions) {
+    const taskType = determineTaskType(exception);
+    const priority = determinePriority(exception);
+    const assignee = await assignTask(taskType, exception.lineItem.sku);
+    
+    const task: WMSTask = {
+      id: generateTaskId(),
+      type: taskType,
+      priority,
+      assignedTo: assignee?.id,
+      slaTimer: calculateSLATimer(priority),
+      instructions: generateTaskInstructions(exception),
+      relatedException: exception.id
+    };
+    
+    tasks.push(task);
+    await pushTaskToWMS(task);
+  }
+  
+  return tasks;
+}
+
+async function pushTaskToWMS(task: WMSTask): Promise<void> {
+  const wmsConnector = await getWMSConnector();
+  
+  try {
+    await wmsConnector.createTask({
+      taskId: task.id,
+      type: task.type,
+      priority: task.priority,
+      assignedUser: task.assignedTo,
+      dueDate: task.slaTimer,
+      instructions: task.instructions
+    });
+    
+    await logTaskCreation(task);
+  } catch (error) {
+    await logTaskCreationError(error, task);
+    throw new WMSIntegrationError(`Failed to create WMS task: ${error.message}`);
+  }
+}
+
+// Decision-Making Workflows
+export async function makeReceivingDecision(reconciliationResult: ReconciliationResult): Promise<ReceivingDecision> {
+  const riskAssessment = await assessRisk(reconciliationResult);
+  const complianceCheck = await checkCompliance(reconciliationResult);
+  const businessImpact = await calculateBusinessImpact(reconciliationResult);
+  
+  if (riskAssessment.level === 'low' && complianceCheck.passed) {
+    return {
+      decision: 'auto_accept',
+      reasoning: 'Low risk, compliant receipt',
+      actions: ['putaway', 'update_inventory'],
+      approver: 'system'
+    };
+  }
+  
+  if (riskAssessment.level === 'high' || !complianceCheck.passed) {
+    return {
+      decision: 'quarantine',
+      reasoning: `High risk (${riskAssessment.factors.join(', ')}) or compliance failure`,
+      actions: ['quarantine', 'escalate_to_supervisor', 'vendor_notification'],
+      approver: 'required'
+    };
+  }
+  
+  return {
+    decision: 'review_required',
+    reasoning: 'Medium risk, requires human review',
+    actions: ['hold_for_review', 'request_photos', 'vendor_inquiry'],
+    approver: 'receiving_supervisor'
+  };
+}
+
+export async function optimizeReceivingProcess(historicalData: ReceivingMetrics[]): Promise<ProcessOptimization> {
+  const bottlenecks = await identifyBottlenecks(historicalData);
+  const vendorPerformance = await analyzeVendorPerformance(historicalData);
+  const seasonalPatterns = await detectSeasonalPatterns(historicalData);
+  
+  const recommendations = generateOptimizationRecommendations({
+    bottlenecks,
+    vendorPerformance,
+    seasonalPatterns
+  });
+  
+  return {
+    currentMetrics: calculateCurrentMetrics(historicalData),
+    projectedImprovements: calculateProjectedImprovements(recommendations),
+    recommendations,
+    implementationPlan: createImplementationPlan(recommendations)
+  };
+}
+
+// Analytics and Reporting
+export async function generateDashboard(customerId: string, timeRange: TimeRange): Promise<Dashboard> {
+  const metrics = await calculateKPIs(customerId, timeRange);
+  const vendorScorecard = await generateVendorScorecard(customerId, timeRange);
+  const exceptionTrends = await analyzeExceptionTrends(customerId, timeRange);
+  
+  return {
+    firstPassMatchRate: metrics.fpmr,
+    exceptionRate: metrics.exceptionRate,
+    averageResolutionTime: metrics.avgResolutionTime,
+    receivingProductivity: metrics.linesPerLaborHour,
+    autoResolvedPercentage: metrics.autoResolvedPct,
+    vendorScorecard,
+    exceptionTrends,
+    chargebackRecovery: metrics.chargebackRecovery,
+    lastUpdated: new Date()
+  };
+}
+
+// Error handling and monitoring
+class ReconciliationError extends Error {
+  constructor(message: string, public code: string = 'RECONCILIATION_ERROR') {
+    super(message);
+    this.name = 'ReconciliationError';
+  }
+}
+
+class IngestionError extends Error {
+  constructor(message: string, public code: string = 'INGESTION_ERROR') {
+    super(message);
+    this.name = 'IngestionError';
+  }
+}
+
+class WMSIntegrationError extends Error {
+  constructor(message: string, public code: string = 'WMS_INTEGRATION_ERROR') {
+    super(message);
+    this.name = 'WMSIntegrationError';
+  }
+}
+
+// Utility functions for business logic
+function calculateMatchRate(matches: MatchResult[]): number {
+  const successfulMatches = matches.filter(m => m.confidence > 0.85).length;
+  return (successfulMatches / matches.length) * 100;
+}
+
+function addBusinessDays(date: Date, days: number): Date {
+  const result = new Date(date);
+  let addedDays = 0;
+  
+  while (addedDays < days) {
+    result.setDate(result.getDate() + 1);
+    if (result.getDay() !== 0 && result.getDay() !== 6) {
+      addedDays++;
+    }
+  }
+  
+  return result;
+}
+
+function generateTaskId(): string {
+  return `TASK_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+}
+```
+
+This Business-as-Code implementation encodes ReconDock's core warehouse receiving reconciliation workflows as executable TypeScript functions, providing a foundation for automated ASN-to-receipt reconciliation, exception handling, vendor communication, and WMS task orchestration.
