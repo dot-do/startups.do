@@ -325,7 +325,457 @@ landingPage:
     - Auto-create RFQs/POs; reserve heats/drops and lock buys.
     - Export nests to CAM and sync traceability and schedule to production.
 ---
+
 # PlateNest Pre-Plan AI
 
 Generated for NAICS 332420 — Metal Tank (Heavy Gauge) Manufacturing.
 Service: Plate Nesting Pre-Plan & Material Order Assistant
+
+## Business Workflow Functions
+
+The following TypeScript functions define PlateNest's core business processes as executable code:
+
+```typescript
+// Types and Interfaces
+interface Lead {
+  id: string;
+  company: string;
+  naics: string;
+  annualRevenue: number;
+  materialSpend: number;
+  contactInfo: ContactInfo;
+  currentPainPoints: string[];
+  cuttingTables: number;
+  plateThickness: [number, number];
+  currentCAM: string;
+  currentERP: string;
+  jobsPerYear: number;
+  customOrderMix: number;
+}
+
+interface Customer {
+  id: string;
+  lead: Lead;
+  subscriptionTier: SubscriptionTier;
+  implementationStatus: ImplementationStatus;
+  integrations: Integration[];
+  usageMetrics: UsageMetrics;
+}
+
+interface CADProject {
+  id: string;
+  files: CADFile[];
+  bomData: BOMItem[];
+  constraints: NestingConstraints;
+  requirements: ProjectRequirements;
+}
+
+interface NestingResult {
+  scenarios: NestingScenario[];
+  recommendedPlan: PurchasePlan;
+  yieldImprovement: number;
+  leadTimePullForward: number;
+  costSavings: number;
+}
+
+interface PurchaseOrder {
+  id: string;
+  plateSpecs: PlateSpecification[];
+  supplier: Supplier;
+  totalCost: number;
+  deliveryDate: Date;
+  heatLotRequirements: string[];
+  traceabilityMap: TraceabilityMapping;
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const pilotResults = await runPilotProgram(qualifiedLead);
+  const proposal = await generateProposal(pilotResults);
+  const contract = await negotiateContract(proposal);
+  return await onboardCustomer(contract);
+}
+
+export async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  // Validate NAICS 332420 primary target
+  if (!lead.naics.startsWith('332420') && !lead.naics.startsWith('332410')) {
+    throw new Error('Lead outside target NAICS segments');
+  }
+  
+  // Check revenue and material spend thresholds
+  if (lead.annualRevenue < 10_000_000 || lead.materialSpend < 3_000_000) {
+    throw new Error('Lead below minimum revenue/spend thresholds');
+  }
+  
+  // Assess technology fit
+  const techFit = await assessTechnologyFit(lead);
+  const painPointScore = calculatePainPointScore(lead.currentPainPoints);
+  
+  return {
+    ...lead,
+    qualificationScore: techFit + painPointScore,
+    recommendedTier: determineSubscriptionTier(lead),
+    estimatedROI: calculateEstimatedROI(lead)
+  };
+}
+
+export async function runPilotProgram(lead: QualifiedLead): Promise<PilotResults> {
+  // 6-8 week paid pilot using 2-4 recent jobs
+  const historicalJobs = await requestHistoricalJobs(lead, 4);
+  const baselineMetrics = await calculateBaselineMetrics(historicalJobs);
+  
+  const pilotResults = await Promise.all(
+    historicalJobs.map(job => processJobWithPlateNest(job))
+  );
+  
+  return {
+    yieldImprovement: calculateYieldImprovement(baselineMetrics, pilotResults),
+    leadTimePullForward: calculateLeadTimePullForward(baselineMetrics, pilotResults),
+    programmerTimeSaved: calculateProgrammerTimeSaved(baselineMetrics, pilotResults),
+    costSavings: calculateCostSavings(baselineMetrics, pilotResults),
+    recommendedImplementation: generateImplementationPlan(pilotResults)
+  };
+}
+
+// Product Development Processes
+export async function processCADProject(project: CADProject): Promise<NestingResult> {
+  const cleanedGeometry = await importAndCleanCAD(project);
+  const preNestScenarios = await generatePreNestScenarios(cleanedGeometry);
+  const optimizedPlans = await optimizeWithConstraints(preNestScenarios);
+  const purchasePlans = await generatePurchasePlans(optimizedPlans);
+  
+  return {
+    scenarios: preNestScenarios,
+    recommendedPlan: selectOptimalPlan(purchasePlans),
+    yieldImprovement: calculateYieldImprovement(project, optimizedPlans),
+    leadTimePullForward: calculateLeadTimePullForward(project, optimizedPlans),
+    costSavings: calculateCostSavings(project, optimizedPlans)
+  };
+}
+
+export async function importAndCleanCAD(project: CADProject): Promise<CleanedGeometry> {
+  // Import project CAD/BOM (STEP/DXF/SolidWorks/Inventor)
+  const importedFiles = await Promise.all(
+    project.files.map(file => importCADFile(file))
+  );
+  
+  // Explode shell courses, heads, cones, nozzles into developed flat patterns
+  const flatPatterns = await Promise.all(
+    importedFiles.map(geometry => developFlatPatterns(geometry))
+  );
+  
+  // Apply allowances and weld/seam rules
+  const withAllowances = await applyAllowancesAndSeamRules(flatPatterns, project.constraints);
+  
+  return validateAndCleanGeometry(withAllowances);
+}
+
+export async function generatePreNestScenarios(geometry: CleanedGeometry): Promise<NestingScenario[]> {
+  // AI-driven pre-nesting simulates thousands of nest scenarios
+  const vendorCatalogs = await fetchVendorPlateCatalogs();
+  const inHouseRemnants = await fetchInHouseRemnants();
+  
+  const scenarios = await runAINestingSimulation({
+    geometry,
+    vendorCatalogs,
+    inHouseRemnants,
+    simulationCount: 10000
+  });
+  
+  return scenarios.map(scenario => ({
+    ...scenario,
+    yieldPercentage: calculateYield(scenario),
+    totalCost: calculateTotalCost(scenario),
+    leadTimeRisk: assessLeadTimeRisk(scenario),
+    ppvForecast: calculatePPVForecast(scenario)
+  }));
+}
+
+export async function optimizeWithConstraints(scenarios: NestingScenario[]): Promise<OptimizedPlan[]> {
+  // Constraint-aware engine with rolling/grain direction, plate size limits, etc.
+  const constraints = {
+    rollingDirection: true,
+    plateSizeLimits: ['96x240', '120x480'],
+    trimAllowances: true,
+    bevelAllowances: true,
+    partPairingForPressRolls: true,
+    heatLotSegregation: true,
+    tableSpecificCuttingEnvelopes: true
+  };
+  
+  return await Promise.all(
+    scenarios.map(scenario => applyConstraintsAndOptimize(scenario, constraints))
+  );
+}
+
+// Revenue Generation Flows
+export async function processSubscriptionBilling(customer: Customer): Promise<BillingResult> {
+  const usageData = await trackCustomerUsage(customer);
+  const tierLimits = getSubscriptionTierLimits(customer.subscriptionTier);
+  const baseCharges = calculateBaseSubscriptionCharges(customer);
+  const overageCharges = calculateOverageCharges(usageData, tierLimits);
+  
+  const invoice = await generateInvoice({
+    customer,
+    baseCharges,
+    overageCharges,
+    usageData
+  });
+  
+  return await processPayment(invoice);
+}
+
+export async function trackCustomerUsage(customer: Customer): Promise<UsageMetrics> {
+  const jobsProcessed = await getJobsProcessedThisMonth(customer.id);
+  const preNestScenariosRun = await getPreNestScenariosCount(customer.id);
+  const apiCalls = await getAPICallCount(customer.id);
+  const storageUsed = await getStorageUsage(customer.id);
+  
+  return {
+    jobsProcessed: jobsProcessed.length,
+    preNestScenarios: preNestScenariosRun,
+    apiCalls,
+    storageUsedGB: storageUsed,
+    timeToFirstPO: calculateAverageTimeToFirstPO(jobsProcessed),
+    adoptionRate: calculateAdoptionRate(customer, jobsProcessed)
+  };
+}
+
+export async function handleSubscriptionUpgrade(customer: Customer, newTier: SubscriptionTier): Promise<Customer> {
+  const currentUsage = await trackCustomerUsage(customer);
+  const upgradeJustification = validateUpgradeNeed(currentUsage, newTier);
+  
+  if (!upgradeJustification.isJustified) {
+    throw new Error(`Upgrade not justified: ${upgradeJustification.reason}`);
+  }
+  
+  const proratedCharges = calculateProratedCharges(customer.subscriptionTier, newTier);
+  await processUpgradePayment(customer, proratedCharges);
+  
+  return await updateCustomerSubscription(customer, newTier);
+}
+
+// Operational Procedures
+export async function integrateWithERP(customer: Customer, erpSystem: ERPSystem): Promise<Integration> {
+  // One-click PO requisitions to ERP with grade, thickness, plate size, quantity
+  const connector = await getERPConnector(erpSystem.type);
+  const authConfig = await setupERPAuthentication(customer, erpSystem);
+  
+  const integration = await connector.establish({
+    customer,
+    authConfig,
+    mappings: {
+      plateGrades: await mapPlateGrades(erpSystem),
+      suppliers: await mapSuppliers(erpSystem),
+      costCenters: await mapCostCenters(erpSystem)
+    }
+  });
+  
+  await testIntegration(integration);
+  return integration;
+}
+
+export async function managePurchaseOrders(nestingResult: NestingResult, customer: Customer): Promise<PurchaseOrder[]> {
+  const purchasePlan = nestingResult.recommendedPlan;
+  const erpIntegration = await getERPIntegration(customer);
+  
+  const purchaseOrders = await Promise.all(
+    purchasePlan.plateRequirements.map(async (requirement) => {
+      const suppliers = await getQualifiedSuppliers(requirement);
+      const selectedSupplier = await selectOptimalSupplier(suppliers, requirement);
+      
+      return await createPurchaseOrder({
+        customer,
+        requirement,
+        supplier: selectedSupplier,
+        erpIntegration,
+        traceabilityRequirements: requirement.heatLotRequirements
+      });
+    })
+  );
+  
+  // Reserve remnants for the job to lock plan integrity
+  await reserveRemnants(purchasePlan.remnantAllocations, customer);
+  
+  return purchaseOrders;
+}
+
+export async function trackRemnantInventory(customer: Customer): Promise<RemnantInventory> {
+  // Remnant chaos: inconsistent reuse policies and poor visibility into drops
+  const currentRemnants = await scanRemnantInventory(customer);
+  const usableRemnants = await identifyUsableRemnants(currentRemnants);
+  const reusePlan = await generateRemnantReusePlan(usableRemnants);
+  
+  // Target -20–40% in drops > 10 sq ft within 6 months
+  const optimizationPlan = await optimizeRemnantUtilization({
+    currentRemnants,
+    targetReduction: 0.3,
+    timeframe: 6
+  });
+  
+  return {
+    totalRemnants: currentRemnants.length,
+    usableRemnants: usableRemnants.length,
+    potentialSavings: calculateRemnantSavings(reusePlan),
+    optimizationPlan
+  };
+}
+
+export async function maintainTraceability(purchaseOrders: PurchaseOrder[], nestingResult: NestingResult): Promise<TraceabilityRecord> {
+  // ASME Section VIII, heat/lot tracking compliance
+  const heatLotMappings = await createHeatLotMappings(purchaseOrders);
+  const partToHeatMap = await mapPartsToHeats(nestingResult, heatLotMappings);
+  
+  const traceabilityRecord = {
+    jobId: nestingResult.jobId,
+    purchaseOrders: purchaseOrders.map(po => po.id),
+    heatLotMappings,
+    partToHeatMap,
+    complianceChecks: await runComplianceChecks(partToHeatMap),
+    auditTrail: await generateAuditTrail(purchaseOrders, nestingResult)
+  };
+  
+  await storeTraceabilityRecord(traceabilityRecord);
+  return traceabilityRecord;
+}
+
+// Decision-Making Workflows
+export async function optimizePurchaseScenarios(project: CADProject): Promise<PurchaseScenarioComparison> {
+  // Scenario optimizer delivers purchase options (Aggressive Buy vs Conservative vs Cost-Optimal)
+  const aggressiveBuy = await generateAggressiveBuyScenario(project);
+  const conservativeBuy = await generateConservativeBuyScenario(project);
+  const costOptimal = await generateCostOptimalScenario(project);
+  
+  const scenarios = [aggressiveBuy, conservativeBuy, costOptimal];
+  
+  return {
+    scenarios: await Promise.all(
+      scenarios.map(async scenario => ({
+        ...scenario,
+        yieldForecast: await calculateYieldForecast(scenario),
+        leadTimeRisk: await assessLeadTimeRisk(scenario),
+        ppvForecast: await calculatePPVForecast(scenario),
+        millVsServiceCenterTradeoffs: await analyzeMillVsServiceCenter(scenario)
+      }))
+    ),
+    recommendation: await selectRecommendedScenario(scenarios),
+    riskAssessment: await assessPurchaseRisks(scenarios)
+  };
+}
+
+export async function evaluateSuppliers(plateRequirements: PlateRequirement[]): Promise<SupplierEvaluation[]> {
+  const qualifiedSuppliers = await getQualifiedSuppliers(plateRequirements);
+  
+  return await Promise.all(
+    qualifiedSuppliers.map(async supplier => {
+      const pricing = await getSupplierPricing(supplier, plateRequirements);
+      const leadTimes = await getSupplierLeadTimes(supplier, plateRequirements);
+      const qualityMetrics = await getSupplierQualityMetrics(supplier);
+      const riskProfile = await assessSupplierRisk(supplier);
+      
+      return {
+        supplier,
+        pricing,
+        leadTimes,
+        qualityMetrics,
+        riskProfile,
+        overallScore: calculateSupplierScore({
+          pricing,
+          leadTimes,
+          qualityMetrics,
+          riskProfile
+        })
+      };
+    })
+  );
+}
+
+export async function planMaterialBuys(nestingResults: NestingResult[], timeHorizon: number): Promise<MaterialBuyPlan> {
+  // Cross-project consolidation and lead-time optimization
+  const consolidatedRequirements = await consolidateRequirements(nestingResults);
+  const supplierCapacity = await assessSupplierCapacity(timeHorizon);
+  const priceForecasts = await getPriceForecasts(timeHorizon);
+  
+  const buyPlan = await optimizeBuyTiming({
+    requirements: consolidatedRequirements,
+    supplierCapacity,
+    priceForecasts,
+    timeHorizon
+  });
+  
+  return {
+    buyPlan,
+    consolidationSavings: calculateConsolidationSavings(nestingResults, buyPlan),
+    leadTimeOptimization: calculateLeadTimeOptimization(nestingResults, buyPlan),
+    riskMitigation: assessRiskMitigation(buyPlan)
+  };
+}
+
+export async function assessProjectRisk(project: CADProject, purchasePlan: PurchasePlan): Promise<RiskAssessment> {
+  const geometryRisks = await assessGeometryRisks(project);
+  const supplierRisks = await assessSupplierRisks(purchasePlan);
+  const scheduleRisks = await assessScheduleRisks(project, purchasePlan);
+  const complianceRisks = await assessComplianceRisks(project);
+  
+  return {
+    overallRiskScore: calculateOverallRisk([geometryRisks, supplierRisks, scheduleRisks, complianceRisks]),
+    riskFactors: {
+      geometry: geometryRisks,
+      supplier: supplierRisks,
+      schedule: scheduleRisks,
+      compliance: complianceRisks
+    },
+    mitigationStrategies: await generateMitigationStrategies({
+      geometryRisks,
+      supplierRisks,
+      scheduleRisks,
+      complianceRisks
+    }),
+    contingencyPlans: await generateContingencyPlans(purchasePlan)
+  };
+}
+
+// Change Management Workflow
+export async function handleProjectChanges(originalProject: CADProject, changes: ProjectChange[]): Promise<ChangeImpactAnalysis> {
+  // Change tracking: highlights revision deltas, auto-re-optimizes buy plan
+  const impactAnalysis = await analyzeChangeImpact(originalProject, changes);
+  const reoptimizedPlan = await reoptimizePurchasePlan(originalProject, changes);
+  const impactedPOs = await identifyImpactedPurchaseOrders(originalProject, changes);
+  
+  const changeOrders = await generateChangeOrders(impactedPOs, reoptimizedPlan);
+  
+  return {
+    impactAnalysis,
+    reoptimizedPlan,
+    impactedPurchaseOrders: impactedPOs,
+    changeOrders,
+    costImpact: calculateChangeOrderCosts(changeOrders),
+    scheduleImpact: calculateScheduleImpact(changes, reoptimizedPlan)
+  };
+}
+
+// Export Integration Workflow
+export async function exportToCAMSystem(nestingResult: NestingResult, camSystem: CAMSystem): Promise<CAMExport> {
+  // Downstream hand-off: exports cut lists and nests to existing CAM
+  const camConnector = await getCAMConnector(camSystem.type);
+  const cutLists = await generateCutLists(nestingResult);
+  const nestFiles = await generateNestFiles(nestingResult, camSystem.format);
+  
+  const exportResult = await camConnector.export({
+    cutLists,
+    nestFiles,
+    traceabilityData: nestingResult.traceabilityMap,
+    programmerNotes: generateProgrammerNotes(nestingResult)
+  });
+  
+  return {
+    exportResult,
+    programmerTimeSaved: calculateProgrammerTimeSaved(nestingResult),
+    qualityChecks: await runQualityChecks(exportResult),
+    handoffComplete: await verifyHandoffComplete(exportResult)
+  };
+}
+```
+
+These workflow functions encode PlateNest's core business processes as executable TypeScript code, representing how the startup operates from customer acquisition through product delivery and ongoing operations.
