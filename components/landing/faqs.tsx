@@ -70,7 +70,7 @@ import {
           Frequently asked questions
           </h1>
           <Accordion type="single" collapsible>
-            {items.map((item, index) => (
+            {items.slice(0, 10).map((item, index) => (
               <AccordionItem key={index} value={`item-${index}`}>
                 <AccordionTrigger className="text-md font-semibold hover:no-underline">
                   {item.question}
