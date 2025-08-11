@@ -292,3 +292,435 @@ landingPage:
 
 Generated for NAICS 493190 — Other Warehousing and Storage.
 Service: Dock/Yard Appointment & Gate Bot
+
+## Business Process Workflows
+
+The following TypeScript functions define the core business processes and workflows for Dock's operations:
+
+```typescript
+// Types and Interfaces
+interface Lead {
+  id: string;
+  companyName: string;
+  contactInfo: ContactInfo;
+  facilityDetails: FacilityDetails;
+  source: 'direct' | 'partner' | 'referral' | 'inbound';
+  naicsCode?: string;
+  doorCount?: number;
+  dailyTruckMoves?: number;
+}
+
+interface ContactInfo {
+  name: string;
+  email: string;
+  phone: string;
+  title: string;
+}
+
+interface FacilityDetails {
+  address: string;
+  doorCount: number;
+  dailyTruckMoves: number;
+  currentSystems: string[];
+  painPoints: string[];
+}
+
+interface Customer {
+  id: string;
+  lead: Lead;
+  contract: Contract;
+  implementation: ImplementationPlan;
+  subscriptionTier: 'starter' | 'pro' | 'enterprise';
+}
+
+interface Contract {
+  id: string;
+  value: number;
+  term: number;
+  startDate: Date;
+  services: string[];
+  slaRequirements: SLARequirements;
+}
+
+interface SLARequirements {
+  uptime: number;
+  responseTime: number;
+  messageDeliveryRate: number;
+  integrationSyncLatency: number;
+}
+
+interface ImplementationPlan {
+  phases: ImplementationPhase[];
+  timeline: number;
+  integrations: string[];
+  trainingRequired: boolean;
+}
+
+interface ImplementationPhase {
+  name: string;
+  duration: number;
+  deliverables: string[];
+  dependencies: string[];
+}
+
+interface Appointment {
+  id: string;
+  carrierId: string;
+  facilityId: string;
+  scheduledTime: Date;
+  doorAssignment?: string;
+  equipmentType: string;
+  commodity: string;
+  hazmat: boolean;
+  status: 'scheduled' | 'confirmed' | 'checked-in' | 'completed' | 'no-show';
+}
+
+interface DockSchedule {
+  facilityId: string;
+  date: Date;
+  doors: DoorSchedule[];
+  constraints: SchedulingConstraints;
+}
+
+interface DoorSchedule {
+  doorId: string;
+  capacity: number;
+  equipmentTypes: string[];
+  appointments: Appointment[];
+  utilization: number;
+}
+
+interface SchedulingConstraints {
+  doorCapacity: Record<string, number>;
+  equipmentRestrictions: Record<string, string[]>;
+  hazmatRules: HazmatRules;
+  laborShifts: LaborShift[];
+}
+
+interface HazmatRules {
+  allowedDoors: string[];
+  separationRequirements: string[];
+  specialHandling: boolean;
+}
+
+interface LaborShift {
+  shiftId: string;
+  startTime: string;
+  endTime: string;
+  capacity: number;
+  skills: string[];
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  try {
+    const qualifiedLead = await qualifyLead(lead);
+    const demo = await scheduleDemoCall(qualifiedLead);
+    const proposal = await generateProposal(qualifiedLead, demo);
+    const contract = await negotiateContract(proposal);
+    const customer = await onboardCustomer(contract);
+    
+    await trackAcquisitionMetrics(lead, customer);
+    return customer;
+  } catch (error) {
+    await handleAcquisitionError(lead, error);
+    throw error;
+  }
+}
+
+export async function qualifyLead(lead: Lead): Promise<Lead> {
+  // Validate NAICS code and facility size
+  if (lead.naicsCode !== '493190') {
+    throw new Error('Lead does not match target NAICS 493190');
+  }
+  
+  if (!lead.doorCount || lead.doorCount < 10 || lead.doorCount > 80) {
+    throw new Error('Facility door count outside target range (10-80)');
+  }
+  
+  if (!lead.dailyTruckMoves || lead.dailyTruckMoves < 30 || lead.dailyTruckMoves > 150) {
+    throw new Error('Daily truck moves outside target range (30-150)');
+  }
+  
+  // Score lead based on pain points and current systems
+  const leadScore = await calculateLeadScore(lead);
+  if (leadScore < 70) {
+    throw new Error('Lead score below qualification threshold');
+  }
+  
+  return { ...lead, qualified: true, score: leadScore };
+}
+
+export async function scheduleDemoCall(lead: Lead): Promise<DemoSession> {
+  const demoSlots = await getAvailableDemoSlots();
+  const preferredSlot = await selectOptimalDemoSlot(lead, demoSlots);
+  
+  const demo = await createDemoSession({
+    leadId: lead.id,
+    scheduledTime: preferredSlot,
+    type: 'discovery',
+    agenda: await generateDemoAgenda(lead)
+  });
+  
+  await sendDemoConfirmation(lead, demo);
+  return demo;
+}
+
+export async function generateProposal(lead: Lead, demo: DemoSession): Promise<Proposal> {
+  const requirements = await analyzeRequirements(lead, demo);
+  const pricing = await calculatePricing(requirements);
+  const implementation = await planImplementation(requirements);
+  
+  return {
+    leadId: lead.id,
+    requirements,
+    pricing,
+    implementation,
+    validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+    customizations: await identifyCustomizations(requirements)
+  };
+}
+
+export async function negotiateContract(proposal: Proposal): Promise<Contract> {
+  const negotiations = await initiateNegotiations(proposal);
+  const finalTerms = await finalizeTerms(negotiations);
+  
+  const contract = await createContract({
+    proposalId: proposal.id,
+    terms: finalTerms,
+    value: finalTerms.totalValue,
+    startDate: finalTerms.startDate,
+    duration: finalTerms.contractTerm
+  });
+  
+  await executeContract(contract);
+  return contract;
+}
+
+export async function onboardCustomer(contract: Contract): Promise<Customer> {
+  const implementationPlan = await createImplementationPlan(contract);
+  const customer = await createCustomerRecord(contract, implementationPlan);
+  
+  await initiateImplementation(customer);
+  await assignCustomerSuccessManager(customer);
+  await scheduleKickoffCall(customer);
+  
+  return customer;
+}
+
+// Product Development Processes
+export async function developFeature(featureRequest: FeatureRequest): Promise<Feature> {
+  const requirements = await analyzeFeatureRequirements(featureRequest);
+  const design = await createFeatureDesign(requirements);
+  const implementation = await implementFeature(design);
+  const testing = await testFeature(implementation);
+  const deployment = await deployFeature(testing);
+  
+  await updateProductRoadmap(deployment);
+  return deployment;
+}
+
+export async function integrateSystem(integrationRequest: IntegrationRequest): Promise<Integration> {
+  const compatibility = await assessSystemCompatibility(integrationRequest);
+  const connector = await buildConnector(compatibility);
+  const testing = await testIntegration(connector);
+  const certification = await certifyIntegration(testing);
+  
+  await addToIntegrationLibrary(certification);
+  return certification;
+}
+
+export async function optimizeSchedulingEngine(performanceData: PerformanceData): Promise<OptimizationResult> {
+  const bottlenecks = await identifyBottlenecks(performanceData);
+  const improvements = await designOptimizations(bottlenecks);
+  const implementation = await implementOptimizations(improvements);
+  const validation = await validateOptimizations(implementation);
+  
+  await deployOptimizations(validation);
+  return validation;
+}
+
+// Revenue Generation Flows
+export async function processSubscription(customer: Customer): Promise<Subscription> {
+  const subscription = await createSubscription({
+    customerId: customer.id,
+    tier: customer.subscriptionTier,
+    startDate: customer.contract.startDate,
+    billingCycle: 'monthly'
+  });
+  
+  await setupBillingProfile(subscription);
+  await activateServices(subscription);
+  await sendWelcomePackage(customer, subscription);
+  
+  return subscription;
+}
+
+export async function processUsageBilling(customer: Customer, month: string): Promise<Invoice> {
+  const usage = await calculateUsage(customer.id, month);
+  const charges = await calculateUsageCharges(usage);
+  const invoice = await generateInvoice(customer, charges);
+  
+  await processPayment(invoice);
+  await sendInvoice(customer, invoice);
+  
+  return invoice;
+}
+
+export async function identifyUpsellOpportunity(customer: Customer): Promise<UpsellOpportunity[]> {
+  const usage = await analyzeCustomerUsage(customer);
+  const performance = await analyzePerformanceMetrics(customer);
+  const opportunities = await identifyOpportunities(usage, performance);
+  
+  await scoreOpportunities(opportunities);
+  await assignToCSM(customer, opportunities);
+  
+  return opportunities;
+}
+
+// Operational Procedures
+export async function processAppointmentRequest(request: AppointmentRequest): Promise<Appointment> {
+  const validation = await validateAppointmentRequest(request);
+  const availability = await checkDoorAvailability(request);
+  const constraints = await validateConstraints(request, availability);
+  const assignment = await assignOptimalSlot(request, constraints);
+  
+  const appointment = await createAppointment(assignment);
+  await sendConfirmation(request.carrierId, appointment);
+  await updateSchedule(appointment);
+  
+  return appointment;
+}
+
+export async function processGateCheckIn(checkInData: GateCheckInData): Promise<CheckInResult> {
+  const verification = await verifyDriver(checkInData);
+  const documents = await validateDocuments(checkInData.documents);
+  const safety = await processSafetyChecklist(checkInData);
+  const doorAssignment = await assignDoor(checkInData.appointmentId);
+  
+  const checkIn = await recordCheckIn({
+    appointmentId: checkInData.appointmentId,
+    checkInTime: new Date(),
+    doorAssignment,
+    documentsVerified: documents.valid,
+    safetyCompleted: safety.completed
+  });
+  
+  await notifyWarehouse(checkIn);
+  await sendDriverInstructions(checkInData.driverId, doorAssignment);
+  
+  return checkIn;
+}
+
+export async function optimizeDockSchedule(facilityId: string, date: Date): Promise<DockSchedule> {
+  const currentSchedule = await getCurrentSchedule(facilityId, date);
+  const constraints = await getSchedulingConstraints(facilityId);
+  const predictions = await getPredictiveETAs(currentSchedule);
+  
+  const optimizedSchedule = await runOptimizationEngine(
+    currentSchedule,
+    constraints,
+    predictions
+  );
+  
+  await validateOptimizedSchedule(optimizedSchedule);
+  await updateSchedule(optimizedSchedule);
+  await notifyStakeholders(optimizedSchedule);
+  
+  return optimizedSchedule;
+}
+
+export async function monitorCompliance(facilityId: string): Promise<ComplianceReport> {
+  const activities = await getRecentActivities(facilityId);
+  const auditTrail = await generateAuditTrail(activities);
+  const violations = await identifyViolations(auditTrail);
+  const recommendations = await generateRecommendations(violations);
+  
+  const report = await createComplianceReport({
+    facilityId,
+    period: 'monthly',
+    auditTrail,
+    violations,
+    recommendations,
+    score: await calculateComplianceScore(violations)
+  });
+  
+  await distributeReport(report);
+  return report;
+}
+
+// Decision-Making Workflows
+export async function makePricingDecision(pricingRequest: PricingRequest): Promise<PricingDecision> {
+  const marketAnalysis = await analyzeMarketConditions();
+  const competitorPricing = await getCompetitorPricing();
+  const customerValue = await calculateCustomerValue(pricingRequest);
+  const profitability = await analyzeProfitability(pricingRequest);
+  
+  const recommendation = await generatePricingRecommendation({
+    marketAnalysis,
+    competitorPricing,
+    customerValue,
+    profitability
+  });
+  
+  const decision = await approvePricingDecision(recommendation);
+  await implementPricingDecision(decision);
+  
+  return decision;
+}
+
+export async function planCapacity(facilityId: string, horizon: number): Promise<CapacityPlan> {
+  const currentCapacity = await getCurrentCapacity(facilityId);
+  const demandForecast = await forecastDemand(facilityId, horizon);
+  const constraints = await identifyConstraints(facilityId);
+  const scenarios = await generateCapacityScenarios(demandForecast, constraints);
+  
+  const optimalPlan = await selectOptimalCapacityPlan(scenarios);
+  await validateCapacityPlan(optimalPlan);
+  await approveCapacityPlan(optimalPlan);
+  
+  return optimalPlan;
+}
+
+export async function respondToIncident(incident: Incident): Promise<IncidentResponse> {
+  const severity = await assessIncidentSeverity(incident);
+  const response = await initiateIncidentResponse(incident, severity);
+  const resolution = await resolveIncident(response);
+  const postMortem = await conductPostMortem(resolution);
+  
+  await updateIncidentPlaybook(postMortem);
+  await communicateResolution(incident, resolution);
+  
+  return resolution;
+}
+
+// Helper Functions (referenced but not fully implemented)
+async function calculateLeadScore(lead: Lead): Promise<number> {
+  // Implementation would analyze facility size, pain points, budget, timeline
+  return 85;
+}
+
+async function getAvailableDemoSlots(): Promise<Date[]> {
+  // Implementation would check sales team calendar availability
+  return [];
+}
+
+async function runOptimizationEngine(
+  schedule: DockSchedule,
+  constraints: SchedulingConstraints,
+  predictions: ETAPrediction[]
+): Promise<DockSchedule> {
+  // Implementation would use constraint-based optimization algorithms
+  return schedule;
+}
+
+async function trackAcquisitionMetrics(lead: Lead, customer: Customer): Promise<void> {
+  // Implementation would update CAC, conversion rates, time-to-close metrics
+}
+
+async function handleAcquisitionError(lead: Lead, error: Error): Promise<void> {
+  // Implementation would log error, notify sales team, update lead status
+}
+```
+
+This TypeScript implementation defines the core business workflows for Dock, covering customer acquisition, product development, revenue generation, operational procedures, and decision-making processes. Each function represents a specific business process that can be executed, monitored, and optimized as part of the overall business operations.
