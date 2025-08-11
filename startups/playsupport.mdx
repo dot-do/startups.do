@@ -324,5 +324,668 @@ landingPage:
 ---
 # PlaySupport Copilot
 
+## Business Process Workflows
+
+### Customer Acquisition Workflows
+
+```typescript
+interface Lead {
+  email: string;
+  company: string;
+  platform: 'shopify' | 'woocommerce' | 'bigcommerce' | 'lightspeed';
+  monthlyOrders: number;
+  currentHelpdesk?: string;
+  painPoints: string[];
+  source: 'app-store' | 'referral' | 'content' | 'outbound' | 'event';
+  vertical: 'lgs' | 'hobby-chain' | 'dtc-brand' | 'educational';
+}
+
+interface QualifiedLead extends Lead {
+  score: number;
+  segment: 'lgs' | 'specialty-chain' | 'dtc-brand' | 'agency';
+  urgency: 'high' | 'medium' | 'low';
+  budget: number;
+  seasonality: 'q4-critical' | 'year-round' | 'event-driven';
+}
+
+interface Customer {
+  id: string;
+  plan: 'starter' | 'pro' | 'scale';
+  onboardingStatus: 'pending' | 'in-progress' | 'complete';
+  integrations: string[];
+  monthlyRevenue: number;
+  vertical: string;
+}
+
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  
+  if (qualifiedLead.score < 70) {
+    await nurtureLead(qualifiedLead);
+    throw new Error('Lead not ready for immediate conversion');
+  }
+  
+  const demo = await scheduleTailoredDemo(qualifiedLead);
+  const proposal = await generateVerticalProposal(qualifiedLead, demo);
+  const contract = await negotiateContract(proposal);
+  
+  return await onboardNewCustomer(contract);
+}
+
+async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  const score = calculateLeadScore(lead);
+  const segment = determineCustomerSegment(lead);
+  const urgency = assessSeasonalUrgency(lead);
+  const budget = estimateBudgetByVertical(lead);
+  const seasonality = determineSeasonality(lead);
+  
+  return {
+    ...lead,
+    score,
+    segment,
+    urgency,
+    budget,
+    seasonality
+  };
+}
+
+async function scheduleTailoredDemo(lead: QualifiedLead): Promise<DemoSession> {
+  const demoType = selectDemoType(lead.vertical);
+  const customScenarios = await prepareVerticalScenarios(lead);
+  const availableSlots = await getCalendarAvailability();
+  
+  return await bookDemoSlot(lead, availableSlots[0], {
+    type: demoType,
+    scenarios: customScenarios,
+    duration: lead.segment === 'lgs' ? 30 : 45
+  });
+}
+
+async function generateVerticalProposal(lead: QualifiedLead, demo: DemoSession): Promise<Proposal> {
+  const pricing = calculateVerticalPricing(lead);
+  const implementation = planVerticalImplementation(lead);
+  const roi = calculateRetailROI(lead);
+  const addOns = recommendAddOns(lead);
+  
+  return {
+    pricing,
+    implementation,
+    roi,
+    addOns,
+    terms: generateRetailTerms(lead)
+  };
+}
+```
+
+### Product Development Workflows
+
+```typescript
+interface FeatureRequest {
+  customerId: string;
+  description: string;
+  priority: 'critical' | 'high' | 'medium' | 'low';
+  vertical: 'tcg' | 'miniatures' | 'rc' | 'educational' | 'general-toy';
+  category: 'integration' | 'policy-engine' | 'nlp' | 'analytics';
+  estimatedEffort: number;
+  customerImpact: number;
+}
+
+interface VerticalEnhancement {
+  vertical: string;
+  ontologyUpdates: string[];
+  policyRules: PolicyRule[];
+  templateUpdates: string[];
+  integrationNeeds: string[];
+}
+
+export async function developVerticalFeatures(roadmap: ProductRoadmap): Promise<void> {
+  for (const feature of roadmap.features) {
+    await implementVerticalFeature(feature);
+    await testWithVerticalCustomers(feature);
+    await validatePolicyCompliance(feature);
+    await rolloutGradually(feature);
+  }
+  
+  await updateVerticalOntologies(roadmap.verticalEnhancements);
+  await enhanceRetailIntegrations(roadmap.integrations);
+}
+
+async function implementVerticalFeature(feature: PlannedFeature): Promise<void> {
+  const requirements = await gatherVerticalRequirements(feature);
+  const design = await createVerticalDesign(requirements);
+  
+  await developFeatureCode(design);
+  await writeVerticalTests(feature);
+  await performRetailSecurityReview(feature);
+  await updateVerticalDocumentation(feature);
+}
+
+async function testWithVerticalCustomers(feature: PlannedFeature): Promise<void> {
+  const verticalCustomers = await selectVerticalBetaCustomers(feature);
+  
+  for (const customer of verticalCustomers) {
+    await enableVerticalFeatureFlag(customer.id, feature.id);
+    await monitorVerticalUsage(customer.id, feature.id);
+    await collectVerticalFeedback(customer.id, feature.id);
+  }
+  
+  const feedback = await analyzeVerticalFeedback(feature.id);
+  if (feedback.containmentRate < 0.6 || feedback.accuracyScore < 0.85) {
+    await iterateOnVerticalFeature(feature, feedback);
+  }
+}
+
+async function updateVerticalOntologies(enhancements: VerticalEnhancement[]): Promise<void> {
+  for (const enhancement of enhancements) {
+    await updateProductCatalogSchema(enhancement);
+    await enhanceRetailPolicyEngine(enhancement);
+    await trainVerticalNLPModels(enhancement);
+    await validateVerticalAccuracy(enhancement);
+    await updateCompatibilityMatrix(enhancement);
+  }
+}
+```
+
+### Revenue Generation Workflows
+
+```typescript
+interface RevenueOpportunity {
+  customerId: string;
+  type: 'upsell' | 'cross-sell' | 'expansion' | 'renewal';
+  value: number;
+  probability: number;
+  timeline: string;
+  trigger: 'usage' | 'seasonal' | 'integration' | 'support';
+}
+
+interface RetailUsageMetrics {
+  customerId: string;
+  messagesPerMonth: number;
+  containmentRate: number;
+  wismoDeflection: number;
+  channelsUsed: string[];
+  integrations: string[];
+  seasonalSpikes: boolean;
+  supportTicketReduction: number;
+}
+
+export async function generateRetailRevenue(customer: Customer): Promise<number> {
+  const usage = await analyzeRetailUsage(customer.id);
+  const opportunities = await identifyRetailOpportunities(customer, usage);
+  const seasonalTiming = await assessSeasonalTiming(customer.id);
+  
+  let totalRevenue = 0;
+  
+  for (const opportunity of opportunities) {
+    const timing = optimizeOutreachTiming(opportunity, seasonalTiming);
+    const success = await executeRetailRevenueStrategy(opportunity, timing);
+    
+    if (success) {
+      totalRevenue += opportunity.value;
+      await updateCustomerPlan(customer.id, opportunity);
+    }
+  }
+  
+  return totalRevenue;
+}
+
+async function identifyRetailOpportunities(customer: Customer, usage: RetailUsageMetrics): Promise<RevenueOpportunity[]> {
+  const opportunities: RevenueOpportunity[] = [];
+  
+  // Usage-based upsell for high-volume retailers
+  if (usage.messagesPerMonth > getPlanLimit(customer.plan) * 0.8) {
+    opportunities.push({
+      customerId: customer.id,
+      type: 'upsell',
+      value: calculateRetailUpsellValue(customer.plan),
+      probability: 0.75,
+      timeline: '30 days',
+      trigger: 'usage'
+    });
+  }
+  
+  // Seasonal preparation cross-sell
+  if (usage.seasonalSpikes && !usage.channelsUsed.includes('sms')) {
+    opportunities.push({
+      customerId: customer.id,
+      type: 'cross-sell',
+      value: 99, // Multichannel pack for holiday coverage
+      probability: 0.6,
+      timeline: '45 days',
+      trigger: 'seasonal'
+    });
+  }
+  
+  // Returns integration for high-return verticals
+  if (customer.vertical === 'tcg' && !usage.integrations.includes('returns')) {
+    opportunities.push({
+      customerId: customer.id,
+      type: 'cross-sell',
+      value: 149, // Returns integration for sealed product policies
+      probability: 0.7,
+      timeline: '30 days',
+      trigger: 'integration'
+    });
+  }
+  
+  // Professional services for complex setups
+  if (usage.containmentRate < 0.5 && customer.plan === 'pro') {
+    opportunities.push({
+      customerId: customer.id,
+      type: 'cross-sell',
+      value: 1500, // Policy tuning workshop
+      probability: 0.4,
+      timeline: '60 days',
+      trigger: 'support'
+    });
+  }
+  
+  return opportunities;
+}
+
+async function executeRetailRevenueStrategy(opportunity: RevenueOpportunity, timing: OptimalTiming): Promise<boolean> {
+  const customer = await getCustomer(opportunity.customerId);
+  const proposal = await createRetailProposal(opportunity);
+  
+  if (timing.waitForSeason) {
+    await scheduleSeasonalOutreach(customer, proposal, timing.optimalDate);
+    return false; // Will be executed later
+  }
+  
+  const outreach = await sendRetailOutreach(customer, proposal);
+  const response = await trackOutreachResponse(outreach.id);
+  
+  if (response.interested) {
+    const demo = await scheduleRetailDemo(customer, opportunity);
+    return await closeRetailOpportunity(opportunity, demo);
+  }
+  
+  return false;
+}
+```
+
+### Customer Support Automation Workflows
+
+```typescript
+interface RetailInquiry {
+  id: string;
+  customerId: string;
+  channel: 'chat' | 'email' | 'sms' | 'social';
+  message: string;
+  intent: 'wismo' | 'returns' | 'product-fit' | 'policy' | 'technical' | 'preorder' | 'compatibility';
+  urgency: 'low' | 'medium' | 'high' | 'critical';
+  vertical: 'tcg' | 'miniatures' | 'rc' | 'educational' | 'general';
+  metadata: {
+    orderNumber?: string;
+    productSku?: string;
+    customerAge?: number;
+    timestamp: Date;
+  };
+}
+
+interface RetailResponse {
+  message: string;
+  confidence: number;
+  sources: string[];
+  escalationRequired: boolean;
+  followUpActions: string[];
+  policyCompliant: boolean;
+  childSafe: boolean;
+}
+
+export async function handleRetailInquiry(inquiry: RetailInquiry): Promise<RetailResponse> {
+  const context = await gatherRetailContext(inquiry.customerId);
+  const intent = await classifyRetailIntent(inquiry);
+  const safetyCheck = await performChildSafetyCheck(inquiry);
+  
+  if (!safetyCheck.compliant) {
+    return await handleCOPPACompliantResponse(inquiry, safetyCheck);
+  }
+  
+  switch (intent) {
+    case 'wismo':
+      return await handleWISMOInquiry(inquiry, context);
+    case 'returns':
+      return await handleRetailReturns(inquiry, context);
+    case 'product-fit':
+      return await handleProductCompatibility(inquiry, context);
+    case 'preorder':
+      return await handlePreorderInquiry(inquiry, context);
+    case 'policy':
+      return await handleRetailPolicy(inquiry, context);
+    default:
+      return await escalateToRetailExpert(inquiry, context);
+  }
+}
+
+async function handleWISMOInquiry(inquiry: RetailInquiry, context: RetailContext): Promise<RetailResponse> {
+  const orderNumber = extractOrderNumber(inquiry.message) || inquiry.metadata.orderNumber;
+  
+  if (!orderNumber) {
+    return await requestOrderDetails(inquiry);
+  }
+  
+  const orderStatus = await lookupRetailOrder(orderNumber, context.platformIntegration);
+  const trackingInfo = await getCarrierTracking(orderStatus.trackingNumber);
+  const isPreorder = await checkPreorderStatus(orderStatus);
+  
+  let response: string;
+  if (isPreorder) {
+    response = await generatePreorderStatusResponse(orderStatus, context.policies);
+  } else {
+    response = await generateOrderStatusResponse(orderStatus, trackingInfo);
+  }
+  
+  return {
+    message: response,
+    confidence: 0.95,
+    sources: ['order-system', 'shipping-carrier', 'preorder-policy'],
+    escalationRequired: false,
+    followUpActions: ['send-tracking-link', 'schedule-delivery-notification'],
+    policyCompliant: true,
+    childSafe: true
+  };
+}
+
+async function handleRetailReturns(inquiry: RetailInquiry, context: RetailContext): Promise<RetailResponse> {
+  const orderNumber = extractOrderNumber(inquiry.message);
+  const order = await getRetailOrder(orderNumber, context.platformIntegration);
+  
+  const eligibility = await checkRetailReturnEligibility(order, context.policies, inquiry.vertical);
+  
+  if (!eligibility.eligible) {
+    const explanation = await explainRetailReturnPolicy(eligibility.reason, order, inquiry.vertical);
+    return {
+      message: explanation,
+      confidence: 0.9,
+      sources: ['return-policy', 'vertical-rules'],
+      escalationRequired: false,
+      followUpActions: ['suggest-alternatives'],
+      policyCompliant: true,
+      childSafe: true
+    };
+  }
+  
+  const rma = await initiateRetailReturn(order, context.returnsIntegration, inquiry.vertical);
+  const instructions = await generateReturnInstructions(rma, inquiry.vertical);
+  
+  return {
+    message: instructions,
+    confidence: 0.9,
+    sources: ['return-policy', 'order-system', 'vertical-templates'],
+    escalationRequired: false,
+    followUpActions: ['create-return-label', 'send-return-confirmation'],
+    policyCompliant: true,
+    childSafe: true
+  };
+}
+
+async function handleProductCompatibility(inquiry: RetailInquiry, context: RetailContext): Promise<RetailResponse> {
+  const productSku = extractProductSku(inquiry.message) || inquiry.metadata.productSku;
+  const compatibilityQuestion = extractCompatibilityQuestion(inquiry.message);
+  
+  const productInfo = await getRetailProductInfo(productSku, context.catalogIntegration);
+  const compatibilityData = await getCompatibilityMatrix(productInfo, inquiry.vertical);
+  
+  const answer = await generateCompatibilityAnswer(
+    compatibilityQuestion, 
+    productInfo, 
+    compatibilityData, 
+    inquiry.vertical
+  );
+  
+  return {
+    message: answer,
+    confidence: 0.85,
+    sources: ['product-catalog', 'compatibility-matrix', 'vertical-ontology'],
+    escalationRequired: false,
+    followUpActions: ['suggest-compatible-products', 'offer-size-guide'],
+    policyCompliant: true,
+    childSafe: await checkChildSafeContent(answer)
+  };
+}
+
+async function handlePreorderInquiry(inquiry: RetailInquiry, context: RetailContext): Promise<RetailResponse> {
+  const productSku = extractProductSku(inquiry.message);
+  const preorderInfo = await getPreorderInformation(productSku, context.catalogIntegration);
+  
+  const streetDateCompliance = await checkStreetDateCompliance(preorderInfo);
+  if (!streetDateCompliance.compliant) {
+    return await generateStreetDateResponse(preorderInfo, streetDateCompliance);
+  }
+  
+  const preorderStatus = await getPreorderStatus(productSku, inquiry.customerId);
+  const response = await generatePreorderResponse(preorderInfo, preorderStatus);
+  
+  return {
+    message: response,
+    confidence: 0.9,
+    sources: ['preorder-system', 'street-date-policy', 'product-catalog'],
+    escalationRequired: false,
+    followUpActions: ['send-preorder-confirmation', 'schedule-release-notification'],
+    policyCompliant: true,
+    childSafe: true
+  };
+}
+```
+
+### Operational Procedures
+
+```typescript
+interface RetailSystemHealth {
+  containmentRate: number;
+  wismoDeflection: number;
+  responseTime: number;
+  errorRate: number;
+  customerSatisfaction: number;
+  policyCompliance: number;
+  uptime: number;
+  seasonalReadiness: number;
+}
+
+export async function monitorRetailOperations(): Promise<void> {
+  const health = await collectRetailMetrics();
+  const thresholds = await getRetailThresholds();
+  const seasonalFactors = await assessSeasonalFactors();
+  
+  await checkRetailHealthThresholds(health, thresholds, seasonalFactors);
+  await updateRetailDashboard(health);
+  await generateRetailHealthReport(health);
+}
+
+async function checkRetailHealthThresholds(
+  health: RetailSystemHealth, 
+  thresholds: RetailThresholds,
+  seasonal: SeasonalFactors
+): Promise<void> {
+  // Adjust thresholds for seasonal periods
+  const adjustedThresholds = adjustForSeason(thresholds, seasonal);
+  
+  if (health.containmentRate < adjustedThresholds.containmentRate) {
+    await triggerContainmentAlert(health.containmentRate, seasonal.period);
+    await investigateRetailContainmentDrop();
+  }
+  
+  if (health.wismoDeflection < adjustedThresholds.wismoDeflection) {
+    await triggerWISMOAlert(health.wismoDeflection);
+    await updateOrderLookupSystems();
+  }
+  
+  if (health.policyCompliance < adjustedThresholds.policyCompliance) {
+    await triggerPolicyAlert(health.policyCompliance);
+    await reviewPolicyEngine();
+  }
+  
+  if (seasonal.isHolidayPeriod && health.seasonalReadiness < 0.9) {
+    await triggerSeasonalAlert(health.seasonalReadiness);
+    await scaleForHolidayTraffic();
+  }
+}
+
+export async function performRetailDailyOperations(): Promise<void> {
+  await syncRetailCatalogs();
+  await updateRetailPolicies();
+  await refreshVerticalKnowledgeBase();
+  await processRetailFeedback();
+  await generateRetailMetrics();
+  await backupRetailData();
+  await checkStreetDateCompliance();
+  await updateCompatibilityMatrix();
+}
+
+async function syncRetailCatalogs(): Promise<void> {
+  const retailers = await getActiveRetailers();
+  
+  for (const retailer of retailers) {
+    try {
+      const catalogData = await fetchRetailCatalogData(retailer.platformIntegration);
+      const enrichedData = await enrichWithVerticalData(catalogData, retailer.vertical);
+      
+      await updateRetailerCatalog(retailer.id, enrichedData);
+      await reindexRetailProductSearch(retailer.id);
+      await updateCompatibilityMatrix(retailer.id, enrichedData);
+    } catch (error) {
+      await logRetailSyncError(retailer.id, error);
+      await notifyRetailCustomerSuccess(retailer.id, 'catalog-sync-failed');
+    }
+  }
+}
+
+async function checkStreetDateCompliance(): Promise<void> {
+  const upcomingReleases = await getUpcomingReleases();
+  const currentPolicies = await getCurrentStreetDatePolicies();
+  
+  for (const release of upcomingReleases) {
+    const compliance = await validateStreetDateCompliance(release, currentPolicies);
+    
+    if (!compliance.compliant) {
+      await alertStreetDateViolation(release, compliance.issues);
+      await updateStreetDatePolicies(release);
+    }
+  }
+}
+```
+
+### Decision-Making Workflows
+
+```typescript
+interface RetailBusinessDecision {
+  id: string;
+  type: 'pricing' | 'vertical-expansion' | 'integration' | 'partnership' | 'policy-update';
+  description: string;
+  options: RetailDecisionOption[];
+  criteria: RetailDecisionCriteria[];
+  stakeholders: string[];
+  deadline: Date;
+  verticalImpact: string[];
+}
+
+export async function makeRetailBusinessDecision(decision: RetailBusinessDecision): Promise<RetailDecisionOption> {
+  const analysis = await analyzeRetailDecisionOptions(decision);
+  const customerInput = await gatherRetailCustomerFeedback(decision);
+  const verticalData = await collectVerticalInsights(decision);
+  const seasonalFactors = await assessSeasonalImpact(decision);
+  
+  const scoredOptions = await scoreRetailOptions(
+    decision.options, 
+    analysis, 
+    customerInput, 
+    verticalData,
+    seasonalFactors
+  );
+  
+  const recommendation = await generateRetailRecommendation(scoredOptions, decision.criteria);
+  const approval = await getRetailExecutiveApproval(recommendation, decision);
+  
+  if (approval.approved) {
+    await implementRetailDecision(recommendation, decision);
+    await communicateToRetailStakeholders(recommendation, decision.stakeholders);
+    return recommendation;
+  } else {
+    await revisitRetailDecisionOptions(decision, approval.feedback);
+    throw new Error('Retail decision requires revision');
+  }
+}
+
+async function analyzeRetailDecisionOptions(decision: RetailBusinessDecision): Promise<RetailOptionAnalysis[]> {
+  const analyses: RetailOptionAnalysis[] = [];
+  
+  for (const option of decision.options) {
+    const retailMarketAnalysis = await performRetailMarketAnalysis(option);
+    const verticalImpactAnalysis = await analyzeVerticalImpact(option, decision.verticalImpact);
+    const seasonalAnalysis = await assessSeasonalImplications(option);
+    const competitiveAnalysis = await analyzeRetailCompetition(option);
+    const technicalFeasibility = await assessRetailTechnicalFeasibility(option);
+    
+    analyses.push({
+      option: option.name,
+      retailMarketAnalysis,
+      verticalImpactAnalysis,
+      seasonalAnalysis,
+      competitiveAnalysis,
+      technicalFeasibility
+    });
+  }
+  
+  return analyses;
+}
+
+export async function evaluateVerticalExpansion(vertical: NewVertical): Promise<ExpansionDecision> {
+  const marketOpportunity = await analyzeVerticalMarket(vertical);
+  const technicalComplexity = await assessVerticalTechnicalNeeds(vertical);
+  const competitiveLandscape = await analyzeVerticalCompetition(vertical);
+  const resourceRequirements = await calculateVerticalResources(vertical);
+  
+  const score = calculateVerticalExpansionScore(
+    marketOpportunity,
+    technicalComplexity,
+    competitiveLandscape,
+    resourceRequirements
+  );
+  
+  if (score > 80) {
+    return {
+      recommendation: 'proceed',
+      timeline: await createVerticalTimeline(vertical),
+      resources: resourceRequirements,
+      milestones: await defineVerticalMilestones(vertical)
+    };
+  } else if (score > 60) {
+    return {
+      recommendation: 'pilot',
+      pilotPlan: await createVerticalPilot(vertical),
+      successCriteria: await defineVerticalSuccessCriteria(vertical)
+    };
+  } else {
+    return {
+      recommendation: 'decline',
+      reasons: await generateVerticalDeclineReasons(
+        marketOpportunity,
+        technicalComplexity,
+        competitiveLandscape,
+        resourceRequirements
+      )
+    };
+  }
+}
+
+export async function optimizeSeasonalOperations(season: SeasonalPeriod): Promise<SeasonalPlan> {
+  const historicalData = await getSeasonalHistoricalData(season);
+  const predictedVolume = await predictSeasonalVolume(season, historicalData);
+  const resourceNeeds = await calculateSeasonalResources(predictedVolume);
+  
+  const plan = await createSeasonalOperationsPlan(season, resourceNeeds);
+  const contingencies = await planSeasonalContingencies(season, predictedVolume);
+  
+  return {
+    season,
+    plan,
+    contingencies,
+    monitoring: await setupSeasonalMonitoring(season),
+    escalationProcedures: await defineSeasonalEscalation(season)
+  };
+}
+```
+
 Generated for NAICS 459120 — Hobby, Toy, and Game Retailers.
 Service: Customer Support Copilot (RAG + Order Status)
