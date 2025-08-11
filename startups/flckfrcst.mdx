@@ -300,7 +300,616 @@ landingPage:
     - Optimize feed and logistics based on projected intake and weight curves.
     - Track outcomes and ROI; refine thresholds and workflows over time.
 ---
+
 # FlockForecast AI
 
 Generated for NAICS 112320 — Broilers and Other Meat Type Chicken Production.
 Service: Mortality, Weight, and FCR Forecasting
+
+## Business Workflow Functions
+
+```typescript
+// Core data types for FlockForecast AI business processes
+interface Lead {
+  id: string;
+  company: string;
+  contactName: string;
+  email: string;
+  phone: string;
+  naicsCode: string;
+  housesCount: number;
+  annualBirdsProcessed: number;
+  currentSystems: string[];
+  painPoints: string[];
+  source: 'referral' | 'event' | 'website' | 'partner';
+  createdAt: Date;
+}
+
+interface QualifiedLead extends Lead {
+  budgetRange: string;
+  decisionMakers: string[];
+  timeline: string;
+  technicalRequirements: TechnicalRequirements;
+  qualificationScore: number;
+}
+
+interface TechnicalRequirements {
+  controllerTypes: string[];
+  dataIntegrations: string[];
+  reportingNeeds: string[];
+  complianceRequirements: string[];
+}
+
+interface Customer {
+  id: string;
+  lead: QualifiedLead;
+  contract: Contract;
+  onboardingStatus: OnboardingStatus;
+  houses: House[];
+  subscriptionTier: 'basic' | 'pro' | 'enterprise';
+  monthlyRevenue: number;
+}
+
+interface Contract {
+  id: string;
+  startDate: Date;
+  endDate: Date;
+  pricePerHouse: number;
+  minimumHouses: number;
+  performanceBonuses: PerformanceBonus[];
+  slaTerms: SLATerms;
+}
+
+interface PerformanceBonus {
+  metric: 'fcr_improvement' | 'mortality_reduction' | 'epef_increase';
+  threshold: number;
+  bonusAmount: number;
+}
+
+interface SLATerms {
+  forecastAccuracy: number;
+  uptimeGuarantee: number;
+  responseTime: number;
+}
+
+interface House {
+  id: string;
+  customerId: string;
+  name: string;
+  capacity: number;
+  controllerType: string;
+  sensors: Sensor[];
+  currentFlock?: Flock;
+}
+
+interface Flock {
+  id: string;
+  houseId: string;
+  placementDate: Date;
+  strain: string;
+  initialCount: number;
+  targetHarvestDate: Date;
+  currentAge: number;
+}
+
+interface Forecast {
+  id: string;
+  flockId: string;
+  generatedAt: Date;
+  horizon: number; // days ahead
+  predictions: {
+    mortality: ForecastValue;
+    averageWeight: ForecastValue;
+    fcr: ForecastValue;
+    epef: ForecastValue;
+  };
+  interventions: Intervention[];
+  confidence: number;
+}
+
+interface ForecastValue {
+  value: number;
+  confidenceBand: [number, number];
+  trend: 'improving' | 'stable' | 'declining';
+}
+
+interface Intervention {
+  id: string;
+  type: 'ventilation' | 'feed' | 'lighting' | 'harvest_timing';
+  description: string;
+  priority: 'high' | 'medium' | 'low';
+  expectedImpact: {
+    mortality?: number;
+    weight?: number;
+    fcr?: number;
+  };
+  implementationCost: number;
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const proposal = await generateProposal(qualifiedLead);
+  const contract = await negotiateContract(proposal);
+  const customer = await onboardCustomer(contract);
+  return customer;
+}
+
+export async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  // Score lead based on company size, pain points, and technical readiness
+  const qualificationScore = calculateQualificationScore(lead);
+  
+  if (qualificationScore < 70) {
+    throw new Error('Lead does not meet qualification criteria');
+  }
+  
+  const technicalRequirements = await assessTechnicalRequirements(lead);
+  const budgetRange = await determineBudgetRange(lead);
+  const decisionMakers = await identifyDecisionMakers(lead);
+  
+  return {
+    ...lead,
+    budgetRange,
+    decisionMakers,
+    timeline: await estimateDecisionTimeline(lead),
+    technicalRequirements,
+    qualificationScore
+  };
+}
+
+export async function generateProposal(qualifiedLead: QualifiedLead): Promise<Proposal> {
+  const pricingModel = calculatePricing(qualifiedLead);
+  const technicalScope = defineTechnicalScope(qualifiedLead.technicalRequirements);
+  const implementationPlan = createImplementationPlan(qualifiedLead);
+  const roiProjection = calculateROIProjection(qualifiedLead);
+  
+  return {
+    id: generateId(),
+    leadId: qualifiedLead.id,
+    pricingModel,
+    technicalScope,
+    implementationPlan,
+    roiProjection,
+    validUntil: addDays(new Date(), 30)
+  };
+}
+
+export async function negotiateContract(proposal: Proposal): Promise<Contract> {
+  const negotiations = await conductNegotiations(proposal);
+  const finalTerms = await finalizePricingAndTerms(negotiations);
+  const contract = await generateContract(finalTerms);
+  
+  await sendContractForSignature(contract);
+  await waitForSignature(contract);
+  
+  return contract;
+}
+
+export async function onboardCustomer(contract: Contract): Promise<Customer> {
+  const customer = await createCustomerRecord(contract);
+  await setupDataIntegrations(customer);
+  await configureHouses(customer);
+  await trainCustomerTeam(customer);
+  await enableForecasting(customer);
+  
+  return customer;
+}
+
+// Product Development Processes
+export async function developForecastingModel(requirements: ModelRequirements): Promise<Model> {
+  const trainingData = await collectTrainingData(requirements);
+  const features = await engineerFeatures(trainingData);
+  const model = await trainModel(features);
+  const validatedModel = await validateModel(model);
+  
+  return validatedModel;
+}
+
+export async function generateDailyForecasts(): Promise<Forecast[]> {
+  const activeFlocks = await getActiveFlocks();
+  const forecasts: Forecast[] = [];
+  
+  for (const flock of activeFlocks) {
+    const currentData = await collectCurrentData(flock);
+    const forecast = await runForecastModel(flock, currentData);
+    const interventions = await generateInterventions(forecast);
+    
+    forecasts.push({
+      ...forecast,
+      interventions
+    });
+  }
+  
+  await storeForecasts(forecasts);
+  await triggerAlerts(forecasts);
+  
+  return forecasts;
+}
+
+export async function optimizeHarvestSchedule(customer: Customer): Promise<HarvestPlan> {
+  const flocks = await getCustomerFlocks(customer.id);
+  const forecasts = await getLatestForecasts(flocks);
+  const plantCapacity = await getProcessingPlantCapacity();
+  
+  const optimizedSchedule = await runHarvestOptimizer({
+    flocks,
+    forecasts,
+    plantCapacity,
+    constraints: customer.contract.slaTerms
+  });
+  
+  return optimizedSchedule;
+}
+
+// Revenue Generation Flows
+export async function processMonthlyBilling(customer: Customer): Promise<Invoice> {
+  const usage = await calculateMonthlyUsage(customer);
+  const baseCharges = calculateBaseCharges(customer, usage);
+  const performanceBonuses = await calculatePerformanceBonuses(customer);
+  const professionalServices = await calculateProfessionalServices(customer);
+  
+  const invoice = await generateInvoice({
+    customerId: customer.id,
+    baseCharges,
+    performanceBonuses,
+    professionalServices,
+    total: baseCharges + performanceBonuses + professionalServices
+  });
+  
+  await sendInvoice(invoice);
+  await schedulePaymentCollection(invoice);
+  
+  return invoice;
+}
+
+export async function calculatePerformanceBonuses(customer: Customer): Promise<number> {
+  const performanceMetrics = await getPerformanceMetrics(customer);
+  let totalBonus = 0;
+  
+  for (const bonus of customer.contract.performanceBonuses) {
+    const achieved = performanceMetrics[bonus.metric];
+    if (achieved >= bonus.threshold) {
+      totalBonus += bonus.bonusAmount;
+    }
+  }
+  
+  return totalBonus;
+}
+
+export async function expandCustomerAccount(customer: Customer): Promise<Customer> {
+  const expansionOpportunities = await identifyExpansionOpportunities(customer);
+  const proposal = await generateExpansionProposal(expansionOpportunities);
+  const approvedExpansion = await negotiateExpansion(proposal);
+  
+  const updatedCustomer = await implementExpansion(customer, approvedExpansion);
+  await updateBillingTerms(updatedCustomer);
+  
+  return updatedCustomer;
+}
+
+// Operational Procedures
+export async function monitorSystemHealth(): Promise<SystemHealthReport> {
+  const dataIngestionStatus = await checkDataIngestion();
+  const modelPerformance = await checkModelPerformance();
+  const alertingSystem = await checkAlertingSystem();
+  const customerSatisfaction = await checkCustomerSatisfaction();
+  
+  const healthReport = {
+    timestamp: new Date(),
+    dataIngestion: dataIngestionStatus,
+    modelPerformance,
+    alerting: alertingSystem,
+    customerSatisfaction,
+    overallHealth: calculateOverallHealth([
+      dataIngestionStatus,
+      modelPerformance,
+      alertingSystem,
+      customerSatisfaction
+    ])
+  };
+  
+  if (healthReport.overallHealth < 0.95) {
+    await triggerIncidentResponse(healthReport);
+  }
+  
+  return healthReport;
+}
+
+export async function handleDataQualityIssue(issue: DataQualityIssue): Promise<Resolution> {
+  const impact = await assessImpact(issue);
+  const resolution = await createResolutionPlan(issue, impact);
+  
+  await notifyAffectedCustomers(impact.affectedCustomers);
+  await implementResolution(resolution);
+  await validateResolution(resolution);
+  
+  return resolution;
+}
+
+export async function processCustomerSupport(ticket: SupportTicket): Promise<TicketResolution> {
+  const classification = await classifyTicket(ticket);
+  const priority = await determinePriority(classification);
+  
+  if (priority === 'critical') {
+    await escalateToEngineering(ticket);
+  }
+  
+  const resolution = await resolveTicket(ticket, classification);
+  await updateCustomerRecord(ticket.customerId, resolution);
+  
+  return resolution;
+}
+
+// Decision-Making Workflows
+export async function validateForecastAccuracy(): Promise<AccuracyReport> {
+  const recentForecasts = await getRecentForecasts(30); // last 30 days
+  const actualOutcomes = await getActualOutcomes(recentForecasts);
+  
+  const accuracyMetrics = calculateAccuracyMetrics(recentForecasts, actualOutcomes);
+  
+  if (accuracyMetrics.mae > 0.05) { // mortality MAE threshold
+    await triggerModelRetraining();
+  }
+  
+  return {
+    period: '30 days',
+    metrics: accuracyMetrics,
+    recommendations: await generateAccuracyRecommendations(accuracyMetrics)
+  };
+}
+
+export async function prioritizeInterventions(forecasts: Forecast[]): Promise<PrioritizedInterventions> {
+  const allInterventions = forecasts.flatMap(f => f.interventions);
+  
+  const prioritized = allInterventions
+    .map(intervention => ({
+      ...intervention,
+      roi: calculateInterventionROI(intervention),
+      urgency: calculateUrgency(intervention)
+    }))
+    .sort((a, b) => (b.roi * b.urgency) - (a.roi * a.urgency));
+  
+  return {
+    interventions: prioritized,
+    totalPotentialSavings: prioritized.reduce((sum, i) => sum + i.expectedImpact.fcr || 0, 0),
+    recommendedActions: prioritized.slice(0, 10) // top 10 interventions
+  };
+}
+
+export async function trackROI(customer: Customer): Promise<ROIReport> {
+  const baseline = await getBaselineMetrics(customer);
+  const current = await getCurrentMetrics(customer);
+  const costs = await getCustomerCosts(customer);
+  
+  const improvements = {
+    mortalityReduction: baseline.mortality - current.mortality,
+    fcrImprovement: baseline.fcr - current.fcr,
+    epefIncrease: current.epef - baseline.epef
+  };
+  
+  const savings = calculateSavings(improvements, customer);
+  const roi = (savings - costs.total) / costs.total;
+  
+  return {
+    customerId: customer.id,
+    period: '12 months',
+    improvements,
+    savings,
+    costs: costs.total,
+    roi,
+    paybackPeriod: costs.total / (savings / 12) // months
+  };
+}
+
+// Helper functions (implementation details would be defined elsewhere)
+function calculateQualificationScore(lead: Lead): number {
+  // Implementation would score based on company size, pain points, etc.
+  return 85;
+}
+
+function generateId(): string {
+  return Math.random().toString(36).substr(2, 9);
+}
+
+function addDays(date: Date, days: number): Date {
+  const result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result;
+}
+
+// Additional type definitions
+interface Proposal {
+  id: string;
+  leadId: string;
+  pricingModel: PricingModel;
+  technicalScope: TechnicalScope;
+  implementationPlan: ImplementationPlan;
+  roiProjection: ROIProjection;
+  validUntil: Date;
+}
+
+interface PricingModel {
+  basePrice: number;
+  pricePerHouse: number;
+  minimumCommitment: number;
+  discounts: Discount[];
+}
+
+interface Discount {
+  type: 'volume' | 'multi_year' | 'early_adopter';
+  percentage: number;
+  conditions: string[];
+}
+
+interface TechnicalScope {
+  integrations: string[];
+  customizations: string[];
+  trainingHours: number;
+  supportLevel: 'basic' | 'premium' | 'enterprise';
+}
+
+interface ImplementationPlan {
+  phases: Phase[];
+  timeline: number; // weeks
+  milestones: Milestone[];
+}
+
+interface Phase {
+  name: string;
+  duration: number; // weeks
+  deliverables: string[];
+  dependencies: string[];
+}
+
+interface Milestone {
+  name: string;
+  date: Date;
+  criteria: string[];
+}
+
+interface ROIProjection {
+  yearOne: number;
+  yearTwo: number;
+  yearThree: number;
+  paybackPeriod: number; // months
+  assumptions: string[];
+}
+
+interface OnboardingStatus {
+  phase: 'data_integration' | 'house_setup' | 'training' | 'go_live' | 'complete';
+  progress: number; // 0-100
+  completedTasks: string[];
+  pendingTasks: string[];
+}
+
+interface Sensor {
+  id: string;
+  type: 'temperature' | 'humidity' | 'co2' | 'weight' | 'feed' | 'water';
+  location: string;
+  status: 'active' | 'inactive' | 'error';
+}
+
+interface Model {
+  id: string;
+  version: string;
+  accuracy: number;
+  trainedAt: Date;
+  features: string[];
+}
+
+interface ModelRequirements {
+  targetAccuracy: number;
+  features: string[];
+  dataRequirements: string[];
+}
+
+interface HarvestPlan {
+  customerId: string;
+  flocks: FlockHarvestSchedule[];
+  totalBirds: number;
+  plantUtilization: number;
+}
+
+interface FlockHarvestSchedule {
+  flockId: string;
+  scheduledDate: Date;
+  estimatedWeight: number;
+  estimatedCount: number;
+}
+
+interface Invoice {
+  id: string;
+  customerId: string;
+  amount: number;
+  dueDate: Date;
+  lineItems: LineItem[];
+}
+
+interface LineItem {
+  description: string;
+  quantity: number;
+  unitPrice: number;
+  total: number;
+}
+
+interface SystemHealthReport {
+  timestamp: Date;
+  dataIngestion: HealthStatus;
+  modelPerformance: HealthStatus;
+  alerting: HealthStatus;
+  customerSatisfaction: HealthStatus;
+  overallHealth: number;
+}
+
+interface HealthStatus {
+  status: 'healthy' | 'warning' | 'critical';
+  score: number;
+  issues: string[];
+}
+
+interface DataQualityIssue {
+  id: string;
+  type: 'missing_data' | 'invalid_data' | 'delayed_data';
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  affectedSources: string[];
+  detectedAt: Date;
+}
+
+interface Resolution {
+  id: string;
+  issueId: string;
+  plan: string[];
+  estimatedTime: number; // hours
+  implementedAt?: Date;
+  validated: boolean;
+}
+
+interface SupportTicket {
+  id: string;
+  customerId: string;
+  type: 'technical' | 'billing' | 'feature_request' | 'bug_report';
+  priority: 'low' | 'medium' | 'high' | 'critical';
+  description: string;
+  createdAt: Date;
+}
+
+interface TicketResolution {
+  ticketId: string;
+  resolution: string;
+  timeToResolve: number; // hours
+  customerSatisfaction?: number; // 1-5 rating
+}
+
+interface AccuracyReport {
+  period: string;
+  metrics: AccuracyMetrics;
+  recommendations: string[];
+}
+
+interface AccuracyMetrics {
+  mae: number; // mean absolute error
+  rmse: number; // root mean square error
+  mape: number; // mean absolute percentage error
+  r2: number; // coefficient of determination
+}
+
+interface PrioritizedInterventions {
+  interventions: (Intervention & { roi: number; urgency: number })[];
+  totalPotentialSavings: number;
+  recommendedActions: (Intervention & { roi: number; urgency: number })[];
+}
+
+interface ROIReport {
+  customerId: string;
+  period: string;
+  improvements: {
+    mortalityReduction: number;
+    fcrImprovement: number;
+    epefIncrease: number;
+  };
+  savings: number;
+  costs: number;
+  roi: number;
+  paybackPeriod: number;
+}
+```
