@@ -53,7 +53,7 @@ export default async function Page({ params }: { params: Promise<{ name: string 
       <Hero1 {...(sections.hero || {})} />
       <main className="mx-auto max-w-7xl px-6 lg:px-8">
         <section id="features">
-          <Features2 {...(sections.features2 || {})} />
+          {/* <Features2 {...(sections.features2 || {})} /> */}
         </section>
         <section id="pricing">
           <Pricing {...(sections.pricing || {})} />
