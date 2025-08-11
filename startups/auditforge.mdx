@@ -322,7 +322,456 @@ landingPage:
     - Export audit-ready reports and maintain evidence automatically.
     - Monitor continuously—auto-close resolved items and track drift.
 ---
-# AuditForge — SBOM, License & OSS Compliance AI
 
-Generated for NAICS 513210 — Software Publishers.
-Service: SBOM, License & OSS Compliance Auditor
+export interface Lead {
+  id: string;
+  company: string;
+  email: string;
+  source: 'github' | 'website' | 'event' | 'referral';
+  repoCount?: number;
+  techStack?: string[];
+  complianceNeeds?: string[];
+  createdAt: Date;
+}
+
+export interface Customer {
+  id: string;
+  company: string;
+  plan: 'starter' | 'pro' | 'enterprise';
+  repositories: Repository[];
+  policies: PolicyConfig[];
+  onboardedAt: Date;
+  lastScanAt?: Date;
+}
+
+export interface Repository {
+  id: string;
+  name: string;
+  url: string;
+  language: string;
+  lastSbomGenerated?: Date;
+  vulnerabilityCount: number;
+  licenseRiskScore: number;
+}
+
+export interface PolicyConfig {
+  id: string;
+  name: string;
+  allowedLicenses: string[];
+  blockedLicenses: string[];
+  maxVulnerabilityScore: number;
+  autoRemediation: boolean;
+}
+
+export interface SbomGenerationResult {
+  sbomId: string;
+  format: 'spdx' | 'cyclonedx';
+  componentCount: number;
+  vulnerabilities: Vulnerability[];
+  licenseIssues: LicenseIssue[];
+  generatedAt: Date;
+  signedAttestation?: string;
+}
+
+export interface Vulnerability {
+  id: string;
+  severity: 'critical' | 'high' | 'medium' | 'low';
+  component: string;
+  fixAvailable: boolean;
+  aiRemediationSuggested?: boolean;
+}
+
+export interface LicenseIssue {
+  component: string;
+  license: string;
+  riskLevel: 'high' | 'medium' | 'low';
+  recommendation: string;
+}
+
+export interface RemediationPR {
+  id: string;
+  repositoryId: string;
+  title: string;
+  description: string;
+  changes: string[];
+  testsPassing: boolean;
+  mergeStatus: 'pending' | 'merged' | 'rejected';
+  createdAt: Date;
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const demo = await scheduleDemoCall(qualifiedLead);
+  const poc = await setupProofOfConcept(demo);
+  const proposal = await generateProposal(poc);
+  const contract = await negotiateContract(proposal);
+  return await onboardCustomer(contract);
+}
+
+export async function qualifyLead(lead: Lead): Promise<Lead> {
+  // Score lead based on company size, tech stack, compliance needs
+  const complianceScore = await assessComplianceNeeds(lead);
+  const techStackScore = await evaluateTechStack(lead.techStack || []);
+  const repoComplexity = await estimateRepoComplexity(lead.repoCount || 0);
+  
+  if (complianceScore > 0.7 && techStackScore > 0.6) {
+    await addToNurtureSequence(lead, 'qualified');
+    return { ...lead, qualified: true };
+  }
+  
+  await addToNurtureSequence(lead, 'unqualified');
+  return lead;
+}
+
+export async function scheduleDemoCall(lead: Lead): Promise<{ lead: Lead; demoDate: Date }> {
+  const availableSlots = await getAvailableDemoSlots();
+  const demoLink = await generatePersonalizedDemo(lead);
+  await sendDemoInvitation(lead, demoLink, availableSlots);
+  
+  return {
+    lead,
+    demoDate: availableSlots[0]
+  };
+}
+
+export async function setupProofOfConcept(demo: { lead: Lead; demoDate: Date }): Promise<{ customer: Customer; pocRepos: Repository[] }> {
+  const trialAccount = await createTrialAccount(demo.lead);
+  const selectedRepos = await identifyPocRepositories(demo.lead, 3);
+  const initialScan = await performInitialScan(selectedRepos);
+  
+  await sendPocWelcomeEmail(demo.lead, trialAccount, initialScan);
+  
+  return {
+    customer: trialAccount,
+    pocRepos: selectedRepos
+  };
+}
+
+// Product Development Processes
+export async function generateSbom(repository: Repository, format: 'spdx' | 'cyclonedx' = 'spdx'): Promise<SbomGenerationResult> {
+  const dependencies = await scanDependencies(repository);
+  const transitiveDeps = await resolveTransitiveDependencies(dependencies);
+  const binaryComponents = await detectBinaryComponents(repository);
+  
+  const sbom = await buildSbom({
+    repository,
+    dependencies: [...dependencies, ...transitiveDeps, ...binaryComponents],
+    format
+  });
+  
+  const vulnerabilities = await scanVulnerabilities(sbom.components);
+  const licenseIssues = await detectLicenseIssues(sbom.components);
+  const attestation = await signSbom(sbom);
+  
+  return {
+    sbomId: sbom.id,
+    format,
+    componentCount: sbom.components.length,
+    vulnerabilities,
+    licenseIssues,
+    generatedAt: new Date(),
+    signedAttestation: attestation
+  };
+}
+
+export async function createRemediationPR(vulnerability: Vulnerability, repository: Repository): Promise<RemediationPR> {
+  const fixStrategy = await analyzeFixStrategy(vulnerability);
+  const codeChanges = await generateCodeChanges(fixStrategy);
+  const testUpdates = await generateTestUpdates(codeChanges);
+  
+  const prBranch = await createBranch(repository, `fix/${vulnerability.id}`);
+  await applyChanges(prBranch, [...codeChanges, ...testUpdates]);
+  
+  const ciResults = await runCiPipeline(prBranch);
+  const prDescription = await generatePrDescription(vulnerability, fixStrategy, ciResults);
+  
+  const pr = await createPullRequest({
+    repository,
+    branch: prBranch,
+    title: `Fix ${vulnerability.severity} vulnerability in ${vulnerability.component}`,
+    description: prDescription
+  });
+  
+  return {
+    id: pr.id,
+    repositoryId: repository.id,
+    title: pr.title,
+    description: pr.description,
+    changes: codeChanges.map(c => c.summary),
+    testsPassing: ciResults.success,
+    mergeStatus: 'pending',
+    createdAt: new Date()
+  };
+}
+
+export async function enforcePolicyGates(repository: Repository, policies: PolicyConfig[]): Promise<{ passed: boolean; violations: string[] }> {
+  const sbom = await generateSbom(repository);
+  const violations: string[] = [];
+  
+  for (const policy of policies) {
+    const licenseViolations = await checkLicensePolicy(sbom, policy);
+    const vulnerabilityViolations = await checkVulnerabilityPolicy(sbom, policy);
+    
+    violations.push(...licenseViolations, ...vulnerabilityViolations);
+  }
+  
+  if (violations.length > 0 && policies.some(p => p.autoRemediation)) {
+    await triggerAutoRemediation(repository, violations);
+  }
+  
+  return {
+    passed: violations.length === 0,
+    violations
+  };
+}
+
+// Revenue Generation Flows
+export async function convertTrialToSubscription(customer: Customer): Promise<{ success: boolean; subscription?: any }> {
+  const usageMetrics = await calculateTrialUsage(customer);
+  const recommendedPlan = await recommendSubscriptionPlan(usageMetrics);
+  const pricing = await generateCustomPricing(customer, recommendedPlan);
+  
+  const proposal = await createSubscriptionProposal({
+    customer,
+    plan: recommendedPlan,
+    pricing,
+    usageMetrics
+  });
+  
+  await sendSubscriptionProposal(customer, proposal);
+  
+  const decision = await trackProposalResponse(proposal, 14); // 14 day follow-up
+  
+  if (decision.accepted) {
+    const subscription = await createSubscription(customer, proposal);
+    await upgradeAccountLimits(customer, subscription.plan);
+    return { success: true, subscription };
+  }
+  
+  await addToNurtureSequence(customer, 'trial-expired');
+  return { success: false };
+}
+
+export async function processUsageBilling(customer: Customer, month: Date): Promise<{ baseAmount: number; usageCharges: number; total: number }> {
+  const baseSubscription = await getSubscriptionDetails(customer);
+  const usageMetrics = await calculateMonthlyUsage(customer, month);
+  
+  const aiPrCharges = Math.max(0, usageMetrics.aiPrsCreated - baseSubscription.includedPrs) * 1.50;
+  const scanMinuteCharges = Math.max(0, usageMetrics.scanMinutes - baseSubscription.includedMinutes) * 0.10;
+  const storageCharges = Math.max(0, usageMetrics.sbomStorageGb - baseSubscription.includedStorage) * 0.05;
+  
+  const usageCharges = aiPrCharges + scanMinuteCharges + storageCharges;
+  const total = baseSubscription.monthlyAmount + usageCharges;
+  
+  await generateInvoice(customer, {
+    baseAmount: baseSubscription.monthlyAmount,
+    usageCharges,
+    total,
+    period: month
+  });
+  
+  return {
+    baseAmount: baseSubscription.monthlyAmount,
+    usageCharges,
+    total
+  };
+}
+
+// Operational Procedures
+export async function onboardRepository(customer: Customer, repoUrl: string): Promise<Repository> {
+  const repoMetadata = await analyzeRepository(repoUrl);
+  const initialScan = await performComprehensiveScan(repoUrl);
+  const policies = await getCustomerPolicies(customer);
+  
+  const repository: Repository = {
+    id: generateId(),
+    name: repoMetadata.name,
+    url: repoUrl,
+    language: repoMetadata.primaryLanguage,
+    vulnerabilityCount: initialScan.vulnerabilities.length,
+    licenseRiskScore: calculateLicenseRiskScore(initialScan.licenses)
+  };
+  
+  await setupCiIntegration(repository, customer);
+  await applyPolicyGates(repository, policies);
+  await scheduleRecurringScan(repository, customer.plan);
+  
+  await notifyTeam(customer, `Repository ${repository.name} successfully onboarded`);
+  
+  return repository;
+}
+
+export async function generateComplianceReport(customer: Customer, framework: 'soc2' | 'iso27001' | 'fedramp'): Promise<{ reportId: string; downloadUrl: string }> {
+  const repositories = await getCustomerRepositories(customer);
+  const sboms = await getAllSboms(repositories);
+  const vulnerabilityData = await aggregateVulnerabilityData(repositories);
+  const policyCompliance = await assessPolicyCompliance(repositories);
+  
+  const reportData = {
+    customer,
+    framework,
+    repositories: repositories.length,
+    totalComponents: sboms.reduce((sum, sbom) => sum + sbom.componentCount, 0),
+    criticalVulnerabilities: vulnerabilityData.critical,
+    policyViolations: policyCompliance.violations,
+    lastScanDate: Math.max(...repositories.map(r => r.lastScanAt?.getTime() || 0)),
+    generatedAt: new Date()
+  };
+  
+  const report = await generatePdfReport(reportData, framework);
+  const downloadUrl = await uploadReportToSecureStorage(report);
+  
+  return {
+    reportId: report.id,
+    downloadUrl
+  };
+}
+
+// Decision-Making Workflows
+export async function prioritizeVulnerabilities(vulnerabilities: Vulnerability[]): Promise<Vulnerability[]> {
+  const scoredVulnerabilities = await Promise.all(
+    vulnerabilities.map(async (vuln) => {
+      const exploitabilityScore = await assessExploitability(vuln);
+      const businessImpactScore = await assessBusinessImpact(vuln);
+      const fixComplexityScore = await assessFixComplexity(vuln);
+      
+      return {
+        ...vuln,
+        priorityScore: (exploitabilityScore * 0.4) + (businessImpactScore * 0.4) + (fixComplexityScore * 0.2)
+      };
+    })
+  );
+  
+  return scoredVulnerabilities.sort((a, b) => b.priorityScore - a.priorityScore);
+}
+
+export async function evaluateLicenseRisk(component: string, license: string, policies: PolicyConfig[]): Promise<{ risk: 'high' | 'medium' | 'low'; recommendation: string }> {
+  const licenseCompatibility = await checkLicenseCompatibility(license, policies);
+  const copyleftRisk = await assessCopyleftRisk(license);
+  const commercialUsageRisk = await assessCommercialUsageRisk(license);
+  
+  if (licenseCompatibility.blocked || copyleftRisk.high) {
+    return {
+      risk: 'high',
+      recommendation: `Replace ${component} with alternative or obtain commercial license`
+    };
+  }
+  
+  if (copyleftRisk.medium || commercialUsageRisk.restrictions) {
+    return {
+      risk: 'medium',
+      recommendation: `Review license obligations for ${component} before distribution`
+    };
+  }
+  
+  return {
+    risk: 'low',
+    recommendation: `${component} license ${license} is compatible with current policies`
+  };
+}
+
+// Helper functions (pseudocode - would be implemented separately)
+async function assessComplianceNeeds(lead: Lead): Promise<number> { return 0.8; }
+async function evaluateTechStack(stack: string[]): Promise<number> { return 0.7; }
+async function estimateRepoComplexity(count: number): Promise<number> { return Math.min(count / 100, 1); }
+async function addToNurtureSequence(lead: Lead, sequence: string): Promise<void> {}
+async function getAvailableDemoSlots(): Promise<Date[]> { return [new Date()]; }
+async function generatePersonalizedDemo(lead: Lead): Promise<string> { return 'demo-link'; }
+async function sendDemoInvitation(lead: Lead, link: string, slots: Date[]): Promise<void> {}
+async function createTrialAccount(lead: Lead): Promise<Customer> { return {} as Customer; }
+async function identifyPocRepositories(lead: Lead, count: number): Promise<Repository[]> { return []; }
+async function performInitialScan(repos: Repository[]): Promise<any> { return {}; }
+async function sendPocWelcomeEmail(lead: Lead, account: Customer, scan: any): Promise<void> {}
+async function scanDependencies(repo: Repository): Promise<any[]> { return []; }
+async function resolveTransitiveDependencies(deps: any[]): Promise<any[]> { return []; }
+async function detectBinaryComponents(repo: Repository): Promise<any[]> { return []; }
+async function buildSbom(config: any): Promise<any> { return { id: 'sbom-1', components: [] }; }
+async function scanVulnerabilities(components: any[]): Promise<Vulnerability[]> { return []; }
+async function detectLicenseIssues(components: any[]): Promise<LicenseIssue[]> { return []; }
+async function signSbom(sbom: any): Promise<string> { return 'signed-attestation'; }
+async function analyzeFixStrategy(vuln: Vulnerability): Promise<any> { return {}; }
+async function generateCodeChanges(strategy: any): Promise<any[]> { return []; }
+async function generateTestUpdates(changes: any[]): Promise<any[]> { return []; }
+async function createBranch(repo: Repository, name: string): Promise<any> { return {}; }
+async function applyChanges(branch: any, changes: any[]): Promise<void> {}
+async function runCiPipeline(branch: any): Promise<{ success: boolean }> { return { success: true }; }
+async function generatePrDescription(vuln: Vulnerability, strategy: any, ci: any): Promise<string> { return 'PR description'; }
+async function createPullRequest(config: any): Promise<any> { return { id: 'pr-1', title: config.title, description: config.description }; }
+async function checkLicensePolicy(sbom: any, policy: PolicyConfig): Promise<string[]> { return []; }
+async function checkVulnerabilityPolicy(sbom: any, policy: PolicyConfig): Promise<string[]> { return []; }
+async function triggerAutoRemediation(repo: Repository, violations: string[]): Promise<void> {}
+async function calculateTrialUsage(customer: Customer): Promise<any> { return {}; }
+async function recommendSubscriptionPlan(usage: any): Promise<string> { return 'pro'; }
+async function generateCustomPricing(customer: Customer, plan: string): Promise<any> { return {}; }
+async function createSubscriptionProposal(config: any): Promise<any> { return {}; }
+async function sendSubscriptionProposal(customer: Customer, proposal: any): Promise<void> {}
+async function trackProposalResponse(proposal: any, days: number): Promise<{ accepted: boolean }> { return { accepted: true }; }
+async function createSubscription(customer: Customer, proposal: any): Promise<any> { return {}; }
+async function upgradeAccountLimits(customer: Customer, plan: string): Promise<void> {}
+async function getSubscriptionDetails(customer: Customer): Promise<any> { return { monthlyAmount: 1500, includedPrs: 100, includedMinutes: 1000, includedStorage: 10 }; }
+async function calculateMonthlyUsage(customer: Customer, month: Date): Promise<any> { return { aiPrsCreated: 150, scanMinutes: 1200, sbomStorageGb: 15 }; }
+async function generateInvoice(customer: Customer, details: any): Promise<void> {}
+async function analyzeRepository(url: string): Promise<any> { return { name: 'repo', primaryLanguage: 'typescript' }; }
+async function performComprehensiveScan(url: string): Promise<any> { return { vulnerabilities: [], licenses: [] }; }
+async function getCustomerPolicies(customer: Customer): Promise<PolicyConfig[]> { return []; }
+async function generateId(): string { return Math.random().toString(36); }
+async function calculateLicenseRiskScore(licenses: any[]): number { return 0.3; }
+async function setupCiIntegration(repo: Repository, customer: Customer): Promise<void> {}
+async function applyPolicyGates(repo: Repository, policies: PolicyConfig[]): Promise<void> {}
+async function scheduleRecurringScan(repo: Repository, plan: string): Promise<void> {}
+async function notifyTeam(customer: Customer, message: string): Promise<void> {}
+async function getCustomerRepositories(customer: Customer): Promise<Repository[]> { return []; }
+async function getAllSboms(repos: Repository[]): Promise<any[]> { return []; }
+async function aggregateVulnerabilityData(repos: Repository[]): Promise<any> { return { critical: 5 }; }
+async function assessPolicyCompliance(repos: Repository[]): Promise<any> { return { violations: 2 }; }
+async function generatePdfReport(data: any, framework: string): Promise<any> { return { id: 'report-1' }; }
+async function uploadReportToSecureStorage(report: any): Promise<string> { return 'https://secure-storage/report-1.pdf'; }
+async function assessExploitability(vuln: Vulnerability): Promise<number> { return 0.8; }
+async function assessBusinessImpact(vuln: Vulnerability): Promise<number> { return 0.7; }
+async function assessFixComplexity(vuln: Vulnerability): Promise<number> { return 0.6; }
+async function checkLicenseCompatibility(license: string, policies: PolicyConfig[]): Promise<any> { return { blocked: false }; }
+async function assessCopyleftRisk(license: string): Promise<any> { return { high: false, medium: false }; }
+async function assessCommercialUsageRisk(license: string): Promise<any> { return { restrictions: false }; }
+
+export default function Page() {
+  return (
+    <>
+      <Hero
+        title="From code to compliant SBOMs in minutes"
+        subtitle="AI-powered supply chain security platform that generates audit-ready SBOMs and auto-remediation PRs while preserving developer velocity."
+        ctaText="Start free trial"
+        ctaHref="/trial"
+      />
+      <Problem bullets={[
+        "SBOM generation takes 2-10 days per release, delaying deals",
+        "License risks create legal exposure and costly rework",
+        "30-60% of repos carry known vulnerabilities with 60+ day MTTR",
+        "Existing tools create noise without actionable remediation",
+        "Manual compliance evidence collection is brittle and time-consuming"
+      ]} />
+      <Solution bullets={[
+        "One-click SBOM generation in SPDX/CycloneDX with 98% accuracy",
+        "AI-powered remediation PRs with 40%+ merge rates",
+        "Policy-as-code gates with signed attestations",
+        "Unified vulnerability intelligence with noise reduction",
+        "Audit-ready dashboards mapped to SOC2/ISO/FedRAMP controls"
+      ]} />
+      <Features items={[
+        "Multi-ecosystem dependency scanning",
+        "License detection and policy engine",
+        "AI-generated remediation PRs",
+        "CI/CD integration and policy gates",
+        "Compliance reporting and attestations",
+        "Vulnerability prioritization",
+        "Supply chain risk scoring"
+      ]} />
+      <Steps steps={[
+        "Connect repositories",
+        "Generate SBOMs",
+        "Deploy AI remediation",
+        "Achieve compliance"
+      ]} />
+    </>
+  )
+}
