@@ -329,3 +329,563 @@ landingPage:
 
 Generated for NAICS 332420 — Metal Tank (Heavy Gauge) Manufacturing.
 Service: Plate Nesting Pre-Plan & Material Order Assistant
+
+## Business Workflow Functions
+
+The following TypeScript functions represent PlateNest's core business processes as executable code:
+
+```typescript
+// Core data types for heavy plate manufacturing
+interface Lead {
+  id: string;
+  companyName: string;
+  naicsCode: string;
+  annualRevenue: number;
+  materialSpend: number;
+  burnTables: number;
+  plateThickness: [number, number]; // min, max in inches
+  currentCAM: 'SigmaNEST' | 'ProNest' | 'Lantek' | 'Alma' | 'Other';
+  currentERP: 'Epicor' | 'Global Shop' | 'E2/JobBOSS' | 'Syspro' | 'Other';
+  jobsPerYear: number;
+  customOrderMix: number; // percentage
+  contactInfo: ContactInfo;
+}
+
+interface Customer {
+  id: string;
+  lead: Lead;
+  contractValue: number;
+  implementationPackage: ImplementationPackage;
+  subscriptionTier: 'Starter' | 'Professional' | 'Enterprise';
+  onboardingStatus: 'Pending' | 'InProgress' | 'Complete';
+  integrations: Integration[];
+}
+
+interface CADProject {
+  id: string;
+  customerId: string;
+  files: CADFile[];
+  bomData: BOMItem[];
+  constraints: NestingConstraints;
+  targetDeliveryDate: Date;
+}
+
+interface PlateOrder {
+  id: string;
+  projectId: string;
+  grade: string; // A36, A572, SA-516-70N, etc.
+  thickness: number;
+  plateSize: [number, number]; // length x width
+  quantity: number;
+  supplier: string;
+  leadTime: number; // days
+  pricePerLb: number;
+  heatLot?: string;
+  requiredDate: Date;
+}
+
+interface NestingResult {
+  projectId: string;
+  utilization: number; // percentage
+  plateOrders: PlateOrder[];
+  remnants: Remnant[];
+  traceabilityMap: Map<string, string>; // part ID to heat lot
+  estimatedSavings: number;
+  leadTimePullForward: number; // days
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  try {
+    // Step 1: Qualify lead based on NAICS and profile
+    const qualifiedLead = await qualifyLead(lead);
+    
+    // Step 2: Generate tailored proposal with ROI projections
+    const proposal = await generateProposal(qualifiedLead);
+    
+    // Step 3: Conduct proof-of-value pilot
+    const pilotResults = await conductPilot(qualifiedLead, proposal);
+    
+    // Step 4: Negotiate contract based on pilot outcomes
+    const contract = await negotiateContract(proposal, pilotResults);
+    
+    // Step 5: Onboard customer with implementation package
+    const customer = await onboardCustomer(contract);
+    
+    return customer;
+  } catch (error) {
+    throw new Error(`Customer acquisition failed: ${error.message}`);
+  }
+}
+
+async function qualifyLead(lead: Lead): Promise<Lead> {
+  // Validate NAICS 332420 (Metal Tank Heavy Gauge Manufacturing)
+  if (lead.naicsCode !== '332420' && !lead.naicsCode.startsWith('33241') && !lead.naicsCode.startsWith('33231')) {
+    throw new Error('Lead does not match target customer segments');
+  }
+  
+  // Check minimum thresholds
+  if (lead.annualRevenue < 10_000_000 || lead.materialSpend < 3_000_000) {
+    throw new Error('Lead below minimum revenue/spend thresholds');
+  }
+  
+  // Verify technology fit
+  if (lead.burnTables < 1 || lead.plateThickness[1] < 0.25) {
+    throw new Error('Lead does not match technology requirements');
+  }
+  
+  return lead;
+}
+
+async function generateProposal(lead: Lead): Promise<Proposal> {
+  const baselineMetrics = await calculateBaselineMetrics(lead);
+  const projectedSavings = await projectSavings(lead, baselineMetrics);
+  
+  return {
+    customerId: lead.id,
+    subscriptionTier: determineOptimalTier(lead),
+    implementationCost: calculateImplementationCost(lead),
+    projectedROI: projectedSavings.annualSavings / (projectedSavings.subscriptionCost + projectedSavings.implementationCost),
+    paybackPeriod: calculatePaybackPeriod(projectedSavings),
+    pilotScope: definePilotScope(lead)
+  };
+}
+
+async function conductPilot(lead: Lead, proposal: Proposal): Promise<PilotResults> {
+  // 6-8 week paid pilot using 2-4 recent jobs
+  const historicalJobs = await getHistoricalJobs(lead.id, 4);
+  const pilotResults: PilotResults = {
+    jobsAnalyzed: historicalJobs.length,
+    yieldImprovement: 0,
+    leadTimePullForward: 0,
+    programmerTimeSaved: 0,
+    materialSavings: 0
+  };
+  
+  for (const job of historicalJobs) {
+    const optimizedNesting = await runPreNestingOptimization(job);
+    pilotResults.yieldImprovement += optimizedNesting.utilization - job.historicalUtilization;
+    pilotResults.leadTimePullForward += optimizedNesting.leadTimePullForward;
+    pilotResults.programmerTimeSaved += optimizedNesting.planningTimeSaved;
+    pilotResults.materialSavings += optimizedNesting.estimatedSavings;
+  }
+  
+  // Average results across jobs
+  pilotResults.yieldImprovement /= historicalJobs.length;
+  pilotResults.leadTimePullForward /= historicalJobs.length;
+  pilotResults.programmerTimeSaved /= historicalJobs.length;
+  
+  return pilotResults;
+}
+
+// Product Development Processes
+export async function developAINestingEngine(requirements: ProductRequirements): Promise<NestingEngine> {
+  try {
+    // Step 1: Develop constraint-aware algorithms
+    const constraintEngine = await buildConstraintEngine(requirements.constraints);
+    
+    // Step 2: Train AI models on anonymized multi-shop data
+    const aiModels = await trainNestingModels(requirements.trainingData);
+    
+    // Step 3: Build CAD/ERP connectors
+    const connectors = await buildIntegrationConnectors(requirements.integrations);
+    
+    // Step 4: Implement scenario optimization
+    const optimizer = await buildScenarioOptimizer(constraintEngine, aiModels);
+    
+    // Step 5: Add traceability and compliance features
+    const complianceEngine = await buildComplianceEngine(requirements.complianceRules);
+    
+    return new NestingEngine(constraintEngine, aiModels, connectors, optimizer, complianceEngine);
+  } catch (error) {
+    throw new Error(`Product development failed: ${error.message}`);
+  }
+}
+
+async function buildConstraintEngine(constraints: NestingConstraints): Promise<ConstraintEngine> {
+  return {
+    rollingDirection: constraints.rollingDirection,
+    grainDirection: constraints.grainDirection,
+    plateSizeLimits: constraints.plateSizeLimits,
+    trimAllowances: constraints.trimAllowances,
+    bevelAllowances: constraints.bevelAllowances,
+    partPairing: constraints.partPairing,
+    heatLotSegregation: constraints.heatLotSegregation,
+    tableEnvelopes: constraints.tableEnvelopes
+  };
+}
+
+// Revenue Generation Flows
+export async function generateRevenue(customer: Customer, month: number): Promise<RevenueResult> {
+  try {
+    // Step 1: Process subscription billing
+    const subscriptionRevenue = await processSubscriptionBilling(customer, month);
+    
+    // Step 2: Handle usage-based add-ons
+    const usageRevenue = await processUsageBasedBilling(customer, month);
+    
+    // Step 3: Deliver premium support if applicable
+    const supportRevenue = await deliverPremiumSupport(customer, month);
+    
+    // Step 4: Process data services revenue
+    const dataServicesRevenue = await processDataServices(customer, month);
+    
+    // Step 5: Calculate and process gainshare if applicable
+    const gainshareRevenue = await processGainshareRevenue(customer, month);
+    
+    return {
+      customerId: customer.id,
+      month,
+      subscriptionRevenue,
+      usageRevenue,
+      supportRevenue,
+      dataServicesRevenue,
+      gainshareRevenue,
+      totalRevenue: subscriptionRevenue + usageRevenue + supportRevenue + dataServicesRevenue + gainshareRevenue
+    };
+  } catch (error) {
+    throw new Error(`Revenue generation failed: ${error.message}`);
+  }
+}
+
+async function processSubscriptionBilling(customer: Customer, month: number): Promise<number> {
+  const tierPricing = {
+    'Starter': 1500, // per month per site
+    'Professional': 2750,
+    'Enterprise': 4000
+  };
+  
+  return tierPricing[customer.subscriptionTier] || 0;
+}
+
+// Operational Procedures
+export async function processCADProject(project: CADProject): Promise<NestingResult> {
+  try {
+    // Step 1: Import and validate CAD/BOM files
+    const validatedProject = await validateCADFiles(project);
+    
+    // Step 2: Explode shell courses, heads, cones into flat patterns
+    const flatPatterns = await explodeToFlatPatterns(validatedProject);
+    
+    // Step 3: Apply allowances and weld/seam rules
+    const patternsWithAllowances = await applyAllowances(flatPatterns, project.constraints);
+    
+    // Step 4: Run AI-driven pre-nesting simulation
+    const nestingScenarios = await runNestingSimulation(patternsWithAllowances, project.constraints);
+    
+    // Step 5: Optimize against vendor catalogs and remnants
+    const optimizedNesting = await optimizeAgainstCatalogs(nestingScenarios);
+    
+    // Step 6: Generate purchase-ready plate orders
+    const plateOrders = await generatePlateOrders(optimizedNesting);
+    
+    // Step 7: Create traceability mapping
+    const traceabilityMap = await createTraceabilityMap(optimizedNesting, plateOrders);
+    
+    return {
+      projectId: project.id,
+      utilization: optimizedNesting.utilization,
+      plateOrders,
+      remnants: optimizedNesting.remnants,
+      traceabilityMap,
+      estimatedSavings: optimizedNesting.estimatedSavings,
+      leadTimePullForward: optimizedNesting.leadTimePullForward
+    };
+  } catch (error) {
+    throw new Error(`CAD project processing failed: ${error.message}`);
+  }
+}
+
+async function validateCADFiles(project: CADProject): Promise<CADProject> {
+  for (const file of project.files) {
+    if (!['STEP', 'DXF', 'SolidWorks', 'Inventor'].includes(file.format)) {
+      throw new Error(`Unsupported CAD format: ${file.format}`);
+    }
+    
+    // Validate geometry integrity
+    await validateGeometry(file);
+  }
+  
+  return project;
+}
+
+// Decision-Making Workflows
+export async function optimizePurchaseDecision(
+  project: CADProject,
+  scenarios: PurchaseScenario[]
+): Promise<OptimalPurchaseDecision> {
+  try {
+    // Step 1: Evaluate each scenario against multiple criteria
+    const evaluatedScenarios = await Promise.all(
+      scenarios.map(scenario => evaluateScenario(scenario, project))
+    );
+    
+    // Step 2: Apply multi-criteria decision analysis
+    const scoredScenarios = await scoreScenarios(evaluatedScenarios, project.constraints);
+    
+    // Step 3: Consider risk factors and lead time constraints
+    const riskAdjustedScenarios = await adjustForRisk(scoredScenarios, project.targetDeliveryDate);
+    
+    // Step 4: Select optimal scenario based on customer preferences
+    const optimalScenario = await selectOptimalScenario(riskAdjustedScenarios);
+    
+    // Step 5: Generate purchase recommendations with alternatives
+    const purchaseRecommendations = await generatePurchaseRecommendations(optimalScenario);
+    
+    return {
+      projectId: project.id,
+      recommendedScenario: optimalScenario,
+      alternativeScenarios: riskAdjustedScenarios.slice(1, 3), // Top 2 alternatives
+      purchaseOrders: purchaseRecommendations.orders,
+      riskAssessment: purchaseRecommendations.risks,
+      expectedSavings: optimalScenario.estimatedSavings,
+      confidenceLevel: optimalScenario.confidence
+    };
+  } catch (error) {
+    throw new Error(`Purchase optimization failed: ${error.message}`);
+  }
+}
+
+async function evaluateScenario(scenario: PurchaseScenario, project: CADProject): Promise<EvaluatedScenario> {
+  return {
+    ...scenario,
+    yieldScore: await calculateYieldScore(scenario),
+    costScore: await calculateCostScore(scenario),
+    leadTimeScore: await calculateLeadTimeScore(scenario, project.targetDeliveryDate),
+    riskScore: await calculateRiskScore(scenario),
+    complianceScore: await calculateComplianceScore(scenario, project.constraints)
+  };
+}
+
+// Change Management and Tracking
+export async function handleProjectChange(
+  projectId: string,
+  changes: ProjectChange[]
+): Promise<ChangeImpactAnalysis> {
+  try {
+    // Step 1: Analyze change deltas
+    const changeDeltas = await analyzeChangeDeltas(projectId, changes);
+    
+    // Step 2: Re-optimize nesting with changes
+    const reoptimizedNesting = await reoptimizeNesting(projectId, changeDeltas);
+    
+    // Step 3: Identify impacted purchase orders
+    const impactedPOs = await identifyImpactedPOs(projectId, changeDeltas);
+    
+    // Step 4: Generate change order recommendations
+    const changeOrders = await generateChangeOrders(impactedPOs, reoptimizedNesting);
+    
+    // Step 5: Update traceability mapping
+    const updatedTraceability = await updateTraceabilityMapping(projectId, reoptimizedNesting);
+    
+    return {
+      projectId,
+      changes,
+      impactedPOs,
+      changeOrders,
+      newNestingResult: reoptimizedNesting,
+      updatedTraceability,
+      additionalCost: calculateAdditionalCost(changeOrders),
+      scheduleImpact: calculateScheduleImpact(changeOrders)
+    };
+  } catch (error) {
+    throw new Error(`Change management failed: ${error.message}`);
+  }
+}
+
+// Integration and Export Functions
+export async function exportToCAM(
+  nestingResult: NestingResult,
+  camSystem: 'SigmaNEST' | 'ProNest' | 'Lantek' | 'Alma'
+): Promise<CAMExport> {
+  try {
+    // Step 1: Format nests for target CAM system
+    const formattedNests = await formatForCAM(nestingResult, camSystem);
+    
+    // Step 2: Generate cut lists with part details
+    const cutLists = await generateCutLists(nestingResult);
+    
+    // Step 3: Create NC programs if supported
+    const ncPrograms = await generateNCPrograms(formattedNests, camSystem);
+    
+    // Step 4: Package traceability data
+    const traceabilityPackage = await packageTraceabilityData(nestingResult);
+    
+    return {
+      camSystem,
+      nests: formattedNests,
+      cutLists,
+      ncPrograms,
+      traceabilityPackage,
+      exportTimestamp: new Date()
+    };
+  } catch (error) {
+    throw new Error(`CAM export failed: ${error.message}`);
+  }
+}
+
+// Supporting type definitions
+interface ContactInfo {
+  name: string;
+  title: string;
+  email: string;
+  phone: string;
+}
+
+interface ImplementationPackage {
+  erpConnectors: string[];
+  cadConnectors: string[];
+  remnantDataOnboarding: boolean;
+  cost: number;
+}
+
+interface Integration {
+  system: string;
+  type: 'ERP' | 'CAD' | 'CAM';
+  status: 'Active' | 'Pending' | 'Failed';
+}
+
+interface BOMItem {
+  partId: string;
+  material: string;
+  thickness: number;
+  quantity: number;
+  dimensions: [number, number];
+}
+
+interface CADFile {
+  id: string;
+  filename: string;
+  format: string;
+  size: number;
+  uploadDate: Date;
+}
+
+interface NestingConstraints {
+  rollingDirection: boolean;
+  grainDirection: boolean;
+  plateSizeLimits: [number, number][];
+  trimAllowances: number;
+  bevelAllowances: number;
+  partPairing: boolean;
+  heatLotSegregation: boolean;
+  tableEnvelopes: [number, number];
+}
+
+interface Remnant {
+  id: string;
+  material: string;
+  thickness: number;
+  dimensions: [number, number];
+  heatLot: string;
+  location: string;
+}
+
+interface Proposal {
+  customerId: string;
+  subscriptionTier: string;
+  implementationCost: number;
+  projectedROI: number;
+  paybackPeriod: number;
+  pilotScope: string;
+}
+
+interface PilotResults {
+  jobsAnalyzed: number;
+  yieldImprovement: number;
+  leadTimePullForward: number;
+  programmerTimeSaved: number;
+  materialSavings: number;
+}
+
+interface ProductRequirements {
+  constraints: NestingConstraints;
+  trainingData: any[];
+  integrations: string[];
+  complianceRules: any[];
+}
+
+interface RevenueResult {
+  customerId: string;
+  month: number;
+  subscriptionRevenue: number;
+  usageRevenue: number;
+  supportRevenue: number;
+  dataServicesRevenue: number;
+  gainshareRevenue: number;
+  totalRevenue: number;
+}
+
+interface PurchaseScenario {
+  id: string;
+  name: string;
+  plateOrders: PlateOrder[];
+  estimatedCost: number;
+  estimatedSavings: number;
+  riskLevel: 'Low' | 'Medium' | 'High';
+}
+
+interface EvaluatedScenario extends PurchaseScenario {
+  yieldScore: number;
+  costScore: number;
+  leadTimeScore: number;
+  riskScore: number;
+  complianceScore: number;
+}
+
+interface OptimalPurchaseDecision {
+  projectId: string;
+  recommendedScenario: EvaluatedScenario;
+  alternativeScenarios: EvaluatedScenario[];
+  purchaseOrders: PlateOrder[];
+  riskAssessment: any;
+  expectedSavings: number;
+  confidenceLevel: number;
+}
+
+interface ProjectChange {
+  type: 'Add' | 'Remove' | 'Modify';
+  partId: string;
+  details: any;
+}
+
+interface ChangeImpactAnalysis {
+  projectId: string;
+  changes: ProjectChange[];
+  impactedPOs: string[];
+  changeOrders: any[];
+  newNestingResult: NestingResult;
+  updatedTraceability: Map<string, string>;
+  additionalCost: number;
+  scheduleImpact: number;
+}
+
+interface CAMExport {
+  camSystem: string;
+  nests: any[];
+  cutLists: any[];
+  ncPrograms: any[];
+  traceabilityPackage: any;
+  exportTimestamp: Date;
+}
+
+// Placeholder implementations for referenced functions
+async function negotiateContract(proposal: Proposal, pilotResults: PilotResults): Promise<any> {
+  return { proposal, pilotResults, contractValue: proposal.projectedROI * 100000 };
+}
+
+async function onboardCustomer(contract: any): Promise<Customer> {
+  return {
+    id: contract.proposal.customerId,
+    lead: {} as Lead,
+    contractValue: contract.contractValue,
+    implementationPackage: {} as ImplementationPackage,
+    subscriptionTier: contract.proposal.subscriptionTier,
+    onboardingStatus: 'Pending',
+    integrations: []
+  };
+}
+
+// Additional placeholder implementations would be added for all referenced functions
+// This represents the core structure of PlateNest's business logic as executable code
+```
