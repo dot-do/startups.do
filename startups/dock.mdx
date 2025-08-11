@@ -292,3 +292,334 @@ landingPage:
 
 Generated for NAICS 493190 — Other Warehousing and Storage.
 Service: Dock/Yard Appointment & Gate Bot
+
+## Business Process Workflows
+
+The following TypeScript functions define the core business processes and workflows for the dock scheduling startup:
+
+```typescript
+// Core Types
+interface Lead {
+  facilityId: string;
+  contactInfo: ContactInfo;
+  facilityDetails: FacilityDetails;
+  currentPainPoints: string[];
+  doorCount: number;
+  dailyTruckMoves: number;
+}
+
+interface Customer {
+  id: string;
+  facilityId: string;
+  subscriptionTier: 'starter' | 'pro' | 'enterprise';
+  monthlyRevenue: number;
+  onboardingStatus: 'pending' | 'active' | 'churned';
+  integrations: Integration[];
+}
+
+interface Appointment {
+  id: string;
+  carrierId: string;
+  driverId: string;
+  scheduledTime: Date;
+  doorAssignment?: string;
+  status: 'scheduled' | 'checked-in' | 'at-dock' | 'completed' | 'no-show';
+  loadDetails: LoadDetails;
+}
+
+interface DockSchedule {
+  facilityId: string;
+  doors: DoorCapacity[];
+  appointments: Appointment[];
+  constraints: SchedulingConstraints;
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  try {
+    const qualifiedLead = await qualifyLead(lead);
+    const roiDemo = await generateROIDemo(qualifiedLead);
+    const pilot = await proposePilotProgram(roiDemo);
+    const contract = await negotiateContract(pilot);
+    return await onboardCustomer(contract);
+  } catch (error) {
+    throw new Error(`Customer acquisition failed: ${error.message}`);
+  }
+}
+
+async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  // Qualify based on NAICS 493190, door count 10-80, daily moves 30-150
+  if (lead.doorCount < 10 || lead.doorCount > 80) {
+    throw new Error('Facility size outside target range');
+  }
+  
+  if (lead.dailyTruckMoves < 30 || lead.dailyTruckMoves > 150) {
+    throw new Error('Daily truck volume outside target range');
+  }
+
+  const painPointScore = calculatePainPointScore(lead.currentPainPoints);
+  const fitScore = calculateMarketFit(lead.facilityDetails);
+  
+  return {
+    ...lead,
+    qualificationScore: (painPointScore + fitScore) / 2,
+    estimatedROI: calculateEstimatedROI(lead),
+    recommendedTier: recommendSubscriptionTier(lead)
+  };
+}
+
+async function generateROIDemo(qualifiedLead: QualifiedLead): Promise<ROIDemo> {
+  const currentCosts = {
+    laborHours: qualifiedLead.dailyTruckMoves * 0.25, // 15 min avg per truck
+    detentionClaims: qualifiedLead.dailyTruckMoves * 0.1 * 150, // 10% detention rate
+    overtimeCosts: calculateOvertimeCosts(qualifiedLead),
+    missedSlotCosts: calculateMissedSlotCosts(qualifiedLead)
+  };
+
+  const projectedSavings = {
+    laborReduction: currentCosts.laborHours * 0.7 * 25, // 70% reduction at $25/hr
+    detentionReduction: currentCosts.detentionClaims * 0.3,
+    overtimeReduction: currentCosts.overtimeCosts * 0.4,
+    throughputIncrease: calculateThroughputGains(qualifiedLead)
+  };
+
+  return {
+    currentCosts,
+    projectedSavings,
+    paybackPeriod: calculatePaybackPeriod(currentCosts, projectedSavings),
+    annualROI: calculateAnnualROI(projectedSavings, qualifiedLead.recommendedTier)
+  };
+}
+
+// Product Development Processes
+export async function developFeature(featureRequest: FeatureRequest): Promise<Feature> {
+  try {
+    const requirements = await analyzeRequirements(featureRequest);
+    const design = await createTechnicalDesign(requirements);
+    const implementation = await implementFeature(design);
+    const testing = await testFeature(implementation);
+    return await deployFeature(testing);
+  } catch (error) {
+    throw new Error(`Feature development failed: ${error.message}`);
+  }
+}
+
+async function analyzeRequirements(request: FeatureRequest): Promise<Requirements> {
+  // Analyze customer feedback, usage patterns, and market needs
+  const customerFeedback = await aggregateCustomerFeedback(request.category);
+  const usageAnalytics = await analyzeUsagePatterns(request.category);
+  const competitorAnalysis = await analyzeCompetitorFeatures(request.category);
+  
+  return {
+    functionalRequirements: extractFunctionalRequirements(customerFeedback),
+    technicalRequirements: defineTechnicalRequirements(usageAnalytics),
+    integrationRequirements: defineIntegrationNeeds(competitorAnalysis),
+    priority: calculateFeaturePriority(request, customerFeedback)
+  };
+}
+
+// Revenue Generation Flows
+export async function processSubscription(customer: Customer, tier: SubscriptionTier): Promise<Revenue> {
+  try {
+    const pricing = await calculatePricing(customer, tier);
+    const billing = await setupBilling(customer, pricing);
+    const usage = await trackUsage(customer);
+    return await generateRevenue(billing, usage);
+  } catch (error) {
+    throw new Error(`Revenue processing failed: ${error.message}`);
+  }
+}
+
+async function calculatePricing(customer: Customer, tier: SubscriptionTier): Promise<PricingStructure> {
+  const basePricing = {
+    starter: 600, // $600/site/month up to 800 appointments
+    pro: 1500,    // $1,500/site/month with advanced features
+    enterprise: 2500 // $2,500+/site/month with SSO, VPC
+  };
+
+  const usageBasedPricing = {
+    smsRate: 0.025, // $0.02-$0.03 per SMS
+    appointmentOverage: 0.20, // $0.20 per appointment beyond limits
+    lprStream: 300 // $300/site/month for license plate recognition
+  };
+
+  return {
+    monthlyBase: basePricing[tier],
+    usageRates: usageBasedPricing,
+    implementationFee: calculateImplementationFee(customer),
+    annualDiscount: tier === 'enterprise' ? 0.15 : 0.10
+  };
+}
+
+// Operational Procedures
+export async function processAppointment(appointmentRequest: AppointmentRequest): Promise<Appointment> {
+  try {
+    const availability = await checkDoorAvailability(appointmentRequest);
+    const constraints = await validateConstraints(appointmentRequest, availability);
+    const slot = await assignOptimalSlot(appointmentRequest, constraints);
+    const confirmation = await sendConfirmation(slot);
+    return await createAppointment(slot, confirmation);
+  } catch (error) {
+    throw new Error(`Appointment processing failed: ${error.message}`);
+  }
+}
+
+async function checkDoorAvailability(request: AppointmentRequest): Promise<AvailableSlots> {
+  const facility = await getFacilityConfiguration(request.facilityId);
+  const existingAppointments = await getExistingAppointments(request.facilityId, request.requestedDate);
+  
+  const availableSlots = facility.doors.map(door => {
+    const doorSchedule = existingAppointments.filter(apt => apt.doorAssignment === door.id);
+    return calculateAvailableTimeSlots(door, doorSchedule, facility.operatingHours);
+  }).flat();
+
+  return {
+    slots: availableSlots,
+    constraints: facility.constraints,
+    recommendations: generateSlotRecommendations(availableSlots, request)
+  };
+}
+
+export async function processDriverCheckIn(checkInData: DriverCheckInData): Promise<CheckInResult> {
+  try {
+    const verification = await verifyDriverCredentials(checkInData);
+    const documents = await validateDocuments(checkInData.documents);
+    const doorAssignment = await assignDoor(verification, documents);
+    const notification = await notifyWarehouse(doorAssignment);
+    return await completeCheckIn(doorAssignment, notification);
+  } catch (error) {
+    throw new Error(`Driver check-in failed: ${error.message}`);
+  }
+}
+
+async function verifyDriverCredentials(checkInData: DriverCheckInData): Promise<DriverVerification> {
+  // Verify PO/PRO/reference numbers, driver ID, carrier information
+  const appointment = await findAppointmentByReference(checkInData.referenceNumber);
+  if (!appointment) {
+    throw new Error('No appointment found for reference number');
+  }
+
+  const driverMatch = await verifyDriverIdentity(checkInData.driverId, appointment.driverId);
+  const carrierMatch = await verifyCarrierInfo(checkInData.carrierId, appointment.carrierId);
+
+  return {
+    appointmentId: appointment.id,
+    verified: driverMatch && carrierMatch,
+    arrivalTime: new Date(),
+    earlyLateStatus: calculateArrivalStatus(appointment.scheduledTime)
+  };
+}
+
+// Decision-Making Workflows
+export async function optimizeDockSchedule(facilityId: string, date: Date): Promise<OptimizedSchedule> {
+  try {
+    const currentSchedule = await getCurrentSchedule(facilityId, date);
+    const constraints = await getSchedulingConstraints(facilityId);
+    const etaUpdates = await getETAUpdates(currentSchedule.appointments);
+    const optimization = await runOptimizationEngine(currentSchedule, constraints, etaUpdates);
+    return await implementScheduleChanges(optimization);
+  } catch (error) {
+    throw new Error(`Schedule optimization failed: ${error.message}`);
+  }
+}
+
+async function runOptimizationEngine(
+  schedule: DockSchedule, 
+  constraints: SchedulingConstraints, 
+  etaUpdates: ETAUpdate[]
+): Promise<OptimizationResult> {
+  // Apply constraint-based optimization considering:
+  // - Door capacity and equipment type constraints
+  // - Commodity and hazmat restrictions
+  // - Temperature control requirements
+  // - Labor shift patterns
+  // - SLA priorities per client
+  
+  const objectives = {
+    maximizeDoorUtilization: 0.4,
+    minimizeDwellTime: 0.3,
+    reduceDetentionRisk: 0.2,
+    balanceWorkload: 0.1
+  };
+
+  const optimizedSlots = await solveSchedulingProblem(schedule, constraints, objectives);
+  const impactAnalysis = await analyzeScheduleImpact(schedule, optimizedSlots);
+  
+  return {
+    originalSchedule: schedule,
+    optimizedSchedule: optimizedSlots,
+    improvements: impactAnalysis,
+    changeRequests: generateChangeRequests(schedule, optimizedSlots)
+  };
+}
+
+export async function handleException(exception: OperationalException): Promise<ExceptionResolution> {
+  try {
+    const severity = await assessExceptionSeverity(exception);
+    const options = await generateResolutionOptions(exception, severity);
+    const decision = await makeResolutionDecision(options);
+    const implementation = await implementResolution(decision);
+    return await trackResolutionOutcome(implementation);
+  } catch (error) {
+    throw new Error(`Exception handling failed: ${error.message}`);
+  }
+}
+
+async function assessExceptionSeverity(exception: OperationalException): Promise<ExceptionSeverity> {
+  const impactFactors = {
+    affectedAppointments: exception.affectedAppointments.length,
+    detentionRisk: calculateDetentionRisk(exception),
+    customerTier: getHighestCustomerTier(exception.affectedAppointments),
+    timeToDeadline: calculateTimeToDeadline(exception),
+    resourceAvailability: await checkResourceAvailability(exception)
+  };
+
+  const severityScore = calculateSeverityScore(impactFactors);
+  
+  return {
+    level: severityScore > 8 ? 'critical' : severityScore > 5 ? 'high' : 'medium',
+    impactFactors,
+    escalationRequired: severityScore > 7,
+    responseTimeTarget: severityScore > 8 ? 5 : severityScore > 5 ? 15 : 60 // minutes
+  };
+}
+
+// Integration and Analytics Functions
+export async function syncWithWMS(facilityId: string, updates: WMSUpdate[]): Promise<SyncResult> {
+  try {
+    const wmsConfig = await getWMSConfiguration(facilityId);
+    const mappedData = await mapDataToWMSFormat(updates, wmsConfig);
+    const syncResult = await pushToWMS(mappedData, wmsConfig);
+    return await validateSyncSuccess(syncResult);
+  } catch (error) {
+    throw new Error(`WMS sync failed: ${error.message}`);
+  }
+}
+
+export async function generateAnalytics(facilityId: string, period: DateRange): Promise<FacilityAnalytics> {
+  try {
+    const appointments = await getAppointmentHistory(facilityId, period);
+    const checkIns = await getCheckInHistory(facilityId, period);
+    const doorUtilization = await calculateDoorUtilization(appointments, period);
+    const dwellAnalysis = await analyzeDwellTimes(checkIns);
+    const carrierPerformance = await analyzeCarrierPerformance(appointments);
+    
+    return {
+      period,
+      facilityId,
+      kpis: {
+        averageCheckInTime: dwellAnalysis.averageCheckInTime,
+        doorUtilization: doorUtilization.average,
+        onTimePerformance: carrierPerformance.onTimeRate,
+        noShowRate: carrierPerformance.noShowRate,
+        detentionIncidents: dwellAnalysis.detentionCount,
+        throughputImprovement: calculateThroughputImprovement(appointments, period)
+      },
+      trends: generateTrendAnalysis(appointments, checkIns, period),
+      recommendations: generateOperationalRecommendations(doorUtilization, dwellAnalysis)
+    };
+  } catch (error) {
+    throw new Error(`Analytics generation failed: ${error.message}`);
+  }
+}
+```
