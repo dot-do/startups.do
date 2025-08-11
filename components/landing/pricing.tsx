@@ -87,7 +87,7 @@ const Pricing = ({
           <p className="mt-8 text-center text-md sm:text-lg font-medium lg:mt-10">
             {featuresTitle}
           </p>
-          <ul className="mx-auto mt-4 grid w-fit md:w-auto md:max-w-2xl md:grid-cols-2 md:pl-14 lg:max-w-4xl lg:grid-cols-3">
+          <ul className="mx-auto mt-4 grid w-fit md:w-auto md:max-w-2xl md:grid-cols-2 md:pl-14 lg:max-w-6xl lg:grid-cols-3">
             {features.map((feature, index) => (
               <li
                 key={index}
