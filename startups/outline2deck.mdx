@@ -288,3 +288,433 @@ landingPage:
 
 Industry: Graphic Design Services
 Service: Pitch Deck Design From Outline
+
+## Business-as-Code Workflows
+
+```typescript
+// Type Definitions
+interface Lead {
+  id: string;
+  email: string;
+  company: string;
+  role: string;
+  deckType: 'investor' | 'sales' | 'product' | 'enterprise';
+  urgency: 'standard' | 'rush' | 'same-day';
+  source: string;
+  budget?: number;
+}
+
+interface Customer {
+  id: string;
+  email: string;
+  company: string;
+  subscription: 'pay-per-deck' | 'team' | 'enterprise';
+  brandKit?: BrandKit;
+  deckCredits: number;
+  createdAt: Date;
+}
+
+interface Outline {
+  id: string;
+  content: string;
+  format: 'text' | 'docx' | 'notion' | 'google-docs';
+  slideCount?: number;
+  targetAudience: string;
+  narrative: string;
+}
+
+interface BrandKit {
+  id: string;
+  logos: string[];
+  fonts: FontConfig[];
+  colors: ColorPalette;
+  tone: string;
+  templates: SlideTemplate[];
+}
+
+interface Deck {
+  id: string;
+  customerId: string;
+  slides: Slide[];
+  brandKit: BrandKit;
+  status: 'draft' | 'review' | 'completed' | 'exported';
+  qualityScore: number;
+  revisionCount: number;
+  exportFormats: ('pptx' | 'key' | 'gslides' | 'pdf')[];
+}
+
+interface Slide {
+  id: string;
+  type: 'title' | 'problem' | 'solution' | 'market' | 'traction' | 'team' | 'financials' | 'ask';
+  content: string;
+  layout: string;
+  charts: Chart[];
+  icons: Icon[];
+  images: string[];
+}
+
+interface Chart {
+  id: string;
+  type: 'bar' | 'line' | 'pie' | 'scatter' | 'funnel';
+  data: any[];
+  styling: ChartStyle;
+}
+
+interface HumanPolishRequest {
+  id: string;
+  deckId: string;
+  priority: 'standard' | 'rush';
+  requirements: string[];
+  deadline: Date;
+}
+
+interface RevenueRecord {
+  customerId: string;
+  amount: number;
+  type: 'deck' | 'subscription' | 'polish' | 'template';
+  date: Date;
+  status: 'pending' | 'completed' | 'refunded';
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  try {
+    const qualifiedLead = await qualifyLead(lead);
+    const onboardingFlow = await initiateOnboarding(qualifiedLead);
+    const customer = await createCustomerAccount(onboardingFlow);
+    await sendWelcomeSequence(customer);
+    return customer;
+  } catch (error) {
+    await logAcquisitionError(lead, error);
+    throw error;
+  }
+}
+
+export async function qualifyLead(lead: Lead): Promise<Lead & { qualified: boolean; score: number }> {
+  const fitScore = await calculateFitScore(lead);
+  const urgencyScore = await assessUrgency(lead);
+  const budgetAlignment = await validateBudget(lead);
+  
+  const qualified = fitScore > 7 && budgetAlignment;
+  
+  return {
+    ...lead,
+    qualified,
+    score: (fitScore + urgencyScore) / 2
+  };
+}
+
+export async function initiateOnboarding(lead: Lead): Promise<{ customerId: string; flow: string }> {
+  const onboardingType = determineOnboardingFlow(lead);
+  const customerId = await createProvisionalAccount(lead);
+  
+  if (onboardingType === 'self-serve') {
+    await triggerSelfServeFlow(customerId);
+  } else {
+    await scheduleOnboardingCall(customerId, lead);
+  }
+  
+  return { customerId, flow: onboardingType };
+}
+
+// Deck Generation Workflows
+export async function generateDeck(outline: Outline, customer: Customer): Promise<Deck> {
+  try {
+    const structuredContent = await parseAndStructureOutline(outline);
+    const slideMap = await createSlideMap(structuredContent, outline.targetAudience);
+    const brandKit = customer.brandKit || await generateLightweightTheme(customer);
+    
+    const slides = await generateSlides(slideMap, brandKit);
+    const chartsAndVisuals = await processDataAndCharts(slides, brandKit);
+    const finalSlides = await applyIconsAndImagery(chartsAndVisuals, brandKit);
+    
+    const deck = await assembleDeck(finalSlides, brandKit, customer.id);
+    await runQualityAssurance(deck);
+    
+    return deck;
+  } catch (error) {
+    await logGenerationError(outline, customer, error);
+    throw error;
+  }
+}
+
+export async function parseAndStructureOutline(outline: Outline): Promise<{ sections: any[]; narrative: string }> {
+  const aiAnalysis = await analyzeContentStructure(outline.content);
+  const narrativeFramework = await mapToNarrativeFramework(aiAnalysis, outline.targetAudience);
+  const sections = await extractKeyPoints(outline.content, narrativeFramework);
+  
+  return {
+    sections,
+    narrative: narrativeFramework
+  };
+}
+
+export async function generateSlides(slideMap: any[], brandKit: BrandKit): Promise<Slide[]> {
+  const slides: Slide[] = [];
+  
+  for (const slideSpec of slideMap) {
+    const slide = await createSlide(slideSpec, brandKit);
+    const optimizedSlide = await optimizeSlideLayout(slide, brandKit);
+    slides.push(optimizedSlide);
+  }
+  
+  return slides;
+}
+
+export async function processDataAndCharts(slides: Slide[], brandKit: BrandKit): Promise<Slide[]> {
+  const processedSlides = [];
+  
+  for (const slide of slides) {
+    if (slide.type === 'financials' || slide.type === 'traction') {
+      const charts = await generateChartsFromData(slide.content, brandKit);
+      const updatedSlide = { ...slide, charts };
+      processedSlides.push(updatedSlide);
+    } else {
+      processedSlides.push(slide);
+    }
+  }
+  
+  return processedSlides;
+}
+
+// Brand Processing Workflows
+export async function processBrandKit(brandAssets: any[], customer: Customer): Promise<BrandKit> {
+  const extractedColors = await extractColorPalette(brandAssets);
+  const identifiedFonts = await identifyFonts(brandAssets);
+  const logoVariations = await processLogos(brandAssets);
+  const toneAnalysis = await analyzeBrandTone(brandAssets);
+  
+  const brandKit: BrandKit = {
+    id: generateId(),
+    logos: logoVariations,
+    fonts: identifiedFonts,
+    colors: extractedColors,
+    tone: toneAnalysis,
+    templates: await generateSlideTemplates(extractedColors, identifiedFonts)
+  };
+  
+  await saveBrandKit(brandKit, customer.id);
+  return brandKit;
+}
+
+export async function generateLightweightTheme(customer: Customer): Promise<BrandKit> {
+  const industryDefaults = await getIndustryDefaults(customer.company);
+  const colorScheme = await generateColorScheme(industryDefaults);
+  const fontPairing = await selectFontPairing(industryDefaults);
+  
+  return {
+    id: generateId(),
+    logos: [],
+    fonts: fontPairing,
+    colors: colorScheme,
+    tone: 'professional',
+    templates: await generateDefaultTemplates(colorScheme, fontPairing)
+  };
+}
+
+// Quality Assurance Workflows
+export async function runQualityAssurance(deck: Deck): Promise<{ score: number; issues: string[]; suggestions: string[] }> {
+  const readabilityScore = await checkReadability(deck);
+  const consistencyScore = await checkBrandConsistency(deck);
+  const narrativeScore = await checkNarrativeFlow(deck);
+  const accessibilityScore = await checkAccessibility(deck);
+  
+  const overallScore = (readabilityScore + consistencyScore + narrativeScore + accessibilityScore) / 4;
+  const issues = await identifyIssues(deck, overallScore);
+  const suggestions = await generateImprovementSuggestions(deck, issues);
+  
+  await updateDeckQualityScore(deck.id, overallScore);
+  
+  return {
+    score: overallScore,
+    issues,
+    suggestions
+  };
+}
+
+export async function requestHumanPolish(deck: Deck, requirements: string[]): Promise<HumanPolishRequest> {
+  const priority = await determinePriority(deck, requirements);
+  const deadline = await calculateDeadline(priority);
+  const designerMatch = await matchWithDesigner(deck, requirements);
+  
+  const polishRequest: HumanPolishRequest = {
+    id: generateId(),
+    deckId: deck.id,
+    priority,
+    requirements,
+    deadline
+  };
+  
+  await assignToDesigner(polishRequest, designerMatch);
+  await notifyCustomerOfTimeline(deck.customerId, deadline);
+  
+  return polishRequest;
+}
+
+// Revenue Generation Workflows
+export async function processPayment(customer: Customer, deckType: string, addOns: string[]): Promise<RevenueRecord> {
+  const pricing = await calculatePricing(deckType, addOns, customer.subscription);
+  const paymentResult = await processStripePayment(customer, pricing);
+  
+  if (paymentResult.success) {
+    const revenueRecord = await recordRevenue(customer, pricing, deckType);
+    await updateCustomerCredits(customer, deckType);
+    await sendPaymentConfirmation(customer, revenueRecord);
+    return revenueRecord;
+  } else {
+    await handlePaymentFailure(customer, paymentResult.error);
+    throw new Error('Payment processing failed');
+  }
+}
+
+export async function manageSubscription(customer: Customer, action: 'upgrade' | 'downgrade' | 'cancel'): Promise<Customer> {
+  const currentPlan = customer.subscription;
+  const newPlan = await calculateNewPlan(currentPlan, action);
+  
+  if (action === 'upgrade') {
+    await processUpgradePayment(customer, newPlan);
+    await increaseCredits(customer, newPlan);
+  } else if (action === 'downgrade') {
+    await scheduleDowngrade(customer, newPlan);
+    await adjustCredits(customer, newPlan);
+  } else {
+    await processCancellation(customer);
+    await scheduleDataRetention(customer);
+  }
+  
+  const updatedCustomer = { ...customer, subscription: newPlan };
+  await updateCustomerRecord(updatedCustomer);
+  
+  return updatedCustomer;
+}
+
+// Partnership and Affiliate Workflows
+export async function onboardPartner(partnerInfo: any): Promise<{ partnerId: string; commissionRate: number }> {
+  const partnerType = await classifyPartner(partnerInfo);
+  const commissionRate = await determineCommissionRate(partnerType);
+  const partnerId = await createPartnerAccount(partnerInfo, commissionRate);
+  
+  await setupTrackingLinks(partnerId);
+  await sendPartnerWelcomeKit(partnerId);
+  await schedulePartnerTraining(partnerId, partnerType);
+  
+  return { partnerId, commissionRate };
+}
+
+export async function trackAffiliateSale(customerId: string, affiliateId: string, saleAmount: number): Promise<void> {
+  const commission = await calculateCommission(affiliateId, saleAmount);
+  await recordAffiliateCommission(affiliateId, commission, customerId);
+  await updateAffiliateStats(affiliateId, saleAmount);
+  await queueCommissionPayment(affiliateId, commission);
+}
+
+// Operational Procedures
+export async function monitorSystemHealth(): Promise<{ status: string; metrics: any }> {
+  const apiHealth = await checkAPIHealth();
+  const databaseHealth = await checkDatabaseHealth();
+  const aiServiceHealth = await checkAIServiceHealth();
+  const exportServiceHealth = await checkExportServiceHealth();
+  
+  const overallStatus = [apiHealth, databaseHealth, aiServiceHealth, exportServiceHealth]
+    .every(service => service.status === 'healthy') ? 'healthy' : 'degraded';
+  
+  const metrics = {
+    responseTime: await getAverageResponseTime(),
+    errorRate: await getErrorRate(),
+    activeUsers: await getActiveUserCount(),
+    deckGenerationRate: await getDeckGenerationRate()
+  };
+  
+  if (overallStatus === 'degraded') {
+    await alertOnCallTeam(metrics);
+  }
+  
+  return { status: overallStatus, metrics };
+}
+
+export async function handleCustomerSupport(ticket: any): Promise<{ resolution: string; escalated: boolean }> {
+  const ticketType = await classifyTicket(ticket);
+  const urgency = await assessTicketUrgency(ticket);
+  
+  if (ticketType === 'technical' && urgency === 'high') {
+    await escalateToEngineering(ticket);
+    return { resolution: 'escalated_to_engineering', escalated: true };
+  } else if (ticketType === 'billing') {
+    const resolution = await resolveBillingIssue(ticket);
+    return { resolution, escalated: false };
+  } else {
+    const resolution = await provideStandardSupport(ticket);
+    return { resolution, escalated: false };
+  }
+}
+
+// Decision-Making Workflows
+export async function optimizePricing(marketData: any): Promise<{ newPricing: any; expectedImpact: string }> {
+  const competitorAnalysis = await analyzeCompetitorPricing(marketData);
+  const customerValueAnalysis = await analyzeCustomerValue();
+  const priceElasticity = await calculatePriceElasticity();
+  
+  const pricingRecommendations = await generatePricingRecommendations(
+    competitorAnalysis,
+    customerValueAnalysis,
+    priceElasticity
+  );
+  
+  const abTestPlan = await designPricingABTest(pricingRecommendations);
+  const expectedImpact = await modelRevenueImpact(pricingRecommendations);
+  
+  return {
+    newPricing: pricingRecommendations,
+    expectedImpact
+  };
+}
+
+export async function prioritizeFeatureDevelopment(featureRequests: any[]): Promise<{ roadmap: any[]; rationale: string }> {
+  const customerImpactScores = await scoreCustomerImpact(featureRequests);
+  const technicalComplexityScores = await scoreTechnicalComplexity(featureRequests);
+  const revenueImpactScores = await scoreRevenueImpact(featureRequests);
+  
+  const prioritizedFeatures = await rankFeatures(
+    featureRequests,
+    customerImpactScores,
+    technicalComplexityScores,
+    revenueImpactScores
+  );
+  
+  const roadmap = await createDevelopmentRoadmap(prioritizedFeatures);
+  const rationale = await generatePrioritizationRationale(roadmap);
+  
+  return { roadmap, rationale };
+}
+
+// Helper Functions (referenced by main workflows)
+async function calculateFitScore(lead: Lead): Promise<number> { /* Implementation */ return 8; }
+async function assessUrgency(lead: Lead): Promise<number> { /* Implementation */ return 7; }
+async function validateBudget(lead: Lead): Promise<boolean> { /* Implementation */ return true; }
+async function createProvisionalAccount(lead: Lead): Promise<string> { /* Implementation */ return 'cust_123'; }
+async function generateId(): string { /* Implementation */ return 'id_' + Date.now(); }
+async function analyzeContentStructure(content: string): Promise<any> { /* Implementation */ return {}; }
+async function mapToNarrativeFramework(analysis: any, audience: string): Promise<string> { /* Implementation */ return 'investor'; }
+async function extractKeyPoints(content: string, framework: string): Promise<any[]> { /* Implementation */ return []; }
+async function createSlide(spec: any, brandKit: BrandKit): Promise<Slide> { /* Implementation */ return {} as Slide; }
+async function optimizeSlideLayout(slide: Slide, brandKit: BrandKit): Promise<Slide> { /* Implementation */ return slide; }
+async function generateChartsFromData(content: string, brandKit: BrandKit): Promise<Chart[]> { /* Implementation */ return []; }
+async function extractColorPalette(assets: any[]): Promise<any> { /* Implementation */ return {}; }
+async function identifyFonts(assets: any[]): Promise<any[]> { /* Implementation */ return []; }
+async function processLogos(assets: any[]): Promise<string[]> { /* Implementation */ return []; }
+async function analyzeBrandTone(assets: any[]): Promise<string> { /* Implementation */ return 'professional'; }
+async function generateSlideTemplates(colors: any, fonts: any[]): Promise<any[]> { /* Implementation */ return []; }
+async function saveBrandKit(brandKit: BrandKit, customerId: string): Promise<void> { /* Implementation */ }
+async function checkReadability(deck: Deck): Promise<number> { /* Implementation */ return 8.5; }
+async function checkBrandConsistency(deck: Deck): Promise<number> { /* Implementation */ return 9.0; }
+async function checkNarrativeFlow(deck: Deck): Promise<number> { /* Implementation */ return 8.0; }
+async function checkAccessibility(deck: Deck): Promise<number> { /* Implementation */ return 7.5; }
+async function identifyIssues(deck: Deck, score: number): Promise<string[]> { /* Implementation */ return []; }
+async function generateImprovementSuggestions(deck: Deck, issues: string[]): Promise<string[]> { /* Implementation */ return []; }
+async function updateDeckQualityScore(deckId: string, score: number): Promise<void> { /* Implementation */ }
+async function calculatePricing(deckType: string, addOns: string[], subscription: string): Promise<number> { /* Implementation */ return 99; }
+async function processStripePayment(customer: Customer, amount: number): Promise<{ success: boolean; error?: string }> { /* Implementation */ return { success: true }; }
+async function recordRevenue(customer: Customer, amount: number, type: string): Promise<RevenueRecord> { /* Implementation */ return {} as RevenueRecord; }
+async function updateCustomerCredits(customer: Customer, deckType: string): Promise<void> { /* Implementation */ }
+async function sendPaymentConfirmation(customer: Customer, record: RevenueRecord): Promise<void> { /* Implementation */ }
+```
