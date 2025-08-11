@@ -311,3 +311,668 @@ landingPage:
 
 Generated for NAICS 485310 — Taxi and Ridesharing Services.
 Service: Customer Support Auto‑Triage and Responder
+
+## Business Workflow Functions
+
+The following TypeScript functions represent RideResolve's core business processes as executable code:
+
+```typescript
+// Core Types and Interfaces
+interface Lead {
+  id: string;
+  company: string;
+  contactName: string;
+  email: string;
+  phone: string;
+  fleetSize: number;
+  currentSupportVolume: number;
+  painPoints: string[];
+  source: 'linkedin' | 'partnership' | 'referral' | 'event' | 'inbound';
+  createdAt: Date;
+}
+
+interface QualifiedLead extends Lead {
+  qualificationScore: number;
+  budget: number;
+  timeline: string;
+  decisionMakers: string[];
+  technicalRequirements: TechnicalRequirements;
+}
+
+interface TechnicalRequirements {
+  supportPlatform: 'zendesk' | 'intercom' | 'salesforce' | 'freshdesk';
+  dispatchSystem: string;
+  paymentSystem: string;
+  currentIntegrations: string[];
+  complianceNeeds: string[];
+}
+
+interface Customer {
+  id: string;
+  lead: QualifiedLead;
+  contract: Contract;
+  onboardingStatus: OnboardingStatus;
+  integrations: Integration[];
+  metrics: CustomerMetrics;
+}
+
+interface Contract {
+  id: string;
+  startDate: Date;
+  endDate: Date;
+  pricing: PricingTier;
+  slaRequirements: SLARequirements;
+  complianceLevel: 'standard' | 'enterprise';
+}
+
+interface OnboardingStatus {
+  phase: 'setup' | 'integration' | 'training' | 'pilot' | 'production';
+  completedSteps: string[];
+  nextSteps: string[];
+  estimatedGoLive: Date;
+}
+
+interface Integration {
+  system: string;
+  status: 'pending' | 'in-progress' | 'completed' | 'failed';
+  apiEndpoints: string[];
+  dataMapping: Record<string, string>;
+}
+
+interface CustomerMetrics {
+  automationRate: number;
+  fcr: number;
+  aht: number;
+  csatDelta: number;
+  costPerContact: number;
+  safetyEscalationSLA: number;
+}
+
+interface SupportTicket {
+  id: string;
+  customerId: string;
+  content: string;
+  metadata: TicketMetadata;
+  classification: TicketClassification;
+  resolution?: TicketResolution;
+  escalation?: EscalationDetails;
+}
+
+interface TicketMetadata {
+  channel: 'chat' | 'email' | 'sms' | 'whatsapp' | 'voice';
+  rideId?: string;
+  userId: string;
+  userType: 'rider' | 'driver';
+  language: string;
+  priority: 'low' | 'medium' | 'high' | 'critical';
+  receivedAt: Date;
+}
+
+interface TicketClassification {
+  intent: string;
+  confidence: number;
+  isSafety: boolean;
+  isRefundEligible: boolean;
+  complexity: 'simple' | 'medium' | 'complex';
+  estimatedResolutionTime: number;
+}
+
+interface TicketResolution {
+  type: 'automated' | 'agent-assisted' | 'escalated';
+  actions: ResolutionAction[];
+  response: string;
+  resolvedAt: Date;
+  customerSatisfaction?: number;
+}
+
+interface ResolutionAction {
+  type: 'refund' | 'credit' | 'receipt-resend' | 'promo-issue' | 'account-flag';
+  amount?: number;
+  details: Record<string, any>;
+}
+
+interface EscalationDetails {
+  reason: string;
+  assignedAgent: string;
+  escalatedAt: Date;
+  summary: string;
+  suggestedActions: string[];
+}
+
+interface PolicyEngine {
+  refundPolicies: RefundPolicy[];
+  safetyKeywords: string[];
+  automationThresholds: AutomationThresholds;
+}
+
+interface RefundPolicy {
+  condition: string;
+  maxAmount: number;
+  requiresApproval: boolean;
+  applicableRegions: string[];
+}
+
+interface AutomationThresholds {
+  confidenceMinimum: number;
+  safetyEscalationKeywords: string[];
+  maxRefundAmount: number;
+}
+
+interface PricingTier {
+  name: string;
+  monthlyBase: number;
+  perTicketRate: number;
+  volumeDiscounts: VolumeDiscount[];
+}
+
+interface VolumeDiscount {
+  minVolume: number;
+  discountPercent: number;
+}
+
+interface SLARequirements {
+  firstResponseTime: number; // minutes
+  resolutionTime: number; // hours
+  safetyEscalationTime: number; // seconds
+  uptime: number; // percentage
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  try {
+    const qualifiedLead = await qualifyLead(lead);
+    const proposal = await generateProposal(qualifiedLead);
+    const contract = await negotiateContract(proposal);
+    const customer = await onboardCustomer(contract);
+    
+    await trackAcquisitionMetrics(customer);
+    return customer;
+  } catch (error) {
+    await logAcquisitionError(lead.id, error);
+    throw new Error(`Customer acquisition failed: ${error.message}`);
+  }
+}
+
+async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  // Score lead based on fleet size, support volume, and pain points
+  const qualificationScore = calculateQualificationScore(lead);
+  
+  if (qualificationScore < 70) {
+    throw new Error('Lead does not meet qualification criteria');
+  }
+  
+  const technicalRequirements = await assessTechnicalRequirements(lead);
+  const budget = await estimateBudget(lead, technicalRequirements);
+  
+  return {
+    ...lead,
+    qualificationScore,
+    budget,
+    timeline: determinePilotTimeline(lead.fleetSize),
+    decisionMakers: await identifyDecisionMakers(lead),
+    technicalRequirements
+  };
+}
+
+async function generateProposal(qualifiedLead: QualifiedLead): Promise<any> {
+  const roiCalculation = await calculateROI(qualifiedLead);
+  const pricingTier = determinePricingTier(qualifiedLead);
+  const implementationPlan = await createImplementationPlan(qualifiedLead);
+  
+  return {
+    leadId: qualifiedLead.id,
+    roiCalculation,
+    pricingTier,
+    implementationPlan,
+    pilotDuration: 90, // days
+    successMetrics: defineSuccessMetrics(qualifiedLead)
+  };
+}
+
+async function negotiateContract(proposal: any): Promise<Contract> {
+  // Contract negotiation logic
+  const slaRequirements = await defineSLARequirements(proposal);
+  const pricing = await finalizePricing(proposal);
+  
+  return {
+    id: generateContractId(),
+    startDate: new Date(),
+    endDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year
+    pricing,
+    slaRequirements,
+    complianceLevel: proposal.leadId.includes('enterprise') ? 'enterprise' : 'standard'
+  };
+}
+
+async function onboardCustomer(contract: Contract): Promise<Customer> {
+  const integrations = await setupIntegrations(contract);
+  const onboardingStatus = await initializeOnboarding(contract);
+  
+  return {
+    id: generateCustomerId(),
+    lead: contract.lead,
+    contract,
+    onboardingStatus,
+    integrations,
+    metrics: initializeMetrics()
+  };
+}
+
+// Product Development Processes
+export async function developProduct(): Promise<void> {
+  try {
+    await trainIntentClassificationModels();
+    await tuneSafetyDetectionModels();
+    await buildIntegrationConnectors();
+    await implementPolicyEngine();
+    await validateSystemPerformance();
+  } catch (error) {
+    await logDevelopmentError(error);
+    throw new Error(`Product development failed: ${error.message}`);
+  }
+}
+
+async function trainIntentClassificationModels(): Promise<void> {
+  const trainingData = await collectLabeledTickets();
+  const model = await trainClassificationModel(trainingData);
+  const accuracy = await validateModelAccuracy(model);
+  
+  if (accuracy < 0.94) {
+    throw new Error(`Model accuracy ${accuracy} below threshold 0.94`);
+  }
+  
+  await deployModel(model, 'intent-classification');
+}
+
+async function tuneSafetyDetectionModels(): Promise<void> {
+  const safetyData = await collectSafetyIncidents();
+  const model = await trainSafetyModel(safetyData);
+  const recall = await validateSafetyRecall(model);
+  
+  if (recall < 0.999) {
+    throw new Error(`Safety recall ${recall} below required 99.9%`);
+  }
+  
+  await deployModel(model, 'safety-detection');
+}
+
+async function buildIntegrationConnectors(): Promise<void> {
+  const platforms = ['zendesk', 'intercom', 'salesforce', 'freshdesk'];
+  
+  for (const platform of platforms) {
+    await buildConnector(platform);
+    await testConnectorIntegration(platform);
+    await certifyConnector(platform);
+  }
+}
+
+async function implementPolicyEngine(): Promise<PolicyEngine> {
+  const refundPolicies = await defineRefundPolicies();
+  const safetyKeywords = await compileSafetyKeywords();
+  const automationThresholds = await setAutomationThresholds();
+  
+  return {
+    refundPolicies,
+    safetyKeywords,
+    automationThresholds
+  };
+}
+
+// Revenue Generation Flows
+export async function generateRevenue(customer: Customer): Promise<number> {
+  try {
+    const usage = await trackUsage(customer);
+    const billing = await calculateBilling(customer, usage);
+    const invoice = await generateInvoice(customer, billing);
+    const payment = await processPayment(invoice);
+    
+    await identifyUpsellOpportunities(customer, usage);
+    return payment.amount;
+  } catch (error) {
+    await logRevenueError(customer.id, error);
+    throw new Error(`Revenue generation failed: ${error.message}`);
+  }
+}
+
+async function trackUsage(customer: Customer): Promise<any> {
+  const automatedTickets = await countAutomatedResolutions(customer.id);
+  const triageOnlyTickets = await countTriageOnlyTickets(customer.id);
+  const voiceMinutes = await countVoiceMinutes(customer.id);
+  
+  return {
+    automatedTickets,
+    triageOnlyTickets,
+    voiceMinutes,
+    period: getCurrentBillingPeriod()
+  };
+}
+
+async function calculateBilling(customer: Customer, usage: any): Promise<any> {
+  const { pricing } = customer.contract;
+  
+  const automationFees = usage.automatedTickets * pricing.perTicketRate;
+  const triageFees = usage.triageOnlyTickets * 0.10; // $0.10 per triage
+  const voiceFees = usage.voiceMinutes * 0.05; // $0.05 per minute
+  const platformFee = pricing.monthlyBase;
+  
+  return {
+    automationFees,
+    triageFees,
+    voiceFees,
+    platformFee,
+    total: automationFees + triageFees + voiceFees + platformFee
+  };
+}
+
+async function identifyUpsellOpportunities(customer: Customer, usage: any): Promise<void> {
+  if (usage.automatedTickets > customer.contract.pricing.volumeDiscounts[0]?.minVolume) {
+    await createUpsellOpportunity(customer.id, 'volume-discount');
+  }
+  
+  if (customer.metrics.automationRate > 0.6) {
+    await createUpsellOpportunity(customer.id, 'enterprise-sla');
+  }
+  
+  if (!customer.integrations.find(i => i.system === 'voice')) {
+    await createUpsellOpportunity(customer.id, 'voice-addon');
+  }
+}
+
+// Operational Procedures
+export async function operateSystem(): Promise<void> {
+  try {
+    await monitorSystemHealth();
+    await processIncomingTickets();
+    await handleEscalations();
+    await updateMetrics();
+    await performMaintenance();
+  } catch (error) {
+    await logOperationalError(error);
+    await triggerIncidentResponse(error);
+  }
+}
+
+async function processIncomingTickets(): Promise<void> {
+  const tickets = await getIncomingTickets();
+  
+  for (const ticket of tickets) {
+    try {
+      const classification = await classifyTicket(ticket);
+      
+      if (classification.isSafety) {
+        await escalateSafetyTicket(ticket, classification);
+      } else if (classification.confidence > 0.85 && classification.complexity === 'simple') {
+        await autoResolveTicket(ticket, classification);
+      } else {
+        await routeToAgent(ticket, classification);
+      }
+    } catch (error) {
+      await escalateTicket(ticket, `Processing error: ${error.message}`);
+    }
+  }
+}
+
+async function escalateSafetyTicket(ticket: SupportTicket, classification: TicketClassification): Promise<void> {
+  const escalation: EscalationDetails = {
+    reason: 'Safety incident detected',
+    assignedAgent: await getOnCallSafetyAgent(),
+    escalatedAt: new Date(),
+    summary: await generateSafetySummary(ticket),
+    suggestedActions: await getSafetyActions(classification)
+  };
+  
+  await notifyOnCallTeam(escalation);
+  await createAuditTrail(ticket, escalation);
+  
+  // Must escalate within 30 seconds SLA
+  const escalationTime = Date.now() - ticket.metadata.receivedAt.getTime();
+  if (escalationTime > 30000) {
+    await alertSLABreach('safety-escalation', escalationTime);
+  }
+}
+
+async function autoResolveTicket(ticket: SupportTicket, classification: TicketClassification): Promise<void> {
+  const actions = await determineResolutionActions(ticket, classification);
+  const response = await generateResponse(ticket, actions);
+  
+  const resolution: TicketResolution = {
+    type: 'automated',
+    actions,
+    response,
+    resolvedAt: new Date()
+  };
+  
+  await executeActions(actions);
+  await sendResponse(ticket, response);
+  await updateTicketStatus(ticket.id, 'resolved', resolution);
+}
+
+// Decision-Making Workflows
+export async function makeDecisions(): Promise<void> {
+  try {
+    await updatePolicyEngine();
+    await adjustAutomationThresholds();
+    await optimizeSafetyRouting();
+    await reviewPerformanceMetrics();
+    await planCapacityScaling();
+  } catch (error) {
+    await logDecisionError(error);
+    throw new Error(`Decision-making failed: ${error.message}`);
+  }
+}
+
+async function updatePolicyEngine(): Promise<void> {
+  const performanceData = await analyzeAutomationPerformance();
+  const leakageAnalysis = await analyzeRefundLeakage();
+  
+  if (leakageAnalysis.falseApprovalRate > 0.005) {
+    await tightenRefundPolicies(leakageAnalysis);
+  }
+  
+  if (performanceData.accuracyDrift > 0.02) {
+    await retrainClassificationModels();
+  }
+}
+
+async function adjustAutomationThresholds(): Promise<void> {
+  const metrics = await getSystemMetrics();
+  
+  if (metrics.automationRate < 0.4) {
+    await lowerConfidenceThreshold(0.05);
+  } else if (metrics.errorRate > 0.02) {
+    await raiseConfidenceThreshold(0.05);
+  }
+  
+  await validateThresholdChanges();
+}
+
+async function optimizeSafetyRouting(): Promise<void> {
+  const safetyMetrics = await analyzeSafetyPerformance();
+  
+  if (safetyMetrics.averageEscalationTime > 25000) { // 25 seconds
+    await optimizeSafetyKeywords();
+    await addSafetyAgents();
+  }
+  
+  if (safetyMetrics.falsePositiveRate > 0.1) {
+    await refineSafetyModel();
+  }
+}
+
+async function reviewPerformanceMetrics(): Promise<void> {
+  const customers = await getAllCustomers();
+  
+  for (const customer of customers) {
+    const metrics = await calculateCustomerMetrics(customer);
+    
+    if (metrics.automationRate < customer.contract.slaRequirements.automationTarget) {
+      await createPerformanceAlert(customer.id, 'automation-below-target');
+    }
+    
+    if (metrics.csatDelta < 8) {
+      await scheduleCustomerReview(customer.id, 'csat-improvement-needed');
+    }
+  }
+}
+
+// Helper Functions
+function calculateQualificationScore(lead: Lead): number {
+  let score = 0;
+  
+  // Fleet size scoring
+  if (lead.fleetSize > 1000) score += 30;
+  else if (lead.fleetSize > 100) score += 20;
+  else if (lead.fleetSize > 50) score += 10;
+  
+  // Support volume scoring
+  if (lead.currentSupportVolume > 10000) score += 25;
+  else if (lead.currentSupportVolume > 1000) score += 15;
+  else if (lead.currentSupportVolume > 100) score += 5;
+  
+  // Pain points scoring
+  const highValuePainPoints = ['safety escalation', 'multilingual support', 'policy enforcement'];
+  const painPointScore = lead.painPoints.filter(p => 
+    highValuePainPoints.some(hvp => p.toLowerCase().includes(hvp))
+  ).length * 15;
+  
+  score += painPointScore;
+  
+  return Math.min(score, 100);
+}
+
+function generateContractId(): string {
+  return `RR-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+}
+
+function generateCustomerId(): string {
+  return `CUST-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+}
+
+function initializeMetrics(): CustomerMetrics {
+  return {
+    automationRate: 0,
+    fcr: 0,
+    aht: 0,
+    csatDelta: 0,
+    costPerContact: 0,
+    safetyEscalationSLA: 0
+  };
+}
+
+// Placeholder implementations for external dependencies
+async function collectLabeledTickets(): Promise<any[]> { return []; }
+async function trainClassificationModel(data: any[]): Promise<any> { return {}; }
+async function validateModelAccuracy(model: any): Promise<number> { return 0.95; }
+async function deployModel(model: any, type: string): Promise<void> {}
+async function collectSafetyIncidents(): Promise<any[]> { return []; }
+async function trainSafetyModel(data: any[]): Promise<any> { return {}; }
+async function validateSafetyRecall(model: any): Promise<number> { return 0.999; }
+async function buildConnector(platform: string): Promise<void> {}
+async function testConnectorIntegration(platform: string): Promise<void> {}
+async function certifyConnector(platform: string): Promise<void> {}
+async function defineRefundPolicies(): Promise<RefundPolicy[]> { return []; }
+async function compileSafetyKeywords(): Promise<string[]> { return []; }
+async function setAutomationThresholds(): Promise<AutomationThresholds> { 
+  return { confidenceMinimum: 0.85, safetyEscalationKeywords: [], maxRefundAmount: 100 }; 
+}
+async function assessTechnicalRequirements(lead: Lead): Promise<TechnicalRequirements> {
+  return {
+    supportPlatform: 'zendesk',
+    dispatchSystem: 'unknown',
+    paymentSystem: 'unknown',
+    currentIntegrations: [],
+    complianceNeeds: []
+  };
+}
+async function estimateBudget(lead: Lead, requirements: TechnicalRequirements): Promise<number> { return 50000; }
+function determinePilotTimeline(fleetSize: number): string { return '90 days'; }
+async function identifyDecisionMakers(lead: Lead): Promise<string[]> { return [lead.contactName]; }
+async function calculateROI(lead: QualifiedLead): Promise<any> { return { savings: 100000, payback: 6 }; }
+function determinePricingTier(lead: QualifiedLead): PricingTier {
+  return {
+    name: 'Standard',
+    monthlyBase: 5000,
+    perTicketRate: 1.0,
+    volumeDiscounts: []
+  };
+}
+async function createImplementationPlan(lead: QualifiedLead): Promise<any> { return {}; }
+function defineSuccessMetrics(lead: QualifiedLead): any { return {}; }
+async function defineSLARequirements(proposal: any): Promise<SLARequirements> {
+  return {
+    firstResponseTime: 5,
+    resolutionTime: 24,
+    safetyEscalationTime: 30,
+    uptime: 99.95
+  };
+}
+async function finalizePricing(proposal: any): Promise<PricingTier> { return proposal.pricingTier; }
+async function setupIntegrations(contract: Contract): Promise<Integration[]> { return []; }
+async function initializeOnboarding(contract: Contract): Promise<OnboardingStatus> {
+  return {
+    phase: 'setup',
+    completedSteps: [],
+    nextSteps: ['Connect support platform'],
+    estimatedGoLive: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
+  };
+}
+async function trackAcquisitionMetrics(customer: Customer): Promise<void> {}
+async function logAcquisitionError(leadId: string, error: any): Promise<void> {}
+async function logDevelopmentError(error: any): Promise<void> {}
+async function logRevenueError(customerId: string, error: any): Promise<void> {}
+async function logOperationalError(error: any): Promise<void> {}
+async function logDecisionError(error: any): Promise<void> {}
+async function countAutomatedResolutions(customerId: string): Promise<number> { return 1000; }
+async function countTriageOnlyTickets(customerId: string): Promise<number> { return 200; }
+async function countVoiceMinutes(customerId: string): Promise<number> { return 500; }
+function getCurrentBillingPeriod(): any { return { start: new Date(), end: new Date() }; }
+async function generateInvoice(customer: Customer, billing: any): Promise<any> { return { id: 'INV-123', amount: billing.total }; }
+async function processPayment(invoice: any): Promise<any> { return { amount: invoice.amount, status: 'paid' }; }
+async function createUpsellOpportunity(customerId: string, type: string): Promise<void> {}
+async function monitorSystemHealth(): Promise<void> {}
+async function getIncomingTickets(): Promise<SupportTicket[]> { return []; }
+async function classifyTicket(ticket: SupportTicket): Promise<TicketClassification> {
+  return {
+    intent: 'fare_adjustment',
+    confidence: 0.9,
+    isSafety: false,
+    isRefundEligible: true,
+    complexity: 'simple',
+    estimatedResolutionTime: 300
+  };
+}
+async function escalateSafetyTicket(ticket: SupportTicket, classification: TicketClassification): Promise<void> {}
+async function autoResolveTicket(ticket: SupportTicket, classification: TicketClassification): Promise<void> {}
+async function routeToAgent(ticket: SupportTicket, classification: TicketClassification): Promise<void> {}
+async function escalateTicket(ticket: SupportTicket, reason: string): Promise<void> {}
+async function getOnCallSafetyAgent(): Promise<string> { return 'agent-123'; }
+async function generateSafetySummary(ticket: SupportTicket): Promise<string> { return 'Safety incident summary'; }
+async function getSafetyActions(classification: TicketClassification): Promise<string[]> { return ['Escalate immediately']; }
+async function notifyOnCallTeam(escalation: EscalationDetails): Promise<void> {}
+async function createAuditTrail(ticket: SupportTicket, escalation: EscalationDetails): Promise<void> {}
+async function alertSLABreach(type: string, time: number): Promise<void> {}
+async function determineResolutionActions(ticket: SupportTicket, classification: TicketClassification): Promise<ResolutionAction[]> { return []; }
+async function generateResponse(ticket: SupportTicket, actions: ResolutionAction[]): Promise<string> { return 'Automated response'; }
+async function executeActions(actions: ResolutionAction[]): Promise<void> {}
+async function sendResponse(ticket: SupportTicket, response: string): Promise<void> {}
+async function updateTicketStatus(ticketId: string, status: string, resolution?: TicketResolution): Promise<void> {}
+async function updateMetrics(): Promise<void> {}
+async function performMaintenance(): Promise<void> {}
+async function triggerIncidentResponse(error: any): Promise<void> {}
+async function analyzeAutomationPerformance(): Promise<any> { return { accuracyDrift: 0.01 }; }
+async function analyzeRefundLeakage(): Promise<any> { return { falseApprovalRate: 0.003 }; }
+async function tightenRefundPolicies(analysis: any): Promise<void> {}
+async function retrainClassificationModels(): Promise<void> {}
+async function getSystemMetrics(): Promise<any> { return { automationRate: 0.5, errorRate: 0.01 }; }
+async function lowerConfidenceThreshold(amount: number): Promise<void> {}
+async function raiseConfidenceThreshold(amount: number): Promise<void> {}
+async function validateThresholdChanges(): Promise<void> {}
+async function analyzeSafetyPerformance(): Promise<any> { return { averageEscalationTime: 20000, falsePositiveRate: 0.05 }; }
+async function optimizeSafetyKeywords(): Promise<void> {}
+async function addSafetyAgents(): Promise<void> {}
+async function refineSafetyModel(): Promise<void> {}
+async function getAllCustomers(): Promise<Customer[]> { return []; }
+async function calculateCustomerMetrics(customer: Customer): Promise<CustomerMetrics> { return customer.metrics; }
+async function createPerformanceAlert(customerId: string, type: string): Promise<void> {}
+async function scheduleCustomerReview(customerId: string, reason: string): Promise<void> {}
+```
