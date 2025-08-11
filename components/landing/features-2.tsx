@@ -54,7 +54,7 @@ const Features2 = ({
         <h2 className="text-3xl font-medium lg:text-4xl">{title}</h2>
         <div className="mt-14 grid gap-6 lg:mt-20 lg:grid-cols-3">
           {features.map((feature) => {
-            const IconComponent = feature.icon;
+            const IconComponent = feature.icon || <></>;
             return (
               <div key={feature.id} className="rounded-lg bg-accent p-5">
                 <span className="mb-8 flex">
