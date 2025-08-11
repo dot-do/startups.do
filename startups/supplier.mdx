@@ -355,7 +355,356 @@ landingPage:
     - 'Enable alerts, holds, and supplier outreach workflows in your ERP/MRP.'
     - Track on-time performance and risk reduction in live dashboards.
 ---
+
 # Supplier Risk & Compliance Radar (SRC-Radar)
 
 Generated for NAICS 336999 — All Other Transportation Equipment Manufacturing.
 Service: Supplier Risk & Compliance Radar
+
+## Business Workflow Functions
+
+```typescript
+// Core Types
+interface Lead {
+  companyName: string;
+  naics: string;
+  revenue: number;
+  supplierCount: number;
+  contactInfo: ContactInfo;
+  painPoints: string[];
+}
+
+interface Customer {
+  id: string;
+  companyName: string;
+  tier: 'Starter' | 'Growth' | 'Enterprise';
+  supplierCount: number;
+  modules: string[];
+  contractValue: number;
+  onboardingStatus: 'pending' | 'in-progress' | 'complete';
+}
+
+interface Supplier {
+  id: string;
+  name: string;
+  riskScore: number;
+  deliveryRisk: number;
+  financialRisk: number;
+  complianceRisk: number;
+  esgRisk: number;
+  lastScreened: Date;
+  status: 'active' | 'watchlist' | 'blocked';
+}
+
+interface RiskAlert {
+  supplierId: string;
+  riskType: 'delivery' | 'financial' | 'compliance' | 'esg';
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  description: string;
+  recommendedActions: string[];
+  dueDate: Date;
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const proposal = await generateProposal(qualifiedLead);
+  const contract = await negotiateContract(proposal);
+  return await onboardCustomer(contract);
+}
+
+async function qualifyLead(lead: Lead): Promise<Lead> {
+  // Validate NAICS 336999 and revenue range $50M-$3B
+  if (lead.naics !== '336999') {
+    throw new Error('Lead not in target NAICS 336999');
+  }
+  
+  if (lead.revenue < 50_000_000 || lead.revenue > 3_000_000_000) {
+    throw new Error('Lead revenue outside target range');
+  }
+  
+  if (lead.supplierCount < 200) {
+    throw new Error('Supplier count below minimum threshold');
+  }
+  
+  return lead;
+}
+
+async function generateProposal(lead: Lead): Promise<Proposal> {
+  const tier = determineTier(lead.supplierCount);
+  const modules = recommendModules(lead.painPoints);
+  const pricing = calculatePricing(tier, modules);
+  
+  return {
+    tier,
+    modules,
+    pricing,
+    pilotProgram: generate12WeekPilot(),
+    roi: calculateROI(lead.revenue, lead.supplierCount)
+  };
+}
+
+function determineTier(supplierCount: number): 'Starter' | 'Growth' | 'Enterprise' {
+  if (supplierCount <= 250) return 'Starter';
+  if (supplierCount <= 1000) return 'Growth';
+  return 'Enterprise';
+}
+
+// Product Development Processes
+export async function developRiskModel(naics: string): Promise<RiskModel> {
+  const trainingData = await collectTrainingData(naics);
+  const features = await engineerFeatures(trainingData);
+  const model = await trainModel(features);
+  const validatedModel = await validateModel(model);
+  return await deployModel(validatedModel);
+}
+
+async function collectTrainingData(naics: string): Promise<TrainingData> {
+  const erpData = await ingestERPData();
+  const thirdPartyData = await ingestThirdPartyData();
+  const sanctionsData = await ingestSanctionsData();
+  const esgData = await ingestESGData();
+  
+  return {
+    erpData,
+    thirdPartyData,
+    sanctionsData,
+    esgData,
+    naics
+  };
+}
+
+async function engineerFeatures(data: TrainingData): Promise<FeatureSet> {
+  return {
+    deliveryFeatures: calculateDeliveryMetrics(data.erpData),
+    financialFeatures: calculateFinancialMetrics(data.thirdPartyData),
+    complianceFeatures: calculateComplianceMetrics(data.sanctionsData),
+    esgFeatures: calculateESGMetrics(data.esgData)
+  };
+}
+
+// Revenue Generation Flows
+export async function processSubscription(customer: Customer): Promise<Revenue> {
+  const billingCycle = await setupBillingCycle(customer);
+  const usage = await trackUsage(customer);
+  const invoice = await generateInvoice(customer, usage);
+  const payment = await processPayment(invoice);
+  return await recordRevenue(payment);
+}
+
+async function setupBillingCycle(customer: Customer): Promise<BillingCycle> {
+  const baseFee = getBaseFee(customer.tier);
+  const moduleFees = calculateModuleFees(customer.modules);
+  const usageLimits = getUsageLimits(customer.tier);
+  
+  return {
+    customerId: customer.id,
+    baseFee,
+    moduleFees,
+    usageLimits,
+    billingFrequency: 'annual'
+  };
+}
+
+function getBaseFee(tier: string): number {
+  const fees = {
+    'Starter': 45000,
+    'Growth': 120000,
+    'Enterprise': 240000
+  };
+  return fees[tier] || 0;
+}
+
+// Operational Procedures
+export async function monitorSupplierRisk(supplierId: string): Promise<RiskAlert[]> {
+  const supplier = await getSupplier(supplierId);
+  const riskScores = await calculateRiskScores(supplier);
+  const alerts = await generateAlerts(riskScores);
+  await updateSupplierStatus(supplier, riskScores);
+  return alerts;
+}
+
+async function calculateRiskScores(supplier: Supplier): Promise<RiskScores> {
+  const deliveryRisk = await assessDeliveryRisk(supplier);
+  const financialRisk = await assessFinancialRisk(supplier);
+  const complianceRisk = await assessComplianceRisk(supplier);
+  const esgRisk = await assessESGRisk(supplier);
+  
+  return {
+    overall: (deliveryRisk + financialRisk + complianceRisk + esgRisk) / 4,
+    delivery: deliveryRisk,
+    financial: financialRisk,
+    compliance: complianceRisk,
+    esg: esgRisk
+  };
+}
+
+async function generateAlerts(riskScores: RiskScores): Promise<RiskAlert[]> {
+  const alerts: RiskAlert[] = [];
+  
+  if (riskScores.delivery > 0.7) {
+    alerts.push(createDeliveryAlert(riskScores.delivery));
+  }
+  
+  if (riskScores.compliance > 0.8) {
+    alerts.push(createComplianceAlert(riskScores.compliance));
+  }
+  
+  if (riskScores.esg > 0.6) {
+    alerts.push(createESGAlert(riskScores.esg));
+  }
+  
+  return alerts;
+}
+
+// Decision-Making Workflows
+export async function evaluateSupplierAction(alert: RiskAlert): Promise<SupplierAction> {
+  const riskLevel = assessRiskLevel(alert);
+  const mitigationOptions = await generateMitigationOptions(alert);
+  const recommendedAction = await selectOptimalAction(mitigationOptions, riskLevel);
+  return await executeSupplierAction(recommendedAction);
+}
+
+async function generateMitigationOptions(alert: RiskAlert): Promise<MitigationOption[]> {
+  const options: MitigationOption[] = [];
+  
+  switch (alert.riskType) {
+    case 'delivery':
+      options.push(
+        { action: 'increase_safety_stock', cost: 50000, effectiveness: 0.8 },
+        { action: 'find_alternate_supplier', cost: 25000, effectiveness: 0.9 },
+        { action: 'expedite_shipment', cost: 15000, effectiveness: 0.6 }
+      );
+      break;
+    case 'compliance':
+      options.push(
+        { action: 'conduct_audit', cost: 10000, effectiveness: 0.95 },
+        { action: 'request_documentation', cost: 1000, effectiveness: 0.7 },
+        { action: 'suspend_supplier', cost: 100000, effectiveness: 1.0 }
+      );
+      break;
+    case 'financial':
+      options.push(
+        { action: 'require_letter_of_credit', cost: 5000, effectiveness: 0.85 },
+        { action: 'diversify_suppliers', cost: 30000, effectiveness: 0.9 },
+        { action: 'monitor_closely', cost: 2000, effectiveness: 0.5 }
+      );
+      break;
+  }
+  
+  return options;
+}
+
+async function selectOptimalAction(
+  options: MitigationOption[], 
+  riskLevel: string
+): Promise<MitigationOption> {
+  // Risk-adjusted decision making
+  const weights = getRiskWeights(riskLevel);
+  
+  return options.reduce((best, current) => {
+    const bestScore = (best.effectiveness * weights.effectiveness) - (best.cost * weights.cost);
+    const currentScore = (current.effectiveness * weights.effectiveness) - (current.cost * weights.cost);
+    return currentScore > bestScore ? current : best;
+  });
+}
+
+// Compliance and Screening Workflows
+export async function screenSupplier(supplier: Supplier): Promise<ComplianceResult> {
+  const sanctionsCheck = await checkSanctionsList(supplier);
+  const exportControlCheck = await checkExportControls(supplier);
+  const esgCheck = await checkESGCompliance(supplier);
+  const documentationCheck = await verifyDocumentation(supplier);
+  
+  return {
+    supplierId: supplier.id,
+    sanctionsStatus: sanctionsCheck.status,
+    exportControlStatus: exportControlCheck.status,
+    esgStatus: esgCheck.status,
+    documentationStatus: documentationCheck.status,
+    overallCompliance: calculateOverallCompliance([
+      sanctionsCheck, exportControlCheck, esgCheck, documentationCheck
+    ]),
+    nextScreeningDate: calculateNextScreeningDate(supplier)
+  };
+}
+
+async function checkSanctionsList(supplier: Supplier): Promise<ComplianceCheck> {
+  const lists = ['OFAC', 'BIS_Entity_List', 'EU_Sanctions', 'UN_Sanctions', 'UK_Sanctions'];
+  const results = await Promise.all(
+    lists.map(list => screenAgainstList(supplier, list))
+  );
+  
+  return {
+    status: results.every(r => r.clear) ? 'clear' : 'flagged',
+    details: results,
+    confidence: calculateConfidence(results)
+  };
+}
+
+// Integration and Data Workflows
+export async function integrateERPSystem(customer: Customer, erpType: string): Promise<Integration> {
+  const connector = await setupERPConnector(erpType);
+  const dataMapping = await mapERPData(customer, connector);
+  const testConnection = await testERPConnection(connector);
+  const syncSchedule = await setupSyncSchedule(customer, connector);
+  
+  return {
+    customerId: customer.id,
+    erpType,
+    status: testConnection.success ? 'active' : 'failed',
+    dataMapping,
+    syncSchedule,
+    lastSync: new Date()
+  };
+}
+
+async function setupERPConnector(erpType: string): Promise<ERPConnector> {
+  const connectorMap = {
+    'SAP': createSAPConnector,
+    'Oracle': createOracleConnector,
+    'Infor': createInforConnector,
+    'Epicor': createEpicorConnector,
+    'IFS': createIFSConnector
+  };
+  
+  const connectorFactory = connectorMap[erpType];
+  if (!connectorFactory) {
+    throw new Error(`Unsupported ERP type: ${erpType}`);
+  }
+  
+  return await connectorFactory();
+}
+
+// Reporting and Analytics Workflows
+export async function generateExecutiveDashboard(customer: Customer): Promise<Dashboard> {
+  const riskMetrics = await calculateRiskMetrics(customer);
+  const complianceMetrics = await calculateComplianceMetrics(customer);
+  const performanceMetrics = await calculatePerformanceMetrics(customer);
+  const financialImpact = await calculateFinancialImpact(customer);
+  
+  return {
+    customerId: customer.id,
+    generatedAt: new Date(),
+    riskSummary: riskMetrics,
+    complianceSummary: complianceMetrics,
+    performanceSummary: performanceMetrics,
+    financialImpact,
+    recommendations: await generateRecommendations(customer, riskMetrics)
+  };
+}
+
+async function calculateRiskMetrics(customer: Customer): Promise<RiskMetrics> {
+  const suppliers = await getCustomerSuppliers(customer.id);
+  const riskDistribution = calculateRiskDistribution(suppliers);
+  const bomRiskCoverage = await calculateBOMRiskCoverage(customer);
+  
+  return {
+    totalSuppliers: suppliers.length,
+    highRiskSuppliers: suppliers.filter(s => s.riskScore > 0.7).length,
+    riskDistribution,
+    bomRiskCoverage,
+    trendsLastQuarter: await calculateRiskTrends(customer, 90)
+  };
+}
+```
