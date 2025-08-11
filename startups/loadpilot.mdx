@@ -1,0 +1,325 @@
+---
+name: LoadPilot AI — LTL Load Plan & Consolidation Co‑pilot
+slug: loadpilot
+naics:
+  primary: '484122'
+  occupations: []
+service:
+  title: LTL Load Plan & Consolidation Co‑pilot
+  description: >-
+    Builds nightly and intraday consolidation, trailer assignments, and linehaul
+    plans to maximize cube and meet service standards.
+  targetUsers:
+    - Linehaul planners
+    - Network optimization
+    - Terminal operations
+  triggers:
+    - New shipments received in TMS
+    - End-of-day planning window
+    - Linehaul disruption (driver/tractor/road/weather)
+  inputs:
+    - 'Shipment pool with dims, weight, class, time windows'
+    - Terminal-to-terminal matrix and schedules
+    - Trailer capacities and equipment constraints
+    - Driver availability and HOS rules
+    - Historical travel times and real-time traffic
+  steps:
+    - Normalize shipments and compute density/cube
+    - Cluster by service lanes and cut-off constraints
+    - Optimize trailer builds and schedules (OR-Tools)
+    - Simulate ETA vs. service promises; iterate
+    - 'Publish plan to TMS (routes, trailers, stops)'
+    - Notify planners for approvals and exceptions
+  tools:
+    - 'TMS APIs (McLeod LoadMaster, TMW, MercuryGate)'
+    - Google Maps/Here Distance Matrix
+    - OR-Tools or Gurobi
+    - Weather APIs
+    - Slack/Teams for approvals
+  outputs:
+    - Trailer build sheets and linehaul schedules
+    - Utilization and service-risk scorecards
+    - Exception list needing manual action
+  pricingModel:
+    - 'Per-shipment planned (e.g., $0.10–$0.50)'
+    - Monthly subscription by terminals
+    - Setup fee for data/constraints modeling
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 7
+    overall: 8
+  risks:
+    - Bad or late data causes infeasible plans
+    - Local practices not encoded in constraints
+    - Change management with planners
+  dependencies:
+    - Accurate dims/weights
+    - Terminal schedules and driver HOS data
+    - Write access to TMS planning objects
+leanCanvas:
+  problem:
+    - >-
+      Under-filled trailers (low cube/weight utilization) drive excess linehaul
+      miles and trailers in motion, increasing cost per shipment by 2–8%.
+    - >-
+      Planners juggle thousands of constraints (cut times, service standards,
+      breakbulk sort rules, equipment availability, HazMat, doubles
+      restrictions) with limited time, leading to suboptimal nightly plans and
+      reactive intraday decisions.
+    - >-
+      Intraday disruptions (late pickups, weather, breakdowns, no-shows, labor
+      gaps) are handled manually; most networks lack rapid re-optimization
+      within service windows.
+    - >-
+      Dock operations and trailer assignments are decoupled from network plans,
+      creating rehandles, bottlenecks, and missed departures.
+    - >-
+      Existing tools are batch-oriented or generic; they don’t continuously
+      learn from dock scans/ELD data or provide co‑pilot UX for planners and
+      terminal managers.
+    - >-
+      Siloed data (TMS, telematics, dimensioners, YMS, dock systems) prevents a
+      unified, actionable plan tied to service commitments and real cube
+      constraints.
+  solution:
+    - >-
+      Nightly optimization: generate end-to-end consolidation and linehaul plans
+      (origin, breakbulk flows, trailer types, turns, stops, departure windows)
+      meeting service standards.
+    - >-
+      Intraday re-optimization: continuous replans based on live
+      pickups/deliveries, ELD position, dock scans, weather/traffic, equipment
+      status; proposes minimal-change plans to protect service.
+    - >-
+      Trailer assignment engine: selects 28’ pups vs 48’/53’, doubles/turnpike
+      doubles per state rules, weight/axle, cube, and available sets; recommends
+      pool balances.
+    - >-
+      Dock-aware load builds: sequence freight (headload/backload), minimize
+      rehandles, enforce HazMat separation, temperature/hazard constraints, and
+      cut times; generate door assignments.
+    - >-
+      Service-standard compliance: predicts ETA and service adherence risk;
+      flags at-risk shipments and proposes re-routes or escalations.
+    - >-
+      Scenario planning: what-if simulations (terminal outages, late linehaul,
+      volume spikes) with cost/service trade-offs and budget impact.
+    - >-
+      Co‑pilot UX: natural-language “ask the planner,” plan diffs, reason codes,
+      and human-in-the-loop approvals; audit trail for governance.
+    - >-
+      Integrations: connectors to TMS, ELD/telematics, dock/YMS,
+      dimensioners/scales, mapping/traffic, weather; API and flat-file support.
+    - >-
+      Governance and safety: hard constraints for legal/union rules, equipment,
+      and state-specific doubles restrictions; role-based access and SOC 2
+      controls.
+  uniqueValueProp: >-
+    Increase trailer cube utilization by 2–4 percentage points, reduce linehaul
+    miles per shipment by 3–6%, improve on-time performance by 0.5–1.5 points,
+    and cut planning time by 50–70% via an AI co‑pilot that builds nightly and
+    intraday consolidation, trailer assignments, and linehaul plans while
+    honoring service standards and operational constraints.
+  unfairAdvantage: >-
+    A continuously learning, LTL-specific co‑pilot that blends real-time data
+    (dock scans, ELD, weather/traffic) with service-standard aware optimization
+    and terminal-level playbooks; prebuilt connectors and legality/rule
+    libraries cut implementation time to weeks and create switching costs.
+    Privacy-preserving benchmarking across customers compounds model performance
+    over time.
+  customerSegments:
+    - >-
+      National LTL carriers (200+ terminals, 5k+ trailers) seeking network-wide
+      optimization and intraday replanning.
+    - >-
+      Regional LTL carriers (10–100 terminals) needing quick ROI, lighter
+      integrations, and co‑pilot guidance for limited planning staff.
+    - >-
+      3PLs and consolidators operating pooled LTL/partial networks needing
+      dynamic consolidation and linehaul planning.
+    - >-
+      Private fleets with LTL-like multi-stop consolidations across distribution
+      networks.
+    - >-
+      Tech-forward carriers with homegrown tools seeking AI co‑pilot, scenario
+      planning, and re-optimization at the edge.
+  channels:
+    - >-
+      Direct enterprise sales to VP Linehaul/Network Ops and COO; 6–12 week paid
+      pilots in 2–4 terminals with success criteria.
+    - >-
+      TMS and telematics partnerships (e.g., MercuryGate/e2open/Oracle;
+      Samsara/Motive/Geotab) for co-selling and prebuilt connectors.
+    - >-
+      Industry associations and events: SMC³ Jump Start/Connections, CSCMP, TCA;
+      targeted thought leadership and case studies.
+    - >-
+      Referral network of logistics SIs and boutique OR firms implementing
+      optimization in LTL.
+    - >-
+      Content/demand gen: webinars on “+3 pts cube without missing cuts,” ROI
+      calculators, planner-focused demos; ABM targeting 250 LTL prospects.
+    - >-
+      Customer advisory board of 6–10 regional carriers to prioritize roadmap,
+      secure references, and co-market wins.
+  revenueStreams:
+    - >-
+      SaaS subscription per terminal per month: $3,000–$8,000 depending on
+      feature tier and volume.
+    - >-
+      Usage-based add-on: $0.15–$0.35 per shipment planned or $2–$5 per trailer
+      plan generated.
+    - >-
+      One-time onboarding/integration fee: $40k–$250k depending on system
+      complexity and data quality.
+    - 'Premium analytics and what-if simulation module: +20–30% uplift.'
+    - >-
+      Optional gainshare: 10–20% of verified net savings for first 12 months
+      (mutually agreed M&V).
+    - >-
+      Professional services/training packages for playbook design and change
+      management.
+  costStructure:
+    - >-
+      R&D: optimization/ML engineers, LTL domain experts (40–50% of OPEX in
+      first 2 years).
+    - >-
+      Cloud compute and storage (solver workloads, stream processing, data
+      lake); map/traffic/weather APIs; solver licensing (e.g., Gurobi).
+    - >-
+      Integration and customer success teams; 24/7 support for network-critical
+      incidents.
+    - >-
+      Sales and marketing (enterprise AE/SE pair, field visits to terminals,
+      events).
+    - >-
+      Security/compliance: SOC 2 audits, pen tests, log retention, cyber
+      insurance.
+    - >-
+      Data acquisition: dimensioner/ELD/YMS connectors, state route legality
+      datasets, mapping SDKs.
+  keyMetrics:
+    - >-
+      Operational KPIs: trailer cube utilization %, weight utilization %,
+      rehandles per shipment, dwell time per shipment, dock hours per 100
+      shipments, plan adherence %, replan count/day.
+    - >-
+      Network cost KPIs: linehaul miles per shipment, trailers in motion per
+      1,000 shipments, empty miles %, overtime hours, fuel per CWT, claims rate.
+    - >-
+      Service KPIs: on-time departure %, on-time delivery %, at-risk shipment
+      rate, service standard miss root causes.
+    - >-
+      Product/usage KPIs: plans generated/day, time to first feasible plan,
+      planner touches per plan, co‑pilot recommendation acceptance rate,
+      terminal active users/week.
+    - >-
+      Business KPIs: pilot conversion rate >60%, payback <4 months, NRR >120%,
+      gross margin >70%, CAC payback <12 months, average sales cycle <120 days.
+    - >-
+      Implementation KPIs: time-to-live terminal <8 weeks, data integration SLA
+      >99.5% uptime, data error rate <0.5% of shipments.
+storyBrand:
+  character: >-
+    LTL linehaul planners, terminal managers, and dispatch supervisors at
+    long‑distance general freight carriers who must produce nightly and intraday
+    consolidations, trailer assignments, and linehaul plans that maximize cube
+    and meet service standards.
+  problem: >-
+    - External: Volatile volumes, tight cutoffs, hub schedules, and imbalanced
+    flows make optimal consolidations and trailer assignments hard.
+
+    - Internal: Planners juggle spreadsheets and tribal knowledge, leading to
+    rushed, inconsistent decisions and missed opportunities.
+
+    - Philosophical: Building the plan should be calm, data‑driven, and
+    transparent—not a nightly fire drill.
+  guide: >-
+    We understand LTL. Built by LTL operators and data scientists, proven in
+    production, and integrated with TMS, dock scans, DIM/weight, and telematics.
+    Explainable recommendations, secure (SOC 2), and referenceable ROI.
+  plan: >-
+    1) Connect data: TMS, pickup/delivery, dock scans, DIM/weight, telematics,
+    service maps, and constraints.
+
+    2) Pilot: 30 days in selected terminals with side‑by‑side measurement vs.
+    baseline.
+
+    3) Rollout: Network‑wide playbooks, training, alerts, and continuous
+    optimization.
+
+    Ongoing: Nightly plans before cutoff and intraday re‑plans with trailer
+    assignments, consolidations, linehaul departures, and exception watchlists.
+  callToAction: >-
+    Direct: Book a 30‑minute demo or start a 30‑day pilot. Transitional: Get the
+    ROI brief and sample plan outputs.
+  success: |-
+    - +8–15% trailer cube utilization
+    - −5–12% linehaul miles/runs and fewer relays
+    - +2–5 pts on‑time service and fewer missed cutoffs
+    - −20–35% rehandles/damages
+    - 90% faster planning cycle time
+    - 100–300 bps margin lift per CWT
+    - Planners focus on exceptions, not spreadsheets
+  failure: >-
+    Without the co‑pilot: wasted cube and empty miles, missed service, overtime
+    and burnout, dock congestion and rehandles, higher cost per CWT, and
+    avoidable customer churn.
+landingPage:
+  hero:
+    title: LTL Load Plan & Consolidation Co‑pilot
+    subtitle: >-
+      AI that builds nightly and intraday consolidation, trailer assignments,
+      and linehaul plans to maximize cube and hit service standards.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - Manual planning that doesn’t scale across terminals and shifts
+    - Suboptimal cube and mismatched trailers inflate linehaul cost
+    - Missed cut times and service failures from volatile volume
+    - Limited visibility to cross‑terminal consolidation opportunities
+    - Hard to replan intraday; plans locked in spreadsheets and TMS silos
+    - Empty miles and unbalanced equipment pools across the network
+  solution:
+    - Generate optimal nightly linehaul and trailer plans in minutes
+    - 'Replan intraday as volume, appointments, and constraints change'
+    - Maximize cube and weight while honoring service commitments
+    - 'Assign the right equipment: pups, doubles, and 53'' where permitted'
+    - 'Auto‑route via direct, breakbulk, or pool points based on cost and service'
+    - 'Integrate with TMS, WMS, and telematics for executable plans'
+    - Provide explainable recommendations with easy planner overrides
+  features:
+    - 'Network‑wide optimization for cost, cube, and service SLAs'
+    - >-
+      Constraint‑aware: cut times, HOS, dock capacity, trailer and door
+      availability, axle/weight, hazmat separation
+    - 'Smart consolidation by lane, ZIP3, class, and appointment windows'
+    - >-
+      Trailer and set building for singles and legal doubles with loading
+      sequence guidance
+    - Dynamic direct vs via breakbulk decisions with pool point selection
+    - Dock wave planning with pick/put sequencing to match linehaul pulls
+    - What‑if scenarios and side‑by‑side plan comparisons
+    - Carrier rules and service standards library configurable by terminal
+    - 'Real‑time plan health, exceptions, and auto‑recovery triggers'
+    - API‑first with connectors for major TMS platforms
+    - 'KPI tracking: cube utilization, cost per cwt, on‑time %, empty miles'
+  steps:
+    - >-
+      Connect shipments, appointments, equipment, driver, and terminal data via
+      API
+    - 'Configure service standards, equipment rules, and operational constraints'
+    - >-
+      Run the nightly plan; publish trailer assignments and linehaul routes to
+      terminals
+    - Monitor intraday changes; auto‑replan and notify exceptions in real time
+    - >-
+      Approve or adjust plans in a single click; sync back to the TMS for
+      execution
+    - Track KPIs and continuously improve with closed‑loop feedback
+---
+# LoadPilot AI — LTL Load Plan & Consolidation Co‑pilot
+
+Generated for NAICS 484122 — General Freight Trucking, Long-Distance, Less Than Truckload.
+Service: LTL Load Plan & Consolidation Co‑pilot

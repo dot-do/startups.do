@@ -1,0 +1,332 @@
+---
+name: RunwayCast AI
+slug: runwaycast
+naics:
+  primary: '488111'
+  occupations: []
+service:
+  title: Weather-to-Runway Configuration Recommender
+  description: >-
+    Predicts optimal runway configuration windows under forecast weather and
+    local rules; outputs a timeline with rationale and constraints
+    (advisory-only).
+  targetUsers:
+    - Tower/Approach supervisors
+    - TMU
+    - Airport ops
+  triggers:
+    - New METAR/TAF or short-term forecast update
+    - Wind shift threshold exceeded
+    - Start-of-shift planning window (2–12h)
+  inputs:
+    - METAR/TAF/SPECI
+    - 'Short-term NWP (e.g., HRRR) winds/ceiling/visibility'
+    - 'Runway crosswind/tailwind limits, noise abatement rules'
+    - Runway occupancy/arrival-departure separation norms
+  steps:
+    - Ingest and quality-control weather feeds
+    - Compute crosswind/tailwind per runway pair over time
+    - Estimate throughput and occupancy under each candidate config
+    - 'Score configs under safety, throughput, and noise rules'
+    - Publish recommended config windows with confidence intervals
+  tools:
+    - 'NOAA/NWS AviationWeather APIs (METAR/TAF, ADDS)'
+    - HRRR/ICON/ECMWF GRIB readers
+    - XGBoost/LightGBM for throughput models
+    - 'Python, Pandas'
+    - Visualization (Plotly/Grafana)
+  outputs:
+    - Time-phased runway configuration plan
+    - Expected AAR/ADR per window
+    - Change triggers and confidence bands
+    - Slack/Email brief and dashboard
+  pricingModel:
+    - Per-airport monthly subscription
+    - Initial model calibration (fixed)
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Model error in rapidly evolving convective events
+    - Local constraints not fully captured
+    - Stakeholder acceptance; advisory must not be treated as directive
+  dependencies:
+    - Weather APIs
+    - Local SOP/limits
+    - Historic ops data for calibration (if available)
+leanCanvas:
+  problem:
+    - >-
+      Tower and TRACON supervisors must choose and time runway configurations
+      under fast-changing weather, traffic mix, and noise rules; decisions are
+      often reactive, causing 5–20% throughput drops for 15–45 minutes during
+      transitions.
+    - >-
+      No standard, predictive view of configuration windows exists across
+      stakeholders (tower, TMU, ramp/airlines, airport ops), leading to
+      misaligned plans, inefficient sequencing, and avoidable taxi/airborne
+      holding.
+    - >-
+      Local rules and constraints (crosswind/tailwind limits, LAHSO/dep-only
+      runways, noise abatement, curfew, de-icing pads, work zones) are codified
+      in manuals, not machine-usable tools—making consistency and training
+      difficult.
+    - >-
+      Weather forecast uncertainty (wind shifts, LLWS, ceilings/vis,
+      precipitation intensity) is not translated into probabilistic, ops-ready
+      runway recommendations with rationale and risk bands.
+    - >-
+      Unplanned or late configuration changes trigger domino effects (frequency
+      changes, signage, ground movement plans), increasing controller workload
+      and error risk; supervisory staff lack a what-if tool to compare options
+      before committing.
+    - >-
+      Airlines and AOCs lack an authoritative forward view of runway use,
+      degrading pushback and de-ice timing, gate/stand planning, and fuel
+      planning.
+  solution:
+    - >-
+      Site-adapted ML models blend NWP weather, observations, and historical ops
+      to predict feasible runway configurations and change windows over a 0–8
+      hour horizon with 5–10 minute resolution.
+    - >-
+      Deterministic timeline plus probabilistic bands (e.g., 10/50/90%
+      confidence) for each configuration, showing drivers (wind vector vs
+      crosswind/tailwind limits, visibility/ceiling minima, noise rules time
+      windows) and constraints (work-in-progress, NOTAMs, de-icing).
+    - >-
+      What-if sandbox: simulate alternate choices (e.g., stay on south flow 40
+      more minutes) and see predicted throughput, taxi time, and risk of
+      go-arounds/conflicts under forecast uncertainty.
+    - >-
+      Machine-readable API feeds A-CDM, TMU dashboards, AOCs; role-based UI for
+      tower supervisors with concise rationales and checklist-style constraints.
+    - >-
+      Human-in-the-loop workflow with acknowledgement logging and playbooks;
+      outputs are advisory-only and designed for safety case approval (traceable
+      inputs, versioned models, change control).
+  uniqueValueProp: >-
+    Advisory-only, explainable AI that turns forecast weather and local rules
+    into precise, probabilistic runway configuration windows and change
+    timings—giving supervisors and flow managers 30–60 minutes more lead time
+    with a shared, auditable rationale to reduce surprise transitions, delays,
+    and workload.
+  unfairAdvantage: >-
+    Site-adapted, explainable models and a codified local-rule engine
+    co-developed with ATC supervisors, packaged with a reusable safety case and
+    certified HMI connectors—lowering buyer risk and integration time compared
+    to generic weather tools or bespoke projects.
+  customerSegments:
+    - >-
+      Primary: Air Navigation Service Providers (ANSPs) and ATC organizations
+      (e.g., FAA towers and contract towers, NAV CANADA, NATS, DSNA, DFS,
+      ENAIRE).
+    - >-
+      Primary: Airport operators with integrated tower operations or A-CDM
+      programs at large/medium hubs.
+    - >-
+      Secondary: Traffic Management Units (TMU)/Flow Managers and adjacent
+      TRACON/ACC/ARTCC planning positions.
+    - >-
+      Secondary: Airline Operations Centers (AOCs) and ramp control centers at
+      hub airports seeking earlier, consistent runway use signals.
+    - >-
+      Influencers: System integrators (tower automation vendors), aviation
+      weather providers, regulators/safety offices, airport community noise
+      boards.
+  channels:
+    - >-
+      Top-down B2G sales to ANSPs and airport operators via RFPs and pilot
+      evaluations; target early adopters with complex configs (multiple runways,
+      frequent flow reversals, winter ops).
+    - >-
+      Partner-led integrations with tower system vendors (Frequentis, Saab,
+      Indra, Leidos, ADB Safegate) to embed UI tiles/APIs within existing HMI,
+      shortening procurement and certification path.
+    - >-
+      Regulatory and safety engagement: develop a reusable safety case packet
+      (FAA SRMD/EASA ED-153-aligned) and human factors evaluation results to
+      reduce buyer risk.
+    - >-
+      Industry forums and trials: ATCA, CANSO, World ATM Congress/Amsterdam, FAA
+      Tech Center tests, SESAR solution validation; publish pilot results with
+      airports/ANSPs and academia.
+    - >-
+      Airline alliances: co-funded trials at airline hubs; provide read-only AOC
+      access to improve pushback/de-ice planning and create airport demand.
+    - >-
+      Government programs and grants (e.g., SBIR/STTR, SESAR JU validations) to
+      fund R&D and site trials.
+  revenueStreams:
+    - >-
+      Annual subscription per airport/site (SaaS or on-prem support): Large hub:
+      $250k–$400k ARR; Medium: $125k–$250k; Small/contract tower: $40k–$100k.
+    - >-
+      One-time integration and site-adaptation fees: $100k–$500k depending on
+      HMI integration, cyber accreditation (e.g., FedRAMP/ATO support), and data
+      linkages.
+    - >-
+      Enterprise/ANSP-wide licenses with tiered pricing and volume discounts
+      (e.g., 10–30% discount at 5+ sites).
+    - >-
+      Optional modules: what-if simulation premium, airline/AOC read-only
+      portal, long-horizon seasonal planning analytics (+$25k–$75k/site/year).
+    - >-
+      Professional services: safety case tailoring, training, rule codification
+      workshops ($20k–$80k per engagement).
+  costStructure:
+    - >-
+      Core team: aviation ML engineers, meteorologists, ATM SMEs,
+      safety/human-factors specialists, and integration engineers ($3–6M/year at
+      15–25 FTE during years 1–3).
+    - >-
+      Cloud compute and data: model training/inference, storage, observability
+      ($200k–$600k/year at 10–30 active sites); premium weather model licenses
+      (ECMWF, HRRR value-add, radar composites) $100k–$400k/year.
+    - >-
+      Integration and certification: HMI plugins, security hardening, site
+      acceptance testing, safety case work ($200k–$800k/site in year 1,
+      declining with reusable components).
+    - >-
+      Sales and BD: long-cycle B2G sales, travel, demos, conference presence
+      ($250k–$600k/year).
+    - >-
+      Support and SRE: 24/7 monitoring, SLAs, incident response, model
+      governance ($300k–$800k/year as fleet grows).
+    - >-
+      Liability, insurance, and legal (contracts/IP/regulatory)
+      $100k–$300k/year.
+  keyMetrics:
+    - >-
+      Prediction accuracy: Median absolute error of predicted config change time
+      ≤ 10 minutes within a 0–3 hour horizon; ≤ 20 minutes within 3–8 hours.
+    - >-
+      Lead time: Median actionable lead time (confidence ≥ 70%) for next change
+      ≥ 45 minutes; 90th percentile ≥ 20 minutes.
+    - >-
+      Hit/false alarm rates: Event detection hit rate ≥ 75% for significant
+      changes; false alarm rate ≤ 20% for signaled changes within 0–3 hours.
+    - >-
+      Probabilistic skill: Brier Skill Score ≥ 0.25 vs persistence/last-observed
+      baseline for change events in 0–3 hour window.
+    - >-
+      Operational impact: ≥ 25% reduction in “late” or unplanned configuration
+      changes; ≥ 10% reduction in minutes of reduced throughput during
+      transitions (baseline measured per site).
+    - >-
+      Workload/adoption: ≥ 80% supervisor acknowledgment rate per shift; ≥ 2
+      what-if comparisons per significant weather day; UI dwell time targets per
+      role.
+    - >-
+      Value metrics: delay minutes avoided per quarter; taxi fuel burn reduction
+      (target 5–15 kg/dep during impacted periods at hubs); go-arounds during
+      transition down by ≥ 10% (site-dependent).
+    - >-
+      Reliability: System availability ≥ 99.9%; data latency ≤ 60 seconds for
+      obs ingest; forecast refresh ≤ 5 minutes.
+storyBrand:
+  character: >-
+    Tower/TRACON supervisors and ATC planners who must select and time runway
+    configurations under changing weather and local constraints.
+  problem: >-
+    Volatile winds, ceiling/vis shifts, and layered LOAs/noise rules make config
+    choices risky; late or suboptimal swaps trigger delays, go-arounds, workload
+    spikes, and stakeholder friction.
+  guide: >-
+    Weather-to-Runway Recommender analyzes forecasts and local rules to suggest
+    optimal configuration windows with a clear timeline, rationale, and
+    constraints—advisory-only, safety-first, and traceable.
+  plan: >-
+    1) Connect forecast, surface/wind, and rule datasets. 2) Review the
+    recommended timeline in your ops display and see the why behind each window.
+    3) Confirm or adjust and share advisories with stakeholders.
+  callToAction: >-
+    Schedule a demo and run a 60–90 day shadow-mode pilot to quantify impacts
+    before going live.
+  success: >-
+    Smoother banks, fewer last-minute swaps, reduced delays and go-arounds,
+    shared situational awareness, defensible decisions, and calmer ops during
+    weather changes.
+  failure: >-
+    Without it, configs flip late, capacity erodes, surprises multiply for crews
+    and neighbors, delays stack up, and confidence declines.
+landingPage:
+  hero:
+    title: Weather‑to‑Runway Configuration Recommender
+    subtitle: >-
+      AI advisories that align runway use with forecast weather and local
+      rules—delivered as a clear timeline with rationale and constraints
+      (advisory‑only).
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - 'Runway flips are reactive, costly, and increase delay and fuel burn.'
+    - 'Weather, traffic, and local procedures live in separate systems.'
+    - Missed configuration windows reduce throughput and safety margins.
+    - >-
+      Manual what‑if planning is slow during rapidly changing winds and
+      ceilings.
+    - Inconsistent reasoning makes cross‑team coordination harder.
+    - >-
+      Noise abatement, curfews, and LOA constraints are hard to apply
+      consistently.
+    - Lack of advance notice drives last‑minute pushes and taxi congestion.
+  solution:
+    - >-
+      Predicts optimal runway configurations by time block with confidence
+      indicators.
+    - Encodes local rules so advisories reflect how your field actually runs.
+    - >-
+      Explains the why: winds, ceiling/vis, precip, crosswind/tailwind
+      thresholds, NOTAMs.
+    - Minimizes unnecessary flips by weighing change costs and safety margins.
+    - Quantifies arrival/departure capacity to support TMI decisions.
+    - Proactive alerts before thresholds are crossed for smoother coordination.
+    - 'Advisory‑only: controller/TMC retains final authority.'
+  features:
+    - >-
+      Weather fusion: METAR/TAF, HRRR/NBM, winds and gust spread, LLWS,
+      precipitation type.
+    - >-
+      Local rule engine: LOAs, SID/STAR preferences, noise windows, runway
+      crossing limits.
+    - >-
+      Constraint‑aware scoring with flip‑penalty to balance stability vs
+      throughput.
+    - >-
+      Timeline view with rationale tags, confidence bands, and trigger
+      thresholds.
+    - >-
+      Capacity estimates per window (arrivals, departures) with delay risk
+      signals.
+    - >-
+      Scenario mode: test closures, deicing ops, arrival banks, and runway
+      condition changes.
+    - >-
+      Real‑time alerts to Tower, TRACON, and TMU channels; optional ATIS note
+      export.
+    - APIs and web UI; integrates with SWIM feeds and airport ops data sources.
+    - Audit trail and change history for post‑ops review and training.
+    - SSO and role‑based access; flexible deployment (on‑prem or cloud).
+  steps:
+    - >-
+      Connect data: weather feeds (SWIM/NWS), NOTAMs, runway state, local
+      procedures.
+    - >-
+      Set thresholds and rules: crosswind/tailwind limits, noise and curfew
+      windows, LOAs.
+    - >-
+      The engine scores feasible configs and builds a time‑sequenced advisory
+      timeline.
+    - >-
+      Review and adjust: accept, pin, or override windows; add coordination
+      notes.
+    - Publish advisories and alerts so stakeholders act before triggers hit.
+    - Monitor live updates; evaluate outcomes with post‑event analytics.
+---
+# RunwayCast AI
+
+Generated for NAICS 488111 — Air Traffic Control.
+Service: Weather-to-Runway Configuration Recommender

@@ -1,0 +1,304 @@
+---
+name: Fermentation Anomaly Watcher (FAW)
+slug: fermentation
+naics:
+  primary: '312130'
+  occupations: []
+service:
+  title: Fermentation Anomaly Watcher
+  description: >-
+    Monitors ferment data to flag stuck/slow ferments and suggests
+    interventions.
+  targetUsers:
+    - Winemaker
+    - Cellar Master
+  triggers:
+    - New tank/batch data uploaded
+    - Hourly/daily scheduled checks
+  inputs:
+    - Brix/temperature/time logs (CSV/API)
+    - Yeast strain and nutrient plan
+    - Vessel type/volume
+    - 'Lab results (YAN, pH, TA)'
+  steps:
+    - Ingest and normalize batch data
+    - Fit expected kinetic curves by style/yeast
+    - Detect deviations; classify risk level
+    - Suggest corrective actions and timing
+    - Notify via Slack/SMS; log decisions
+  tools:
+    - Python/pandas
+    - Time-series anomaly detection
+    - LLM for remedy suggestions with citations
+    - Google Drive/Sheets
+    - Slack/Twilio
+  outputs:
+    - Risk dashboard per batch
+    - Intervention playbooks
+    - Event log CSV
+  pricingModel:
+    - Per harvest season package
+    - Per active tank/month add-on
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 4
+    modelCapability: 4
+    overall: 4
+  risks:
+    - Data latency or manual entry errors
+    - Over-reliance on generic advice
+    - Liability for product outcomes
+  dependencies:
+    - Regular data exports
+    - Access to lab results
+leanCanvas:
+  problem:
+    - >-
+      Stuck/sluggish ferments are often detected late because cellar teams rely
+      on periodic Brix/temperature spot-checks, clipboards, and simple threshold
+      alarms.
+    - >-
+      Existing tank control systems raise alerts on absolute thresholds but miss
+      pattern-based issues (rate-of-change slowdowns, atypical diurnal cycles,
+      multi-sensor inconsistencies).
+    - >-
+      Data is siloed across SCADA/tank controllers, lab systems, and
+      spreadsheets, making it hard to see fermentation risk holistically in real
+      time.
+    - >-
+      Intervention playbooks are inconsistent across teams and vintages;
+      knowledge is tribal and not codified nor data-driven.
+    - >-
+      Harvest labor is stretched; monitoring 50–500+ tanks manually leads to
+      missed early warnings that would have been inexpensive to fix.
+    - >-
+      Quality and margin impacts from stuck ferments include costly restarts,
+      increased VA risk, off-flavors, and devaluation of finished wine—yet
+      impact is rarely quantified in time to justify proactive investment.
+  solution:
+    - >-
+      Unified data pipeline: ingest tank telemetry (temperature, Brix/SG, CO2
+      evolution), cap-management schedules, and lab data (YAN, pH, malic, VA,
+      DO) into one live timeline per tank.
+    - >-
+      ML anomaly detection: model fermentation kinetics by
+      variety/yeast/temperature regime and flag deviations using rate-of-change,
+      shape analysis, and cross-sensor consistency (precision/recall targets
+      defined below).
+    - >-
+      Actionable playbooks: suggest context-aware steps (e.g., temperature ramp,
+      aeration/oxygenation, nutrient additions, re-inoculation workflow) with
+      dosing calculators, checklists, and decision trees; log actions for
+      traceability.
+    - >-
+      Smart notifications: role-based alerts via SMS/email/Slack with severity,
+      cause likelihood, and next best actions; snooze/acknowledge with
+      escalation paths.
+    - >-
+      What-if and guardrails: simulate effects of temperature changes or
+      nutrient additions on kinetics; configurable to advise-only or closed-loop
+      setpoint nudges where SCADA allows.
+    - >-
+      Works with low-instrumentation sites: manual/mobile entry and CSV lab
+      uploads; optional plug-and-play retrofit sensors (through partners).
+  uniqueValueProp: >-
+    Catch slow/stuck ferments 24–72 hours earlier than manual processes and
+    standard alarms, with data-backed, step-by-step intervention
+    recommendations—reducing incident rate 30–50% and harvest firefighting while
+    preserving wine quality.
+  unfairAdvantage: >-
+    A growing, proprietary dataset of fermentation kinetics and interventions
+    across wineries, vintages, and varieties—combined with validated,
+    context-aware playbooks and tight integrations—yields earlier,
+    higher-confidence warnings and practical next steps competitors cannot
+    easily replicate.
+  customerSegments:
+    - >-
+      Mid-size wineries (5,000–50,000 cases/year) with 20–150 tanks and partial
+      instrumentation seeking better visibility and faster response.
+    - >-
+      Large wineries and custom crush facilities (50,000–5M+ cases/year) with
+      150–1,000+ tanks, multiple sites, SCADA, and data teams—need scale and
+      standardization.
+    - >-
+      Boutique/premium wineries (1,000–5,000 cases/year) with 5–20 tanks—less
+      instrumentation; need a light package using manual/uploads and a few
+      retrofit sensors.
+    - >-
+      Winery groups/multi-brand portfolios centralizing QA/QC and production
+      analytics across sites.
+    - >-
+      Enology consultants and lab partners who advise multiple wineries and can
+      drive adoption as influencers.
+  channels:
+    - >-
+      Direct sales to head winemakers, production managers, and cellar masters
+      via demos timed to pre-harvest (May–August in Northern Hemisphere; Nov–Jan
+      in Southern Hemisphere).
+    - >-
+      Alliances with tank control/SCADA vendors and retrofit sensor providers as
+      co-selling partners and referral channels.
+    - >-
+      Partnerships with winery ERPs/LIMS (e.g., vintrace, InnoVint, Ekos) for
+      marketplace listings and integrations.
+    - >-
+      Industry associations and events: Unified Wine & Grape Symposium, WIN
+      Expo, Enoforum, Vinitech-Sifel; sponsor technical sessions and case
+      studies.
+    - >-
+      Enology consultants and suppliers (yeast/nutrient companies, lab services)
+      as influencers and resellers.
+    - >-
+      Content-led growth: harvest readiness guides, fermentation troubleshooting
+      webinars, and ROI calculators; targeted email to winery lists by
+      region/size.
+    - >-
+      Pilot lighthouse programs with 10–20 wineries per region; publish
+      quantified outcomes before main selling season.
+  revenueStreams:
+    - 'SaaS subscription (annual): tiered by tank count and features.'
+    - >-
+      Indicative pricing: Small (≤20 tanks): $299/month base + $15/tank; Mid
+      (21–100 tanks): $999/month base + $12/tank; Large (101–500 tanks):
+      $2,499/month base + $10/tank; Enterprise: volume pricing and SSO/SOC 2.
+    - >-
+      Optional add-ons: Premium support (24/7 harvest hotline), on-site
+      commissioning, advanced analytics module, closed-loop SCADA setpoint
+      control (where supported).
+    - >-
+      Professional services: integrations ($2k–$15k one-time), data onboarding,
+      playbook customization.
+    - >-
+      Hardware referral margin from partner sensors (non-inventory, 5–15%
+      referral).
+  costStructure:
+    - >-
+      R&D: data science and software engineering for model development and
+      integrations.
+    - >-
+      Cloud infrastructure: data ingestion, storage, model training/serving;
+      estimated $0.50–$1.50 per monitored tank/month at scale.
+    - >-
+      Customer success and harvest-season support (temp staffing escalation
+      during Aug–Oct and Feb–Apr).
+    - 'Sales and marketing: events, demos, travel; partner MDF where available.'
+    - >-
+      Compliance/security: SOC 2 Type I/II, penetration testing, liability and
+      product E&O insurance.
+    - 'General & administrative: leadership, finance, legal, HR.'
+    - Partner commissions for referrals (10–20%).
+  keyMetrics:
+    - >-
+      Model performance: alert precision ≥85%, recall ≥80% on validation;
+      average lead time to detection ≥24–72 hours ahead of manual processes.
+    - >-
+      Operational impact: 30–50% reduction in stuck/slow fermentation incidents
+      per 100 ferments; 20–40% reduction in average time-to-intervention after
+      alert.
+    - >-
+      Quality/financial: reduction in quality downgrades attributed to
+      fermentation issues; estimated cost avoided per incident ($2,000–$20,000
+      depending on tank size).
+    - >-
+      User engagement: weekly active users/roles (winemaker, cellar); alert
+      acknowledgement rate ≥90% within SLA; median time-to-acknowledge <30
+      minutes during harvest.
+    - >-
+      Coverage: % of active tanks monitored; % of ferments with complete data
+      (telemetry + lab).
+    - >-
+      Customer metrics: logo retention ≥90% annually; net revenue retention
+      ≥110%; average tanks per account growth year-over-year ≥15%.
+    - >-
+      Sales funnel: win rate by segment; CAC payback <12 months; pilot-to-paid
+      conversion >60%.
+    - >-
+      Support: alert-related false positive rate <15%; average first response
+      time during harvest <10 minutes for P1 alerts.
+storyBrand:
+  character: >-
+    Winery production leaders (head winemakers, cellar managers) in NAICS 312130
+    who want reliable, on-time fermentations without constant babysitting.
+  problem: >-
+    External: Ferments can slow or stall and early signs get missed during
+    harvest. Internal: Teams feel stressed juggling spreadsheets and manual
+    checks. Philosophical: Great wine shouldn’t be lost to avoidable surprises.
+  guide: >-
+    Fermentation Anomaly Watcher—an AI co-pilot that monitors ferment data 24/7,
+    flags anomalies early, and suggests practical interventions. We speak both
+    cellar and data, so you get clear guidance, not noise.
+  plan: >-
+    1) Connect sensors/LIMS/notes. 2) Set ferment goals and alert preferences.
+    3) Receive real-time flags with prioritized actions and log outcomes to
+    improve each vintage.
+  callToAction: >-
+    Direct: Schedule a 20-minute demo. Transitional: Run a 30-day harvest pilot
+    on select tanks.
+  success: >-
+    Calm, confident harvests; fewer stuck/slow ferments; preserved aromatics;
+    consistent quality; on-time bottling; a data-backed cellar playbook that
+    improves every year.
+  failure: >-
+    Missed anomalies lead to stalled ferments, higher VA, lost aromatics,
+    overtime and additive costs, delayed releases, reduced yield, and brand
+    damage.
+landingPage:
+  hero:
+    title: Fermentation Anomaly Watcher for Wineries
+    subtitle: >-
+      AI monitoring that catches stuck or sluggish ferments early and recommends
+      data‑backed interventions—protecting quality, yield, and schedule.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - >-
+      Stuck or slow ferments are found late—leading to flavor faults, rework, or
+      lost lots.
+    - Manual checks and spreadsheets miss trends during peak crush hours.
+    - 'Data lives in silos: probes, SCADA, lab notes, cellar logs.'
+    - >-
+      Static thresholds ignore yeast, varietal, temperature, and vessel
+      differences.
+    - 'Alerts lack context, creating noise instead of action.'
+    - Interventions are applied inconsistently and without feedback loops.
+  solution:
+    - >-
+      Continuous AI monitoring of Brix, temperature, and rate-of-change to
+      surface early warnings.
+    - >-
+      Batch-aware models tuned by yeast, varietal, inoculation, temperature
+      profile, and vessel type.
+    - >-
+      Prioritized alerts with confidence and impact estimates—so you act on what
+      matters.
+    - >-
+      Playbook suggestions (nutrients, temp adjustments, oxygenation, racking)
+      with timing guidance.
+    - Works with your existing sensors and cellar tools—no hardware lock‑in.
+    - Post‑ferment reviews to refine SOPs and improve each vintage.
+  features:
+    - 'Real-time anomaly detection for Brix, dBrix/dt, and temperature.'
+    - 'Auto-classification: sluggish vs stuck vs runaway fermentation.'
+    - Early warning lead-time estimates and trend projections.
+    - Suggested interventions with rationale and dosage ranges.
+    - Tank/lot dashboards with batch timelines and progress to target.
+    - 'Data ingestion via CSV, APIs, SCADA/OPC UA/Modbus, Bluetooth hydrometers.'
+    - 'Alerting via SMS, email, Slack, and Microsoft Teams with escalation rules.'
+    - 'Role-based access, audit logs, and permissioned notes for traceability.'
+    - Mobile-friendly cellar view with offline capture and sync.
+    - Multi-site support and cross-vintage benchmarking.
+    - Export to ERP/LIMS; push actions into work orders.
+    - 'SSO, encryption in transit/at rest, and granular permissions.'
+  steps:
+    - 'Connect data sources (sensors, SCADA, lab spreadsheets).'
+    - 'Define tanks, lots, yeast strains, varietals, and targets.'
+    - 'Set alert thresholds, channels, and escalation policies.'
+    - Kick off monitoring—AI learns from historical and current batches.
+    - Receive prioritized alerts with suggested actions.
+    - Log interventions; track response and outcomes automatically.
+    - Review end-of-ferment report and refine SOPs for the next run.
+---
+# Fermentation Anomaly Watcher (FAW)
+
+Generated for NAICS 312130 — Wineries.
+Service: Fermentation Anomaly Watcher

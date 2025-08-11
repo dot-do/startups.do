@@ -1,0 +1,344 @@
+---
+name: SectorBalance AI
+slug: sctrblnc
+naics:
+  primary: '488111'
+  occupations: []
+service:
+  title: Sector Demand–Capacity Balancing Assistant
+  description: >-
+    Projects sector/position demand vs. capacity for next 2–8 hours and suggests
+    advisory TMIs (MIT, reroutes, AFP participation) to mitigate overload.
+  targetUsers:
+    - En-route/Approach TMU
+    - ATCSCC/CDM participants
+  triggers:
+    - Hourly refresh or on-demand what-if
+    - Significant demand surge detected
+    - Weather impact update
+  inputs:
+    - Planned/active flight plans (TFMS/NM)
+    - Sector configuration and staffing plan
+    - Weather constraints (SIGMET/convective forecasts)
+    - Historic sector capacity curves
+  steps:
+    - Ingest demand and sector configuration
+    - Forecast sector entry counts and occupancy
+    - Estimate dynamic capacity given weather/complexity
+    - Identify overload intervals and propose mitigations
+    - Push advisory package and what-if comparisons
+  tools:
+    - FAA SWIM TFMS or Eurocontrol NM B2B
+    - NOAA convective outlooks/SIGMET
+    - Time-series forecasting (Prophet/LightGBM)
+    - Optimization heuristics
+    - Dashboard + Slack/Email
+  outputs:
+    - Sector demand/capacity charts
+    - Advisory TMIs with expected relief
+    - CSV/JSON for import into planning tools
+  pricingModel:
+    - Per-center/FIR monthly
+    - Optional per-scenario what-if credits
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 7
+    modelCapability: 8
+    overall: 7.5
+  risks:
+    - Requires timely TFMS/NM access
+    - Capacity estimation uncertainty
+    - Coordination/approval processes outside tool scope
+  dependencies:
+    - SWIM/NM read access or customer feed
+    - Sector configuration data
+    - Local TMI playbook
+leanCanvas:
+  problem:
+    - >-
+      Traffic Management Coordinators (TMCs) and supervisors must manually
+      reconcile sector demand with dynamic capacity using multiple disparate
+      tools (TFMS/TSD, TBFM, STARS/ERAM strips, weather displays), leading to
+      delayed or suboptimal TMIs.
+    - >-
+      2–8 hour look-ahead demand forecasts at the sector/position level are
+      inconsistent or unavailable, causing late detection of overloads and
+      reactive measures (ground stops, excessive MIT) that increase delay
+      minutes.
+    - >-
+      Sector capacity is often modeled as static MAP values or rules of thumb
+      and does not reflect real-time factors (weather impacts,
+      staffing/sectorization, complexity), resulting in either overloads or
+      underutilization.
+    - >-
+      Cross-facility coordination (TRACON–Center–ATCSCC) for flows and AFP
+      participation decisions is time-consuming, with limited what-if capability
+      to quantify tradeoffs.
+    - >-
+      Current tools lack prescriptive guidance; they surface data but do not
+      quantify the expected impact of alternative TMIs on overload minutes,
+      throughput, and delay, making decisions harder under time pressure.
+    - >-
+      There is limited auditability and learning-from-operations; rationale for
+      TMIs and their measured outcomes are not captured in a reusable way for
+      future situations.
+  solution:
+    - >-
+      Fuse SWIM/TFMS flight intent, ERAM/STARS tracks, TBFM schedules, and
+      high-resolution weather to forecast sector entry/occupancy demand in
+      15-minute bins for 2–8 hours.
+    - >-
+      Continuously estimate dynamic sector capacity using weather constraints,
+      current/anticipated sectorization, staffing/position status, historical
+      performance under similar conditions, and complexity indicators.
+    - >-
+      Detect projected overloads and rank prescriptive TMI options (MIT, route
+      options, AFP participation, altitude capping, meters/slots) by expected
+      reduction in overload minutes, induced delay, equity, and network
+      spillover.
+    - >-
+      Provide fast what-if simulation to compare scenarios (e.g., 10 vs 20 MIT
+      on flow X, alternate route Y, AFP join/opt-out) and visualize effects at
+      sector, facility, and network levels.
+    - >-
+      Deliver explanations for recommendations (drivers, similar past days,
+      confidence intervals) and capture outcomes for continuous learning and
+      after-action review.
+    - >-
+      Integrate with existing ops tools (TFMS TSD, TBFM timelines, weather
+      displays) and provide low-friction workflows for coordination messaging
+      and CDM sharing.
+  uniqueValueProp: >-
+    Actionable, explainable 2–8 hour sector-level demand–capacity balancing that
+    recommends and quantifies the impact of TMIs—cutting overload minutes and
+    unnecessary restrictions while accelerating coordination across facilities.
+  unfairAdvantage: >-
+    A validated prescriptive engine that quantifies the impact of TMIs at the
+    sector level with explanations and confidence bounds, trained on multi-year
+    paired traffic–weather–TMI outcomes and co-designed with TMCs. Deep
+    integration with SWIM and ops tools plus a safety-governed,
+    human-in-the-loop workflow creates switching costs and trust competitors
+    lack.
+  customerSegments:
+    - 'Primary: FAA ARTCC TMUs (22 U.S. Centers) and ATCSCC flow managers.'
+    - >-
+      Primary: Large TRACONs/Approach facilities with frequent
+      weather/complexity constraints (e.g., N90, A80, Socal, Norcal, PHL, ATL,
+      DFW, IAH, MIA).
+    - >-
+      Primary (non-U.S.): ANSPs’ ACCs/Flow Management Positions (e.g., NAV
+      CANADA, NATS, DFS, ENAIRE, DSNA, Eurocontrol NM, Airservices Australia,
+      JCAB).
+    - >-
+      Secondary: Airline OCC/CDM participants seeking transparency into planned
+      TMIs and alternatives.
+    - >-
+      Influencers/Stakeholders: NATCA and other controller unions, system
+      integrators (Raytheon/Collins/Thales/Indra), NASA/MITRE, weather providers
+      (NOAA, Met Office).
+  channels:
+    - >-
+      Direct enterprise sales to ANSPs/FAA through RFPs and with prime
+      integrator partners (Raytheon, Thales, Indra, Collins, Frequentis).
+    - >-
+      Pilot deployments via CRADA/MOU or evaluation agreements at 1–2 ARTCCs and
+      1 large TRACON; shadow-mode trials during convective season.
+    - >-
+      Participation in FAA/NASA/SESAR trials and ATCA/Airspace World showcases
+      with live or recorded operational replays.
+    - >-
+      CDM working groups with airlines to demonstrate network benefits and
+      secure co-funding for route library calibration.
+    - >-
+      Government procurement vehicles where applicable (e.g., GSA MAS,
+      agency-specific IDIQs) and international frameworks via ANSP partners.
+  revenueStreams:
+    - >-
+      Annual SaaS subscription per facility (typical ranges): ACC/ARTCC
+      $400k–$800k; large TRACON $200k–$400k; national ATFM/NM $1.2M–$2.0M.
+    - >-
+      Enterprise/national bundle discounts (10–25%) for multi-facility
+      deployments.
+    - >-
+      Professional services: data integration, site configuration, historical
+      backfill, and human-factors tailoring ($150k–$400k per site, one-time).
+    - >-
+      Premium modules: advanced route design optimizer, staffing-aware
+      sectorization recommender, airline-collab portal ($100k–$300k per module
+      per year).
+    - >-
+      Training and certification packages for TMCs/supervisors ($25k–$50k per
+      facility).
+  costStructure:
+    - >-
+      Personnel: 12–18 FTE in year 1 (ML engineers, aviation SMEs, software,
+      DevOps/SRE, security/compliance, product, field ops); $3.0M–$5.0M
+      annually.
+    - >-
+      Cloud and data: FedRAMP-ready cloud ~$20k–$60k/month; weather enrichments
+      and archives $5k–$20k/month; network connectivity to SWIM.
+    - >-
+      Compliance and accreditation: FedRAMP Moderate or FISMA Moderate ATO
+      ($300k–$600k initial; $150k–$300k/yr upkeep), SOC 2 ($75k–$150k/yr).
+    - >-
+      Integration and pilots: $200k–$500k per site for connectivity, acceptance
+      testing, and human-in-the-loop validation.
+    - >-
+      Sales/BD and support: conferences, travel, support SLAs, liability/tech
+      E&O insurance ($250k–$600k/yr).
+    - >-
+      R&D: model improvements, safety cases, simulation environments
+      ($500k–$1.0M/yr).
+  keyMetrics:
+    - >-
+      Forecast accuracy: sector entry/occupancy MAE and SMAPE by 15-minute bin;
+      target ≤2 (0–2h), ≤4 (2–8h).
+    - >-
+      Overload detection precision/recall and F1 on predicted overload minutes;
+      targets ≥0.85 precision, ≥0.80 recall.
+    - >-
+      Operational impact: reduction in overload minutes per sector-day (target
+      15–30%); reduction in unnecessary TMIs and average MIT magnitudes (target
+      5–15%).
+    - >-
+      Decision lead time: median minutes of advance warning before overload
+      (target ≥60 minutes for 0–2h window; ≥120 minutes for 2–6h).
+    - >-
+      Recommendation adoption: percent of advisories accepted/partially accepted
+      by TMCs (target 50–70% in first 6 months; >70% after tuning).
+    - >-
+      Network outcomes: change in total delay minutes and equity across flows
+      during events; measured via A/B shadow trials.
+    - >-
+      Human efficiency: TMC time saved compiling demand/capacity picture (target
+      15–30 minutes per event).
+    - >-
+      System reliability: uptime ≥99.9%, mean inference latency <60s, data
+      freshness <2 minutes.
+    - >-
+      Safety and trust: zero unsafe advisories; user-rated explanation clarity
+      ≥4.2/5 in post-event surveys.
+storyBrand:
+  character: >-
+    Traffic Management Coordinators, Supervisors, and Flow Managers at
+    ARTCC/TRACON/ATCSCC who must keep sectors safe and flowing while managing
+    weather, staffing, and traffic variability.
+  problem: >-
+    - External: Rapidly shifting demand, weather reroutes, staffing/sector
+    configurations, and NAS constraints create sector overload risk.
+
+    - Internal: Fragmented data, short lead times, and coordination burden force
+    reactive TMIs.
+
+    - Philosophical: Safety and efficiency shouldn’t depend on
+    guesswork—decisions should be proactive and data-driven.
+  guide: >-
+    - Empathy: We understand the pressure of minutes mattering, the scrutiny of
+    every TMI, and the cost of both overload and over-restriction.
+
+    - Authority: Built with air traffic operations SMEs; validated in shadow
+    ops; leverages SWIM/TFMS-style feeds; integrates with existing traffic
+    management workflows; human-in-the-loop by design.
+  plan: |-
+    - Process plan:
+      1) Connect to traffic, weather, and staffing/configuration data.
+      2) Predict sector/position demand vs. capacity for the next 2–8 hours.
+      3) Flag overload windows and recommend advisory TMIs (MIT, reroutes, AFP participation).
+      4) TMC reviews, adjusts, coordinates, and issues advisories.
+      5) Monitor impact and auto-update recommendations as conditions change.
+    - Agreement plan:
+      - Human-in-the-loop approvals only; no automatic control actions.
+      - Compliant data handling; audit trails for all recommendations.
+      - Non-disruptive deployment; minimal training; reversible at any time.
+  callToAction: >-
+    - Direct: Schedule a live demo and start a 30-day on-site evaluation.
+
+    - Transitional: Download sample sector forecasts and a case study; get an
+    ROI and staffing impact snapshot for your facility.
+  success: >-
+    - Fewer overload minutes and earlier, right-sized TMIs.
+
+    - Higher controller safety margins and balanced workload.
+
+    - Reduced coordination time; faster consensus with facilities and ATCSCC.
+
+    - Measurable delay reduction and more predictable flows during weather and
+    peak demand.
+
+    - Transparent rationale for every advisory, improving trust and post-ops
+    review.
+  failure: >-
+    - Continued reactive TMIs, last-minute restrictions, and sector saturation.
+
+    - Increased controller fatigue and complexity; cascading delays across the
+    NAS.
+
+    - Missed opportunities to reroute or shape demand before constraints bite.
+
+    - Limited visibility into what worked and why, repeating the same pain
+    during the next event.
+landingPage:
+  hero:
+    title: Sector Demand–Capacity Balancing Assistant
+    subtitle: >-
+      Forecast sector/position load 2–8 hours ahead and auto-suggest advisory
+      TMIs—MIT, reroutes, AFP participation—to prevent overload.
+    ctaText: Request a demo
+    ctaHref: '#request-demo'
+  problem:
+    - Demand spikes and sector overload are spotted too late to act cleanly.
+    - >-
+      Capacity assumptions are static; weather, staffing, and LOAs shift in real
+      time.
+    - Manual what‑ifs are slow—leading to blunt MIT or broad reroutes.
+    - Ripple effects across adjacent sectors/facilities are hard to visualize.
+    - Coordination friction delays AFP participation and timely advisories.
+  solution:
+    - Rolling 2–8 hour demand vs. capacity forecasts per sector/position.
+    - Risk-ranked overload windows with lead times and contributing drivers.
+    - >-
+      Advisory TMI suggestions: optimal MIT by stream/fix, targeted reroutes,
+      AFP participation flags.
+    - >-
+      One-click what‑if: test MIT levels, routes, and AFP inclusion; see
+      spillover impact.
+    - >-
+      Shared scenarios for TMC/controller review; clear rationale and expected
+      outcomes.
+  features:
+    - >-
+      Sector/position load curves with occupancy, complexity, and hotspot
+      timelines.
+    - 'Dynamic capacity modeling from weather, outages, staffing, and LOAs.'
+    - Advisory generator with predicted delay reduction and compliance impact.
+    - >-
+      What‑if sandbox for MIT, reroutes (playbook/CDR), and AFP
+      inclusion/exclusion.
+    - >-
+      Cross‑boundary effects: upstream/downstream sector impacts and meter‑fix
+      flows.
+    - Alerting on threshold breaches with recommended time windows and actions.
+    - >-
+      Explainability: top drivers (convective cells, routes, fixes, runways) per
+      alert.
+    - >-
+      Collaboration: share scenarios, assign actions, and track coordination
+      notes.
+    - Audit log of advisories and outcomes for post‑ops review.
+    - >-
+      Flexible deployment: on‑prem or secure cloud; role‑based access and data
+      controls.
+  steps:
+    - >-
+      Connect data sources (flight plans/trajectories, weather, constraints,
+      staffing).
+    - 'Define sectors, positions, LOAs, and local capacity rules.'
+    - Start the rolling 2–8 hour forecast; view risk-ranked hotspots.
+    - 'Run what‑ifs for MIT, reroutes, and AFP participation; compare outcomes.'
+    - Publish advisories and coordinate with adjacent facilities as needed.
+    - Monitor results and auto-adjust as conditions evolve.
+---
+# SectorBalance AI
+
+Generated for NAICS 488111 — Air Traffic Control.
+Service: Sector Demand–Capacity Balancing Assistant

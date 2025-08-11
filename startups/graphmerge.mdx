@@ -1,0 +1,307 @@
+---
+name: GraphMerge AI
+slug: graphmerge
+naics:
+  primary: '513140'
+  occupations: []
+service:
+  title: Identity Resolution and Deduping Pipeline
+  description: >-
+    Create a canonical entity graph by clustering duplicates across datasets
+    with probabilistic/fuzzy matching and manual review of edge cases.
+  targetUsers:
+    - Data Engineering
+    - Data Quality Leads
+  triggers:
+    - New dataset ingestion
+    - Pre-publication QA
+    - Customer dedupe request
+  inputs:
+    - Multiple lists with overlapping entities
+    - Reference IDs (if any)
+    - Match rules or business constraints
+  steps:
+    - 'Standardize fields (case, punctuation, address normalization)'
+    - 'Generate blocking keys (phonetic, n-gram)'
+    - Run probabilistic matching and cluster candidates
+    - Use LLM to adjudicate ambiguous pairs with explanations
+    - Route low-confidence clusters to human review
+    - Assign canonical IDs and create crosswalk table
+    - Publish merged master and match audit trail
+  tools:
+    - Dedupe.io/Splink
+    - Elasticsearch/OpenSearch
+    - LLM pairwise-compare agent
+    - DuckDB/SQLite for joins
+    - Great Expectations for QA
+  outputs:
+    - Deduped master file with canonical IDs
+    - Crosswalk (source_id -> canonical_id)
+    - Match decisions with confidence and rationale
+  pricingModel:
+    - Per 1k records processed
+    - Add-on for ongoing incremental dedupe (monthly)
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 4
+    overall: 5
+  risks:
+    - Over-merge or under-merge impacting customers
+    - Bias in matching rules
+    - Compute cost for very large corpora
+  dependencies:
+    - Access to raw data
+    - Data schema documentation
+    - Approval for manual review of PII
+leanCanvas:
+  problem:
+    - >-
+      Directory and mailing-list publishers typically carry 2%–10% duplicate or
+      near-duplicate entities across compiled sources, causing wasted postage,
+      poor deliverability, and corrupted analytics.
+    - >-
+      Manual deduping is labor-intensive (often 200–500 hours per 10M records
+      per quarter) and inconsistent, with tribal rules that don’t scale.
+    - >-
+      Conventional deterministic match rules fail on real-world data drift
+      (nicknames, abbreviations, mergers/DBAs, address changes/NCOA,
+      transliteration) leading to both false merges and missed matches.
+    - >-
+      Lack of a canonical entity graph across datasets prevents authoritative,
+      explainable single-entity views and auditability for clients and
+      regulators.
+    - >-
+      Poor identity resolution degrades search/browse UX (duplicate listings),
+      inflates inventory counts, impairs targeting/segmentation, and increases
+      UAA/RTS (Undeliverable as Addressed/Return to Sender) rates.
+    - >-
+      Integrations to CASS/NCOA/third-party reference files exist, but
+      orchestration, human-in-the-loop review, and continuous model improvement
+      are missing or ad hoc.
+  solution:
+    - >-
+      Batch and streaming entity-resolution pipeline that clusters duplicates
+      across internal and external datasets using probabilistic modeling, fuzzy
+      string similarity, address normalization, and graph-based clustering.
+    - >-
+      Human-in-the-loop review console for edge cases with active learning. The
+      model prioritizes uncertain pairs/clusters to minimize reviewer workload
+      while raising precision.
+    - >-
+      Canonical entity graph store with lineage: every merged attribute has
+      provenance and merge rationale; complete audit trail for compliance/client
+      trust.
+    - >-
+      Connectors: SFTP/object storage ingest; APIs for batch scoring; native
+      connectors for common MDM/ETL tools (Informatica, Talend), CDPs, and USPS
+      CASS/NCOA providers.
+    - >-
+      Domain-tuned normalizers (names, nicknames, organization variants, DBAs,
+      suite/unit parsing, phone/email canonicalization) plus reference-data
+      enrichment hooks (D-U-N-S, NAICS mapping).
+    - >-
+      Incremental updates: near-real-time cluster maintenance for new/changed
+      records; configurable SLAs (e.g., 99% within 4 hours).
+    - >-
+      Quality and ROI reporting: duplicate-rate trend, precision/recall by
+      segment, UAA reduction estimates, postage savings calculator, and A/B list
+      hygiene tests.
+    - >-
+      Security and compliance: SOC 2-ready controls, PII tokenization/hashing,
+      field-level encryption; on-prem/air-gapped option for sensitive clients.
+  uniqueValueProp: >-
+    Create an always-fresh, auditable canonical entity graph that cuts duplicate
+    rate by 60%–90%, reduces UAA/RTS by 15%–35%, and improves match F1 to >0.95
+    with human-in-the-loop assurance—without ripping and replacing your existing
+    stack.
+  unfairAdvantage: >-
+    A verticalized, human-in-the-loop identity graph tuned for directory/list
+    publishers with explainable matches and postal savings proof. Active
+    learning across clients improves models without commingling raw PII,
+    creating a compounding data network effect while preserving privacy and
+    auditability. Out-of-the-box connectors to CASS/NCOA and mail workflows
+    shorten time-to-savings.
+  customerSegments:
+    - >-
+      Primary: Directory and Mailing List Publishers (NAICS 513140) compiling
+      B2B/B2C lists at 5M–500M records scale.
+    - >-
+      Secondary: Marketing services providers and print/mail service bureaus
+      offering list hygiene as a service.
+    - >-
+      Adjacent: Data cooperatives, list brokers/compilers, fundraising list
+      managers, and data marketplaces licensing compiled records.
+  channels:
+    - >-
+      Direct sales to NAICS 513140 firms (target: VP Data/Operations, Director
+      of Data Quality, CTO).
+    - >-
+      Partnerships with print/mail service bureaus and address-hygiene vendors
+      to embed as white-label add-on.
+    - >-
+      Cloud marketplaces (AWS/GCP/Azure) listings to streamline procurement and
+      private offers.
+    - >-
+      Industry events and associations: National Postal Forum, ANA/Data &
+      Measurement, LeadsCon, local DMA chapters; sponsorship + workshops on
+      measurable postal savings.
+    - >-
+      Content-led growth: benchmark reports on duplicate rates/UAA by vertical,
+      technical playbooks, and ROI calculators.
+    - >-
+      Account-based marketing: targeted outreach to top 300 list/directory
+      publishers; offer 2-week data audit.
+    - SI/channel partners specializing in MDM/CDP implementations.
+  revenueStreams:
+    - >-
+      Annual platform subscription (includes environment, connectors,
+      dashboards): $25k–$150k based on data scale and SLAs.
+    - >-
+      Usage-based processing: $0.001–$0.008 per record processed or $0.10–$1.00
+      per 1,000 pair evaluations; volume tiers and committed-use discounts.
+    - >-
+      Professional services: data audit and onboarding ($10k–$75k fixed), custom
+      rules/policies, on-prem deployment.
+    - >-
+      Premium support/SLA: 24/7 support and <1-hour incident response (+15% of
+      subscription).
+    - >-
+      Optional add-ons: reference data lookups (pass-through with markup),
+      dedicated reviewer capacity blocks.
+  costStructure:
+    - >-
+      Cloud compute/storage/networking for large-scale blocking, matching, and
+      graph operations (variable with volume).
+    - >-
+      Data labeling/reviewer operations (in-house plus BPO partners) including
+      QA leads.
+    - >-
+      Third-party data and address standardization (CASS/NCOA/SERP/PAF) license
+      and per-lookup costs.
+    - >-
+      R&D: ML engineers, data engineers, platform engineers, and product for
+      domain-tuned models and connectors.
+    - 'Security/compliance (SOC 2 Type II), pen testing, privacy counsel.'
+    - >-
+      Sales and marketing: account executives, SEs, events, content, partner
+      enablement.
+    - Customer success and onboarding engineers.
+    - 'General & administrative and tooling (MLOps, observability, CI/CD).'
+  keyMetrics:
+    - >-
+      Model precision/recall/F1 on adjudicated gold sets (goal: F1 ≥ 0.95 on
+      top-5 verticals).
+    - >-
+      Duplicate rate reduction vs. baseline (goal: 60%–90% reduction within
+      first 90 days).
+    - >-
+      Manual review rate and cost: % of pairs requiring review (goal: <0.5% at
+      steady state), cost per resolved entity.
+    - >-
+      Throughput and latency: records/hour and time-to-canonicalization SLAs
+      (e.g., 99% < 4 hours; peak 10M/day).
+    - >-
+      UAA/RTS rate reduction measured via A/B on mailings (goal: 15%–35% fewer
+      returns within 2 cycles).
+    - >-
+      Postage/print savings realized per client (target: $0.15–$0.50 saved per
+      mailed piece avoided; payback < 6 months).
+    - >-
+      Cluster stability/drift metrics: % of clusters changed per month; feature
+      drift alerts.
+    - >-
+      Implementation time: time-to-first-value (TTFV) (goal: < 2 weeks for
+      audit, < 6 weeks to full production).
+    - >-
+      Net revenue retention (NRR) (goal: >120%), gross margin (goal: >70%), logo
+      retention (goal: >95%).
+storyBrand:
+  character: >-
+    Data and product leaders at directory and mailing list publishers (NAICS
+    513140) who need to unify records and remove duplicates across sources
+    without risking revenue.
+  problem: >-
+    External: fragmented datasets create duplicate and conflicting records.
+    Internal: teams burn cycles on brittle manual matching and fear breaking
+    counts. Philosophical: it’s wrong to mail or charge for the same person
+    twice and to report inflated reach.
+  guide: >-
+    We understand the pressure to ship accurate counts and protect list revenue.
+    Our identity resolution pipeline blends probabilistic/fuzzy matching, graph
+    clustering, and human-in-the-loop review with audit trails and
+    privacy-by-design (VPC/on‑prem) options.
+  plan: >-
+    1) Send a sample for a free match report and dedupe estimate. 2) Configure
+    match thresholds, fields, and PII policies. 3) Run the pipeline to build a
+    canonical entity graph; ambiguous cases are queued for review. 4) Deliver
+    clean exports/APIs with lineage, QA metrics, and monitoring.
+  callToAction: Request a free match report or schedule a 30‑minute demo.
+  success: >-
+    A single trusted entity graph powering every list; faster releases; lower
+    mailing costs; better deliverability and advertiser confidence; accurate
+    counts and segments; auditable merges with fewer support escalations.
+  failure: >-
+    Ongoing duplicate spend and list decay, broken counts, poor deliverability,
+    eroded advertiser trust, compliance risk from ad‑hoc merges, and burned‑out
+    data teams.
+landingPage:
+  hero:
+    title: Identity Resolution & Deduping for Directory and Mailing List Publishers
+    subtitle: >-
+      Turn messy records into a canonical entity graph. Eliminate duplicates,
+      cut postage, and boost list revenue.
+    ctaText: Start a Pilot
+    ctaHref: /contact
+  problem:
+    - >-
+      Duplicates and near-duplicates inflate circulation counts and mailing
+      costs.
+    - Conflicting formats and partial data stall merge-purge across providers.
+    - High return mail and email bounces erode deliverability and client trust.
+    - Manual matching drains editorial ops and still lets errors through.
+    - No persistent IDs or history makes reissues and updates risky.
+    - Lack of auditability complicates client disputes and compliance checks.
+  solution:
+    - Cluster duplicates across datasets with probabilistic and fuzzy matching.
+    - >-
+      Create a canonical entity graph with persistent IDs and survivorship
+      rules.
+    - >-
+      Human-in-the-loop review for edge cases with transparent scoring and
+      rationale.
+    - >-
+      Run as batch or streaming; plug into S3, Snowflake, BigQuery, CRMs, and
+      ESPs.
+    - Quality dashboards and SLAs tuned to your list policies and tolerance.
+    - >-
+      Deploy in your VPC or use our managed SOC 2 service with strict PII
+      controls.
+  features:
+    - >-
+      Multi-key matching on name, address, email, phone, domain, social, and
+      geocodes.
+    - >-
+      Postal-ready standardization; dedupe at individual, household, or firm
+      level.
+    - Configurable merge-purge and field-level precedence for golden records.
+    - Active learning improves match accuracy from reviewer decisions over time.
+    - 'Versioned entity graph with lineage, audit logs, and rollback.'
+    - 'Reviewer UI and API to approve, split, or reassign clusters.'
+    - Exports to CSV/S3 and downstream platforms; webhooks for change events.
+    - >-
+      Monitoring and alerts with KPIs like duplication rate, bounce risk, and
+      fill rates.
+  steps:
+    - 'Ingest: Connect sources (S3, SFTP, DB, CRM) and map schemas.'
+    - 'Normalize: Standardize names, addresses, and phones; validate and geocode.'
+    - 'Match: Block, score, and cluster duplicates using ML and rules.'
+    - 'Consolidate: Create golden records with survivorship and persistent IDs.'
+    - 'Review: Route low-confidence cases to humans; learn from decisions.'
+    - 'Publish: Export clean directories and lists; keep systems in sync.'
+    - 'Measure: Track quality metrics and tune thresholds with our team.'
+---
+# GraphMerge AI
+
+Generated for NAICS 513140 — Directory and Mailing List Publishers.
+Service: Identity Resolution and Deduping Pipeline

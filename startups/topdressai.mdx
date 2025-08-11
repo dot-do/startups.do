@@ -1,0 +1,311 @@
+---
+name: TopDressAI (Nitrogen Side-Dress/Topdress Advisor with VRA)
+slug: topdressai
+service:
+  title: Nitrogen Side-Dress/Topdress Advisor with VRA
+  description: >-
+    N balance plus canopy-sensing adjustment to recommend N rates and output VRA
+    prescriptions.
+  targetUsers:
+    - Farm owner
+    - Agronomist
+    - Custom applicator
+  triggers:
+    - PSNT or soil nitrate result received
+    - Heavy rainfall/leaching event
+    - In-season NDRE drop detected
+  inputs:
+    - 'Crop, hybrid/variety, planting date'
+    - 'Soil nitrate/OM/CEC, pH'
+    - Previous N applied and source/timing
+    - Weather to date and 10–14 day forecast
+    - Remote sensing (NDRE/RECI)
+    - Yield goal and price/costs
+  steps:
+    - Run soil-water-N balance to estimate remaining N need
+    - Adjust with canopy index vs. reference strips
+    - Constrain by equipment and product availability
+    - Optimize rate by zone for agronomic and economic return
+    - Generate Rx files and operator notes
+    - Log recommendations and outcomes for learning
+  tools:
+    - NASA POWER/NOAA NBM weather
+    - Sentinel-2 red-edge bands
+    - Simple N balance models/APSIM-lite where feasible
+    - GeoPandas/Shapely for zonal joins
+    - John Deere/Ag Leader Rx writers
+  outputs:
+    - Prescription maps (Shapefile/ISO-XML)
+    - Recommendation report with ROI (PDF)
+    - Operator brief (mobile-friendly)
+  pricingModel:
+    - Per-acre per application ($0.50–$2/ac)
+    - Season bundle per crop
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 7
+    overall: 7
+  risks:
+    - Agronomic liability if rates miss
+    - Sensor/imagery noise
+    - Soil test delays or errors
+  dependencies:
+    - Weather and imagery APIs
+    - PSNT/soil lab data
+    - Equipment platform access
+leanCanvas:
+  problem:
+    - >-
+      Growers of cereals and oilseeds face high and volatile N fertilizer costs
+      and tightening regulations (e.g., EU Nitrates Directive) but lack
+      in-field, mid-season tools to allocate N precisely by zone.
+    - >-
+      Static blanket rates or simple flat topdress strategies ignore spatial
+      variability in soil N supply and crop demand, leading to 8–20% wasted N
+      and/or yield penalties in N-limited zones.
+    - >-
+      Current VRA tools are fragmented: many rely solely on canopy indices
+      without a crop N balance, or they don’t output equipment-ready
+      prescriptions across mixed fleets (John Deere, Trimble, AgLeader, Raven).
+    - >-
+      Adoption friction: complex data wrangling (soil tests, historic yield,
+      imagery), uncertain ROI, and no clear compliance documentation deter use.
+    - >-
+      Limited ground-truth validation and lack of on-farm trial workflows make
+      it hard for agronomists to prove value to growers.
+  solution:
+    - >-
+      Data ingest: field boundaries, previous N/applied logs, soil mineral N/OM,
+      manure credits, historic yield maps, crop/variety, sowing date, and
+      management zones.
+    - >-
+      Remote sensing + phenology: frequent Sentinel-2/Planet NDVI/NDRE with
+      growth stage detection (BBCH/Feekes) to time recommendations and normalize
+      indices across fields and dates.
+    - >-
+      N balance engine: estimate crop N requirement (by crop, target yield,
+      variety), soil N supply (soil tests, mineralization from weather/soil
+      texture/OM), and residual N; account for losses (leaching/denitrification
+      risk) using recent weather and soil drainage class.
+    - >-
+      Canopy-sensing adjustment: adjust zone-level N rates based on normalized
+      canopy status vs. expected growth curve, constrained by min/max rate and
+      equipment capabilities; includes smoothing and headland logic.
+    - >-
+      Output: equipment-ready VRA prescriptions (ISO-XML, shapefile, John Deere
+      Ops Center, Trimble, Raven, AgLeader) with legends and operator notes;
+      includes ROI preview and optional on-rig sensor linkage (e.g.,
+      GreenSeeker) for last-meter refinement.
+    - >-
+      Validation & learning: create A/B test strips automatically; compare yield
+      monitor data post-harvest; update field-specific response curves for next
+      season.
+    - >-
+      Compliance: generate auditable N-plan and as-applied report for
+      record-keeping and regulatory inspections.
+  uniqueValueProp: >-
+    Increase nitrogen use efficiency and profit per hectare with a calibrated
+    N-balance plus canopy-sensing engine that generates equipment-ready VRA
+    prescriptions, validated by on-farm trials and accompanied by
+    regulatory-ready documentation—fast, simple, and compatible across mixed
+    fleets.
+  unfairAdvantage: >-
+    A calibrated, multi-crop (cereals + oilseeds) N-balance plus canopy engine
+    trained on paired datasets of SMN tests, multi-sensor imagery, and yield
+    responses, combined with deep OEM prescription compatibility and an embedded
+    on-farm trial workflow that converts local proof into scalable adoption.
+    Competitors often offer either canopy-only tools or crop models without
+    strong VRA execution and validation.
+  customerSegments:
+    - >-
+      Primary: Mid- to large-scale combinable-crop farms (500–5,000 ha)
+      producing winter wheat, barley, oats, and oilseed rape/canola in UK,
+      France (north), Germany, Denmark, and Poland; secondary: mixed farms with
+      maize/corn side-dress.
+    - >-
+      Agronomy retailers, co-ops, and independent consultants offering in-season
+      services and VRA to their grower networks.
+    - >-
+      Equipment dealers and service providers (JD, CNH, Trimble/Raven/AgLeader)
+      seeking value-added agronomy apps to drive terminal and section control
+      usage.
+    - >-
+      FMIS platforms and input manufacturers seeking API-based N recommendation
+      logic to embed in their tools.
+  channels:
+    - >-
+      Reseller partnerships with agronomy retailers/co-ops to bundle TopDressAI
+      into mid-season service packages (rev share per ha).
+    - >-
+      OEM marketplace listings and dealer enablement (JD Ops Center, Trimble Ag
+      Software) with co-marketing and dealer agronomist training.
+    - >-
+      Targeted regional pilots with 20–50 growers per country; publish
+      independent trial summaries via universities/extension and trade press.
+    - >-
+      Digital demand gen: webinars before key growth stages, case studies, and
+      ROI calculator; retargeting around weather events (e.g., heavy
+      rainfall/leaching risk).
+    - >-
+      On-farm demos with equipment dealers during topdress windows; offer free
+      single-field pilot maps to qualified prospects.
+    - >-
+      Influencer and advisor networks (CCA/FACTS) with CPD-accredited training
+      and referral incentives.
+  revenueStreams:
+    - >-
+      Per-hectare seasonal license: €6–12/ha/season (tiered by hectares and
+      features; average target €8/ha).
+    - >-
+      Retailer/co-op enterprise licensing: volume discounts (e.g., €5–7/ha) plus
+      white-label options.
+    - >-
+      Premium add-ons: high-cadence Planet imagery (+€2/ha), on-rig sensor
+      integration (+€1/ha), multi-application optimization packs.
+    - >-
+      API licensing to OEMs/FMIs for embedded N logic (per-field or per-API
+      call).
+    - >-
+      Professional services: bespoke calibrations, multi-year nutrient strategy,
+      and trial program management.
+  costStructure:
+    - >-
+      Data costs: imagery (Planet optional), weather APIs, addressable satellite
+      processing; storage/egress.
+    - >-
+      Cloud compute: satellite preprocessing, model inference, prescription
+      generation, and analytics pipelines.
+    - >-
+      Agronomy science and data science team for calibration, QA, and model
+      updates.
+    - 'Sales and reseller enablement, including field demos and training.'
+    - >-
+      Customer success and support (seasonal surge capacity during application
+      windows).
+    - Liability/tech E&O insurance; regulatory/compliance review.
+    - R&D for new crops/geographies and hardware integrations.
+  keyMetrics:
+    - >-
+      Agronomic: average kg N/ha saved (target 8–15%) with yield-maintain or
+      +1–3% uplift in N-limited zones; NUE improvement (baseline 50–55% to
+      58–65%); biomass uniformity CV reduction by 10–20%.
+    - >-
+      Economic: average ROI per ha (target €15–40/ha net after subscription),
+      payback rate (>80% of fields), and grower-level gross margin uplift.
+    - >-
+      Adoption: hectares processed per season, fields per account,
+      reseller-attached rate (% of hectares via partners).
+    - >-
+      Product: map generation time (<15 minutes for 95% of fields), successful
+      controller upload rate (>98%), imagery availability at key stages (>90%
+      coverage within ±5 days).
+    - >-
+      Retention: grower logo retention (>85% annually), hectare retention
+      (>90%), NPS (>40).
+    - >-
+      Sales efficiency: CAC (target €150/farm or €0.50–€1/ha via resellers),
+      LTV/CAC ≥ 4:1.
+    - >-
+      Validation: proportion of fields with on-farm strip trials (>30%), average
+      yield delta confidence (p<0.1) reported.
+storyBrand:
+  character: >-
+    Oilseed and grain combination farmers and agronomists who want confident,
+    profitable nitrogen side‑dress/topdress decisions across variable fields.
+  problem: >-
+    - External: Variable soils, weather, and crop canopies make flat‑rate N
+    wasteful and risky for side‑dress/topdress.
+
+    - Internal: Tired of guessing N rates and worrying about yield/protein loss
+    or wasted spend.
+
+    - Philosophical: Every acre deserves precise, data‑driven nitrogen that pays
+    and protects land and water.
+
+    - Villain: Rules‑of‑thumb and blanket rates that ignore in‑season crop need.
+  guide: >-
+    - Empathy: We know the pressure of timing and right‑sizing N across mixed
+    rotations and unpredictable weather.
+
+    - Authority: AI engine that blends N‑balance accounting with canopy‑sensing
+    adjustments (NDVI/NDRE), field‑tested with agronomist controls, integrates
+    with common monitors and VRA hardware.
+  plan: >-
+    - Process:
+      1) Connect fields and sensors: import soil tests, planting data, prior N, yield maps, and in‑season imagery/canopy data.
+      2) Analyze: compute current N balance, adjust by canopy vigor, simulate response by zone.
+      3) Decide: review rate maps, set constraints and safety margins, approve.
+      4) Apply: export VRA prescriptions (ISO‑XML/Shapefile) for spreaders/sprayers; monitor outcomes.
+    - Agreement: You own the data, transparent assumptions, agronomist overrides
+    respected, cancel anytime.
+  callToAction: >-
+    - Direct: Start a pilot on 2–3 fields and receive your first VRA
+    prescriptions within 24 hours.
+
+    - Transitional: Book a 20‑minute demo, run the ROI calculator, and download
+    sample maps.
+  success: |-
+    - Hit yield and protein targets more consistently.
+    - Lower N cost per bushel and reduce unnecessary passes.
+    - Document reduced leaching and N2O risk for compliance or incentives.
+    - Less stress and more predictable margins across mixed crops and fields.
+  failure: |-
+    - Keep over/under‑applying, wasting N and missing yield/protein targets.
+    - Increased risk of lodging, leaching, and regulatory pain.
+    - Another season of guesswork instead of clarity and ROI.
+landingPage:
+  hero:
+    title: AI Nitrogen Side‑Dress/Topdress Advisor with VRA
+    subtitle: >-
+      Fuse N balance with canopy sensing to set the right rate by zone and
+      export plug‑and‑play prescriptions for oilseed and grain fields.
+    ctaText: Start free trial
+    ctaHref: /start
+  problem:
+    - Within‑field variability makes uniform N rates wasteful and risky.
+    - Side‑dress/topdress windows are tight; decisions are rushed.
+    - Turning NDVI/sensor data into actionable rates is hard.
+    - 'Over/under application hurts yield, protein, and margins.'
+    - File formats and monitor compatibility slow VRA adoption.
+    - Auditable N plans and records take time to produce.
+  solution:
+    - >-
+      AI combines field N balance with canopy‑sensing correction for
+      zone‑specific rates.
+    - Weather- and growth‑stage‑aware recs to hit timing and reduce loss risk.
+    - One‑click VRA exports for leading controllers and displays.
+    - >-
+      Optimizes for yield, protein, and profit within your caps and equipment
+      limits.
+    - Transparent agronomy with audit‑ready logs and N‑use metrics.
+  features:
+    - 'Supported crops: wheat, barley, oats, rye, maize, canola/OSR.'
+    - >-
+      Inputs: soil tests, prior crop, manure/residue, fertilizer history, cover
+      crops, yield maps.
+    - >-
+      Canopy data: satellite (Sentinel/Planet), drone, and on‑the‑go sensors
+      (GreenSeeker, CropSpec).
+    - Auto zones from vigor + soil EC/topography; editable boundaries.
+    - Local calibration with target yield/protein and price assumptions.
+    - Mineralization and weather outlook factor into timing and rate.
+    - Split‑apply guidance and inhibitor suggestions when beneficial.
+    - 'Equipment‑aware rates: min/max flow, section width, blend constraints.'
+    - 'Exports: ISO‑XML, shapefile, John Deere, Trimble, Raven, Ag Leader.'
+    - 'Batch fields, mobile map viewing, and offline access.'
+    - 'Compliance: N‑use efficiency, leaching risk index, and printable records.'
+  steps:
+    - Connect fields and equipment; set crops and growth stages.
+    - Import soil/yield/history or start with defaults.
+    - 'Select canopy source (satellite, drone, or sensor pass).'
+    - Review N balance and auto‑generated zones; tweak if needed.
+    - 'Set goals and limits (yield/protein, max N, budget, equipment).'
+    - Generate rates and export VRA prescription in your format.
+    - 'Send to the cab, apply, and monitor progress.'
+    - Log results and export audit/ROI report.
+---
+# TopDressAI (Nitrogen Side-Dress/Topdress Advisor with VRA)
+
+Industry: Oilseed and Grain Combination Farming
+Service: Nitrogen Side-Dress/Topdress Advisor with VRA

@@ -1,0 +1,331 @@
+---
+name: ClearRead ATC
+slug: clearread
+naics:
+  primary: '488111'
+  occupations: []
+service:
+  title: ATC Frequency Transcription and Event Tagging
+  description: >-
+    Transcribes ATC audio (non-operational copies) and tags callsigns,
+    clearances, readbacks, handoffs, and deviations for QA/training/search.
+  targetUsers:
+    - Tower/Approach QA
+    - Training departments
+    - Safety investigators
+  triggers:
+    - Audio file upload or live mirrored stream
+    - 'Keyword/phrase detection (e.g., go-around)'
+  inputs:
+    - Audio recordings (per frequency)
+    - 'Local vocabulary (fixes, SIDs/STARs, callsigns)'
+    - Timestamp alignment (if available)
+  steps:
+    - Noise reduction and diarization
+    - ASR transcription with ATC lexicon
+    - 'NER to extract callsigns, fixes, clearances'
+    - 'Auto-tag notable events (go-around, altitude changes, missed readbacks)'
+    - Export transcripts and event timelines
+  tools:
+    - Whisper/Vosk (on-device)
+    - Pyannote/RTVC diarization
+    - Custom NER (spaCy)
+    - Elastic/SQLite for search
+    - Secure S3/local storage
+  outputs:
+    - Time-aligned transcripts (JSON/PDF)
+    - Event tags and clips
+    - Searchable database with filters
+  pricingModel:
+    - Per-hour of processed audio
+    - Discounted monthly bundles
+    - Optional on-prem license
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 8
+    overall: 9
+  risks:
+    - Audio quality variability
+    - Privacy/PII handling
+    - Model mis-hears domain terms
+  dependencies:
+    - Audio access policy
+    - Custom lexicon from local SOP
+    - Secure storage
+leanCanvas:
+  problem:
+    - >-
+      Manual QA and incident reviews are slow and inconsistent: pulling,
+      scrubbing, and listening to hours of audio for a 5–10 minute event
+      commonly takes 2–6 hours per case.
+    - >-
+      Supervisors can’t search historic comms by callsign, sector, runway, or
+      procedure; knowledge is lost when recordings roll off retention.
+    - >-
+      Training content creation is ad hoc; finding good examples of
+      proper/incorrect phraseology, late readbacks, and non-standard clearances
+      takes days.
+    - >-
+      Existing speech-to-text tools perform poorly on noisy VHF/ HF, clipped
+      transmissions, and ATC phraseology (high WER, missed callsigns).
+    - >-
+      Safety teams lack measurable, automated readback/clearance compliance
+      indicators; trend analysis is manual and delayed.
+    - >-
+      Integration friction: recorder systems store “non-operational copies” but
+      analytics are siloed and not tailored to ATC events (handoffs,
+      deviations).
+  solution:
+    - >-
+      Domain-tuned ASR for ATC comms: noise-robust transcription optimized for
+      VHF/HF bandwidth and phraseology (SIDs/STARs, runway/taxiway, altitudes,
+      QNH, callsign formats).
+    - >-
+      Event tagging engine: detects and links clearance issuance, readback,
+      handoff, non-standard phraseology, and deviation indicators; computes
+      readback/clearance match scores.
+    - >-
+      Entity extraction: callsigns (ICAO/IATA + flight number variations),
+      runway/taxiway identifiers, sectors/frequencies, altitudes, waypoints, and
+      procedures.
+    - >-
+      Diarization + role inference: controller vs pilot segmentation using
+      PTT/VCS metadata when available, or acoustic heuristics where not.
+    - >-
+      Search and case building: query by callsign, time range, sector/frequency,
+      runway, event type; export synchronized audio clips, transcripts, and tag
+      timelines for investigations/training.
+    - >-
+      Integrations: connectors for common ATC recorders (Eventide NexLog, NICE
+      Inform, Verint), VCS (Frequentis, Rohde & Schwarz), and safety/QA tools
+      (SMS portals, ECCAIRS2) via secure APIs.
+    - >-
+      Privacy and security: works on non-operational copies; role-based access;
+      on-premises or FedRAMP/GovCloud deployment; configurable retention
+      matching ANSP policy.
+    - >-
+      Analytics dashboards: facility-level KPIs (e.g., readback compliance rate,
+      time-to-handoff, phraseology variance) with trends by sector/time of
+      day/weather.
+  uniqueValueProp: >-
+    Turn hours of ATC audio into searchable, tagged events in minutes:
+    high-accuracy ATC-tuned transcription and auto-tagging of callsigns,
+    clearances, readbacks, handoffs, and deviations for QA, safety, and training
+    — deployable on-prem or GovCloud, integrated with leading voice recorders.
+  unfairAdvantage: >-
+    A growing, proprietary, event-annotated ATC audio corpus and models
+    explicitly tuned for ATC phraseology and noisy VHF/HF — coupled with
+    certified connectors to the major recorder/VCS platforms and a demonstrated
+    KPI playbook (measured QA time savings, compliance trends) from
+    design-partner facilities.
+  customerSegments:
+    - >-
+      Primary: Air Navigation Service Providers (ANSPs) and ATC facilities
+      (NAICS 488111) — FAA facilities (towers, TRACONs, ARTCCs), contract towers
+      (e.g., Serco, Midwest ATC), airport authorities that operate towers.
+    - >-
+      Secondary: National/Regional ANSPs outside the US (e.g., NAV CANADA, NATS,
+      DFS, ENAIRE, Airservices Australia, CAAS), with English comms as initial
+      focus.
+    - >-
+      Adjacency: Airline safety/training (FOQA/ASAP/LOSA teams) seeking faster
+      ATC comms retrieval for event reconstruction; ATC academies/universities
+      for training libraries.
+  channels:
+    - >-
+      Direct enterprise sales to ANSPs and FAA/Contract Towers: target ATC
+      Directors, QA/Safety Managers, Training Leads with ROI pilots (90-day paid
+      POCs).
+    - >-
+      Recorder/VCS OEM partnerships and resellers: co-sell/embedded analytics
+      with Eventide, NICE, Verint, Frequentis, Rohde & Schwarz; offer certified
+      connectors and revenue share.
+    - >-
+      System integrators for ATM: partner with Leidos, Raytheon, Thales, Indra
+      for RFP inclusion and integration services.
+    - >-
+      Conferences and industry bodies: ATCA Tech Symposium, Airspace World
+      (CANSO), FAA Tech Center Workshop; present pilot outcomes and measurable
+      KPIs.
+    - >-
+      Regulated procurement channels: FedRAMP Moderate/GovCloud listing; GSA
+      schedule or equivalent framework agreements for simplified acquisition.
+    - >-
+      Content and technical marketing: white papers on readback compliance
+      analytics, webinars with design partners, and benchmark reports vs generic
+      ASR on ATC audio.
+    - >-
+      Bottom-up expansion: start with contract towers (fast procurement), then
+      TRACONs/ARTCCs; land-and-expand via training departments to QA and safety
+      analytics.
+  revenueStreams:
+    - >-
+      Facility-tiered subscription (SaaS or on-prem annual license) based on
+      number of frequencies and recording hours: Small Tower $1.5k–$2.5k/month;
+      Medium Tower/Small TRACON $3k–$6k/month; Large TRACON/ARTCC
+      $8k–$15k/month.
+    - >-
+      Usage-based overage for transcription beyond included hours (e.g.,
+      $0.06–$0.12 per recorded audio minute).
+    - >-
+      Professional services: integration with recorder/VCS, legacy archive
+      ingestion, custom dashboards ($150–$220/hour or fixed-scope packages).
+    - >-
+      Premium modules: airline/operator callsign pack, advanced deviation
+      models, multilingual packs ($10k–$50k add-ons).
+    - >-
+      Training content library licensing: curated and anonymized scenario packs
+      for academies (institutional licenses $10k–$40k/year).
+  costStructure:
+    - >-
+      Compute for inference and indexing: $0.03–$0.08 per audio minute at scale
+      (model-dependent, GPU amortization included).
+    - >-
+      Storage: compressed audio ~30 MB/hour; 30 days retention for 10 freqs ≈
+      216 GB/month per facility; at $0.023/GB-month ≈ $5/month storage base
+      (transcripts/tags negligible).
+    - >-
+      Engineering and ML staff: 6–10 FTEs in year 1–2 (ASR/ML, backend,
+      integrations, QA), fully loaded $1.5M–$3M/year.
+    - >-
+      SME and labeling costs: controller SMEs and annotation vendors for
+      gold-standard datasets ($200k–$500k/year).
+    - >-
+      Compliance and security: FedRAMP/GovCloud/on-prem hardening, SOC 2 audits,
+      penetration testing ($150k–$350k initial, $100k–$200k/year ongoing).
+    - >-
+      Sales and partnerships: 2–4 enterprise AEs + 1–2 solution engineers,
+      travel, conferences ($600k–$1.2M/year).
+    - >-
+      Support and SLAs: 24/7 on-call for ANSPs, incident response drills
+      ($150k–$300k/year).
+  keyMetrics:
+    - >-
+      Model performance: WER by SNR band; Callsign extraction F1;
+      Clearance–readback link precision/recall; Handoff detection accuracy;
+      deviation flag precision.
+    - >-
+      Operational: average processing latency per hour of audio (<5 min for
+      batch, <10 s for near-real-time segments); search latency (<2 s indexed).
+    - >-
+      QA productivity: reduction in review time per case (target 50–70% vs
+      manual); number of cases closed per month per analyst (target +2x).
+    - >-
+      Coverage: % of facility audio hours transcribed and indexed (target ≥95%
+      of retained hours); % of events auto-tagged with confidence ≥ threshold.
+    - >-
+      Adoption: weekly active users, saved searches, cases created, exports;
+      facility-level NPS/CSAT; expansion from pilot areas to additional
+      sectors/frequencies.
+    - >-
+      Reliability/SLA: uptime ≥ 99.9%; integration success rate; backlog of
+      ingestion errors (<0.5% of hours).
+    - >-
+      Security/compliance: number of audit findings (target 0 critical);
+      time-to-patch for CVEs; access anomalies detected/resolved.
+storyBrand:
+  character: >-
+    ATC facility leaders and QA training teams who need fast accurate insight
+    from recorded frequencies
+  problem: >-
+    Manual audio review is slow and error prone, key events can be missed,
+    investigations and training stall, leaders need defensible searchable
+    records without extra workload
+  guide: >-
+    We understand safety critical comms and ATC workflows. Our team blends ATC
+    ops and speech AI with secure privacy minded handling of non operational
+    copies
+  plan: >-
+    Step 1 request a demo with sample audio. Step 2 deploy cloud or on prem and
+    connect non operational recordings. Step 3 auto transcribe and tag callsigns
+    clearances readbacks handoffs and deviations then review in a dashboard or
+    export to your QA and training tools
+  callToAction: >-
+    Request a pilot with your audio and receive a concise findings report within
+    72 hours
+  success: >-
+    Every frequency becomes a searchable record, QA cycles drop from hours to
+    minutes, deviations surface automatically, training scenarios are curated
+    from real traffic, audits gain clear timestamped evidence
+  failure: >-
+    Keep scrolling tapes, miss critical events, prolong investigations, lose
+    institutional knowledge, accept repeat errors that could have been prevented
+landingPage:
+  hero:
+    title: ATC Frequency Transcription and Event Tagging
+    subtitle: >-
+      Turn recorded ATC audio into searchable, structured events for QA,
+      training, and safety review. Non-operational copies only. NAICS 488111.
+    ctaText: Request a demo
+    ctaHref: /request-demo
+  problem:
+    - Hours of audio make incident review slow and inconsistent.
+    - >-
+      Hard to locate the exact clearance, readback, handoff, or deviation across
+      frequencies.
+    - >-
+      Overlapping transmissions and noisy VHF/UHF defeat generic transcription
+      tools.
+    - 'Training teams lack real-world, annotated examples with precise timecodes.'
+    - 'QA needs defensible, searchable records for audits and safety management.'
+    - Manual logging of callsigns and events is error-prone and unscalable.
+  solution:
+    - >-
+      Domain-tuned speech-to-text for ATC phraseology with overlap handling and
+      diarization.
+    - >-
+      Automatic tagging of callsigns, clearances, readbacks, handoffs, and
+      potential deviations with timestamps.
+    - >-
+      Instant search across archives by callsign, event type, sector, runway, or
+      keyword.
+    - 'Review console to validate tags, add notes, and build training sets.'
+    - Dashboards surfacing compliance trends and handoff latencies.
+    - >-
+      Secure deployment options: on-prem, private cloud, or air-gapped;
+      encryption and access controls.
+  features:
+    - 'Noise-robust transcription for VHF/UHF, ED-137 VoIP, and phone lines.'
+    - >-
+      Speaker diarization and overlap separation with time-aligned word
+      timestamps.
+    - >-
+      Callsign detection and normalization for airline, tail number, and
+      military formats.
+    - >-
+      Clearance parsing for altitude, heading, speed, runway, SID/STAR, and
+      approach items.
+    - Readback matching with discrepancy flags and confidence scores.
+    - Handoff detection between positions and sectors with timing metrics.
+    - >-
+      Deviation heuristics for missed or incorrect readbacks and nonstandard
+      phraseology.
+    - Searchable transcript viewer with jump-to-event and waveform context.
+    - Batch ingest and streaming support; watch-folders and APIs.
+    - >-
+      Integrations with common recorders and archives; export to CSV, JSON, and
+      PDF.
+    - Redaction and anonymization options for training datasets.
+    - 'Admin controls, SSO/SCIM, audit logs, and role-based permissions.'
+    - >-
+      Data residency and retention policies with encryption in transit and at
+      rest.
+    - Localization packs for FAA and ICAO phraseology.
+    - 'Operational resilience with queueing, retries, and health monitoring.'
+    - Flexible deployment via Docker/Kubernetes on Windows or Linux.
+  steps:
+    - Connect a non-operational audio source or upload recordings.
+    - >-
+      Select facility profile and phraseology pack; set retention and redaction
+      rules.
+    - AI transcribes and tags events in near-real time or batch.
+    - Review and confirm flagged items; add notes and training labels.
+    - 'Search and filter by callsign, event type, time range, sector, or runway.'
+    - Export reports or push data to QMS/LMS via API or webhooks.
+    - Monitor dashboards and tune alerts; automate recurring jobs.
+---
+# ClearRead ATC
+
+Generated for NAICS 488111 — Air Traffic Control.
+Service: ATC Frequency Transcription and Event Tagging

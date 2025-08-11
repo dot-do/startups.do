@@ -1,0 +1,311 @@
+---
+name: ListGuard AI
+slug: listguard
+naics:
+  primary: '513140'
+  occupations: []
+service:
+  title: Automated Listing Verification and Enrichment
+  description: >-
+    Continuously verify and enrich company/contact listings using web extraction
+    and validation APIs, producing change logs and confidence scores.
+  targetUsers:
+    - Data Operations
+    - Directory Product Managers
+    - List Owners
+  triggers:
+    - Weekly/monthly refresh window
+    - Bounce rate threshold exceeded
+    - New partner dataset received
+  inputs:
+    - 'Existing listings (name, URL, address, phone, email)'
+    - Source URLs or search queries
+    - Previous verification logs
+  steps:
+    - >-
+      Crawl known URLs and search results for official sites (respect
+      robots.txt)
+    - >-
+      Extract contact data (addresses, phones, emails, hours) with LLM-assisted
+      parsing
+    - 'Validate emails, phones, and addresses via APIs'
+    - Cross-check entity against Google Places/OpenCorporates
+    - Merge with existing record; compute confidence and change deltas
+    - Queue low-confidence conflicts for human review
+    - Export enriched dataset and change report
+  tools:
+    - Playwright/Scrapy
+    - 'LLM extraction (OpenAI, Anthropic)'
+    - ZeroBounce/NeverBounce
+    - Twilio Lookup
+    - Smarty/USPS Address Validation
+    - Google Places API
+    - DuckDB/BigQuery
+  outputs:
+    - Enriched CSV/Parquet with validation status
+    - Per-record confidence scores
+    - Change log (adds/updates/deletes)
+    - Exception queue for review
+  pricingModel:
+    - 'Setup fee + per-record verified (e.g., $0.02–$0.08)'
+    - Volume discounts
+    - Optional monthly SLA retainer
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 5
+    overall: 5
+  risks:
+    - Source site TOS/robots restrictions
+    - False positives in extraction/merging
+    - API rate limits/cost spikes
+    - PII handling compliance
+  dependencies:
+    - API keys for verification vendors
+    - Customer-provided source lists
+    - Data processing agreement (DPA)
+leanCanvas:
+  problem:
+    - >-
+      High decay in B2B listings: 20–30% of business/contact data becomes stale
+      annually, driving email bounces, returned mail, and customer complaints.
+    - >-
+      Manual verification is slow and expensive ($0.50–$2.00 per record using
+      offshore teams), making continuous freshness economically unviable.
+    - >-
+      Batch updates create long freshness gaps (30–180 days), while customers
+      increasingly expect near-real-time accuracy and change transparency.
+    - >-
+      Fragmented sources and inconsistent schemas lead to duplicates, conflicts,
+      and low confidence in a “source of truth.”
+    - >-
+      Compliance and risk: ad-hoc scraping, unvetted enrichment vendors, and
+      weak audit trails expose publishers to terms-of-service, privacy, and
+      deliverability risks.
+    - >-
+      Lack of explainability: current tools don’t provide evidence links, change
+      logs, or confidence scores, undermining editorial trust and customer SLAs.
+  solution:
+    - >-
+      Always-on web extraction with compliance-first crawling (robots-aware,
+      rate-limited, identifiable user agent) sourcing official sites and
+      authoritative directories.
+    - >-
+      Multi-layer validation APIs: email (SMTP+reputation), phone
+      (line-type+reachability), address (CASS/DPV), website health, hours,
+      categories, social links, and key firmographics.
+    - >-
+      Entity resolution and deduplication across sources to maintain a unified
+      profile per business/contact.
+    - >-
+      Evidence-backed confidence scoring: per-field scores, last-seen
+      timestamps, and source-level trust weighting; include evidence
+      URLs/snapshots where permitted.
+    - >-
+      Change detection and audit logs: field-level diffs, confidence deltas, and
+      webhooks for client systems; exportable for compliance reviews.
+    - >-
+      Delivery options: REST/GraphQL APIs, flat-file/SFTP, Snowflake share, and
+      turnkey dashboard for QA workflows.
+    - >-
+      Human-in-the-loop review for low-confidence or high-impact changes, with
+      sampling-based quality control.
+    - >-
+      Operational SLAs, monitoring, and alerting (freshness/coverage drift,
+      anomaly detection) with a customer-facing status page.
+  uniqueValueProp: >-
+    Continuously verified, enriched, and explainable listings with audit-grade
+    change logs and confidence scores—cutting bounce/return rates 25–50%,
+    reducing verification cost per record by 70%+, and meeting client freshness
+    SLAs without expanding headcount.
+  unfairAdvantage: >-
+    A longitudinal, evidence-backed change graph accumulated across publishers,
+    enabling superior confidence scoring and rapid re-verification of volatile
+    fields; proprietary labeled datasets and evaluation harness; and a
+    compliance-by-design crawling/validation stack that reduces legal and
+    deliverability risk—difficult and time-consuming for rivals to replicate.
+  customerSegments:
+    - >-
+      Primary: Directory and Mailing List Publishers (NAICS 513140)—local
+      business directories, industry/trade directories, mailing list brokers,
+      data co-ops.
+    - >-
+      Secondary: B2B data vendors, CRM/MA/ESP providers offering list
+      hygiene/enrichment, membership organizations (associations) maintaining
+      directories, event/exhibitor directories.
+    - >-
+      Early adopters profile: 100k–10M listings, 2–20 person data ops team,
+      batch-based updates today, pressure from enterprise clients for freshness
+      SLAs and audit trails.
+  channels:
+    - >-
+      Direct sales to target titles (Head of Data, Directory Product Manager,
+      Data Ops Lead) using ABM: 100 named accounts/quarter, 5-step
+      LinkedIn/email cadence, tailored per vertical.
+    - >-
+      Technical content marketing: quarterly “Directory Freshness Benchmarks”
+      report; field accuracy teardown blogs; public uptime/freshness status
+      dashboard.
+    - >-
+      Offer a free Listing Freshness Audit: sample 50k records, deliver
+      coverage/age/accuracy report and ROI model within 10 business days.
+    - >-
+      Partnerships: data hygiene agencies, ESPs/CRMs (co-sell/embedded), data
+      marketplaces (AWS/GCP/Snowflake) for frictionless procurement.
+    - >-
+      Industry events and associations: sponsor ANA/Data & Marketing, Local
+      Search Association, LeadsCon; present case studies on auditability and SLA
+      compliance.
+    - >-
+      Product-led motion: self-serve sandbox with 10k free verifications, API
+      keys in minutes, and pay-as-you-go pricing; in-app upgrade prompts tied to
+      usage.
+  revenueStreams:
+    - >-
+      Usage-based subscriptions by verified field and cadence (e.g.,
+      $0.001–$0.005 per field per record per verification; volume-tiered).
+    - >-
+      Enrichment bundles (firmographics, categorization, social, technographics)
+      at $0.005–$0.02 per record depending on third-party data cost and
+      coverage.
+    - >-
+      Minimum monthly commitments ($2k–$10k) with discounts for annual prepay;
+      enterprise SLAs and private deployments with premium uplift (15–30%).
+    - >-
+      Professional services: onboarding/mapping ($5k–$25k), custom crawlers and
+      schema extensions ($10k–$50k), historical backfill projects ($0.002–$0.01
+      per record).
+    - >-
+      Premium add-ons: priority recrawl windows, human verification seats,
+      dedicated IP pools, evidence snapshot storage retention, and compliance
+      attestations (SOC 2 reports).
+  costStructure:
+    - >-
+      Variable COGS per record: proxy/bandwidth for compliant crawling
+      ($10–$20/GB; ~0.2–0.6 GB per 10k pages typical), compute/storage
+      ($0.10–$0.30 per 10k pages), evidence snapshot storage (hot/cold tiers).
+    - >-
+      Third-party validation API costs (blended): email $0.0005–$0.002 each,
+      phone lookup $0.003–$0.01, address DPV $0.001–$0.004—passed through with
+      margin.
+    - >-
+      ML/engineering payroll: 6–12 FTE initially (data eng, ML, infra, PM,
+      compliance) ~$1.5M–$3M/yr.
+    - >-
+      Security/compliance: SOC 2 Type II audit, pen tests, DPA/contract reviews:
+      $75k–$200k/yr.
+    - >-
+      Sales/marketing: ABM tools, events, content production: $250k–$800k/yr
+      depending on stage.
+    - >-
+      G&A and legal: terms-of-service review for sources, privacy counsel,
+      insurance (E&O/Cyber): $100k–$300k/yr.
+  keyMetrics:
+    - >-
+      Verification quality: precision ≥ 98% for postal addresses (DPV), ≥ 95%
+      for phone reachability, email bounce reduction ≥ 30% within 90 days.
+    - >-
+      Freshness: median age of verified core fields ≤ 30 days; 95th percentile ≤
+      90 days for contracted fields.
+    - >-
+      Coverage: percentage of records with verified phone/email/address ≥ 85%
+      (goal varies by vertical); enrichment hit-rate by field reported monthly.
+    - >-
+      Operational: 99.9% API uptime; P95 verification latency for real-time
+      checks ≤ 2 seconds; successful delivery rate for webhooks ≥ 99%.
+    - >-
+      Economics: gross margin ≥ 65% at scale; LTV/CAC ≥ 3.0; payback ≤ 12
+      months; monthly logo churn ≤ 1%; NRR ≥ 115%.
+    - >-
+      Adoption: time-to-value ≤ 2 weeks (pilot to first change log in client
+      system); audit-to-paid conversion ≥ 25%; sandbox-to-paid conversion ≥ 10%.
+    - >-
+      Data pipeline health: anomaly alerts resolved < 4 hours MTTR; source-level
+      failure rate < 1% of fetches sustained.
+storyBrand:
+  character: >-
+    Directory and Mailing List Publishers (NAICS 513140) who want continuously
+    accurate, enriched company/contact listings to protect revenue, trust, and
+    usability.
+  problem: >-
+    External: listings decay quickly—contacts move, domains change, duplicates
+    appear. Internal: manual verification is slow, costly, and error-prone.
+    Philosophical: publishers shouldn’t have to guess whether their data can be
+    trusted.
+  guide: >-
+    We understand the pain of data rot, refunds, and churn. Our Automated
+    Listing Verification and Enrichment uses web extraction, validation APIs,
+    and deterministic matching to keep listings current—backed by transparent
+    change logs and confidence scores.
+  plan: >-
+    Process: 1) Connect and map sources; 2) Set rules and thresholds; 3)
+    Continuous verify/enrich; 4) Review change logs and accept or auto-apply by
+    confidence; 5) Sync updates via API/CSV. Agreement: clear SLAs, privacy
+    compliance, opt-outs honored, pilot-friendly terms.
+  callToAction: >-
+    Direct: Schedule a 30-minute demo and start a pilot on a representative
+    segment. Transitional: Request a free data health report with accuracy,
+    dedup, and deliverability insights plus confidence scoring.
+  success: >-
+    Listings stay fresh and complete, deliverability improves, search visibility
+    rises, advertiser ROI increases, refunds drop, audit readiness improves,
+    teams save time, and new products launch faster.
+  failure: >-
+    Stale, incomplete listings cause bounced outreach, lost ad revenue,
+    subscriber churn, brand damage, compliance risk, and burned-out teams stuck
+    in spreadsheets.
+landingPage:
+  hero:
+    title: 'Keep Listings Accurate, Enriched, and Audit‑Ready'
+    subtitle: >-
+      Automated verification and enrichment for Directory & Mailing List
+      Publishers (NAICS 513140). Continuously validate companies and contacts
+      using web extraction and validation APIs—complete with change logs and
+      confidence scores.
+    ctaText: Request a demo
+    ctaHref: /request-demo
+  problem:
+    - 'Listings decay fast—bad addresses, phones, and roles tank deliverability.'
+    - 'Manual verification is slow, costly, and inconsistent.'
+    - Advertisers and subscribers churn when directories feel stale.
+    - Bounce rates and compliance risk rise without evidence and audit trails.
+    - Editors spend time fixing data instead of curating categories and content.
+  solution:
+    - Always-fresh listings via continuous verification and enrichment.
+    - Web-extracted signals plus validation APIs to confirm every field.
+    - Human-readable change logs with before/after diffs and timestamps.
+    - Per-field confidence scores and evidence for instant trust.
+    - 'Flexible workflows—auto-apply high-confidence updates, review the rest.'
+    - 'APIs, webhooks, and bulk pipelines that fit your stack.'
+  features:
+    - 'Continuous monitoring of company sites, registries, and social profiles.'
+    - >-
+      Email, phone, and postal verification (SMTP checks, carrier lookups,
+      address standardization).
+    - Entity resolution and deduplication across sources.
+    - Category and industry mapping (NAICS/SIC/vertical taxonomy).
+    - 'Geocoding, timezone, and service-area normalization.'
+    - 'Change logs with diffs, version history, and rollback.'
+    - Confidence scoring with explainable signals and source evidence snapshots.
+    - 'Review/approval queues, auto-merge rules, and exception handling.'
+    - 'Real-time webhooks, REST API, and scheduled bulk exports (S3/SFTP).'
+    - >-
+      Field-level policies: verification cadence, source priority, match
+      thresholds.
+    - Privacy-first processing with consent/opt-out workflows and auditability.
+    - 'Quality dashboards: coverage, decay rate, bounce risk, fill-rate lift.'
+    - 'Editor notes and collaboration, role-based access, and activity trails.'
+    - Sandbox projects for safe testing before production rollout.
+  steps:
+    - 'Connect your listings via CSV, API, S3, or SFTP.'
+    - Select fields to verify and enrich; set cadence and thresholds.
+    - 'Run a pilot on a sample; review diffs, confidence, and evidence.'
+    - Approve mappings and auto-merge rules for high-confidence updates.
+    - 'Go live: receive updates via webhooks or scheduled exports.'
+    - Monitor quality dashboards; review exceptions and close the loop.
+    - Sync clean data to CRM/MDM/ESP and track deliverability gains.
+---
+# ListGuard AI
+
+Generated for NAICS 513140 — Directory and Mailing List Publishers.
+Service: Automated Listing Verification and Enrichment

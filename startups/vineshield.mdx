@@ -1,0 +1,310 @@
+---
+name: VineShield AI
+slug: vineshield
+naics:
+  primary: '312130'
+  occupations: []
+service:
+  title: Vineyard Disease Risk & Spray Timing Advisor
+  description: >-
+    Daily risk scoring for powdery mildew, botrytis, downy mildew by block;
+    suggests spray windows and intervals.
+  targetUsers:
+    - Vineyard Manager
+    - Viticulturist
+    - Consulting Agronomist
+  triggers:
+    - Daily schedule
+    - Rain event detected
+    - Growth stage change noted
+  inputs:
+    - Vineyard block locations (KML/GeoJSON)
+    - Nearest weather station or coordinates
+    - Historical spray logs (CSV)
+    - Variety and growth stage notes
+  steps:
+    - >-
+      Pull hourly weather and ET data; compute Gubler-Thomas/Downy indices per
+      block
+    - Fuse satellite NDVI/leaf wetness proxies to adjust risk
+    - >-
+      Compare to last spray date/MOA; suggest next window and PHI/REI
+      constraints
+    - Generate 7-day action plan and SMS/email alerts
+    - Log recommendations to shared sheet
+  tools:
+    - Open-Meteo/NASA POWER/OpenWeather APIs
+    - OpenET or Google Earth Engine
+    - Python/NumPy/Pandas
+    - LLM for summary (GPT-4o/Claude)
+    - Google Sheets/Slack API
+  outputs:
+    - Daily risk dashboard (per block)
+    - Spray window recommendations with rationale
+    - CSV of risk indices
+    - SMS/Email alerts
+  pricingModel:
+    - Setup (block mapping + data hookup)
+    - Per-acre monthly
+    - Optional per-alert SMS cost
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 4
+    overall: 4.5
+  risks:
+    - Weather station mismatch to microclimate
+    - Liability if advice followed without field check
+    - Incomplete spray logs reduce accuracy
+  dependencies:
+    - Weather API access
+    - Block maps
+    - Basic disease model parameters
+leanCanvas:
+  problem:
+    - >-
+      Disease pressure (powdery mildew, downy mildew, botrytis) causes 5–20%
+      average yield/quality loss annually in susceptible regions, with
+      catastrophic losses >40% in outbreak years.
+    - >-
+      Wineries often default to calendar-based sprays (7–14 day intervals),
+      leading to over- or under-application; both increase costs and risk of
+      residues or crop loss.
+    - >-
+      Current risk tools are fragmented (manual Gubler-Thomas lookups, generic
+      weather apps) and do not translate risk into block-level, actionable spray
+      windows aligned with label constraints, sprayer capacity, and weather.
+    - >-
+      Resistance management and MRL compliance are hard to coordinate across
+      multiple blocks, growers, and FRAC codes without decision support.
+    - >-
+      Operational constraints (wind, temperature, inversion layers, sprayer
+      availability, labor) are not incorporated into existing tools, causing
+      missed optimal windows and re-sprays.
+  solution:
+    - >-
+      AI-driven disease risk index by block for powdery mildew, downy mildew,
+      and botrytis, calibrated by cultivar, canopy density, and phenological
+      stage.
+    - >-
+      48–72-hour forward spray window recommendations incorporating wind,
+      temperature, humidity, inversion risk, label intervals, and
+      re-entry/preharvest intervals.
+    - >-
+      Automated FRAC-code rotation planning and MRL compliance checks by target
+      export market (EU/UK/JP/CA/US).
+    - >-
+      Capacity-aware spray schedule optimizer (considers sprayer count, tank
+      size, speed, labor shifts, refill logistics) to maximize acres treated in
+      safe windows.
+    - >-
+      Mobile and SMS/Email alerts for threshold exceedance, window
+      openings/closures, re-spray timers, and missed-treatment risk.
+    - >-
+      Integrations with on-farm stations (Pessl/Metos, Davis/Onset, Arable),
+      mesoscale weather grids, and farm management systems (Agworld, CropTrak)
+      for spray diary sync.
+    - >-
+      Season setup service: import blocks, cultivars, disease history; calibrate
+      risk thresholds and preferred chemistries by growth stage.
+    - >-
+      Validation dashboards: infection-event hit rates, false negatives, spray
+      timing adherence, and ROI tracking.
+  uniqueValueProp: >-
+    Daily, block-level disease risk scoring and optimized spray timing that
+    reduces fungicide applications by 1–2 per season on average while
+    maintaining <2% disease incidence at harvest, with integrated FRAC rotation,
+    MRL guardrails, and sprayer-capacity-aware scheduling.
+  unfairAdvantage: >-
+    Capacity-aware spray window optimizer combined with validated, block-level
+    risk models and integrated FRAC/MRL guardrails, trained on a growing,
+    proprietary dataset of spray outcomes and disease observations across
+    diverse AVAs—plus distribution via sensor/weather and distributor partners
+    embedding the tool at the point of decision.
+  customerSegments:
+    - >-
+      Mid-to-large estate wineries (100–5,000+ acres under management) in
+      CA/OR/WA with internal viticulture teams.
+    - >-
+      Wine companies with contract grower networks (grower relations teams
+      managing spray guidance across 20–500 growers).
+    - Vineyard management firms serving multiple winery clients across AVAs.
+    - >-
+      Premium and export-focused wineries requiring strict MRL compliance and
+      disease-free fruit.
+    - >-
+      Organic/biodynamic producers requiring tight botrytis/mildew control
+      without synthetic backups.
+    - 'Research/extension vineyards seeking validated, sharable decision support.'
+  channels:
+    - >-
+      Direct sales to Director of Viticulture/Vineyard Managers at target
+      wineries (CA/OR/WA); account-based outreach to top 200 US wine companies.
+    - >-
+      Pilot programs with 10–15 flagship wineries/management firms per region;
+      8–12 week trials during bloom–veraison, with shared KPIs and case studies.
+    - >-
+      Partnerships: weather/sensor vendors (Pessl/Metos, Arable, Davis/Onset),
+      farm management platforms (Agworld, CropTrak), distributors (Wilbur-Ellis,
+      Nutrien) for co-selling and bundling.
+    - >-
+      Conferences and field demos: Unified Wine & Grape Symposium, WineVit (WA),
+      Oregon Wine Symposium, ASEV; sponsored workshops with extension
+      pathologists.
+    - >-
+      Content-led growth: weekly regional risk bulletins, spray window heat
+      maps, resistance stewardship guides; gated downloads for lead capture.
+    - >-
+      Grower network programs: enterprise winery buys seats for contract growers
+      at a discounted per-acre rate; in-season office hours and training.
+    - >-
+      Referral incentives for consultants and management companies (10–15%
+      first-year commission).
+  revenueStreams:
+    - >-
+      Per-acre, per-season subscription (annual): Basic $8/acre (minimum
+      $1,200), Pro $15/acre (minimum $3,000), Enterprise $20/acre (minimum
+      $10,000; includes API, grower network seats at $5/acre).
+    - >-
+      Implementation and calibration service: $2,500–$15,000 per estate
+      depending on complexity (waived/discounted at Enterprise tier).
+    - >-
+      Partner bundles: rev-share (10–20%) with sensor/weather vendors and input
+      distributors.
+    - >-
+      Data/API licensing to insurers and input manufacturers for aggregated,
+      anonymized disease-risk analytics (optional, privacy-compliant).
+  costStructure:
+    - >-
+      Data: Mesoscale weather grids and satellite/radar feeds
+      ($0.02–$0.05/acre/month equivalent); station API access fees.
+    - >-
+      Cloud compute/storage for daily inference, optimization, and alerting
+      (target <$0.03/acre/month).
+    - >-
+      Salaries: viticulture scientist(s), ML engineers, full-stack devs,
+      customer success, sales/partnerships.
+    - >-
+      Field validation: travel, scouting labor, third-party trials with
+      universities/extension.
+    - >-
+      Sales and marketing: trade shows, content, paid pilots; partner enablement
+      and SPIFs.
+    - >-
+      Insurance and compliance: E&O, product liability disclaimers, data
+      privacy/security (SOC2 over time).
+    - 'R&D: continuous model improvement, resistance stewardship, MRL updates.'
+  keyMetrics:
+    - >-
+      Model performance: infection event AUC >0.85; false negative rate <10% at
+      operational threshold; calibration slope 0.9–1.1.
+    - >-
+      Operational: alert lead time (goal >24h for high-risk events), April–Oct
+      uptime >99.5%, mobile crash rate <0.5%.
+    - >-
+      Customer outcomes: average sprays reduced 1–2 per season without increased
+      disease incidence; chemical+labor savings $40–$80/acre; harvest disease
+      incidence <2%.
+    - >-
+      Adoption: acres under subscription, blocks onboarded within 30 days >90%,
+      DAU/WAU of agronomy users >50%.
+    - >-
+      Retention and growth: logo retention >90%, net revenue retention >115%,
+      pilot-to-paid conversion >60%.
+    - >-
+      Engagement: alert open rate >55%, recommended window adherence >70%, FRAC
+      compliance incidents reduced by >50%.
+    - >-
+      Support: time to first response <1 hour in-season, CSAT >4.5/5,
+      implementation time <2 weeks for estates <500 acres.
+storyBrand:
+  character: >-
+    Vineyard and winery teams (viticulturists, ranch managers, winemakers) who
+    must protect fruit quality and budget while timing sprays across blocks.
+  problem: >-
+    External: Microclimate-driven disease pressure shifts daily; labor, wind,
+    and label limits shrink spray windows. Internal: guessing breeds stress and
+    costly over/under-spraying. Philosophical: growers shouldn’t have to gamble
+    with fruit quality.
+  guide: >-
+    We’ve managed blocks through tight windows and surprise outbreaks. Built by
+    viticulturists and plant pathologists using AI on hyperlocal weather and
+    canopy models; validated across AVAs; integrates with stations and spray
+    logs.
+  plan: >-
+    1) Connect blocks and weather source. 2) Receive daily block-level risk
+    scores for powdery mildew, botrytis, and downy mildew. 3) Get optimal spray
+    windows and interval guidance with alerts. 4) Export plans to work orders
+    and compliance logs. 5) Review impact and adjust. Data stays yours; cancel
+    anytime.
+  callToAction: >-
+    Direct: Start a 14-day trial or book a 20-minute demo. Transitional:
+    Download a sample block report and a regional disease-risk calendar.
+  success: >-
+    Clean fruit, fewer and better-timed sprays, documented and defensible
+    decisions, resistance stewardship, predictable costs, smoother crew
+    scheduling, and confident harvest-ready blocks.
+  failure: >-
+    Missed windows, outbreaks, wasted passes, resistance pressure, residue
+    issues, lost yield and quality, overtime and re-sprays, and weak
+    documentation during audits.
+landingPage:
+  hero:
+    title: Vineyard Disease Risk & Spray Timing Advisor
+    subtitle: >-
+      Daily block-level risk for powdery mildew, botrytis, and downy mildew—with
+      AI-recommended spray windows and intervals to protect yield and reduce
+      costs.
+    ctaText: Start Free Trial
+    ctaHref: /signup
+  problem:
+    - >-
+      Disease pressure shifts block by block; generic weather apps miss
+      microclimates.
+    - Mistimed or unnecessary sprays waste product and invite resistance.
+    - 'Forecasts don’t convert into clear, actionable spray plans.'
+    - 'PHI/REI, organic rules, and labor windows complicate scheduling.'
+    - Mixed varieties and canopy stages make one-size-fits-all intervals fail.
+  solution:
+    - 'Daily risk scoring per block for PM, botrytis, and downy mildew.'
+    - >-
+      AI-recommended spray windows and interval lengths based on risk
+      trajectory.
+    - 7–10 day risk outlook to plan ahead of weather shifts.
+    - >-
+      Configurable constraints: PHI/REI, resistance rotation, organic rules,
+      labor windows.
+    - Real-time alerts when risk spikes or windows tighten.
+    - Post-spray recalibration to optimize the next interval.
+  features:
+    - Block-level disease risk scores (0–100) updated daily.
+    - 7–10 day forecast with confidence ranges and heat maps.
+    - >-
+      Canopy-aware modeling (leaf wetness, RH, temp, solar) using on-site or
+      virtual stations.
+    - Phenology-aware timing using GDD and growth stage inputs.
+    - >-
+      Spray Advisor: optimal window, interval recommendations, and backup
+      options.
+    - Rotation reminders by mode of action to support resistance management.
+    - What-if planning for weather delays and labor availability.
+    - >-
+      Mobile, email, and SMS alerts for high-risk periods and narrow spray
+      windows.
+    - Import blocks via KML/GeoJSON; quick setup by variety and trellis.
+    - Sync or export plans to your spray logs and work orders.
+  steps:
+    - >-
+      Import your blocks and varieties; set program rules (PHI/REI, rotation,
+      organic).
+    - Connect a weather source (station or virtual) and backfill recent data.
+    - Review today’s risk map and 7–10 day outlook by block.
+    - Approve recommended spray windows and intervals; send to field teams.
+    - >-
+      Get alerts as conditions change; log sprays and let the advisor
+      recalibrate.
+---
+# VineShield AI
+
+Generated for NAICS 312130 — Wineries.
+Service: Vineyard Disease Risk & Spray Timing Advisor

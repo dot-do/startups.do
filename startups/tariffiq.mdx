@@ -1,0 +1,331 @@
+---
+name: TariffIQ — Automated LTL Spot Quote & Tariff Rating Agent
+slug: tariffiq
+naics:
+  primary: '484122'
+  occupations: []
+service:
+  title: Automated Spot Quote & Tariff Rating Agent
+  description: >-
+    AI agent that prices LTL moves in seconds using tariffs, density, fuel, and
+    accessorials; replies to emails/RFPs and posts quotes to portals.
+  targetUsers:
+    - Pricing manager
+    - Sales
+    - Customer service
+    - Brokerage desk
+  triggers:
+    - Inbound quote email or webform
+    - RFP/spot-bid CSV upload
+    - API webhook from CRM/TMS
+  inputs:
+    - Origin/destination ZIPs
+    - Dims/weight/NMFC or density
+    - 'Accessorials (liftgate, limited access, residential, inside)'
+    - Pickup/delivery windows
+    - 'Tariff tables, discounts, FSC index'
+    - Service standards matrix
+  steps:
+    - Parse request from email/CSV/API and validate fields
+    - Estimate density/class if missing; flag ambiguities
+    - Rate via tariff engine; add FSC and accessorials
+    - Check service standard and cut-off feasibility
+    - 'Compose response (price, transit, exceptions, validity)'
+    - Post to customer portal or reply via email; update CRM/TMS
+  tools:
+    - SMC3 RateWare X/Tariff IQ or project44 LTL rating API
+    - Internal tariff DB
+    - OpenAI/Claude for email parsing/writing
+    - Google Maps Distance Matrix
+    - Microsoft Graph/Gmail API
+    - 'CRM/TMS APIs (McLeod, MercuryGate, TMW)'
+  outputs:
+    - Signed quote with transit and accessorial breakdown
+    - CRM/TMS quote record
+    - Audit log with assumptions and confidence flags
+  pricingModel:
+    - 'Per-quote (e.g., $0.20–$1.00)'
+    - Monthly tier + volume overage
+    - Savings-share on won bids (optional)
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 10
+    modelCapability: 8
+    overall: 9
+  risks:
+    - Misclassification leads to underpricing liability
+    - Out-of-date tariffs/FSC causing errors
+    - Portal terms against automation
+  dependencies:
+    - Access to tariffs/discounts
+    - Email/portal credentials
+    - Service standards data
+leanCanvas:
+  problem:
+    - >-
+      Slow, manual quoting: Pricing teams spend 2–6 minutes per LTL quote (email
+      parsing, class/density checks, tariff lookups, fuel, accessorials) leading
+      to backlogs and lost bids.
+    - >-
+      High error rates: Misapplied tariffs, missed accessorials, incorrect
+      density/class and outdated fuel tables cause 2–5% pricing errors, margin
+      leakage, and post-shipment rebills.
+    - >-
+      Inconsistent response to RFPs: Multi-lane bids take days; missed deadlines
+      and inconsistent assumptions reduce award rates.
+    - >-
+      Fragmented portals and formats: Customers submit via email, Excel, and
+      procurement portals; logging quotes back into TMS/CRMs is tedious and
+      error-prone.
+    - >-
+      Limited analytics: Leaders lack visibility into quote SLA, win rate, price
+      competitiveness, and margin by lane, customer, and sales rep.
+  solution:
+    - >-
+      Email/RFP ingestion: Parse emails and spreadsheets; extract
+      origin/destination, pieces, dims, weight, NMFC/class, accessorials, dates;
+      auto-clarify missing info.
+    - >-
+      Tariff-accurate rating engine: Compute base, deficit, MC/MIN, FAK,
+      CzarLite or carrier base tariffs; apply fuel surcharge, lane-specific
+      rules, and accessorial matrices.
+    - >-
+      Density and class assistance: Auto-calc density, detect class-by-density
+      exceptions, flag NMFC risks, suggest reclass options.
+    - >-
+      Margin and sell-rate logic: Configurable markups by lane, customer,
+      service level, and risk; guardrails for minimum margin and exception
+      routing to humans.
+    - >-
+      Portal/RFP automations: Auto-post quotes to shipper procurement portals
+      (Ariba/Coupa/Jaggaer) and selected carrier/3PL portals; generate compliant
+      RFP responses.
+    - >-
+      TMS/CRM integrations: APIs/webhooks for MercuryGate, McLeod, Descartes,
+      Blue Yonder, Oracle OTM, SAP TM; log quotes and outcomes to CRM
+      (Salesforce/HubSpot).
+    - >-
+      Audit & compliance: Full quote traceability with inputs, rule versions,
+      surcharge tables; audit trails for finance and customer disputes.
+    - >-
+      Learning loop & analytics: Capture outcomes (won/lost, rebills); optimize
+      margin rules; dashboards for SLA adherence, win rate, price
+      competitiveness, and leakage.
+    - >-
+      Controls & approvals: Threshold-based human-in-the-loop for sensitive
+      customers/lanes; four-eyes approval for margin exceptions.
+    - >-
+      Security & reliability: SOC 2 program, PII redaction, SSO/SAML; 99.9%
+      uptime target and rate-limiting to protect carrier APIs.
+  uniqueValueProp: >-
+    Price any LTL move in seconds with tariff-accurate math, auto-reply to
+    emails/RFPs, and post quotes to portals—improving speed-to-quote 10x,
+    reducing pricing errors <1%, and lifting win rate and gross margin with
+    measurable ROI in 30–60 days.
+  unfairAdvantage: >-
+    A carrier-grade tariff engine with certified parity to SMC3 references,
+    combined with an LTL-specific NLP stack and a continuously learning
+    margin/exception engine trained on millions of historical LTL quote
+    outcomes—plus deep TMS integrations and auditability that generic RPA/LLM
+    tools and horizontal TMS modules lack.
+  customerSegments:
+    - >-
+      Mid-market LTL-focused 3PLs/Brokers (10–200 pricing users; 500–10,000 LTL
+      quotes/day).
+    - >-
+      Asset-based LTL carriers’ pricing and inside sales teams
+      (regional/national carriers with high email quote volume).
+    - >-
+      Enterprise shippers with high LTL volume (500+ shipments/month) needing
+      fast benchmarking and bid automation.
+    - >-
+      Digital freight platforms and TMS providers seeking embedded LTL
+      rating/quote automation.
+  channels:
+    - >-
+      Direct sales to VPs of Pricing/Sales Ops at 3PLs and carriers; 90-day
+      pilot with KPI-based conversion.
+    - >-
+      Partnerships with TMS vendors (MercuryGate, McLeod, Descartes) for
+      marketplace listings and co-sell.
+    - >-
+      Alliances with data providers (SMC3, NMFTA, address validation) for
+      bundled offerings.
+    - >-
+      Industry events/webinars: SMC3 Jump Start/Connections, TIA Capital Ideas,
+      CSCMP EDGE, FreightWaves events; demo-led workshops.
+    - >-
+      Content/PLG: Playbooks and ROI calculators; limited free tier (up to 200
+      quotes/month) to seed usage in small teams.
+    - >-
+      Founder-led outreach to Top 100 3PLs and regional LTL carriers with
+      lane-specific ROI case studies.
+    - >-
+      Customer referrals with revenue-share incentives for TMS/consultancies
+      implementing rate engines.
+  revenueStreams:
+    - >-
+      SaaS subscription: $1,500–$5,000/month for mid-market (includes 25k–100k
+      quotes/month, 25 users). Enterprise: $5,000–$20,000/month (volume tiered).
+    - >-
+      Usage-based overages: $0.02–$0.08 per additional quote; $0.005–$0.02 per
+      line item in bulk RFPs.
+    - >-
+      Integration/onboarding fees: $10,000–$50,000 one-time depending on number
+      of tariffs, TMS/portal integrations, and SSO/SOC requirements.
+    - >-
+      Managed RFP services (optional): $5,000–$30,000 per event or 3% of
+      incremental savings/margin uplift.
+    - >-
+      Data/insights add-on: Competitive envelope insights and margin
+      optimization $1,000–$5,000/month (anonymized, compliant).
+  costStructure:
+    - >-
+      Data licensing: SMC3 RateWare XL/CarrierConnect and similar
+      ($3,000–$20,000/month depending on volume/rights).
+    - >-
+      LLM/compute: $0.001–$0.01 per email/page for parsing; GPU/CPU for batch
+      RFPs ($5,000–$25,000/month at scale).
+    - >-
+      Engineering and data science: 6–12 FTEs ($1.5M–$3M/year) to maintain
+      rating logic, integrations, and ML.
+    - >-
+      Implementation/CS: 2–6 FTEs ($300k–$900k/year) for onboarding, training,
+      and ongoing support.
+    - 'Sales/Marketing: $500k–$1.5M/year (AE/SE headcount, events, content).'
+    - 'Security/compliance: SOC 2 Type II, pentests, logging ($100k–$300k/year).'
+    - >-
+      Cloud infra and observability: $100k–$400k/year (prod, staging, DR,
+      monitoring).
+  keyMetrics:
+    - >-
+      Quote SLA: p95 turnaround time ≤5s (single lane), ≤15s (multi-line email),
+      and first response time <2 minutes for emails; target automation coverage
+      >85%.
+    - >-
+      Pricing accuracy: <1% mean absolute percentage error vs reference engine
+      for base + fuel + accessorials; <0.5% surcharge table drift
+      incidents/month.
+    - >-
+      Margin outcomes: +1–3 pts gross margin improvement on comparable lanes;
+      rebill rate reduction ≥30%.
+    - >-
+      Win-rate uplift: +10–20% on targeted customers/lanes; bid compliance rate
+      ≥98% for RFPs.
+    - >-
+      Throughput: Quotes processed per FTE up 5–10x; cost/quote down to <$0.05
+      at scale.
+    - >-
+      Adoption: % of quotes fully automated (no touch) >70% within 60 days;
+      exception rate trending down 10% MoM.
+    - >-
+      Data quality: % of quotes with complete dims/class info >90% after
+      clarifications; address validation accuracy >99%.
+    - >-
+      Reliability/Security: 99.9% uptime; zero P1 security incidents; audit
+      completeness 100%.
+    - >-
+      Sales KPIs: Pilot-to-paid conversion >50%; CAC payback <9 months; Net
+      revenue retention >115%.
+storyBrand:
+  character: >-
+    LTL carriers, 3PLs, and brokers who need to return accurate spot quotes and
+    RFP pricing fast to win freight and protect margin.
+  problem: >-
+    Drowning in quote requests across emails and portals; manual tariff rating
+    is slow and error-prone; missed accessorials trigger rebills; after-hours
+    requests go unanswered, costing loads and margin.
+  guide: >-
+    We understand LTL complexity—tariffs, density, NMFC classes, fuel, and
+    accessorials—and bring a proven, secure AI rating agent trusted to deliver
+    speed, accuracy, and margin control.
+  plan: >-
+    1) Connect your tariffs, discounts, fuel tables, accessorial rules, email
+    inboxes, TMS, and portals. 2) Configure guardrails: margins, risk checks
+    (deficit, CMC, linear-foot), and approvals. 3) Go live, auto-reply to
+    emails/RFPs, post quotes to portals, and tune with analytics.
+  callToAction: >-
+    Book a 20-minute demo and start a 30-day pilot; or request a free quote
+    audit and ROI estimate.
+  success: >-
+    Quotes in seconds 24/7; higher win rates; protected margins; fewer rebills;
+    faster RFP turnaround; scale without new hires; clean audit trails and
+    pricing consistency.
+  failure: >-
+    Keep losing loads to faster competitors; staff burned out on manual rating;
+    costly rebills and chargebacks; missed after-hours revenue; inconsistent
+    pricing and customer churn.
+landingPage:
+  hero:
+    title: Automated Spot Quote & Tariff Rating Agent for LTL
+    subtitle: >-
+      Price LTL moves in seconds. Read emails and RFPs, apply tariffs, density,
+      fuel, and accessorials, then post quotes to portals—24/7.
+    ctaText: Request a Demo
+    ctaHref: /demo
+  problem:
+    - >-
+      Manual rating is slow—quotes miss cutoffs and after-hours requests go
+      unanswered.
+    - >-
+      Tariffs, fuel, and accessorials are complex; errors erode margin and
+      credibility.
+    - RFP and bulk lane pricing consumes days and is hard to QA at scale.
+    - Quotes sit in inboxes with inconsistent formats and slow response times.
+    - Rate desks can’t easily scale with demand spikes or customer SLAs.
+    - 'Limited visibility into quote speed, hit rate, and margin by lane.'
+  solution:
+    - >-
+      AI agent rates LTL shipments instantly using your tariffs, discounts, and
+      rules.
+    - >-
+      Auto-reads emails and attachments, extracts lane details, and replies with
+      a clean quote.
+    - >-
+      Posts quotes directly to customer portals and TMS; optional quote-to-book
+      handoff.
+    - >-
+      Accurately applies fuel, accessorials, deficit rating, minimums, and
+      linear-foot/cubic rules.
+    - >-
+      Protects profit with margin floors, customer-specific pricing, and
+      approval workflows.
+    - >-
+      Delivers a full audit trail, analytics, and 24/7 coverage without adding
+      headcount.
+  features:
+    - Instant multi-carrier LTL rating across your tariffs and discounts.
+    - >-
+      Density/NMFC support: class from dims, multi-class, and mixed commodity
+      logic.
+    - Fuel surcharge automation using your tables and effective dates.
+    - >-
+      Accessorial detection and pricing (liftgate, residential, limited access,
+      appointment, inside, sort/seg).
+    - 'Deficit rating, minimum charges, CWT, linear-foot/cubic capacity rules.'
+    - >-
+      Email/RFP autopilot: parses PDFs/CSVs, normalizes data, and replies with
+      quotes.
+    - 'Portal posting: auto-publish quotes to customer portals and your TMS.'
+    - 'Customer-specific pricing, markups, and contract exceptions.'
+    - 'Margin guardrails, approval triggers, and role-based controls.'
+    - Quote templates and branded replies for a consistent customer experience.
+    - Audit trail with versioning; recover and re-rate any quote instantly.
+    - >-
+      Analytics: cycle time, win rate, and margin by lane, customer, and
+      carrier.
+    - 'Integrations: email, API, sFTP, webhooks, and common TMS connectors.'
+  steps:
+    - 'Import tariffs, discounts, fuel tables, and accessorial schedules.'
+    - 'Set class/density rules, deficit logic, and customer-specific exceptions.'
+    - >-
+      Configure margins and approval thresholds; enable guardrails by customer
+      or lane.
+    - 'Connect shared inboxes, RFP feeds, portals/TMS, and API endpoints.'
+    - Test on sample lanes; compare to benchmark quotes and calibrate outputs.
+    - Go live with 24/7 quoting; monitor dashboard and adjust as needed.
+---
+# TariffIQ — Automated LTL Spot Quote & Tariff Rating Agent
+
+Generated for NAICS 484122 — General Freight Trucking, Long-Distance, Less Than Truckload.
+Service: Automated Spot Quote & Tariff Rating Agent

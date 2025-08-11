@@ -1,0 +1,324 @@
+---
+name: NOTAM-to-Operational Impact Assistant (NAICS 488111)
+slug: notam
+naics:
+  primary: '488111'
+  occupations: []
+service:
+  title: NOTAM-to-Operational Impact Assistant
+  description: >-
+    Advisory engine that parses new NOTAMs and quantifies operational impact on
+    runways, procedures, navaids, and sector flows; generates succinct shift
+    briefs and suggested mitigations.
+  targetUsers:
+    - ATC supervisors
+    - Traffic Management Unit (TMU)
+    - Flow managers
+  triggers:
+    - New NOTAM published/updated for facility/FIR
+    - Start-of-shift briefing
+    - High-severity NOTAM detected
+  inputs:
+    - NOTAM feed (ICAO format/Q-line)
+    - 'Airport AIXM data (runways, SIDs/STARs, navaids)'
+    - Current/forecast demand (TFMS/NM B2B flight plans)
+    - Local SOP/LOA constraints
+  steps:
+    - Fetch and de-duplicate NOTAMs
+    - Parse and geolocate NOTAM elements; map to affected assets/procedures
+    - Intersect with planned traffic to quantify impacted flights/time windows
+    - Classify severity and suggest TMIs/reroutes/procedure substitutions
+    - Generate shift brief and send alerts to designated channels
+  tools:
+    - FAA NOTAM API or Eurocontrol EAD/SNOTAM
+    - AIXM datasets
+    - FAA SWIM TFMS or Eurocontrol NM B2B
+    - 'Python (spacy, networkx)'
+    - LLM for summarization (local or API)
+    - Slack/Teams webhooks
+  outputs:
+    - Impact-scored NOTAM list
+    - Affected procedures/flights CSV
+    - 'Advisory actions (reroutes, acceptance-rate notes)'
+    - PDF/HTML shift brief
+    - Real-time alerts
+  pricingModel:
+    - One-time setup + mapping of AIXM/SOP (fixed)
+    - Per-facility monthly subscription
+    - Optional per-seat for advanced dashboards
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Ambiguous NOTAM text leading to misclassification
+    - Data access/latency for TFMS/NM
+    - Overreliance in safety-critical context (advisory only)
+    - Liability/regulatory acceptance
+  dependencies:
+    - Read-only NOTAM/EAD access
+    - Access to TFMS/NM B2B flight plans (or customer-provided)
+    - AIXM airport data
+    - Local SOP/LOA library
+leanCanvas:
+  problem:
+    - >-
+      NOTAM overload and ambiguity: Supervisors and TMU sift through dozens to
+      hundreds of daily NOTAMs per facility; impacts to runways/procedures/flows
+      are not explicit and require manual cross-referencing.
+    - >-
+      Slow, inconsistent shift briefs: Building a coherent, actionable briefing
+      from NOTAMs, weather, and traffic constraints can take 10–20 minutes per
+      shift and varies by individual experience.
+    - >-
+      Missed or late mitigations: Operational impacts (e.g., a glide slope
+      outage that reduces arrival rate in IMC) may be identified late, causing
+      unplanned miles-in-trail (MIT), sector overloads, or taxi gridlock.
+    - >-
+      Poor traceability: Facilities lack a standardized, auditable link between
+      specific NOTAMs and actual capacity/flow decisions taken.
+    - >-
+      Fragmented tools: NOTAM boards, IDS, weather, and TFMS/flight data are
+      disjointed; controllers and TMU must mentally fuse them under time
+      pressure.
+  solution:
+    - >-
+      Ingest and normalize NOTAMs (AIXM 5.1), map to local assets (runways,
+      taxiways, SIDs/STARs, approaches, navaids, sectors).
+    - >-
+      Impact engine quantifies capacity and flow effects (e.g., AAR/ADR deltas,
+      sector complexity changes) using rules + ML calibrated per facility.
+    - >-
+      Context fusion with weather (IWXXM), scheduled closures, and traffic
+      demand (TFMS/SWIM) to simulate scenarios and suggest mitigations (e.g.,
+      runway config change, MIT values, reroute options).
+    - >-
+      Auto-generate succinct, role-specific shift briefs; highlight new/changed
+      NOTAMs and what-to-do-next items.
+    - >-
+      Alerting and watch lists for high-impact NOTAMs; early warnings before
+      effective times; deconfliction and conflict detection (overlapping
+      closures/procedure dependencies).
+    - >-
+      Integrations with IDS/EDST/ATM decision-support tools via secure APIs;
+      audit trail linking NOTAM -> decision -> outcome.
+  uniqueValueProp: >-
+    Turn raw NOTAMs into quantified, facility-specific operational impacts with
+    recommended mitigations—auto-generating consistent, auditable shift briefs
+    in minutes, improving predictability, safety margin, and throughput.
+  unfairAdvantage: >-
+    A growing, proprietary corpus of NOTAM-to-impact labels and mitigation
+    outcomes across diverse facilities, integrated into IDS/ATM vendor
+    ecosystems and supported by a documented safety case and validation metrics,
+    creating high switching costs and regulatory trust.
+  customerSegments:
+    - >-
+      Primary: ANSPs/ATC organizations (FAA ATO, NAV CANADA, NATS, DFS, ENAIRE,
+      Airservices Australia, ANSPs in Asia and ME).
+    - >-
+      Facility-level users: Tower supervisors/FLMs, TRACON and ARTCC TMU,
+      CIC/OS, ATCSCC traffic managers.
+    - >-
+      Airport operators (Ops/NOTAM office/Airside), especially where
+      coordination with ATC on closures is critical.
+    - >-
+      Airline operations centers (AOCs)/dispatch for collaborative
+      decision-making and pre-tactical planning.
+    - Military ATC units and joint-use airports.
+    - Systems integrators and IDS vendors serving ATC facilities.
+  channels:
+    - >-
+      Direct enterprise sales to ANSP HQ (standards and safety groups) with
+      facility pilots.
+    - >-
+      Partnerships with IDS and ATM vendors (e.g., Frequentis, Saab, Leidos,
+      Indra, Raytheon) to embed as a module or API.
+    - >-
+      Government procurement vehicles (GSA, SBIR/STTR with FAA/NASA, OTAs) for
+      pilot-to-production.
+    - >-
+      Targeted lighthouse pilots at OEP/level-10 airports and 1–2 ARTCCs;
+      publish case studies with measured KPIs.
+    - >-
+      Industry forums and working groups (CAA/FAA safety teams, RTCA/Eurocae)
+      for credibility and standardization alignment.
+    - >-
+      Co-marketing with airport operators and airline AOCs to demonstrate
+      collaborative benefits.
+  revenueStreams:
+    - >-
+      Annual subscription per facility, tiered by complexity/traffic: small
+      tower $20–40k; medium/large tower $60–120k; TRACON $100–180k; ARTCC
+      $250–400k; ATCSCC/Network $400–600k.
+    - >-
+      Enterprise licenses for ANSPs (bundled multi-facility discount, enterprise
+      SLA, private cloud/on-prem).
+    - >-
+      Professional services: facility calibration, data mapping, asset registry
+      build, and integration ($15–250k one-time per site depending on size).
+    - Training and certification packages for supervisors/TMU.
+    - Premium support (24/7) and high-availability SLAs.
+    - Optional data/API access for third-party decision-support tools.
+  costStructure:
+    - 'Core engineering (NLP/ML, backend, integrations), 8–12 FTE in year 1–2.'
+    - >-
+      Aviation SMEs (former controllers/TMU, procedure designers) 2–4 FTE for
+      rules authoring and validation.
+    - >-
+      SRE/cloud infra (GovCloud/on-prem builds), 2–3 FTE; hosting/GPU inference
+      costs.
+    - >-
+      Compliance and security (SOC 2, ISO 27001; FedRAMP readiness), audits,
+      penetration testing.
+    - >-
+      Data acquisition/integration: SWIM onboarding, Eurocontrol EAD access,
+      weather providers (licensing if needed).
+    - >-
+      Sales/go-to-market: enterprise BD, proposal support, pilots (travel,
+      on-site), partner enablement.
+    - 'Liability insurance and legal (safety case documentation, procurement).'
+  keyMetrics:
+    - >-
+      NOTAM-to-asset mapping precision/recall: ≥0.95/≥0.90 within 6 months at
+      pilot sites.
+    - >-
+      Impact prediction accuracy: AAR MAE ≤3 ops/hr (IMC), ADR MAE ≤4 ops/hr;
+      sector workload index error ≤10%.
+    - >-
+      Time-to-brief reduction: median shift brief prep time ≤3 minutes; ≥60%
+      reduction vs. baseline.
+    - >-
+      Lead time improvement: high-impact NOTAMs surfaced ≥30 minutes before
+      effective time with actionable mitigations ≥80% of cases.
+    - >-
+      False alert rate ≤10% and missed high-impact events ≤5% (quarterly
+      review).
+    - >-
+      User adoption: ≥80% of shifts use generated brief; ≥70% of suggested
+      mitigations reviewed; ≥50% accepted or adapted.
+    - >-
+      Operational outcomes: ≥5% reduction in unplanned MIT/gap meters during
+      impacted periods at pilot facilities; ≥3% reduction in taxi-out delay tied
+      to runway config changes.
+    - >-
+      System SLOs: 99.9% uptime, P95 advisory latency <30 seconds from NOTAM
+      ingest.
+    - >-
+      Customer ROI: target payback <9 months; quantified via delay minutes
+      avoided and labor time saved.
+storyBrand:
+  character: >-
+    ATC supervisors, traffic management coordinators, and ops managers at
+    towers, TRACONs, and en-route centers (NAICS 488111) who want immediate,
+    quantified NOTAM impacts on runways, procedures, navaids, and sector flows
+    to keep operations safe, efficient, and predictable.
+  problem: >-
+    - External — Continuous stream of NOTAMs in inconsistent formats; unclear
+    operational impact; manual cross-referencing across runways, procedures,
+    navaids, and flows; late discovery drives last-minute reconfigs and delays.
+
+    - Internal — Overwhelmed and time-pressed; worry about missing a critical
+    restriction; low confidence in shift briefs during push periods.
+
+    - Philosophical — Safety-critical teams deserve clear, actionable
+    intelligence, not walls of all-caps text, so decisions are proactive and
+    data-driven.
+  guide: >-
+    - Empathy — We’ve lived the midnight NOTAM drop and morning launch: navaid
+    outages, runway closures, taxiway work, TFRs, and procedure notes that
+    ripple across sectors.
+
+    - Authority — Built by ATM engineers and former controllers/NOTAM
+    specialists; uses AIXM parsing and FAA FNS feeds; validated with facility
+    SMEs; secure, auditable outputs designed for 488111 environments.
+  plan: >-
+    - Process — 1) Connect your NOTAM feed and facility config (runways,
+    procedures, sector map). 2) AI quantifies operational impacts and proposes
+    mitigations. 3) Receive shift briefs, alerts, and export to existing tools.
+
+    - Agreement — Start with a low-risk pilot on a subset of airports/sectors;
+    read-only integration with admin controls; clear SLAs, data handling, and
+    opt-out anytime.
+  callToAction: >-
+    - Direct — Schedule a live demo and launch a 30-day pilot.
+
+    - Transitional — Download a sample shift brief and request a free NOTAM
+    impact audit for the last 30 days.
+  success: >-
+    - Confident, consistent shift briefs focused on true impacts.
+
+    - Earlier mitigations for configs, staffing, and reroutes with fewer
+    surprises.
+
+    - Shared situational awareness across tower/TRACON/center and TMU.
+
+    - Reduced briefing and coordination time; less rework and radio congestion.
+
+    - Defensible, auditable decision support that strengthens safety and
+    compliance.
+  failure: >-
+    - Missed or late-discovered NOTAM effects cause last-minute config changes,
+    sector overload, and delays.
+
+    - Inconsistent shift briefs and handoffs create confusion and extra
+    workload.
+
+    - Erosion of stakeholder trust and elevated operational risk.
+landingPage:
+  hero:
+    title: Turn NOTAMs into operational impact—instantly
+    subtitle: >-
+      AI assistant for Air Traffic Control that parses new NOTAMs, quantifies
+      effects on runways, procedures, navaids, and sector flows, and delivers
+      succinct shift briefs with suggested mitigations.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - Critical NOTAMs buried in noise; high-impact items are easy to miss.
+    - Manual parsing slows decisions and increases operational risk.
+    - 'Unclear impact on runway configuration, procedures, and sector flows.'
+    - Shift briefs take too long and vary by author and shift.
+    - Late recognition causes avoidable delays and coordination churn.
+    - Fragmented tools; context locked in tribal knowledge.
+    - No quantified view of capacity and flow impact by time window.
+  solution:
+    - >-
+      Automatically parses and maps NOTAMs to your runways, procedures, navaids,
+      and sectors.
+    - Quantifies operational impact with expected ARR/DEP capacity deltas.
+    - Surfaces configuration impacts and recommends viable alternates.
+    - Auto-builds concise shift briefs with suggested mitigations.
+    - Real-time alerts and watchlists for high-impact changes.
+    - 'Clear timelines, validity windows, and confidence scores.'
+    - One-click share to Tower/TRACON/Center/TMU and stakeholders.
+    - Audit trail with source links for rapid verification.
+  features:
+    - 'Impact score per runway, SID/STAR/approach, navaid, and sector.'
+    - Predicted acceptance-rate changes and configuration implications.
+    - Validity-window timeline with roll-up of overlapping NOTAMs.
+    - >-
+      Suggested mitigations: runway swaps, procedure substitutions, candidate
+      TMIs, sector splits.
+    - Facility-aware rules referencing local SOPs/LOAs and caveats.
+    - Smart grouping of related NOTAMs into a single operational storyline.
+    - 'Shift brief generator: a 60-second read, ready for turnover.'
+    - 'Watchlists for critical assets (ILS, RNAV fixes, radar, lighting).'
+    - 'Alerts via IDS, email, Teams/Slack, and API webhooks.'
+    - Confidence and rationale with direct source citations.
+    - 'Integrations: NOTAM feeds (e.g., SWIM/EFF), facility IDS, dashboards.'
+    - 'Deployment options: cloud or on-prem/GovCloud; SSO and role-based access.'
+    - 'Export to PDF, IDS, and briefing slides in one click.'
+    - 'Advisory safeguards: human-in-the-loop and traceable logic.'
+  steps:
+    - Connect your NOTAM feed and select your facility profile.
+    - Set runway/procedure/navaid watchlists and link local SOP/LOA references.
+    - Define alert thresholds and preferred briefing format.
+    - Receive impact scores and configuration flags in real time.
+    - Review suggested mitigations and publish the shift brief.
+    - Capture one-click feedback to continuously refine outputs.
+---
+# NOTAM-to-Operational Impact Assistant (NAICS 488111)
+
+Generated for NAICS 488111 — Air Traffic Control.
+Service: NOTAM-to-Operational Impact Assistant
