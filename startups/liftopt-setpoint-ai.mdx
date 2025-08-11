@@ -299,7 +299,542 @@ landingPage:
     - 'Scale: Roll across pads/fields; schedule model refresh and retraining.'
     - 'Govern: Monitor dashboards, review uplift, export reports to stakeholders.'
 ---
-# LiftOpt Setpoint AI
 
-Generated for NAICS 211120 — Crude Petroleum Extraction.
-Service: Gas-Lift Setpoint Optimization Agent
+export default function Page() {
+  return (
+    <>
+      <Hero
+        title="Gas-Lift Setpoint Optimization Agent"
+        subtitle="AI that recommends gas injection rates to maximize oil while honoring well and facility limits."
+        ctaText="Request a demo"
+        ctaHref="/demo"
+      />
+      <Problem bullets={[
+        "Static setpoints leave barrels behind",
+        "Manual tuning can't keep up with changing GOR, WCUT, and line pressure",
+        "Compression, export, and flare limits force conservative operation",
+        "Multi‑well interactions make lift‑gas allocation guesswork",
+        "Engineer time is scarce; surveillance cycles are slow",
+        "Over‑injection risks slugging, instability, and facility upsets",
+        "No clear view of trade‑offs or constraint margins"
+      ]} />
+      <Solution bullets={[
+        "Real‑time setpoint recommendations that maximize oil within hard limits",
+        "Optimizes lift‑gas allocation across wells under gas and facility constraints",
+        "Advisory or closed‑loop control with approvals and guardrails",
+        "Explainable guidance with constraint margins and expected impact",
+        "Adaptive to changing conditions; auto‑backs off during upsets",
+        "Built for upstream operations (NAICS 211120) and existing SCADA/DCS"
+      ]} />
+      <Features items={[
+        "SCADA/historian connectors: PI, CygNet, Ignition, OPC UA, Modbus",
+        "Hybrid models: physics‑informed ML plus nodal/gas‑lift relationships",
+        "Facility‑aware optimization: compressors, separators, line backpressure, export, flare",
+        "Constraint handling: WHP, casing, ramp rates, valve step sizes, gas budget",
+        "Robust optimization under uncertainty and data quality checks",
+        "Explainability: constraint attributions, sensitivities, and confidence bands",
+        "What‑if planning for gas‑lift allocation and facility scenarios",
+        "Advisory or closed‑loop with interlocks, watchdogs, and safe fallbacks",
+        "Role‑based approvals, audit trail, and change logs",
+        "Deploy cloud or edge; VPC isolation, SSO, SOC2‑ready patterns",
+        "Impact tracking: baselines, A/B tests, and KPI reporting"
+      ]} />
+      <Steps steps={[
+        "Connect: Link SCADA/historian and allocations; map tags and units",
+        "Calibrate: Import tests and curves; fit per‑well models and limits",
+        "Configure: Set facility constraints, gas budgets, and objectives",
+        "Validate: Run advisory mode; compare to current setpoints and KPIs",
+        "Pilot: Enable on a subset of wells; tune guardrails and workflows",
+        "Automate: Turn on closed‑loop control with approvals and interlocks",
+        "Scale: Roll across pads/fields; schedule model refresh and retraining",
+        "Govern: Monitor dashboards, review uplift, export reports to stakeholders"
+      ]} />
+    </>
+  )
+}
+
+// Business Process Functions for LiftOpt Setpoint AI
+
+// Types for gas-lift optimization domain
+interface Lead {
+  company: string
+  contactName: string
+  email: string
+  wellCount: number
+  gasLiftWells: number
+  currentOptimization: 'manual' | 'basic' | 'none'
+  region: 'permian' | 'eagle_ford' | 'anadarko' | 'gulf_of_mexico' | 'other'
+  painPoints: string[]
+  budget: number
+}
+
+interface Customer {
+  id: string
+  company: string
+  contractValue: number
+  wellsUnderManagement: number
+  deploymentType: 'advisory' | 'autopilot'
+  integrations: string[]
+  startDate: Date
+}
+
+interface WellData {
+  wellId: string
+  currentSetpoint: number
+  oilRate: number
+  gasInjectionRate: number
+  wellheadPressure: number
+  casingPressure: number
+  waterCut: number
+  constraints: WellConstraints
+}
+
+interface WellConstraints {
+  minBottomholePressure: number
+  maxWaterCut: number
+  maxGasInjectionRate: number
+  facilityGasLimit: number
+}
+
+interface OptimizationResult {
+  wellId: string
+  recommendedSetpoint: number
+  expectedOilIncrease: number
+  gasReduction: number
+  confidenceLevel: number
+  constraints: string[]
+}
+
+interface FacilityConstraints {
+  compressorCapacity: number
+  separatorCapacity: number
+  exportLineCapacity: number
+  emissionsLimit: number
+  maxAllowableWorkingPressure: number
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  try {
+    // Qualify lead based on well count and current optimization maturity
+    const qualifiedLead = await qualifyLead(lead)
+    
+    // Generate ROI proposal based on well portfolio
+    const proposal = await generateROIProposal(qualifiedLead)
+    
+    // Conduct pilot program to demonstrate value
+    const pilotResults = await conductPilotProgram(qualifiedLead, proposal)
+    
+    // Negotiate contract based on proven results
+    const contract = await negotiateContract(pilotResults)
+    
+    // Onboard customer with SCADA integration
+    return await onboardCustomer(contract)
+  } catch (error) {
+    throw new Error(`Customer acquisition failed: ${error.message}`)
+  }
+}
+
+async function qualifyLead(lead: Lead): Promise<Lead> {
+  // Qualify based on well count (50+ gas-lift wells minimum)
+  if (lead.gasLiftWells < 50) {
+    throw new Error('Insufficient well count for optimization value')
+  }
+  
+  // Assess optimization maturity and potential uplift
+  const optimizationPotential = calculateOptimizationPotential(lead)
+  
+  if (optimizationPotential < 0.02) { // Less than 2% potential uplift
+    throw new Error('Insufficient optimization potential')
+  }
+  
+  return { ...lead, optimizationPotential }
+}
+
+async function generateROIProposal(lead: Lead): Promise<any> {
+  // Calculate expected oil increase (2-5% per well)
+  const expectedOilIncrease = lead.gasLiftWells * 0.035 // 3.5% average
+  
+  // Calculate gas savings (5-15% of injection)
+  const expectedGasSavings = lead.gasLiftWells * 0.10 // 10% average
+  
+  // Calculate annual value based on oil prices
+  const annualValue = calculateAnnualValue(expectedOilIncrease, expectedGasSavings)
+  
+  return {
+    expectedOilIncrease,
+    expectedGasSavings,
+    annualValue,
+    paybackPeriod: calculatePaybackPeriod(annualValue, lead.wellCount),
+    proposedPricing: calculatePricing(lead.gasLiftWells, 'advisory')
+  }
+}
+
+async function conductPilotProgram(lead: Lead, proposal: any): Promise<any> {
+  // Select representative wells for pilot (20-50 wells)
+  const pilotWells = await selectPilotWells(lead, Math.min(50, Math.max(20, lead.gasLiftWells * 0.1)))
+  
+  // Deploy monitoring and optimization for 90 days
+  const pilotResults = await runPilotOptimization(pilotWells, 90)
+  
+  // Measure and validate results
+  return await validatePilotResults(pilotResults, proposal)
+}
+
+// Product Development Processes
+export async function developOptimizationEngine(): Promise<void> {
+  try {
+    // Build physics-informed surrogate models
+    await buildSurrogateModels()
+    
+    // Develop multi-objective optimizer
+    await developMultiObjectiveOptimizer()
+    
+    // Implement constraint handling
+    await implementConstraintHandling()
+    
+    // Add safety guardrails and rollback mechanisms
+    await implementSafetyGuardrails()
+    
+    // Validate with historical data and A/B testing
+    await validateOptimizationEngine()
+  } catch (error) {
+    throw new Error(`Product development failed: ${error.message}`)
+  }
+}
+
+async function buildSurrogateModels(): Promise<void> {
+  // Build IPR/VLP models for each well
+  // Calibrate gas-lift response curves from historical data
+  // Implement automated micro step-tests for model updates
+  // Add slugging and instability detection
+}
+
+async function developMultiObjectiveOptimizer(): Promise<void> {
+  // Implement constraint-aware optimization algorithm
+  // Add facility-level constraint coordination
+  // Optimize for net barrels ($/day) across well portfolio
+  // Handle gas allocation under scarcity
+}
+
+// Revenue Generation Flows
+export async function generateRevenue(customer: Customer): Promise<number> {
+  try {
+    // Calculate subscription revenue per well
+    const subscriptionRevenue = await calculateSubscriptionRevenue(customer)
+    
+    // Add implementation and integration fees
+    const implementationRevenue = await calculateImplementationFees(customer)
+    
+    // Calculate value-based fees from proven uplift
+    const valueBasedRevenue = await calculateValueBasedFees(customer)
+    
+    // Add premium support and training revenue
+    const serviceRevenue = await calculateServiceRevenue(customer)
+    
+    return subscriptionRevenue + implementationRevenue + valueBasedRevenue + serviceRevenue
+  } catch (error) {
+    throw new Error(`Revenue generation failed: ${error.message}`)
+  }
+}
+
+async function calculateSubscriptionRevenue(customer: Customer): Promise<number> {
+  const monthlyRatePerWell = customer.deploymentType === 'autopilot' ? 700 : 400
+  return customer.wellsUnderManagement * monthlyRatePerWell * 12
+}
+
+// Operational Procedures
+export async function optimizeGasLiftSetpoints(
+  wells: WellData[], 
+  facilityConstraints: FacilityConstraints
+): Promise<OptimizationResult[]> {
+  try {
+    // Pull latest data from historian/SCADA
+    const currentData = await ingestRealTimeData(wells)
+    
+    // Update well models with latest performance data
+    const updatedModels = await updateWellModels(currentData)
+    
+    // Run multi-objective optimization
+    const optimizationResults = await runOptimization(updatedModels, facilityConstraints)
+    
+    // Apply safety guardrails and constraint validation
+    const validatedResults = await validateConstraints(optimizationResults, facilityConstraints)
+    
+    // Generate recommendations with confidence bands
+    return await generateRecommendations(validatedResults)
+  } catch (error) {
+    throw new Error(`Setpoint optimization failed: ${error.message}`)
+  }
+}
+
+async function ingestRealTimeData(wells: WellData[]): Promise<WellData[]> {
+  // Connect to historian APIs (OSIsoft PI, Aveva, Cygnet, etc.)
+  // Pull rates, pressures, temperatures, valve positions
+  // Validate data quality and detect sensor drift
+  // Handle data latency and missing values
+  return wells.map(well => ({
+    ...well,
+    lastUpdated: new Date(),
+    dataQuality: calculateDataQuality(well)
+  }))
+}
+
+async function runOptimization(
+  wells: WellData[], 
+  constraints: FacilityConstraints
+): Promise<OptimizationResult[]> {
+  // Allocate injection gas across wells to maximize net barrels
+  // Subject to compressor HP, line pressure, facility throughput limits
+  // Honor MAWP, emissions permits, and contractual gas availability
+  // Use physics-informed ML models for well response prediction
+  
+  return wells.map(well => ({
+    wellId: well.wellId,
+    recommendedSetpoint: calculateOptimalSetpoint(well, constraints),
+    expectedOilIncrease: predictOilIncrease(well),
+    gasReduction: predictGasReduction(well),
+    confidenceLevel: calculateConfidence(well),
+    constraints: identifyActiveConstraints(well, constraints)
+  }))
+}
+
+// Decision-Making Workflows
+export async function makeSetpointDecision(
+  recommendations: OptimizationResult[],
+  approvalRequired: boolean = true
+): Promise<void> {
+  try {
+    // Rank recommendations by expected value and risk
+    const rankedRecommendations = await rankRecommendations(recommendations)
+    
+    // Check for constraint violations and safety concerns
+    const safetyValidation = await validateSafety(rankedRecommendations)
+    
+    if (approvalRequired) {
+      // Route to human approval workflow
+      const approvedRecommendations = await requestHumanApproval(safetyValidation)
+      await implementSetpoints(approvedRecommendations)
+    } else {
+      // Implement via autopilot with interlocks
+      await implementAutopilotSetpoints(safetyValidation)
+    }
+    
+    // Log changes for MOC and audit trail
+    await logSetpointChanges(rankedRecommendations)
+    
+    // Monitor results and prepare rollback if needed
+    await monitorImplementation(rankedRecommendations)
+  } catch (error) {
+    throw new Error(`Setpoint decision failed: ${error.message}`)
+  }
+}
+
+async function requestHumanApproval(recommendations: OptimizationResult[]): Promise<OptimizationResult[]> {
+  // Send recommendations to control room and engineers
+  // Include expected deltas (bopd, Mscf/d, $/day)
+  // Provide confidence bands and guardrails
+  // Allow batch or individual approval
+  // Set timeout for automatic rejection if no response
+  
+  return recommendations.filter(rec => rec.confidenceLevel > 0.8)
+}
+
+async function implementAutopilotSetpoints(recommendations: OptimizationResult[]): Promise<void> {
+  // Implement via DCS/PLC with interlocks
+  // Apply rate-of-change limits
+  // Monitor for hunting or instability
+  // Automatic rollback on constraint violations
+  // Full audit trail of all changes
+}
+
+async function monitorImplementation(recommendations: OptimizationResult[]): Promise<void> {
+  // Track actual vs predicted performance
+  // Detect model drift and recalibrate
+  // Monitor for constraint violations
+  // Generate alerts for anomalies
+  // Update success metrics and KPIs
+}
+
+// Helper functions
+function calculateOptimizationPotential(lead: Lead): number {
+  // Estimate potential based on current optimization maturity
+  const basePotential = 0.035 // 3.5% base potential
+  const maturityMultiplier = lead.currentOptimization === 'none' ? 1.5 : 
+                           lead.currentOptimization === 'basic' ? 1.0 : 0.7
+  return basePotential * maturityMultiplier
+}
+
+function calculateAnnualValue(oilIncrease: number, gasSavings: number): number {
+  const oilPrice = 75 // $/barrel
+  const gasPrice = 3 // $/Mscf
+  const dailyOilValue = oilIncrease * oilPrice
+  const dailyGasValue = gasSavings * gasPrice
+  return (dailyOilValue + dailyGasValue) * 365
+}
+
+function calculatePaybackPeriod(annualValue: number, wellCount: number): number {
+  const implementationCost = wellCount * 2000 + 100000 // $2k per well + $100k facility
+  return implementationCost / annualValue * 12 // months
+}
+
+function calculatePricing(wellCount: number, deploymentType: 'advisory' | 'autopilot'): number {
+  const monthlyRatePerWell = deploymentType === 'autopilot' ? 700 : 400
+  return wellCount * monthlyRatePerWell
+}
+
+function calculateOptimalSetpoint(well: WellData, constraints: FacilityConstraints): number {
+  // Physics-informed optimization considering well IPR/VLP curves
+  // Account for facility constraints and gas availability
+  // Maximize oil rate while staying within limits
+  return well.currentSetpoint * 1.05 // Simplified example
+}
+
+function predictOilIncrease(well: WellData): number {
+  // Use calibrated well models to predict oil increase
+  return well.oilRate * 0.035 // 3.5% increase example
+}
+
+function predictGasReduction(well: WellData): number {
+  // Predict gas injection reduction from optimization
+  return well.gasInjectionRate * 0.10 // 10% reduction example
+}
+
+function calculateConfidence(well: WellData): number {
+  // Calculate confidence based on data quality and model accuracy
+  return 0.85 // 85% confidence example
+}
+
+function identifyActiveConstraints(well: WellData, constraints: FacilityConstraints): string[] {
+  const activeConstraints = []
+  if (well.wellheadPressure > constraints.maxAllowableWorkingPressure * 0.9) {
+    activeConstraints.push('MAWP approaching limit')
+  }
+  if (well.gasInjectionRate > constraints.compressorCapacity * 0.8) {
+    activeConstraints.push('Compressor capacity constraint')
+  }
+  return activeConstraints
+}
+
+function calculateDataQuality(well: WellData): number {
+  // Assess data quality based on sensor health and completeness
+  return 0.92 // 92% data quality example
+}
+
+async function selectPilotWells(lead: Lead, count: number): Promise<string[]> {
+  // Select representative wells for pilot program
+  // Consider well performance, data quality, and operational constraints
+  return Array.from({length: count}, (_, i) => `WELL_${i + 1}`)
+}
+
+async function runPilotOptimization(wells: string[], days: number): Promise<any> {
+  // Run optimization for pilot duration
+  // Collect baseline and optimized performance data
+  // Measure actual vs predicted results
+  return {
+    duration: days,
+    wellCount: wells.length,
+    oilIncrease: 0.032, // 3.2% actual increase
+    gasReduction: 0.085, // 8.5% actual reduction
+    uptime: 0.987 // 98.7% system uptime
+  }
+}
+
+async function validatePilotResults(results: any, proposal: any): Promise<any> {
+  // Compare actual results to proposal predictions
+  // Calculate statistical significance
+  // Generate business case for full deployment
+  return {
+    ...results,
+    validated: results.oilIncrease >= proposal.expectedOilIncrease * 0.8,
+    businessCase: calculateBusinessCase(results)
+  }
+}
+
+function calculateBusinessCase(results: any): any {
+  return {
+    annualValue: results.oilIncrease * 75 * 365 + results.gasReduction * 3 * 365,
+    paybackMonths: 8.5,
+    roi: 3.2
+  }
+}
+
+async function rankRecommendations(recommendations: OptimizationResult[]): Promise<OptimizationResult[]> {
+  // Rank by expected value, confidence, and risk
+  return recommendations.sort((a, b) => 
+    (b.expectedOilIncrease * b.confidenceLevel) - (a.expectedOilIncrease * a.confidenceLevel)
+  )
+}
+
+async function validateSafety(recommendations: OptimizationResult[]): Promise<OptimizationResult[]> {
+  // Check for safety violations and constraint breaches
+  // Filter out recommendations that exceed safety limits
+  return recommendations.filter(rec => 
+    rec.constraints.length === 0 && rec.confidenceLevel > 0.7
+  )
+}
+
+async function logSetpointChanges(recommendations: OptimizationResult[]): Promise<void> {
+  // Create audit trail for MOC compliance
+  // Log all changes with timestamps and justification
+  // Generate change documentation for regulatory review
+}
+
+async function negotiateContract(pilotResults: any): Promise<any> {
+  // Negotiate based on proven pilot results
+  // Structure pricing based on value delivered
+  // Include success guarantees and SLAs
+  return {
+    contractValue: pilotResults.businessCase.annualValue * 0.15, // 15% of value
+    term: 36, // months
+    guarantees: {
+      minOilIncrease: 0.02, // 2% minimum
+      uptime: 0.995 // 99.5% uptime SLA
+    }
+  }
+}
+
+async function onboardCustomer(contract: any): Promise<Customer> {
+  // Deploy SCADA connectors and historian integration
+  // Configure well models and facility constraints
+  // Train customer team on system operation
+  return {
+    id: generateCustomerId(),
+    company: contract.company,
+    contractValue: contract.contractValue,
+    wellsUnderManagement: contract.wellCount,
+    deploymentType: 'advisory',
+    integrations: ['OSIsoft_PI', 'Cygnet', 'OPC_UA'],
+    startDate: new Date()
+  }
+}
+
+function generateCustomerId(): string {
+  return `CUST_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+}
+
+async function calculateImplementationFees(customer: Customer): Promise<number> {
+  // One-time implementation and integration fees
+  const perWellFee = 2000 // $2k per well
+  const facilityFee = 100000 // $100k per facility
+  return customer.wellsUnderManagement * perWellFee + facilityFee
+}
+
+async function calculateValueBasedFees(customer: Customer): Promise<number> {
+  // 10-20% of verified incremental NPV
+  const incrementalValue = await measureIncrementalValue(customer)
+  return incrementalValue * 0.15 // 15% of incremental value
+}
+
+async function calculateServiceRevenue(customer: Customer): Promise<number> {
+  // Training and premium support packages
+  const baseSupport = 50000 // $50k annual support
+  const trainingFees = 25000 // $25k training
+  return baseSupport + trainingFees
+}
+
+async function measureIncrementalValue(customer: Customer): Promise<number> {
+  // Measure actual value delivered vs baseline
+  // Use allocation data and well tests for validation
+  return customer.wellsUnderManagement * 50000 // $50k per well annual value
+}
