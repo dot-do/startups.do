@@ -326,3 +326,494 @@ landingPage:
 
 Generated for NAICS 513210 — Software Publishers.
 Service: SBOM, License & OSS Compliance Auditor
+
+## Business Workflow Functions
+
+```typescript
+// Core domain types
+interface Lead {
+  id: string;
+  company: string;
+  industry: string;
+  engineerCount: number;
+  complianceRequirements: string[];
+  contactInfo: ContactInfo;
+  source: 'inbound' | 'outbound' | 'referral' | 'event';
+  sbomRequirements: boolean;
+  currentTools: string[];
+}
+
+interface Customer {
+  id: string;
+  company: string;
+  plan: 'starter' | 'pro' | 'enterprise';
+  repositories: Repository[];
+  policies: CompliancePolicy[];
+  onboardingStatus: OnboardingStatus;
+  monthlyUsage: UsageMetrics;
+}
+
+interface Repository {
+  id: string;
+  url: string;
+  ecosystems: string[];
+  lastScanDate: Date;
+  sbomStatus: 'pending' | 'generated' | 'failed';
+  vulnerabilityCount: number;
+  licenseViolations: number;
+}
+
+interface SBOM {
+  id: string;
+  format: 'spdx' | 'cyclonedx';
+  repositoryId: string;
+  dependencies: Dependency[];
+  vulnerabilities: Vulnerability[];
+  licenseViolations: LicenseViolation[];
+  attestation?: SignedAttestation;
+  generationTime: number;
+  completeness: number;
+}
+
+interface RemediationPR {
+  id: string;
+  repositoryId: string;
+  type: 'vulnerability' | 'license' | 'policy';
+  changes: CodeChange[];
+  aiRationale: string;
+  testSuggestions: string[];
+  status: 'draft' | 'open' | 'merged' | 'closed';
+  riskScore: number;
+}
+
+interface ComplianceReport {
+  id: string;
+  customerId: string;
+  period: DateRange;
+  frameworks: string[];
+  findings: ComplianceFinding[];
+  attestations: SignedAttestation[];
+  auditTrail: AuditEvent[];
+}
+
+interface PolicyEngine {
+  id: string;
+  rules: PolicyRule[];
+  version: string;
+  lastUpdated: Date;
+  enforcement: 'block' | 'warn' | 'log';
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const demo = await scheduleTechnicalDemo(qualifiedLead);
+  const poc = await conductProofOfConcept(demo);
+  const proposal = await generateProposal(poc);
+  const contract = await negotiateContract(proposal);
+  return await onboardCustomer(contract);
+}
+
+export async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  const complianceNeeds = await assessComplianceRequirements(lead);
+  const technicalFit = await evaluateTechnicalFit(lead);
+  const budgetAlignment = await estimateBudgetFit(lead);
+  const urgency = await assessSBOMUrgency(lead);
+  
+  if (complianceNeeds.score < 7 || technicalFit.score < 6) {
+    throw new Error('Lead does not meet qualification criteria');
+  }
+  
+  const qualificationScore = calculateQualificationScore({
+    complianceNeeds,
+    technicalFit,
+    budgetAlignment,
+    urgency
+  });
+  
+  return {
+    ...lead,
+    qualificationScore,
+    recommendedPlan: determinePlanRecommendation(lead),
+    estimatedValue: calculateAnnualContractValue(lead),
+    timeToClose: estimateTimeToClose(qualificationScore)
+  };
+}
+
+export async function conductProofOfConcept(demo: TechnicalDemo): Promise<POCResults> {
+  const sandboxEnvironment = await createSandboxEnvironment(demo.lead);
+  const sampleRepos = await connectSampleRepositories(sandboxEnvironment);
+  
+  // Generate sample SBOMs to demonstrate capabilities
+  const sboms = await generateSampleSBOMs(sampleRepos);
+  const vulnerabilityScans = await performVulnerabilityScans(sampleRepos);
+  const licenseAnalysis = await analyzeLicenseCompliance(sampleRepos);
+  const remediationPRs = await createSampleRemediationPRs(sampleRepos);
+  const complianceReport = await generateSampleComplianceReport(sboms);
+  
+  // Measure time-to-value metrics
+  const timeToFirstSBOM = calculateTimeToFirstSBOM(demo.startTime);
+  const coverageMetrics = calculateCoverageMetrics(sampleRepos, sboms);
+  
+  return {
+    environment: sandboxEnvironment,
+    generatedSBOMs: sboms,
+    vulnerabilityFindings: vulnerabilityScans,
+    licenseFindings: licenseAnalysis,
+    remediationPRs: remediationPRs,
+    complianceReport: complianceReport,
+    timeToValue: timeToFirstSBOM,
+    coverageMetrics: coverageMetrics,
+    customerFeedback: await collectPOCFeedback(demo.lead)
+  };
+}
+
+export async function convertTrialToCustomer(trial: TrialAccount): Promise<Customer> {
+  const usageAnalysis = await analyzeTrialUsage(trial);
+  const valueRealization = await measureValueRealization(trial);
+  const planRecommendation = await recommendOptimalPlan(usageAnalysis);
+  
+  if (valueRealization.score < 6) {
+    await scheduleCustomerSuccessCall(trial);
+    throw new Error('Trial needs additional support before conversion');
+  }
+  
+  const proposal = await generateConversionProposal(trial, planRecommendation);
+  const contract = await processContractSigning(proposal);
+  
+  return await upgradeTrialToCustomer(trial, contract);
+}
+
+// Product Development Processes
+export async function developSBOMGeneration(requirements: ProductRequirements): Promise<Feature> {
+  const research = await conductEcosystemResearch(requirements);
+  const architecture = await designSBOMArchitecture(research);
+  const implementation = await implementSBOMEngine(architecture);
+  const testing = await validateSBOMAccuracy(implementation);
+  const integration = await integrateWithCIPipelines(testing);
+  const performance = await optimizeSBOMGeneration(integration);
+  
+  return await deployFeature(performance);
+}
+
+export async function enhanceAIRemediationEngine(feedback: RemediationFeedback[]): Promise<ModelUpdate> {
+  const trainingData = await curateRemediationDataset(feedback);
+  const modelTraining = await trainRemediationModel(trainingData);
+  const validation = await validateRemediationQuality(modelTraining);
+  const safetyTesting = await performSafetyValidation(validation);
+  const deployment = await deployModelUpdate(safetyTesting);
+  
+  return await monitorModelPerformance(deployment);
+}
+
+export async function buildPolicyEngine(policyRequirements: PolicyRequirements): Promise<PolicyEngine> {
+  const ruleDefinitions = await definePolicyRules(policyRequirements);
+  const engine = await implementPolicyEngine(ruleDefinitions);
+  const validation = await validatePolicyLogic(engine);
+  const cicdIntegration = await integratePolicyGates(validation);
+  const testing = await testPolicyEnforcement(cicdIntegration);
+  
+  return await deployPolicyEngine(testing);
+}
+
+export async function developVulnerabilityIntelligence(sources: VulnerabilitySource[]): Promise<IntelligenceEngine> {
+  const dataIngestion = await setupDataIngestion(sources);
+  const normalization = await normalizeVulnerabilityData(dataIngestion);
+  const enrichment = await enrichWithExploitability(normalization);
+  const prioritization = await buildPrioritizationEngine(enrichment);
+  const vexIntegration = await integrateVEXSupport(prioritization);
+  
+  return await deployIntelligenceEngine(vexIntegration);
+}
+
+// Revenue Generation Flows
+export async function processSubscriptionRevenue(customer: Customer): Promise<RevenueTransaction> {
+  const usage = await calculateMonthlyUsage(customer);
+  const billing = await generateBillingStatement(customer, usage);
+  const payment = await processPayment(billing);
+  const revenue = await recordRevenue(payment);
+  
+  // Handle usage-based add-ons
+  if (usage.overages.length > 0) {
+    await processOverageCharges(customer, usage.overages);
+  }
+  
+  // Track AI PR usage
+  if (usage.aiPRCount > customer.plan.includedPRs) {
+    await billAIPROverages(customer, usage.aiPRCount);
+  }
+  
+  return revenue;
+}
+
+export async function deliverProfessionalServices(engagement: ServiceEngagement): Promise<ServiceDelivery> {
+  const kickoff = await conductKickoffMeeting(engagement);
+  const assessment = await performComplianceAssessment(engagement.customer);
+  const policyWorkshop = await deliverPolicyWorkshop(assessment);
+  const implementation = await implementCustomPolicies(policyWorkshop);
+  const migration = await migrateLegacyTools(engagement.customer);
+  const training = await deliverTeamTraining(implementation);
+  const documentation = await createCustomDocumentation(training);
+  
+  return await completeEngagement(documentation);
+}
+
+export async function expandCustomerAccount(customer: Customer, expansion: ExpansionOpportunity): Promise<Customer> {
+  const currentUsage = await analyzeCurrentUsage(customer);
+  const growthProjection = await projectUsageGrowth(currentUsage);
+  const proposal = await createExpansionProposal(customer, expansion, growthProjection);
+  const approval = await obtainCustomerApproval(proposal);
+  const implementation = await implementExpansion(approval);
+  const billing = await updateBillingPlan(customer, implementation);
+  
+  return await updateCustomerRecord(customer, billing);
+}
+
+export async function processMarketplaceRevenue(marketplaceSale: MarketplaceSale): Promise<RevenueTransaction> {
+  const validation = await validateMarketplaceSale(marketplaceSale);
+  const revenueShare = await calculateRevenueShare(validation);
+  const customerProvisioning = await provisionMarketplaceCustomer(validation);
+  const revenue = await recordMarketplaceRevenue(revenueShare);
+  
+  return revenue;
+}
+
+// Operational Procedures
+export async function performVulnerabilityScanning(repositories: Repository[]): Promise<ScanResults[]> {
+  const scanJobs = repositories.map(repo => initiateScan(repo));
+  const results = await Promise.all(scanJobs);
+  
+  for (const result of results) {
+    await updateVulnerabilityDatabase(result);
+    await triggerRemediationWorkflow(result);
+    await updateSBOMWithFindings(result);
+    await notifySecurityTeam(result);
+    await trackMTTR(result);
+  }
+  
+  return results;
+}
+
+export async function generateComplianceReports(customer: Customer, period: DateRange): Promise<ComplianceReport> {
+  const sboms = await retrieveSBOMsForPeriod(customer, period);
+  const vulnerabilities = await aggregateVulnerabilityData(sboms);
+  const licenseCompliance = await assessLicenseCompliance(sboms);
+  const policyViolations = await checkPolicyViolations(sboms);
+  const attestations = await generateSignedAttestations(sboms);
+  const auditTrail = await compileAuditTrail(customer, period);
+  
+  const report = await compileComplianceReport({
+    customer,
+    period,
+    sboms,
+    vulnerabilities,
+    licenseCompliance,
+    policyViolations,
+    attestations,
+    auditTrail
+  });
+  
+  await deliverReportToCustomer(customer, report);
+  await archiveReportForAudit(report);
+  
+  return report;
+}
+
+export async function onboardNewCustomer(customer: Customer): Promise<OnboardingResult> {
+  const welcome = await sendWelcomeSequence(customer);
+  const setup = await guideThroughInitialSetup(customer);
+  const integration = await connectRepositories(customer);
+  const policyConfiguration = await setupInitialPolicies(customer);
+  const firstScan = await performInitialScan(integration);
+  const training = await scheduleTrainingSession(customer);
+  const successMetrics = await establishSuccessMetrics(customer);
+  
+  return {
+    customer: await updateOnboardingStatus(customer, 'completed'),
+    timeToFirstValue: calculateTimeToFirstValue(customer),
+    healthScore: calculateCustomerHealthScore(customer),
+    nextMilestones: defineNextMilestones(customer)
+  };
+}
+
+export async function maintainSystemHealth(): Promise<HealthReport> {
+  const apiHealth = await checkAPIHealth();
+  const scanningCapacity = await monitorScanningCapacity();
+  const aiModelPerformance = await monitorAIModelPerformance();
+  const dataQuality = await validateDataQuality();
+  const securityStatus = await performSecurityChecks();
+  
+  if (apiHealth.uptime < 0.999) {
+    await escalateUptimeIssue(apiHealth);
+  }
+  
+  if (scanningCapacity.utilizationRate > 0.8) {
+    await scaleComputeResources(scanningCapacity);
+  }
+  
+  return {
+    apiHealth,
+    scanningCapacity,
+    aiModelPerformance,
+    dataQuality,
+    securityStatus,
+    overallHealth: calculateOverallHealth([apiHealth, scanningCapacity, aiModelPerformance])
+  };
+}
+
+// Decision-Making Workflows
+export async function assessSecurityRisk(vulnerability: Vulnerability, context: RiskContext): Promise<RiskAssessment> {
+  const severity = await calculateSeverityScore(vulnerability);
+  const exploitability = await assessExploitability(vulnerability);
+  const reachability = await analyzeCodeReachability(vulnerability, context);
+  const businessImpact = await evaluateBusinessImpact(vulnerability, context);
+  const remediationComplexity = await estimateRemediationEffort(vulnerability);
+  
+  const riskScore = await calculateOverallRisk({
+    severity,
+    exploitability,
+    reachability,
+    businessImpact,
+    remediationComplexity
+  });
+  
+  return {
+    vulnerability,
+    riskScore,
+    priority: determinePriority(riskScore),
+    recommendedActions: await generateRecommendations(vulnerability, riskScore),
+    timeline: await estimateRemediationTimeline(vulnerability, remediationComplexity),
+    alternativeApproaches: await identifyAlternativeApproaches(vulnerability)
+  };
+}
+
+export async function enforceLicensePolicy(dependency: Dependency, policy: LicensePolicy): Promise<PolicyDecision> {
+  const licenseDetection = await detectLicense(dependency);
+  const policyEvaluation = await evaluateAgainstPolicy(licenseDetection, policy);
+  const compatibilityCheck = await checkLicenseCompatibility(licenseDetection, dependency);
+  
+  if (policyEvaluation.violation) {
+    const alternatives = await findLicenseCompatibleAlternatives(dependency);
+    const remediationPR = await generateLicenseRemediationPR(dependency, alternatives);
+    const legalReview = await requestLegalReview(policyEvaluation);
+    
+    return {
+      decision: 'block',
+      violation: policyEvaluation.violation,
+      alternatives,
+      remediationPR,
+      legalReview,
+      escalationRequired: policyEvaluation.requiresHumanReview
+    };
+  }
+  
+  return {
+    decision: 'allow',
+    licenseInfo: licenseDetection,
+    compatibilityInfo: compatibilityCheck,
+    attestation: await generateLicenseAttestation(dependency, licenseDetection)
+  };
+}
+
+export async function prioritizeRemediationEfforts(vulnerabilities: Vulnerability[], resources: TeamResources): Promise<RemediationPlan> {
+  const riskAssessments = await Promise.all(
+    vulnerabilities.map(vuln => assessSecurityRisk(vuln, { customer: resources.customer }))
+  );
+  
+  const prioritizedList = await rankByRiskAndEffort(riskAssessments, resources);
+  const timeline = await createRemediationTimeline(prioritizedList, resources);
+  const assignments = await assignToTeamMembers(timeline, resources.team);
+  const dependencies = await identifyRemediationDependencies(prioritizedList);
+  
+  return {
+    prioritizedVulnerabilities: prioritizedList,
+    timeline,
+    assignments,
+    dependencies,
+    estimatedCompletion: calculateCompletionDate(timeline),
+    resourceRequirements: await estimateResourceNeeds(prioritizedList),
+    riskReduction: await projectRiskReduction(prioritizedList)
+  };
+}
+
+export async function makeArchitecturalDecision(proposal: ArchitecturalProposal): Promise<ArchitecturalDecision> {
+  const technicalReview = await conductTechnicalReview(proposal);
+  const securityAssessment = await performSecurityAssessment(proposal);
+  const performanceAnalysis = await analyzePerformanceImpact(proposal);
+  const costAnalysis = await calculateImplementationCost(proposal);
+  const riskAnalysis = await assessImplementationRisk(proposal);
+  const stakeholderInput = await gatherStakeholderInput(proposal);
+  
+  const decision = await evaluateProposal({
+    proposal,
+    technicalReview,
+    securityAssessment,
+    performanceAnalysis,
+    costAnalysis,
+    riskAnalysis,
+    stakeholderInput
+  });
+  
+  if (decision.approved) {
+    await createImplementationPlan(proposal);
+    await allocateResources(proposal);
+    await scheduleImplementation(proposal);
+    await setupMonitoring(proposal);
+  } else {
+    await documentRejectionReason(proposal, decision);
+    await suggestAlternatives(proposal);
+  }
+  
+  return decision;
+}
+
+export async function optimizeAIPRGeneration(prMetrics: PRMetrics[], customerFeedback: CustomerFeedback[]): Promise<OptimizationPlan> {
+  const performanceAnalysis = await analyzePRPerformance(prMetrics);
+  const feedbackAnalysis = await analyzeFeedbackPatterns(customerFeedback);
+  const qualityMetrics = await calculateQualityMetrics(prMetrics);
+  const improvementAreas = await identifyImprovementAreas(performanceAnalysis, feedbackAnalysis);
+  
+  const optimizationPlan = await createOptimizationPlan({
+    performanceAnalysis,
+    feedbackAnalysis,
+    qualityMetrics,
+    improvementAreas
+  });
+  
+  return optimizationPlan;
+}
+
+export async function decideOnCustomerEscalation(issue: CustomerIssue): Promise<EscalationDecision> {
+  const severityAssessment = await assessIssueSeverity(issue);
+  const customerTier = await determineCustomerTier(issue.customerId);
+  const impactAnalysis = await analyzeBusinessImpact(issue);
+  const resolutionCapability = await assessResolutionCapability(issue);
+  
+  const escalationCriteria = {
+    severity: severityAssessment.level,
+    customerTier: customerTier.level,
+    businessImpact: impactAnalysis.score,
+    timeToResolve: resolutionCapability.estimatedTime
+  };
+  
+  const shouldEscalate = await evaluateEscalationCriteria(escalationCriteria);
+  
+  if (shouldEscalate) {
+    const escalationPath = await determineEscalationPath(issue, escalationCriteria);
+    await initiateEscalation(issue, escalationPath);
+    
+    return {
+      decision: 'escalate',
+      escalationPath,
+      timeline: escalationPath.expectedResolution,
+      stakeholders: escalationPath.involvedParties
+    };
+  }
+  
+  return {
+    decision: 'handle_normally',
+    assignedTeam: await assignToAppropriateTeam(issue),
+    expectedResolution: resolutionCapability.estimatedTime
+  };
+}
+```
