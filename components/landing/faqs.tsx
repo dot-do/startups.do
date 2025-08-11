@@ -17,7 +17,7 @@ import {
   }
   
   const Faq = ({
-    heading = "Frequently asked questions",
+    // heading = "Frequently asked questions",
     items = [
       {
         id: "faq-1",
@@ -67,7 +67,7 @@ import {
       <section className="py-32">
         <div className="container mx-auto max-w-2xl">
           <h1 className="mb-8 text-center text-4xl font-semibold md:mb-12">
-            {heading}
+          Frequently asked questions
           </h1>
           <Accordion type="single" collapsible>
             {items.map((item, index) => (

@@ -33,13 +33,13 @@ const defaultFeatures = [
 ];
 
 const Pricing = ({
-  title = "Simple Pricing",
-  description = "Lorem ipsum dolor sit amet consectetur adipisicing elit. Error ipsum dolorem asperiores expedita!",
-  cardTitle = "Starting at",
+  // title = "Simple Pricing",
+  // description = "Flexible pricing to match any budget or team size.",
+  // cardTitle = "Starting at",
   priceValue = "16",
   pricePeriod = "/mo",
-  currency = "$",
-  billing = "",
+  // currency = "$",
+  // billing = "",
   trialText = "With a 7-day free trial",
   buttonText = "TRY FOR FREE",
   buttonVariant = "default",
@@ -52,24 +52,22 @@ const Pricing = ({
     <section className={`py-32 ${className}`}>
       <div className="container">
         <div className="flex flex-col items-center gap-4 text-center">
-          <h2 className="mb-2 text-3xl font-medium lg:text-5xl">{title}</h2>
+          <h2 className="mb-2 text-3xl font-medium lg:text-5xl">Simple Pricing</h2>
           <p className="max-w-lg text-muted-foreground">
-            {description}
+          Flexible pricing to match any budget or team size.
           </p>
         </div>
         <div className="mt-10">
           <Card className="mx-auto flex w-full max-w-sm flex-col justify-between gap-10 rounded-md p-6 text-center">
-            {typeof cardTitle === "string" && cardTitle.length > 0 && (
-              <p className="text-xl">{cardTitle}</p>
-            )}
+            <p className="text-xl">Starting at</p>
             <div>
               <div className="flex justify-center">
-                <span className="text-2xl">{currency}</span>
+                <span className="text-2xl">$</span>
                 <span className="text-4xl font-base font-mono tracking-tighter">
                   {priceValue}
                 </span>
                 <span className="text-lg ml-1 self-end">{pricePeriod}</span>
-                {billing && <span className="text-sm text-muted-foreground ml-1 self-end">{billing}</span>}
+                {/* {billing && <span className="text-sm text-muted-foreground ml-1 self-end">{billing}</span>} */}
               </div>
               {trialText && (
                 <p className="mt-1 text-sm text-muted-foreground">
