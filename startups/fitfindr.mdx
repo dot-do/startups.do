@@ -336,7 +336,382 @@ landingPage:
     - Enable staff co-pilot; refine based on feedback.
     - Expand to new categories and seasonal programs.
 ---
+
 # FitFindr AI for Music Retail
+
+## Business Workflow Functions
+
+```typescript
+// Types for FitFindr domain
+interface Lead {
+  id: string;
+  retailerName: string;
+  website: string;
+  platform: 'shopify' | 'bigcommerce' | 'magento' | 'custom';
+  monthlyTraffic: number;
+  currentConversionRate: number;
+  primaryCategories: string[];
+  contactInfo: ContactInfo;
+  source: 'namm' | 'referral' | 'inbound' | 'outbound';
+}
+
+interface Customer {
+  id: string;
+  retailerId: string;
+  subscriptionTier: 'starter' | 'growth' | 'pro';
+  monthlySessionLimit: number;
+  integrations: Integration[];
+  categories: CategoryConfig[];
+  onboardingStatus: 'pending' | 'in-progress' | 'complete';
+}
+
+interface FitSession {
+  id: string;
+  customerId: string;
+  category: string;
+  userInputs: Record<string, any>;
+  recommendations: Recommendation[];
+  outcome: 'cart-add' | 'abandoned' | 'human-handoff';
+  timestamp: Date;
+}
+
+interface Recommendation {
+  productId: string;
+  confidence: number;
+  reasoning: string;
+  bundleItems: string[];
+  inStock: boolean;
+  alternatives?: string[];
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const demo = await scheduleDemoCall(qualifiedLead);
+  const pilot = await proposePilotProgram(demo);
+  const contract = await negotiateSubscription(pilot);
+  return await onboardCustomer(contract);
+}
+
+async function qualifyLead(lead: Lead): Promise<Lead> {
+  // Validate traffic volume and platform compatibility
+  if (lead.monthlyTraffic < 10000) {
+    throw new Error('Traffic volume below minimum threshold');
+  }
+  
+  // Score lead based on fit criteria
+  const fitScore = calculateLeadScore(lead);
+  if (fitScore < 70) {
+    await nurtureLead(lead);
+    throw new Error('Lead requires nurturing');
+  }
+  
+  return { ...lead, qualified: true };
+}
+
+async function scheduleDemoCall(lead: Lead): Promise<DemoSession> {
+  const availableSlots = await getAvailableDemoSlots();
+  const demoRequest = await sendDemoInvitation(lead, availableSlots);
+  return await confirmDemoScheduling(demoRequest);
+}
+
+async function proposePilotProgram(demo: DemoSession): Promise<PilotProposal> {
+  const baselineMetrics = await analyzeCurrentPerformance(demo.retailerData);
+  const pilotScope = await definePilotScope(demo.requirements);
+  const roi = await calculateProjectedROI(baselineMetrics, pilotScope);
+  
+  return {
+    duration: 90, // days
+    categories: pilotScope.categories,
+    successMetrics: roi.targets,
+    investment: calculatePilotCost(pilotScope)
+  };
+}
+
+// Product Development Workflows
+export async function developFitFlow(category: string): Promise<FitFlow> {
+  const ontology = await buildCategoryOntology(category);
+  const rules = await defineFitRules(ontology);
+  const flow = await createConversationalFlow(rules);
+  const validation = await validateWithExperts(flow);
+  return await deployFitFlow(validation);
+}
+
+async function buildCategoryOntology(category: string): Promise<Ontology> {
+  const manufacturerData = await ingestManufacturerSpecs(category);
+  const retailerCatalogs = await analyzeCatalogData(category);
+  const expertKnowledge = await consultDomainExperts(category);
+  
+  return await synthesizeOntology({
+    manufacturerData,
+    retailerCatalogs,
+    expertKnowledge
+  });
+}
+
+async function defineFitRules(ontology: Ontology): Promise<FitRules> {
+  const mappingRules = await createSpecMappings(ontology);
+  const substitutionRules = await defineSubstitutionLogic(ontology);
+  const bundleRules = await configureBundleRecommendations(ontology);
+  
+  return {
+    mappingRules,
+    substitutionRules,
+    bundleRules,
+    confidence: calculateRuleConfidence(ontology)
+  };
+}
+
+// Revenue Generation Workflows
+export async function processSubscription(customer: Customer): Promise<Subscription> {
+  const usage = await trackSessionUsage(customer);
+  const billing = await calculateMonthlyBilling(usage);
+  const invoice = await generateInvoice(billing);
+  const payment = await processPayment(invoice);
+  return await updateSubscriptionStatus(payment);
+}
+
+async function trackSessionUsage(customer: Customer): Promise<UsageMetrics> {
+  const sessions = await getFitSessions(customer.id);
+  const overageCount = Math.max(0, sessions.length - customer.monthlySessionLimit);
+  
+  return {
+    totalSessions: sessions.length,
+    includedSessions: Math.min(sessions.length, customer.monthlySessionLimit),
+    overageSessions: overageCount,
+    conversionRate: calculateConversionRate(sessions),
+    attachRate: calculateAttachRate(sessions)
+  };
+}
+
+async function calculateMonthlyBilling(usage: UsageMetrics): Promise<BillingAmount> {
+  const baseFee = getSubscriptionBaseFee(usage.tier);
+  const overageFee = usage.overageSessions * 0.03; // $0.03 per overage session
+  const addOnFees = await calculateAddOnFees(usage.customerId);
+  
+  return {
+    baseFee,
+    overageFee,
+    addOnFees,
+    total: baseFee + overageFee + addOnFees
+  };
+}
+
+// Operational Workflows
+export async function syncInventory(customer: Customer): Promise<InventorySync> {
+  const integrations = await getActiveIntegrations(customer);
+  const syncResults = await Promise.all(
+    integrations.map(integration => syncSingleIntegration(integration))
+  );
+  
+  const consolidatedInventory = await consolidateInventoryData(syncResults);
+  await updateRecommendationEngine(customer.id, consolidatedInventory);
+  
+  return {
+    lastSync: new Date(),
+    itemsUpdated: consolidatedInventory.length,
+    errors: syncResults.filter(r => r.error).length
+  };
+}
+
+async function syncSingleIntegration(integration: Integration): Promise<SyncResult> {
+  try {
+    const inventoryData = await fetchInventoryData(integration);
+    const normalizedData = await normalizeInventoryFormat(inventoryData);
+    await validateInventoryData(normalizedData);
+    
+    return {
+      integrationId: integration.id,
+      success: true,
+      itemCount: normalizedData.length,
+      timestamp: new Date()
+    };
+  } catch (error) {
+    return {
+      integrationId: integration.id,
+      success: false,
+      error: error.message,
+      timestamp: new Date()
+    };
+  }
+}
+
+// Decision-Making Workflows
+export async function optimizeRecommendations(customer: Customer): Promise<OptimizationResult> {
+  const performanceData = await analyzeRecommendationPerformance(customer);
+  const abTestResults = await getABTestResults(customer);
+  const optimizations = await identifyOptimizations(performanceData, abTestResults);
+  
+  if (optimizations.confidence > 0.95) {
+    await implementOptimizations(customer, optimizations);
+    return { status: 'implemented', improvements: optimizations.expectedLift };
+  } else {
+    await scheduleAdditionalTesting(customer, optimizations);
+    return { status: 'testing', nextReview: optimizations.testEndDate };
+  }
+}
+
+async function analyzeRecommendationPerformance(customer: Customer): Promise<PerformanceAnalysis> {
+  const sessions = await getFitSessions(customer.id);
+  const conversions = sessions.filter(s => s.outcome === 'cart-add');
+  const abandonments = sessions.filter(s => s.outcome === 'abandoned');
+  
+  return {
+    conversionRate: conversions.length / sessions.length,
+    averageConfidence: sessions.reduce((sum, s) => sum + s.recommendations[0]?.confidence || 0, 0) / sessions.length,
+    topPerformingCategories: identifyTopCategories(conversions),
+    underperformingCategories: identifyBottomCategories(abandonments)
+  };
+}
+
+// Analytics and Reporting Workflows
+export async function generateROIReport(customer: Customer): Promise<ROIReport> {
+  const baseline = await getBaselineMetrics(customer);
+  const current = await getCurrentMetrics(customer);
+  const lift = await calculateLift(baseline, current);
+  const revenue = await calculateRevenueImpact(lift, customer);
+  
+  return {
+    customerId: customer.id,
+    reportPeriod: getReportPeriod(),
+    conversionLift: lift.conversion,
+    aovLift: lift.aov,
+    attachRateImprovement: lift.attachRate,
+    returnRateReduction: lift.returnRate,
+    totalRevenueImpact: revenue.total,
+    roi: revenue.total / customer.monthlyInvestment
+  };
+}
+
+async function calculateLift(baseline: Metrics, current: Metrics): Promise<LiftMetrics> {
+  return {
+    conversion: (current.conversionRate - baseline.conversionRate) / baseline.conversionRate,
+    aov: (current.averageOrderValue - baseline.averageOrderValue) / baseline.averageOrderValue,
+    attachRate: (current.attachRate - baseline.attachRate) / baseline.attachRate,
+    returnRate: (baseline.returnRate - current.returnRate) / baseline.returnRate
+  };
+}
+
+// Integration Management Workflows
+export async function setupIntegration(customer: Customer, platform: string): Promise<Integration> {
+  const credentials = await validatePlatformCredentials(customer, platform);
+  const connection = await establishConnection(credentials);
+  const mapping = await configureCatalogMapping(connection);
+  const sync = await performInitialSync(mapping);
+  
+  return {
+    id: generateIntegrationId(),
+    customerId: customer.id,
+    platform,
+    status: 'active',
+    lastSync: sync.timestamp,
+    catalogItems: sync.itemCount
+  };
+}
+
+async function validatePlatformCredentials(customer: Customer, platform: string): Promise<Credentials> {
+  const requiredFields = getPlatformRequiredFields(platform);
+  const providedCredentials = await getCustomerCredentials(customer.id, platform);
+  
+  for (const field of requiredFields) {
+    if (!providedCredentials[field]) {
+      throw new Error(`Missing required credential: ${field}`);
+    }
+  }
+  
+  const testConnection = await testPlatformConnection(providedCredentials);
+  if (!testConnection.success) {
+    throw new Error(`Connection failed: ${testConnection.error}`);
+  }
+  
+  return providedCredentials;
+}
+```
+
+## Customer Personas
+
+### Primary Segment: Mid-Market MI Retailers
+
+**Tom Martinez - E-commerce Manager**
+- Company: 150-employee guitar specialty chain with 12 locations and Shopify Plus
+- Pain Points: 35% cart abandonment on string/accessory purchases, customers calling for sizing help
+- Goals: Reduce support calls, increase online AOV, improve customer confidence in purchases
+- Buying Criteria: ROI measurement, easy Shopify integration, inventory sync capabilities
+- Quote: "Our customers know what sound they want but get lost in the technical specs"
+
+**Sarah Kim - Operations Director**
+- Company: 300-employee school music retailer serving band programs nationwide
+- Pain Points: Seasonal spikes overwhelm phone support, rental sizing errors cause returns
+- Goals: Scale expert guidance, reduce return processing costs, improve student satisfaction
+- Buying Criteria: Bulk pricing, educational discounts, integration with rental management
+- Quote: "Band directors trust us for sizing, but we can't be available 24/7 for every parent"
+
+### Secondary Segment: Omnichannel Specialty Chains
+
+**Mike Chen - Digital Strategy Lead**
+- Company: 50-location drum and percussion chain with BigCommerce
+- Pain Points: In-store staff knowledge varies, online customers need stick/head recommendations
+- Goals: Standardize expertise across channels, enable kiosk-based guidance in stores
+- Buying Criteria: Omnichannel deployment, staff training integration, performance analytics
+- Quote: "We need the same expert advice online and in-store, regardless of who's working"
+
+### Niche DTC Segment: Accessory Brands
+
+**Lisa Rodriguez - Marketing Director**
+- Company: Premium violin string manufacturer with DTC Shopify store
+- Pain Points: Customers unsure about tension/gauge selection, high return rates on wrong specs
+- Goals: Educate customers on string selection, reduce returns, increase customer satisfaction
+- Buying Criteria: Brand customization, educational content integration, performance tracking
+- Quote: "Our strings are perfect when matched correctly, but selection is intimidating for many players"
+
+## User Stories
+
+### E-commerce Managers
+- **As an** e-commerce manager, **I want** customers to get expert sizing recommendations **so that** cart abandonment decreases and confidence increases
+- **As an** operations leader, **I want** automated bundle suggestions based on primary purchases **so that** AOV increases without pushy sales tactics
+- **As a** customer success manager, **I want** detailed analytics on recommendation performance **so that** I can prove ROI to leadership
+
+### Customer Support Teams
+- **As a** support agent, **I want** the fit finder to handle sizing questions **so that** I can focus on complex customer issues
+- **As a** support manager, **I want** conversation transcripts when customers escalate **so that** agents have full context
+- **As a** training coordinator, **I want** insights into common fit questions **so that** I can improve staff education
+
+### Store Operations
+- **As a** store manager, **I want** kiosk-based fit guidance **so that** customers can get help when staff is busy
+- **As a** sales associate, **I want** the system to suggest complementary items **so that** I can provide better service and increase sales
+- **As a** inventory manager, **I want** real-time stock awareness in recommendations **so that** we don't disappoint customers
+
+### Brand Partners
+- **As a** manufacturer, **I want** accurate spec representation in fit flows **so that** customers choose the right products
+- **As a** distributor, **I want** co-op opportunities for featured recommendations **so that** I can support retailer partners
+- **As a** product manager, **I want** feedback on common fit issues **so that** I can improve product design
+
+## Market Research Insights
+
+### Musical Instrument Retail Market
+- **Market Size**: $7.2B US musical instrument retail market, 65% of purchases involve accessories
+- **E-commerce Growth**: Online MI sales growing 12% annually, but conversion rates lag physical stores by 40%
+- **Fit Challenges**: 28% of string/reed returns are sizing-related; 45% of customers abandon carts on technical specs
+
+### Customer Behavior Patterns
+- **Research Process**: 73% of customers research specs online before purchasing, spending average 23 minutes
+- **Support Dependency**: 41% of online customers contact support for sizing/compatibility questions
+- **Mobile Usage**: 38% of MI research happens on mobile, but conversion rates are 60% lower than desktop
+
+### Competitive Landscape
+- **Generic Solutions**: Existing chatbots have 12% accuracy on MI-specific questions
+- **Staff Limitations**: 67% of MI retailers report inconsistent product knowledge across staff
+- **Integration Gaps**: 84% of MI retailers use specialized POS systems not supported by generic tools
+
+### Technology Adoption
+- **Platform Distribution**: 45% Shopify, 25% BigCommerce, 15% Magento, 15% custom/legacy
+- **POS Integration**: 78% use MI-specific POS (Lightspeed Retail, NCR Counterpoint, Epicor)
+- **Inventory Challenges**: 62% report inventory sync issues between online and in-store systems
+
+### ROI Expectations
+- **Payback Period**: MI retailers expect 6-month payback on technology investments
+- **Success Metrics**: Primary KPIs are conversion rate (89%), return rate reduction (76%), AOV increase (68%)
+- **Pilot Preference**: 71% prefer 60-90 day pilots with guaranteed ROI before full commitment
 
 Industry: Musical Instrument and Supplies Retailers
 Service: Guided Selling & Fit Finder Chatbot
