@@ -341,3 +341,568 @@ landingPage:
 
 Generated for NAICS 326191 — Plastics Plumbing Fixture Manufacturing.
 Service: Energy-Optimized Press/Machine Scheduling
+
+## Customer Acquisition Workflows
+
+```typescript
+interface Lead {
+  id: string
+  company: string
+  naicsCode: string
+  plantLocation: string
+  machineCount: number
+  currentEnergySpend: number
+  demandChargePercentage: number
+  erpSystem: string
+  contactInfo: {
+    name: string
+    title: string
+    email: string
+    phone: string
+  }
+  painPoints: string[]
+  currentSchedulingMethod: 'manual' | 'erp_basic' | 'spreadsheet' | 'tribal_knowledge'
+}
+
+interface QualifiedLead extends Lead {
+  fitScore: number
+  decisionMakers: DecisionMaker[]
+  energyAuditData: EnergyProfile
+  schedulingComplexity: 'low' | 'medium' | 'high'
+  integrationFeasibility: number
+}
+
+interface DecisionMaker {
+  name: string
+  title: string
+  influence: 'high' | 'medium' | 'low'
+  concerns: string[]
+  buyingCriteria: string[]
+}
+
+interface EnergyProfile {
+  peakDemandKw: number
+  monthlyEnergySpend: number
+  demandChargeAmount: number
+  tariffStructure: 'tou' | 'rtp' | 'flat' | 'tiered'
+  peakHours: string[]
+  seasonalVariation: number
+}
+
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  try {
+    const qualifiedLead = await qualifyLead(lead)
+    
+    if (qualifiedLead.fitScore < 70) {
+      throw new Error('Lead does not meet minimum qualification criteria')
+    }
+    
+    const proposal = await generateEnergyROIProposal(qualifiedLead)
+    const pilot = await negotiatePilotTerms(proposal)
+    const customer = await onboardCustomer(pilot)
+    
+    return customer
+  } catch (error) {
+    await logLeadDisqualification(lead, error.message)
+    throw error
+  }
+}
+
+export async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  const fitScore = await calculatePlasticsFitScore(lead)
+  const decisionMakers = await identifyEnergyDecisionMakers(lead)
+  const energyAuditData = await conductRemoteEnergyAudit(lead)
+  const schedulingComplexity = await assessSchedulingComplexity(lead)
+  
+  return {
+    ...lead,
+    fitScore,
+    decisionMakers,
+    energyAuditData,
+    schedulingComplexity,
+    integrationFeasibility: await assessERPIntegrationFeasibility(lead.erpSystem)
+  }
+}
+
+export async function generateEnergyROIProposal(qualifiedLead: QualifiedLead): Promise<Proposal> {
+  const baselineEnergyAnalysis = await analyzeCurrentEnergyUsage(qualifiedLead)
+  const projectedSavings = await calculateEnergyOptimizationPotential(qualifiedLead)
+  const implementationPlan = await createImplementationRoadmap(qualifiedLead)
+  
+  return {
+    leadId: qualifiedLead.id,
+    baselineAnalysis: baselineEnergyAnalysis,
+    projectedSavings,
+    implementationPlan,
+    pricing: await calculateCustomPricing(qualifiedLead),
+    pilotTerms: await generatePilotProposal(qualifiedLead),
+    roi: await calculateROI(projectedSavings, qualifiedLead.currentEnergySpend)
+  }
+}
+
+export async function negotiatePilotTerms(proposal: Proposal): Promise<PilotAgreement> {
+  const negotiations = await conductEnergyROINegotiations(proposal)
+  const finalTerms = await finalizePilotTerms(negotiations)
+  const agreement = await generatePilotAgreement(finalTerms)
+  
+  await setupPilotInfrastructure(agreement)
+  await scheduleKickoffMeeting(agreement)
+  
+  return agreement
+}
+```
+
+## Product Development Processes
+
+```typescript
+interface EnergyOptimizationEngine {
+  algorithmVersion: string
+  constraintSolver: 'mixed_integer' | 'genetic_algorithm' | 'simulated_annealing'
+  tariffModels: TariffModel[]
+  machineProfiles: MachineEnergyProfile[]
+  optimizationObjectives: OptimizationObjective[]
+}
+
+interface TariffModel {
+  utilityProvider: string
+  tariffType: 'tou' | 'rtp' | 'demand_charge' | 'tiered'
+  peakHours: TimeWindow[]
+  rates: EnergyRate[]
+  demandChargeStructure: DemandChargeModel
+}
+
+interface MachineEnergyProfile {
+  machineId: string
+  machineType: 'injection_press' | 'extruder' | 'thermoformer' | 'dryer' | 'chiller'
+  powerRating: number
+  startupEnergyKwh: number
+  idleConsumptionKw: number
+  productionConsumptionKw: number
+  heatupTimeMinutes: number
+  cooldownTimeMinutes: number
+}
+
+export async function developEnergyOptimizationEngine(): Promise<EnergyOptimizationEngine> {
+  const constraintModels = await buildPlasticsConstraintModels()
+  const tariffDatabase = await buildTariffDatabase()
+  const machineProfiles = await createMachineEnergyProfiles()
+  
+  const engine = await trainOptimizationAlgorithms({
+    constraints: constraintModels,
+    tariffs: tariffDatabase,
+    machines: machineProfiles,
+    historicalData: await loadHistoricalProductionData()
+  })
+  
+  await validateEngineAccuracy(engine)
+  return engine
+}
+
+export async function buildDigitalTwin(customer: Customer): Promise<DigitalTwin> {
+  const shopFloorLayout = await mapShopFloorLayout(customer)
+  const machineInventory = await catalogMachineInventory(customer)
+  const energyInfrastructure = await mapEnergyInfrastructure(customer)
+  const productionConstraints = await documentProductionConstraints(customer)
+  
+  const digitalTwin = await createDigitalTwin({
+    layout: shopFloorLayout,
+    machines: machineInventory,
+    energy: energyInfrastructure,
+    constraints: productionConstraints
+  })
+  
+  await calibrateDigitalTwin(digitalTwin, customer)
+  return digitalTwin
+}
+
+export async function integrateERPSystems(customer: Customer): Promise<Integration[]> {
+  const erpSystem = await identifyERPSystem(customer)
+  const requiredDataSources = await mapRequiredDataSources(customer)
+  const integrations: Integration[] = []
+  
+  for (const dataSource of requiredDataSources) {
+    const connector = await buildERPConnector(erpSystem, dataSource)
+    const integration = await deployIntegration(connector, customer)
+    await validateDataFlow(integration)
+    integrations.push(integration)
+  }
+  
+  await setupRealTimeDataSync(integrations)
+  return integrations
+}
+
+export async function enhanceAlgorithmAccuracy(): Promise<ModelUpdate> {
+  const performanceMetrics = await analyzeOptimizationPerformance()
+  const improvementAreas = await identifyAlgorithmImprovements(performanceMetrics)
+  
+  const updatedModels = await retrainOptimizationModels({
+    newData: await collectCrossPlantLearnings(),
+    improvements: improvementAreas,
+    validationCriteria: await defineValidationCriteria()
+  })
+  
+  return {
+    version: await generateModelVersion(),
+    improvements: improvementAreas,
+    accuracy: await validateModelAccuracy(updatedModels),
+    deploymentPlan: await createDeploymentPlan(updatedModels)
+  }
+}
+```
+
+## Revenue Generation Flows
+
+```typescript
+interface PricingStrategy {
+  tier: 'small_plant' | 'medium_plant' | 'large_plant' | 'enterprise'
+  machineCount: number
+  baseSubscription: number
+  perMachineRate: number
+  onboardingFee: number
+  performanceBasedOption: boolean
+  volumeDiscounts: VolumeDiscount[]
+}
+
+interface RevenueOpportunity {
+  type: 'upsell' | 'expansion' | 'renewal' | 'cross_sell'
+  customer: Customer
+  estimatedValue: number
+  probability: number
+  timeline: string
+  requirements: string[]
+}
+
+export async function optimizePricing(customer: Customer): Promise<PricingStrategy> {
+  const customerProfile = await analyzeCustomerEnergyProfile(customer)
+  const competitiveAnalysis = await conductEnergyOptimizationCompetitiveAnalysis(customer)
+  const valueDelivered = await calculateEnergyOptimizationValue(customer)
+  
+  const pricingStrategy = await calculateOptimalPricing({
+    profile: customerProfile,
+    competition: competitiveAnalysis,
+    value: valueDelivered,
+    marketPosition: await assessMarketPosition(customer)
+  })
+  
+  return {
+    ...pricingStrategy,
+    performanceBasedOption: await evaluatePerformanceBasedPricing(customer),
+    volumeDiscounts: await calculateVolumeDiscounts(customer)
+  }
+}
+
+export async function identifyExpansionOpportunities(customer: Customer): Promise<RevenueOpportunity[]> {
+  const currentUsage = await analyzeEnergyOptimizationUsage(customer)
+  const plantCapacity = await assessPlantExpansionCapacity(customer)
+  const multiSiteOpportunities = await identifyMultiSiteOpportunities(customer)
+  
+  const opportunities: RevenueOpportunity[] = []
+  
+  if (currentUsage.machineUtilization > 0.8) {
+    opportunities.push(await createMachineExpansionOpportunity(customer))
+  }
+  
+  if (plantCapacity.additionalLines > 0) {
+    opportunities.push(await createProductionLineExpansion(customer))
+  }
+  
+  if (multiSiteOpportunities.length > 0) {
+    opportunities.push(...await createMultiSiteOpportunities(customer, multiSiteOpportunities))
+  }
+  
+  return opportunities
+}
+
+export async function executeRevenueExpansion(opportunity: RevenueOpportunity): Promise<ExpansionResult> {
+  const proposal = await createEnergyOptimizationExpansionProposal(opportunity)
+  const stakeholders = await identifyExpansionStakeholders(opportunity.customer)
+  
+  const negotiation = await conductExpansionNegotiation(proposal, stakeholders)
+  
+  if (negotiation.accepted) {
+    await implementExpansion(negotiation.finalTerms)
+    return { success: true, value: negotiation.finalValue }
+  }
+  
+  return { success: false, reason: negotiation.rejectionReason }
+}
+
+export async function optimizeCustomerLifetimeValue(customer: Customer): Promise<CLVOptimization> {
+  const currentCLV = await calculateCurrentCLV(customer)
+  const churnRisk = await assessEnergyOptimizationChurnRisk(customer)
+  const expansionPotential = await assessEnergyExpansionPotential(customer)
+  
+  const optimizationPlan = await createCLVOptimizationPlan({
+    customer,
+    currentCLV,
+    churnRisk,
+    expansionPotential,
+    energySavingsPerformance: await analyzeEnergySavingsPerformance(customer)
+  })
+  
+  await implementCLVOptimization(optimizationPlan)
+  
+  return {
+    originalCLV: currentCLV,
+    optimizedCLV: optimizationPlan.projectedCLV,
+    improvement: optimizationPlan.projectedCLV - currentCLV,
+    timeline: optimizationPlan.timeline,
+    actions: optimizationPlan.actions
+  }
+}
+```
+
+## Operational Procedures
+
+```typescript
+interface EnergyMonitoringSystem {
+  realTimeMonitoring: boolean
+  peakPrediction: boolean
+  demandResponseIntegration: boolean
+  alertThresholds: AlertThreshold[]
+  reportingFrequency: 'real_time' | 'hourly' | 'daily' | 'weekly'
+}
+
+interface ProductionSchedule {
+  scheduleId: string
+  plantId: string
+  schedulePeriod: DateRange
+  machineAssignments: MachineAssignment[]
+  energyOptimizationScore: number
+  projectedEnergyConsumption: number
+  projectedPeakDemand: number
+  onTimeDeliveryProbability: number
+}
+
+export async function monitorEnergyPerformance(customer: Customer): Promise<EnergyPerformanceReport> {
+  const realTimeData = await collectRealTimeEnergyData(customer)
+  const performanceMetrics = await calculateEnergyPerformanceMetrics(realTimeData)
+  
+  const alerts = await checkEnergyAlertThresholds(performanceMetrics)
+  if (alerts.length > 0) {
+    await sendEnergyAlerts(customer, alerts)
+  }
+  
+  return {
+    timestamp: new Date(),
+    customerId: customer.id,
+    metrics: performanceMetrics,
+    alerts,
+    recommendations: await generateEnergyRecommendations(performanceMetrics)
+  }
+}
+
+export async function executeProductionScheduleOptimization(customer: Customer): Promise<ProductionSchedule> {
+  const currentSchedule = await getCurrentProductionSchedule(customer)
+  const energyConstraints = await getEnergyConstraints(customer)
+  const productionConstraints = await getProductionConstraints(customer)
+  
+  const optimizedSchedule = await optimizeSchedule({
+    current: currentSchedule,
+    energyConstraints,
+    productionConstraints,
+    objectives: await getOptimizationObjectives(customer)
+  })
+  
+  await validateScheduleFeasibility(optimizedSchedule)
+  await publishOptimizedSchedule(optimizedSchedule, customer)
+  
+  return optimizedSchedule
+}
+
+export async function manageDemandResponse(customer: Customer, drEvent: DemandResponseEvent): Promise<DRResponse> {
+  const currentLoad = await getCurrentPlantLoad(customer)
+  const curtailmentCapacity = await calculateCurtailmentCapacity(customer, drEvent)
+  const productionImpact = await assessProductionImpact(curtailmentCapacity)
+  
+  if (productionImpact.onTimeDeliveryRisk < 0.05) {
+    const curtailmentPlan = await createCurtailmentPlan(curtailmentCapacity, customer)
+    await executeCurtailment(curtailmentPlan)
+    
+    return {
+      participated: true,
+      curtailmentKw: curtailmentPlan.totalCurtailment,
+      revenue: await calculateDRRevenue(curtailmentPlan, drEvent),
+      productionImpact
+    }
+  }
+  
+  return {
+    participated: false,
+    reason: 'Production impact exceeds acceptable risk threshold',
+    alternativeActions: await suggestAlternativeActions(customer, drEvent)
+  }
+}
+
+export async function ensureDataQuality(): Promise<QualityAssurance> {
+  const dataQuality = await runEnergyDataQualityChecks()
+  const integrationHealth = await checkIntegrationHealth()
+  const systemPerformance = await monitorSystemPerformance()
+  
+  const issues = [...dataQuality.issues, ...integrationHealth.issues, ...systemPerformance.issues]
+  
+  if (issues.length > 0) {
+    await escalateDataQualityIssues(issues)
+    await implementDataQualityFixes(issues)
+  }
+  
+  return {
+    overallScore: await calculateQualityScore(dataQuality, integrationHealth, systemPerformance),
+    dataQuality,
+    integrationHealth,
+    systemPerformance,
+    issues,
+    recommendations: await generateQualityRecommendations(issues)
+  }
+}
+```
+
+## Decision-Making Workflows
+
+```typescript
+interface EnergyOptimizationRecommendation {
+  type: 'schedule_adjustment' | 'peak_shaving' | 'demand_response' | 'equipment_sequencing'
+  priority: 'high' | 'medium' | 'low'
+  expectedSavings: number
+  implementationEffort: 'low' | 'medium' | 'high'
+  riskLevel: 'low' | 'medium' | 'high'
+  timeline: string
+  requirements: string[]
+}
+
+interface SchedulingDecision {
+  decisionId: string
+  scheduleOptions: ScheduleOption[]
+  selectedOption: ScheduleOption
+  decisionCriteria: DecisionCriteria
+  tradeOffs: TradeOffAnalysis
+  approval: ApprovalWorkflow
+}
+
+export async function generateEnergyOptimizationRecommendations(customer: Customer): Promise<EnergyOptimizationRecommendation[]> {
+  const energyAnalysis = await analyzeCurrentEnergyUsage(customer)
+  const optimizationOpportunities = await identifyOptimizationOpportunities(energyAnalysis)
+  const feasibilityAssessment = await assessImplementationFeasibility(optimizationOpportunities)
+  
+  const recommendations = await prioritizeRecommendations({
+    opportunities: optimizationOpportunities,
+    feasibility: feasibilityAssessment,
+    customerConstraints: await getCustomerConstraints(customer),
+    businessObjectives: await getBusinessObjectives(customer)
+  })
+  
+  return recommendations.map(rec => ({
+    ...rec,
+    expectedSavings: await calculateExpectedSavings(rec, customer),
+    riskAssessment: await assessImplementationRisk(rec, customer)
+  }))
+}
+
+export async function makeSchedulingDecision(scheduleOptions: ScheduleOption[], customer: Customer): Promise<SchedulingDecision> {
+  const decisionCriteria = await getSchedulingDecisionCriteria(customer)
+  const tradeOffAnalysis = await analyzeScheduleTradeOffs(scheduleOptions, decisionCriteria)
+  
+  const selectedOption = await selectOptimalSchedule({
+    options: scheduleOptions,
+    criteria: decisionCriteria,
+    tradeOffs: tradeOffAnalysis,
+    constraints: await getSchedulingConstraints(customer)
+  })
+  
+  const approvalWorkflow = await initiateScheduleApproval(selectedOption, customer)
+  
+  return {
+    decisionId: await generateDecisionId(),
+    scheduleOptions,
+    selectedOption,
+    decisionCriteria,
+    tradeOffs: tradeOffAnalysis,
+    approval: approvalWorkflow
+  }
+}
+
+export async function evaluateEnergyInvestmentOpportunities(customer: Customer): Promise<InvestmentRecommendation[]> {
+  const currentEnergyProfile = await analyzeCurrentEnergyProfile(customer)
+  const investmentOptions = await identifyEnergyInvestmentOptions(customer)
+  const roiAnalysis = await calculateInvestmentROI(investmentOptions, currentEnergyProfile)
+  
+  const recommendations = await prioritizeInvestments({
+    options: investmentOptions,
+    roi: roiAnalysis,
+    budget: await getInvestmentBudget(customer),
+    timeline: await getInvestmentTimeline(customer)
+  })
+  
+  return recommendations.map(rec => ({
+    ...rec,
+    energyImpact: await calculateEnergyImpact(rec, customer),
+    implementationPlan: await createImplementationPlan(rec, customer)
+  }))
+}
+
+export async function optimizeEnergyContractDecisions(customer: Customer): Promise<ContractRecommendation> {
+  const currentContracts = await getCurrentEnergyContracts(customer)
+  const usagePatterns = await analyzeEnergyUsagePatterns(customer)
+  const marketOptions = await getEnergyMarketOptions(customer)
+  
+  const contractAnalysis = await analyzeContractOptions({
+    current: currentContracts,
+    usage: usagePatterns,
+    market: marketOptions,
+    optimizationCapabilities: await getOptimizationCapabilities(customer)
+  })
+  
+  return {
+    currentCosts: contractAnalysis.currentCosts,
+    recommendedContracts: contractAnalysis.optimalContracts,
+    projectedSavings: contractAnalysis.projectedSavings,
+    implementationPlan: await createContractTransitionPlan(contractAnalysis),
+    riskAssessment: await assessContractRisk(contractAnalysis)
+  }
+}
+```
+
+## Event-Driven Workflows
+
+```typescript
+export async function onPeakDemandAlert(event: PeakDemandAlertEvent): Promise<void> {
+  const customer = await getCustomer(event.customerId)
+  const currentLoad = await getCurrentPlantLoad(customer)
+  const peakThreshold = await getPeakDemandThreshold(customer)
+  
+  if (currentLoad.projectedPeak > peakThreshold.warning) {
+    const curtailmentOptions = await generateCurtailmentOptions(customer, currentLoad)
+    await executePeakShaving(curtailmentOptions)
+    await notifyPlantOperators(customer, curtailmentOptions)
+  }
+}
+
+export async function onDemandResponseEvent(event: DemandResponseEvent): Promise<void> {
+  const customer = await getCustomer(event.customerId)
+  const participation = await evaluateDRParticipation(customer, event)
+  
+  if (participation.recommended) {
+    await executeDemandResponse(customer, event, participation.plan)
+    await trackDRPerformance(customer, event, participation.plan)
+  }
+}
+
+export async function onScheduleOptimizationTrigger(event: ScheduleOptimizationEvent): Promise<void> {
+  const customer = await getCustomer(event.customerId)
+  const optimizedSchedule = await executeProductionScheduleOptimization(customer)
+  
+  await publishScheduleUpdate(optimizedSchedule, customer)
+  await notifyPlanners(customer, optimizedSchedule)
+  await trackOptimizationPerformance(optimizedSchedule)
+}
+
+export async function onEnergyPriceUpdate(event: EnergyPriceUpdateEvent): Promise<void> {
+  const affectedCustomers = await getCustomersInUtilityTerritory(event.utilityProvider)
+  
+  for (const customer of affectedCustomers) {
+    await updateTariffModels(customer, event.newPricing)
+    await recalculateOptimizationParameters(customer)
+    await triggerScheduleReoptimization(customer)
+  }
+}
+```
