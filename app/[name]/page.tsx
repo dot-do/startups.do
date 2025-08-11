@@ -102,3 +102,4 @@ export async function generateMetadata({ params }: { params: Promise<{ name: str
     description: desc
   }
 }
+
