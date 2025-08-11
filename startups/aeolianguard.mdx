@@ -286,3 +286,645 @@ landingPage:
 
 Generated for NAICS 212319 — Other Crushed and Broken Stone Mining and Quarrying.
 Service: Dust and Noise Compliance Analytics
+
+## Business Process Functions
+
+```typescript
+// Core business types
+interface Lead {
+  id: string;
+  companyName: string;
+  contactInfo: ContactInfo;
+  siteDetails: SiteDetails;
+  regulatoryContext: RegulatoryContext;
+  painPoints: string[];
+  source: 'direct' | 'partner' | 'referral' | 'content';
+  qualificationScore?: number;
+}
+
+interface Customer {
+  id: string;
+  lead: Lead;
+  contractDetails: ContractDetails;
+  sites: QuarrySite[];
+  subscriptionTier: 'basic' | 'pro' | 'enterprise';
+  onboardingStatus: OnboardingStatus;
+}
+
+interface QuarrySite {
+  id: string;
+  location: GeoLocation;
+  operationalData: OperationalData;
+  sensors: SensorNetwork;
+  regulatoryRequirements: RegulatoryRequirements;
+  complianceHistory: ComplianceRecord[];
+}
+
+interface SensorReading {
+  timestamp: Date;
+  sensorId: string;
+  type: 'dust' | 'noise' | 'meteorological';
+  parameter: 'PM10' | 'PM2.5' | 'TSP' | 'dBA' | 'LAeq' | 'windSpeed' | 'windDirection';
+  value: number;
+  unit: string;
+  qualityFlag: 'valid' | 'suspect' | 'invalid';
+}
+
+interface ExceedanceEvent {
+  id: string;
+  timestamp: Date;
+  siteId: string;
+  parameter: string;
+  value: number;
+  threshold: number;
+  attributionScore: number;
+  sourceConfidence: 'high' | 'medium' | 'low';
+  mitigationRecommendations: string[];
+  windConditions: WeatherData;
+}
+
+interface ComplianceReport {
+  id: string;
+  siteId: string;
+  period: ReportingPeriod;
+  jurisdiction: string;
+  data: AggregatedData;
+  qaqcMetadata: QAQCMetadata;
+  chainOfCustody: ChainOfCustodyRecord;
+  submissionStatus: 'draft' | 'submitted' | 'approved';
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  try {
+    const qualifiedLead = await qualifyLead(lead);
+    const siteAssessment = await conductSiteAssessment(qualifiedLead);
+    const proposal = await generateProposal(qualifiedLead, siteAssessment);
+    const contract = await negotiateContract(proposal);
+    const customer = await onboardCustomer(contract);
+    
+    await trackConversionMetrics(lead, customer);
+    await notifyCustomerSuccess(customer);
+    
+    return customer;
+  } catch (error) {
+    await logAcquisitionError(lead.id, error);
+    throw new Error(`Customer acquisition failed: ${error.message}`);
+  }
+}
+
+export async function qualifyLead(lead: Lead): Promise<Lead> {
+  // Validate quarry size (200k-2M tons/year target)
+  const tonnageQualified = await validateTonnageRange(lead.siteDetails);
+  
+  // Check proximity to sensitive receptors (within 1 mile)
+  const proximityRisk = await assessProximityRisk(lead.siteDetails.location);
+  
+  // Evaluate regulatory scrutiny level
+  const regulatoryPressure = await assessRegulatoryPressure(lead.siteDetails.jurisdiction);
+  
+  // Assess current compliance challenges
+  const complianceGaps = await identifyComplianceGaps(lead.painPoints);
+  
+  // Score lead quality
+  const qualificationScore = calculateLeadScore(
+    tonnageQualified, 
+    proximityRisk, 
+    regulatoryPressure, 
+    complianceGaps
+  );
+  
+  if (qualificationScore < 70) {
+    throw new Error('Lead does not meet qualification criteria');
+  }
+  
+  return { ...lead, qualificationScore };
+}
+
+export async function conductSiteAssessment(lead: Lead): Promise<SiteAssessment> {
+  const assessment = {
+    sensorPlacementPlan: await generateSensorPlacement(lead.siteDetails),
+    regulatoryRequirements: await mapRegulatoryRequirements(lead.siteDetails.jurisdiction),
+    baselineEstimate: await estimateBaseline(lead.siteDetails),
+    implementationComplexity: await assessImplementationComplexity(lead.siteDetails),
+    estimatedROI: await calculateEstimatedROI(lead.siteDetails, lead.painPoints),
+    riskAssessment: await assessImplementationRisks(lead.siteDetails)
+  };
+  
+  await validateAssessment(assessment);
+  return assessment;
+}
+
+export async function generateProposal(lead: Lead, assessment: SiteAssessment): Promise<Proposal> {
+  const subscriptionTier = await recommendSubscriptionTier(lead, assessment);
+  const hardwareRequirements = await calculateHardwareRequirements(assessment.sensorPlacementPlan);
+  const implementationPlan = await createImplementationPlan(assessment);
+  const pricing = await calculatePricing(subscriptionTier, hardwareRequirements, implementationPlan);
+  
+  return {
+    leadId: lead.id,
+    subscriptionTier,
+    hardwareRequirements,
+    implementationPlan,
+    pricing,
+    expectedOutcomes: await projectExpectedOutcomes(assessment),
+    timeline: await estimateImplementationTimeline(implementationPlan)
+  };
+}
+
+// Product Development Processes
+export async function developSensorNetwork(site: QuarrySite): Promise<SensorNetwork> {
+  try {
+    const sensorPlan = await designSensorNetwork(site);
+    const hardware = await procureHardware(sensorPlan);
+    const deployment = await deploySensors(site, hardware);
+    const calibration = await calibrateSensors(deployment);
+    const validation = await validateSensorNetwork(calibration);
+    
+    await updateSiteConfiguration(site.id, validation);
+    await scheduleMaintenanceCalendar(validation);
+    
+    return validation;
+  } catch (error) {
+    await logDeploymentError(site.id, error);
+    throw new Error(`Sensor network development failed: ${error.message}`);
+  }
+}
+
+export async function enhanceAIAttribution(siteData: OperationalData[]): Promise<AttributionModel> {
+  // Train inverse-dispersion model with site-specific data
+  const dispersionModel = await trainDispersionModel(siteData);
+  
+  // Integrate operational telemetry (blast logs, haul cycles, crusher runtime)
+  const operationalModel = await integrateOperationalData(siteData);
+  
+  // Validate attribution accuracy against known events
+  const validationResults = await validateAttributionModel(dispersionModel, operationalModel);
+  
+  if (validationResults.f1Score < 0.8) {
+    await retrainModel(siteData, validationResults);
+    const revalidationResults = await validateAttributionModel(dispersionModel, operationalModel);
+    
+    if (revalidationResults.f1Score < 0.8) {
+      throw new Error('Attribution model does not meet accuracy requirements after retraining');
+    }
+  }
+  
+  return {
+    dispersionModel,
+    operationalModel,
+    accuracy: validationResults,
+    lastUpdated: new Date(),
+    confidenceThresholds: await calculateConfidenceThresholds(validationResults)
+  };
+}
+
+export async function developRegulatoryTemplates(jurisdiction: string): Promise<ReportingTemplate[]> {
+  const requirements = await fetchRegulatoryRequirements(jurisdiction);
+  const templates = await createReportingTemplates(requirements);
+  const validation = await validateTemplatesWithRegulators(templates, jurisdiction);
+  
+  if (!validation.approved) {
+    const revisedTemplates = await reviseTemplates(templates, validation.feedback);
+    await validateTemplatesWithRegulators(revisedTemplates, jurisdiction);
+  }
+  
+  return templates;
+}
+
+// Revenue Generation Flows
+export async function processSubscriptionRevenue(customer: Customer): Promise<RevenueRecord> {
+  try {
+    const billingCycle = await determineBillingCycle(customer);
+    const usage = await calculateUsage(customer);
+    const invoice = await generateInvoice(customer, usage, billingCycle);
+    const payment = await processPayment(invoice);
+    const revenue = await recordRevenue(payment);
+    
+    await updateCustomerBilling(customer.id, revenue);
+    await trackRevenueMetrics(revenue);
+    
+    return revenue;
+  } catch (error) {
+    await handleBillingError(customer.id, error);
+    throw new Error(`Revenue processing failed: ${error.message}`);
+  }
+}
+
+export async function expandCustomerRevenue(customer: Customer): Promise<ExpansionResult> {
+  // Identify expansion opportunities based on usage and compliance needs
+  const expansionOpportunities = await identifyExpansionOpportunities(customer);
+  
+  // Analyze additional sites or service tier upgrades
+  const siteExpansion = await analyzeSiteExpansion(customer);
+  const tierUpgrade = await analyzeTierUpgrade(customer);
+  
+  // Generate expansion proposals
+  const proposals = await generateExpansionProposals(customer, {
+    opportunities: expansionOpportunities,
+    siteExpansion,
+    tierUpgrade
+  });
+  
+  // Track expansion metrics
+  const expansionMetrics = await trackExpansionMetrics(customer, proposals);
+  
+  return {
+    opportunities: expansionOpportunities,
+    proposals,
+    metrics: expansionMetrics,
+    recommendedActions: await generateExpansionRecommendations(proposals)
+  };
+}
+
+export async function optimizePricing(customer: Customer, usageData: UsageData): Promise<PricingOptimization> {
+  const currentValue = await calculateCustomerValue(customer, usageData);
+  const benchmarkData = await getBenchmarkPricing(customer.subscriptionTier);
+  const optimizedPricing = await calculateOptimalPricing(currentValue, benchmarkData);
+  
+  return {
+    currentPricing: customer.contractDetails.pricing,
+    optimizedPricing,
+    expectedImpact: await projectPricingImpact(optimizedPricing),
+    implementationPlan: await createPricingImplementationPlan(customer, optimizedPricing)
+  };
+}
+
+// Operational Procedures
+export async function monitorEnvironmentalCompliance(site: QuarrySite): Promise<ComplianceStatus> {
+  try {
+    // Collect real-time sensor data
+    const sensorData = await collectSensorData(site.sensors);
+    
+    // Validate data quality
+    const validatedData = await validateDataQuality(sensorData);
+    
+    // Detect exceedances
+    const exceedances = await detectExceedances(validatedData, site.regulatoryRequirements);
+    
+    // Perform source attribution for each exceedance
+    const attributedEvents = await performSourceAttribution(exceedances, site);
+    
+    // Generate alerts and recommendations
+    const alerts = await generateAlerts(attributedEvents);
+    const recommendations = await generateMitigationRecommendations(attributedEvents);
+    
+    // Update compliance status
+    const complianceStatus = await updateComplianceStatus(site.id, attributedEvents);
+    
+    // Notify stakeholders
+    await notifyStakeholders(site.id, alerts, recommendations);
+    
+    // Log monitoring activity
+    await logMonitoringActivity(site.id, {
+      sensorData: validatedData,
+      exceedances: attributedEvents,
+      alerts,
+      recommendations,
+      complianceStatus
+    });
+    
+    return complianceStatus;
+  } catch (error) {
+    await logMonitoringError(site.id, error);
+    throw new Error(`Environmental monitoring failed: ${error.message}`);
+  }
+}
+
+export async function generateRegulatoryReports(site: QuarrySite, period: ReportingPeriod): Promise<ComplianceReport> {
+  // Aggregate data for reporting period
+  const aggregatedData = await aggregateDataForPeriod(site.id, period);
+  
+  // Apply QA/QC procedures
+  const qualityAssuredData = await applyQAQC(aggregatedData);
+  
+  // Generate jurisdiction-specific reports
+  const reportData = await generateJurisdictionReports(qualityAssuredData, site.regulatoryRequirements);
+  
+  // Add chain-of-custody metadata
+  const chainOfCustody = await generateChainOfCustody(reportData);
+  
+  // Create final report
+  const report: ComplianceReport = {
+    id: generateReportId(),
+    siteId: site.id,
+    period,
+    jurisdiction: site.regulatoryRequirements.jurisdiction,
+    data: reportData,
+    qaqcMetadata: qualityAssuredData.metadata,
+    chainOfCustody,
+    submissionStatus: 'draft'
+  };
+  
+  // Validate report completeness
+  await validateReportCompleteness(report);
+  
+  // Submit to regulatory authorities
+  await submitReport(report);
+  
+  return report;
+}
+
+export async function maintainSensorNetwork(site: QuarrySite): Promise<MaintenanceResult> {
+  const maintenanceSchedule = await getMaintenanceSchedule(site.sensors);
+  const calibrationResults = await performScheduledCalibration(site.sensors);
+  const healthChecks = await performSensorHealthChecks(site.sensors);
+  
+  // Identify sensors requiring attention
+  const maintenanceNeeded = await identifyMaintenanceNeeds(calibrationResults, healthChecks);
+  
+  // Schedule maintenance activities
+  const maintenanceActions = await scheduleMaintenanceActions(maintenanceNeeded);
+  
+  // Update sensor status
+  await updateSensorStatus(site.sensors, calibrationResults, healthChecks);
+  
+  return {
+    calibrationResults,
+    healthChecks,
+    maintenanceActions,
+    nextScheduledMaintenance: await calculateNextMaintenance(site.sensors)
+  };
+}
+
+// Decision-Making Workflows
+export async function optimizeOperations(site: QuarrySite): Promise<OptimizationRecommendations> {
+  try {
+    // Analyze historical data patterns
+    const patterns = await analyzeHistoricalPatterns(site);
+    
+    // Identify optimal blasting windows based on wind patterns and compliance history
+    const blastingWindows = await identifyOptimalBlastingWindows(patterns);
+    
+    // Optimize haul routes for dust control
+    const routeOptimization = await optimizeHaulRoutes(patterns);
+    
+    // Calculate dust control ROI for different mitigation strategies
+    const dustControlROI = await calculateDustControlROI(patterns);
+    
+    // Generate barrier placement guidance
+    const barrierGuidance = await generateBarrierPlacement(patterns);
+    
+    // Analyze crusher scheduling optimization
+    const crusherOptimization = await optimizeCrusherScheduling(patterns);
+    
+    const recommendations = {
+      blastingWindows,
+      routeOptimization,
+      dustControlROI,
+      barrierGuidance,
+      crusherOptimization,
+      estimatedImpact: await estimateOptimizationImpact(site, {
+        blastingWindows,
+        routeOptimization,
+        dustControlROI,
+        barrierGuidance,
+        crusherOptimization
+      })
+    };
+    
+    await validateRecommendations(recommendations);
+    return recommendations;
+  } catch (error) {
+    await logOptimizationError(site.id, error);
+    throw new Error(`Operations optimization failed: ${error.message}`);
+  }
+}
+
+export async function handleComplaintCorrelation(complaint: CommunityComplaint, site: QuarrySite): Promise<ComplaintResponse> {
+  // Define time window around complaint
+  const timeWindow = await defineTimeWindow(complaint.timestamp);
+  
+  // Retrieve site data for the relevant time period
+  const siteData = await getSiteDataForWindow(site.id, timeWindow);
+  
+  // Analyze meteorological conditions
+  const windAnalysis = await analyzeWindConditions(siteData.meteorological, complaint.location);
+  
+  // Analyze operational activity during complaint period
+  const activityAnalysis = await analyzeOperationalActivity(siteData.operational, timeWindow);
+  
+  // Perform attribution analysis
+  const attribution = await performComplaintAttribution(windAnalysis, activityAnalysis, complaint);
+  
+  // Generate evidence package
+  const evidencePackage = await generateEvidencePackage(siteData, attribution);
+  
+  // Create response with supporting data
+  const response = await generateComplaintResponse(complaint, attribution, evidencePackage);
+  
+  // Log complaint correlation for future reference
+  await logComplaintCorrelation(complaint.id, attribution, response);
+  
+  // Update complaint tracking metrics
+  await updateComplaintMetrics(site.id, complaint, attribution);
+  
+  return response;
+}
+
+export async function manageCrisisResponse(event: CrisisEvent, site: QuarrySite): Promise<CrisisResponse> {
+  try {
+    // Assess crisis severity based on event type and impact
+    const severity = await assessCrisisSeverity(event);
+    
+    // Activate appropriate response protocol
+    const protocol = await activateResponseProtocol(severity);
+    
+    // Coordinate with internal and external stakeholders
+    const stakeholderNotification = await notifyStakeholders(site.id, event, protocol);
+    
+    // Implement immediate mitigation measures
+    const mitigationActions = await implementMitigationMeasures(event, site);
+    
+    // Monitor response effectiveness
+    const effectiveness = await monitorResponseEffectiveness(mitigationActions);
+    
+    // Document crisis response for compliance and learning
+    const documentation = await documentCrisisResponse(event, protocol, mitigationActions);
+    
+    // Update crisis management procedures based on lessons learned
+    await updateCrisisManagementProcedures(event, effectiveness);
+    
+    return {
+      event,
+      severity,
+      protocol,
+      stakeholderNotification,
+      mitigationActions,
+      effectiveness,
+      documentation,
+      timestamp: new Date(),
+      resolutionStatus: await determineResolutionStatus(effectiveness)
+    };
+  } catch (error) {
+    await logCrisisResponseError(event.id, error);
+    throw new Error(`Crisis response failed: ${error.message}`);
+  }
+}
+
+export async function makeComplianceDecision(
+  exceedanceEvent: ExceedanceEvent, 
+  site: QuarrySite
+): Promise<ComplianceDecision> {
+  // Analyze exceedance severity and regulatory implications
+  const severityAnalysis = await analyzeExceedanceSeverity(exceedanceEvent);
+  
+  // Evaluate available mitigation options
+  const mitigationOptions = await evaluateMitigationOptions(exceedanceEvent, site);
+  
+  // Assess regulatory reporting requirements
+  const reportingRequirements = await assessReportingRequirements(exceedanceEvent, site);
+  
+  // Calculate cost-benefit of different response options
+  const costBenefitAnalysis = await performCostBenefitAnalysis(mitigationOptions);
+  
+  // Make decision based on analysis
+  const decision = await makeDecision(severityAnalysis, mitigationOptions, costBenefitAnalysis);
+  
+  // Implement decision
+  const implementation = await implementDecision(decision, site);
+  
+  return {
+    exceedanceEvent,
+    severityAnalysis,
+    mitigationOptions,
+    reportingRequirements,
+    costBenefitAnalysis,
+    decision,
+    implementation,
+    timestamp: new Date()
+  };
+}
+
+// Supporting utility functions (implementation stubs)
+async function validateTonnageRange(siteDetails: SiteDetails): Promise<boolean> {
+  return siteDetails.annualTonnage >= 200000 && siteDetails.annualTonnage <= 2000000;
+}
+
+async function assessProximityRisk(location: GeoLocation): Promise<number> {
+  // Calculate distance to nearest sensitive receptors
+  const nearestReceptors = await findNearestSensitiveReceptors(location);
+  const minDistance = Math.min(...nearestReceptors.map(r => r.distance));
+  return minDistance <= 1.0 ? 0.9 : 0.3; // High risk if within 1 mile
+}
+
+async function assessRegulatoryPressure(jurisdiction: string): Promise<number> {
+  const regulatoryData = await getRegulatoryData(jurisdiction);
+  return regulatoryData.scrutinyLevel; // 0-1 scale
+}
+
+async function identifyComplianceGaps(painPoints: string[]): Promise<ComplianceGap[]> {
+  return painPoints.map(point => ({
+    area: point,
+    severity: calculateGapSeverity(point),
+    mitigationComplexity: assessMitigationComplexity(point)
+  }));
+}
+
+function calculateLeadScore(
+  tonnageQualified: boolean,
+  proximityRisk: number,
+  regulatoryPressure: number,
+  complianceGaps: ComplianceGap[]
+): number {
+  let score = 0;
+  if (tonnageQualified) score += 30;
+  score += proximityRisk * 25;
+  score += regulatoryPressure * 25;
+  score += complianceGaps.length * 5;
+  return Math.min(score, 100);
+}
+
+// Additional supporting types
+interface ContactInfo {
+  name: string;
+  email: string;
+  phone: string;
+  title: string;
+}
+
+interface SiteDetails {
+  location: GeoLocation;
+  annualTonnage: number;
+  operationType: string;
+  jurisdiction: string;
+  proximityToReceptors: number;
+}
+
+interface GeoLocation {
+  latitude: number;
+  longitude: number;
+  elevation: number;
+}
+
+interface RegulatoryContext {
+  jurisdiction: string;
+  applicableRegulations: string[];
+  currentPermits: string[];
+  complianceHistory: string[];
+}
+
+interface ContractDetails {
+  startDate: Date;
+  duration: number;
+  pricing: PricingStructure;
+  serviceLevel: string;
+}
+
+interface OnboardingStatus {
+  phase: 'planning' | 'deployment' | 'calibration' | 'validation' | 'live';
+  completionPercentage: number;
+  nextMilestone: string;
+}
+
+interface SensorNetwork {
+  nodes: SensorNode[];
+  communicationProtocol: string;
+  dataFrequency: number;
+  calibrationSchedule: Date[];
+}
+
+interface OperationalData {
+  blastLogs: BlastRecord[];
+  haulCycles: HaulRecord[];
+  crusherRuntime: CrusherRecord[];
+  productionMetrics: ProductionMetric[];
+}
+
+interface RegulatoryRequirements {
+  jurisdiction: string;
+  dustLimits: ThresholdLimit[];
+  noiseLimits: ThresholdLimit[];
+  reportingFrequency: string;
+  monitoringRequirements: string[];
+}
+
+interface ComplianceRecord {
+  date: Date;
+  parameter: string;
+  value: number;
+  threshold: number;
+  status: 'compliant' | 'exceedance' | 'violation';
+}
+
+// Export all main business process functions
+export {
+  acquireCustomer,
+  qualifyLead,
+  conductSiteAssessment,
+  generateProposal,
+  developSensorNetwork,
+  enhanceAIAttribution,
+  developRegulatoryTemplates,
+  processSubscriptionRevenue,
+  expandCustomerRevenue,
+  optimizePricing,
+  monitorEnvironmentalCompliance,
+  generateRegulatoryReports,
+  maintainSensorNetwork,
+  optimizeOperations,
+  handleComplaintCorrelation,
+  manageCrisisResponse,
+  makeComplianceDecision
+};
+```
