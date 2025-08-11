@@ -263,3 +263,478 @@ landingPage:
 
 Generated for NAICS 332216 — Saw Blade and Handtool Manufacturing.
 Service: Vision QC for Saw-Tooth Defects and Set-Angle Measurement
+
+## Business Workflow Functions
+
+```typescript
+// Core business types
+interface Lead {
+  id: string
+  company: string
+  contactName: string
+  email: string
+  phone: string
+  naicsCode: string
+  bladeTypes: string[]
+  currentQCProcess: string
+  painPoints: string[]
+  monthlyVolume: number
+  qualityIssues: string[]
+  fitScore?: number
+}
+
+interface QualifiedLead extends Lead {
+  fitScore: number
+  decisionMakers: Contact[]
+  technicalRequirements: TechnicalRequirements
+  budgetRange: BudgetRange
+  timeline: string
+}
+
+interface Customer {
+  id: string
+  company: string
+  subscription: SubscriptionTier
+  hardwareStations: number
+  monthlyInspections: number
+  integrations: Integration[]
+  onboardingStatus: OnboardingStatus
+  qualityMetrics: QualityMetrics
+}
+
+interface BladeInspectionRequest {
+  customerId: string
+  bladeId: string
+  imageUrls: string[]
+  videoUrl?: string
+  skuProfile: SKUProfile
+  timestamp: Date
+}
+
+interface InspectionResult {
+  bladeId: string
+  overallResult: 'PASS' | 'FAIL' | 'REVIEW'
+  defects: DefectDetection[]
+  setAngleMeasurements: SetAngleMeasurement[]
+  qualityScore: number
+  processingTime: number
+  confidence: number
+}
+
+interface DefectDetection {
+  type: 'CHIP' | 'BRAZE_VOID' | 'BURR' | 'MISSING_TOOTH' | 'BRAZE_OVERFLOW'
+  toothNumber: number
+  severity: 'LOW' | 'MEDIUM' | 'HIGH'
+  confidence: number
+  boundingBox: BoundingBox
+  measurementMicrons?: number
+}
+
+interface SetAngleMeasurement {
+  toothNumber: number
+  leftAngle: number
+  rightAngle: number
+  variance: number
+  withinTolerance: boolean
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  try {
+    const qualifiedLead = await qualifyLead(lead)
+    
+    if (qualifiedLead.fitScore < 75) {
+      throw new Error('Lead does not meet qualification criteria for saw blade QC')
+    }
+
+    const demo = await scheduleTechnicalDemo(qualifiedLead)
+    const pilot = await setupPilotProgram(qualifiedLead, demo)
+    const proposal = await generateProposal(qualifiedLead, pilot.results)
+    const contract = await negotiateContract(proposal)
+    const customer = await onboardCustomer(contract)
+    
+    await deployHardwareKit(customer)
+    await trainOperators(customer)
+    await calibrateSystem(customer)
+    
+    return customer
+  } catch (error) {
+    await logLeadRejection(lead, error.message)
+    throw error
+  }
+}
+
+export async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  const fitScore = await calculateManufacturingFitScore(lead)
+  const decisionMakers = await identifyQualityLeadership(lead)
+  const technicalReqs = await assessTechnicalRequirements(lead)
+  const budgetRange = await estimateBudgetRange(lead)
+  
+  return {
+    ...lead,
+    fitScore,
+    decisionMakers,
+    technicalRequirements: technicalReqs,
+    budgetRange,
+    timeline: await estimateImplementationTimeline(technicalReqs)
+  }
+}
+
+export async function scheduleTechnicalDemo(lead: QualifiedLead): Promise<DemoSession> {
+  const demoKit = await prepareDemoKit(lead.bladeTypes)
+  const session = await scheduleSession(lead, 'TECHNICAL_DEMO')
+  
+  return {
+    sessionId: session.id,
+    demoKit,
+    sampleBlades: await getSampleBlades(lead.bladeTypes),
+    expectedDefects: await generateExpectedDefects(lead.qualityIssues)
+  }
+}
+
+export async function setupPilotProgram(lead: QualifiedLead, demo: DemoSession): Promise<PilotProgram> {
+  const pilotScope = await definePilotScope(lead, demo)
+  const hardwareConfig = await configureHardware(pilotScope)
+  const modelTraining = await initializeModelTraining(lead.bladeTypes)
+  
+  const pilot = await deployPilot({
+    customerId: lead.id,
+    scope: pilotScope,
+    hardware: hardwareConfig,
+    model: modelTraining,
+    duration: '14_DAYS'
+  })
+  
+  await monitorPilotPerformance(pilot)
+  return pilot
+}
+
+// Product Development Processes
+export async function developCustomModel(customer: Customer, trainingData: TrainingDataset): Promise<CustomModel> {
+  const baseModel = await loadBaseVisionModel('saw_blade_v2')
+  const augmentedData = await augmentTrainingData(trainingData, customer.bladeTypes)
+  
+  const trainingConfig = {
+    epochs: 100,
+    batchSize: 32,
+    learningRate: 0.001,
+    validationSplit: 0.2
+  }
+  
+  const trainedModel = await trainModel(baseModel, augmentedData, trainingConfig)
+  const validatedModel = await validateModel(trainedModel, customer.qualityMetrics)
+  
+  if (validatedModel.f1Score < 0.95) {
+    throw new Error('Model performance below required threshold')
+  }
+  
+  await deployModel(validatedModel, customer.id)
+  return validatedModel
+}
+
+export async function calibrateSystem(customer: Customer): Promise<CalibrationResult> {
+  const stations = await getCustomerStations(customer.id)
+  const calibrationResults = []
+  
+  for (const station of stations) {
+    const checkerboardImages = await captureCheckerboardImages(station)
+    const cameraMatrix = await calculateCameraMatrix(checkerboardImages)
+    const distortionCoeffs = await calculateDistortionCoefficients(checkerboardImages)
+    
+    const gageRRStudy = await performGageRRStudy(station, customer.qualityMetrics)
+    
+    if (gageRRStudy.repeatability > 0.1 || gageRRStudy.reproducibility > 0.1) {
+      throw new Error(`Station ${station.id} failed Gage R&R requirements`)
+    }
+    
+    calibrationResults.push({
+      stationId: station.id,
+      cameraMatrix,
+      distortionCoeffs,
+      gageRR: gageRRStudy,
+      setAngleAccuracy: await validateSetAngleAccuracy(station)
+    })
+  }
+  
+  return { stations: calibrationResults, overallAccuracy: await calculateOverallAccuracy(calibrationResults) }
+}
+
+// Revenue Generation Flows
+export async function processSubscriptionRevenue(customer: Customer): Promise<SubscriptionRevenue> {
+  const usage = await getMonthlyUsage(customer.id)
+  const tier = customer.subscription
+  
+  let baseRevenue = 0
+  let overageRevenue = 0
+  
+  switch (tier) {
+    case 'STARTER':
+      baseRevenue = 499
+      if (usage.inspections > 5000) {
+        overageRevenue = (usage.inspections - 5000) * 0.05
+      }
+      break
+    case 'PRO':
+      baseRevenue = 2000
+      if (usage.inspections > 50000) {
+        overageRevenue = (usage.inspections - 50000) * 0.08
+      }
+      break
+    case 'ENTERPRISE':
+      baseRevenue = await getEnterpriseCustomPricing(customer.id)
+      overageRevenue = await calculateEnterpriseOverages(customer.id, usage)
+      break
+  }
+  
+  const payment = await processPayment(customer.id, baseRevenue + overageRevenue)
+  
+  return {
+    customerId: customer.id,
+    baseRevenue,
+    overageRevenue,
+    totalRevenue: baseRevenue + overageRevenue,
+    paymentStatus: payment.status,
+    inspectionCount: usage.inspections
+  }
+}
+
+export async function processHardwareRevenue(customer: Customer, hardwareOrder: HardwareOrder): Promise<HardwareRevenue> {
+  const kitPricing = await getHardwareKitPricing(hardwareOrder.kitType)
+  const shippingCost = await calculateShipping(customer.address, hardwareOrder.weight)
+  
+  const totalRevenue = kitPricing.price + shippingCost
+  const cogs = kitPricing.cost + shippingCost * 0.5
+  const grossMargin = (totalRevenue - cogs) / totalRevenue
+  
+  if (grossMargin < 0.20) {
+    throw new Error('Hardware order below minimum margin threshold')
+  }
+  
+  await processHardwarePayment(customer.id, totalRevenue)
+  await scheduleHardwareShipment(hardwareOrder)
+  
+  return {
+    orderId: hardwareOrder.id,
+    revenue: totalRevenue,
+    cogs,
+    grossMargin,
+    shippingCost
+  }
+}
+
+export async function processProfessionalServices(customer: Customer, serviceRequest: ServiceRequest): Promise<ServicesRevenue> {
+  const serviceType = serviceRequest.type
+  let pricing = 0
+  
+  switch (serviceType) {
+    case 'ONBOARDING':
+      pricing = 5000
+      break
+    case 'MODEL_TUNING':
+      pricing = 15000
+      break
+    case 'MES_INTEGRATION':
+      pricing = 25000
+      break
+    case 'MSA_VALIDATION':
+      pricing = 10000
+      break
+    default:
+      pricing = await getCustomServicePricing(serviceRequest)
+  }
+  
+  const project = await createServiceProject(customer.id, serviceRequest, pricing)
+  await assignServiceTeam(project)
+  
+  return {
+    projectId: project.id,
+    revenue: pricing,
+    estimatedHours: project.estimatedHours,
+    hourlyRate: pricing / project.estimatedHours
+  }
+}
+
+// Operational Procedures
+export async function processBladeInspection(request: BladeInspectionRequest): Promise<InspectionResult> {
+  const startTime = Date.now()
+  
+  try {
+    const preprocessedImages = await preprocessImages(request.imageUrls)
+    const model = await getCustomerModel(request.customerId)
+    
+    const defects = await detectDefects(preprocessedImages, model)
+    const setAngles = await measureSetAngles(preprocessedImages, request.skuProfile)
+    
+    const qualityScore = await calculateQualityScore(defects, setAngles, request.skuProfile)
+    const overallResult = await determineOverallResult(qualityScore, defects, setAngles)
+    
+    const result: InspectionResult = {
+      bladeId: request.bladeId,
+      overallResult,
+      defects,
+      setAngleMeasurements: setAngles,
+      qualityScore,
+      processingTime: Date.now() - startTime,
+      confidence: await calculateConfidence(defects, setAngles)
+    }
+    
+    await logInspectionResult(result)
+    await updateSPCCharts(request.customerId, result)
+    
+    if (overallResult === 'FAIL') {
+      await triggerQualityAlert(request.customerId, result)
+    }
+    
+    return result
+  } catch (error) {
+    await logInspectionError(request, error)
+    throw error
+  }
+}
+
+export async function handleQualityAlert(customerId: string, result: InspectionResult): Promise<void> {
+  const customer = await getCustomer(customerId)
+  const alertConfig = await getAlertConfiguration(customerId)
+  
+  const alert = {
+    customerId,
+    bladeId: result.bladeId,
+    severity: await calculateAlertSeverity(result.defects),
+    message: await generateAlertMessage(result),
+    timestamp: new Date()
+  }
+  
+  if (alertConfig.emailEnabled) {
+    await sendEmailAlert(customer.qualityTeam, alert)
+  }
+  
+  if (alertConfig.slackEnabled) {
+    await sendSlackAlert(customer.slackWebhook, alert)
+  }
+  
+  if (alertConfig.mesIntegration) {
+    await sendMESAlert(customer.mesEndpoint, alert)
+  }
+  
+  await logAlert(alert)
+}
+
+export async function performMaintenanceCalibration(stationId: string): Promise<MaintenanceResult> {
+  const station = await getStation(stationId)
+  const lastCalibration = await getLastCalibration(stationId)
+  
+  if (Date.now() - lastCalibration.timestamp < 7 * 24 * 60 * 60 * 1000) {
+    return { status: 'SKIPPED', reason: 'Recent calibration within 7 days' }
+  }
+  
+  const checkerboardTest = await runCheckerboardTest(station)
+  const referenceBladeTest = await runReferenceBladeTest(station)
+  
+  if (checkerboardTest.accuracy < 0.95 || referenceBladeTest.setAngleError > 0.3) {
+    await flagStationForMaintenance(stationId)
+    return { status: 'FAILED', issues: [checkerboardTest, referenceBladeTest] }
+  }
+  
+  await updateCalibrationRecord(stationId, { checkerboardTest, referenceBladeTest })
+  return { status: 'PASSED', accuracy: checkerboardTest.accuracy }
+}
+
+// Decision-Making Workflows
+export async function evaluateCustomerExpansion(customerId: string): Promise<ExpansionRecommendation> {
+  const customer = await getCustomer(customerId)
+  const usage = await getUsageAnalytics(customerId, '90_DAYS')
+  const qualityMetrics = await getQualityMetrics(customerId)
+  
+  const expansionScore = await calculateExpansionScore({
+    usageGrowth: usage.growthRate,
+    qualityImprovement: qualityMetrics.defectReduction,
+    customerSatisfaction: await getCustomerSatisfactionScore(customerId),
+    paymentHistory: await getPaymentHistory(customerId)
+  })
+  
+  if (expansionScore > 80) {
+    const recommendations = await generateExpansionRecommendations(customer, usage)
+    return {
+      recommendation: 'EXPAND',
+      score: expansionScore,
+      suggestedActions: recommendations,
+      estimatedRevenue: await estimateExpansionRevenue(recommendations)
+    }
+  }
+  
+  if (expansionScore < 40) {
+    const retentionPlan = await generateRetentionPlan(customer, usage)
+    return {
+      recommendation: 'RETAIN',
+      score: expansionScore,
+      suggestedActions: retentionPlan,
+      riskFactors: await identifyChurnRisks(customer)
+    }
+  }
+  
+  return {
+    recommendation: 'MONITOR',
+    score: expansionScore,
+    suggestedActions: ['Continue monitoring usage patterns', 'Schedule quarterly business review']
+  }
+}
+
+export async function prioritizeProductDevelopment(marketData: MarketData, customerFeedback: CustomerFeedback[]): Promise<DevelopmentPriority[]> {
+  const featureRequests = await aggregateFeatureRequests(customerFeedback)
+  const marketOpportunities = await analyzeMarketOpportunities(marketData)
+  const technicalFeasibility = await assessTechnicalFeasibility(featureRequests)
+  
+  const priorities = []
+  
+  for (const feature of featureRequests) {
+    const priority = await calculateFeaturePriority({
+      customerDemand: feature.requestCount,
+      revenueImpact: await estimateRevenueImpact(feature),
+      developmentCost: await estimateDevelopmentCost(feature),
+      technicalRisk: technicalFeasibility[feature.id],
+      strategicAlignment: await assessStrategicAlignment(feature, marketOpportunities)
+    })
+    
+    priorities.push({
+      feature: feature.name,
+      priority: priority.score,
+      reasoning: priority.reasoning,
+      estimatedTimeline: priority.timeline,
+      resourceRequirements: priority.resources
+    })
+  }
+  
+  return priorities.sort((a, b) => b.priority - a.priority)
+}
+
+export async function optimizePricingStrategy(marketAnalysis: MarketAnalysis, competitorData: CompetitorData[]): Promise<PricingStrategy> {
+  const currentPricing = await getCurrentPricingTiers()
+  const customerSegments = await analyzeCustomerSegments()
+  const priceElasticity = await calculatePriceElasticity(customerSegments)
+  
+  const optimizedTiers = []
+  
+  for (const segment of customerSegments) {
+    const optimalPrice = await calculateOptimalPrice({
+      segment,
+      elasticity: priceElasticity[segment.id],
+      competitorPricing: competitorData.filter(c => c.targetSegment === segment.id),
+      valueDelivered: await calculateValueDelivered(segment)
+    })
+    
+    optimizedTiers.push({
+      segmentName: segment.name,
+      currentPrice: currentPricing[segment.id],
+      recommendedPrice: optimalPrice.price,
+      expectedImpact: optimalPrice.revenueImpact,
+      confidence: optimalPrice.confidence
+    })
+  }
+  
+  return {
+    recommendations: optimizedTiers,
+    overallImpact: await calculateOverallImpact(optimizedTiers),
+    implementationPlan: await generatePricingImplementationPlan(optimizedTiers)
+  }
+}
+```
