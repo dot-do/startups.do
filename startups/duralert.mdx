@@ -299,7 +299,348 @@ landingPage:
     - Train pharmacists and enable human-in-the-loop review
     - Go live with continuous monitoring and weekly tuning
 ---
+
 # DUR Alert Triage and Prioritization (DUR-ATP) by SentinelRx AI
 
 Industry: Pharmacy Benefit Management and Other Third Party Administration of Insurance and Pension Funds
 Service: DUR Alert Triage and Prioritization
+
+## Business Workflow Functions
+
+```typescript
+// Core business process types
+interface Lead {
+  id: string;
+  organization: string;
+  contactInfo: ContactInfo;
+  pbmType: 'mid-tier' | 'large' | 'specialty';
+  livesUnderManagement: number;
+  currentDURVolume: number;
+  painPoints: string[];
+  decisionMakers: DecisionMaker[];
+}
+
+interface Customer {
+  id: string;
+  organization: string;
+  contractDetails: ContractDetails;
+  integrationStatus: IntegrationStatus;
+  pilotResults?: PilotResults;
+  goLiveDate?: Date;
+}
+
+interface DURAlert {
+  id: string;
+  claimId: string;
+  memberId: string;
+  prescriberId: string;
+  drugCode: string;
+  alertType: 'drug-interaction' | 'therapeutic-duplication' | 'dose-edit' | 'quantity-limit' | 'opioid-safety';
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  ncpdpSegments: NCPDPSegment[];
+  memberHistory: MedicationHistory[];
+  prescriberRisk: PrescriberRiskProfile;
+  timestamp: Date;
+}
+
+interface ActionRecommendation {
+  action: 'auto-approve' | 'soft-warn' | 'reject' | 'initiate-epa' | 'pharmacist-outreach';
+  confidence: number;
+  rationale: string;
+  cannedMessage?: string;
+  policyReferences: string[];
+  estimatedSavings?: number;
+}
+
+interface PharmacistFeedback {
+  alertId: string;
+  pharmacistId: string;
+  actionTaken: string;
+  outcomeCode: string;
+  timeSpent: number;
+  acceptedRecommendation: boolean;
+  notes?: string;
+  timestamp: Date;
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const proposal = await generateProposal(qualifiedLead);
+  const pilot = await conductPilot(proposal);
+  const contract = await negotiateContract(pilot);
+  return await onboardCustomer(contract);
+}
+
+async function qualifyLead(lead: Lead): Promise<Lead> {
+  // Validate lead meets minimum criteria
+  if (lead.livesUnderManagement < 1000000) {
+    throw new Error('Lead does not meet minimum lives threshold');
+  }
+  
+  // Score lead based on pain points and DUR volume
+  const painPointScore = calculatePainPointScore(lead.painPoints);
+  const volumeScore = lead.currentDURVolume * 0.001; // Score based on alert volume
+  
+  if (painPointScore + volumeScore < 5.0) {
+    throw new Error('Lead qualification score too low');
+  }
+  
+  return {
+    ...lead,
+    qualificationScore: painPointScore + volumeScore,
+    qualifiedDate: new Date()
+  };
+}
+
+async function generateProposal(lead: Lead): Promise<Proposal> {
+  const currentCosts = await estimateCurrentDURCosts(lead);
+  const projectedSavings = await calculateProjectedSavings(lead);
+  const pricingModel = await determinePricingModel(lead);
+  
+  return {
+    leadId: lead.id,
+    currentStateCosts: currentCosts,
+    projectedSavings: projectedSavings,
+    pricing: pricingModel,
+    roi: projectedSavings.annual / pricingModel.annualCost,
+    pilotScope: await definePilotScope(lead),
+    timeline: generateImplementationTimeline()
+  };
+}
+
+async function conductPilot(proposal: Proposal): Promise<PilotResults> {
+  const pilotData = await setupPilotEnvironment(proposal);
+  const historicalAlerts = await ingestHistoricalData(pilotData);
+  const processedAlerts = await processAlertsWithAI(historicalAlerts);
+  
+  return {
+    alertVolumeReduction: calculateVolumeReduction(historicalAlerts, processedAlerts),
+    handlingTimeImprovement: calculateTimeImprovement(processedAlerts),
+    accuracyMetrics: calculateAccuracyMetrics(processedAlerts),
+    pharmacistFeedback: await collectPilotFeedback(processedAlerts),
+    estimatedROI: calculatePilotROI(processedAlerts)
+  };
+}
+
+// Core DUR Alert Processing Workflows
+export async function processClaimAlert(alert: DURAlert): Promise<ActionRecommendation> {
+  const clusteredAlerts = await clusterAndDeduplicateAlerts([alert]);
+  const prioritizedAlert = await prioritizeAlert(clusteredAlerts[0]);
+  const recommendation = await generateActionRecommendation(prioritizedAlert);
+  const explainableResult = await addExplainability(recommendation);
+  
+  await logDecision(alert.id, explainableResult);
+  return explainableResult;
+}
+
+async function clusterAndDeduplicateAlerts(alerts: DURAlert[]): Promise<DURAlert[]> {
+  // Group alerts by member and drug combination
+  const alertGroups = groupBy(alerts, alert => `${alert.memberId}-${alert.drugCode}`);
+  
+  // Deduplicate within each group, keeping highest severity
+  const deduplicatedAlerts = alertGroups.map(group => {
+    return group.reduce((highest, current) => 
+      getSeverityScore(current.severity) > getSeverityScore(highest.severity) 
+        ? current 
+        : highest
+    );
+  });
+  
+  return deduplicatedAlerts;
+}
+
+async function prioritizeAlert(alert: DURAlert): Promise<DURAlert & { priority: number }> {
+  const clinicalSeverity = calculateClinicalSeverity(alert);
+  const memberRisk = await assessMemberRisk(alert.memberId, alert.memberHistory);
+  const prescriberRisk = calculatePrescriberRisk(alert.prescriberRisk);
+  const costImpact = await estimateCostImpact(alert);
+  
+  const priority = (clinicalSeverity * 0.4) + (memberRisk * 0.3) + (prescriberRisk * 0.2) + (costImpact * 0.1);
+  
+  return { ...alert, priority };
+}
+
+async function generateActionRecommendation(alert: DURAlert & { priority: number }): Promise<ActionRecommendation> {
+  const riskThresholds = await getRiskThresholds(alert.alertType);
+  const historicalOutcomes = await getHistoricalOutcomes(alert);
+  const policyRules = await getPolicyRules(alert);
+  
+  let recommendedAction: ActionRecommendation['action'];
+  let confidence: number;
+  
+  if (alert.priority < riskThresholds.autoApprove) {
+    recommendedAction = 'auto-approve';
+    confidence = 0.95;
+  } else if (alert.priority < riskThresholds.softWarn) {
+    recommendedAction = 'soft-warn';
+    confidence = 0.85;
+  } else if (alert.priority < riskThresholds.reject) {
+    recommendedAction = 'pharmacist-outreach';
+    confidence = 0.75;
+  } else {
+    recommendedAction = 'reject';
+    confidence = 0.90;
+  }
+  
+  const cannedMessage = await generateCannedMessage(alert, recommendedAction, policyRules);
+  
+  return {
+    action: recommendedAction,
+    confidence,
+    rationale: await generateRationale(alert, recommendedAction, historicalOutcomes),
+    cannedMessage,
+    policyReferences: policyRules.map(rule => rule.reference),
+    estimatedSavings: await calculateActionSavings(alert, recommendedAction)
+  };
+}
+
+// Feedback and Learning Workflows
+export async function capturePharmacistFeedback(feedback: PharmacistFeedback): Promise<void> {
+  await storeFeedback(feedback);
+  await updateModelWeights(feedback);
+  await adjustThresholds(feedback);
+  await trackOutcomes(feedback);
+}
+
+async function updateModelWeights(feedback: PharmacistFeedback): Promise<void> {
+  const alert = await getAlertById(feedback.alertId);
+  const recommendation = await getRecommendationById(feedback.alertId);
+  
+  if (feedback.acceptedRecommendation) {
+    await reinforceModel(alert, recommendation, 'positive');
+  } else {
+    await reinforceModel(alert, recommendation, 'negative');
+    await analyzeDisagreement(alert, recommendation, feedback);
+  }
+}
+
+async function adjustThresholds(feedback: PharmacistFeedback): Promise<void> {
+  const recentFeedback = await getRecentFeedback(feedback.pharmacistId, 30); // Last 30 days
+  const acceptanceRate = calculateAcceptanceRate(recentFeedback);
+  
+  if (acceptanceRate < 0.7) {
+    await lowerRecommendationThresholds(feedback.pharmacistId);
+  } else if (acceptanceRate > 0.9) {
+    await raiseRecommendationThresholds(feedback.pharmacistId);
+  }
+}
+
+// Revenue Generation and ROI Workflows
+export async function calculateROI(customerId: string, timeframe: 'monthly' | 'quarterly' | 'annual'): Promise<ROIReport> {
+  const customer = await getCustomer(customerId);
+  const alertMetrics = await getAlertMetrics(customerId, timeframe);
+  const costSavings = await calculateCostSavings(alertMetrics);
+  const operationalSavings = await calculateOperationalSavings(alertMetrics);
+  const serviceCosts = await getServiceCosts(customerId, timeframe);
+  
+  const totalSavings = costSavings + operationalSavings;
+  const netROI = (totalSavings - serviceCosts) / serviceCosts;
+  
+  return {
+    customerId,
+    timeframe,
+    alertVolumeReduction: alertMetrics.volumeReduction,
+    handlingTimeReduction: alertMetrics.timeReduction,
+    costSavings,
+    operationalSavings,
+    totalSavings,
+    serviceCosts,
+    netROI,
+    generatedAt: new Date()
+  };
+}
+
+// Operational Procedures
+export async function runDailyOperations(): Promise<void> {
+  await processQueuedAlerts();
+  await generateDailyReports();
+  await performHealthChecks();
+  await updateModelPerformanceMetrics();
+  await cleanupExpiredData();
+}
+
+async function processQueuedAlerts(): Promise<void> {
+  const queuedAlerts = await getQueuedAlerts();
+  
+  for (const alert of queuedAlerts) {
+    try {
+      const recommendation = await processClaimAlert(alert);
+      await routeToPharmacist(alert, recommendation);
+    } catch (error) {
+      await handleAlertProcessingError(alert, error);
+    }
+  }
+}
+
+async function generateDailyReports(): Promise<void> {
+  const customers = await getAllActiveCustomers();
+  
+  for (const customer of customers) {
+    const dailyMetrics = await calculateDailyMetrics(customer.id);
+    const report = await generateCustomerReport(customer, dailyMetrics);
+    await deliverReport(customer, report);
+  }
+}
+
+// Decision-Making Workflows
+export async function evaluateNewFeature(featureRequest: FeatureRequest): Promise<FeatureDecision> {
+  const customerDemand = await assessCustomerDemand(featureRequest);
+  const technicalFeasibility = await assessTechnicalFeasibility(featureRequest);
+  const businessImpact = await assessBusinessImpact(featureRequest);
+  const resourceRequirements = await estimateResourceRequirements(featureRequest);
+  
+  const priority = calculateFeaturePriority(customerDemand, technicalFeasibility, businessImpact);
+  
+  return {
+    featureId: featureRequest.id,
+    decision: priority > 7.0 ? 'approve' : priority > 4.0 ? 'consider' : 'reject',
+    priority,
+    estimatedEffort: resourceRequirements.effort,
+    expectedROI: businessImpact.expectedROI,
+    timeline: resourceRequirements.timeline,
+    reasoning: generateFeatureDecisionReasoning(customerDemand, technicalFeasibility, businessImpact)
+  };
+}
+
+export async function handleScalingDecision(growthMetrics: GrowthMetrics): Promise<ScalingPlan> {
+  const currentCapacity = await assessCurrentCapacity();
+  const projectedLoad = await projectFutureLoad(growthMetrics);
+  const scalingOptions = await evaluateScalingOptions(currentCapacity, projectedLoad);
+  
+  return {
+    recommendedOption: selectOptimalScalingOption(scalingOptions),
+    timeline: generateScalingTimeline(scalingOptions),
+    investmentRequired: calculateScalingInvestment(scalingOptions),
+    riskMitigation: identifyScalingRisks(scalingOptions)
+  };
+}
+
+// Helper functions and utilities
+function getSeverityScore(severity: DURAlert['severity']): number {
+  const scores = { low: 1, medium: 2, high: 3, critical: 4 };
+  return scores[severity];
+}
+
+function groupBy<T>(array: T[], keyFn: (item: T) => string): T[][] {
+  const groups = new Map<string, T[]>();
+  for (const item of array) {
+    const key = keyFn(item);
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key)!.push(item);
+  }
+  return Array.from(groups.values());
+}
+
+async function logDecision(alertId: string, recommendation: ActionRecommendation): Promise<void> {
+  await auditLog.create({
+    alertId,
+    action: recommendation.action,
+    confidence: recommendation.confidence,
+    rationale: recommendation.rationale,
+    policyReferences: recommendation.policyReferences,
+    timestamp: new Date(),
+    ncpdpCodes: await mapToNCPDPCodes(recommendation)
+  });
+}
+```
