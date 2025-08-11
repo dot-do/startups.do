@@ -304,3 +304,374 @@ landingPage:
 
 Generated for NAICS 112320 — Broilers and Other Meat Type Chicken Production.
 Service: Mortality, Weight, and FCR Forecasting
+
+## Business Workflow Functions
+
+```typescript
+// Core data types for poultry production
+interface Lead {
+  companyName: string;
+  contactInfo: ContactInfo;
+  complexSize: number; // number of houses
+  currentSystems: string[];
+  painPoints: string[];
+  annualBirdVolume: number;
+}
+
+interface Customer {
+  id: string;
+  companyName: string;
+  subscription: SubscriptionPlan;
+  houses: House[];
+  integrations: Integration[];
+  onboardingComplete: boolean;
+}
+
+interface House {
+  id: string;
+  capacity: number;
+  currentFlock?: Flock;
+  sensors: Sensor[];
+  controllers: Controller[];
+}
+
+interface Flock {
+  id: string;
+  placementDate: Date;
+  strain: string;
+  initialCount: number;
+  currentAge: number;
+  targetHarvestDate: Date;
+}
+
+interface ForecastData {
+  houseId: string;
+  date: Date;
+  mortalityRate: number;
+  averageWeight: number;
+  fcr: number;
+  epef: number;
+  confidenceInterval: [number, number];
+}
+
+interface Intervention {
+  type: 'ventilation' | 'feed' | 'lighting' | 'harvest' | 'thinning';
+  description: string;
+  priority: 'high' | 'medium' | 'low';
+  estimatedImpact: {
+    mortality: number;
+    weight: number;
+    fcr: number;
+  };
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const pilot = await proposePilot(qualifiedLead);
+  const pilotResults = await executePilot(pilot);
+  const contract = await negotiateContract(pilotResults);
+  return await onboardCustomer(contract);
+}
+
+async function qualifyLead(lead: Lead): Promise<Lead> {
+  // Qualify based on complex size, data availability, and pain points
+  if (lead.complexSize < 10) {
+    throw new Error('Complex too small for enterprise solution');
+  }
+  
+  const dataReadiness = await assessDataReadiness(lead);
+  if (dataReadiness.score < 0.6) {
+    await scheduleDataPreparationCall(lead);
+  }
+  
+  return { ...lead, qualified: true };
+}
+
+async function proposePilot(lead: Lead): Promise<PilotProposal> {
+  const selectedHouses = await selectPilotHouses(lead, 50); // 50-150 houses
+  const duration = 90; // 60-120 day pilot
+  
+  return {
+    houses: selectedHouses,
+    duration,
+    successMetrics: {
+      forecastAccuracy: { mortality: 0.05, weight: 50, fcr: 0.02 },
+      interventionAcceptance: 0.5,
+      roiTarget: 6 // months payback
+    }
+  };
+}
+
+// Product Development Processes
+export async function developForecastingModel(
+  trainingData: HistoricalData[]
+): Promise<ForecastModel> {
+  const cleanedData = await preprocessData(trainingData);
+  const features = await engineerFeatures(cleanedData);
+  const model = await trainModel(features);
+  const validatedModel = await validateModel(model);
+  return await deployModel(validatedModel);
+}
+
+async function preprocessData(data: HistoricalData[]): Promise<CleanData[]> {
+  // Clean and align time series, fill gaps
+  const aligned = await alignTimeSeries(data);
+  const filled = await fillDataGaps(aligned);
+  return await removeOutliers(filled);
+}
+
+async function engineerFeatures(data: CleanData[]): Promise<FeatureSet> {
+  return {
+    growthStage: calculateGrowthStage(data),
+    stressHours: calculateStressHours(data),
+    intakeRatios: calculateIntakeRatios(data),
+    densityMetrics: calculateDensityMetrics(data),
+    weatherFactors: extractWeatherFactors(data)
+  };
+}
+
+async function trainModel(features: FeatureSet): Promise<MLModel> {
+  // Train gradient boosting and TFT models
+  const xgbModel = await trainXGBoost(features);
+  const tftModel = await trainTemporalFusionTransformer(features);
+  
+  return await ensembleModels([xgbModel, tftModel]);
+}
+
+// Revenue Generation Flows
+export async function processSubscription(
+  customer: Customer,
+  plan: SubscriptionPlan
+): Promise<Revenue> {
+  const usage = await calculateUsage(customer);
+  const baseRevenue = await calculateBaseRevenue(plan, usage);
+  const addOns = await processAddOnModules(customer);
+  const performanceBonuses = await calculatePerformanceBonuses(customer);
+  
+  return {
+    base: baseRevenue,
+    addOns,
+    bonuses: performanceBonuses,
+    total: baseRevenue + addOns + performanceBonuses
+  };
+}
+
+async function calculateUsage(customer: Customer): Promise<UsageMetrics> {
+  return {
+    housesActive: customer.houses.filter(h => h.currentFlock).length,
+    birdsProcessed: await getBirdsProcessedThisMonth(customer),
+    forecastsGenerated: await getForecastsGenerated(customer),
+    interventionsAccepted: await getInterventionsAccepted(customer)
+  };
+}
+
+async function calculatePerformanceBonuses(customer: Customer): Promise<number> {
+  const outcomes = await measureOutcomes(customer);
+  let bonus = 0;
+  
+  // FCR improvement bonus
+  if (outcomes.fcrImprovement >= 0.01) {
+    bonus += outcomes.fcrImprovement * 1000; // $1000 per 0.01 improvement
+  }
+  
+  // Mortality reduction bonus
+  if (outcomes.mortalityReduction >= 0.2) {
+    bonus += outcomes.mortalityReduction * 500; // $500 per 0.2pp reduction
+  }
+  
+  return bonus;
+}
+
+// Operational Procedures
+export async function generateDailyForecasts(): Promise<ForecastData[]> {
+  const activeFlocks = await getActiveFlocks();
+  const forecasts: ForecastData[] = [];
+  
+  for (const flock of activeFlocks) {
+    const currentData = await collectCurrentData(flock);
+    const forecast = await runForecastModel(currentData);
+    const validated = await validateForecast(forecast);
+    forecasts.push(validated);
+  }
+  
+  await distributeForecasts(forecasts);
+  await generateAlerts(forecasts);
+  
+  return forecasts;
+}
+
+async function collectCurrentData(flock: Flock): Promise<CurrentData> {
+  return {
+    feedIntake: await getFeedIntake(flock),
+    waterIntake: await getWaterIntake(flock),
+    mortality: await getMortalityData(flock),
+    weights: await getWeightData(flock),
+    environment: await getEnvironmentalData(flock),
+    treatments: await getTreatmentHistory(flock)
+  };
+}
+
+async function generateAlerts(forecasts: ForecastData[]): Promise<Alert[]> {
+  const alerts: Alert[] = [];
+  
+  for (const forecast of forecasts) {
+    // Mortality spike alert
+    if (forecast.mortalityRate > 0.1) {
+      alerts.push({
+        type: 'mortality_spike',
+        severity: 'high',
+        houseId: forecast.houseId,
+        message: `Predicted mortality spike: ${forecast.mortalityRate}%`,
+        interventions: await suggestMortalityInterventions(forecast)
+      });
+    }
+    
+    // Weight target miss alert
+    if (forecast.averageWeight < getTargetWeight(forecast.date)) {
+      alerts.push({
+        type: 'weight_target_miss',
+        severity: 'medium',
+        houseId: forecast.houseId,
+        message: 'Birds may miss target weight',
+        interventions: await suggestWeightInterventions(forecast)
+      });
+    }
+  }
+  
+  await sendAlerts(alerts);
+  return alerts;
+}
+
+// Decision-Making Workflows
+export async function recommendInterventions(
+  forecast: ForecastData,
+  currentConditions: CurrentData
+): Promise<Intervention[]> {
+  const interventions: Intervention[] = [];
+  
+  // Analyze root causes
+  const rootCauses = await analyzeRootCauses(forecast, currentConditions);
+  
+  for (const cause of rootCauses) {
+    switch (cause.type) {
+      case 'ventilation_issue':
+        interventions.push(await generateVentilationIntervention(cause));
+        break;
+      case 'feed_timing':
+        interventions.push(await generateFeedIntervention(cause));
+        break;
+      case 'density_stress':
+        interventions.push(await generateThinningIntervention(cause));
+        break;
+      case 'harvest_timing':
+        interventions.push(await generateHarvestIntervention(cause));
+        break;
+    }
+  }
+  
+  return prioritizeInterventions(interventions);
+}
+
+async function optimizeHarvestSchedule(
+  forecasts: ForecastData[],
+  plantCapacity: PlantCapacity
+): Promise<HarvestPlan> {
+  const targetWeights = await getTargetWeights();
+  const availableSlots = await getAvailableSlots(plantCapacity);
+  
+  const optimizedSchedule = await solveHarvestOptimization({
+    forecasts,
+    targetWeights,
+    availableSlots,
+    constraints: {
+      maxOverweight: 0.1, // 10% overweight penalty threshold
+      minProcessingGap: 2, // days between harvests
+      transportCapacity: await getTransportCapacity()
+    }
+  });
+  
+  return {
+    schedule: optimizedSchedule,
+    estimatedPenalties: await calculatePenalties(optimizedSchedule),
+    feedOrderAdjustments: await calculateFeedAdjustments(optimizedSchedule)
+  };
+}
+
+export async function simulateWhatIfScenario(
+  baselineForcast: ForecastData,
+  intervention: Intervention
+): Promise<ScenarioResult> {
+  const modifiedInputs = await applyInterventionToInputs(
+    baselineForcast,
+    intervention
+  );
+  
+  const newForecast = await runForecastModel(modifiedInputs);
+  
+  return {
+    baseline: baselineForcast,
+    modified: newForecast,
+    impact: {
+      mortalityDelta: newForecast.mortalityRate - baselineForcast.mortalityRate,
+      weightDelta: newForecast.averageWeight - baselineForcast.averageWeight,
+      fcrDelta: newForecast.fcr - baselineForcast.fcr,
+      epefDelta: newForecast.epef - baselineForcast.epef
+    },
+    confidence: calculateConfidence(newForecast)
+  };
+}
+
+// Integration and Data Management
+export async function integrateDataSources(
+  customer: Customer
+): Promise<Integration[]> {
+  const integrations: Integration[] = [];
+  
+  // Controller integrations (SKOV, Rotem/Munters, Hotraco)
+  for (const house of customer.houses) {
+    for (const controller of house.controllers) {
+      const integration = await setupControllerIntegration(controller);
+      integrations.push(integration);
+    }
+  }
+  
+  // Farm management software integration
+  const fmsIntegration = await setupFMSIntegration(customer);
+  if (fmsIntegration) {
+    integrations.push(fmsIntegration);
+  }
+  
+  // Scale data integration
+  const scaleIntegration = await setupScaleIntegration(customer);
+  integrations.push(scaleIntegration);
+  
+  return integrations;
+}
+
+async function monitorDataQuality(): Promise<DataQualityReport> {
+  const sources = await getAllDataSources();
+  const qualityMetrics: DataQualityMetric[] = [];
+  
+  for (const source of sources) {
+    const uptime = await calculateUptime(source);
+    const completeness = await calculateCompleteness(source);
+    const accuracy = await calculateAccuracy(source);
+    
+    qualityMetrics.push({
+      sourceId: source.id,
+      uptime,
+      completeness,
+      accuracy,
+      score: (uptime + completeness + accuracy) / 3
+    });
+  }
+  
+  return {
+    overall: qualityMetrics.reduce((sum, m) => sum + m.score, 0) / qualityMetrics.length,
+    bySource: qualityMetrics,
+    issues: qualityMetrics.filter(m => m.score < 0.9),
+    recommendations: await generateQualityRecommendations(qualityMetrics)
+  };
+}
+```
