@@ -335,7 +335,550 @@ landingPage:
       Measure and optimize: run A/B and uplift tests, tune budgets, and iterate
       playbooks
 ---
+
 # DepositIQ Next-Best-Action (NBA)
+
+## Business Process Functions
+
+```typescript
+// Customer Acquisition Workflows
+
+export interface Lead {
+  id: string;
+  source: string;
+  contactInfo: ContactInfo;
+  demographics: Demographics;
+  financialProfile?: FinancialProfile;
+  behaviorData?: BehaviorData;
+}
+
+export interface Customer {
+  id: string;
+  accountNumber: string;
+  products: BankingProduct[];
+  relationships: CustomerRelationship[];
+  lifetimeValue: number;
+  riskProfile: RiskProfile;
+}
+
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const eligibilityAssessment = await assessProductEligibility(qualifiedLead);
+  const personalizedOffer = await generatePersonalizedOffer(qualifiedLead, eligibilityAssessment);
+  const proposal = await createProposal(personalizedOffer);
+  const contract = await negotiateContract(proposal);
+  const customer = await onboardCustomer(contract);
+  await setupInitialProducts(customer);
+  return customer;
+}
+
+export async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  const creditScore = await getCreditScore(lead.contactInfo.ssn);
+  const incomeVerification = await verifyIncome(lead.financialProfile);
+  const complianceCheck = await performComplianceScreening(lead);
+  
+  return {
+    ...lead,
+    creditScore,
+    incomeVerification,
+    complianceStatus: complianceCheck,
+    qualificationScore: calculateQualificationScore(creditScore, incomeVerification)
+  };
+}
+
+export async function generatePersonalizedOffer(
+  lead: QualifiedLead, 
+  eligibility: EligibilityAssessment
+): Promise<PersonalizedOffer> {
+  const propensityScores = await calculateProductPropensities(lead);
+  const upliftPredictions = await predictOfferUplift(lead, propensityScores);
+  const complianceConstraints = await getComplianceConstraints(lead);
+  
+  const bestProducts = selectOptimalProducts(
+    eligibility.eligibleProducts,
+    upliftPredictions,
+    complianceConstraints
+  );
+  
+  return {
+    customerId: lead.id,
+    products: bestProducts,
+    terms: await generateTerms(bestProducts, lead),
+    expirationDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+    complianceApproval: true
+  };
+}
+
+// Product Development Processes
+
+export interface ProductRequirement {
+  id: string;
+  type: 'feature' | 'compliance' | 'integration' | 'performance';
+  description: string;
+  priority: 'high' | 'medium' | 'low';
+  stakeholder: string;
+  regulatoryImpact?: RegulatoryImpact;
+}
+
+export async function developBankingProduct(requirements: ProductRequirement[]): Promise<BankingProduct> {
+  const marketResearch = await conductMarketResearch(requirements);
+  const competitiveAnalysis = await analyzeCompetitors(marketResearch);
+  const regulatoryReview = await performRegulatoryReview(requirements);
+  
+  const productSpec = await createProductSpecification(
+    requirements,
+    marketResearch,
+    competitiveAnalysis,
+    regulatoryReview
+  );
+  
+  const prototype = await buildPrototype(productSpec);
+  const testResults = await conductUserTesting(prototype);
+  const refinedProduct = await refineProduct(prototype, testResults);
+  
+  await obtainRegulatoryApproval(refinedProduct);
+  const launchPlan = await createLaunchPlan(refinedProduct);
+  
+  return await launchProduct(refinedProduct, launchPlan);
+}
+
+export async function optimizeProductOffering(
+  product: BankingProduct,
+  performanceData: ProductPerformanceData
+): Promise<OptimizedProduct> {
+  const conversionAnalysis = await analyzeConversionFunnels(performanceData);
+  const customerFeedback = await collectCustomerFeedback(product);
+  const competitorBenchmark = await benchmarkAgainstCompetitors(product);
+  
+  const optimizationOpportunities = identifyOptimizationOpportunities(
+    conversionAnalysis,
+    customerFeedback,
+    competitorBenchmark
+  );
+  
+  const experiments = await designOptimizationExperiments(optimizationOpportunities);
+  const testResults = await runExperiments(experiments);
+  
+  return await implementOptimizations(product, testResults);
+}
+
+// Revenue Generation Flows
+
+export interface RevenueOpportunity {
+  customerId: string;
+  productType: ProductType;
+  estimatedRevenue: number;
+  probability: number;
+  timeframe: number; // days
+  channel: Channel;
+}
+
+export async function generateRevenue(customer: Customer): Promise<RevenueResult> {
+  const opportunities = await identifyRevenueOpportunities(customer);
+  const prioritizedOpportunities = await prioritizeOpportunities(opportunities);
+  const campaigns = await createTargetedCampaigns(prioritizedOpportunities);
+  
+  const results = await Promise.all(
+    campaigns.map(campaign => executeCampaign(campaign))
+  );
+  
+  const incrementalRevenue = await measureIncrementalRevenue(results);
+  await updateCustomerValue(customer, incrementalRevenue);
+  
+  return {
+    totalRevenue: incrementalRevenue.total,
+    revenueByProduct: incrementalRevenue.byProduct,
+    conversionRates: results.map(r => r.conversionRate),
+    roi: calculateROI(incrementalRevenue.total, campaigns)
+  };
+}
+
+export async function identifyRevenueOpportunities(customer: Customer): Promise<RevenueOpportunity[]> {
+  const customerProfile = await buildCustomerProfile(customer);
+  const productGaps = await identifyProductGaps(customer.products);
+  const lifestageAnalysis = await analyzeCustomerLifestage(customerProfile);
+  const behaviorPatterns = await analyzeBehaviorPatterns(customer);
+  
+  const propensityScores = await calculateProductPropensities(customerProfile);
+  const upliftPredictions = await predictCrossSellUplift(customer, propensityScores);
+  
+  return propensityScores
+    .filter(score => score.probability > 0.1)
+    .map(score => ({
+      customerId: customer.id,
+      productType: score.productType,
+      estimatedRevenue: score.estimatedValue,
+      probability: score.probability,
+      timeframe: score.expectedTimeframe,
+      channel: selectOptimalChannel(customer, score.productType)
+    }))
+    .sort((a, b) => (b.estimatedRevenue * b.probability) - (a.estimatedRevenue * a.probability));
+}
+
+export async function executeCrossSellCampaign(
+  opportunities: RevenueOpportunity[]
+): Promise<CampaignResult> {
+  const controlGroup = await createControlGroup(opportunities);
+  const treatmentGroup = await createTreatmentGroup(opportunities);
+  
+  const controlResults = await executeControlCampaign(controlGroup);
+  const treatmentResults = await executeTreatmentCampaign(treatmentGroup);
+  
+  const incrementalLift = calculateIncrementalLift(treatmentResults, controlResults);
+  const statisticalSignificance = await testStatisticalSignificance(
+    treatmentResults,
+    controlResults
+  );
+  
+  return {
+    totalConversions: treatmentResults.conversions,
+    conversionRate: treatmentResults.conversionRate,
+    incrementalLift,
+    statisticalSignificance,
+    revenue: treatmentResults.revenue,
+    roi: calculateCampaignROI(treatmentResults, treatmentGroup)
+  };
+}
+
+// Operational Procedures
+
+export async function processRealTimeDecision(
+  customerId: string,
+  context: InteractionContext
+): Promise<NextBestAction> {
+  const startTime = Date.now();
+  
+  try {
+    const customer = await getCustomerProfile(customerId);
+    const eligibility = await checkProductEligibility(customer);
+    const propensities = await calculateRealTimePropensities(customer, context);
+    const complianceCheck = await performRealTimeComplianceCheck(customer, context);
+    
+    if (!complianceCheck.approved) {
+      return createNoOfferResponse(complianceCheck.reason);
+    }
+    
+    const bestAction = await selectNextBestAction(
+      customer,
+      eligibility,
+      propensities,
+      context
+    );
+    
+    const responseTime = Date.now() - startTime;
+    await logDecision(customerId, bestAction, responseTime, context);
+    
+    if (responseTime > 250) {
+      await alertPerformanceTeam(customerId, responseTime);
+    }
+    
+    return bestAction;
+    
+  } catch (error) {
+    await logError(customerId, error, context);
+    return createFallbackResponse();
+  }
+}
+
+export async function performComplianceMonitoring(): Promise<ComplianceReport> {
+  const decisions = await getRecentDecisions(24); // Last 24 hours
+  const fairnessMetrics = await calculateFairnessMetrics(decisions);
+  const biasDetection = await detectModelBias(decisions);
+  const regulatoryViolations = await checkRegulatoryViolations(decisions);
+  
+  const alerts = [];
+  
+  if (fairnessMetrics.demographicParity < 0.8) {
+    alerts.push({
+      type: 'FAIRNESS_VIOLATION',
+      severity: 'HIGH',
+      message: 'Demographic parity ratio below threshold'
+    });
+  }
+  
+  if (biasDetection.significantBias) {
+    alerts.push({
+      type: 'MODEL_BIAS',
+      severity: 'MEDIUM',
+      message: `Bias detected in ${biasDetection.affectedGroups.join(', ')}`
+    });
+  }
+  
+  if (regulatoryViolations.length > 0) {
+    alerts.push(...regulatoryViolations.map(violation => ({
+      type: 'REGULATORY_VIOLATION',
+      severity: 'CRITICAL',
+      message: violation.description
+    })));
+  }
+  
+  return {
+    timestamp: new Date(),
+    fairnessMetrics,
+    biasDetection,
+    regulatoryViolations,
+    alerts,
+    recommendedActions: await generateComplianceRecommendations(alerts)
+  };
+}
+
+export async function refreshModels(): Promise<ModelRefreshResult> {
+  const currentModels = await getCurrentModels();
+  const performanceMetrics = await evaluateModelPerformance(currentModels);
+  
+  const modelsNeedingRefresh = currentModels.filter(model => 
+    performanceMetrics[model.id].drift > 0.05 ||
+    performanceMetrics[model.id].accuracy < 0.70 ||
+    model.lastRefresh < new Date(Date.now() - 90 * 24 * 60 * 60 * 1000) // 90 days
+  );
+  
+  const refreshResults = await Promise.all(
+    modelsNeedingRefresh.map(async model => {
+      const newTrainingData = await getLatestTrainingData(model.type);
+      const retrainedModel = await retrainModel(model, newTrainingData);
+      const validationResults = await validateModel(retrainedModel);
+      
+      if (validationResults.approved) {
+        await deployModel(retrainedModel);
+        return { modelId: model.id, status: 'SUCCESS', newVersion: retrainedModel.version };
+      } else {
+        return { modelId: model.id, status: 'FAILED', reason: validationResults.reason };
+      }
+    })
+  );
+  
+  return {
+    refreshedModels: refreshResults.filter(r => r.status === 'SUCCESS').length,
+    failedRefreshes: refreshResults.filter(r => r.status === 'FAILED').length,
+    results: refreshResults
+  };
+}
+
+// Decision-Making Workflows
+
+export async function makeStrategicDecision(
+  decision: StrategicDecisionRequest
+): Promise<StrategicDecisionResult> {
+  const marketAnalysis = await conductMarketAnalysis(decision.context);
+  const competitiveIntelligence = await gatherCompetitiveIntelligence(decision.context);
+  const riskAssessment = await assessStrategicRisks(decision.options);
+  const financialProjections = await createFinancialProjections(decision.options);
+  
+  const scoredOptions = await scoreDecisionOptions(
+    decision.options,
+    marketAnalysis,
+    competitiveIntelligence,
+    riskAssessment,
+    financialProjections
+  );
+  
+  const recommendation = selectBestOption(scoredOptions);
+  const implementationPlan = await createImplementationPlan(recommendation);
+  const successMetrics = await defineSuccessMetrics(recommendation);
+  
+  return {
+    recommendedOption: recommendation,
+    confidence: recommendation.score,
+    rationale: recommendation.rationale,
+    implementationPlan,
+    successMetrics,
+    alternativeOptions: scoredOptions.slice(1, 3) // Top 2 alternatives
+  };
+}
+
+export async function optimizePortfolioStrategy(
+  currentPortfolio: ProductPortfolio
+): Promise<OptimizedPortfolio> {
+  const performanceAnalysis = await analyzePortfolioPerformance(currentPortfolio);
+  const marketOpportunities = await identifyMarketOpportunities();
+  const customerNeeds = await analyzeUnmetCustomerNeeds();
+  const regulatoryChanges = await assessRegulatoryImpact();
+  
+  const optimizationScenarios = await generateOptimizationScenarios(
+    currentPortfolio,
+    performanceAnalysis,
+    marketOpportunities,
+    customerNeeds
+  );
+  
+  const simulationResults = await simulateScenarios(optimizationScenarios);
+  const bestScenario = selectOptimalScenario(simulationResults);
+  
+  const migrationPlan = await createPortfolioMigrationPlan(
+    currentPortfolio,
+    bestScenario.targetPortfolio
+  );
+  
+  return {
+    optimizedPortfolio: bestScenario.targetPortfolio,
+    expectedImpact: bestScenario.projectedResults,
+    migrationPlan,
+    timeline: migrationPlan.estimatedDuration,
+    investmentRequired: migrationPlan.totalInvestment
+  };
+}
+
+export async function manageRegulatoryCompliance(
+  operation: BankingOperation
+): Promise<ComplianceDecision> {
+  const applicableRegulations = await identifyApplicableRegulations(operation);
+  const complianceRequirements = await getComplianceRequirements(applicableRegulations);
+  const currentCompliance = await assessCurrentCompliance(operation, complianceRequirements);
+  
+  const gaps = identifyComplianceGaps(currentCompliance, complianceRequirements);
+  
+  if (gaps.length === 0) {
+    return {
+      approved: true,
+      requirements: complianceRequirements,
+      auditTrail: await createAuditTrail(operation, currentCompliance)
+    };
+  }
+  
+  const remediationPlan = await createRemediationPlan(gaps);
+  const riskAssessment = await assessComplianceRisk(gaps);
+  
+  if (riskAssessment.severity === 'HIGH') {
+    return {
+      approved: false,
+      reason: 'High compliance risk detected',
+      requiredActions: remediationPlan.actions,
+      timeline: remediationPlan.timeline
+    };
+  }
+  
+  const mitigatedOperation = await applyComplianceMitigations(operation, remediationPlan);
+  
+  return {
+    approved: true,
+    modifiedOperation: mitigatedOperation,
+    complianceNotes: remediationPlan.notes,
+    monitoringRequirements: await defineMonitoringRequirements(mitigatedOperation)
+  };
+}
+
+// Experimentation and Optimization
+
+export async function designExperiment(
+  hypothesis: ExperimentHypothesis
+): Promise<ExperimentDesign> {
+  const powerAnalysis = await conductPowerAnalysis(hypothesis);
+  const sampleSize = calculateRequiredSampleSize(powerAnalysis);
+  const stratificationStrategy = await designStratification(hypothesis.targetPopulation);
+  
+  const controlGroup = await defineControlGroup(sampleSize, stratificationStrategy);
+  const treatmentGroups = await defineTreatmentGroups(hypothesis.variants, sampleSize);
+  
+  const successMetrics = await defineExperimentMetrics(hypothesis);
+  const guardrailMetrics = await defineGuardrailMetrics(hypothesis);
+  
+  return {
+    experimentId: generateExperimentId(),
+    hypothesis,
+    controlGroup,
+    treatmentGroups,
+    successMetrics,
+    guardrailMetrics,
+    duration: powerAnalysis.recommendedDuration,
+    expectedPower: powerAnalysis.power,
+    minimumDetectableEffect: powerAnalysis.mde
+  };
+}
+
+export async function runExperiment(design: ExperimentDesign): Promise<ExperimentResult> {
+  const experiment = await initializeExperiment(design);
+  
+  // Monitor experiment progress
+  const monitoringInterval = setInterval(async () => {
+    const progress = await checkExperimentProgress(experiment);
+    const guardrailViolations = await checkGuardrailViolations(experiment);
+    
+    if (guardrailViolations.length > 0) {
+      await stopExperiment(experiment, 'GUARDRAIL_VIOLATION');
+      clearInterval(monitoringInterval);
+    }
+    
+    if (progress.isComplete) {
+      clearInterval(monitoringInterval);
+    }
+  }, 24 * 60 * 60 * 1000); // Daily monitoring
+  
+  // Wait for experiment completion
+  await waitForExperimentCompletion(experiment);
+  
+  const results = await analyzeExperimentResults(experiment);
+  const statisticalSignificance = await testStatisticalSignificance(results);
+  const practicalSignificance = await assessPracticalSignificance(results);
+  
+  return {
+    experimentId: experiment.id,
+    results,
+    statisticalSignificance,
+    practicalSignificance,
+    recommendation: await generateExperimentRecommendation(results),
+    nextSteps: await suggestNextSteps(results)
+  };
+}
+
+// Integration and Data Management
+
+export async function integrateDataSources(
+  sources: DataSource[]
+): Promise<UnifiedDataLayer> {
+  const connectionResults = await Promise.all(
+    sources.map(source => establishConnection(source))
+  );
+  
+  const failedConnections = connectionResults.filter(r => !r.success);
+  if (failedConnections.length > 0) {
+    throw new Error(`Failed to connect to: ${failedConnections.map(f => f.source).join(', ')}`);
+  }
+  
+  const schemaMapping = await createSchemaMapping(sources);
+  const identityResolution = await setupIdentityResolution(sources);
+  const dataQualityRules = await defineDataQualityRules(sources);
+  
+  const unifiedLayer = await createUnifiedDataLayer(
+    sources,
+    schemaMapping,
+    identityResolution,
+    dataQualityRules
+  );
+  
+  await validateDataIntegrity(unifiedLayer);
+  
+  return unifiedLayer;
+}
+
+export async function processCustomerEvent(
+  event: CustomerEvent
+): Promise<ProcessingResult> {
+  const enrichedEvent = await enrichEvent(event);
+  const validationResult = await validateEvent(enrichedEvent);
+  
+  if (!validationResult.isValid) {
+    return {
+      success: false,
+      reason: validationResult.errors.join(', ')
+    };
+  }
+  
+  const customerProfile = await updateCustomerProfile(enrichedEvent);
+  const triggers = await evaluateEventTriggers(enrichedEvent);
+  
+  const actions = await Promise.all(
+    triggers.map(trigger => executeTriggerAction(trigger, customerProfile))
+  );
+  
+  await logEventProcessing(enrichedEvent, actions);
+  
+  return {
+    success: true,
+    actionsTriggered: actions.length,
+    profileUpdated: true
+  };
+}
+```
 
 Industry: Savings Institutions and Other Depository Credit Intermediation
 Service: Next-Best-Action Cross-Sell for Depositors
