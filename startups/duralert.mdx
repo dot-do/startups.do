@@ -303,3 +303,467 @@ landingPage:
 
 Industry: Pharmacy Benefit Management and Other Third Party Administration of Insurance and Pension Funds
 Service: DUR Alert Triage and Prioritization
+
+## Business-as-Code: Core Workflow Functions
+
+```typescript
+// Core Types and Interfaces
+interface Lead {
+  id: string;
+  organizationType: 'PBM' | 'TPA' | 'HealthPlan' | 'SpecialtyPharmacy';
+  memberLives: number;
+  currentDURVolume: number;
+  painPoints: string[];
+  contactInfo: ContactInfo;
+  budget?: number;
+}
+
+interface Customer {
+  id: string;
+  lead: Lead;
+  contractValue: number;
+  implementationDate: Date;
+  goLiveDate?: Date;
+  success: boolean;
+}
+
+interface DURAlert {
+  id: string;
+  claimId: string;
+  memberId: string;
+  prescriberId: string;
+  drugNDC: string;
+  alertType: 'DDI' | 'TherapeuticDuplication' | 'DoseEdit' | 'QuantityLimit' | 'OpioidSafety';
+  severity: 'Low' | 'Medium' | 'High' | 'Critical';
+  rawScore: number;
+  riskFactors: string[];
+  timestamp: Date;
+}
+
+interface PharmacistAction {
+  alertId: string;
+  action: 'AutoApprove' | 'SoftWarn' | 'Reject' | 'InitiateEPA' | 'PharmacistOutreach';
+  rationale: string;
+  messageTemplate?: string;
+  pharmacistId: string;
+  timestamp: Date;
+  outcome?: 'Accepted' | 'Overridden' | 'Escalated';
+}
+
+interface ProcessingMetrics {
+  alertsProcessed: number;
+  alertsReduced: number;
+  avgHandlingTime: number;
+  pharmacistAcceptanceRate: number;
+  falsePositiveRate: number;
+  clinicalCaptureRate: number;
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const proposal = await generateProposal(qualifiedLead);
+  const pilot = await conductPilot(proposal);
+  const contract = await negotiateContract(pilot);
+  return await onboardCustomer(contract);
+}
+
+async function qualifyLead(lead: Lead): Promise<Lead> {
+  // Validate minimum requirements: 1M+ lives, 8%+ DUR alert rate
+  if (lead.memberLives < 1000000) {
+    throw new Error('Lead does not meet minimum member threshold');
+  }
+  
+  // Calculate potential ROI based on current volume
+  const potentialSavings = calculateROIPotential(lead);
+  if (potentialSavings < 100000) {
+    throw new Error('ROI potential below threshold');
+  }
+  
+  // Score lead based on pain points and urgency
+  const leadScore = await scoreLead(lead);
+  return { ...lead, score: leadScore };
+}
+
+async function generateProposal(lead: Lead): Promise<Proposal> {
+  const currentCosts = await estimateCurrentCosts(lead);
+  const projectedSavings = await calculateProjectedSavings(lead);
+  const implementation = await planImplementation(lead);
+  
+  return {
+    leadId: lead.id,
+    currentStateCosts: currentCosts,
+    projectedSavings: projectedSavings,
+    implementationPlan: implementation,
+    pricing: await calculatePricing(lead),
+    timeline: implementation.timeline,
+    roi: projectedSavings.annualSavings / currentCosts.annual
+  };
+}
+
+async function conductPilot(proposal: Proposal): Promise<PilotResults> {
+  // 12-week pilot implementation
+  const pilotData = await setupPilotEnvironment(proposal);
+  const historicalClaims = await ingestHistoricalData(pilotData);
+  const processedResults = await runPilotProcessing(historicalClaims);
+  
+  return {
+    alertReduction: processedResults.alertReduction,
+    handlingTimeImprovement: processedResults.handlingTimeImprovement,
+    pharmacistFeedback: await collectPharmacistFeedback(processedResults),
+    measuredROI: calculateMeasuredROI(processedResults),
+    recommendedThresholds: optimizeThresholds(processedResults)
+  };
+}
+
+// Product Development Processes
+export async function developProduct(): Promise<ProductRelease> {
+  const requirements = await gatherRequirements();
+  const architecture = await designArchitecture(requirements);
+  const implementation = await implementFeatures(architecture);
+  const testing = await conductTesting(implementation);
+  return await releaseProduct(testing);
+}
+
+async function gatherRequirements(): Promise<Requirements> {
+  const customerFeedback = await collectCustomerFeedback();
+  const marketResearch = await conductMarketResearch();
+  const regulatoryRequirements = await analyzeRegulatoryChanges();
+  
+  return {
+    functionalRequirements: mergeFunctionalRequirements(customerFeedback, marketResearch),
+    performanceRequirements: {
+      latency: { p95: 120, p99: 200 }, // milliseconds
+      throughput: 10000, // alerts per minute
+      availability: 99.9 // percent
+    },
+    complianceRequirements: regulatoryRequirements,
+    integrationRequirements: await identifyIntegrationNeeds()
+  };
+}
+
+async function designArchitecture(requirements: Requirements): Promise<Architecture> {
+  return {
+    components: {
+      alertIngestion: await designIngestionLayer(),
+      deduplication: await designDeduplicationEngine(),
+      riskScoring: await designScoringModel(),
+      actionRecommendation: await designRecommendationEngine(),
+      auditTrail: await designAuditSystem()
+    },
+    dataFlow: await designDataFlow(),
+    scalability: await planScalability(requirements.performanceRequirements),
+    security: await designSecurityControls()
+  };
+}
+
+// Revenue Generation Flows
+export async function generateRevenue(customer: Customer): Promise<RevenueMetrics> {
+  const usage = await trackUsage(customer);
+  const billing = await processBilling(usage);
+  const expansion = await identifyExpansionOpportunities(customer);
+  return await optimizeRevenue(billing, expansion);
+}
+
+async function trackUsage(customer: Customer): Promise<UsageMetrics> {
+  const claimsProcessed = await getClaimsProcessed(customer.id);
+  const alertsGenerated = await getAlertsGenerated(customer.id);
+  const alertsProcessed = await getAlertsProcessed(customer.id);
+  
+  return {
+    customerId: customer.id,
+    period: getCurrentBillingPeriod(),
+    claimsProcessed: claimsProcessed,
+    alertsGenerated: alertsGenerated,
+    alertsProcessed: alertsProcessed,
+    perClaimFee: calculatePerClaimFee(customer),
+    totalUsage: claimsProcessed * calculatePerClaimFee(customer)
+  };
+}
+
+async function processBilling(usage: UsageMetrics): Promise<Invoice> {
+  const baseSubscription = await calculateBaseSubscription(usage.customerId);
+  const usageFees = usage.totalUsage;
+  const premiumFeatures = await calculatePremiumFeatures(usage.customerId);
+  
+  return {
+    customerId: usage.customerId,
+    period: usage.period,
+    lineItems: [
+      { description: 'Base Platform Subscription', amount: baseSubscription },
+      { description: 'Per-Claim Processing', amount: usageFees },
+      { description: 'Premium Features', amount: premiumFeatures }
+    ],
+    totalAmount: baseSubscription + usageFees + premiumFeatures,
+    dueDate: calculateDueDate(),
+    paymentTerms: 'Net 30'
+  };
+}
+
+// Operational Procedures
+export async function operateSystem(): Promise<OperationalStatus> {
+  const monitoring = await monitorSystemHealth();
+  const performance = await trackPerformanceMetrics();
+  const incidents = await handleIncidents();
+  return await reportOperationalStatus(monitoring, performance, incidents);
+}
+
+async function monitorSystemHealth(): Promise<HealthMetrics> {
+  const systemMetrics = await collectSystemMetrics();
+  const alertingStatus = await checkAlertingSystem();
+  const dataQuality = await validateDataQuality();
+  
+  return {
+    uptime: systemMetrics.uptime,
+    latency: systemMetrics.latency,
+    errorRate: systemMetrics.errorRate,
+    alertingHealthy: alertingStatus.healthy,
+    dataQualityScore: dataQuality.score,
+    timestamp: new Date()
+  };
+}
+
+async function handleIncidents(): Promise<IncidentReport[]> {
+  const activeIncidents = await getActiveIncidents();
+  const resolvedIncidents = [];
+  
+  for (const incident of activeIncidents) {
+    const resolution = await resolveIncident(incident);
+    resolvedIncidents.push(resolution);
+  }
+  
+  return resolvedIncidents;
+}
+
+// Decision-Making Workflows
+export async function makeStrategicDecision(decision: DecisionRequest): Promise<DecisionOutcome> {
+  const analysis = await analyzeDecisionContext(decision);
+  const options = await generateOptions(analysis);
+  const evaluation = await evaluateOptions(options);
+  const recommendation = await generateRecommendation(evaluation);
+  return await implementDecision(recommendation);
+}
+
+async function analyzeDecisionContext(decision: DecisionRequest): Promise<DecisionContext> {
+  const marketData = await gatherMarketIntelligence();
+  const customerData = await analyzeCustomerFeedback();
+  const competitiveData = await analyzeCompetitiveLandscape();
+  const financialData = await analyzeFinancialMetrics();
+  
+  return {
+    decisionType: decision.type,
+    stakeholders: decision.stakeholders,
+    constraints: decision.constraints,
+    marketContext: marketData,
+    customerContext: customerData,
+    competitiveContext: competitiveData,
+    financialContext: financialData,
+    timeline: decision.timeline
+  };
+}
+
+async function generateOptions(context: DecisionContext): Promise<DecisionOption[]> {
+  const options = [];
+  
+  // Generate multiple strategic options based on context
+  if (context.decisionType === 'product-expansion') {
+    options.push(await generateProductExpansionOptions(context));
+  } else if (context.decisionType === 'market-entry') {
+    options.push(await generateMarketEntryOptions(context));
+  } else if (context.decisionType === 'pricing-strategy') {
+    options.push(await generatePricingOptions(context));
+  }
+  
+  return options.flat();
+}
+
+// Core DUR Processing Workflows
+export async function processDURAlert(alert: DURAlert): Promise<PharmacistAction> {
+  const enrichedAlert = await enrichAlert(alert);
+  const deduplicatedAlert = await deduplicateAlert(enrichedAlert);
+  const scoredAlert = await scoreAlert(deduplicatedAlert);
+  const recommendation = await generateRecommendation(scoredAlert);
+  return await routeToPharmacist(recommendation);
+}
+
+async function enrichAlert(alert: DURAlert): Promise<EnrichedDURAlert> {
+  const memberHistory = await getMemberMedicationHistory(alert.memberId);
+  const prescriberRisk = await getPrescriberRiskProfile(alert.prescriberId);
+  const drugInteractions = await getDrugInteractionData(alert.drugNDC);
+  const planPolicies = await getPlanPolicies(alert.claimId);
+  
+  return {
+    ...alert,
+    memberHistory,
+    prescriberRisk,
+    drugInteractions,
+    planPolicies,
+    enrichmentTimestamp: new Date()
+  };
+}
+
+async function deduplicateAlert(alert: EnrichedDURAlert): Promise<EnrichedDURAlert | null> {
+  const similarAlerts = await findSimilarAlerts(alert);
+  
+  if (similarAlerts.length > 0) {
+    const shouldSuppress = await evaluateDeduplication(alert, similarAlerts);
+    if (shouldSuppress) {
+      await logSuppressionReason(alert, similarAlerts);
+      return null; // Alert suppressed
+    }
+  }
+  
+  return alert;
+}
+
+async function scoreAlert(alert: EnrichedDURAlert): Promise<ScoredDURAlert> {
+  const clinicalSeverity = await calculateClinicalSeverity(alert);
+  const memberRisk = await calculateMemberRisk(alert);
+  const costImpact = await calculateCostImpact(alert);
+  const prescriberCompliance = await calculatePrescriberCompliance(alert);
+  
+  const compositeScore = await calculateCompositeScore({
+    clinicalSeverity,
+    memberRisk,
+    costImpact,
+    prescriberCompliance
+  });
+  
+  return {
+    ...alert,
+    scores: {
+      clinical: clinicalSeverity,
+      memberRisk: memberRisk,
+      costImpact: costImpact,
+      prescriberCompliance: prescriberCompliance,
+      composite: compositeScore
+    },
+    priority: await determinePriority(compositeScore),
+    scoringTimestamp: new Date()
+  };
+}
+
+// Continuous Learning and Optimization
+export async function optimizeSystem(): Promise<OptimizationResults> {
+  const performanceData = await collectPerformanceData();
+  const feedbackData = await collectPharmacistFeedback();
+  const outcomeData = await collectOutcomeData();
+  
+  const modelUpdates = await retrainModels(performanceData, feedbackData, outcomeData);
+  const thresholdUpdates = await optimizeThresholds(performanceData);
+  const workflowUpdates = await optimizeWorkflows(outcomeData);
+  
+  return await deployOptimizations(modelUpdates, thresholdUpdates, workflowUpdates);
+}
+
+async function retrainModels(
+  performance: PerformanceData,
+  feedback: FeedbackData,
+  outcomes: OutcomeData
+): Promise<ModelUpdates> {
+  const scoringModelUpdate = await retrainScoringModel(performance, outcomes);
+  const recommendationModelUpdate = await retrainRecommendationModel(feedback, outcomes);
+  const deduplicationModelUpdate = await retrainDeduplicationModel(performance);
+  
+  return {
+    scoringModel: scoringModelUpdate,
+    recommendationModel: recommendationModelUpdate,
+    deduplicationModel: deduplicationModelUpdate,
+    validationResults: await validateModelUpdates([
+      scoringModelUpdate,
+      recommendationModelUpdate,
+      deduplicationModelUpdate
+    ])
+  };
+}
+
+// Utility Functions
+async function calculateROIPotential(lead: Lead): Promise<number> {
+  const currentAlertVolume = lead.currentDURVolume;
+  const avgHandlingCost = 8.50; // Average cost per DUR alert handling
+  const projectedReduction = 0.5; // 50% alert reduction
+  
+  return currentAlertVolume * avgHandlingCost * projectedReduction * 12; // Annual savings
+}
+
+async function scoreLead(lead: Lead): Promise<number> {
+  let score = 0;
+  
+  // Size scoring
+  if (lead.memberLives > 10000000) score += 40;
+  else if (lead.memberLives > 5000000) score += 30;
+  else if (lead.memberLives > 1000000) score += 20;
+  
+  // Pain point scoring
+  const highValuePainPoints = [
+    'alert fatigue',
+    'manual triage',
+    'compliance risk',
+    'high false positives'
+  ];
+  
+  const painPointMatches = lead.painPoints.filter(pain => 
+    highValuePainPoints.some(hvp => pain.toLowerCase().includes(hvp))
+  ).length;
+  
+  score += painPointMatches * 15;
+  
+  // Organization type scoring
+  const orgTypeScores = {
+    'PBM': 30,
+    'TPA': 25,
+    'HealthPlan': 20,
+    'SpecialtyPharmacy': 15
+  };
+  
+  score += orgTypeScores[lead.organizationType] || 0;
+  
+  return Math.min(score, 100); // Cap at 100
+}
+
+// Export all workflow functions for Business-as-Code execution
+export const workflows = {
+  customerAcquisition: {
+    acquireCustomer,
+    qualifyLead,
+    generateProposal,
+    conductPilot
+  },
+  productDevelopment: {
+    developProduct,
+    gatherRequirements,
+    designArchitecture,
+    implementFeatures: async () => { /* Implementation */ }
+  },
+  revenueGeneration: {
+    generateRevenue,
+    trackUsage,
+    processBilling,
+    identifyExpansionOpportunities: async () => { /* Implementation */ }
+  },
+  operations: {
+    operateSystem,
+    monitorSystemHealth,
+    handleIncidents,
+    reportOperationalStatus: async () => { /* Implementation */ }
+  },
+  decisionMaking: {
+    makeStrategicDecision,
+    analyzeDecisionContext,
+    generateOptions,
+    evaluateOptions: async () => { /* Implementation */ }
+  },
+  durProcessing: {
+    processDURAlert,
+    enrichAlert,
+    deduplicateAlert,
+    scoreAlert
+  },
+  optimization: {
+    optimizeSystem,
+    retrainModels,
+    optimizeThresholds: async () => { /* Implementation */ },
+    deployOptimizations: async () => { /* Implementation */ }
+  }
+};
+```
