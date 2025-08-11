@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { StartupItem } from '@/types/startup'
 import { StartupCard } from '@/components/startup-card'
 
@@ -17,7 +17,7 @@ export function StartupGrid({ initialItems, pageSize = 24 }: Props) {
   const [loading, setLoading] = useState<boolean>(false)
   const sentinelRef = useRef<HTMLDivElement | null>(null)
 
-  const loadMore = async () => {
+  const loadMore = useCallback(async () => {
     if (loading || !hasMore) return
     setLoading(true)
     try {
@@ -31,7 +31,7 @@ export function StartupGrid({ initialItems, pageSize = 24 }: Props) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [loading, hasMore, offset, pageSize])
 
   useEffect(() => {
     const el = sentinelRef.current
@@ -45,7 +45,7 @@ export function StartupGrid({ initialItems, pageSize = 24 }: Props) {
     }, { rootMargin: '400px 0px' })
     io.observe(el)
     return () => io.disconnect()
-  }, [sentinelRef.current, offset, hasMore, loading])
+  }, [loadMore])
 
   return (
     <section className='mt-8'>
