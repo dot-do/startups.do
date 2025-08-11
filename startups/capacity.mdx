@@ -1,333 +1,552 @@
 ---
-name: Capacity Co-Pilot for Apparel (NAICS 315990)
+name: Capacity
 slug: capacity
 naics:
-  primary: '315990'
+  primary: "315990"
   occupations: []
-service:
-  title: PO Planning and Factory Capacity Co-Pilot
-  description: >-
-    Converts demand and confirmations into optimal PO splits and a production
-    calendar, tracking WIP via inbox parsing.
-  targetUsers:
-    - Production Planner
-    - Sourcing Manager
-    - Operations Lead
-  triggers:
-    - Line plan approval
-    - Forecast update
-    - Supplier capacity update
-  inputs:
-    - Confirmed styles and forecasts
-    - Factory capacity calendars
-    - Lead times and holiday calendars
-    - Minimum lot sizes and setup times
-    - Supplier OTIF history
-  steps:
-    - Integrate sales forecast and style list into planning sheet
-    - Optimize PO quantities and splits by capacity and risk
-    - Generate production calendar and key milestones
-    - Parse vendor emails/portals for WIP status and update dashboard
-    - Trigger reminders/alerts for slippages
-    - Export PO files or push to ERP
-  tools:
-    - Google Sheets/Excel
-    - Gmail/Outlook API (email parsing)
-    - Simple optimizer (PuLP/OR-Tools)
-    - Calendar API
-    - ERP connectors (NetSuite/Odoo)
-  outputs:
-    - PO plan and splits (CSV)
-    - Production calendar (ICS/Sheets)
-    - WIP dashboard (Looker Studio/Sheets)
-  pricingModel:
-    - Monthly subscription
-    - Setup fee + per-PO fee
-    - Per factory module
-  humanInLoop: true
-  feasibility:
-    remoteOnLaptop: 9
-    modelCapability: 8
-    overall: 8
-  risks:
-    - Garbage-in forecasts
-    - Supplier data latency
-    - Over-optimization ignoring practical constraints
-  dependencies:
-    - Forecast data feed
-    - Factory capacity inputs
-    - ERP export/import format
 leanCanvas:
   problem:
-    - >-
-      Production planners rely on spreadsheets and email to split POs across
-      factories/lines, causing 10–20% plan inaccuracies and frequent
-      late/partial deliveries (OTIF below 85%).
-    - >-
-      Capacity is misestimated because constraints (SMV, line skills,
-      changeovers, MOQs, colorways) aren’t modeled; results include overtime
-      spikes or idle time (±25% weekly utilization variance).
-    - >-
-      Brands and factories lose real-time WIP visibility; 60–80% of status comes
-      via unstructured emails/attachments (PDF/Excel/photos), leading to
-      outdated calendars and reactive firefighting.
-    - >-
-      Confirmations and forecast changes are not reconciled quickly; it takes
-      4–16 hours/week per planner to update PO splits and calendars, delaying
-      decisions by days.
-    - >-
-      Exceptions (material delays, QC holds, rework, machine downtime) aren’t
-      surfaced early; expediting costs and air freight increase by 2–5% of COGS.
-    - >-
-      Existing APS/MRP/PLM tools are heavy to implement, require clean master
-      data, and don’t solve the “inbox as MES” reality for small/mid-size
-      suppliers.
-    - >-
-      Multi-supplier brands lack a unified production calendar; data is
-      inconsistently formatted across geographies (Vietnam, Bangladesh, Mexico,
-      India).
+    - "Production planners rely on spreadsheets and email to split POs across factories/lines, causing 10–20% plan inaccuracies and frequent late/partial deliveries (OTIF below 85%)."
+    - "Capacity is misestimated because constraints (SMV, line skills, changeovers, MOQs, colorways) aren't modeled; results include overtime spikes or idle time (±25% weekly utilization variance)."
+    - "Brands and factories lose real-time WIP visibility; 60–80% of status comes via unstructured emails/attachments (PDF/Excel/photos), leading to outdated calendars and reactive firefighting."
+    - "Confirmations and forecast changes are not reconciled quickly; it takes 4–16 hours/week per planner to update PO splits and calendars, delaying decisions by days."
+    - "Exceptions (material delays, QC holds, rework, machine downtime) aren't surfaced early; expediting costs and air freight increase by 2–5% of COGS."
+    - "Existing APS/MRP/PLM tools are heavy to implement, require clean master data, and don't solve the \"inbox as MES\" reality for small/mid-size suppliers."
+    - "Multi-supplier brands lack a unified production calendar; data is inconsistently formatted across geographies (Vietnam, Bangladesh, Mexico, India)."
   solution:
-    - >-
-      Ingest demand and confirmations: connect to email (Gmail/O365), EDI, and
-      CSV/ERP exports; auto-extract POs, quantities, sizes/colors,
-      ex-factory/ship dates, and confirmations.
-    - >-
-      Constraint-aware optimization: integer programming models line skills,
-      SMV, tack time, changeovers, MOQs, materials readiness, and holidays to
-      produce optimal PO splits and a weekly/daily production calendar.
-    - >-
-      Continuous WIP from inbox parsing: parse supplier
-      emails/attachments/photos to update cut/sew/finish percentages, delay
-      reasons, and revised dates; auto-match to POs and lines.
-    - >-
-      Scenario planning: simulate demand changes, material delays, or added
-      shifts; compare OTIF, utilization, and overtime cost impacts side-by-side.
-    - >-
-      Exception management: flag at-risk POs (e.g., >3 days slip, <80% material
-      readiness, QC fail); recommend actions (re-sequence, split, overtime) with
-      quantified trade-offs.
-    - >-
-      Collaboration layer: supplier portal/email loops to confirm re-plans;
-      track acceptance; maintain audit trail; bilingual UI (EN/ES/VI/BN).
-    - >-
-      Analytics and benchmarks: dashboards for OTIF, utilization variance,
-      planner time saved, WIP aging, and supplier reliability scores; export to
-      BI.
-  uniqueValueProp: >-
-    From inbox to optimized production plan: auto-split POs, generate a
-    constraint-aware factory calendar, and keep WIP current by parsing supplier
-    emails—improving OTIF by 5–15 points and cutting planning time 50–70%.
-  unfairAdvantage: >-
-    A growing, proprietary corpus of apparel-specific emails/docs and validated
-    constraint libraries enables high auto-parse accuracy and realistic
-    schedules; a pilot-first wedge with inbox parsing creates a data flywheel
-    across suppliers, producing benchmarks and reliability scores competitors
-    lack. Fast time-to-value without heavy master data cleanup differentiates
-    against traditional APS/ERP modules.
+    - "Ingest demand and confirmations: connect to email (Gmail/O365), EDI, and CSV/ERP exports; auto-extract POs, quantities, sizes/colors, ex-factory/ship dates, and confirmations."
+    - "Constraint-aware optimization: integer programming models line skills, SMV, tack time, changeovers, MOQs, materials readiness, and holidays to produce optimal PO splits and a weekly/daily production calendar."
+    - "Continuous WIP from inbox parsing: parse supplier emails/attachments/photos to update cut/sew/finish percentages, delay reasons, and revised dates; auto-match to POs and lines."
+    - "Scenario planning: simulate demand changes, material delays, or added shifts; compare OTIF, utilization, and overtime cost impacts side-by-side."
+    - "Exception management: flag at-risk POs (e.g., >3 days slip, <80% material readiness, QC fail); recommend actions (re-sequence, split, overtime) with quantified trade-offs."
+    - "Collaboration layer: supplier portal/email loops to confirm re-plans; track acceptance; maintain audit trail; bilingual UI (EN/ES/VI/BN)."
+    - "Analytics and benchmarks: dashboards for OTIF, utilization variance, planner time saved, WIP aging, and supplier reliability scores; export to BI."
+  uniqueValueProp: "From inbox to optimized production plan: auto-split POs, generate a constraint-aware factory calendar, and keep WIP current by parsing supplier emails—improving OTIF by 5–15 points and cutting planning time 50–70%."
+  unfairAdvantage: "A growing, proprietary corpus of apparel-specific emails/docs and validated constraint libraries enables high auto-parse accuracy and realistic schedules; a pilot-first wedge with inbox parsing creates a data flywheel across suppliers, producing benchmarks and reliability scores competitors lack. Fast time-to-value without heavy master data cleanup differentiates against traditional APS/ERP modules."
   customerSegments:
-    - >-
-      Mid-market apparel accessories and apparel factories (100–1,500 employees;
-      5–40 lines) in Vietnam, Bangladesh, India, Mexico, and the US using
-      email/Excel for planning.
-    - >-
-      Brands and importers (annual volume 1–50M units) coordinating 10–200
-      suppliers who report WIP by email.
-    - Trading companies/agents managing multiple factories on behalf of brands.
-    - >-
-      Nearshoring providers and OEM/ODM groups consolidating capacity across
-      multiple facilities.
+    - "Mid-market apparel accessories and apparel factories (100–1,500 employees; 5–40 lines) in Vietnam, Bangladesh, India, Mexico, and the US using email/Excel for planning."
+    - "Brands and importers (annual volume 1–50M units) coordinating 10–200 suppliers who report WIP by email."
+    - "Trading companies/agents managing multiple factories on behalf of brands."
+    - "Nearshoring providers and OEM/ODM groups consolidating capacity across multiple facilities."
   channels:
-    - >-
-      Founder-led and SDR-driven ABM targeting VPs of Sourcing/Operations and
-      Factory Planning Managers; 50–100 named accounts per region (VN, MX, BD,
-      IN, US).
-    - >-
-      Partnerships with ERP/PLM resellers and consultancies (NetSuite/SAP B1
-      partners; WFX; regional apparel IT integrators) for co-sell and referrals.
-    - >-
-      Industry associations and events: AAFA, BGMEA, VITAS, PI Apparel, Sourcing
-      at MAGIC; secure 3–5 speaking slots/year and host live demo clinics.
-    - >-
-      Pilot-first motion: 6–8 week paid pilots with 3–5 factories or 1 brand +
-      10 suppliers; success criteria tied to OTIF, time saved, and auto-parse
-      rate.
-    - >-
-      Content-led growth: quarterly “Apparel WIP Pulse” benchmark from
-      anonymized inbox data; case studies; planner playbooks; LinkedIn webinars
-      localized for VN/ES.
-    - >-
-      Local market enablers: country managers/agents in Vietnam and Mexico;
-      bilingual CS team; WhatsApp/Zalo support for suppliers.
+    - "Founder-led and SDR-driven ABM targeting VPs of Sourcing/Operations and Factory Planning Managers; 50–100 named accounts per region (VN, MX, BD, IN, US)."
+    - "Partnerships with ERP/PLM resellers and consultancies (NetSuite/SAP B1 partners; WFX; regional apparel IT integrators) for co-sell and referrals."
+    - "Industry associations and events: AAFA, BGMEA, VITAS, PI Apparel, Sourcing at MAGIC; secure 3–5 speaking slots/year and host live demo clinics."
+    - "Pilot-first motion: 6–8 week paid pilots with 3–5 factories or 1 brand + 10 suppliers; success criteria tied to OTIF, time saved, and auto-parse rate."
+    - "Content-led growth: quarterly \"Apparel WIP Pulse\" benchmark from anonymized inbox data; case studies; planner playbooks; LinkedIn webinars localized for VN/ES."
+    - "Local market enablers: country managers/agents in Vietnam and Mexico; bilingual CS team; WhatsApp/Zalo support for suppliers."
   revenueStreams:
-    - >-
-      SaaS subscription per site or brand hub: $1,500–$6,000/month/factory;
-      $6,000–$15,000/month/brand hub depending on supplier count/volume.
-    - >-
-      Usage-based add-on: $0.05–$0.15 per PO line optimized or parsed beyond
-      plan; $0.005–$0.02 per email/attachment parsed at scale.
-    - >-
-      Implementation and integration: $12,000–$50,000 one-time depending on
-      ERP/EDI scope and number of suppliers.
-    - >-
-      Premium support and onboarding packages: $6,000–$20,000/year (dedicated
-      CSM, training, on-site workshops).
-    - >-
-      Data and benchmarking subscription for brands: $12,000/year for supplier
-      reliability and cycle time benchmarks (aggregated/anonymous).
+    - "SaaS subscription per site or brand hub: $1,500–$6,000/month/factory; $6,000–$15,000/month/brand hub depending on supplier count/volume."
+    - "Usage-based add-on: $0.05–$0.15 per PO line optimized or parsed beyond plan; $0.005–$0.02 per email/attachment parsed at scale."
+    - "Implementation and integration: $12,000–$50,000 one-time depending on ERP/EDI scope and number of suppliers."
+    - "Premium support and onboarding packages: $6,000–$20,000/year (dedicated CSM, training, on-site workshops)."
+    - "Data and benchmarking subscription for brands: $12,000/year for supplier reliability and cycle time benchmarks (aggregated/anonymous)."
   costStructure:
-    - >-
-      Engineering and product (AI/optimization): 5–10 FTE initially,
-      $900k–$2M/year.
-    - >-
-      Cloud/compute: $150–$500/customer/month (LLM tokens, parsing OCR,
-      optimization solver time, storage, backups).
-    - >-
-      Third-party solver/licensing (e.g., Gurobi) and PDF/OCR tooling:
-      $50k–$150k/year.
-    - >-
-      Customer success and implementation: $4k–$12k/customer for onboarding; 1
-      CSM per 20–30 customers.
-    - >-
-      Sales and marketing: events, travel, partner fees and commissions; CAC
-      target $25k–$60k per mid-market brand/factory group.
-    - 'Compliance and security (SOC 2, pen tests, logging): $60k–$150k/year.'
-    - >-
-      Localization and supplier enablement (translation, templates,
-      micro-trainings): $20k–$60k/year.
+    - "Engineering and product (AI/optimization): 5–10 FTE initially, $900k–$2M/year."
+    - "Cloud/compute: $150–$500/customer/month (LLM tokens, parsing OCR, optimization solver time, storage, backups)."
+    - "Third-party solver/licensing (e.g., Gurobi) and PDF/OCR tooling: $50k–$150k/year."
+    - "Customer success and implementation: $4k–$12k/customer for onboarding; 1 CSM per 20–30 customers."
+    - "Sales and marketing: events, travel, partner fees and commissions; CAC target $25k–$60k per mid-market brand/factory group."
+    - "Compliance and security (SOC 2, pen tests, logging): $60k–$150k/year."
+    - "Localization and supplier enablement (translation, templates, micro-trainings): $20k–$60k/year."
   keyMetrics:
-    - >-
-      Value metrics: OTIF improvement (+5 to +15 points) within 90 days; plan
-      adherence improvement (+10 points); planner hours saved (20–40
-      hours/month/planner).
-    - >-
-      Operational metrics: auto-parse rate ≥80% in 90 days; suggestion
-      acceptance rate ≥60%; exception backlog <5% of open POs; average
-      parse-to-calendar latency <3 minutes.
-    - >-
-      Capacity metrics: weekly utilization variance <10%; changeover hours/week
-      reduced by 20%; overtime hours reduced by 15%.
-    - >-
-      Flow metrics: WIP aging (cut-to-finish) reduced by 10–20%; MTTR for
-      exceptions <48 hours; % at-risk POs detected ≥95%.
-    - >-
-      Commercial metrics: ACV $25k–$120k; sales cycle 60–120 days; win rate ≥25%
-      in target segment; GRR ≥90%, NRR ≥115%; CAC payback <12 months.
-storyBrand:
-  character: >-
-    Operations leaders and production planners at apparel accessories and other
-    apparel manufacturers (NAICS 315990) who want dependable OTIF delivery and
-    fully utilized capacity—without spreadsheet firefights.
-  problem: >-
-    - External: Constant PO changes, siloed email confirmations, unclear
-    line/process capacity; manual PO splits cause overloads and misses.
-
-    - Internal: Planners feel stuck reacting, negotiating, and reworking dates.
-
-    - Philosophical: Planning should be calm, data-driven, and transparent for
-    every style–color–size.
-  guide: >-
-    - Empathy: We’ve lived apparel factory realities—MOQs, trims, changeovers,
-    subcontracting, and holiday calendars.
-
-    - Authority: Our PO Planning & Factory Capacity Co-Pilot converts demand and
-    confirmations into optimal PO splits and a living production calendar,
-    parsing inbox WIP and modeling real constraints to produce explainable
-    plans.
-  plan: >-
-    1) Connect demand feeds (brand POs/forecasts), confirmations, factory
-    calendars, and a planning inbox.
-
-    2) Get a baseline capacity model with AI-suggested PO splits and production
-    calendar; review and adjust in one click.
-
-    3) Publish commits to buyers and floor; the co-pilot replans weekly as
-    reality changes, with full audit trail.
-  callToAction: >-
-    Primary: Book a 30‑minute demo.
-
-    Secondary: Send sample POs/confirmations for a free capacity snapshot and
-    PO‑split preview.
-  success: |-
-    - Reliable OTIF commitments and confident buyer communication.
-    - Higher line utilization and smoother changeovers.
-    - Automated, optimal PO splits and a living production calendar.
-    - Clear WIP from inbox to floor; fewer expedites and air freights.
-  failure: >-
-    - Keep guessing capacity, miss ship windows, and pay overtime/air freight.
-
-    - Margin leakage, chargebacks, strained buyer relationships, and planner
-    burnout.
-landingPage:
-  hero:
-    title: PO Planning & Factory Capacity Co-Pilot
-    subtitle: >-
-      For apparel accessories and other apparel manufacturers (NAICS 315990):
-      Turn demand and confirmations into optimal PO splits and a live production
-      calendar. Track WIP automatically via inbox parsing.
-    ctaText: Book a demo
-    ctaHref: /demo
-  problem:
-    - Spreadsheets hide true factory load and create conflicting plans.
-    - Confirmations are buried in email; WIP is outdated and reactive.
-    - 'Wrong PO splits miss MOQs, lead times, or fabric constraints.'
-    - 'Capacity swings cause overtime, expedites, and late deliveries.'
-    - No single view of plan vs actual across factories and lines.
-    - What-if planning is slow; decisions arrive after issues hit.
-  solution:
-    - >-
-      AI converts demand and vendor confirmations into capacity-aware PO splits
-      by factory, line, and week.
-    - >-
-      Builds a live production calendar that respects MOQs, lead times,
-      holidays, and material readiness.
-    - >-
-      Parses supplier emails, PDFs, and spreadsheets to auto-update WIP and
-      ETAs.
-    - Flags risks early with root cause and recovery options.
-    - 'Runs instant scenarios to balance cost, service, and capacity.'
-    - >-
-      Exports plans to your ERP/PLM and shares structured updates with
-      suppliers.
-  features:
-    - >-
-      Smart PO Splitter: honors MOQs, price breaks, pack sizes, lead times, and
-      material availability.
-    - >-
-      Factory Capacity Engine: model lines, shifts, efficiencies, and blackout
-      calendars by site.
-    - >-
-      Live Production Calendar: freeze fences, drag-and-drop releveling, and
-      color-coded status.
-    - >-
-      Inbox & WIP Parser: IMAP/Google/Outlook, OCR for PDF/XLS, auto-matching to
-      POs and styles.
-    - >-
-      Exception Radar: late materials, over/under load, past-due approvals;
-      alerts via email/Slack/Teams.
-    - >-
-      Cost & Freight Insights: compare air vs ocean, overtime cost, and
-      split-ship options.
-    - >-
-      Vendor Collaboration: share plans, request confirmations, capture dates in
-      a structured form.
-    - >-
-      Audit & Traceability: full change log from demand to shipment with
-      versioned plans.
-  steps:
-    - Connect your email inbox and set simple routing rules.
-    - >-
-      Import demand (forecasts, sales orders, or buy plan) via CSV or ERP/PLM
-      connector.
-    - 'Define factories, lines, MOQs, lead times, and holiday calendars.'
-    - >-
-      Generate your first plan: optimal PO splits and a capacity-aware
-      production calendar.
-    - 'Review exceptions, apply recommendations, and publish to suppliers.'
-    - >-
-      Monitor WIP from inbox updates and export final POs and schedules to your
-      systems.
+    - "Value metrics: OTIF improvement (+5 to +15 points) within 90 days; plan adherence improvement (+10 points); planner hours saved (20–40 hours/month/planner)."
+    - "Operational metrics: auto-parse rate ≥80% in 90 days; suggestion acceptance rate ≥60%; exception backlog <5% of open POs; average parse-to-calendar latency <3 minutes."
+    - "Capacity metrics: weekly utilization variance <10%; changeover hours/week reduced by 20%; overtime hours reduced by 15%."
+    - "Flow metrics: WIP aging (cut-to-finish) reduced by 10–20%; MTTR for exceptions <48 hours; % at-risk POs detected ≥95%."
+    - "Commercial metrics: ACV $25k–$120k; sales cycle 60–120 days; win rate ≥25% in target segment; GRR ≥90%, NRR ≥115%; CAC payback <12 months."
 ---
-# Capacity Co-Pilot for Apparel (NAICS 315990)
 
-Generated for NAICS 315990 — Apparel Accessories and Other Apparel Manufacturing.
-Service: PO Planning and Factory Capacity Co-Pilot
+# Capacity - Apparel Production Planning Workflows
+
+## Domain Types
+
+```typescript
+interface PurchaseOrder {
+  id: string
+  brandId: string
+  supplierId: string
+  style: string
+  quantities: Record<string, number>
+  colors: string[]
+  sizes: string[]
+  exFactoryDate: Date
+  shipDate: Date
+  status: 'confirmed' | 'pending' | 'at_risk' | 'delayed'
+  moq: number
+  smv: number
+}
+
+interface ProductionLine {
+  id: string
+  factoryId: string
+  skills: string[]
+  capacity: number
+  efficiency: number
+  currentUtilization: number
+  changeover: {
+    timeMinutes: number
+    cost: number
+  }
+}
+
+interface Factory {
+  id: string
+  name: string
+  location: string
+  lines: ProductionLine[]
+  holidays: Date[]
+  shifts: number
+  workingDays: number[]
+}
+
+interface WIPStatus {
+  poId: string
+  lineId: string
+  cutPercentage: number
+  sewPercentage: number
+  finishPercentage: number
+  qcStatus: 'pending' | 'passed' | 'failed'
+  delayReason?: string
+  revisedDate?: Date
+}
+
+interface Lead {
+  id: string
+  companyName: string
+  contactName: string
+  email: string
+  volume: number
+  geography: string
+  currentPainPoints: string[]
+  source: 'inbound' | 'outbound' | 'referral'
+}
+
+interface Customer {
+  id: string
+  companyName: string
+  tier: 'factory' | 'brand' | 'trading_company'
+  volume: number
+  supplierCount: number
+  planningMaturity: 'basic' | 'intermediate' | 'advanced'
+  integrations: string[]
+}
+
+interface Exception {
+  id: string
+  poId: string
+  type: 'material_delay' | 'qc_hold' | 'machine_downtime' | 'capacity_shortage'
+  severity: 'low' | 'medium' | 'high' | 'critical'
+  impact: {
+    daysSlip: number
+    costIncrease: number
+    otifRisk: number
+  }
+  recommendations: RecommendedAction[]
+}
+
+interface RecommendedAction {
+  type: 'resequence' | 'split_po' | 'overtime' | 'outsource'
+  description: string
+  cost: number
+  timeImpact: number
+  feasibility: number
+}
+```
+
+## Customer Acquisition Workflows
+
+```typescript
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead)
+  const demoScheduled = await scheduleDemoCall(qualifiedLead)
+  const pilotProposal = await generatePilotProposal(qualifiedLead)
+  const pilotContract = await negotiatePilotTerms(pilotProposal)
+  const pilotResults = await executePilot(pilotContract)
+  const fullContract = await convertToFullSubscription(pilotResults)
+  return await onboardCustomer(fullContract)
+}
+
+export async function qualifyLead(lead: Lead): Promise<Lead> {
+  const volumeQualified = lead.volume >= 100000
+  const geoQualified = ['Vietnam', 'Bangladesh', 'Mexico', 'India', 'US'].includes(lead.geography)
+  const painPointMatch = lead.currentPainPoints.some(pain => 
+    ['planning_time', 'otif_issues', 'email_chaos', 'capacity_variance'].includes(pain)
+  )
+  
+  if (!volumeQualified || !geoQualified || !painPointMatch) {
+    throw new Error('Lead does not meet qualification criteria')
+  }
+  
+  return { ...lead, status: 'qualified' }
+}
+
+export async function scheduleDemoCall(lead: Lead): Promise<{ demoDate: Date, attendees: string[] }> {
+  const stakeholders = await identifyStakeholders(lead)
+  const availableSlots = await getCalendarAvailability(stakeholders)
+  const selectedSlot = await proposeTimeSlots(availableSlots)
+  
+  return {
+    demoDate: selectedSlot,
+    attendees: stakeholders
+  }
+}
+
+export async function generatePilotProposal(lead: Lead): Promise<{
+  duration: number
+  scope: string[]
+  successCriteria: Record<string, number>
+  pricing: number
+}> {
+  const baseScope = ['email_parsing', 'po_optimization', 'wip_tracking']
+  const customScope = await customizeScopeForLead(lead, baseScope)
+  
+  return {
+    duration: 8, // weeks
+    scope: customScope,
+    successCriteria: {
+      otifImprovement: 5, // points
+      planningTimeSaved: 50, // percent
+      autoParseRate: 80 // percent
+    },
+    pricing: calculatePilotPricing(lead.volume, customScope.length)
+  }
+}
+```
+
+## Product Development Workflows
+
+```typescript
+export async function processIncomingEmail(email: EmailMessage): Promise<WIPStatus[]> {
+  const parsedContent = await parseEmailContent(email)
+  const extractedData = await extractProductionData(parsedContent)
+  const matchedPOs = await matchToPurchaseOrders(extractedData)
+  const wipUpdates = await updateWIPStatus(matchedPOs, extractedData)
+  
+  await notifyPlanners(wipUpdates)
+  return wipUpdates
+}
+
+export async function optimizeProductionPlan(
+  orders: PurchaseOrder[], 
+  factories: Factory[]
+): Promise<ProductionPlan> {
+  const constraints = await buildConstraintModel(factories)
+  const demand = await aggregateDemand(orders)
+  const optimizationModel = await createOptimizationModel(demand, constraints)
+  const solution = await solveOptimization(optimizationModel)
+  
+  return await generateProductionCalendar(solution, factories)
+}
+
+export async function parseEmailContent(email: EmailMessage): Promise<ParsedContent> {
+  const attachments = await extractAttachments(email)
+  const textContent = await extractTextFromEmail(email.body)
+  
+  const parsedAttachments = await Promise.all(
+    attachments.map(async (attachment) => {
+      if (attachment.type === 'pdf') {
+        return await parsePDFContent(attachment)
+      } else if (attachment.type === 'excel') {
+        return await parseExcelContent(attachment)
+      } else if (attachment.type === 'image') {
+        return await parseImageContent(attachment)
+      }
+      return null
+    })
+  )
+  
+  return {
+    textContent,
+    attachmentData: parsedAttachments.filter(Boolean),
+    metadata: {
+      sender: email.from,
+      timestamp: email.timestamp,
+      subject: email.subject
+    }
+  }
+}
+
+export async function buildConstraintModel(factories: Factory[]): Promise<ConstraintModel> {
+  const lineConstraints = factories.flatMap(factory => 
+    factory.lines.map(line => ({
+      lineId: line.id,
+      capacity: line.capacity,
+      skills: line.skills,
+      efficiency: line.efficiency,
+      changeover: line.changeover
+    }))
+  )
+  
+  const factoryConstraints = factories.map(factory => ({
+    factoryId: factory.id,
+    holidays: factory.holidays,
+    shifts: factory.shifts,
+    workingDays: factory.workingDays
+  }))
+  
+  return {
+    lines: lineConstraints,
+    factories: factoryConstraints,
+    globalConstraints: {
+      maxOvertimeHours: 20,
+      minUtilization: 0.7,
+      maxUtilization: 0.95
+    }
+  }
+}
+```
+
+## Revenue Generation Workflows
+
+```typescript
+export async function processSubscriptionBilling(customer: Customer): Promise<Invoice> {
+  const usage = await calculateMonthlyUsage(customer)
+  const baseSubscription = await getSubscriptionTier(customer)
+  const usageCharges = await calculateUsageCharges(usage)
+  const totalAmount = baseSubscription.amount + usageCharges
+  
+  const invoice = await generateInvoice({
+    customerId: customer.id,
+    baseAmount: baseSubscription.amount,
+    usageAmount: usageCharges,
+    totalAmount,
+    billingPeriod: getCurrentBillingPeriod()
+  })
+  
+  await sendInvoiceToCustomer(invoice)
+  return invoice
+}
+
+export async function identifyUpsellOpportunities(customer: Customer): Promise<UpsellOpportunity[]> {
+  const usage = await getCustomerUsage(customer)
+  const currentTier = await getSubscriptionTier(customer)
+  const opportunities: UpsellOpportunity[] = []
+  
+  if (usage.poLinesProcessed > currentTier.limits.poLines * 0.8) {
+    opportunities.push({
+      type: 'tier_upgrade',
+      description: 'Upgrade to higher tier for more PO line capacity',
+      potentialRevenue: calculateTierUpgradeRevenue(currentTier),
+      likelihood: 0.7
+    })
+  }
+  
+  if (usage.supplierCount > 10 && !customer.integrations.includes('benchmarking')) {
+    opportunities.push({
+      type: 'add_on',
+      description: 'Add supplier benchmarking subscription',
+      potentialRevenue: 12000, // annual
+      likelihood: 0.5
+    })
+  }
+  
+  return opportunities
+}
+
+export async function calculateUsageCharges(usage: CustomerUsage): Promise<number> {
+  const poLineOverage = Math.max(0, usage.poLinesProcessed - usage.includedPoLines)
+  const emailOverage = Math.max(0, usage.emailsParsed - usage.includedEmails)
+  
+  const poLineCharges = poLineOverage * 0.10 // $0.10 per PO line
+  const emailCharges = emailOverage * 0.01 // $0.01 per email
+  
+  return poLineCharges + emailCharges
+}
+```
+
+## Operational Workflows
+
+```typescript
+export async function onboardNewCustomer(customer: Customer): Promise<OnboardingResult> {
+  const onboardingPlan = await createOnboardingPlan(customer)
+  const integrationSetup = await setupIntegrations(customer, onboardingPlan.integrations)
+  const dataImport = await importHistoricalData(customer)
+  const userTraining = await scheduleUserTraining(customer, onboardingPlan.trainingModules)
+  const goLiveChecklist = await executeGoLiveChecklist(customer)
+  
+  return {
+    customerId: customer.id,
+    status: 'completed',
+    timeToValue: calculateTimeToValue(onboardingPlan.startDate),
+    successMetrics: await measureOnboardingSuccess(customer)
+  }
+}
+
+export async function setupIntegrations(
+  customer: Customer, 
+  integrations: IntegrationConfig[]
+): Promise<IntegrationResult[]> {
+  const results = await Promise.all(
+    integrations.map(async (integration) => {
+      try {
+        if (integration.type === 'email') {
+          return await setupEmailIntegration(customer, integration)
+        } else if (integration.type === 'erp') {
+          return await setupERPIntegration(customer, integration)
+        } else if (integration.type === 'edi') {
+          return await setupEDIIntegration(customer, integration)
+        }
+        throw new Error(`Unknown integration type: ${integration.type}`)
+      } catch (error) {
+        return {
+          type: integration.type,
+          status: 'failed',
+          error: error.message
+        }
+      }
+    })
+  )
+  
+  return results
+}
+
+export async function provideCustomerSupport(ticket: SupportTicket): Promise<SupportResolution> {
+  const ticketClassification = await classifyTicket(ticket)
+  const priority = await determinePriority(ticketClassification, ticket.customer)
+  
+  if (ticketClassification.category === 'technical' && priority === 'high') {
+    return await escalateToEngineering(ticket)
+  } else if (ticketClassification.category === 'billing') {
+    return await handleBillingInquiry(ticket)
+  } else if (ticketClassification.category === 'training') {
+    return await scheduleTrainingSession(ticket)
+  }
+  
+  return await provideStandardSupport(ticket)
+}
+```
+
+## Decision-Making Workflows
+
+```typescript
+export async function handleProductionException(exception: Exception): Promise<ExceptionResolution> {
+  const impactAnalysis = await analyzeExceptionImpact(exception)
+  const recommendations = await generateRecommendations(exception, impactAnalysis)
+  const approvalRequired = await checkApprovalRequirements(recommendations)
+  
+  if (approvalRequired) {
+    const approval = await requestApproval(recommendations, exception)
+    if (!approval.approved) {
+      return { status: 'rejected', reason: approval.reason }
+    }
+  }
+  
+  const selectedAction = await selectOptimalAction(recommendations)
+  const executionResult = await executeRecommendedAction(selectedAction)
+  
+  await notifyStakeholders(exception, selectedAction, executionResult)
+  return {
+    status: 'resolved',
+    action: selectedAction,
+    result: executionResult
+  }
+}
+
+export async function planScenarioAnalysis(
+  baseScenario: ProductionPlan,
+  changes: ScenarioChange[]
+): Promise<ScenarioComparison> {
+  const scenarios = await Promise.all(
+    changes.map(async (change) => {
+      const modifiedPlan = await applyScenarioChange(baseScenario, change)
+      const optimizedPlan = await reoptimizePlan(modifiedPlan)
+      const metrics = await calculateScenarioMetrics(optimizedPlan)
+      
+      return {
+        name: change.name,
+        plan: optimizedPlan,
+        metrics,
+        feasibility: await assessFeasibility(optimizedPlan)
+      }
+    })
+  )
+  
+  return {
+    baseScenario: {
+      name: 'Current Plan',
+      plan: baseScenario,
+      metrics: await calculateScenarioMetrics(baseScenario),
+      feasibility: 1.0
+    },
+    alternativeScenarios: scenarios,
+    recommendations: await rankScenarios([baseScenario, ...scenarios.map(s => s.plan)])
+  }
+}
+
+export async function approveProductionChanges(
+  changes: ProductionChange[],
+  approver: User
+): Promise<ApprovalResult> {
+  const riskAssessment = await assessChangeRisk(changes)
+  const costImpact = await calculateCostImpact(changes)
+  const timelineImpact = await calculateTimelineImpact(changes)
+  
+  const approvalCriteria = {
+    maxCostIncrease: 50000,
+    maxTimelineSlip: 7, // days
+    maxRiskScore: 0.7
+  }
+  
+  const autoApprove = (
+    costImpact.total <= approvalCriteria.maxCostIncrease &&
+    timelineImpact.maxSlip <= approvalCriteria.maxTimelineSlip &&
+    riskAssessment.score <= approvalCriteria.maxRiskScore
+  )
+  
+  if (autoApprove) {
+    return {
+      approved: true,
+      approver: 'system',
+      timestamp: new Date(),
+      conditions: []
+    }
+  }
+  
+  return await requestHumanApproval({
+    changes,
+    riskAssessment,
+    costImpact,
+    timelineImpact,
+    approver
+  })
+}
+
+export async function monitorKPIs(customer: Customer): Promise<KPIReport> {
+  const otifMetrics = await calculateOTIFMetrics(customer)
+  const utilizationMetrics = await calculateUtilizationMetrics(customer)
+  const planningEfficiency = await calculatePlanningEfficiency(customer)
+  const exceptionMetrics = await calculateExceptionMetrics(customer)
+  
+  const alerts = []
+  
+  if (otifMetrics.current < otifMetrics.target - 5) {
+    alerts.push({
+      type: 'otif_degradation',
+      severity: 'high',
+      message: `OTIF dropped to ${otifMetrics.current}%, below target of ${otifMetrics.target}%`
+    })
+  }
+  
+  if (utilizationMetrics.variance > 15) {
+    alerts.push({
+      type: 'utilization_variance',
+      severity: 'medium',
+      message: `Utilization variance at ${utilizationMetrics.variance}%, above 15% threshold`
+    })
+  }
+  
+  return {
+    customerId: customer.id,
+    reportDate: new Date(),
+    metrics: {
+      otif: otifMetrics,
+      utilization: utilizationMetrics,
+      planning: planningEfficiency,
+      exceptions: exceptionMetrics
+    },
+    alerts,
+    recommendations: await generateKPIRecommendations(alerts)
+  }
+}
+```
