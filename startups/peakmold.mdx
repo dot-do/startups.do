@@ -341,3 +341,467 @@ landingPage:
 
 Generated for NAICS 326191 — Plastics Plumbing Fixture Manufacturing.
 Service: Energy-Optimized Press/Machine Scheduling
+
+## Business Workflow Functions
+
+```typescript
+// Core Types
+interface Lead {
+  id: string;
+  company: string;
+  contactName: string;
+  email: string;
+  phone: string;
+  naicsCode: string;
+  machineCount: number;
+  annualEnergySpend: number;
+  currentSchedulingMethod: 'manual' | 'erp' | 'spreadsheet';
+  painPoints: string[];
+  source: 'direct' | 'referral' | 'utility' | 'event';
+}
+
+interface QualifiedLead extends Lead {
+  fitScore: number;
+  estimatedSavings: number;
+  decisionMakers: string[];
+  timeline: string;
+  budget: number;
+}
+
+interface Customer {
+  id: string;
+  lead: QualifiedLead;
+  contractValue: number;
+  startDate: Date;
+  plantLocations: PlantLocation[];
+  subscriptionTier: 'basic' | 'premium' | 'enterprise';
+}
+
+interface PlantLocation {
+  id: string;
+  name: string;
+  address: string;
+  machines: Machine[];
+  utilityProvider: string;
+  tariffStructure: TariffStructure;
+  erpSystem: string;
+}
+
+interface Machine {
+  id: string;
+  type: 'injection_press' | 'extruder' | 'thermoformer' | 'dryer' | 'chiller';
+  capacity: number;
+  powerRating: number;
+  cycleTime: number;
+  toolingCompatibility: string[];
+}
+
+interface TariffStructure {
+  touRates: { period: string; rate: number }[];
+  demandCharges: { threshold: number; rate: number }[];
+  seasonalVariations: boolean;
+}
+
+interface OptimizationResult {
+  schedule: ProductionSchedule;
+  energyCostReduction: number;
+  peakDemandReduction: number;
+  onTimeDeliveryRate: number;
+  co2Reduction: number;
+}
+
+interface ProductionSchedule {
+  jobs: ScheduledJob[];
+  totalEnergyCost: number;
+  peakDemand: number;
+  scheduleEfficiency: number;
+}
+
+interface ScheduledJob {
+  jobId: string;
+  machineId: string;
+  startTime: Date;
+  endTime: Date;
+  energyConsumption: number;
+  priority: number;
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const roiAnalysis = await calculateROI(qualifiedLead);
+  const proposal = await generateProposal(qualifiedLead, roiAnalysis);
+  const pilot = await setupPilot(qualifiedLead, proposal);
+  const contract = await negotiateContract(pilot);
+  return await onboardCustomer(contract);
+}
+
+export async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  // Validate NAICS code (326191 - Plastics Plumbing Fixture Manufacturing)
+  if (lead.naicsCode !== '326191') {
+    throw new Error('Lead does not match target NAICS code');
+  }
+  
+  // Calculate fit score based on machine count, energy spend, and pain points
+  const fitScore = calculateFitScore(lead);
+  
+  if (fitScore < 7) {
+    throw new Error('Lead does not meet minimum qualification criteria');
+  }
+  
+  // Estimate potential savings (8-15% energy cost reduction)
+  const estimatedSavings = lead.annualEnergySpend * 0.12; // 12% average
+  
+  // Identify decision makers and timeline
+  const decisionMakers = await identifyDecisionMakers(lead);
+  const timeline = await assessPurchaseTimeline(lead);
+  const budget = await estimateBudget(lead);
+  
+  return {
+    ...lead,
+    fitScore,
+    estimatedSavings,
+    decisionMakers,
+    timeline,
+    budget
+  };
+}
+
+export async function calculateROI(lead: QualifiedLead): Promise<ROIAnalysis> {
+  const monthlySubscriptionCost = lead.machineCount * 450; // $300-600 per machine
+  const onboardingCost = Math.min(50000, Math.max(15000, lead.machineCount * 1000));
+  const annualCost = monthlySubscriptionCost * 12 + onboardingCost;
+  
+  const paybackPeriod = annualCost / lead.estimatedSavings;
+  const threeYearROI = (lead.estimatedSavings * 3 - annualCost * 3) / (annualCost * 3);
+  
+  return {
+    estimatedSavings: lead.estimatedSavings,
+    annualCost,
+    paybackPeriod,
+    threeYearROI,
+    breakEvenMonth: Math.ceil(paybackPeriod * 12)
+  };
+}
+
+export async function setupPilot(lead: QualifiedLead, proposal: Proposal): Promise<PilotProgram> {
+  // 8-12 week paid pilot with savings guarantee
+  const pilotDuration = 10; // weeks
+  const pilotCost = Math.min(25000, lead.machineCount * 500);
+  
+  const pilot = await createPilotProgram({
+    leadId: lead.id,
+    duration: pilotDuration,
+    cost: pilotCost,
+    savingsGuarantee: lead.estimatedSavings * 0.6, // 60% of estimated savings
+    machines: await selectPilotMachines(lead),
+    successCriteria: definePilotSuccessCriteria(lead)
+  });
+  
+  return pilot;
+}
+
+// Product Development Workflows
+export async function developEnergyOptimization(plantData: PlantData): Promise<OptimizationAlgorithm> {
+  const digitalTwin = await createDigitalTwin(plantData);
+  const constraints = await defineConstraints(plantData);
+  const objectives = await defineObjectives(plantData);
+  
+  const algorithm = await buildOptimizationAlgorithm({
+    digitalTwin,
+    constraints,
+    objectives,
+    solver: 'OR-Tools'
+  });
+  
+  return await validateAlgorithm(algorithm, plantData);
+}
+
+export async function integrateERP(customer: Customer, erpSystem: string): Promise<ERPIntegration> {
+  const connector = await selectERPConnector(erpSystem);
+  const dataMapping = await mapERPFields(erpSystem, customer);
+  const authentication = await setupERPAuth(customer, erpSystem);
+  
+  const integration = await createIntegration({
+    customerId: customer.id,
+    erpSystem,
+    connector,
+    dataMapping,
+    authentication,
+    syncFrequency: '15min'
+  });
+  
+  return await testIntegration(integration);
+}
+
+export async function createDigitalTwin(plantData: PlantData): Promise<DigitalTwin> {
+  const machineModels = await modelMachines(plantData.machines);
+  const utilityModel = await modelUtilitySystem(plantData.utilityData);
+  const processModel = await modelProductionProcesses(plantData.processes);
+  
+  return {
+    machines: machineModels,
+    utilities: utilityModel,
+    processes: processModel,
+    constraints: await extractConstraints(plantData),
+    lastUpdated: new Date()
+  };
+}
+
+// Revenue Generation Workflows
+export async function manageSaaSSubscription(customer: Customer): Promise<SubscriptionStatus> {
+  const usage = await trackUsage(customer);
+  const billing = await calculateBilling(customer, usage);
+  const renewal = await assessRenewal(customer);
+  
+  if (renewal.risk === 'high') {
+    await triggerCustomerSuccess(customer, renewal.reasons);
+  }
+  
+  return {
+    customerId: customer.id,
+    tier: customer.subscriptionTier,
+    monthlyRevenue: billing.amount,
+    usage,
+    renewalProbability: renewal.probability,
+    nextBillingDate: billing.nextDate
+  };
+}
+
+export async function calculatePerformanceBasedPricing(customer: Customer, savings: Energysavings): Promise<PerformanceRevenue> {
+  // 10-20% of verified first-year energy cost savings
+  const sharePercentage = 0.15; // 15% average
+  const verifiedSavings = await verifySavings(customer, savings);
+  const performanceRevenue = verifiedSavings.annualSavings * sharePercentage;
+  
+  return {
+    customerId: customer.id,
+    verifiedSavings: verifiedSavings.annualSavings,
+    sharePercentage,
+    performanceRevenue,
+    paymentSchedule: 'quarterly'
+  };
+}
+
+export async function expandToEnterprise(customer: Customer): Promise<EnterpriseExpansion> {
+  const additionalPlants = await identifyExpansionOpportunities(customer);
+  const enterprisePricing = await calculateEnterprisePricing(customer, additionalPlants);
+  const rolloutPlan = await createRolloutPlan(additionalPlants);
+  
+  return {
+    customerId: customer.id,
+    additionalPlants,
+    enterprisePricing,
+    rolloutPlan,
+    estimatedTimeline: rolloutPlan.totalWeeks,
+    additionalRevenue: enterprisePricing.annualValue
+  };
+}
+
+// Operational Procedures
+export async function onboardPlant(customer: Customer, plant: PlantLocation): Promise<OnboardingResult> {
+  // 45-day target from kickoff to first optimized schedule
+  const dataIntegration = await integrateDataSources(plant);
+  const systemConfiguration = await configureOptimization(plant);
+  const training = await conductTraining(plant.staff);
+  const testing = await runPilotSchedules(plant);
+  
+  const onboardingResult = {
+    plantId: plant.id,
+    customerId: customer.id,
+    completionDate: new Date(),
+    timeToValue: calculateTimeToValue(dataIntegration.startDate),
+    firstOptimizedSchedule: testing.firstSchedule,
+    trainingCompleted: training.completed,
+    systemLive: true
+  };
+  
+  await notifyCustomerSuccess(onboardingResult);
+  return onboardingResult;
+}
+
+export async function optimizeSchedule(plant: PlantLocation, jobs: ProductionJob[]): Promise<OptimizationResult> {
+  const constraints = await loadConstraints(plant);
+  const tariffs = await getCurrentTariffs(plant.utilityProvider);
+  const machineStatus = await getMachineStatus(plant.machines);
+  
+  const optimization = await runOptimization({
+    jobs,
+    constraints,
+    tariffs,
+    machineStatus,
+    objectives: ['minimize_energy_cost', 'maintain_delivery_dates', 'reduce_peaks']
+  });
+  
+  const result = await validateSchedule(optimization);
+  await publishSchedule(plant, result.schedule);
+  
+  return result;
+}
+
+export async function monitorPerformance(customer: Customer): Promise<PerformanceMetrics> {
+  const energyMetrics = await calculateEnergyMetrics(customer);
+  const deliveryMetrics = await calculateDeliveryMetrics(customer);
+  const operationalMetrics = await calculateOperationalMetrics(customer);
+  
+  const performance = {
+    customerId: customer.id,
+    period: 'monthly',
+    energyCostReduction: energyMetrics.costReduction,
+    peakDemandReduction: energyMetrics.peakReduction,
+    onTimeDeliveryRate: deliveryMetrics.otdRate,
+    scheduleAdherence: operationalMetrics.adherence,
+    co2Reduction: energyMetrics.co2Reduction,
+    lastUpdated: new Date()
+  };
+  
+  if (performance.energyCostReduction < 0.08) {
+    await triggerPerformanceReview(customer, performance);
+  }
+  
+  return performance;
+}
+
+// Decision-Making Workflows
+export async function makeSchedulingDecision(
+  plant: PlantLocation,
+  scenario: SchedulingScenario
+): Promise<SchedulingDecision> {
+  const alternatives = await generateAlternatives(scenario);
+  const analysis = await analyzeAlternatives(alternatives, plant);
+  const recommendation = await selectBestAlternative(analysis);
+  
+  const decision = {
+    scenarioId: scenario.id,
+    plantId: plant.id,
+    alternatives: alternatives.length,
+    selectedAlternative: recommendation.alternative,
+    expectedSavings: recommendation.savings,
+    riskLevel: recommendation.risk,
+    confidence: recommendation.confidence,
+    timestamp: new Date()
+  };
+  
+  await logDecision(decision);
+  return decision;
+}
+
+export async function participateInDemandResponse(
+  plant: PlantLocation,
+  drEvent: DemandResponseEvent
+): Promise<DRParticipation> {
+  const capability = await assessDRCapability(plant, drEvent);
+  
+  if (capability.canParticipate) {
+    const curtailmentPlan = await createCurtailmentPlan(plant, drEvent);
+    const adjustedSchedule = await adjustScheduleForDR(plant, curtailmentPlan);
+    
+    return {
+      eventId: drEvent.id,
+      plantId: plant.id,
+      participating: true,
+      curtailmentMW: curtailmentPlan.reduction,
+      revenue: drEvent.rate * curtailmentPlan.reduction,
+      adjustedSchedule,
+      riskAssessment: capability.risk
+    };
+  }
+  
+  return {
+    eventId: drEvent.id,
+    plantId: plant.id,
+    participating: false,
+    reason: capability.reason
+  };
+}
+
+export async function analyzeWhatIfScenario(
+  plant: PlantLocation,
+  scenario: WhatIfScenario
+): Promise<ScenarioAnalysis> {
+  const baselineSchedule = await getCurrentSchedule(plant);
+  const scenarioSchedule = await simulateScenario(plant, scenario);
+  
+  const comparison = {
+    scenario: scenario.name,
+    plantId: plant.id,
+    baseline: {
+      energyCost: baselineSchedule.energyCost,
+      peakDemand: baselineSchedule.peakDemand,
+      deliveryRate: baselineSchedule.deliveryRate
+    },
+    proposed: {
+      energyCost: scenarioSchedule.energyCost,
+      peakDemand: scenarioSchedule.peakDemand,
+      deliveryRate: scenarioSchedule.deliveryRate
+    },
+    impact: {
+      costDelta: scenarioSchedule.energyCost - baselineSchedule.energyCost,
+      peakDelta: scenarioSchedule.peakDemand - baselineSchedule.peakDemand,
+      deliveryDelta: scenarioSchedule.deliveryRate - baselineSchedule.deliveryRate
+    },
+    recommendation: await generateRecommendation(baselineSchedule, scenarioSchedule)
+  };
+  
+  return comparison;
+}
+
+// Helper function implementations (pseudocode)
+async function calculateFitScore(lead: Lead): Promise<number> {
+  // Score based on machine count (5-50 target), energy spend, pain points
+  let score = 0;
+  if (lead.machineCount >= 5 && lead.machineCount <= 50) score += 3;
+  if (lead.annualEnergySpend > 100000) score += 2;
+  if (lead.currentSchedulingMethod === 'manual') score += 2;
+  if (lead.painPoints.includes('high_energy_costs')) score += 2;
+  if (lead.painPoints.includes('demand_charges')) score += 1;
+  return Math.min(10, score);
+}
+
+async function identifyDecisionMakers(lead: Lead): Promise<string[]> {
+  // Typical roles: VP Operations, Plant Manager, Energy Manager, CFO
+  return ['VP Operations', 'Plant Manager', 'Energy Manager'];
+}
+
+async function assessPurchaseTimeline(lead: Lead): Promise<string> {
+  // Based on pain severity and budget cycle
+  return lead.painPoints.length > 3 ? '3-6 months' : '6-12 months';
+}
+
+async function estimateBudget(lead: Lead): Promise<number> {
+  // Estimate based on machine count and typical pricing
+  return lead.machineCount * 450 * 12 + 25000; // Annual subscription + onboarding
+}
+
+// Additional helper functions would be implemented here...
+// (selectPilotMachines, definePilotSuccessCriteria, createPilotProgram, etc.)
+```
+
+## Integration Points
+
+The workflow functions integrate with the broader .do platform through:
+
+- **Functions**: Each workflow step can be deployed as serverless functions
+- **Workflows**: Complex multi-step processes like customer onboarding can be orchestrated
+- **Agents**: AI agents can execute decision-making workflows autonomously
+- **APIs**: RESTful endpoints expose workflow triggers and status
+- **Events**: Workflow state changes emit events for monitoring and integration
+
+## Usage Examples
+
+```typescript
+// Customer acquisition flow
+const newCustomer = await acquireCustomer(incomingLead);
+
+// Daily optimization
+const schedule = await optimizeSchedule(plant, todaysJobs);
+
+// Performance monitoring
+const metrics = await monitorPerformance(customer);
+
+// What-if analysis
+const analysis = await analyzeWhatIfScenario(plant, {
+  name: 'Rush Order Impact',
+  changes: { urgentJobs: 3, deadline: 'tomorrow' }
+});
+```
