@@ -8,6 +8,8 @@ import { Faq } from '@/components/landing/faqs'
 import { Cta } from '@/components/landing/cta'
 import { Footer } from '@/components/landing/footer'
 import { getStartup, listStartups } from '@/lib/startups'
+import type { StartupDoc } from '@/lib/startups'
+
 import { generateLandingSections } from '@/lib/ai'
 import type { Metadata } from 'next'
 import { unstable_cache } from 'next/cache'
@@ -22,7 +24,12 @@ const cachedSectionsFor = (name: string, idea: string, ctx: string) =>
 export default async function Page({ params }: { params: Promise<{ name: string }> }) {
   const { name } = await params
 
-  const doc = await getStartup<Record<string, unknown>>(name)
+  let doc: StartupDoc<Record<string, unknown>>
+  try {
+    doc = await getStartup<Record<string, unknown>>(name)
+  } catch {
+    doc = { data: {} as Record<string, unknown>, content: '' }
+  }
 
   const businessIdea =
     (doc.data?.['name'] as string) || `AI-powered startup called "${name}"`
@@ -68,10 +75,13 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ name: string }> }): Promise<Metadata> {
   const { name } = await params
-  const doc = await getStartup<Record<string, unknown>>(name)
-  const title = (doc.data?.['name'] as string) || name
-  const desc = (doc.data as any)?.tagline || `Explore the AI-generated startup concept for ${title}`
-
+  let title = name
+  let desc = `Explore the AI-generated startup concept for ${title}`
+  try {
+    const doc = await getStartup<Record<string, unknown>>(name)
+    title = (doc.data?.['name'] as string) || name
+    desc = (doc.data as any)?.tagline || `Explore the AI-generated startup concept for ${title}`
+  } catch {}
   return {
     title: `${title} - AI Generated Startup`,
     description: desc
