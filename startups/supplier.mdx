@@ -355,7 +355,367 @@ landingPage:
     - 'Enable alerts, holds, and supplier outreach workflows in your ERP/MRP.'
     - Track on-time performance and risk reduction in live dashboards.
 ---
+
 # Supplier Risk & Compliance Radar (SRC-Radar)
 
 Generated for NAICS 336999 — All Other Transportation Equipment Manufacturing.
 Service: Supplier Risk & Compliance Radar
+
+## Business Workflow Functions
+
+```typescript
+// Core Types
+interface Supplier {
+  id: string;
+  name: string;
+  naicsCode: string;
+  tier: 'tier1' | 'tier2' | 'tier3';
+  locations: Location[];
+  financialHealth: FinancialMetrics;
+  performanceHistory: PerformanceRecord[];
+  complianceStatus: ComplianceRecord;
+  riskScore: RiskScore;
+}
+
+interface Lead {
+  companyName: string;
+  industry: string;
+  revenue: number;
+  supplierCount: number;
+  contactInfo: ContactInfo;
+  painPoints: string[];
+  currentSolution?: string;
+}
+
+interface Customer {
+  id: string;
+  companyName: string;
+  tier: 'starter' | 'growth' | 'enterprise';
+  supplierCount: number;
+  modules: string[];
+  contractValue: number;
+  onboardingStatus: 'pending' | 'in-progress' | 'complete';
+}
+
+interface RiskAlert {
+  supplierId: string;
+  riskType: 'delivery' | 'financial' | 'compliance' | 'esg';
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  description: string;
+  recommendedActions: string[];
+  timeToResolve: number;
+}
+
+interface ComplianceScreening {
+  supplierId: string;
+  screeningType: 'sanctions' | 'export-control' | 'esg' | 'financial';
+  status: 'clear' | 'flagged' | 'requires-review';
+  lastScreened: Date;
+  nextScreening: Date;
+  findings: string[];
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const demo = await scheduleDemoCall(qualifiedLead);
+  const pilot = await proposePilotProgram(demo);
+  const contract = await negotiateContract(pilot);
+  return await onboardCustomer(contract);
+}
+
+export async function qualifyLead(lead: Lead): Promise<Lead> {
+  // Qualify based on NAICS 336999, revenue $50M-$3B, 200-5000 suppliers
+  const isQualified = lead.industry === '336999' && 
+                     lead.revenue >= 50_000_000 && 
+                     lead.revenue <= 3_000_000_000 &&
+                     lead.supplierCount >= 200 && 
+                     lead.supplierCount <= 5000;
+  
+  if (!isQualified) {
+    throw new Error('Lead does not meet qualification criteria');
+  }
+  
+  return {
+    ...lead,
+    painPoints: await identifyPainPoints(lead),
+    currentSolution: await assessCurrentSolution(lead)
+  };
+}
+
+export async function scheduleDemoCall(lead: Lead): Promise<DemoSession> {
+  const demoContent = await customizeDemoContent(lead);
+  const session = await bookCalendarSlot(lead.contactInfo);
+  return await conductDemo(session, demoContent);
+}
+
+export async function proposePilotProgram(demo: DemoSession): Promise<PilotProposal> {
+  // 12-week pilot: 2-week data connect, 6-week monitoring, 4-week mitigation proof
+  return {
+    duration: 12, // weeks
+    phases: [
+      { name: 'Data Connection', duration: 2, deliverables: ['ERP integration', 'Supplier data mapping'] },
+      { name: 'Monitoring & Reviews', duration: 6, deliverables: ['Weekly risk reports', 'Alert configuration'] },
+      { name: 'Mitigation Proof', duration: 4, deliverables: ['ROI measurement', 'Process optimization'] }
+    ],
+    successCriteria: [
+      '≥25% reduction in high-severity unknown risks',
+      '≥10% OTD uplift for flagged suppliers'
+    ],
+    pricing: await calculatePilotPricing(demo.lead)
+  };
+}
+
+// Risk Monitoring and Compliance Workflows
+export async function monitorSupplierRisk(suppliers: Supplier[]): Promise<RiskAlert[]> {
+  const alerts: RiskAlert[] = [];
+  
+  for (const supplier of suppliers) {
+    const deliveryRisk = await assessDeliveryRisk(supplier);
+    const financialRisk = await assessFinancialRisk(supplier);
+    const complianceRisk = await assessComplianceRisk(supplier);
+    const esgRisk = await assessESGRisk(supplier);
+    
+    alerts.push(...[deliveryRisk, financialRisk, complianceRisk, esgRisk].filter(Boolean));
+  }
+  
+  return await prioritizeAlerts(alerts);
+}
+
+export async function assessDeliveryRisk(supplier: Supplier): Promise<RiskAlert | null> {
+  const otdTrend = await analyzeOTDTrend(supplier.performanceHistory);
+  const leadTimeVariance = await calculateLeadTimeVariance(supplier);
+  const capacitySignals = await getCapacityUtilization(supplier);
+  const macroDisruptions = await checkMacroDisruptions(supplier.locations);
+  
+  const riskScore = await calculateDeliveryRiskScore({
+    otdTrend,
+    leadTimeVariance,
+    capacitySignals,
+    macroDisruptions
+  });
+  
+  if (riskScore > 0.7) {
+    return {
+      supplierId: supplier.id,
+      riskType: 'delivery',
+      severity: riskScore > 0.9 ? 'critical' : 'high',
+      description: `Delivery risk elevated due to ${await identifyRiskDrivers(riskScore)}`,
+      recommendedActions: await generateDeliveryMitigations(supplier, riskScore),
+      timeToResolve: riskScore > 0.9 ? 2 : 8 // weeks
+    };
+  }
+  
+  return null;
+}
+
+export async function performComplianceScreening(supplier: Supplier): Promise<ComplianceScreening[]> {
+  const screenings: ComplianceScreening[] = [];
+  
+  // Sanctions screening (OFAC, BIS Entity List, EU/UK lists)
+  const sanctionsResult = await screenAgainstSanctionsList(supplier);
+  screenings.push({
+    supplierId: supplier.id,
+    screeningType: 'sanctions',
+    status: sanctionsResult.isClean ? 'clear' : 'flagged',
+    lastScreened: new Date(),
+    nextScreening: new Date(Date.now() + 24 * 60 * 60 * 1000), // Daily
+    findings: sanctionsResult.matches
+  });
+  
+  // Export control screening (ITAR/EAR)
+  const exportControlResult = await screenExportControls(supplier);
+  screenings.push({
+    supplierId: supplier.id,
+    screeningType: 'export-control',
+    status: exportControlResult.isCompliant ? 'clear' : 'requires-review',
+    lastScreened: new Date(),
+    nextScreening: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Weekly
+    findings: exportControlResult.violations
+  });
+  
+  return screenings;
+}
+
+// Supplier Onboarding Workflows
+export async function onboardSupplier(supplierData: SupplierOnboardingData): Promise<Supplier> {
+  const validatedData = await validateSupplierData(supplierData);
+  const riskAssessment = await conductInitialRiskAssessment(validatedData);
+  const complianceCheck = await performInitialComplianceScreening(validatedData);
+  const bomMapping = await mapSupplierToBOM(validatedData);
+  
+  const supplier = await createSupplierRecord({
+    ...validatedData,
+    riskScore: riskAssessment,
+    complianceStatus: complianceCheck,
+    bomMapping
+  });
+  
+  await setupMonitoringWorkflows(supplier);
+  await generateSupplierScorecard(supplier);
+  
+  return supplier;
+}
+
+export async function validateSupplierData(data: SupplierOnboardingData): Promise<ValidatedSupplierData> {
+  const validations = [
+    await validateBusinessRegistration(data),
+    await validateFinancialInformation(data),
+    await validateCertifications(data),
+    await validateLocationData(data)
+  ];
+  
+  if (validations.some(v => !v.isValid)) {
+    throw new Error(`Supplier data validation failed: ${validations.filter(v => !v.isValid).map(v => v.error).join(', ')}`);
+  }
+  
+  return data as ValidatedSupplierData;
+}
+
+// Revenue Generation Workflows
+export async function generateRevenue(customer: Customer): Promise<RevenueEvent> {
+  const subscription = await processSubscriptionPayment(customer);
+  const usage = await calculateUsageFees(customer);
+  const services = await billProfessionalServices(customer);
+  
+  const totalRevenue = subscription.amount + usage.amount + services.amount;
+  
+  await updateARR(customer, totalRevenue);
+  await trackRevenueMetrics(customer, totalRevenue);
+  
+  return {
+    customerId: customer.id,
+    amount: totalRevenue,
+    breakdown: { subscription, usage, services },
+    date: new Date()
+  };
+}
+
+export async function expandCustomerAccount(customer: Customer): Promise<ExpansionResult> {
+  const expansionOpportunities = await identifyExpansionOpportunities(customer);
+  const proposal = await generateExpansionProposal(expansionOpportunities);
+  const negotiation = await negotiateExpansion(customer, proposal);
+  
+  if (negotiation.accepted) {
+    const updatedCustomer = await upgradeCustomerTier(customer, negotiation.newTier);
+    await addModules(updatedCustomer, negotiation.additionalModules);
+    return { success: true, additionalARR: negotiation.additionalRevenue };
+  }
+  
+  return { success: false, reason: negotiation.rejectionReason };
+}
+
+// Operational Procedures
+export async function processRiskAlert(alert: RiskAlert): Promise<AlertResolution> {
+  const assignment = await assignAlertToAnalyst(alert);
+  const investigation = await investigateAlert(alert);
+  const mitigation = await implementMitigation(alert, investigation);
+  const verification = await verifyResolution(alert, mitigation);
+  
+  return {
+    alertId: alert.id,
+    resolution: mitigation,
+    timeToResolve: Date.now() - alert.createdAt,
+    analystId: assignment.analystId,
+    verified: verification.isResolved
+  };
+}
+
+export async function generateExecutiveDashboard(timeframe: DateRange): Promise<ExecutiveDashboard> {
+  const riskMetrics = await calculateRiskMetrics(timeframe);
+  const complianceMetrics = await calculateComplianceMetrics(timeframe);
+  const performanceMetrics = await calculatePerformanceMetrics(timeframe);
+  const financialMetrics = await calculateFinancialImpact(timeframe);
+  
+  return {
+    riskAdjustedSupplyAssurance: {
+      bomAtRisk: riskMetrics.bomAtRiskPercentage,
+      daysOfCoverImpacted: riskMetrics.expectedDaysOfCoverImpacted,
+      potentialRevenueAtRisk: riskMetrics.potentialRevenueAtRisk
+    },
+    compliancePosture: {
+      screeningCoverage: complianceMetrics.screeningCoverage,
+      incidentsBySeverity: complianceMetrics.incidentsBySeverity,
+      auditReadiness: complianceMetrics.auditReadinessScore
+    },
+    operationalKPIs: {
+      mttd: performanceMetrics.meanTimeToDetect,
+      alertPrecision: performanceMetrics.alertPrecision,
+      supplierOTDImprovement: performanceMetrics.otdImprovement
+    },
+    financialImpact: {
+      cogsReduction: financialMetrics.cogsReduction,
+      expediteCostAvoidance: financialMetrics.expediteCostAvoidance,
+      roi: financialMetrics.roi
+    }
+  };
+}
+
+// Decision-Making Workflows
+export async function makeSupplierSourcingDecision(
+  requirement: SourcingRequirement
+): Promise<SourcingDecision> {
+  const availableSuppliers = await findQualifiedSuppliers(requirement);
+  const riskAssessments = await assessSuppliersRisk(availableSuppliers);
+  const costAnalysis = await analyzeTotalCostOfOwnership(availableSuppliers, requirement);
+  const capacityAnalysis = await analyzeSupplierCapacity(availableSuppliers, requirement);
+  
+  const scoredSuppliers = await scoreSuppliers({
+    suppliers: availableSuppliers,
+    riskScores: riskAssessments,
+    costs: costAnalysis,
+    capacity: capacityAnalysis,
+    weights: requirement.selectionCriteria
+  });
+  
+  const recommendation = await generateSourcingRecommendation(scoredSuppliers);
+  
+  return {
+    requirement: requirement.id,
+    recommendedSuppliers: recommendation.primary,
+    alternativeSuppliers: recommendation.alternatives,
+    rationale: recommendation.reasoning,
+    riskMitigations: recommendation.mitigations,
+    expectedSavings: recommendation.savings,
+    implementationPlan: recommendation.implementation
+  };
+}
+
+export async function handleSupplierIncident(incident: SupplierIncident): Promise<IncidentResolution> {
+  const severity = await assessIncidentSeverity(incident);
+  const impactAnalysis = await analyzeBusinessImpact(incident);
+  const responseTeam = await assembleResponseTeam(severity);
+  
+  const immediateActions = await implementImmediateResponse(incident, severity);
+  const rootCauseAnalysis = await conductRootCauseAnalysis(incident);
+  const correctiveActions = await developCorrectiveActions(rootCauseAnalysis);
+  
+  const resolution = await implementCorrectiveActions(correctiveActions);
+  await updateSupplierRiskProfile(incident.supplierId, incident, resolution);
+  
+  return {
+    incidentId: incident.id,
+    resolution,
+    lessonsLearned: rootCauseAnalysis.lessons,
+    preventiveMeasures: correctiveActions.preventive,
+    supplierImpact: await assessSupplierRelationshipImpact(incident, resolution)
+  };
+}
+
+// Helper function declarations (implementation details would be in separate modules)
+declare function identifyPainPoints(lead: Lead): Promise<string[]>;
+declare function assessCurrentSolution(lead: Lead): Promise<string>;
+declare function customizeDemoContent(lead: Lead): Promise<DemoContent>;
+declare function bookCalendarSlot(contact: ContactInfo): Promise<CalendarSlot>;
+declare function conductDemo(session: CalendarSlot, content: DemoContent): Promise<DemoSession>;
+declare function calculatePilotPricing(lead: Lead): Promise<PricingProposal>;
+declare function analyzeOTDTrend(history: PerformanceRecord[]): Promise<TrendAnalysis>;
+declare function calculateLeadTimeVariance(supplier: Supplier): Promise<number>;
+declare function getCapacityUtilization(supplier: Supplier): Promise<CapacityMetrics>;
+declare function checkMacroDisruptions(locations: Location[]): Promise<DisruptionAlert[]>;
+declare function calculateDeliveryRiskScore(factors: RiskFactors): Promise<number>;
+declare function identifyRiskDrivers(score: number): Promise<string>;
+declare function generateDeliveryMitigations(supplier: Supplier, score: number): Promise<string[]>;
+declare function screenAgainstSanctionsList(supplier: Supplier): Promise<SanctionsResult>;
+declare function screenExportControls(supplier: Supplier): Promise<ExportControlResult>;
+```
