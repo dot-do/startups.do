@@ -19,7 +19,7 @@ export function StartupCard({ item, onReveal }: { item: StartupItem; onReveal?: 
   }, [])
 
   const toSlug = (s: string) => s.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
-  const derivedHref = `/${toSlug(item.name)}`
+  const derivedHref = item.href ?? `/${toSlug(item.name)}`
 
   // Match Navbar's deterministic variant styling based on the URL segment (slug)
   const logoVariantIndex = React.useMemo(() => {

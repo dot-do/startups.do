@@ -27,6 +27,7 @@ export default async function Home() {
       name,
       description,
       category,
+      href: `https://${slug}.io.mw`,
     })
   }
 
