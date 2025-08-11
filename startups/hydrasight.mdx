@@ -307,3 +307,408 @@ landingPage:
 
 Generated for NAICS 333996 — Fluid Power Pump and Motor Manufacturing.
 Service: Test-Stand Anomaly Detection for Pumps/Motors
+
+## Business Process Functions
+
+```typescript
+// Types and Interfaces
+interface Lead {
+  company: string;
+  contactName: string;
+  email: string;
+  phone: string;
+  naicsCode: string;
+  testStandCount: number;
+  currentPainPoints: string[];
+  warrantyClaimRate: number;
+  testVolume: number;
+}
+
+interface QualifiedLead extends Lead {
+  budgetRange: string;
+  decisionTimeframe: string;
+  technicalRequirements: TechnicalRequirements;
+  stakeholders: Stakeholder[];
+}
+
+interface TechnicalRequirements {
+  sensorTypes: string[];
+  dataFormats: string[];
+  integrationNeeds: string[];
+  complianceRequirements: string[];
+}
+
+interface Stakeholder {
+  name: string;
+  role: string;
+  influence: 'high' | 'medium' | 'low';
+  concerns: string[];
+}
+
+interface Customer {
+  id: string;
+  company: string;
+  contract: Contract;
+  testStands: TestStand[];
+  onboardingStatus: 'pending' | 'in-progress' | 'complete';
+}
+
+interface Contract {
+  id: string;
+  value: number;
+  duration: number;
+  serviceLevel: 'basic' | 'premium' | 'enterprise';
+  startDate: Date;
+  renewalDate: Date;
+}
+
+interface TestStand {
+  id: string;
+  location: string;
+  sensorConfiguration: SensorConfig;
+  productFamilies: string[];
+  integrationStatus: 'pending' | 'connected' | 'active';
+}
+
+interface SensorConfig {
+  pressure: boolean;
+  flow: boolean;
+  vibration: boolean;
+  temperature: boolean;
+  acousticEmission: boolean;
+  samplingRate: number;
+}
+
+interface AnomalyModel {
+  id: string;
+  productFamily: string;
+  version: string;
+  accuracy: number;
+  falsePositiveRate: number;
+  lastTrainingDate: Date;
+  status: 'training' | 'deployed' | 'deprecated';
+}
+
+interface TestResult {
+  testId: string;
+  timestamp: Date;
+  productSerial: string;
+  anomalyScore: number;
+  faultPredictions: FaultPrediction[];
+  passFailDecision: 'pass' | 'fail' | 'review';
+  confidence: number;
+}
+
+interface FaultPrediction {
+  faultType: 'cavitation' | 'leakage' | 'bearing_wear' | 'misalignment';
+  probability: number;
+  severity: 'low' | 'medium' | 'high';
+  recommendedActions: string[];
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const proposal = await generateProposal(qualifiedLead);
+  const contract = await negotiateContract(proposal);
+  const customer = await onboardCustomer(contract);
+  
+  await scheduleKickoffMeeting(customer);
+  await setupInitialMonitoring(customer);
+  
+  return customer;
+}
+
+export async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  // Validate NAICS code matches fluid power manufacturing
+  if (!lead.naicsCode.startsWith('333996')) {
+    throw new Error('Lead does not match target industry');
+  }
+  
+  // Assess technical fit
+  const technicalRequirements = await assessTechnicalRequirements(lead);
+  
+  // Identify stakeholders and decision process
+  const stakeholders = await identifyStakeholders(lead);
+  
+  // Qualify budget and timeline
+  const budgetRange = await assessBudget(lead);
+  const decisionTimeframe = await assessTimeline(lead);
+  
+  return {
+    ...lead,
+    budgetRange,
+    decisionTimeframe,
+    technicalRequirements,
+    stakeholders
+  };
+}
+
+export async function generateProposal(qualifiedLead: QualifiedLead): Promise<any> {
+  const roiCalculation = await calculateROI(qualifiedLead);
+  const technicalArchitecture = await designTechnicalSolution(qualifiedLead);
+  const pricing = await calculatePricing(qualifiedLead);
+  const timeline = await createImplementationTimeline(qualifiedLead);
+  
+  return {
+    executive_summary: await generateExecutiveSummary(qualifiedLead, roiCalculation),
+    technical_solution: technicalArchitecture,
+    pricing: pricing,
+    timeline: timeline,
+    roi_analysis: roiCalculation,
+    case_studies: await selectRelevantCaseStudies(qualifiedLead)
+  };
+}
+
+// Product Development Processes
+export async function developAnomalyModel(productFamily: string): Promise<AnomalyModel> {
+  const trainingData = await collectTrainingData(productFamily);
+  const labeledData = await runSeededFaultCampaign(productFamily);
+  const features = await extractPhysicsInformedFeatures(trainingData);
+  
+  const model = await trainAnomalyDetectionModel(features, labeledData);
+  const validatedModel = await validateModelPerformance(model);
+  const deployedModel = await deployModelToEdge(validatedModel);
+  
+  await setupDriftMonitoring(deployedModel);
+  await scheduleRetrainingCadence(deployedModel);
+  
+  return deployedModel;
+}
+
+export async function extractPhysicsInformedFeatures(data: any): Promise<any> {
+  const features = {
+    pressure_ripple_harmonics: await calculatePressureRippleHarmonics(data.pressure),
+    case_drain_transients: await analyzeCaseDrainTransients(data.flow),
+    acoustic_emission_bursts: await detectAcousticEmissionBursts(data.acousticEmission),
+    torque_ripple_analysis: await analyzeTorqueRipple(data.torque),
+    vibration_signatures: await extractVibrationSignatures(data.vibration),
+    efficiency_metrics: await calculateEfficiencyMetrics(data)
+  };
+  
+  return features;
+}
+
+export async function continuousMLOps(model: AnomalyModel): Promise<void> {
+  const driftMetrics = await monitorModelDrift(model);
+  
+  if (driftMetrics.requiresRetraining) {
+    const newTrainingData = await collectRecentData(model.productFamily);
+    const retrainedModel = await retrainModel(model, newTrainingData);
+    const validatedModel = await validateModelPerformance(retrainedModel);
+    
+    if (validatedModel.accuracy > model.accuracy) {
+      await deployModelUpdate(validatedModel);
+      await versionControlModel(model, validatedModel);
+    }
+  }
+  
+  await updatePerformanceMetrics(model);
+  await generateDriftReport(model, driftMetrics);
+}
+
+// Revenue Generation Flows
+export async function processSubscriptionRevenue(customer: Customer): Promise<number> {
+  const activeStands = await getActiveTestStands(customer);
+  const serviceLevel = customer.contract.serviceLevel;
+  
+  let monthlyRevenue = 0;
+  
+  for (const stand of activeStands) {
+    const standRevenue = await calculateStandRevenue(stand, serviceLevel);
+    monthlyRevenue += standRevenue;
+  }
+  
+  const enterpriseAddOns = await calculateEnterpriseAddOns(customer);
+  const premiumSupport = await calculatePremiumSupport(customer);
+  
+  const totalRevenue = monthlyRevenue + enterpriseAddOns + premiumSupport;
+  
+  await generateInvoice(customer, totalRevenue);
+  await updateRevenueMetrics(customer, totalRevenue);
+  
+  return totalRevenue;
+}
+
+export async function deliverProfessionalServices(customer: Customer, serviceType: string): Promise<number> {
+  let serviceRevenue = 0;
+  
+  switch (serviceType) {
+    case 'onboarding':
+      serviceRevenue = await deliverOnboardingServices(customer);
+      break;
+    case 'seeded_fault_campaign':
+      serviceRevenue = await runSeededFaultCampaign(customer);
+      break;
+    case 'data_cleanup':
+      serviceRevenue = await performDataCleanup(customer);
+      break;
+    case 'custom_integration':
+      serviceRevenue = await buildCustomIntegration(customer);
+      break;
+  }
+  
+  await trackServiceDelivery(customer, serviceType, serviceRevenue);
+  return serviceRevenue;
+}
+
+// Operational Procedures
+export async function integrateTestStand(testStand: TestStand): Promise<void> {
+  // Non-invasive data integration
+  const connector = await selectDataConnector(testStand);
+  await configureEdgeAgent(testStand, connector);
+  await establishSecureConnection(testStand);
+  
+  // Validate data quality
+  const dataQuality = await validateDataStreams(testStand);
+  if (!dataQuality.isValid) {
+    throw new Error(`Data quality issues: ${dataQuality.issues.join(', ')}`);
+  }
+  
+  // Configure monitoring
+  await setupRealTimeMonitoring(testStand);
+  await configureDashboards(testStand);
+  await setupAlertingRules(testStand);
+  
+  testStand.integrationStatus = 'active';
+  await updateTestStandStatus(testStand);
+}
+
+export async function processTestRun(testStand: TestStand, testData: any): Promise<TestResult> {
+  // Real-time inference with millisecond latency
+  const features = await extractFeatures(testData);
+  const anomalyScore = await scoreAnomaly(features, testStand);
+  const faultPredictions = await predictFaults(features, testStand);
+  
+  // Generate explainable results
+  const topFeatures = await identifyTopFeatures(features, anomalyScore);
+  const timeFrequencySignatures = await generateSignatures(testData);
+  
+  // Make pass/fail decision
+  const decision = await makePassFailDecision(anomalyScore, faultPredictions);
+  const reasonCodes = await generateReasonCodes(faultPredictions, topFeatures);
+  
+  const result: TestResult = {
+    testId: generateTestId(),
+    timestamp: new Date(),
+    productSerial: testData.serialNumber,
+    anomalyScore,
+    faultPredictions,
+    passFailDecision: decision,
+    confidence: calculateConfidence(anomalyScore, faultPredictions)
+  };
+  
+  // Write results back to MES/QMS
+  await writeResultsToMES(result);
+  await triggerQualityWorkflows(result);
+  
+  return result;
+}
+
+// Decision-Making Workflows
+export async function makePassFailDecision(
+  anomalyScore: number, 
+  faultPredictions: FaultPrediction[]
+): Promise<'pass' | 'fail' | 'review'> {
+  
+  const thresholds = await getDecisionThresholds();
+  
+  // High confidence fail
+  if (anomalyScore > thresholds.failThreshold) {
+    return 'fail';
+  }
+  
+  // Check for critical faults
+  const criticalFaults = faultPredictions.filter(f => 
+    f.severity === 'high' && f.probability > thresholds.criticalFaultThreshold
+  );
+  
+  if (criticalFaults.length > 0) {
+    return 'fail';
+  }
+  
+  // Borderline cases require human review
+  if (anomalyScore > thresholds.reviewThreshold) {
+    await flagForHumanReview(anomalyScore, faultPredictions);
+    return 'review';
+  }
+  
+  return 'pass';
+}
+
+export async function optimizeTestCycle(testStand: TestStand): Promise<void> {
+  const historicalData = await getHistoricalTestData(testStand);
+  const currentCycleTime = await getCurrentCycleTime(testStand);
+  
+  // Analyze guard bands and conservative limits
+  const optimizedLimits = await optimizeTestLimits(historicalData);
+  const reducedGuardBands = await calculateOptimalGuardBands(historicalData);
+  
+  // Estimate cycle time reduction
+  const estimatedReduction = await estimateCycleTimeReduction(
+    optimizedLimits, 
+    reducedGuardBands
+  );
+  
+  if (estimatedReduction > 0.05) { // 5% improvement threshold
+    await updateTestRecipe(testStand, optimizedLimits);
+    await notifyTestEngineers(testStand, estimatedReduction);
+  }
+}
+
+export async function handleAnomalyAlert(alert: any): Promise<void> {
+  const severity = await assessAlertSeverity(alert);
+  
+  switch (severity) {
+    case 'critical':
+      await immediateResponse(alert);
+      await notifyQualityTeam(alert);
+      await triggerContainmentActions(alert);
+      break;
+      
+    case 'high':
+      await scheduleInvestigation(alert);
+      await notifyTestEngineers(alert);
+      break;
+      
+    case 'medium':
+      await logForTrendAnalysis(alert);
+      await updateDashboards(alert);
+      break;
+      
+    case 'low':
+      await logForTrendAnalysis(alert);
+      break;
+  }
+  
+  await updateAlertStatus(alert, 'processed');
+}
+
+// Helper functions (pseudocode)
+async function assessTechnicalRequirements(lead: Lead): Promise<TechnicalRequirements> {
+  // Implementation would assess current test infrastructure
+  throw new Error('Not implemented');
+}
+
+async function identifyStakeholders(lead: Lead): Promise<Stakeholder[]> {
+  // Implementation would identify decision makers and influencers
+  throw new Error('Not implemented');
+}
+
+async function calculateROI(lead: QualifiedLead): Promise<any> {
+  // Implementation would calculate warranty reduction, false reject savings, etc.
+  throw new Error('Not implemented');
+}
+
+async function collectTrainingData(productFamily: string): Promise<any> {
+  // Implementation would gather historical test data
+  throw new Error('Not implemented');
+}
+
+async function runSeededFaultCampaign(productFamily: string): Promise<any> {
+  // Implementation would run controlled fault injection tests
+  throw new Error('Not implemented');
+}
+
+// Additional helper functions would be implemented as needed...
+```
