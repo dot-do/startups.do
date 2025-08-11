@@ -320,6 +320,643 @@ landingPage:
     - 'Notify riders via alerts, web widgets, and integrations.'
     - Monitor live performance; adjust and republish in one click.
 ---
+
+```typescript
+// Customer Acquisition Workflows
+
+interface Lead {
+  agencyName: string;
+  fleetSize: number;
+  contactInfo: ContactInfo;
+  currentDetourVolume: number;
+  painPoints: string[];
+  budget?: number;
+}
+
+interface ContactInfo {
+  name: string;
+  title: string;
+  email: string;
+  phone: string;
+}
+
+interface Customer {
+  id: string;
+  agencyName: string;
+  fleetSize: number;
+  subscriptionTier: 'Small' | 'Mid' | 'Large';
+  contractValue: number;
+  onboardingStatus: 'pending' | 'in-progress' | 'complete';
+}
+
+interface Proposal {
+  leadId: string;
+  subscriptionTier: string;
+  annualValue: number;
+  features: string[];
+  implementation: ImplementationPlan;
+  roi: ROIProjection;
+}
+
+interface ImplementationPlan {
+  duration: number;
+  phases: string[];
+  integrations: string[];
+  training: TrainingPlan;
+}
+
+interface ROIProjection {
+  timeToDetourReduction: number;
+  costSavings: number;
+  efficiencyGains: number;
+}
+
+interface TrainingPlan {
+  sessions: number;
+  duration: number;
+  participants: string[];
+}
+
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const proposal = await generateProposal(qualifiedLead);
+  const contract = await negotiateContract(proposal);
+  return await onboardCustomer(contract);
+}
+
+export async function qualifyLead(lead: Lead): Promise<Lead> {
+  // Qualify based on fleet size, detour volume, and budget
+  if (lead.fleetSize < 10) {
+    throw new Error('Fleet size below minimum threshold');
+  }
+  
+  const qualificationScore = calculateQualificationScore(lead);
+  if (qualificationScore < 70) {
+    throw new Error('Lead does not meet qualification criteria');
+  }
+  
+  return {
+    ...lead,
+    painPoints: await analyzePainPoints(lead.painPoints),
+  };
+}
+
+export async function generateProposal(lead: Lead): Promise<Proposal> {
+  const tier = determineSubscriptionTier(lead.fleetSize);
+  const features = await selectFeatures(tier, lead.painPoints);
+  const implementation = await planImplementation(lead);
+  const roi = await calculateROI(lead, tier);
+  
+  return {
+    leadId: lead.agencyName,
+    subscriptionTier: tier,
+    annualValue: calculateAnnualValue(tier, lead.fleetSize),
+    features,
+    implementation,
+    roi,
+  };
+}
+
+export async function negotiateContract(proposal: Proposal): Promise<any> {
+  // Contract negotiation workflow
+  const terms = await generateContractTerms(proposal);
+  const approvals = await getInternalApprovals(terms);
+  return await finalizeContract(terms, approvals);
+}
+
+export async function onboardCustomer(contract: any): Promise<Customer> {
+  const customer = await createCustomerAccount(contract);
+  await setupIntegrations(customer);
+  await scheduleTraining(customer);
+  await configureSystem(customer);
+  
+  return {
+    ...customer,
+    onboardingStatus: 'complete',
+  };
+}
+
+// Product Development Processes
+
+interface ClosureNotice {
+  id: string;
+  source: 'email' | 'pdf' | 'portal' | 'gis';
+  location: GeoLocation;
+  dateRange: DateRange;
+  restrictions: string[];
+  rawData: any;
+}
+
+interface GeoLocation {
+  coordinates: [number, number][];
+  address: string;
+  affectedRoutes: string[];
+}
+
+interface DateRange {
+  start: Date;
+  end: Date;
+  timeWindows?: TimeWindow[];
+}
+
+interface TimeWindow {
+  startTime: string;
+  endTime: string;
+  days: string[];
+}
+
+interface DetourRoute {
+  id: string;
+  originalRoute: string;
+  alternativePath: GeoLocation;
+  constraints: BusConstraints;
+  temporaryStops: TemporaryStop[];
+  compliance: ComplianceCheck;
+}
+
+interface BusConstraints {
+  turnRadius: number;
+  weight: number;
+  height: number;
+  width: number;
+  grades: number[];
+}
+
+interface TemporaryStop {
+  id: string;
+  location: GeoLocation;
+  adaCompliant: boolean;
+  safetyScore: number;
+  amenities: string[];
+}
+
+interface ComplianceCheck {
+  ada: boolean;
+  traffic: boolean;
+  safety: boolean;
+  issues: string[];
+}
+
+export async function ingestClosureNotice(notice: ClosureNotice): Promise<ClosureNotice> {
+  const parsedNotice = await parseNoticeContent(notice);
+  const validatedNotice = await validateNoticeData(parsedNotice);
+  const enrichedNotice = await enrichWithGISData(validatedNotice);
+  
+  return await storeClosureNotice(enrichedNotice);
+}
+
+export async function detectImpact(notice: ClosureNotice): Promise<string[]> {
+  const affectedRoutes = await identifyAffectedRoutes(notice.location);
+  const serviceWindows = await calculateServiceWindows(notice.dateRange);
+  const otpRisk = await simulateOTPRisk(affectedRoutes, notice.restrictions);
+  
+  return affectedRoutes;
+}
+
+export async function generateDetourOptions(
+  closureNotice: ClosureNotice,
+  constraints: BusConstraints
+): Promise<DetourRoute[]> {
+  const routingOptions = await calculateAlternativePaths(
+    closureNotice.location,
+    constraints
+  );
+  
+  const detourRoutes = await Promise.all(
+    routingOptions.map(async (path) => {
+      const temporaryStops = await siteTemporaryStops(path);
+      const compliance = await checkCompliance(path, temporaryStops);
+      
+      return {
+        id: generateDetourId(),
+        originalRoute: closureNotice.location.affectedRoutes[0],
+        alternativePath: path,
+        constraints,
+        temporaryStops,
+        compliance,
+      };
+    })
+  );
+  
+  return await scoreAndRankDetours(detourRoutes);
+}
+
+export async function createSignagePackage(detour: DetourRoute): Promise<any> {
+  const signageAssets = await generateSignageAssets(detour);
+  const qrCodes = await generateQRCodes(detour);
+  const multilingualContent = await translateContent(signageAssets);
+  
+  return {
+    printablePDFs: signageAssets,
+    qrCodes,
+    multilingualContent,
+    workOrders: await generateWorkOrders(detour),
+  };
+}
+
+// Revenue Generation Flows
+
+interface Subscription {
+  customerId: string;
+  tier: 'Small' | 'Mid' | 'Large';
+  annualValue: number;
+  features: string[];
+  addOns: AddOn[];
+  billingCycle: 'monthly' | 'annual';
+}
+
+interface AddOn {
+  name: string;
+  price: number;
+  type: 'connector' | 'module' | 'service';
+}
+
+interface Usage {
+  customerId: string;
+  period: string;
+  detoursCreated: number;
+  gtfsUpdates: number;
+  apiCalls: number;
+}
+
+export async function calculateSubscriptionRevenue(
+  customer: Customer,
+  usage: Usage
+): Promise<number> {
+  const baseSubscription = await getSubscriptionDetails(customer.id);
+  const usageCharges = await calculateUsageCharges(usage);
+  const addOnCharges = await calculateAddOnCharges(baseSubscription.addOns);
+  
+  return baseSubscription.annualValue + usageCharges + addOnCharges;
+}
+
+export async function processPayment(
+  customerId: string,
+  amount: number
+): Promise<boolean> {
+  const paymentMethod = await getPaymentMethod(customerId);
+  const invoice = await generateInvoice(customerId, amount);
+  const payment = await chargePaymentMethod(paymentMethod, amount);
+  
+  if (payment.success) {
+    await updateSubscriptionStatus(customerId, 'active');
+    await sendPaymentConfirmation(customerId, invoice);
+    return true;
+  }
+  
+  await handlePaymentFailure(customerId, payment.error);
+  return false;
+}
+
+export async function upsellCustomer(
+  customerId: string,
+  targetTier: string
+): Promise<boolean> {
+  const currentSubscription = await getSubscriptionDetails(customerId);
+  const upsellProposal = await generateUpsellProposal(currentSubscription, targetTier);
+  const approval = await presentUpsellProposal(customerId, upsellProposal);
+  
+  if (approval) {
+    await upgradeSubscription(customerId, targetTier);
+    await updateBilling(customerId, upsellProposal.newAmount);
+    return true;
+  }
+  
+  return false;
+}
+
+// Operational Procedures
+
+interface GTFSPackage {
+  routes: any[];
+  stops: any[];
+  trips: any[];
+  shapes: any[];
+  calendar: any[];
+  alerts: any[];
+}
+
+interface PublishingSchedule {
+  staticGTFS: Date;
+  realtimeGTFS: Date;
+  riderApps: Date;
+  operatorBulletins: Date;
+  signage: Date;
+}
+
+export async function createDetourWorkflow(
+  closureNotice: ClosureNotice
+): Promise<string> {
+  const workflowId = generateWorkflowId();
+  
+  // Step 1: Impact Detection
+  const affectedRoutes = await detectImpact(closureNotice);
+  
+  // Step 2: Generate Detour Options
+  const constraints = await getBusConstraints(affectedRoutes);
+  const detourOptions = await generateDetourOptions(closureNotice, constraints);
+  
+  // Step 3: Create Signage Package
+  const selectedDetour = detourOptions[0]; // Highest scored
+  const signagePackage = await createSignagePackage(selectedDetour);
+  
+  // Step 4: Generate GTFS Package
+  const gtfsPackage = await generateGTFSPackage(selectedDetour);
+  
+  // Step 5: Create Publishing Schedule
+  const publishingSchedule = await createPublishingSchedule(closureNotice.dateRange);
+  
+  await storeWorkflow(workflowId, {
+    closureNotice,
+    detourOptions,
+    signagePackage,
+    gtfsPackage,
+    publishingSchedule,
+    status: 'pending_approval',
+  });
+  
+  return workflowId;
+}
+
+export async function generateGTFSPackage(detour: DetourRoute): Promise<GTFSPackage> {
+  const routes = await updateRouteShapes(detour);
+  const stops = await createTemporaryStops(detour.temporaryStops);
+  const trips = await updateTripPatterns(detour);
+  const shapes = await generateShapeFiles(detour.alternativePath);
+  const calendar = await updateServiceCalendar(detour);
+  const alerts = await generateServiceAlerts(detour);
+  
+  return {
+    routes,
+    stops,
+    trips,
+    shapes,
+    calendar,
+    alerts,
+  };
+}
+
+export async function publishDetour(workflowId: string): Promise<boolean> {
+  const workflow = await getWorkflow(workflowId);
+  
+  if (workflow.status !== 'approved') {
+    throw new Error('Workflow must be approved before publishing');
+  }
+  
+  // Publish in sequence according to schedule
+  await publishStaticGTFS(workflow.gtfsPackage);
+  await publishRealtimeGTFS(workflow.gtfsPackage.alerts);
+  await updateRiderApps(workflow.gtfsPackage);
+  await distributeOperatorBulletins(workflow);
+  await activateSignage(workflow.signagePackage);
+  
+  // Update workflow status
+  await updateWorkflowStatus(workflowId, 'published');
+  
+  // Start monitoring
+  await startPerformanceMonitoring(workflowId);
+  
+  return true;
+}
+
+export async function monitorDetourPerformance(workflowId: string): Promise<any> {
+  const metrics = await collectPerformanceMetrics(workflowId);
+  const otpDelta = await calculateOTPDelta(metrics);
+  const ridershipRetention = await calculateRidershipRetention(metrics);
+  const complaints = await countComplaints(workflowId);
+  
+  const performance = {
+    otpDelta,
+    ridershipRetention,
+    complaints,
+    timestamp: new Date(),
+  };
+  
+  await storePerformanceData(workflowId, performance);
+  
+  // Check if intervention needed
+  if (otpDelta > 0.05 || complaints > 10) {
+    await triggerPerformanceAlert(workflowId, performance);
+  }
+  
+  return performance;
+}
+
+// Decision-Making Workflows
+
+interface ApprovalWorkflow {
+  workflowId: string;
+  approvers: Approver[];
+  currentStage: string;
+  decisions: Decision[];
+  deadline: Date;
+}
+
+interface Approver {
+  role: 'planner' | 'operations' | 'safety' | 'external';
+  name: string;
+  email: string;
+  required: boolean;
+}
+
+interface Decision {
+  approverId: string;
+  decision: 'approved' | 'rejected' | 'needs_changes';
+  comments: string;
+  timestamp: Date;
+}
+
+export async function initiateApprovalWorkflow(
+  workflowId: string,
+  approvers: Approver[]
+): Promise<string> {
+  const approvalWorkflow: ApprovalWorkflow = {
+    workflowId,
+    approvers,
+    currentStage: 'internal_review',
+    decisions: [],
+    deadline: new Date(Date.now() + 48 * 60 * 60 * 1000), // 48 hours
+  };
+  
+  await storeApprovalWorkflow(approvalWorkflow);
+  await notifyApprovers(approvers, workflowId);
+  
+  return approvalWorkflow.workflowId;
+}
+
+export async function processApprovalDecision(
+  workflowId: string,
+  approverId: string,
+  decision: 'approved' | 'rejected' | 'needs_changes',
+  comments: string
+): Promise<boolean> {
+  const approvalWorkflow = await getApprovalWorkflow(workflowId);
+  
+  const newDecision: Decision = {
+    approverId,
+    decision,
+    comments,
+    timestamp: new Date(),
+  };
+  
+  approvalWorkflow.decisions.push(newDecision);
+  
+  if (decision === 'rejected') {
+    await updateWorkflowStatus(workflowId, 'rejected');
+    await notifyRejection(workflowId, comments);
+    return false;
+  }
+  
+  if (decision === 'needs_changes') {
+    await updateWorkflowStatus(workflowId, 'needs_revision');
+    await requestRevisions(workflowId, comments);
+    return false;
+  }
+  
+  // Check if all required approvals received
+  const allApproved = await checkAllApprovalsReceived(approvalWorkflow);
+  
+  if (allApproved) {
+    await updateWorkflowStatus(workflowId, 'approved');
+    await schedulePublication(workflowId);
+    return true;
+  }
+  
+  await updateApprovalWorkflow(approvalWorkflow);
+  return false;
+}
+
+export async function escalateApproval(
+  workflowId: string,
+  reason: string
+): Promise<void> {
+  const approvalWorkflow = await getApprovalWorkflow(workflowId);
+  
+  if (new Date() > approvalWorkflow.deadline) {
+    const escalationApprovers = await getEscalationApprovers();
+    await addApprovers(workflowId, escalationApprovers);
+    await notifyEscalation(workflowId, reason);
+  }
+}
+
+export async function auditDetourDecision(workflowId: string): Promise<any> {
+  const workflow = await getWorkflow(workflowId);
+  const approvalWorkflow = await getApprovalWorkflow(workflowId);
+  const performance = await getPerformanceData(workflowId);
+  
+  return {
+    workflowId,
+    decisions: approvalWorkflow.decisions,
+    outcome: workflow.status,
+    performance,
+    compliance: await checkComplianceAudit(workflow),
+    timestamp: new Date(),
+  };
+}
+
+// Helper functions (implementation details would be filled in)
+async function calculateQualificationScore(lead: Lead): Promise<number> { return 85; }
+async function analyzePainPoints(painPoints: string[]): Promise<string[]> { return painPoints; }
+async function determineSubscriptionTier(fleetSize: number): string { 
+  if (fleetSize < 50) return 'Small';
+  if (fleetSize < 300) return 'Mid';
+  return 'Large';
+}
+async function selectFeatures(tier: string, painPoints: string[]): Promise<string[]> { return []; }
+async function planImplementation(lead: Lead): Promise<ImplementationPlan> { 
+  return { duration: 12, phases: [], integrations: [], training: { sessions: 3, duration: 2, participants: [] } };
+}
+async function calculateROI(lead: Lead, tier: string): Promise<ROIProjection> { 
+  return { timeToDetourReduction: 45, costSavings: 100000, efficiencyGains: 0.3 };
+}
+async function calculateAnnualValue(tier: string, fleetSize: number): number { return 60000; }
+async function generateContractTerms(proposal: Proposal): Promise<any> { return {}; }
+async function getInternalApprovals(terms: any): Promise<any> { return {}; }
+async function finalizeContract(terms: any, approvals: any): Promise<any> { return {}; }
+async function createCustomerAccount(contract: any): Promise<Customer> { 
+  return { id: '1', agencyName: 'Test', fleetSize: 100, subscriptionTier: 'Mid', contractValue: 60000, onboardingStatus: 'pending' };
+}
+async function setupIntegrations(customer: Customer): Promise<void> {}
+async function scheduleTraining(customer: Customer): Promise<void> {}
+async function configureSystem(customer: Customer): Promise<void> {}
+async function parseNoticeContent(notice: ClosureNotice): Promise<ClosureNotice> { return notice; }
+async function validateNoticeData(notice: ClosureNotice): Promise<ClosureNotice> { return notice; }
+async function enrichWithGISData(notice: ClosureNotice): Promise<ClosureNotice> { return notice; }
+async function storeClosureNotice(notice: ClosureNotice): Promise<ClosureNotice> { return notice; }
+async function identifyAffectedRoutes(location: GeoLocation): Promise<string[]> { return []; }
+async function calculateServiceWindows(dateRange: DateRange): Promise<any> { return {}; }
+async function simulateOTPRisk(routes: string[], restrictions: string[]): Promise<number> { return 0.05; }
+async function calculateAlternativePaths(location: GeoLocation, constraints: BusConstraints): Promise<GeoLocation[]> { return []; }
+async function siteTemporaryStops(path: GeoLocation): Promise<TemporaryStop[]> { return []; }
+async function checkCompliance(path: GeoLocation, stops: TemporaryStop[]): Promise<ComplianceCheck> { 
+  return { ada: true, traffic: true, safety: true, issues: [] };
+}
+async function generateDetourId(): string { return 'detour-' + Date.now(); }
+async function scoreAndRankDetours(detours: DetourRoute[]): Promise<DetourRoute[]> { return detours; }
+async function generateSignageAssets(detour: DetourRoute): Promise<any> { return {}; }
+async function generateQRCodes(detour: DetourRoute): Promise<any> { return {}; }
+async function translateContent(assets: any): Promise<any> { return {}; }
+async function generateWorkOrders(detour: DetourRoute): Promise<any> { return {}; }
+async function getSubscriptionDetails(customerId: string): Promise<Subscription> { 
+  return { customerId, tier: 'Mid', annualValue: 60000, features: [], addOns: [], billingCycle: 'annual' };
+}
+async function calculateUsageCharges(usage: Usage): Promise<number> { return 0; }
+async function calculateAddOnCharges(addOns: AddOn[]): Promise<number> { return 0; }
+async function getPaymentMethod(customerId: string): Promise<any> { return {}; }
+async function generateInvoice(customerId: string, amount: number): Promise<any> { return {}; }
+async function chargePaymentMethod(method: any, amount: number): Promise<any> { return { success: true }; }
+async function updateSubscriptionStatus(customerId: string, status: string): Promise<void> {}
+async function sendPaymentConfirmation(customerId: string, invoice: any): Promise<void> {}
+async function handlePaymentFailure(customerId: string, error: any): Promise<void> {}
+async function generateUpsellProposal(subscription: Subscription, targetTier: string): Promise<any> { return {}; }
+async function presentUpsellProposal(customerId: string, proposal: any): Promise<boolean> { return true; }
+async function upgradeSubscription(customerId: string, tier: string): Promise<void> {}
+async function updateBilling(customerId: string, amount: number): Promise<void> {}
+async function generateWorkflowId(): string { return 'workflow-' + Date.now(); }
+async function getBusConstraints(routes: string[]): Promise<BusConstraints> { 
+  return { turnRadius: 12, weight: 40000, height: 12, width: 8, grades: [0.08] };
+}
+async function createPublishingSchedule(dateRange: DateRange): Promise<PublishingSchedule> { 
+  return { staticGTFS: new Date(), realtimeGTFS: new Date(), riderApps: new Date(), operatorBulletins: new Date(), signage: new Date() };
+}
+async function storeWorkflow(id: string, data: any): Promise<void> {}
+async function updateRouteShapes(detour: DetourRoute): Promise<any[]> { return []; }
+async function createTemporaryStops(stops: TemporaryStop[]): Promise<any[]> { return []; }
+async function updateTripPatterns(detour: DetourRoute): Promise<any[]> { return []; }
+async function generateShapeFiles(path: GeoLocation): Promise<any[]> { return []; }
+async function updateServiceCalendar(detour: DetourRoute): Promise<any[]> { return []; }
+async function generateServiceAlerts(detour: DetourRoute): Promise<any[]> { return []; }
+async function getWorkflow(id: string): Promise<any> { return { status: 'approved' }; }
+async function publishStaticGTFS(gtfs: GTFSPackage): Promise<void> {}
+async function publishRealtimeGTFS(alerts: any[]): Promise<void> {}
+async function updateRiderApps(gtfs: GTFSPackage): Promise<void> {}
+async function distributeOperatorBulletins(workflow: any): Promise<void> {}
+async function activateSignage(signage: any): Promise<void> {}
+async function updateWorkflowStatus(id: string, status: string): Promise<void> {}
+async function startPerformanceMonitoring(id: string): Promise<void> {}
+async function collectPerformanceMetrics(id: string): Promise<any> { return {}; }
+async function calculateOTPDelta(metrics: any): Promise<number> { return 0.02; }
+async function calculateRidershipRetention(metrics: any): Promise<number> { return 0.92; }
+async function countComplaints(id: string): Promise<number> { return 2; }
+async function storePerformanceData(id: string, data: any): Promise<void> {}
+async function triggerPerformanceAlert(id: string, performance: any): Promise<void> {}
+async function storeApprovalWorkflow(workflow: ApprovalWorkflow): Promise<void> {}
+async function notifyApprovers(approvers: Approver[], workflowId: string): Promise<void> {}
+async function getApprovalWorkflow(id: string): Promise<ApprovalWorkflow> { 
+  return { workflowId: id, approvers: [], currentStage: 'internal_review', decisions: [], deadline: new Date() };
+}
+async function notifyRejection(id: string, comments: string): Promise<void> {}
+async function requestRevisions(id: string, comments: string): Promise<void> {}
+async function checkAllApprovalsReceived(workflow: ApprovalWorkflow): Promise<boolean> { return true; }
+async function schedulePublication(id: string): Promise<void> {}
+async function updateApprovalWorkflow(workflow: ApprovalWorkflow): Promise<void> {}
+async function getEscalationApprovers(): Promise<Approver[]> { return []; }
+async function addApprovers(id: string, approvers: Approver[]): Promise<void> {}
+async function notifyEscalation(id: string, reason: string): Promise<void> {}
+async function getPerformanceData(id: string): Promise<any> { return {}; }
+async function checkComplianceAudit(workflow: any): Promise<any> { return {}; }
+```
+
 # DetourKit (Planned Detour Builder + GTFS Package)
 
 Generated for NAICS 485113 — Bus and Other Motor Vehicle Transit Systems.
