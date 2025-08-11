@@ -7,6 +7,10 @@ import { listStartups, getStartup } from '@/lib/startups'
 
 const PAGE_SIZE = 24
 
+export const metadata = {
+  title: 'Startups.do'
+}
+
 export default async function Home() {
   const slugs = await listStartups({ offset: 0, limit: PAGE_SIZE })
 
@@ -14,7 +18,7 @@ export default async function Home() {
   for (const slug of slugs) {
     const doc = await getStartup<any>(slug)
     const rawName = (doc.data?.name as string) || slug
-    const baseName = (rawName.split(/[-–—]/)[0] || rawName).trim()
+    const baseName = (rawName.split(/[-–—| AI|:|(/]/)[0] || rawName).trim()
     const name = baseName.split(/[\s-]+/).slice(0, 4).join(' ')
     const description =
       (doc.data?.description as string) ||
