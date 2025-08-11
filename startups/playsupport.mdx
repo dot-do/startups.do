@@ -322,7 +322,550 @@ landingPage:
     - Test in sandbox with suggested replies; approve.
     - Go live and track deflection and CSAT in the dashboard.
 ---
-# PlaySupport Copilot
+# PlaySupport — Vertical AI Copilot for Toy/Game/Hobby Retailers
 
 Generated for NAICS 459120 — Hobby, Toy, and Game Retailers.
-Service: Customer Support Copilot (RAG + Order Status)
+Service: Vertical AI Customer Support Copilot
+
+## Business Workflow Functions
+
+```typescript
+// Core business process types
+interface Lead {
+  source: string;
+  retailerType: 'LGS' | 'chain' | 'DTC' | 'agency';
+  monthlyOrderVolume: number;
+  currentPlatform: 'shopify' | 'woocommerce' | 'bigcommerce' | 'other';
+  painPoints: string[];
+  contactInfo: ContactInfo;
+}
+
+interface Customer {
+  id: string;
+  retailerProfile: RetailerProfile;
+  subscription: SubscriptionTier;
+  integrations: Integration[];
+  metrics: CustomerMetrics;
+}
+
+interface SupportTicket {
+  id: string;
+  customerId: string;
+  channel: 'chat' | 'email' | 'sms' | 'social';
+  intent: TicketIntent;
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  status: 'new' | 'processing' | 'resolved' | 'escalated';
+  context: TicketContext;
+}
+
+interface OrderLookupRequest {
+  orderNumber?: string;
+  email?: string;
+  zipCode?: string;
+  customerId?: string;
+}
+
+interface ProductCompatibilityQuery {
+  productSKU: string;
+  customerAge?: number;
+  intendedUse: string;
+  compatibilityQuestions: string[];
+}
+
+// Customer Acquisition Workflow
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const demo = await scheduleDemoCall(qualifiedLead);
+  const trial = await setupFreeTrial(demo);
+  const proposal = await generateCustomProposal(trial);
+  const contract = await negotiateContract(proposal);
+  return await onboardCustomer(contract);
+}
+
+export async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  // Qualify based on order volume, platform, and pain points
+  const volumeScore = calculateVolumeScore(lead.monthlyOrderVolume);
+  const platformFit = assessPlatformCompatibility(lead.currentPlatform);
+  const painPointMatch = analyzePainPoints(lead.painPoints);
+  
+  if (volumeScore >= 7 && platformFit && painPointMatch >= 0.8) {
+    return {
+      ...lead,
+      qualified: true,
+      score: (volumeScore + painPointMatch * 10) / 2,
+      recommendedTier: suggestSubscriptionTier(lead)
+    };
+  }
+  
+  throw new Error('Lead does not meet qualification criteria');
+}
+
+export async function setupFreeTrial(demo: CompletedDemo): Promise<TrialAccount> {
+  const trialConfig = await generateTrialConfiguration(demo.requirements);
+  const integrations = await setupTrialIntegrations(demo.platforms);
+  const knowledgeBase = await importTrialKnowledgeBase(demo.productCatalog);
+  
+  return await createTrialEnvironment({
+    config: trialConfig,
+    integrations,
+    knowledgeBase,
+    duration: 14, // days
+    messageLimit: 500
+  });
+}
+
+// Product Development Workflow
+export async function developVerticalFeature(
+  featureRequest: FeatureRequest
+): Promise<DeployedFeature> {
+  const requirements = await analyzeVerticalRequirements(featureRequest);
+  const design = await createFeatureDesign(requirements);
+  const implementation = await implementFeature(design);
+  const testing = await runVerticalTests(implementation);
+  const deployment = await deployToProduction(testing);
+  
+  return await monitorFeaturePerformance(deployment);
+}
+
+export async function analyzeVerticalRequirements(
+  request: FeatureRequest
+): Promise<VerticalRequirements> {
+  // Analyze requirements specific to toy/game/hobby vertical
+  const domainContext = await extractDomainContext(request);
+  const complianceNeeds = await assessComplianceRequirements(request);
+  const integrationPoints = await identifyIntegrationNeeds(request);
+  
+  return {
+    functionalRequirements: domainContext.functional,
+    verticalConstraints: domainContext.constraints,
+    complianceRequirements: complianceNeeds,
+    integrationRequirements: integrationPoints,
+    successMetrics: defineVerticalMetrics(request)
+  };
+}
+
+// Revenue Generation Workflow
+export async function processSubscriptionRevenue(
+  customer: Customer,
+  billingPeriod: BillingPeriod
+): Promise<RevenueResult> {
+  const usage = await calculateUsageMetrics(customer, billingPeriod);
+  const baseSubscription = await processBaseSubscription(customer);
+  const addOns = await processAddOnCharges(customer, usage);
+  const overages = await calculateOverageCharges(usage);
+  
+  const totalRevenue = baseSubscription + addOns + overages;
+  
+  await generateInvoice({
+    customer,
+    baseSubscription,
+    addOns,
+    overages,
+    total: totalRevenue
+  });
+  
+  return {
+    revenue: totalRevenue,
+    usage,
+    renewalProbability: calculateRenewalProbability(customer, usage)
+  };
+}
+
+export async function expandCustomerRevenue(
+  customer: Customer
+): Promise<ExpansionResult> {
+  const usageAnalysis = await analyzeCustomerUsage(customer);
+  const expansionOpportunities = await identifyExpansionOpportunities(usageAnalysis);
+  
+  for (const opportunity of expansionOpportunities) {
+    const proposal = await generateExpansionProposal(opportunity);
+    const result = await presentExpansionOffer(customer, proposal);
+    
+    if (result.accepted) {
+      await implementExpansion(customer, opportunity);
+    }
+  }
+  
+  return {
+    newARR: calculateNewARR(customer),
+    expansionRate: calculateExpansionRate(customer),
+    nextOpportunities: identifyFutureOpportunities(customer)
+  };
+}
+
+// Core Support Operations Workflow
+export async function handleCustomerInquiry(
+  ticket: SupportTicket
+): Promise<TicketResolution> {
+  const intent = await classifyInquiry(ticket);
+  const context = await gatherTicketContext(ticket);
+  
+  switch (intent.type) {
+    case 'WISMO':
+      return await handleOrderStatusInquiry(ticket, context);
+    case 'PRODUCT_COMPATIBILITY':
+      return await handleProductCompatibilityQuestion(ticket, context);
+    case 'RETURNS_EXCHANGE':
+      return await handleReturnsRequest(ticket, context);
+    case 'POLICY_QUESTION':
+      return await handlePolicyInquiry(ticket, context);
+    case 'TCG_PREORDER':
+      return await handleTCGPreorderInquiry(ticket, context);
+    case 'MINIATURE_SCALE':
+      return await handleMiniatureScaleQuestion(ticket, context);
+    case 'RC_COMPATIBILITY':
+      return await handleRCCompatibilityQuestion(ticket, context);
+    default:
+      return await escalateToHuman(ticket, context);
+  }
+}
+
+export async function handleOrderStatusInquiry(
+  ticket: SupportTicket,
+  context: TicketContext
+): Promise<TicketResolution> {
+  const orderInfo = await lookupOrderInformation(context.orderIdentifiers);
+  const shippingStatus = await getShippingStatus(orderInfo);
+  const estimatedDelivery = await calculateDeliveryETA(shippingStatus);
+  
+  const response = await generateOrderStatusResponse({
+    orderInfo,
+    shippingStatus,
+    estimatedDelivery,
+    includeTrackingLink: true
+  });
+  
+  await sendCustomerResponse(ticket, response);
+  
+  return {
+    resolved: true,
+    resolutionTime: Date.now() - ticket.createdAt,
+    customerSatisfaction: await trackCustomerSatisfaction(ticket),
+    containmentAchieved: true
+  };
+}
+
+export async function handleProductCompatibilityQuestion(
+  ticket: SupportTicket,
+  context: TicketContext
+): Promise<TicketResolution> {
+  const productInfo = await retrieveProductInformation(context.productSKUs);
+  const compatibilityRules = await loadCompatibilityRules(productInfo);
+  const customerProfile = await getCustomerProfile(ticket.customerId);
+  
+  const recommendation = await generateCompatibilityRecommendation({
+    productInfo,
+    compatibilityRules,
+    customerQuery: context.customerQuery,
+    customerAge: customerProfile.age,
+    previousPurchases: customerProfile.purchaseHistory
+  });
+  
+  const response = await generateProductResponse(recommendation);
+  await sendCustomerResponse(ticket, response);
+  
+  // Track conversion impact for product guidance
+  await trackProductGuidanceConversion(ticket, recommendation);
+  
+  return {
+    resolved: true,
+    resolutionTime: Date.now() - ticket.createdAt,
+    conversionImpact: await trackConversionImpact(ticket),
+    containmentAchieved: true
+  };
+}
+
+export async function handleReturnsRequest(
+  ticket: SupportTicket,
+  context: TicketContext
+): Promise<TicketResolution> {
+  const orderInfo = await lookupOrderInformation(context.orderIdentifiers);
+  const returnPolicy = await getReturnPolicy(orderInfo.productTypes);
+  const eligibility = await checkReturnEligibility(orderInfo, returnPolicy);
+  
+  if (eligibility.eligible) {
+    const rma = await createReturnMerchandiseAuthorization({
+      orderInfo,
+      returnReason: context.returnReason,
+      policy: returnPolicy
+    });
+    
+    const response = await generateReturnResponse({
+      rma,
+      returnInstructions: await generateReturnInstructions(rma),
+      estimatedRefund: await calculateRefundAmount(orderInfo, returnPolicy)
+    });
+    
+    await sendCustomerResponse(ticket, response);
+    
+    return {
+      resolved: true,
+      resolutionTime: Date.now() - ticket.createdAt,
+      rmaCreated: rma.id,
+      containmentAchieved: true
+    };
+  } else {
+    const response = await generateReturnDenialResponse(eligibility.reason);
+    await sendCustomerResponse(ticket, response);
+    
+    return {
+      resolved: true,
+      resolutionTime: Date.now() - ticket.createdAt,
+      containmentAchieved: true
+    };
+  }
+}
+
+export async function handleTCGPreorderInquiry(
+  ticket: SupportTicket,
+  context: TicketContext
+): Promise<TicketResolution> {
+  const preorderInfo = await getTCGPreorderInformation(context.productSKUs);
+  const streetDatePolicy = await getStreetDatePolicy(preorderInfo);
+  const availabilityStatus = await checkPreorderAvailability(preorderInfo);
+  
+  const response = await generateTCGPreorderResponse({
+    preorderInfo,
+    streetDate: streetDatePolicy.releaseDate,
+    availabilityStatus,
+    preorderBenefits: await getPreorderBenefits(preorderInfo)
+  });
+  
+  await sendCustomerResponse(ticket, response);
+  
+  return {
+    resolved: true,
+    resolutionTime: Date.now() - ticket.createdAt,
+    containmentAchieved: true
+  };
+}
+
+export async function handleMiniatureScaleQuestion(
+  ticket: SupportTicket,
+  context: TicketContext
+): Promise<TicketResolution> {
+  const productInfo = await retrieveProductInformation(context.productSKUs);
+  const scaleCompatibility = await analyzeMiniatureScale(productInfo);
+  const recommendations = await generateScaleRecommendations(scaleCompatibility);
+  
+  const response = await generateMiniatureScaleResponse({
+    productInfo,
+    scaleCompatibility,
+    recommendations,
+    visualComparisons: await getScaleVisualComparisons(scaleCompatibility)
+  });
+  
+  await sendCustomerResponse(ticket, response);
+  
+  return {
+    resolved: true,
+    resolutionTime: Date.now() - ticket.createdAt,
+    containmentAchieved: true
+  };
+}
+
+// Decision-Making Workflow
+export async function makeEscalationDecision(
+  ticket: SupportTicket,
+  aiConfidence: number
+): Promise<EscalationDecision> {
+  const riskAssessment = await assessTicketRisk(ticket);
+  const complexityScore = await calculateComplexityScore(ticket);
+  const customerTier = await getCustomerTier(ticket.customerId);
+  const policyCompliance = await checkPolicyCompliance(ticket);
+  
+  const shouldEscalate = 
+    aiConfidence < 0.8 || 
+    riskAssessment.high || 
+    complexityScore > 7 ||
+    customerTier === 'enterprise' ||
+    !policyCompliance.compliant;
+  
+  if (shouldEscalate) {
+    const humanAgent = await assignOptimalAgent(ticket);
+    const context = await prepareEscalationContext(ticket);
+    const suggestedResponses = await generateSuggestedResponses(ticket);
+    
+    return {
+      escalate: true,
+      assignedAgent: humanAgent,
+      context,
+      suggestedResponses,
+      escalationReason: determineEscalationReason({
+        aiConfidence,
+        riskAssessment,
+        complexityScore,
+        customerTier,
+        policyCompliance
+      })
+    };
+  }
+  
+  return { escalate: false };
+}
+
+export async function optimizeAIPerformance(
+  performanceData: PerformanceMetrics
+): Promise<OptimizationResult> {
+  const containmentAnalysis = await analyzeContainmentRates(performanceData);
+  const accuracyAnalysis = await analyzeResponseAccuracy(performanceData);
+  const customerSatisfactionAnalysis = await analyzeCustomerSatisfaction(performanceData);
+  const verticalSpecificAnalysis = await analyzeVerticalPerformance(performanceData);
+  
+  const optimizations = await identifyOptimizationOpportunities({
+    containment: containmentAnalysis,
+    accuracy: accuracyAnalysis,
+    satisfaction: customerSatisfactionAnalysis,
+    vertical: verticalSpecificAnalysis
+  });
+  
+  for (const optimization of optimizations) {
+    await implementOptimization(optimization);
+  }
+  
+  return {
+    improvementAreas: optimizations,
+    expectedImpact: calculateExpectedImpact(optimizations),
+    implementationTimeline: generateImplementationPlan(optimizations)
+  };
+}
+
+// Operational Procedures
+export async function performDailyOperations(): Promise<OperationalStatus> {
+  const systemHealth = await checkSystemHealth();
+  const performanceMetrics = await gatherPerformanceMetrics();
+  const customerFeedback = await processCustomerFeedback();
+  const knowledgeBaseUpdates = await updateKnowledgeBase();
+  const policyCompliance = await auditPolicyCompliance();
+  
+  await generateDailyReport({
+    systemHealth,
+    performanceMetrics,
+    customerFeedback,
+    knowledgeBaseUpdates,
+    policyCompliance
+  });
+  
+  return {
+    status: 'operational',
+    metrics: performanceMetrics,
+    alerts: systemHealth.alerts,
+    recommendations: generateOperationalRecommendations(performanceMetrics)
+  };
+}
+
+export async function handleSeasonalScaling(
+  season: 'holiday' | 'back-to-school' | 'summer' | 'regular'
+): Promise<ScalingResult> {
+  const historicalData = await getSeasonalHistoricalData(season);
+  const projectedVolume = await projectTicketVolume(season, historicalData);
+  const resourceRequirements = await calculateResourceRequirements(projectedVolume);
+  
+  await scaleInfrastructure(resourceRequirements);
+  await updateSeasonalPolicies(season);
+  await prepareSeasonalKnowledge(season);
+  await configureSeasonalWorkflows(season);
+  
+  return {
+    scalingFactor: resourceRequirements.scalingFactor,
+    estimatedCost: resourceRequirements.cost,
+    expectedPerformance: projectSeasonalPerformance(projectedVolume)
+  };
+}
+
+export async function enforceVerticalPolicies(
+  ticket: SupportTicket,
+  proposedResponse: string
+): Promise<PolicyEnforcementResult> {
+  const policyChecks = await runPolicyChecks({
+    ticket,
+    proposedResponse,
+    policies: [
+      'street_date_enforcement',
+      'sealed_product_returns',
+      'age_appropriate_content',
+      'coppa_compliance',
+      'miniature_scale_accuracy',
+      'tcg_preorder_policies'
+    ]
+  });
+  
+  const violations = policyChecks.filter(check => !check.passed);
+  
+  if (violations.length > 0) {
+    const correctedResponse = await correctPolicyViolations(
+      proposedResponse,
+      violations
+    );
+    
+    return {
+      approved: true,
+      correctedResponse,
+      violations: violations.map(v => v.type),
+      correctionsMade: true
+    };
+  }
+  
+  return {
+    approved: true,
+    correctedResponse: proposedResponse,
+    violations: [],
+    correctionsMade: false
+  };
+}
+
+// Integration Workflows
+export async function syncEcommerceData(
+  customer: Customer
+): Promise<SyncResult> {
+  const platforms = customer.integrations.filter(i => i.type === 'ecommerce');
+  
+  const syncResults = await Promise.all(
+    platforms.map(async (platform) => {
+      const orders = await fetchOrderData(platform);
+      const products = await fetchProductCatalog(platform);
+      const customers = await fetchCustomerData(platform);
+      
+      return await updateLocalData({
+        platform: platform.name,
+        orders,
+        products,
+        customers
+      });
+    })
+  );
+  
+  return {
+    platformsSynced: syncResults.length,
+    recordsUpdated: syncResults.reduce((sum, result) => sum + result.recordsUpdated, 0),
+    errors: syncResults.filter(result => result.errors.length > 0)
+  };
+}
+
+export async function processHelpdeskEscalation(
+  ticket: SupportTicket,
+  escalationContext: EscalationContext
+): Promise<EscalationResult> {
+  const helpdeskIntegration = await getHelpdeskIntegration(ticket.customerId);
+  const escalationTicket = await createHelpdeskTicket({
+    integration: helpdeskIntegration,
+    originalTicket: ticket,
+    context: escalationContext,
+    suggestedResponses: escalationContext.suggestedResponses
+  });
+  
+  await notifyHumanAgent({
+    ticket: escalationTicket,
+    priority: ticket.priority,
+    context: escalationContext
+  });
+  
+  return {
+    helpdeskTicketId: escalationTicket.id,
+    assignedAgent: escalationTicket.assignedAgent,
+    escalationTime: Date.now() - ticket.createdAt
+  };
+}
+```
+
+This TypeScript implementation encodes PlaySupport's core business processes as executable functions, representing the operational workflows for a vertical AI customer support copilot specifically designed for toy, game, and hobby retailers. The functions handle customer acquisition, product development, revenue generation, support operations, decision-making, and integrations with the specialized knowledge and policies required for the toy/game/hobby retail vertical.
