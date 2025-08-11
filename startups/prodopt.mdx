@@ -1,0 +1,337 @@
+---
+name: 'ProdOpt: Transformer Production Schedule Optimizer'
+slug: prodopt
+service:
+  title: Production Schedule Optimizer
+  description: >-
+    Generates feasible, optimized schedules across coil winding, core, assembly,
+    tanking, and test.
+  targetUsers:
+    - Production planners
+    - Operations managers
+  triggers:
+    - Daily/shift planning cycle
+    - Hot order insertion
+    - Machine downtime event
+  inputs:
+    - Routings and work center capacities
+    - WIP status and queues
+    - Sales orders and due dates
+    - Labor/shift calendars
+    - Setup times/sequence rules
+  steps:
+    - Pull data from ERP/MES
+    - 'Build constraint model and objectives (on-time, WIP, setups)'
+    - Run optimization/heuristics for near-term horizon
+    - Produce detailed schedule and dispatch list
+    - 'Run what-if simulations (rush order, overtime)'
+    - Publish to Teams/visual board and write-back to ERP
+  tools:
+    - Google OR-Tools
+    - 'ERP/MES APIs (SAP PP, D365, Epicor, Infor LN)'
+    - Gantt visualization (Plotly/React)
+    - Teams/Slack notifications
+  outputs:
+    - Optimized finite-capacity schedule
+    - Dispatch lists by work center
+    - 'KPI dashboard (OTD, utilization, WIP)'
+    - What-if scenario comparisons
+  pricingModel:
+    - Monthly SaaS per plant
+    - One-time setup for data mapping
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Data quality and late updates cause infeasibility
+    - Planner adoption/change management
+    - Shop-floor exceptions not captured
+  dependencies:
+    - Real-time ERP/MES access
+    - Accurate routings and calendars
+    - Downtime/maintenance feeds
+leanCanvas:
+  problem:
+    - >-
+      Manual/Excel scheduling and generic ERP sequencing cannot handle
+      multi-stage, multi-resource constraints (coil winding, core stacking,
+      assembly, tanking, FAT/test) leading to 10–25% schedule infeasibility and
+      firefighting.
+    - >-
+      On-time delivery (OTD) in transformer plants often sits at 70–85% due to
+      test-bay bottlenecks, shared cranes, curing/soak times, and
+      material/skills constraints not modeled in current tools.
+    - >-
+      Long cycle times (8–20 weeks for power; 1–6 weeks for distribution) cause
+      high WIP (1.5–3.0x daily throughput) and cash tied up; rescheduling after
+      disruptions takes 2–8 hours per planner and happens 3–5 times/week.
+    - >-
+      Changeovers (e.g., copper gauge, winding program, core steel grade) and
+      limited skilled labor (winder/test technicians) are not optimized, causing
+      5–15% capacity loss.
+    - >-
+      ERP/MRP plans are infinite-capacity and ignore finite resources (test
+      bays, ovens, VPI tanks, paint booths, cranes), producing release plans
+      that are impossible to execute on the shop floor.
+    - >-
+      Quality holds/rework, maintenance windows, and HSE constraints (e.g., oil
+      handling, HV test) force frequent plan breaks; lack of scenario planning
+      leads to costly expediting and premium freight.
+    - >-
+      Visibility gaps between ERP/MES and shop floor dispatch lists result in
+      poor plan adherence (<70%), high expediting hours, and schedule
+      instability (daily plan churn >30%).
+  solution:
+    - >-
+      Transformer-specific optimization engine combining constraint programming
+      (CP-SAT/MIP) with heuristics for long-cycle, multi-resource jobs (cells,
+      bays, cranes, ovens, skills, materials).
+    - >-
+      Multi-objective optimizer minimizing weighted tardiness, changeovers, WIP,
+      and setup/teardown, with service-level and priority classes per
+      order/customer.
+    - >-
+      Real-time rescheduling and what-if scenarios for rush orders, machine
+      downtime, material delays, and rework with 1–5 minute solver runtimes for
+      typical horizons (2–12 weeks).
+    - >-
+      Built-in constraint templates: copper gauge/winding program changeovers,
+      core steel grade/lamination sequence, VPI and curing times, oil
+      fill/degassing, tanking-bay occupancy, shared crane conflicts, HV test
+      availability, paint/oven capacity, shift/skills calendars, maintenance
+      windows, HSE rules.
+    - >-
+      Tight integrations with ERP/MES (SAP PP/PM/MM, Oracle, Infor LN, Siemens
+      Opcenter, Rockwell), PLM/BOMs, and shop-floor data (downtime, quality
+      holds) via prebuilt connectors and APIs.
+    - >-
+      Operator-friendly Gantt views, dispatch lists by cell, electronic traveler
+      updates, and plan adherence tracking; alerts for late risk and constraint
+      violations.
+    - >-
+      KPI dashboards for OTD, cycle time, WIP, resource utilization,
+      changeovers, expediting hours/costs; export to Power BI/Tableau.
+    - >-
+      Deployment options: secure SaaS (Azure/AWS, SOC2-ready) or private cloud;
+      IT-friendly with SSO, RBAC, audit logs, and data residency controls.
+  uniqueValueProp: >-
+    Feasible, explainable, AI-driven finite-capacity schedules across winding,
+    core, assembly, tanking, and test in minutes—not days—lifting OTD by 10–20
+    points, reducing WIP by 15–30%, and increasing test-bay utilization by 10–15
+    points within 90 days.
+  unfairAdvantage: >-
+    Transformer-specific scheduling IP (constraint templates for test bays,
+    crane conflicts, VPI/curing, oil/tanking) plus prebuilt ERP/MES connectors
+    deliver 8–12 week time-to-value; hybrid OR + heuristics tuned on real
+    transformer plants provide explainable, stable schedules that planners
+    trust—difficult for generic APS or in-house tools to replicate quickly.
+  customerSegments:
+    - >-
+      Large OEM power transformer plants (≥72.5 kV) producing 50–400 units/year;
+      targets include Hitachi Energy, Siemens Energy, GE Vernova, SGB-SMIT,
+      Hyundai, Hyosung, JSHP, WEG.
+    - >-
+      Mid-market specialty transformer manufacturers (traction, furnace,
+      rectifier, HVDC, dry-type) producing 100–2,000 units/year.
+    - >-
+      High-volume distribution transformer plants (liquid-filled and dry-type)
+      producing 10,000–200,000 units/year with repetitive constraints and
+      changeover optimization needs.
+    - >-
+      Buyer roles: VP/Director of Operations, Plant Manager, Head of Planning &
+      Scheduling, Master Scheduler, Test Bay Manager, COO.
+    - >-
+      Adjacencies/influencers: ERP/MES owners (SAP PP, Oracle, Infor LN, Siemens
+      Opcenter, Rockwell FTPC), Industrial Engineering, Continuous
+      Improvement/Lean leaders.
+  channels:
+    - >-
+      Direct enterprise sales to target accounts (top 200 transformer plants)
+      led by domain AE + solution consultant; value engineering ROI model
+      tailored per plant.
+    - >-
+      Pilot-led motion: 8–12 week paid pilot ($30k–$60k) with defined success
+      criteria (e.g., +10pt OTD, -15% WIP, p95 solver <5 min), executive
+      sponsor, and weekly governance.
+    - >-
+      Alliances with ERP/MES SIs (Accenture, TCS, Tech Mahindra, Capgemini) and
+      boutique industrial consultancies for co-sell and implementation; partner
+      margin 15–25%.
+    - >-
+      ISV partnerships/marketplaces: SAP Store, Azure Marketplace (private
+      offers), Siemens Mendix/Opcenter ecosystem for referral and co-marketing.
+    - >-
+      Industry events and associations: IEEE PES T&D, CIGRE, Hannover Messe,
+      ELECRAMA; thought-leadership talks on test-bay optimization and
+      crane-aware scheduling.
+    - >-
+      Account-based marketing (LinkedIn, targeted email) to roles: Head of
+      Planning, Plant Manager; case studies, webinars, and factory diagnostic
+      offers.
+    - >-
+      Land-and-expand strategy: start with one plant/line, expand to sister
+      plants, add modules (test-bay, crane, simulation) and users.
+  revenueStreams:
+    - >-
+      Annual SaaS subscription per plant, tiered by complexity/scale:
+      Distribution (Small): $60k–$90k; Specialty (Mid): $120k–$180k; Power
+      (Large): $200k–$350k.
+    - >-
+      Add-on modules: Test-bay optimizer $30k/year, Crane-aware scheduling
+      $20k/year, Scenario Simulator/Digital Twin $40k/year.
+    - >-
+      Implementation/integration services: $80k–$250k per plant depending on
+      ERP/MES scope and data readiness.
+    - >-
+      Premium support/SLA (24x7, dedicated CSM): +15% ARR uplift; Training and
+      certification packages: $5k–$25k.
+    - >-
+      Multi-plant and enterprise agreements (3–5 year terms) with volume
+      discounts (10–20%) and global support add-ons.
+  costStructure:
+    - >-
+      R&D payroll: OR scientists, ML engineers, full-stack devs, QA; domain SMEs
+      (transformer manufacturing).
+    - >-
+      Cloud infrastructure: compute for solvers, storage, networking,
+      observability; staging/sandbox environments.
+    - >-
+      Third-party licenses: optimization solvers (e.g., Gurobi/CPLEX), security
+      tooling, connectors; test environments for ERP/MES.
+    - >-
+      Implementation and customer success: solution architects, integration
+      engineers, project management, training resources.
+    - >-
+      Sales and marketing: enterprise AEs, solutions consultants, partner
+      enablement, events, content; partner commissions (15–25%).
+    - >-
+      Security/compliance: SOC 2 Type II, ISO 27001, pen tests, data residency;
+      legal and cyber insurance.
+    - >-
+      Travel/on-site workshops for value stream mapping and go-lives; hardware
+      for pilot kits where needed.
+  keyMetrics:
+    - >-
+      Sales: Qualified pipeline ($) and count; pilots/quarter;
+      pilot-to-subscription conversion ≥60%; sales cycle length (target <6
+      months enterprise, <3 months mid-market).
+    - >-
+      Implementation: Time-to-first-schedule ≤14 days from data access;
+      time-to-value (pilot KPIs met) ≤90 days; integration defect rate
+      <2/blockers per go-live.
+    - >-
+      Product: p95 solver runtime ≤5 minutes for 8–12 week horizon and 300–1,500
+      concurrent jobs; schedule acceptance rate by planners ≥85%; plan stability
+      (>80% operations unchanged within 72-hour freeze).
+    - >-
+      Operations outcomes (per plant): OTD improvement +10–20 points; WIP
+      reduction 15–30%; average cycle time reduction 10–20%; test-bay
+      utilization +10–15 points; changeover hours −10–20%; expediting cost
+      −20–40%.
+    - >-
+      Adoption: Weekly active planners ≥90% of licensed; manual overrides/job
+      ≤1.0 after month 2; scenario runs/week/planner ≥5 indicating value.
+    - >-
+      Reliability/Security: Data pipeline success rate ≥99%; API uptime ≥99.9%;
+      mean time to recover <30 minutes; security incidents 0.
+    - >-
+      Financial: Net revenue retention ≥120%; gross margin ≥70%; logo churn ≤5%
+      annually; CAC payback ≤12 months.
+storyBrand:
+  character: >-
+    Operations and planning leaders at power, distribution, and specialty
+    transformer manufacturers who must promise reliable ship dates.
+  problem: >-
+    Volatile demand, long lead times, and shared constraints across coil
+    winding, core, assembly, tanking, and test overwhelm spreadsheets/ERP,
+    causing missed dates, expediting, overtime, and idle bottlenecks.
+  guide: >-
+    Production Schedule Optimizer is an AI co-planner that understands your
+    routings, skills, setup times, test bays, and calendars to generate
+    feasible, optimized schedules you can trust.
+  plan: >-
+    1) Connect ERP/MES and import routings, calendars, and constraints. 2) Set
+    objectives (OTD, throughput, WIP, changeovers). 3) Generate and publish a
+    master schedule with daily re-optimization and what-if scenarios.
+  callToAction: >-
+    Book a demo and launch a 4-week pilot to produce a live schedule on your
+    data.
+  success: >-
+    Higher on-time delivery, shorter lead times, increased throughput, lower
+    WIP, fewer changeovers, better asset utilization, and clear promise dates
+    sales can commit to.
+  failure: >-
+    Avoid fire drills: no more expediting, missed commitments, overtime bloat,
+    idle bottlenecks, and margin erosion.
+landingPage:
+  hero:
+    title: Production Schedule Optimizer for Transformer Manufacturing
+    subtitle: >-
+      AI schedules across coil winding, core, assembly, tanking, and
+      test—maximize throughput and on‑time delivery.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - Manual spreadsheets create conflicts and late shipments.
+    - >-
+      Tanking pits and test bays become bottlenecks that starve upstream
+      workcenters.
+    - Rush orders and design changes derail the entire plan.
+    - High setup and changeover time from poor job sequencing.
+    - >-
+      Limited visibility into material/tooling readiness (cores, tanks,
+      bushings, cranes).
+    - Overtime and expediting are routine to meet dates.
+    - Unreliable promise dates erode customer trust.
+    - 'ERP/MES, CMMS, and machine calendars are disconnected.'
+  solution:
+    - >-
+      Generate feasible, end‑to‑end schedules that respect capacities,
+      calendars, and dependencies.
+    - >-
+      Balance coil winding, core, assembly, tanking, and test to remove
+      bottlenecks.
+    - Sequence jobs to cut changeovers and increase flow.
+    - 'Re‑optimize in seconds when orders, breakdowns, or materials change.'
+    - Give Sales reliable promise dates with live ATP/CTP.
+    - Visual Gantt with drag‑and‑drop protected by AI guardrails.
+    - 'Run what‑if scenarios and choose the best plan for OTD, WIP, and overtime.'
+    - Publish to the floor and notify teams automatically.
+  features:
+    - >-
+      Transformer‑specific routing across coil winding → core → assembly →
+      tanking → test.
+    - >-
+      Hard/soft constraints: due dates, precedence, capacities, shifts,
+      maintenance, calendars.
+    - >-
+      Sequence‑dependent setup matrix (voltage class, oil type, core size,
+      tap‑changer).
+    - >-
+      Shared resources modeled: cranes, vacuum dry‑out ovens, oil filtration,
+      test bays.
+    - 'Material readiness gates for cores, tanks, bushings, and long‑lead items.'
+    - Skilled labor and certifications scheduling across bays and machines.
+    - >-
+      Dynamic re‑scheduling on events: rush orders, machine downtime, material
+      arrival.
+    - >-
+      KPI‑driven optimization (OTD, lead time, WIP, utilization) with tunable
+      weights.
+    - Real‑time shop‑floor feedback via scans/IoT to keep the plan accurate.
+    - 'Integrations: SAP/Oracle/Infor ERP, MES, CMMS via REST API or files.'
+    - 'Role‑based access, SSO, and encryption for enterprise security.'
+    - Deploy cloud or on‑prem to fit IT policy.
+  steps:
+    - 'Connect orders, routings, calendars, and inventory from ERP/MES.'
+    - 'Set constraints, shift patterns, setup rules, and objectives.'
+    - Generate the optimal schedule and view bottlenecks in the Gantt.
+    - 'Simulate scenarios, compare KPIs, and select the best plan.'
+    - Publish to production; monitor and auto re‑optimize as things change.
+---
+# ProdOpt: Transformer Production Schedule Optimizer
+
+Industry: Power, Distribution, and Specialty Transformer Manufacturing
+Service: Production Schedule Optimizer

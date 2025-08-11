@@ -1,0 +1,380 @@
+---
+name: RFQ-to-Quote Autopilot
+slug: rfqto5
+service:
+  title: RFQ-to-Quote Autopilot
+  description: 'Turns RFQs/specs into vetted BOM, price, lead time, and quote package.'
+  targetUsers:
+    - Sales engineers
+    - Estimators
+    - Inside sales
+  triggers:
+    - New RFQ email or portal upload
+    - Tender deadline approaching
+  inputs:
+    - RFQ PDFs/specs/drawings
+    - Loss capitalization factors (K1/K2)
+    - Item master and cost lists
+    - Labor/overhead rates
+    - Capacity/lead-time calendars
+    - Historical quotes/wins
+  steps:
+    - Ingest RFQ attachments and classify scope/ratings
+    - >-
+      Extract key parameters (kVA, voltages, vector group, BIL, cooling, temp
+      rise, accessories)
+    - >-
+      Map to design templates and compute rough BOM
+      (core/winding/tank/accessories)
+    - Estimate losses; apply loss capitalization if applicable
+    - Pull current costs and apply pricing policy/margins
+    - Estimate lead time from capacity/backlog
+    - Run compliance checks against standards and customer clauses
+    - 'Generate quote PDF/Word, BOM, and email draft for review'
+  tools:
+    - OCR (AWS Textract/Azure Form Recognizer)
+    - LLM extraction (GPT-4o/Claude)
+    - Python design/calculation scripts
+    - ERP/CPQ API (SAP/Oracle/D365/Epicor)
+    - Scheduling data (MES/ERP)
+    - Document generation (Docx/PDF)
+    - Email (Outlook/Gmail API)
+  outputs:
+    - Priced quote (PDF/Word)
+    - Itemized BOM and cost breakdown
+    - Lead-time estimate and assumptions
+    - Compliance/deviation notes
+    - Risk flags
+  pricingModel:
+    - Base subscription + per-RFQ usage
+    - Implementation fee for integration
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Spec misinterpretation leading to mispricing
+    - Lead-time estimate mismatch with actual capacity
+    - 'Hidden requirements not captured (e.g., special tests)'
+    - Liability for quote errors
+  dependencies:
+    - ERP/CPQ access
+    - 'Cost databases (materials, labor, freight)'
+    - Company design rules/templated BOMs
+    - Standards/tender clause library
+leanCanvas:
+  problem:
+    - >-
+      Transformer RFQs are complex (50–300+ page specs, drawings, datasheets)
+      and take 3–15 business days to convert into a vetted quote.
+    - >-
+      Quoting is constrained by scarce application engineers; typical AE
+      throughput is 5–20 power transformer RFQs per month or 50–200 distribution
+      RFQs per month.
+    - >-
+      Manual parsing and spreadsheet-based costing lead to margin leakage (2–5%
+      average vs. target) and compliance gaps that cause rework or penalties.
+    - >-
+      Supplier lead-time and price volatility (e.g., copper, GOES steel, OLTCs,
+      bushings) are not systematically captured in quotes, causing missed
+      delivery commitments and change orders.
+    - >-
+      Institutional knowledge is concentrated in a few experts; retirements and
+      turnover increase risk and extend training times (6–18 months to ramp a
+      new estimator).
+    - >-
+      Different plants, standards (IEEE/IEC), and customer templates cause
+      inconsistency; no single source of truth for assumptions, deviations, and
+      evaluated price (loss capitalization).
+    - >-
+      Slow quote turnaround reduces win rates in fast-moving tenders, especially
+      framework agreements and utility mini-bids where speed and completeness
+      are decisive.
+  solution:
+    - >-
+      Ingest and normalize RFQs (PDF, Word, Excel, emails) and drawings; extract
+      key parameters using a transformer-specific ontology (ratings, voltages,
+      impedance, cooling, losses, sound, seismic, accessories, standards).
+    - >-
+      Generate a parametric baseline design and multi-option BOM (core,
+      windings, tank, OLTC, bushings, radiators/fans/pumps, gauges, CTs/PTs,
+      relays, gaskets, oil) with alternates (Al/Cu, ONAN/ONAF/ODAF, OLTC
+      vendor).
+    - >-
+      Roll up costs with live commodity indices (copper, aluminum, GOES, oil),
+      supplier catalogs and eRFQ pulls for long-lead items (bushings, OLTC), and
+      calibrated labor/overhead models by plant.
+    - >-
+      Compute realistic lead times by combining supplier lead-time signals,
+      plant capacity calendars (critical resources: winding lines,
+      core-stacking, tank shop, test bay), and approval cycle assumptions.
+    - >-
+      Auto-build compliance and deviations matrix against IEEE/IEC and
+      customer-specific clauses; flag risks and exceptions for human review.
+    - >-
+      Produce a complete, branded quote package: technical compliance, price and
+      evaluated price (loss capitalization), lead time, deviations, drawings
+      list, warranty, incoterms, logistics assumptions.
+    - >-
+      Integrate to CPQ/ERP/PLM (e.g., SAP, Oracle, Infor, Salesforce CPQ) for
+      item master sync, part-numbering, and handoff to order engineering once
+      won.
+    - >-
+      Human-in-the-loop review with traceability: every datapoint links back to
+      spec text, rule, or supplier source; version control and approval workflow
+      included.
+  uniqueValueProp: >-
+    Turn transformer RFQs/specs into a vetted BOM, costed price, realistic lead
+    time, and a complete quote package in 24–72 hours with ±3% cost accuracy,
+    IEEE/IEC compliance traceability, and full auditability—tripling AE
+    throughput while protecting margins.
+  unfairAdvantage: >-
+    A transformer-specific knowledge base (IEEE/IEC clause mapping, evaluated
+    price logic, plant-calibrated parametric rules) trained on large volumes of
+    historical RFQs, BOMs, and outcomes, combined with live supplier and
+    commodity signals and human-in-the-loop guardrails that deliver traceable,
+    auditable, and production-ready quotes—difficult to replicate without years
+    of domain data and partnerships.
+  customerSegments:
+    - >-
+      Tier-1 and Tier-2 power transformer manufacturers (69–500 kV, 25–800 MVA):
+      proposals and application engineering teams.
+    - >-
+      Distribution transformer OEMs (5–38 kV, single- and three-phase, pad-mount
+      and pole-mount) with high RFQ volume.
+    - >-
+      Specialty transformer manufacturers (traction/rail, furnace/rectifier,
+      autotransformers, mobile substations).
+    - >-
+      Regional plants or business units within large OEMs needing plant-specific
+      rules and supplier mixes.
+    - >-
+      Independent sales reps and channel partners needing compliant, quick-turn
+      quotes connected to OEM governance.
+  channels:
+    - >-
+      Direct enterprise sales to VP Sales/Commercial, VP Engineering, and
+      Proposal Managers; land-and-expand via plant-level pilots.
+    - >-
+      90-day pilot offer: 30–50 historical RFQs for calibration + 10 live RFQs;
+      success exit criteria include <72-hour cycle time and ±3% cost variance.
+    - >-
+      Partnerships with ERP/CPQ SIs and manufacturing consultancies (e.g.,
+      Deloitte, Capgemini, Accenture, domain boutiques) to co-sell and
+      integrate.
+    - >-
+      Supplier co-marketing with OLTC and bushing vendors to enable real-time
+      lead-time feeds and preferred pricing workflows.
+    - >-
+      Presence at IEEE PES T&D, CIGRE, DISTRIBUTECH, Hannover Messe, and
+      regional utility purchasing forums; technical talks on evaluated price
+      accuracy and speed.
+    - >-
+      Content-led marketing: RFQ parsing benchmarks, copper/GOES exposure
+      reports, and case studies quantifying hit-rate lift from faster quotes.
+    - >-
+      Targeted ABM for 300 named OEM plants globally; trigger-based outreach
+      when metal prices spike or tenders are announced.
+    - >-
+      Customer advisory board of 6–8 OEMs to shape roadmaps; referenceable
+      lighthouse accounts in NA and EU.
+  revenueStreams:
+    - >-
+      Annual subscription priced by plant and RFQ volume: Starter (up to 100
+      RFQs/month) $120k/year; Professional (up to 500 RFQs/month) $300k/year;
+      Enterprise (unlimited, multi-plant) $600k–$1.2M/year.
+    - >-
+      Implementation and calibration fees: $100k–$500k per plant depending on
+      data readiness and integration scope.
+    - >-
+      Usage-based add-ons: supplier eRFQ dispatch $5–$15 per event; commodity
+      risk simulation module $2k/month; on-prem/VPC surcharge 20–30%.
+    - >-
+      Premium modules: evaluated price libraries by utility, multi-plant
+      capacity orchestration, and AI-assisted drawing list generation
+      ($50k–$150k/year each).
+    - >-
+      Managed Quoting Overflow service (staffed by our domain experts) for peak
+      periods: $200–$350 per RFQ.
+    - 'Training and certification for new estimators: $10k per cohort.'
+  costStructure:
+    - >-
+      R&D and product (ML/NLP, rules engine, UX, QA): ~35–45% of operating
+      expenses.
+    - >-
+      Transformer domain experts and data curation (rule authoring, validation):
+      ~10–15%.
+    - >-
+      Cloud infrastructure and data services (OCR, vector DB, GPUs, monitoring):
+      ~10–15%; on-prem deployments shift to PS costs.
+    - >-
+      Implementation and customer success (SIs, integrations, support SLAs):
+      ~15–20%.
+    - >-
+      Sales and marketing (enterprise field sales, events, ABM content):
+      ~15–20%.
+    - >-
+      Security, compliance, and legal (SOC 2/ISO 27001, pen-tests, insurance):
+      ~3–5%.
+    - >-
+      Third-party data subscriptions (commodity indices, supplier catalogs):
+      ~2–4%.
+  keyMetrics:
+    - >-
+      RFQ cycle time: median hours from ingestion to approved quote; target <72
+      hours for power and <24 hours for distribution.
+    - >-
+      AE throughput: RFQs per AE per month; target 2–3x uplift vs baseline
+      (e.g., 15 → 40 for power, 120 → 300 for distribution).
+    - >-
+      Cost accuracy: variance of predicted vs actual awarded cost at start of
+      production; target ±3% for power, ±2% for distribution SKUs with stable
+      BOMs.
+    - >-
+      Win rate uplift on fast-turn quotes: percentage point increase when quote
+      turnaround <48 hours; target +5–10 pp.
+    - >-
+      Margin protection: reduction in margin leakage vs target; target
+      improvement 2–4 pp.
+    - >-
+      Spec coverage: percentage of clauses auto-parsed with high confidence;
+      target >90% coverage with >98% precision on critical fields (ratings,
+      voltages, impedance, losses).
+    - >-
+      Lead-time realism: delta vs actual realized; target ±2 weeks on power
+      transformers and ±1 week on distribution for base scenarios.
+    - >-
+      Human-in-the-loop efficiency: review time per RFQ; target <45 minutes for
+      power and <15 minutes for distribution after calibration.
+    - >-
+      Adoption: percentage of quotes initiated through the platform; target >80%
+      within 6 months post go-live.
+    - >-
+      Integration health: automated handoffs with zero re-entry; target >95%
+      quotes synced to CPQ/ERP without manual fixes.
+storyBrand:
+  character: >-
+    Sales, estimating, and engineering leaders at power, distribution, and
+    specialty transformer manufacturers who must turn complex RFQs into accurate
+    quotes fast—without burning out their teams.
+  problem: >-
+    External: RFQs arrive as dense PDFs/specs/drawings and spreadsheets;
+    building a compliant BOM, price, and lead time takes hours of tribal
+    knowledge and cross-checks. Internal: slow, error‑prone quoting causes
+    missed bid windows and margin leakage. Philosophical: expert teams should
+    engineer better transformers—not copy‑paste specs.
+  guide: >-
+    We understand the pressure to quote fast and right. Our team builds
+    AI-assisted quoting for heavy electrical manufacturing; the Autopilot is
+    transformer‑trained (MVA/kV, cooling classes, losses, impedance, tap
+    changers, bushings) and applies your design/pricing rules with an auditable
+    trail. Enterprise‑grade security and ERP/CPQ integrations keep IT
+    comfortable.
+  plan: >-
+    1) Connect RFQ sources (email, portals) or drop PDFs/specs/drawings. 2)
+    Autopilot extracts and validates requirements, generates a vetted BOM, and
+    computes price and lead time using your rules and current costs/capacity. 3)
+    You review, adjust margins, and export a complete quote pack (BOM, pricing,
+    lead time, compliance notes, cover letter).
+  callToAction: >-
+    Book a 20‑minute demo or start a 2‑week pilot with 3 recent RFQs. Not ready?
+    Download a sample quote pack and ROI benchmark.
+  success: >-
+    Respond in hours, lift win rates, protect margins with consistent pricing,
+    free engineering/estimating time, ensure compliance confidence, and build a
+    searchable, audit‑ready quoting knowledge base.
+  failure: >-
+    Keep missing bid windows, scrambling through fire‑drills, leaking margin to
+    errors and rework, and eroding customer trust with slow, inconsistent
+    quotes.
+landingPage:
+  hero:
+    title: RFQ‑to‑Quote Autopilot for Transformer Manufacturing
+    subtitle: >-
+      Turn complex RFQs into a vetted BOM, price, lead time, and a ready‑to‑send
+      quote—within minutes.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - 'Engineers burn hours parsing specs, drawings, and emails across formats.'
+    - 'Manual BOM builds cause misses, rework, and margin leakage.'
+    - Pricing lags due to volatile commodities and slow supplier quotes.
+    - >-
+      Lead times are guessed—not capacity‑aware—risking penalties and lost
+      trust.
+    - >-
+      Standards (IEEE/IEC/ANSI) and test requirements are applied
+      inconsistently.
+    - Slow quote cycles cost wins to faster competitors.
+  solution:
+    - >-
+      Ingests RFQs/specs/drawings and extracts ratings, options, and test
+      requirements automatically.
+    - >-
+      Generates a complete, standards‑checked BOM for power, distribution, and
+      specialty transformers.
+    - >-
+      Cost engine models material usage and pulls current supplier/commodity
+      pricing.
+    - >-
+      Calculates capacity‑aware lead times using your routing, queues, and
+      vendor SLAs.
+    - >-
+      Flags deviations, risks, and gaps; drafts clarification questions for the
+      buyer.
+    - >-
+      Produces a branded quote package: cover letter, datasheet, compliance
+      matrix, exceptions, and T&Cs.
+    - >-
+      Integrates with ERP/PLM/CPQ/CRM for parts, costs, approvals, and
+      revisions.
+    - >-
+      Learns from wins/losses to tune designs, pricing, and probability of
+      award.
+  features:
+    - 'Multi‑format ingest: PDF, DOCX, XLS, email, ZIP, and 2D/3D drawings.'
+    - >-
+      Domain‑aware spec understanding: oil‑immersed/dry‑type, ONAN/ONAF/KNAN,
+      tap changers, bushings, cooling, enclosures.
+    - >-
+      Configurable design rules aligned to IEEE/IEC/ANSI and your internal
+      standards.
+    - >-
+      BOM builder for core, windings, tank, insulation, bushings, tap gear,
+      accessories, relays, nameplates.
+    - >-
+      Automated calculations: MVA/kVA, impedance, temp rise, sound, BIL,
+      short‑circuit checks.
+    - >-
+      Cost engine with Cu/Al/steel indexes and supplier quote ingestion with
+      validity tracking.
+    - >-
+      Lead‑time estimator using work‑center calendars, WIP load, and vendor lead
+      times.
+    - >-
+      Deviation detection and alternative proposals with technical/commercial
+      impact.
+    - 'Margin guardrails, price ladders, and multi‑level approvals.'
+    - >-
+      One‑click quote package: branded PDFs, XLS pricing breakdowns, and
+      datasheets.
+    - >-
+      Security & compliance: SSO, RBAC, audit trail, SOC 2‑ready; deploy in VPC
+      or on‑prem.
+    - 'APIs/connectors for SAP/Oracle, Teamcenter/Windchill, Salesforce/D365.'
+  steps:
+    - Drop in RFQ/specs or forward the email thread.
+    - Autopilot parses requirements and proposes a baseline configuration.
+    - Review assumptions; lock design rules and risk tolerances.
+    - 'Generate BOM, costed price, and capacity‑aware lead time.'
+    - >-
+      Review flagged deviations and suggested alternatives; auto‑draft
+      clarifications.
+    - Approve and publish the quote package; send or sync to CRM/CPQ/ERP.
+    - Track outcomes and feed learnings back into pricing and design models.
+---
+# RFQ-to-Quote Autopilot
+
+Industry: Power, Distribution, and Specialty Transformer Manufacturing
+Service: RFQ-to-Quote Autopilot

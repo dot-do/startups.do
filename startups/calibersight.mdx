@@ -1,0 +1,371 @@
+---
+name: CaliberSight AI
+slug: calibersight
+service:
+  title: AI Visual Defect Screening for Ammunition Components
+  description: >-
+    Computer-vision inspection of cartridge components (e.g., cases,
+    projectiles, primers) from uploaded images/video to flag cosmetic and
+    dimensional anomalies per company-defined acceptance criteria.
+  targetUsers:
+    - QA managers
+    - Production supervisors
+    - Process/CI engineers
+  triggers:
+    - New lot produced and ready for inspection
+    - 'Scheduled sampling (e.g., every X pallets)'
+    - Ad-hoc reinspection after a complaint
+  inputs:
+    - Sample/batch images or short videos (consistent lighting)
+    - Company-defined acceptance criteria and defect taxonomy
+    - Historical labeled examples (if available)
+    - Lot/shift metadata
+  steps:
+    - Secure ingest of images via S3/SharePoint/SFTP or browser upload
+    - >-
+      Model setup: fine-tune defect detector on customer’s labels; augment for
+      lighting/angle
+    - >-
+      Batch inference; uncertainty sampling to route borderline cases to
+      reviewer
+    - Reviewer UI for quick accept/reject/label correction
+    - Generate lot-level defect summary and trend report; export to QMS/MES
+    - 'Continuous learning: retrain on reviewed edge cases'
+  tools:
+    - OpenCV
+    - Ultralytics/YOLO or Detectron2
+    - FiftyOne/Roboflow
+    - AWS S3/Lambda or GCP Cloud Run
+    - FastAPI/Streamlit reviewer UI
+  outputs:
+    - Per-lot defect counts by type
+    - Annotated images and confidence scores
+    - Pass/hold recommendations with audit trail
+    - CSV/API feed to QMS/MES and dashboards
+  pricingModel:
+    - One-time setup/model tuning fee
+    - Monthly subscription (tiered by number of lots)
+    - 'Usage add-on per 1,000 images processed'
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - False rejects/escapes if dataset drifts
+    - Lighting/camera variability affecting performance
+    - Data handling/privacy of production imagery
+    - Needs ongoing labeling for rare defects
+  dependencies:
+    - Access to labeled/unlabeled images
+    - Acceptance criteria and defect taxonomy
+    - Integration to QMS/MES (optional)
+leanCanvas:
+  problem:
+    - >-
+      Manual visual inspection of cartridge components is inconsistent, slow,
+      and prone to misses, leading to customer returns and safety/compliance
+      risks.
+    - >-
+      Rule-based machine vision systems require extensive tuning per
+      SKU/lighting change and struggle with variable surface finishes (e.g.,
+      annealing marks, lacquer, wash lines), causing high false-reject rates and
+      downtime.
+    - >-
+      Dimensional checks (e.g., case length, primer depth, COAL) are often
+      sample-based and off-line, leaving blind spots for in-process drift and
+      mixed-lot contamination.
+    - >-
+      Lack of traceability and auditable acceptance decisions creates compliance
+      risk with ISO 9001/AS9100 quality systems, SAAMI/C.I.P. specs, and defense
+      contract requirements.
+    - >-
+      New SKU introductions and lot-to-lot variability require long setup times
+      and expert vision engineers that are scarce within ammo factories.
+    - >-
+      Upstream variability (brass, projectiles, primers) increases defect rates;
+      without automated sorting, good product is reworked and true defects
+      escape.
+    - >-
+      Quality issues detected late (at final pack or in the field) are
+      expensive: scrap, rework, chargebacks, and reputational damage.
+    - >-
+      Existing vision hardware vendors provide generic tools; plants need
+      ammunition-specific defect taxonomies, metrics (PPM by defect class), and
+      integrations to MES/PLC/SPC for real-time control.
+  solution:
+    - >-
+      Provide an AI inspection service that accepts uploaded images/video for
+      rapid trials/offline analysis and an on-prem/edge appliance for real-time
+      inline inspection at production speeds.
+    - >-
+      Pre-trained ammunition models (cases, projectiles, primers) fine-tuned
+      with customer data to detect dents, splits, crush, folds, burrs,
+      plating/lacquer defects, headstamp defects, primer seating anomalies,
+      projectile tilt/pull-out, sealant smears, etc.
+    - >-
+      Calibrated 2D/3D vision workflows to estimate key dimensions from images
+      (e.g., case length, mouth out-of-round, rim thickness, primer depth/tilt)
+      with MSA support and automatic calibration routines.
+    - >-
+      Acceptance Criteria Engine: encode SAAMI/C.I.P./customer-specific
+      tolerance windows and cosmetic standards; per-defect-class severity rules
+      and auto-disposition (accept/reject/rework/bin).
+    - >-
+      SPC + Feedback Control: send defect counts and dimensions to SPC; push
+      alerts to PLC/MES when trends exceed control limits to trigger tool
+      changes or parameter tweaks.
+    - >-
+      Traceability and Audit: per-part decision logs, images, model versioning,
+      and operator annotations tied to lot/line/SKU; ITAR/EAR-aware data
+      handling with on-prem or GovCloud options.
+    - >-
+      Integration SDK and connectors for common cameras (Basler, FLIR, IDS),
+      PLCs (Rockwell, Siemens), MES/SCADA (Ignition, Sepasoft, SAP ME), and data
+      lakes.
+    - >-
+      Operator UX: simple pass/fail UI, live overlays, defect heatmaps, quick
+      threshold tweaks with permissions, and one-click golden sample updates.
+    - >-
+      Changeover Toolkit: recipe management per caliber/SKU with automatic
+      lighting/exposure tuning and model selection; target changeover <60
+      minutes without a vision PhD.
+  uniqueValueProp: >-
+    Ammunition-specific AI visual inspection that plugs into your existing
+    cameras and lines to deliver 100% inspection for cosmetic and dimensional
+    anomalies, configurable to your acceptance criteria, with auditable
+    decisions, SPC feedback, and rapid SKU changeovers—cutting scrap and escapes
+    while improving OEE within weeks.
+  unfairAdvantage: >-
+    Ammunition-specific datasets and pretrained models with proven defect recall
+    at production speeds, coupled with compliance-grade auditability and
+    ready-made integrations. Early partnerships with top ammo OEMs and
+    integrators provide data network effects and switching costs that generic
+    vision tools lack.
+  customerSegments:
+    - >-
+      Mid-to-large small arms ammunition manufacturers (civilian, law
+      enforcement, defense) producing rimfire and centerfire cartridges.
+    - >-
+      Component manufacturers: brass case makers, projectile/bullet producers,
+      primer manufacturers.
+    - >-
+      Contract loaders/packagers and private-label brands seeking consistent
+      cosmetic standards.
+    - >-
+      Government arsenals and prime contractors with stringent lot acceptance
+      testing and audit requirements.
+    - >-
+      System integrators and OEMs building or retrofitting inspection/sorting
+      stations for ammo lines.
+  channels:
+    - >-
+      Direct enterprise sales to ammo OEMs and component manufacturers with
+      ROI-led pilot programs (8–12 weeks).
+    - >-
+      Partnerships with machine vision camera vendors and system integrators to
+      bundle our AI with inspection/sorting stations.
+    - >-
+      Presence at industry events: SHOT Show Supplier Showcase, IWA
+      OutdoorClassics, Defense Manufacturing Conference, AUSA, NDIA.
+    - >-
+      Targeted ABM campaigns on LinkedIn and trade publications; technical
+      webinars and whitepapers on AI inspection in ammunition QA.
+    - Referral and co-selling with MES/SCADA vendors and PLC integrators.
+    - >-
+      Design-in with new line builds and retrofit programs; offer NRE credits
+      and pilot discounts tied to multi-year agreements.
+    - >-
+      Government/defense channels: ITAR-compliant deployments, AWS
+      GovCloud/Azure Government marketplace listings.
+  revenueStreams:
+    - >-
+      SaaS subscription per camera or station: Basic $1,500/month, Pro
+      $3,000/month (advanced SPC, dimensional MSA, audit pack), volume
+      discounts.
+    - >-
+      Edge appliance rental or support: $400–$800/month per appliance (or BYO
+      hardware).
+    - >-
+      One-time setup/integration and model onboarding: $10,000–$50,000 per site
+      depending on scope.
+    - >-
+      Premium Support/Validation Pack (IQ/OQ/PQ documentation, audit support):
+      $25,000/year per site.
+    - >-
+      Enterprise on-prem license for air-gapped environments (annual maintenance
+      20%).
+    - >-
+      Professional services: data labeling, custom defect classes, changeover
+      optimization, camera/lighting selection.
+    - Training and certification for operators/integrators.
+  costStructure:
+    - >-
+      R&D: ML/vision engineers, QA domain experts, MLOps infrastructure
+      (training GPUs, labeling tools).
+    - >-
+      Edge and cloud compute: GPU inference on-prem; optional cloud
+      compute/storage for trials and non-ITAR data.
+    - >-
+      Hardware COGS for appliance kits (industrial PC + mid-range GPU + NIC):
+      $2,500–$4,500/unit (passed through or rented).
+    - Integration/support personnel and field engineering travel.
+    - >-
+      Security and compliance: SOC 2 audits, penetration testing, export control
+      counsel, product liability insurance.
+    - >-
+      Sales and marketing: enterprise sales team, trade shows, ABM, solution
+      partnerships.
+    - >-
+      Vendor licenses/fees (e.g., camera SDKs, 3D libraries) and test lab costs
+      for MSA validation.
+  keyMetrics:
+    - >-
+      Model performance by defect class: recall ≥99.5% for critical, ≥99% for
+      major, ≥97% for cosmetic; precision ≥98%.
+    - >-
+      False accept rate (critical defects) ≤50 ppm; overall escapes ≤200 ppm
+      after stabilization (90 days).
+    - >-
+      False reject (overkill) ≤1.5% at go-live; ≤0.5% after 60 days of active
+      learning.
+    - >-
+      Throughput sustained at 200–1,200 parts/min per station; frame latency <30
+      ms; system uptime ≥99.9%.
+    - >-
+      Scrap/rework reduction 20–40% within 6 months; customer returns/RMAs down
+      ≥30% YoY.
+    - >-
+      OEE improvement +2–5 points driven by faster changeovers (<60 minutes) and
+      fewer unplanned stops.
+    - >-
+      MSA targets: Gage R&R %Contribution <10%; Cg/Cgk ≥1.33 on critical
+      dimensions.
+    - >-
+      Pilot-to-production conversion ≥50%; payback period <9 months; NRR ≥110%;
+      logo churn <5%.
+    - 'Time-to-new-SKU: model adaptation <1 day; first-good-setup <60 minutes.'
+    - >-
+      Operator workload: manual review per 10k parts <2 minutes after
+      stabilization.
+storyBrand:
+  character: >-
+    Quality and production leaders at small‑arms ammunition plants who need
+    reliable, scalable, documented inspection of cases, projectiles, and
+    primers.
+  problem: >-
+    Manual visual checks are slow and inconsistent, miss subtle
+    cosmetic/dimensional defects, create bottlenecks, and risk escapes that lead
+    to rework, recalls, safety concerns, and weak audit trails.
+  guide: >-
+    We understand regulated ammo QA pressures and built a domain‑specific
+    computer‑vision service trained on cartridge components to deliver
+    objective, repeatable, and traceable inspections at line speed.
+  plan: >-
+    1) Upload sample images/video and your acceptance criteria. 2) We calibrate
+    models to your parts, lighting, and tolerances. 3) Deploy on edge or cloud,
+    connect cameras, review flags via dashboard/API, and iterate.
+  callToAction: >-
+    Start a 2‑week pilot with your parts: book a 30‑minute demo and upload a
+    sample set and criteria.
+  success: >-
+    Achieve 100% inspection coverage, consistent quality, reduced scrap, faster
+    release, and lot‑level traceability that supports compliance and customer
+    confidence.
+  failure: >-
+    Without it, defects slip through, lines slow or stop, rework and recalls
+    rise, penalties and waste increase, and brand trust erodes.
+landingPage:
+  hero:
+    title: AI Visual Defect Screening for Ammunition Components
+    subtitle: >-
+      Automated inspection of cases, projectiles, and primers from images or
+      video—fast, consistent, and configurable to your acceptance criteria.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - >-
+      Manual inspection is slow, inconsistent, and prone to fatigue-related
+      misses.
+    - >-
+      Cosmetic and dimensional defects slip through, driving scrap, rework, and
+      returns.
+    - Inspection becomes the bottleneck as throughput scales.
+    - Tight tolerances across multiple SKUs are hard to enforce consistently.
+    - Limited audit trail makes customer and regulatory audits painful.
+    - Late-stage defect discovery increases cost per unit.
+    - 'Existing cameras create data, not decisions—no actionable pass/fail.'
+    - Training and retaining expert inspectors is expensive and time-consuming.
+  solution:
+    - >-
+      Upload images/video or stream from the line for instant AI-based
+      screening.
+    - >-
+      Flag dents, splits, burrs, deformation, contamination, corrosion, and
+      headstamp issues.
+    - >-
+      Vision-based dimensional checks using calibrated references with your
+      tolerance bands.
+    - 'Real-time pass/fail, heatmaps, and confidence scores to guide disposition.'
+    - >-
+      Works with existing cameras, lighting, turntables, and conveyors; API to
+      PLC/MES/ERP.
+    - >-
+      SKU-specific criteria and version-controlled rules per product, lot, or
+      supplier.
+    - Role-based review and override with reason codes and a locked audit trail.
+    - >-
+      Analytics and SPC: defect Pareto, trends by shift/line/lot, yield and
+      DPMO.
+    - >-
+      Deploy on‑prem or in a private cloud with encryption and granular access
+      controls.
+    - Active learning reduces false positives as your team labels edge cases.
+  features:
+    - >-
+      Detect case dents, neck/mouth splits, rim damage, burrs, and out-of-round
+      conditions.
+    - >-
+      Identify projectile defects: ogive flattening, jacket tears, cannelure
+      anomalies, surface scratches.
+    - >-
+      Primer checks: cup damage, seating depth variance, tilt/misalignment,
+      contamination.
+    - Headstamp legibility and character completeness checks.
+    - Color/finish consistency and corrosion/oxidation detection.
+    - >-
+      Dimensional verification: case length, mouth OD, rim thickness, primer
+      depth via calibrated vision.
+    - 'Tolerance configuration per SKU, lot, supplier, and production stage.'
+    - Golden sample library and side-by-side visual comparisons.
+    - Multi-angle/360º image fusion for higher detection accuracy.
+    - >-
+      Batch upload or live stream ingestion; process thousands of parts per
+      hour.
+    - >-
+      Real-time pass/fail signaling to reject gates; latency-optimized
+      inference.
+    - 'Dashboard with Pareto charts, trends, and yield by line/shift/operator.'
+    - 'Role-based access, SSO, and audit-ready records with immutable logs.'
+    - Versioned acceptance criteria and model rollbacks for controlled changes.
+    - Operator assist overlays to highlight suspect regions during review.
+    - CSV/PDF exports and REST API for MES/ERP/SPC integration.
+    - >-
+      Air-gapped/on-prem support for sensitive facilities; data residency
+      controls.
+    - Alerts to email/Slack when defect rates exceed thresholds.
+  steps:
+    - Connect your camera feed or drag-and-drop sample images/videos.
+    - Select SKU and load acceptance criteria or import existing tolerances.
+    - Calibrate once using a reference target or known feature dimensions.
+    - Run inspection to get instant pass/fail with annotated defect heatmaps.
+    - >-
+      Review flags, accept/override with reason codes, and publish decisions to
+      the line.
+    - Monitor dashboards for trends and SPC; trigger alerts on thresholds.
+    - Continuously improve models with your feedback to cut false positives.
+---
+# CaliberSight AI
+
+Industry: Small Arms Ammunition Manufacturing
+Service: AI Visual Defect Screening for Ammunition Components

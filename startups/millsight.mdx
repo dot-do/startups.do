@@ -1,0 +1,317 @@
+---
+name: MillSight Predictive Maintenance
+slug: millsight
+service:
+  title: Predictive Maintenance from Historian Logs
+  description: >-
+    Analyzes motor current, temperature, vibration proxies, and runtime to flag
+    anomalies on looms, shearing, latex backing, and compressors.
+  targetUsers:
+    - Maintenance Manager
+    - Reliability Engineer
+    - Production Manager
+  triggers:
+    - Daily historian CSV export
+    - Threshold breach detected
+    - New maintenance log entry
+  inputs:
+    - 'PLC/historian time series (amps, temp, speed, pressure)'
+    - Maintenance CMMS history
+    - Downtime/MTBF data
+  steps:
+    - Ingest historian exports; align tags to assets
+    - 'Feature engineering (load, duty cycles, harmonics)'
+    - Unsupervised anomaly detection and thresholds
+    - Rank assets by risk; estimate lead time to failure
+    - Create CMMS tickets with evidence plots
+    - Track precision/recall and adjust thresholds
+  tools:
+    - OSIsoft PI/IGNITION CSV exports
+    - Azure IoT Hub/Time Series Insights (optional)
+    - scikit-learn/pyOD
+    - CMMS connectors (Fiix/eMaint/UpKeep)
+    - Power BI
+  outputs:
+    - Asset risk watchlist and alerts
+    - Anomaly plots and suggested checks
+    - CMMS ticket with priority
+    - Downtime avoidance KPI
+  pricingModel:
+    - Per machine/month
+    - Setup and mapping fee
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 4
+    modelCapability: 3
+    overall: 3
+  risks:
+    - Sparse sensors on older equipment
+    - False positives causing alarm fatigue
+    - Time-synchronization issues across data sources
+  dependencies:
+    - Historian export or API access
+    - Asset registry and tag mapping
+    - CMMS integration and workflow
+leanCanvas:
+  problem:
+    - >-
+      Unplanned downtime on looms, shearing lines, latex backing, and
+      compressors causes 3–8% OEE loss and $1,000–$4,000 per hour in lost
+      throughput and labor.
+    - >-
+      Historian data (motor current, temp, vibration proxies, runtime) is
+      collected but not analyzed for early failure signatures; insights are
+      retroactive, not predictive.
+    - >-
+      Maintenance teams are lean; manual trend checks across hundreds of motors
+      are impractical and inconsistent.
+    - >-
+      Generic anomaly tools create too many false alarms in textiles due to
+      recipe changes, yarn variability, and shift-to-shift behaviors.
+    - >-
+      Critical failures (bearings, belts, clogged cooling, misalignment, VFD
+      issues) often show subtle current/heat patterns 2–24 hours prior but go
+      undetected.
+    - >-
+      No closed loop to CMMS; alerts rarely become prioritized, data-backed work
+      orders with defined inspections/spare parts.
+    - >-
+      Compressed air and motor inefficiencies go unnoticed; energy spend is
+      10–20% higher than necessary in many mills.
+    - >-
+      Adoption risk: mills need value in <90 days with no new sensors and
+      minimal IT/OT disruption.
+  solution:
+    - >-
+      Deploy an edge agent that securely connects to existing historians (PI,
+      Ignition, FactoryTalk, Wonderware) and PLC tags to stream motor current,
+      temperature, vibration proxies, runtime/cycle counts, pressures, and
+      speeds.
+    - >-
+      Learn per-asset fingerprints using robust anomaly detection (autoencoders
+      + change-point + Isolation Forest) adapted to shift patterns, recipes, and
+      ambient conditions.
+    - >-
+      Provide asset health scores, early warnings, and explainable features
+      (e.g., phase imbalance in current, rising RMS, thermal drift) tuned for
+      looms, shearing, latex lines, and compressors.
+    - >-
+      Integrate with CMMS (Maximo, Fiix, eMaint, SAP PM) to auto-create
+      prioritized work orders with standardized inspection steps and spare BOM
+      suggestions.
+    - >-
+      Energy and air module: detect compressor leaks, unload/idle inefficiency,
+      motor overload; quantify kWh savings opportunities.
+    - >-
+      Operator and maintenance workflows: mobile-friendly alerts,
+      snooze/acknowledge, feedback loop to label true/false alerts for continual
+      learning.
+    - >-
+      Quarterly model refresh and reliability review: failure post-mortems,
+      thresholds tuning, and targeted PM changes.
+    - >-
+      On-prem or VPC deployment options with role-based access and audit trails
+      for air-gapped mills.
+  uniqueValueProp: >-
+    Cut unplanned downtime 20–30% in 90 days without adding sensors by turning
+    existing historian logs into asset-specific early warnings (median 1–4 hours
+    lead time) with targeted inspections, <3% alert false-positive rate, and
+    direct CMMS work orders.
+  unfairAdvantage: >-
+    Textile-specific models and playbooks trained on historian patterns unique
+    to looms/shearing/latex lines; rapid integration without new sensors; OEM/SI
+    partnerships and early references in major carpet hubs enabling fast,
+    low-risk pilots and quick proof of value.
+  customerSegments:
+    - >-
+      Primary: Carpet and rug mills (North America, Turkey, EU) – Plant
+      Managers, Maintenance Managers, Reliability Engineers, Controls/SCADA
+      Engineers.
+    - >-
+      Secondary: OEM service groups (looms, compressors) seeking predictive
+      offerings for installed base.
+    - >-
+      System Integrators serving mills (SCADA, PLC, historian), seeking packaged
+      predictive maintenance for projects.
+    - >-
+      Corporate Ops/CI leaders managing multi-site OEE and maintenance
+      standardization.
+  channels:
+    - >-
+      Direct sales to mills in Dalton, GA and other carpet hubs; land-and-expand
+      via 6–12 week pilots per line.
+    - >-
+      Partnerships with OEMs (loom and compressor vendors) to bundle monitoring
+      for installed base and new sales.
+    - >-
+      System integrators in textiles/SCADA as implementation partners with
+      revenue share.
+    - >-
+      Historian vendor ecosystems and user groups (AVEVA PI, Ignition) and
+      reliability associations (SMRP) for co-marketing.
+    - >-
+      Trade shows and industry events: FloorTek, ITMA, Domotex; plant-floor
+      demos with real data.
+    - >-
+      Content-led growth: case studies on loom bearing failures, compressor
+      leaks, latex oven fan motor alerts; webinars and reliability playbooks.
+    - >-
+      Customer referrals: pilot success -> adjacent lines/sites within the same
+      corporate group.
+  revenueStreams:
+    - >-
+      Subscription per monitored asset: $150–$300 per asset per month (tiered by
+      criticality and data rate).
+    - >-
+      Site license: $8,000–$20,000 per month for 100–300 assets with volume
+      discounts.
+    - >-
+      One-time onboarding/integration fee: $10,000–$50,000 per site depending on
+      historian/CMMS complexity.
+    - 'Premium support/SLA (24/7, 1-hour response) at 15% of subscription.'
+    - >-
+      Professional services: model tuning, reliability workshops, CMMS workflow
+      redesign ($150–$220 per hour).
+    - >-
+      Optional on-prem perpetual license + annual maintenance (20%) for
+      air-gapped facilities.
+    - >-
+      Outcome-based bonus: share of verified downtime reduction or energy
+      savings beyond baseline (e.g., 10–20% of incremental savings).
+  costStructure:
+    - >-
+      Engineering and data science salaries (model development, connectors,
+      MLOps).
+    - 'Edge hardware kits ($600–$1,500 per gateway) and staging/QA.'
+    - >-
+      Cloud infrastructure (ingest, feature store, model serving, storage):
+      $2–$6 per asset per month at scale.
+    - Licensing/SDK costs for certain historian integrations (if applicable).
+    - Implementation and travel for on-site commissioning and training.
+    - >-
+      Sales and marketing (events, demos, case study production, partner
+      enablement).
+    - Customer success and reliability SMEs for quarterly reviews.
+    - >-
+      Security and compliance (SOC 2/ISO 27001 audits, pen tests, cyber
+      insurance).
+    - 'General overhead (legal, finance, office).'
+  keyMetrics:
+    - >-
+      Time-to-first-value: days from data connection to first validated alert
+      (target <14 days).
+    - >-
+      Model performance: alert precision >85%, recall >60% on labeled failures;
+      false positives <0.2 per asset-week.
+    - >-
+      Early warning lead time: median 1–4 hours for fast-onset issues; 1–7 days
+      for slow-degradation bearings.
+    - >-
+      Operational impact: unplanned downtime reduced 20–30%; MTBF up 15–25%;
+      MTTR down 10–20%.
+    - >-
+      Financial impact per site: downtime avoided ($), scrap reduced (sqm),
+      energy saved (kWh/$), payback period (<6 months).
+    - >-
+      Adoption: % assets onboarded, weekly active maintenance users, alert
+      acknowledgment rate >90% within 2 hours.
+    - >-
+      Workflow closure: % alerts converted to WOs; WO closure with cause code
+      and parts usage >70%.
+    - 'Data quality: signal uptime >99%, tag drift incidents resolved <48 hours.'
+    - >-
+      Customer health: NPS >40, logo retention >95%, expansion ARR per site >20%
+      year over year.
+storyBrand:
+  character: >-
+    Plant managers and maintenance leads at carpet and rug mills who must keep
+    looms, shearing lines, latex backing, and compressors running without
+    surprises.
+  problem: >-
+    External: Unplanned stops and off-quality caused by hidden motor current,
+    temperature, vibration-proxy, and runtime anomalies that manual trending
+    misses; historian data is noisy and underused. Internal: Tired of
+    firefighting, overtime, and scrap when issues could have been seen earlier.
+    Philosophical: You shouldn’t be blindsided by failures when the machines
+    already tell you they’re in distress.
+  guide: >-
+    Empathy: We understand mill cadence, narrow margins, and how a single line
+    down can wreck schedules and quality. Authority: Built by manufacturing data
+    engineers with deep historian experience; uses industry-standard anomaly
+    detection on motor current, temperature, vibration proxies, and runtime;
+    integrates with common historians (PI, Wonderware, Ignition, SQL) and
+    existing alerts/CMMS.
+  plan: >-
+    Process: 1) Connect read-only to your historian and define assets/tags. 2)
+    Train and validate models on your history; tune thresholds with your team.
+    3) Go live with prioritized alerts, root-cause clues, and weekly health
+    reports to email/Teams/CMMS. Agreement: Clear data-security and access
+    controls; transparent pricing; start with a small-scope pilot and expand on
+    results.
+  callToAction: >-
+    Direct: Schedule a 30-minute discovery and start a 60-day pilot.
+    Transitional: Download a sample health report and the “12 tags that predict
+    loom downtime” checklist.
+  success: >-
+    Fewer unplanned stops; early warning on bearings, misalignment, overheating,
+    and compressor inefficiency; steadier quality and less scrap on looms,
+    shearing, and latex backing; optimized maintenance timing; reduced overtime;
+    confident schedules; a clear ROI path from existing historian data.
+  failure: >-
+    Keep flying blind; reactive breakdowns on critical assets; missed orders and
+    rush costs; wasted yarn and latex; rising energy from struggling
+    compressors; safety risks; eroding customer trust.
+landingPage:
+  hero:
+    title: Predictive Maintenance from Historian Logs for Carpet & Rug Mills
+    subtitle: >-
+      AI turns motor current, temperature, vibration proxies, and runtime into
+      early warnings on looms, shearing, latex backing, and compressors.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - 'Unplanned stops on looms, shearing heads, latex lines, and compressors'
+    - Hidden bearing and motor degradation buried in historian data
+    - Threshold alarms miss context; too many false positives
+    - No clear root cause—techs chase symptoms
+    - 'Reactive parts usage, overtime, and scrap'
+    - No bandwidth to watch trends 24/7
+  solution:
+    - 'Connects to PI, AVEVA/Wonderware, and FactoryTalk historians (read‑only)'
+    - 'Learns normal patterns per asset, shift, and product mix'
+    - Flags multivariate anomalies early with severity and confidence
+    - Explains likely causes and suggests next checks
+    - 'Routes role-based alerts to maintenance, operators, and supervisors'
+    - Pushes work orders to your CMMS and tracks outcomes
+  features:
+    - Read-only historian connector with tag auto-discovery
+    - Edge or cloud deployment; OT-friendly networking
+    - 'Per-asset models for looms, shearing, latex backing, compressors'
+    - Motor current signature analysis with temperature/runtime context
+    - 'Compressor health: load/unload behavior, discharge temp, amperage drift'
+    - >-
+      Loom/shearing insights: knife wear cues, roll imbalance, bearing stress
+      proxies
+    - 'Latex line monitoring: pump strain, heater drift, drive load changes'
+    - Explainable alerts with contributing tags and trend visuals
+    - Planned-changeover and cleaning suppression to avoid noise
+    - 'Anomaly and downtime heatmaps by line, product, and shift'
+    - 'KPI tracking: MTBF trends, OEE impact, energy anomalies'
+    - 'API/connector options: SAP PM, Maximo, eMaint, Fiix'
+    - 'Mobile, email, and control-room dashboards with escalation rules'
+    - Self-serve tuning and feedback loop to cut false alerts
+    - Weekly health report and scheduled model refresh
+  steps:
+    - Provide read-only historian access (PI/AVEVA/Rockwell)
+    - 'Auto-map tags to assets: looms, shearing, latex backing, compressors'
+    - 'Select key signals: current, temperature, vibration proxies, runtime'
+    - Train baseline on recent production history (days to weeks)
+    - 'Go live: start alerts and triage with your team'
+    - Tune thresholds and suppression during the first week
+    - Integrate CMMS for automated work orders and feedback
+    - Review KPIs and model updates in monthly reliability meetings
+---
+# MillSight Predictive Maintenance
+
+Industry: Carpet and Rug Mills
+Service: Predictive Maintenance from Historian Logs

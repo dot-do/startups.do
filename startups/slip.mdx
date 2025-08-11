@@ -1,0 +1,294 @@
+---
+name: Slip Assignment Optimizer (Events/Peak Days) — AI service for Marinas
+slug: slip
+service:
+  title: Slip Assignment Optimizer (Events/Peak Days)
+  description: >-
+    Constraint-based optimizer to assign vessels to slips/docks for regattas,
+    rallies, and peak weekends.
+  targetUsers:
+    - Harbormaster
+    - Events Coordinator
+  triggers:
+    - Group/event booking received
+    - Forecasted occupancy >85%
+    - Large transient convoy inbound
+  inputs:
+    - Slip map with dimensions/amps/water
+    - Vessel list (LOA/beam/draft/power)
+    - Depths/bathymetry and tide range
+    - Fire-lane/ADA/clearance rules
+    - Turnaround times and tow path constraints
+  steps:
+    - Normalize slip/vessel constraints
+    - Run packing optimization with penalties
+    - Highlight conflicts/overflows and alternatives
+    - Generate arrival sequence and tug plans
+    - Produce map labels and assignment CSV
+    - Sync assignments to PMS
+    - Share change log and comms pack
+  tools:
+    - Google Sheets/Drive
+    - Python + OR-Tools
+    - GIS/Google My Maps
+    - Dockwa/Molo API
+    - Slack/Email
+  outputs:
+    - Assignment table (CSV)
+    - Dock map (PDF/Link) with labels
+    - Arrival/staging schedule
+    - Conflict list and mitigation options
+  pricingModel:
+    - Per-event fee
+    - Per-assigned vessel
+    - Optional on-call change support
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 9
+    overall: 9
+  risks:
+    - Incorrect depth/clearance data causing incidents
+    - 'Unmodeled constraints (e.g., windage)'
+    - Liability from misassignment
+  dependencies:
+    - Accurate slip specs and bathymetry
+    - Event vessel manifest
+    - Safety rules and priorities
+leanCanvas:
+  problem:
+    - >-
+      Event and peak-weekend slip assignments are done with
+      spreadsheets/whiteboards, causing conflicts (overdraft, over-beam, power
+      mismatch) and last‑minute reshuffles
+    - >-
+      High inbound call/ radio traffic from captains during arrivals because
+      instructions change, leading to congestion and safety risk
+    - >-
+      Under-utilization of inventory on peak days (empty/blocked slips,
+      double-booking buffers) reduces revenue by 3–10%
+    - >-
+      Complex constraints (LOA, beam, draft, tide windows, power/amp, side-to
+      tie, group proximity, yacht club priority, ADA access, fuel dock
+      restrictions) are hard to manage manually at scale
+    - >-
+      Last‑minute changes (no‑shows, late arrivals, weather shifts) require
+      rapid re-optimization that staff can’t do in real time
+    - >-
+      Lack of auditability for why a vessel was assigned to a slip (disputes
+      with VIPs, member priority)
+    - >-
+      Existing marina software focuses on reservations, not high-density,
+      constraint-based allocation for spikes like regattas/rallies
+  solution:
+    - >-
+      AI/OR constraint solver that ingests marina layout, slip attributes, and
+      vessel manifests to auto‑assign conflict‑free berths
+    - >-
+      Scenario planning: run multiple what‑if plans (weather, staggered ETAs,
+      VIP priority) and pick the best
+    - >-
+      Fast replanning: adjust for late arrivals/no‑shows in under 30 seconds
+      with minimal ripple effects
+    - >-
+      Communication hub: push SMS/email/app instructions, dock diagrams, and QR
+      codes to captains and dockhands; live map for arrivals
+    - >-
+      Rule library for marinas: saved constraint templates (draft by fairway,
+      power draw limits, side-to tie by finger length, noise curfew zones)
+    - >-
+      Integrations with leading marina PMS/reservation tools and regatta
+      management systems for vessel manifests and status updates
+    - >-
+      Audit trail and reporting: who moved where and why; utilization, conflict
+      rate, staff effort saved
+  uniqueValueProp: >-
+    Turn chaotic event and peak‑day dock plans into conflict‑free,
+    high‑utilization assignments in minutes, with one‑click re‑plans when things
+    change. Increase peak‑day revenue and safety while cutting staff hours.
+  unfairAdvantage: >-
+    Marina-specific constraint library and proprietary dataset of event
+    assignments/outcomes that improve solver recommendations over time; deep
+    integrations across PMS/regatta ecosystems; reference lighthouse marinas
+    enabling defensible case studies and partner-led distribution
+  customerSegments:
+    - >-
+      Marinas (public and private) with 100–1,000+ slips in event/seasonal
+      markets
+    - Yacht clubs and harbor authorities that host regattas and rallies
+    - Marina groups/operators managing multiple locations
+    - >-
+      Regatta and rally organizers (e.g., US Sailing clubs, Mediterranean rally
+      operators)
+    - Reservation/PMS vendors seeking an embedded optimizer (OEM/white-label)
+  channels:
+    - >-
+      Direct outreach to harbormasters/marina managers in event-heavy regions
+      (New England, Chesapeake, Great Lakes, SoCal, Florida, Mediterranean) via
+      targeted email/LinkedIn + referral from associations
+    - >-
+      Partnerships/integrations with marina PMS/reservation vendors (Dockwa,
+      Snag‑A‑Slip, Harbour Assist, Molo, Marina Master, Pacsoft/Marina Office,
+      Swift Harbour) to co-sell and embed
+    - >-
+      Regatta ecosystem partnerships (Yacht Scoring, Regatta Network, Clubspot,
+      Sailwave) for vessel manifest sync and referrals
+    - >-
+      Industry events and associations: AMI Conference & Expo, METSTRADE, IBEX,
+      British Marine, ICOMIA; speaking demos with ROI case studies
+    - >-
+      Pilot lighthouse programs: 10–15 marquee marinas/yacht clubs get 1 free
+      flagship event in exchange for case study and reference calls
+    - >-
+      Content/PLG: event planning playbooks, ROI calculators, webinar series
+      "From Spreadsheet to 95% Utilization", template libraries
+    - >-
+      Account-based marketing to marina groups and municipalities;
+      procurement-friendly contracting
+  revenueStreams:
+    - >-
+      Per‑event pricing: $400–$1,500 per event depending on size/complexity
+      (tiers by number of visiting vessels and constraints)
+    - >-
+      Subscriptions (annual): Small (<150 slips) $149/mo; Medium (150–400)
+      $349/mo; Large (400+) $699/mo; includes 2–6 event credits/year, analytics,
+      and support
+    - 'Overage event credits: $199–$599 each depending on tier'
+    - >-
+      Enterprise/Group plans: $8,000–$30,000/yr for multi‑site operators with
+      SSO, priority support, custom integrations
+    - >-
+      Professional services: marina layout digitization, slip data audit,
+      on‑site event ops support ($1,500–$5,000 per event)
+    - >-
+      OEM/embedded licensing to PMS/regatta platforms (revenue share or per‑site
+      fee)
+  costStructure:
+    - >-
+      Core team (Yr1–2): 3–5 engineers ($180k fully loaded each), 1 product
+      manager ($200k), 1 marine ops SME ($140k), 1 AE + 1 CSM ($140k each)
+    - >-
+      Cloud/infra: $1.5k–$5k/month initially; scales with optimization volume
+      (containerized OR-Tools/CP‑SAT workers, geospatial services)
+    - >-
+      3rd‑party APIs/data: $300–$1,000/month (email/SMS, map tiles,
+      depth/nautical data)
+    - >-
+      Sales & marketing: $10k–$25k/quarter for shows, webinars, content; partner
+      MDF as available
+    - >-
+      Implementation/onboarding: $1,000–$3,000 per large site for slip map
+      digitization if not provided
+    - >-
+      Legal/insurance: $25k–$50k/yr (contracts with municipalities/marina
+      groups, liability)
+    - >-
+      Contingency and R&D: 10–15% of opex for new integrations and solver
+      improvements
+  keyMetrics:
+    - >-
+      Assignment conflict rate (constraints violated) < 0.5% per event; target
+      0% hard conflicts
+    - Peak-day slip utilization ≥ 94% without safety violations
+    - >-
+      Average optimization runtime: < 2 minutes for 300 vessels; replan time <
+      30 seconds for 30 deltas
+    - >-
+      Manual changes required after publish: ≤ 10% of vessels; trend toward ≤ 5%
+      with learning
+    - 'Staff hours saved per event: 20–40 hours; verify via time study'
+    - 'Reduction in captain comms: ≥ 30% fewer inbound calls during arrivals'
+    - >-
+      Revenue uplift on peak days: +3–7% from accepting more vessels/upsells
+      (shorepower, premium berths)
+    - Churn < 8% annually; NRR ≥ 110% via overage events and expanded tiers
+    - >-
+      Trial-to-paid conversion ≥ 35%; sales cycle ≤ 60 days for SMB, ≤ 120 days
+      for groups
+    - Uptime ≥ 99.9% on weekends/holidays; P1 incident MTTR < 30 minutes
+storyBrand:
+  character: >-
+    Marina managers and dockmasters coordinating regattas, rallies, and
+    peak-weekend traffic.
+  problem: >-
+    External: hundreds of arrivals with different LOA/beam/draft/power, group
+    requests, tides, and no-shows. Internal: spreadsheets, radio chaos, and
+    manual maps create stress and overtime. Philosophical: guest safety and
+    experience shouldn’t depend on guesswork.
+  guide: >-
+    We understand peak-day pressure. Built with marina operators and
+    optimization engineers, our AI respects real constraints—depth, power,
+    reserved docks, approach limits, groups, and security zones.
+  plan: >-
+    1) Import vessels, constraints, and marina layout. 2) Generate an optimal,
+    conflict-free slip plan with live what-if and overrides. 3) Publish
+    assignments to staff and skippers; adjust in real time.
+  callToAction: >-
+    Direct: Book a 20-minute demo or start a pilot for your next event.
+    Transitional: Download the Event Docking Checklist.
+  success: >-
+    Full docks with zero conflicts, faster turnarounds, safer tie-ups, calmer
+    staff, happy skippers, clear audit trails, and higher event revenue.
+  failure: >-
+    Last-minute reshuffles, unsafe placements, angry VHF traffic, staff burnout,
+    empty slips, and lost sponsor or transient revenue.
+landingPage:
+  hero:
+    title: AI Slip Assignment Optimizer for Events & Peak Days
+    subtitle: >-
+      Auto-assign vessels to the right slips in minutes—max capacity, zero
+      conflicts, happy skippers.
+    ctaText: Request a demo
+    ctaHref: /demo
+  problem:
+    - Spreadsheets and whiteboards collapse under peak demand.
+    - Conflicts force re-docking and overtime.
+    - 'Hard to honor LOA, beam, draft, power, and tide limits at scale.'
+    - 'Clubs, fleets, and sponsors need adjacency and reserved docks.'
+    - Underutilized slips leave revenue on the table.
+    - Last-minute changes create ripple effects marina-wide.
+    - Safety and compliance risks rise during busy weekends.
+  solution:
+    - >-
+      Constraint-based engine that assigns every vessel to the best-fitting slip
+      across multi-day schedules.
+    - >-
+      Honors LOA, beam, draft, depth/tide windows, approach limits, and power
+      needs.
+    - >-
+      Keeps groups together, reserves VIP and sponsor docks, blocks maintenance
+      slips.
+    - >-
+      Scenario planning to compare layouts, test capacity, and enable managed
+      rafting.
+    - One-click re-optimization when arrivals change or weather shifts.
+    - Visual marina map with utilization heatmaps and conflict flags.
+    - 'Exports dock cards, arrival lists, and captain notifications.'
+  features:
+    - Rule engine for marina-specific constraints and business policies.
+    - Multi-day event scheduling with turnover between nights.
+    - 'Grouping and adjacency controls for clubs, fleets, and sponsors.'
+    - Rafting and alongside mooring rules with caps and safety buffers.
+    - Depth charts and tide window integration for safe approaches.
+    - Power compatibility checks and pedestal load limits.
+    - Conflict detector with explainable placement reasoning.
+    - Drag-and-drop edits with instant constraint validation.
+    - Scenario sandbox with versioning and comparisons.
+    - Utilization metrics and projected revenue impact.
+    - API and CSV imports for bookings and slip maps.
+    - 'Role-based access, audit trail, and approvals.'
+    - Offline/printable pier sheets and dock cards.
+    - Mobile dockhand view for live changes on the pier.
+    - Notifications and webhooks to captains and staff.
+  steps:
+    - Import bookings and your slip map via CSV or API.
+    - 'Set event dates, rules, and priorities (capacity, adjacency, safety).'
+    - Click Optimize to auto-assign slips across all days.
+    - Review on the map; drag to adjust with instant rule checks.
+    - 'Publish assignments, print pier sheets, and notify captains.'
+    - Monitor arrivals; re-optimize instantly when plans change.
+---
+# Slip Assignment Optimizer (Events/Peak Days) — AI service for Marinas
+
+Industry: Marinas
+Service: Slip Assignment Optimizer (Events/Peak Days)

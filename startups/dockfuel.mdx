@@ -1,0 +1,286 @@
+---
+name: DockFuel IQ
+slug: dockfuel
+service:
+  title: Fuel Dock Demand & Reorder Scheduler
+  description: >-
+    Predict fuel sales, suggest reorder timing/quantities, and recommend
+    staffing for the fuel dock.
+  targetUsers:
+    - Fuel Dock Manager
+    - Operations Manager
+  triggers:
+    - 'Daily at 07:00'
+    - Inventory threshold crossed
+    - Holiday/weekend approaching
+  inputs:
+    - Fuel sales history (POS)
+    - Tank inventory/ullage and sensor data
+    - Supplier lead times/MOQs
+    - Weather/wind/sea state
+    - Nearby AIS traffic patterns
+  steps:
+    - Ingest POS and tank data
+    - Forecast 7/14-day demand by product
+    - Compute reorder dates/quantities with lead time
+    - Suggest staff shifts by hour
+    - Draft PO/email to supplier
+    - Post daily plan and alerts
+  tools:
+    - Square/Verifone POS API
+    - Tank monitor API (Veeder-Root/etc.)
+    - OpenWeather/NOAA API
+    - MarineTraffic API
+    - Google Sheets
+    - Email/Slack
+  outputs:
+    - Reorder plan and draft PO
+    - Staffing schedule suggestions
+    - Low-inventory and surge alerts
+  pricingModel:
+    - Monthly retainer per site
+    - Setup for integrations
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Sensor inaccuracies or outages
+    - Supplier constraints/delivery delays
+    - Sudden event-driven spikes
+  dependencies:
+    - POS and tank API access
+    - Supplier contacts and terms
+    - Scheduling policy
+leanCanvas:
+  problem:
+    - >-
+      Fuel stockouts during peak weekends/events cause lost sales and
+      reputational damage; many marinas experience 1–4 stockouts per season.
+    - >-
+      Over-ordering ties up cash and risks wet-stock losses; typical safety
+      stock is set arbitrarily (e.g., “half a tank”), leading to 10–25% excess
+      inventory on average.
+    - >-
+      Delivery lead times and minimum drop sizes (2,500–8,000 gal) are hard to
+      balance against tank constraints and demand spikes.
+    - >-
+      Staffing at fuel docks is poorly matched to demand; overtime and idle time
+      can add 10–20% to labor costs and create long customer wait times.
+    - >-
+      Manual forecasting via spreadsheets or supplier guesswork ignores key
+      local drivers (weather, tides, holidays, fishing tournaments, regattas,
+      transient traffic).
+    - >-
+      Limited visibility of price windows (e.g., OPIS rack changes) results in
+      suboptimal reorder timing and erodes gross margin by 2–6¢/gal.
+    - >-
+      Fragmented systems (POS, tank sensors, reservation platforms) make data
+      consolidation and forecasting difficult for small operations.
+  solution:
+    - >-
+      AI demand forecasting using POS dispenses, tank telemetry, AIS vessel
+      traffic, weather/tide forecasts, holidays/events, and historical patterns
+      (hourly/daily/weekly horizons).
+    - >-
+      Inventory and reorder optimizer that accounts for tank capacities, min/max
+      drops, supplier lead times, delivery windows, and rack price signals to
+      recommend “order by” dates and quantities.
+    - >-
+      Labor recommender that outputs hourly staffing schedules for fuel dock
+      attendants based on predicted fueling transactions and service-time
+      distributions.
+    - >-
+      Alerts and workflows: low days-of-cover, price window opportunities,
+      delivery delays, and event-triggered demand spikes.
+    - >-
+      Scenario planning: simulate regattas, storms, or supply delays;
+      stress-test reorder plans and labor schedules.
+    - >-
+      Multi-site dashboard with KPIs, audit trails, and export to
+      suppliers/schedulers (CSV/API).
+  uniqueValueProp: >-
+    Marina-specific AI that forecasts fuel demand, optimizes reorder
+    timing/quantities, and right-sizes fuel dock staffing—reducing stockouts and
+    labor waste while lifting fuel margin and customer satisfaction.
+  unfairAdvantage: >-
+    Marina-specific feature engineering that fuses AIS vessel traffic within
+    local catchment, tide/visibility/wind effects, and event calendars—plus
+    early distributor/POS integrations—creating a proprietary data moat and
+    superior forecast accuracy vs generic inventory tools.
+  customerSegments:
+    - >-
+      Primary: Independent marinas and yacht clubs with on-site fuel docks
+      (gasoline/diesel), 1–3 tanks, 100k–1M+ gallons/year.
+    - >-
+      Multi-site marina groups/operators managing 5–100+ marinas seeking
+      centralized oversight.
+    - >-
+      Fuel distributors offering vendor-managed inventory to marinas, looking to
+      enhance forecasting and service levels.
+    - Harbor authorities/municipal marinas with seasonal traffic patterns.
+    - >-
+      Service yards/boat dealerships with fuel docks (lower throughput, high
+      seasonality).
+  channels:
+    - >-
+      Direct sales to marinas via inside sales and demos; target >250k gal/year
+      sites first.
+    - >-
+      Channel partnerships with marina software vendors (DockMaster/Molo/Harbour
+      Assist) and tank telemetry providers (Veeder-Root/FuelCloud).
+    - >-
+      Alliances with regional fuel distributors to bundle DockFuel IQ in VMI
+      programs (revenue share/discounted tiers).
+    - >-
+      Industry events and media: IBEX, Marina Dock Age, NMMA/MRAA conferences,
+      state marina associations; webinars with case studies.
+    - >-
+      Outbound ABM to multi-site operators and top-traffic marinas (leveraging
+      AIS-derived prospecting).
+    - >-
+      Content and community: forecasting benchmarks report, hurricane/event
+      playbooks, ROI calculator; listings in partner marketplaces.
+  revenueStreams:
+    - >-
+      SaaS subscription per fuel site: Standard $299/month, Pro $599/month,
+      Enterprise $899+/month (based on throughput, features, sites).
+    - >-
+      Onboarding/integration fee: $2,000–$5,000 per site (tiered by connectors
+      and data history).
+    - >-
+      Data add-ons: rack price feeds, premium weather/AIS tiers ($49–$199/month
+      per site).
+    - >-
+      Professional services: demand study, staffing optimization, custom
+      integrations ($150–$250/hr).
+    - >-
+      Distributor partnerships: revenue share for VMI bundles or per-drop
+      optimization fees.
+  costStructure:
+    - >-
+      Cloud infrastructure (compute/storage) for model training/serving;
+      estimated $30–$120/site/month depending on data volume.
+    - >-
+      Third-party data: AIS, premium weather, price feeds ($10k–$60k/year
+      depending on coverage).
+    - Engineering and data science salaries; integrations and QA.
+    - Customer success/onboarding and support.
+    - 'Sales and marketing: events, content, partner enablement.'
+    - 'Security/compliance (SOC 2), logging/monitoring, insurance.'
+    - >-
+      R&D for new models (event impact, price optimization, route-aware AIS
+      enrichment).
+  keyMetrics:
+    - >-
+      Forecast accuracy: MAPE weekly/monthly; target ≤15% and ≤10% respectively
+      by day 90.
+    - >-
+      Stockout rate: target <1 per peak season; aim for 60–80% reduction vs
+      baseline.
+    - 'Emergency/expedite orders: reduce by ≥50% within 6 months.'
+    - >-
+      Average days-of-cover: maintain 3–7 days (configurable) with ≤10% variance
+      vs target.
+    - >-
+      Gross margin lift: +2–5¢/gal via better timing/price windows and reduced
+      emergency fees.
+    - >-
+      Inventory carrying cost reduction: 10–25% lower average on-hand gallons vs
+      baseline while avoiding stockouts.
+    - >-
+      Labor utilization: increase to 80–90% during peak windows; cut overtime by
+      10–20%.
+    - >-
+      Queue times: reduce median fueling wait by 20–40% on peak days (measured
+      via transaction spacing).
+    - 'Model adoption: % orders following recommendations; goal ≥70% by month 3.'
+    - Churn <8% annually; NPS ≥40; payback period <4 months.
+storyBrand:
+  character: >-
+    Marina fuel dock managers/owners who want uninterrupted fuel availability,
+    efficient staffing, and protected margins.
+  problem: >-
+    - External: Volatile fuel demand, uncertain lead times, stockouts or
+    overstock, and guesswork staffing.
+
+    - Internal: Stress and low confidence in reorder timing and labor plans.
+
+    - Philosophical: Boaters deserve reliable, fast fuel service; managers
+    should make data-driven decisions, not bets.
+  guide: >-
+    We understand the chaos of tides, weekends, and weather. Fuel Dock Demand &
+    Reorder Scheduler uses marina-specific AI trained on seasonality, POS
+    history, tides/weather/events to predict demand and recommend reorders and
+    staffing. Trusted by operators, built for marinas, transparent forecasts and
+    alerts.
+  plan: >-
+    - Process: 1) Connect POS/tank sensors and data feeds; 2) Review weekly
+    forecasts and reorder/staffing recommendations; 3) Approve orders and
+    schedules with real-time alerts.
+
+    - Agreement: No long-term lock-in, data stays yours, clear ROI checkpoints.
+  callToAction: >-
+    - Direct: Start a 30-day pilot and get your first forecast this week.
+
+    - Transitional: Download the Fuel Dock Forecasting Checklist and sample
+    schedule.
+  success: |-
+    - No more holiday-weekend stockouts
+    - Lower carrying costs and fewer emergency deliveries
+    - Staffing matched to demand and shorter wait times
+    - Clear visibility of next 2–8 weeks
+    - Higher boater satisfaction and repeat business
+    - Calm, predictable operations and better margins
+  failure: |-
+    - Running dry on peak days and paying rush fees
+    - Tying up cash in excess fuel
+    - Idle crews on slow days and long lines on busy ones
+    - Negative reviews and lost slip renewals
+    - Constant firefighting and missed revenue
+landingPage:
+  hero:
+    title: Fuel Dock Demand & Reorder Scheduler
+    subtitle: >-
+      AI for marinas that predicts fuel sales, times reorders, and staffs your
+      dock—so you never run dry or overstaff.
+    ctaText: Book a Demo
+    ctaHref: /demo
+  problem:
+    - Weekend spikes cause stockouts; midweek excess ties up cash.
+    - 'Reorders rely on guesswork, not data.'
+    - 'Weather, tides, events, and transient traffic aren’t factored in.'
+    - Missed supplier cutoffs and variable lead times create surprises.
+    - Dock lines or idle crew due to poor staffing alignment.
+  solution:
+    - Accurate daily/hourly demand forecasts by fuel grade.
+    - Auto-calculated reorder timing and quantities with safety stock.
+    - Lead-time and cutoff–aware delivery scheduling.
+    - Shift-level staffing recommendations matched to demand.
+    - 'Live dashboard, alerts, and one-click PO generation.'
+  features:
+    - 7–21 day forecasts with confidence ranges.
+    - 'Multi-grade support: gasoline, diesel, dyed/undyed.'
+    - 'Weather, tides, holidays, regattas, and AIS/traffic signals.'
+    - Real-time tank levels via sensors or manual entry.
+    - Smart safety stock tuned to seasonality and variability.
+    - Auto-generate POs with approvals and audit trail.
+    - Supplier cutoff calendars and delivery windows.
+    - 'What-if simulator for price changes, promos, and events.'
+    - Labor planner with certifications and hour budgets.
+    - Slack/Email/SMS alerts for low stock and ETA slips.
+    - 'POS, tank gauge, and accounting integrations.'
+    - Multi-location dashboard with role-based access.
+  steps:
+    - 'Connect POS, tank gauges, and supplier data.'
+    - 'Define tanks, min/max levels, and preferred suppliers.'
+    - Review the forecast and reorder plan.
+    - Approve POs or push to your system.
+    - Publish the staffing schedule.
+    - Monitor alerts and adjust with one click.
+---
+# DockFuel IQ
+
+Industry: Marinas
+Service: Fuel Dock Demand & Reorder Scheduler

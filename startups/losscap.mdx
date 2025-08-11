@@ -1,0 +1,327 @@
+---
+name: LossCap Optimizer (LCO)
+slug: losscap
+service:
+  title: Loss Capitalization Bid Optimizer
+  description: >-
+    Optimizes design choice vs. loss capitalization to maximize bid
+    competitiveness/profit.
+  targetUsers:
+    - Sales engineers
+    - Estimating
+    - Design
+  triggers:
+    - Tender with K1/K2 or specific loss penalties
+    - Multiple feasible design variants
+  inputs:
+    - Loss capitalization coefficients (no-load/load)
+    - Design variant library or parameter ranges
+    - Material costs (copper/steel)
+    - Manufacturing cost curves/constraints
+  steps:
+    - Ingest tender loss factors and constraints
+    - Enumerate/parameterize candidate designs
+    - Model total evaluated cost = price + K1*P0 + K2*Pk
+    - Optimize subject to manufacturability/standards constraints
+    - 'Return recommended variant, price, and sensitivity analysis'
+  tools:
+    - Pyomo/OR-Tools
+    - Python
+    - Data from ERP/PLM for variant definitions
+    - Visualization (Plotly)
+  outputs:
+    - Recommended design/price with evaluated cost
+    - Trade-off curves (loss vs. cost)
+    - Sensitivity to copper/steel price and loss factors
+  pricingModel:
+    - Per-tender optimization fee
+    - Bundle with RFQ Autopilot
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 9
+    modelCapability: 8
+    overall: 8
+  risks:
+    - Inaccurate cost curves distort optimum
+    - 'Ignoring hidden constraints (tank size, lifting)'
+    - Tender rules misread
+  dependencies:
+    - Access to variant data and constraints
+    - Up-to-date material pricing
+    - Tender document clarity
+leanCanvas:
+  problem:
+    - >-
+      Bid teams at transformer OEMs must trade off materials/design choices
+      against utility-specific loss capitalization factors, often using
+      spreadsheets and heuristics that misprice evaluated cost.
+    - >-
+      Tender specs vary widely by market and utility (e.g., different $/W for
+      no-load and load losses, different duty cycles), causing compliance errors
+      and margin leakage.
+    - >-
+      Commodity price volatility (CRGO/amorphous steel, copper, aluminum) and
+      logistics lead to inaccurate BOM cost forecasts during bid, eroding
+      win-rate or margin once awarded.
+    - >-
+      Slow proposal turnarounds (multi-day engineering loops) reduce
+      competitiveness in fast-moving tenders and framework agreements.
+    - >-
+      Historical tender outcomes and field performance aren’t systematically
+      used to optimize future bids (no probabilistic win/margin model).
+    - >-
+      Fragmented tools (PLM/ERP/CPQ/point simulations) create duplicate data
+      entry, risk of errors, and weak governance.
+  solution:
+    - >-
+      Tender intelligence: parse documents/drawings to extract rating,
+      efficiency class, loss factors, standards (IEC/IEEE/DOE), and commercial
+      terms.
+    - >-
+      Loss capitalization engine: compute evaluated cost using utility- and
+      country-specific $/W for no-load and load losses, with duty cycle and
+      ambient assumptions; maintain a versioned library.
+    - >-
+      Design choice optimizer: recommend core/conductor materials, stack
+      factors, winding scheme, cooling class, and window dimensions to hit loss
+      targets at least cost.
+    - >-
+      Probabilistic bid model: estimate win probability vs price and design
+      attributes using historical tender outcomes; recommend price and design
+      for target win-rate or margin.
+    - >-
+      BOM and cost forecaster: generate BOM and cost ranges with commodity
+      forecasts (copper/CRGO/aluminum) and logistics; sensitivity to FX and lead
+      time.
+    - >-
+      Scenario planner: run A/B designs under multiple loss factor schemes,
+      material substitutions, and supplier quotes; provide Pareto frontier of
+      margin vs win probability.
+    - >-
+      Governance and guardrails: enforce approval workflows, margin floors, and
+      spec compliance; full audit trail.
+    - >-
+      Connectors: integrate with PLM/CAD (Teamcenter/3DEXPERIENCE), ERP/CPQ
+      (SAP/Oracle/Salesforce/Tacton), and tender portals (Ariba, government
+      e-procurement).
+  uniqueValueProp: >-
+    AI-driven bid optimization that selects the best design-cost-loss tradeoff
+    per tender, increasing win-rate 10–25% and margin 1–3 percentage points
+    while cutting proposal time by 40–60%. LCO unifies tender requirements, loss
+    factor libraries, commodity forecasts, and historical outcomes into a single
+    decision engine with auditable, compliant recommendations.
+  unfairAdvantage: >-
+    A curated, versioned global library of loss capitalization factors and
+    tender compliance rules tied to historical outcomes, combined with
+    physics-informed optimization and probabilistic pricing models. Over time,
+    network effects from multi-market tender data and supplier price signals
+    improve recommendations beyond what any single OEM’s in-house tools can
+    achieve.
+  customerSegments:
+    - >-
+      Global power transformer manufacturers (HV/MV power and substation
+      transformers).
+    - >-
+      Regional distribution transformer OEMs (oil-immersed, dry-type) bidding to
+      utilities and industrial customers.
+    - >-
+      Specialty transformer manufacturers (traction, furnace/arc, renewables,
+      offshore, data center step-down).
+    - >-
+      EPCs and turnkey substation providers with in-house transformer
+      sourcing/design influence.
+    - >-
+      Bid/proposal engineering teams, design-to-cost engineers, sales
+      operations, and pricing leadership in these organizations.
+  channels:
+    - >-
+      Direct enterprise sales to global OEMs’ BU leadership (pricing, sales ops,
+      engineering).
+    - >-
+      Partner with PLM/CPQ vendors and SIs for co-selling and integration
+      accelerators.
+    - >-
+      Advisory partnerships with transformer design consultants and testing labs
+      for credibility and onboarding content.
+    - >-
+      Industry events and associations: CIGRE, IEEE PES T&D, Middle East Energy,
+      Hannover Messe; technical presentations and case studies.
+    - >-
+      Targeted ABM to 500+ identified transformer plants; LinkedIn and industry
+      newsletters; ROI calculator tooling and workshops.
+    - >-
+      Pilot-led land-and-expand: 8–12 week pilots in a single plant/line,
+      followed by multi-plant rollout.
+  revenueStreams:
+    - >-
+      SaaS subscription (annual): tiered by plant and feature set. Distribution
+      plants: 40–120k USD ARR; power/specialty plants: 120–300k USD ARR.
+    - >-
+      Usage-based add-on: per-tender processing beyond included quota (e.g.,
+      30–80 USD per tender).
+    - >-
+      One-time implementation/integration: 50–200k USD per plant depending on
+      systems landscape.
+    - >-
+      Premium data packs: commodity and energy price feeds; specialized
+      loss-factor datasets by region.
+    - >-
+      Professional services: custom models, training, and design rules
+      integration; 150–250 USD/hour.
+    - 'Enterprise support/SLA tiers (24/7, dedicated TAM).'
+  costStructure:
+    - 'Product and ML engineering (8–15 FTEs initially): 2–3M USD/year.'
+    - 'Transformer domain experts (2–4 FTEs): 0.4–0.8M USD/year.'
+    - >-
+      Cloud infrastructure (compute/storage, secured environments): 0.25–0.6M
+      USD/year at 20–50 enterprise customers.
+    - 'Data acquisition (commodity/energy/tender datasets): 0.15–0.4M USD/year.'
+    - >-
+      Security/compliance (SOC2/ISO27001), pen testing, insurance: 0.1–0.25M
+      USD/year.
+    - >-
+      Sales and marketing (AEs/SEs, events, content): 1–2M USD/year in growth
+      phase.
+    - 'Implementation/CS team (SIs or in-house): 0.8–1.5M USD/year.'
+  keyMetrics:
+    - >-
+      Win-rate uplift: +10–25% versus baseline within 6 months; measured on
+      like-for-like tenders.
+    - >-
+      Gross margin improvement: +1–3 percentage points per won order; auditable
+      via backtesting.
+    - >-
+      Proposal cycle time: reduce from 3–7 days to 1–3 days; target 40–60%
+      reduction.
+    - >-
+      Compliance errors in bids: <2 per quarter per plant; 80–90% reduction
+      versus baseline.
+    - 'BOM cost forecast error (at award): MAE ≤2–3% vs historical 5–8%.'
+    - >-
+      Optimizer adoption: ≥70% of eligible bids using LCO within 90 days; ≥60%
+      recommendation acceptance rate.
+    - >-
+      Model calibration: evaluated-cost MAE ≤1% on validation tenders;
+      win-probability Brier score improvement ≥15%.
+    - >-
+      Commercial KPIs: net revenue retention ≥120%, logo retention ≥95%, LTV:CAC
+      ≥3:1 within 18 months.
+storyBrand:
+  character: >-
+    Transformer manufacturers (power, distribution, specialty) who need to
+    submit winning bids with strong margins.
+  problem: >-
+    Balancing design choices (core/copper, losses) against customer
+    loss‑capitalization and specs is manual and error‑prone—leading to slow
+    quotes, inconsistent evaluated prices, and lost margin or bids.
+  guide: >-
+    Loss Capitalization Bid Optimizer is your AI guide. We understand
+    high‑stakes RFQs and transformer economics, turning your cost/loss models
+    and customer loss‑cap rates into clear, optimized bid recommendations.
+  plan: >-
+    1) Connect cost, BOM, and loss data; 2) Set loss‑cap rates, constraints, and
+    targets; 3) Run the optimizer to compare scenarios; 4) Export bid‑ready
+    price, design, and justification.
+  callToAction: Schedule a 30‑minute demo or run a pilot on your next RFQ.
+  success: >-
+    Quote in minutes, not days; win more bids at target margin; defend pricing
+    with transparent evaluated‑price math; standardize decisions across
+    engineering, pricing, and sales.
+  failure: >-
+    Keep guessing—over/under‑pricing, slow cycles, compliance misses, and margin
+    erosion.
+landingPage:
+  hero:
+    title: Loss Capitalization Bid Optimizer
+    subtitle: >-
+      AI that converts customer loss capitalization into the most competitive,
+      compliant transformer designs and bids—maximizing win rate and margin
+      across power, distribution, and specialty units.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - >-
+      Margins hinge on loss capitalization; manual trade-offs often miss the
+      true optimum.
+    - >-
+      Engineering bandwidth limits scenario coverage; deadlines force safe,
+      suboptimal designs.
+    - >-
+      Price-to-win is unclear under volatile copper/steel and factory load
+      constraints.
+    - Inconsistent standards checks create rejection risk and rework.
+    - Sales lacks defensible rationale for evaluated price and design choices.
+    - 'Slow handoffs between sales, costing, and engineering delay submissions.'
+    - >-
+      Hard to compare options across product lines, regions, and customer LC
+      rules.
+  solution:
+    - >-
+      Optimize design choices against LC values to minimize evaluated cost or
+      maximize profit—automatically.
+    - >-
+      Evaluate thousands of compliant permutations in minutes: core grade,
+      conductor size, cooling, winding geometry, dimensions.
+    - >-
+      Built-in standards and factory-aware constraints (IEC/IEEE/DOE, noise,
+      hotspot, transport).
+    - >-
+      Price-to-win, sensitivity, and what-if analysis on LC, material prices,
+      and load profile.
+    - >-
+      Clear outputs: BOM, losses (no-load/load), evaluated price, recommended
+      bid, expected margin.
+    - 'One-click quote package, ERP/CPQ export, and full audit trail.'
+  features:
+    - >-
+      Tender ingestion and spec parser (ratings, impedance, temp rise, sound,
+      vector group, cooling class).
+    - Loss-cap weighted objective function balancing no-load vs. load losses.
+    - 'Multi-objective mode: win probability vs. margin and capacity utilization.'
+    - >-
+      Design space exploration with constraints (dimensions, transport, noise,
+      hotspot, short-circuit).
+    - 'Standards engine: IEC 60076, IEEE C57, DOE/NRCan efficiency compliance.'
+    - >-
+      Factory digital twin: labor/machine hours, core/tank shop constraints,
+      test bay limits.
+    - >-
+      Material price scenarios for copper, core steel, oil, and accessories with
+      hedging inputs.
+    - 'Portfolio optimizer across power, distribution, and specialty products.'
+    - >-
+      What-if and sensitivity: LC coefficients, load factor, ambient/altitude,
+      duty cycle, penalties.
+    - >-
+      Risk guardrails: compliance proofs, min-margin floors, supplier risk
+      flags.
+    - >-
+      Auto-generated BOM, losses, evaluated price, and bid recommendation with
+      confidence bands.
+    - 'APIs and integrations: CAD/design calculators, ERP, CPQ, PLM, BI.'
+    - >-
+      Deployment: cloud, on-prem, or VPC; SSO, RBAC, and data residency
+      controls.
+    - 'Governance: versioning, approvals, change logs, and audit-ready records.'
+  steps:
+    - >-
+      Connect cost data, material prices, and standards; map factory
+      constraints.
+    - Import a tender or enter specs; add customer LC coefficients and T&Cs.
+    - >-
+      Choose objective (lowest evaluated cost, target margin, or win
+      probability) and set guardrails.
+    - >-
+      Run optimization; review top designs with losses, BOM, evaluated price,
+      and compliance checks.
+    - >-
+      Stress-test with LC and price scenarios; select the recommended design and
+      bid price.
+    - >-
+      Export the quote pack and push to ERP/CPQ; lock the version and track bid
+      outcomes.
+---
+# LossCap Optimizer (LCO)
+
+Industry: Power, Distribution, and Specialty Transformer Manufacturing
+Service: Loss Capitalization Bid Optimizer

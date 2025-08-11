@@ -1,0 +1,350 @@
+---
+name: Parametric Transformer Design Assistant (PTDA)
+slug: parametric2
+service:
+  title: Parametric Transformer Design Assistant
+  description: >-
+    Suggests core/winding/thermal configurations and outputs a design datasheet
+    for distribution/specialty units.
+  targetUsers:
+    - Design engineers
+    - Application engineers
+  triggers:
+    - Approved RFQ/ITT
+    - Engineering kickoff for new rating
+  inputs:
+    - 'Electrical rating/spec (kVA, HV/LV, vector group)'
+    - Cooling class (ONAN/ONAF/KNAN/etc.)
+    - BIL/insulation levels
+    - Loss and efficiency targets
+    - Ambient/site conditions
+    - Company design rules/spreadsheets
+  steps:
+    - Parse spec and validate completeness
+    - 'Propose core geometry, flux density, and stacking factor'
+    - 'Optimize winding turns, conductor size, and current density'
+    - Estimate no-load/load losses and temperature rise
+    - Check dielectric clearances and short-circuit withstand heuristics
+    - Output material list estimates and winding schedules
+    - Export design datasheet and optional CAD macro files for further detailing
+  tools:
+    - Python calculation libraries
+    - Company Excel design sheets via COM/Office Scripts
+    - OpenModelica/engineering solvers (optional)
+    - Unit/standards rule engine
+    - DXF/CSV export
+  outputs:
+    - Design datasheet (PDF/Excel)
+    - Preliminary BOM/material takeoff
+    - Winding schedule and tap plan
+    - CAD macro/parameter file (optional)
+  pricingModel:
+    - Per-design fee
+    - Seat-based monthly for engineers
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 8
+    modelCapability: 7
+    overall: 7
+  risks:
+    - Design rule gaps causing non-compliance
+    - Thermal/short-circuit checks too approximate
+    - Requires engineer sign-off
+  dependencies:
+    - Access to internal design rules/spreadsheets
+    - 'Material property libraries (CRGO, copper, insulation)'
+    - Standards limits (IEC/IEEE)
+leanCanvas:
+  problem:
+    - >-
+      Design cycles for distribution and specialty transformers are slow (2–10
+      days) and rely heavily on scarce senior expertise, delaying quotes and
+      reducing win rates.
+    - >-
+      Current tools are fragmented (spreadsheets, legacy scripts, generic FEA),
+      leading to inconsistent assumptions, calculation errors, and rework during
+      factory acceptance tests (FAT).
+    - >-
+      Rapid material price volatility (copper/CRGO/amorphous) makes accurate,
+      up-to-date costed designs difficult during pre-bid, causing margin leakage
+      or uncompetitive pricing.
+    - >-
+      Meeting efficiency and loss targets (DOE, EU EcoDesign, CSA), dielectric
+      clearances, and temperature rise requirements (IEEE/IEC) is complex and
+      error-prone without a rule engine.
+    - >-
+      Design-to-manufacture handoff lacks standardization; datasheets are
+      non-uniform and often missing key parameters, causing clarifications,
+      change orders, and delays.
+    - >-
+      New engineer onboarding is lengthy (6–12 months to autonomy) due to
+      implicit tribal knowledge encoded in spreadsheets and senior reviews.
+    - >-
+      Limited ability to explore trade-offs (cost vs losses vs weight vs
+      footprint) quickly across core, winding, and cooling configurations
+      reduces optimization quality.
+    - >-
+      Quoting teams lack fast, defensible sensitivity analyses (commodity price
+      changes, tap range, impedance) to make informed bid decisions.
+  solution:
+    - >-
+      Physics-informed AI engine that proposes core form/shell, CRGO vs
+      amorphous, winding type (disc/helix/foil/CTC), and cooling class
+      (ONAN/ONAF/ODAF; AN/AF for dry-type) based on specs (kVA/MVA, voltages,
+      impedance, temperature rise, regulation).
+    - >-
+      Rule engine encoding IEEE C57 and IEC 60076 requirements for clearances,
+      temperature rise, dielectric tests, and short-circuit withstand checks,
+      with region-specific efficiency standards (DOE, EU EcoDesign, CSA).
+    - >-
+      Optimization module for multi-objective trade-offs (CAPEX, losses, weight,
+      footprint, noise) with Pareto front visualization and sensitivity to
+      commodity price inputs (LME copper, electrical steel indices).
+    - >-
+      Auto-generated, customer-ready design datasheet and outline
+      (PDF/Word/Excel) including losses, dimensions, weights, impedances,
+      thermal class, tap-changer details, clearances; plus costed BOM summary.
+    - >-
+      Materials database with grades (M2–M5 CRGO, amorphous Metglas), B–H
+      curves, stacking factors, fill factors, loss curves, thermal properties;
+      versioned and supplier-linked.
+    - >-
+      API and connectors to ERP/PLM (SAP, Oracle, Teamcenter, Windchill) to push
+      BOM and receive cost/availability; export to CAD/FEA templates for
+      detailed mechanical/electromagnetic refinement.
+    - >-
+      Validation loop using factory test results (no-load/load loss, impedance,
+      temperature rise) to continuously calibrate models and provide accuracy
+      dashboards.
+  uniqueValueProp: >-
+    Reduce transformer design-and-quote time from days to hours while meeting
+    IEEE/IEC efficiency, thermal, dielectric, and mechanical requirements. PTDA
+    suggests optimal core/winding/thermal configurations, auto-generates a
+    standards-aligned datasheet and costed BOM, and provides explainable,
+    auditable calculations integrated with your ERP/PLM.
+  unfairAdvantage: >-
+    Closed-loop, physics-informed AI calibrated on validated factory test
+    results across multiple manufacturers, combined with a standards rule engine
+    and live materials/cost feeds. Enterprise-ready, explainable designs with
+    audit trails and on-prem options address IP/security barriers that generic
+    FEA or spreadsheets cannot.
+  customerSegments:
+    - >-
+      Mid-size distribution transformer manufacturers (5–50 design engineers;
+      10–100 MVA product range; oil-immersed and dry-type).
+    - >-
+      Specialty transformer manufacturers (rectifier/furnace/traction/offshore,
+      cast resin dry-type, mining/industrial).
+    - >-
+      Large OEMs’ engineering and quotation teams for power/distribution
+      divisions seeking standardization and throughput.
+    - >-
+      EPCs and integrators needing rapid, pre-bid transformer parametrization
+      and datasheets for proposals.
+    - >-
+      Independent transformer design consultants supporting multiple small
+      manufacturers.
+  channels:
+    - >-
+      Direct enterprise sales to OEMs; land-and-expand via design/quotation
+      teams.
+    - >-
+      Pilot/POC engagements (8–12 weeks) with success criteria tied to cycle
+      time, accuracy, and quote hit rate.
+    - >-
+      Industry events and associations: IEEE PES T&D, CIGRE, Transformer
+      Magazine events, Middle East Energy, ELECRAMA (India).
+    - >-
+      Account-based marketing on LinkedIn targeting Heads of
+      Engineering/Quotations; technical webinars and whitepapers (DOE/EU
+      efficiency compliance, design-to-quote ROI).
+    - >-
+      Partnerships with materials suppliers (electrical steel, copper) and
+      standards training firms for co-marketing and leads.
+    - System integrator partners for ERP/PLM connectors and on-prem deployments.
+    - >-
+      Referral program for independent transformer design consultants and test
+      labs.
+  revenueStreams:
+    - >-
+      Annual enterprise subscriptions (site license) including modules:
+      $80k–$250k per site/year depending on scope and seats.
+    - >-
+      Per-seat licenses for engineers: $3k–$7k per user/year; volume discounts
+      for >20 seats.
+    - >-
+      Usage-based design credits for small shops and consultants: $50–$200 per
+      finalized design datasheet.
+    - >-
+      Professional services: onboarding, calibration to house rules, ERP/PLM
+      integration, custom templates ($10k–$150k per engagement).
+    - >-
+      Premium add-ons: advanced thermal/short-circuit modules, amorphous
+      optimization pack, private model hosting, validated materials packs.
+    - Training and certification programs for engineers ($1k–$3k per trainee).
+  costStructure:
+    - >-
+      R&D payroll: power/thermal/electromagnetics SMEs, ML engineers, full-stack
+      developers, QA (primary fixed cost).
+    - >-
+      Cloud infrastructure and on-prem build/test pipelines; inference/training
+      compute; model registry and MLOps tooling.
+    - >-
+      Standards licensing and legal/compliance (SOC 2/ISO 27001, export
+      controls).
+    - >-
+      Data acquisition and validation (partnerships with test labs, materials
+      suppliers; labeling/QA).
+    - >-
+      Sales and marketing (enterprise reps, events, content), partner
+      enablement.
+    - 'Customer success, support SLAs, and professional services teams.'
+    - Liability/tech E&O insurance; travel for on-site calibrations and audits.
+  keyMetrics:
+    - >-
+      Design cycle time from spec to datasheet: baseline 2–10 days; target P90 <
+      6 hours within 3 months of deployment.
+    - >-
+      Quote win rate: baseline 15–30%; target +5–10 percentage points due to
+      faster, optimized bids.
+    - >-
+      First-pass compliance rate (standards checks passing without rework):
+      baseline 70–85%; target >95%.
+    - >-
+      Accuracy gap between predicted vs tested losses/impedance/temperature
+      rise: target MAE ≤ 5% for losses, ≤ 3% for impedance, ≤ 5 K for
+      top-oil/hotspot within calibrated ranges.
+    - >-
+      Engineer productivity: designs per engineer per week; baseline 2–5; target
+      6–12.
+    - >-
+      Onboarding time for new engineers to independent design: reduce from 6–12
+      months to 4–8 weeks.
+    - >-
+      BOM cost variance at production vs quote: target ≤ ±3% with live commodity
+      feeds.
+    - >-
+      ARR, net revenue retention (NRR > 120%), logo retention (>90%), gross
+      margin (>75%), and time-to-value (<45 days post kick-off).
+    - >-
+      Product adoption: weekly active designers/total licensed > 70%; feature
+      usage (optimization runs per design > 3).
+storyBrand:
+  character: >-
+    Design, quotation, and product teams at power, distribution, and specialty
+    transformer manufacturers who need optimized, manufacturable,
+    standards-compliant designs fast.
+  problem: >-
+    external: Specs and grid codes vary; material prices shift;
+    losses/heat-rise/noise targets must be met under tight RFQs; tools are
+    fragmented.
+
+    internal: Pressure to respond quickly with confidence; fear of hidden
+    hot-spots, cost creep, and rework; spreadsheet fatigue.
+
+    philosophical: Engineering time should go to innovation, not repetitive
+    calculations and manual lookups.
+  guide: >-
+    empathy: We’ve lived the RFQ grind—core factors, window fill, stray losses,
+    and thermal margins are unforgiving under deadlines.
+
+    authority: Built by veteran transformer engineers, aligned with IEEE/IEC
+    methods, validated on thousands of designs, and tuned for factory
+    constraints.
+  plan: >-
+    process: 1) Input ratings/specs, standards, constraints, and materials. 2)
+    Explore parametric core/winding/thermal configurations with multi-objective
+    optimization. 3) Review trade-offs, select a design. 4) Export a design
+    datasheet (distribution/specialty), winding schedule, loss/thermal summary,
+    and manufacturability checks.
+
+    agreement: Private, secure workspace; data remains isolated; traceable calc
+    steps; human approval required before release.
+  callToAction: |-
+    direct: Book a 30-minute demo and pilot on two live RFQs.
+    transitional: Download a sample datasheet and benchmark against a past job.
+  success: >-
+    Faster quote-to-proposal; higher win rates; reduced copper/steel while
+    meeting loss and heat-rise targets; predictable compliance (IEEE/IEC);
+    consistent datasheets; shorter onboarding; captured tribal knowledge.
+  failure: >-
+    Slow quotes and missed bids; over/under-design leading to cost overrun,
+    hot-spots, noise issues, and test failures; rework and schedule slips;
+    expertise loss when key engineers are unavailable.
+landingPage:
+  hero:
+    title: Parametric Transformer Design Assistant
+    subtitle: >-
+      AI-driven design for power, distribution, and specialty transformers. Get
+      optimal core, winding, and thermal configurations, then export a
+      manufacturing-ready datasheet.
+    ctaText: Start a design
+    ctaHref: '#get-started'
+  problem:
+    - 'Slow, spreadsheet-heavy iterations delay quotes and prototypes'
+    - 'Hard to balance losses, cost, temperature rise, noise, and size'
+    - Thermal or dielectric surprises trigger rework late in the cycle
+    - Expert availability limits variant throughput across kVA ranges
+    - Standards compliance (IEC/IEEE/DOE/Ecodesign) is complex to verify
+    - Handoffs to CAD/ERP/BOM are manual and error-prone
+  solution:
+    - Generate feasible transformer designs from specs in minutes
+    - 'Optimize across efficiency, cost, weight, temperature rise, and noise'
+    - Built-in checks for IEC/IEEE/DOE/Ecodesign limits and clearances
+    - 'Instant datasheet with winding schedule, losses, and thermal results'
+    - Factory-aware designs that respect your machines and material constraints
+    - One-click export to CAD/PLM/ERP with versioned traceability
+  features:
+    - >-
+      Specification intake: kVA, primary/secondary voltages, impedance,
+      frequency, vector group, BIL, temperature rise, noise, enclosure, cooling
+      class (ONAN/ONAF/KNAN), footprint limits
+    - >-
+      Core selection: CRGO/amorphous, step-lap, stacking factor, window sizing,
+      flux density targets
+    - >-
+      Winding synthesis: copper/aluminum; foil/strip/round; turns, parallels,
+      ducts, interleaving; tap-changer positions; stress checks
+    - >-
+      Thermal modeling: oil/air natural/forced; hotspot and top-oil rise per IEC
+      60076-7/IEEE C57.91
+    - >-
+      Loss modeling: no-load/load losses, efficiency at load points, stray
+      calculation aids
+    - >-
+      Dielectric checks: clearances, creepage, insulation structure; BIL and
+      impulse coordination
+    - >-
+      Short-circuit mechanical checks: axial/radial forces for disc/helix/foil
+      designs
+    - Acoustic estimation to meet noise class targets
+    - >-
+      Material and cost constraints: lamination grade, conductor pricing,
+      pressboard, tank steel, scrap/yield
+    - >-
+      Optimization engine: multi-objective trade-offs with sliders and hard
+      constraints
+    - >-
+      Manufacturability rules: winding machine limits, foil width, min bend
+      radius, tank fit, lead exits
+    - >-
+      Outputs: PDF datasheet, winding schedule CSV, loss/thermal tables, 2D
+      outline DXF and STEP skeleton, preliminary BOM
+    - >-
+      Templates for distribution and specialty units (pad-mount, pole-mount,
+      traction, furnace, rectifier)
+    - >-
+      Design history, approvals, and audit trail; role-based access; on-prem or
+      private cloud
+  steps:
+    - Enter specs or import from RFQ/CSV
+    - 'Set constraints and priorities (efficiency, cost, weight, noise, size)'
+    - Run parametric design to generate candidate configurations
+    - 'Compare candidates with loss, thermal, cost, and size charts'
+    - Validate against standards and factory limits
+    - 'Export datasheet, winding schedule, and CAD/BOM to your systems'
+---
+# Parametric Transformer Design Assistant (PTDA)
+
+Industry: Power, Distribution, and Specialty Transformer Manufacturing
+Service: Parametric Transformer Design Assistant

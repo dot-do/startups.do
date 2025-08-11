@@ -1,0 +1,310 @@
+---
+name: QC Vision Defect Triager (Image-based)
+slug: qcvision
+service:
+  title: QC Vision Defect Triager (Image-based)
+  description: >-
+    Classifies and localizes defects (tuft pull, dye bleed, skew/bow,
+    delamination) from smartphone photos or line cameras to speed dispositions.
+  targetUsers:
+    - QC Technicians
+    - Quality Manager
+    - Process Engineers
+  triggers:
+    - Image/video uploaded to secure folder/portal
+    - QC inspection completed
+    - Customer complaint photo received
+  inputs:
+    - Defect images/videos (shop floor or lab)
+    - Defect taxonomy and examples
+    - Lighting/camera guidelines
+    - Historical QC outcomes
+  steps:
+    - Define defect taxonomy and minimal dataset
+    - Fine-tune YOLO/segmentation on client samples
+    - Deploy lightweight upload portal (S3/SharePoint)
+    - 'Run inference; return class, severity, bounding boxes'
+    - Route edge cases to human reviewer
+    - Weekly active learning retrain using confirmed labels
+    - Publish Pareto and trend dashboards
+  tools:
+    - YOLOv8/Detectron2
+    - OpenCV
+    - AWS S3/Azure Blob
+    - Streamlit/Gradio portal
+    - Python/FastAPI
+    - Teams/Email alerts
+  outputs:
+    - Per-image defect classification with boxes
+    - Triage queue and recommended disposition
+    - 'Pareto by defect, line, shift'
+    - Model performance report
+  pricingModel:
+    - One-time model setup/tuning
+    - 'Per-1,000 images analyzed'
+    - Optional monthly support/monitoring
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 4
+    modelCapability: 4
+    overall: 4
+  risks:
+    - Lighting/angle variation reduces accuracy
+    - Limited labeled data for rare defects
+    - Privacy/IT policies on image transfer
+  dependencies:
+    - Sample image set and taxonomy
+    - Approval for secure image upload
+    - QC feedback loop to label outcomes
+leanCanvas:
+  problem:
+    - >-
+      Manual defect triage is slow (5–15 minutes/incident) and inconsistent
+      across shifts, causing delayed dispositions and line stoppages.
+    - >-
+      Scrap and rework from late or missed defect detection typically cost 1–3%
+      of COGS for mills; for a 2M sq yd/month plant, this is $300k–$900k/year.
+    - >-
+      Generic vision systems are costly to tune for carpet-specific defects
+      (tuft pull, dye bleed, skew/bow, delamination), leading to high false
+      positives and poor operator trust.
+    - >-
+      Smartphone photos used today are unstructured and not tied to MES/QMS
+      records, limiting traceability and root-cause analysis.
+    - >-
+      Existing inspection cameras lack actionable localization data for
+      dispositions (e.g., exact location/size to cut, rework, or quarantine),
+      slowing decisions.
+    - >-
+      Operational variability (pile height, colorways, patterns, lighting,
+      motion blur) makes models drift without active learning and retraining
+      processes.
+  solution:
+    - >-
+      Smartphone and tablet capture app that standardizes photos (distance/angle
+      prompts, lighting guidance), auto-uploads, and tags by order, roll, and
+      operator.
+    - >-
+      Edge AI gateway for line cameras (GigE/USB) performing on-prem inference
+      (<150 ms/frame) with cloud-managed model updates; works offline with
+      store-and-forward.
+    - >-
+      Defect classification/localization for tuft pull, dye bleed, skew/bow,
+      delamination (phase 1), with extendable classes (e.g., shading, pattern
+      mismatch) via active learning.
+    - >-
+      Human-in-the-loop review: fast triage UI with disposition templates
+      (rework, cut out, quarantine) and feedback loops to improve models.
+    - >-
+      Integrations: REST/OPC UA connectors to MES/QMS/SCADA (e.g., Ignition,
+      Siemens Opcenter) to attach images and dispositions to lots and rolls.
+    - >-
+      Analytics dashboard: first-pass yield, defect rates by line/style/shift,
+      cost-of-poor-quality (COPQ), model precision/recall drift, and ROI
+      tracker.
+  uniqueValueProp: >-
+    Carpet-specific AI that classifies and localizes defects from smartphone
+    photos or line cameras in under 2 seconds, cutting disposition time by 70%,
+    reducing scrap 10–25%, and boosting first-pass yield—without replacing
+    existing cameras or MES.
+  unfairAdvantage: >-
+    A growing, proprietary, carpet-specific defect dataset with closed-loop
+    feedback from multiple mills, combined with edge-optimized models and
+    pre-built MES/QMS integrations that deliver measurable ROI within 90
+    days—hard for generic vision vendors to replicate.
+  customerSegments:
+    - >-
+      Primary: Carpet and rug mills (tufted, woven, needle-punched) – QC/QA
+      managers, line supervisors, process/continuous improvement engineers,
+      plant managers, and OT/IT leaders.
+    - >-
+      Secondary: OEM machine builders and camera vendors supplying inspection
+      systems to mills.
+    - >-
+      Influencers: Enterprise procurement, quality directors, VP
+      Manufacturing/Operations, and customer-facing technical service teams
+      handling claims/returns.
+    - >-
+      Geographies: Initially US (Dalton, GA cluster), then EU (Belgium,
+      Netherlands), Turkey, and selected APAC mills with advanced QC setups.
+  channels:
+    - >-
+      Direct sales to mills (VP Ops, Quality Directors) focused on Dalton, GA
+      and comparable hubs; land with 6–12 week pilots tied to ROI goals.
+    - >-
+      Partnerships with camera vendors and integrators (GigE camera OEMs,
+      line-scan providers, SCADA/MES integrators) to bundle edge gateway and
+      models.
+    - >-
+      Industry associations and trade shows: Carpet and Rug Institute (CRI),
+      FloorTek Expo (Dalton), The International Surface Event (TISE), Domotex;
+      live demos with real carpet samples.
+    - >-
+      Content-led demand gen: defect taxonomy whitepapers, ROI calculator,
+      webinar series with pilot customers, before/after case studies with hard
+      numbers.
+    - >-
+      Account-based marketing targeting top 50 mills; on-site workshops offering
+      free “defect dataset audit” and 2-week POC on their imagery.
+    - >-
+      Channel incentive program (margin 15–25%) for OEMs/integrators who embed
+      the gateway in new installs or retrofits.
+  revenueStreams:
+    - >-
+      Subscription – Line Camera Module: $1,500–$2,500 per line per month (ARR
+      $18k–$30k), includes model updates, analytics, and support.
+    - >-
+      Subscription – Smartphone Module: $400–$800 per plant per month, unlimited
+      users, includes app, tagging, and basic analytics.
+    - >-
+      Premium SLA: 24/7 support, on-site quarterly health checks, and
+      prioritized model updates (+$10k–$30k/year per site).
+    - >-
+      Professional Services: onboarding/integration ($10k–$50k per site), custom
+      defect class development ($5k–$15k per class), historical image backfill
+      and annotation services.
+    - >-
+      Hardware: Edge gateway hardware resale/lease ($2k–$6k one-time or
+      $150/month).
+    - >-
+      Enterprise: Volume discounts and multi-site contracts with minimum annual
+      commitments.
+  costStructure:
+    - >-
+      COGS: Cloud compute/storage for training and analytics
+      ($150–$400/site/month), edge license costs, and data labeling
+      ($1.50–$3.00/image).
+    - >-
+      R&D: ML engineers, data scientists, MLOps, and domain experts
+      ($150k–$220k/engineer/year).
+    - 'Hardware: Edge gateway inventory, warranty, and provisioning/logistics.'
+    - >-
+      Sales & Marketing: field sales travel to mills, pilots (loaner hardware),
+      channel partner commissions (15–25%).
+    - >-
+      Customer Success: on-site deployment engineers, integration specialists,
+      training, and quarterly business reviews.
+    - >-
+      G&A and Compliance: SOC 2 audits, insurance, legal (data processing
+      agreements), and quality system documentation.
+  keyMetrics:
+    - >-
+      Model performance by defect class: precision ≥ 0.92, recall ≥ 0.90;
+      localization IoU ≥ 0.60; sustained over 30-day windows by line.
+    - >-
+      Operational KPIs: reduce mean time to disposition (MTTD) by ≥ 70%
+      (baseline e.g., 7 min → 2 min); increase first-pass yield by 5–10% in 3
+      months.
+    - >-
+      Quality outcomes: scrap rate reduction 10–25% within 6 months; rework
+      hours down 20–40%; warranty/returns down 15–30% YoY.
+    - >-
+      Adoption: pilot-to-paid conversion ≥ 60%; ≥ 75% of dispositions captured
+      through the tool by month 2; NPS ≥ 40; operator satisfaction ≥ 8/10.
+    - >-
+      Business KPIs: gross margin ≥ 70% on software; logo retention ≥ 95%; net
+      revenue retention (NRR) ≥ 115% via line expansions; CAC payback ≤ 9
+      months.
+    - >-
+      Reliability: model uptime ≥ 99.5% (edge); cloud service uptime ≥ 99.9%;
+      inference latency < 150 ms/frame on edge cameras; smartphone result <
+      2s/case.
+    - >-
+      Data flywheel: ≥ 1,000 labeled images/plant/month; model refresh every 2–4
+      weeks; reduce false positives ≥ 30% over first 90 days.
+storyBrand:
+  character: >-
+    Carpet and rug mill QC managers, inspectors, and production leads who need
+    fast, consistent defect dispositions without stopping the line.
+  problem: >-
+    Subjective, slow calls on tuft pull, dye bleed, skew/bow, and delamination
+    from ad-hoc phone or line-camera images cause rework, chargebacks, and
+    disputes.
+  guide: >-
+    QC Vision Defect Triager pairs textile-vision expertise with
+    production-ready AI to classify and localize defects consistently across
+    styles, lighting, and speeds.
+  plan: >-
+    1) Pilot: connect a smartphone or line camera and calibrate on your styles;
+    2) Auto-triage: AI flags, classifies, and localizes defects with heatmaps
+    and confidence; 3) Integrate: push dispositions and images into MES/QMS for
+    traceability and CI.
+  callToAction: >-
+    Book a 30-minute demo and start a 2-week pilot to triage live defects on
+    your line.
+  success: >-
+    Faster, objective dispositions; higher first-quality yield; fewer
+    chargebacks and false rejects; 100% visual traceability; growing labeled
+    data for root-cause reduction.
+  failure: >-
+    Remain manual and risk line slowdowns, inconsistent calls, more scrap and
+    rework, missed defects, and costly customer returns.
+landingPage:
+  hero:
+    title: QC Vision Defect Triager for Carpet & Rug Mills
+    subtitle: >-
+      AI that spots, labels, and prioritizes carpet defects from smartphone
+      photos or line cameras—so QA moves faster with fewer misses.
+    ctaText: Book a demo
+    ctaHref: '#demo'
+  problem:
+    - >-
+      Visual inspections are slow and subjective, leading to missed or
+      over-flagged defects.
+    - 'Late detection drives rework, scrap, and customer complaints.'
+    - >-
+      No consistent taxonomy for defects like tuft pull, dye bleed, skew/bow, or
+      delamination.
+    - Camera data isn’t leveraged for real-time triage or root-cause analysis.
+    - 'Manual documentation lacks traceability across lots, rolls, and lines.'
+  solution:
+    - >-
+      Classifies and localizes carpet defects from photos or live feeds—tuft
+      pull, dye bleed, skew/bow, delamination, and more.
+    - >-
+      Works on smartphones, tablets, and existing line cameras—no new hardware
+      required.
+    - >-
+      Overlay bounding boxes and heatmaps with confidence and severity for
+      instant pass/hold/scrap.
+    - >-
+      One-tap disposition with automatic labels, rework instructions, and
+      alerts.
+    - 'Seamless integration with MES/ERP, printers, and data lakes via API.'
+    - Runs on edge or cloud with offline buffering for plant-floor reliability.
+  features:
+    - Precise defect localization with overlays for rapid operator confirmation.
+    - >-
+      Configurable defect taxonomy, thresholds, and SOPs per style, SKU,
+      colorway, or loom.
+    - >-
+      Roll-level traceability: map defects by position and length for targeted
+      rework.
+    - 'Real-time dashboards, Pareto charts, and SPC to pinpoint chronic issues.'
+    - >-
+      Human-in-the-loop review and continuous model improvement from your
+      feedback.
+    - >-
+      Role-based access, SSO, encryption at rest/in transit, and full audit
+      trail.
+    - Edge appliance or VM support; low-latency inference for high-speed lines.
+    - Multi-language UI and unlimited users; works across multiple plants.
+    - 'Web, mobile, and API/SDK access for flexible deployment.'
+    - Alerts to Slack/Teams/SMS/Email when thresholds are exceeded.
+  steps:
+    - >-
+      Connect your line camera or open the mobile app and select the roll or
+      work order.
+    - Capture or auto-ingest frames; AI detects and labels defects in real time.
+    - 'Review overlays, confirm or adjust, and set pass/hold/scrap with one tap.'
+    - >-
+      Sync results to MES/ERP, print tags, and notify rework or shipping
+      automatically.
+    - >-
+      Track trends and root causes; the model improves continuously with your
+      feedback.
+---
+# QC Vision Defect Triager (Image-based)
+
+Industry: Carpet and Rug Mills
+Service: QC Vision Defect Triager (Image-based)

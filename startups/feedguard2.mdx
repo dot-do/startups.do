@@ -1,0 +1,314 @@
+---
+name: FeedGuard AI
+slug: feedguard2
+service:
+  title: 'Supplier COA Ingestion, QC Validation, and SPC Alerts'
+  description: >-
+    OCRs supplier COAs, validates against purchase specs, and runs statistical
+    process control with quarantine/hold recommendations.
+  targetUsers:
+    - Quality Assurance
+    - Procurement
+    - Receiving/Warehouse
+  triggers:
+    - New lot received or COA uploaded
+    - Inbound EDI document received
+  inputs:
+    - Supplier COAs (PDF/email/portal)
+    - Lot specs and acceptance limits
+    - Historical QC lab data
+    - Approved supplier list
+  steps:
+    - OCR and parse COA; normalize units and analytes
+    - Validate vs spec; compute Z-scores and capability indices
+    - Run SPC rules (Western Electric) and trend detection
+    - Auto-generate pass/hold/quarantine decision and tasks
+    - Notify stakeholders; update QMS/ERP lot status
+  tools:
+    - Google Vision/Tesseract OCR
+    - Pandas/Nixtla stats or scikit-learn
+    - QMS/LIMS/ERP API
+    - Email/Slack/Teams webhook
+  outputs:
+    - Lot disposition (pass/hold/quarantine)
+    - Deviation report and CAPA suggestion
+    - SPC dashboards and trend reports
+  pricingModel:
+    - Per-page/per-lot OCR + monthly platform fee
+    - Volume discounts
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 4.5
+    overall: 4.5
+  risks:
+    - OCR/parse errors leading to wrong disposition
+    - Incomplete COAs or unit mismatch
+    - False positives causing delays
+  dependencies:
+    - Access to COA inbox or supplier portal
+    - Spec limits and analyte mappings
+    - ERP/QMS permissions for lot status updates
+leanCanvas:
+  problem:
+    - >-
+      Supplier COAs arrive as PDFs/emails with inconsistent formats, units, and
+      analyte names, forcing QA teams to key data manually and risking
+      transcription errors.
+    - >-
+      Manual review delays material release; lots can sit for 6–24 hours waiting
+      for COA verification, creating production bottlenecks and demurrage
+      charges.
+    - >-
+      Specs vary by ingredient, supplier, lot, and purchase order. Enforcing the
+      right spec rules (including conditional limits like moisture-by-protein)
+      is error-prone without automation.
+    - >-
+      SPC trending across lots is rarely done due to time constraints; slow
+      analytical drift (e.g., protein downtrend, rising moisture) goes unnoticed
+      until formulation issues or customer complaints occur.
+    - >-
+      Mycotoxin and micro limits (e.g., aflatoxin, fumonisin, DON, Salmonella)
+      must be enforced consistently to meet FSMA PCAF and customer requirements;
+      missed nonconformances pose recall and liability risk.
+    - >-
+      Data is trapped in COA documents; limited visibility for supplier
+      scorecards, audit trails (SQF/BRCGS), and continuous improvement.
+    - >-
+      Existing ERP/LIMS QC modules are not optimized for unstructured COAs;
+      integrations are brittle, and holds/releases are handled by email or phone
+      calls instead of system-of-record changes.
+    - >-
+      Labor costs to process COAs scale with volume; a mid-size mill can spend
+      1–3 FTEs on document handling and exception management.
+    - >-
+      Language and unit discrepancies (ppm vs ppb, % vs g/kg) and different
+      methods (e.g., NIR vs wet chemistry) cause normalization errors.
+    - >-
+      Reactive holds: plants quarantine only after nonconformance is noticed,
+      not proactively based on risk trends, leading to rework and scrap.
+  solution:
+    - >-
+      Train a feed-specific document AI to OCR/parse multi-format supplier COAs,
+      map analytes to a canonical ontology, and normalize units/methods.
+    - >-
+      Ingest purchase specs by material/supplier/PO from ERP/LIMS and apply
+      rule-based and statistical validations (min/max, conditional,
+      method-specific).
+    - >-
+      Run SPC on critical characteristics (e.g., protein, moisture, fat, ash,
+      fiber, mycotoxins) using Western Electric/Nelson rules to detect
+      drift/outliers.
+    - >-
+      Assign a lot-level risk score and generate actionable recommendations:
+      auto-approve, quarantine/hold, request confirmatory lab test, or escalate.
+    - >-
+      Sync status and holds/releases back to ERP/WMS (e.g., SAP, Dynamics 365,
+      Aptean/Deacom, BatchMaster) at the lot/batch level; tag inventory and stop
+      movements when required.
+    - >-
+      Provide dashboards for supplier scorecards, exception management, and
+      audit trails (SQF/BRCGS, FSMA PCAF).
+    - >-
+      Offer mobile/web workflows for dockside checks: scan COA, instant
+      validation, and automated hold tag creation.
+    - >-
+      Continuously learn from user corrections to improve parsing accuracy and
+      spec rule precision.
+  uniqueValueProp: >-
+    Automate COA ingestion and spec validation with feed-specific AI, trigger
+    SPC-based alerts before production, and push hold/release decisions into
+    your ERP—cutting material release time by 70%+, reducing nonconforming lots,
+    and elevating audit readiness.
+  unfairAdvantage: >-
+    A domain-specific COA parsing engine and analyte ontology built from
+    thousands of feed-industry COAs, combined with prebuilt ERP/LIMS
+    integrations that push true lot holds/releases—not just notifications—plus
+    active learning from user corrections that compounds accuracy over time and
+    supplier scorecard benchmarks unavailable to generic IDP or horizontal SPC
+    tools.
+  customerSegments:
+    - >-
+      Mid-market and enterprise other animal feed manufacturers (NAICS 311119):
+      poultry, swine, ruminant, equine, and specialty feed mills.
+    - >-
+      Premix and micronutrient blend manufacturers supplying animal feed
+      producers.
+    - 'Integrated producers with captive feed mills (poultry, swine, dairy).'
+    - Aquaculture feed producers.
+    - Co-manufacturers and toll mills handling multiple customer specs.
+    - >-
+      Corporate QA/QC leaders, plant QA managers, procurement,
+      formulation/nutrition teams, and supply chain/receiving managers.
+  channels:
+    - >-
+      Direct sales to QA/Operations leaders at target accounts via account-based
+      marketing (ABM).
+    - >-
+      Industry associations and events: AFIA, IPPE (Atlanta), GEAPS Exchange,
+      World Pork Expo, World Dairy Expo, VICTAM, Aquaculture trade shows.
+    - >-
+      Partnerships and co-selling with ERP/LIMS vendors and feed mill automation
+      integrators.
+    - >-
+      Content marketing: case studies showing cycle-time reduction and
+      nonconformance prevention; SEO for “COA automation for feed,” “FSMA PCAF
+      COA validation.”
+    - >-
+      Webinars with industry consultants/auditors (SQF/BRCGS) on COA best
+      practices and SPC in feed.
+    - >-
+      Pilot program: 60–90 day paid pilots focused on 2–3 high-volume
+      ingredients and 5–10 suppliers; ROI-backed.
+    - >-
+      Referral program for consultants and auditors; revenue share for verified
+      leads.
+    - >-
+      Targeted LinkedIn ads and outreach to QA managers, plant managers, and VPs
+      of Operations in NAICS 311119.
+  revenueStreams:
+    - >-
+      SaaS subscription per site: $12k–$36k/year based on volume and feature
+      tier.
+    - >-
+      Usage-based COA processing: $0.05–$0.20 per COA page or $0.10–$0.50 per
+      COA, with volume discounts.
+    - >-
+      Implementation/integration fees: $10k–$50k per site depending on ERP/LIMS
+      scope.
+    - >-
+      Premium add-ons: supplier portal, advanced SPC analytics, multi-language
+      packs, and custom compliance reports ($5k–$20k/year).
+    - >-
+      Professional services: spec digitization, supplier onboarding, custom
+      reports, and audit preparation ($150–$250/hour).
+  costStructure:
+    - >-
+      Cloud hosting and inference (OCR + AI): $0.01–$0.05 per COA page; caching
+      and batching to reduce cost.
+    - >-
+      Engineering and data science team for model development, integrations, and
+      QA domain features.
+    - >-
+      Customer success and onboarding (specs mapping, supplier templates,
+      training).
+    - 'Sales and marketing (ABM, events, partner enablement).'
+    - >-
+      Third-party components: OCR engines (e.g., Textract/Vision),
+      observability, and security tooling.
+    - 'Compliance and security (SOC 2 audits, penetration testing, backups).'
+    - Partner and reseller margins for ERP/LIMS integrations.
+    - Support and incident response SLAs for production plants.
+  keyMetrics:
+    - >-
+      Customer-facing KPIs: median time-to-release from receipt to approval
+      (target: reduce by 70%+; e.g., from 8 hours to <2.5 hours).
+    - >-
+      % of lots auto-approved without human touch (target: 60–85% after 90
+      days).
+    - >-
+      OCR/IDP field-level accuracy on critical analytes (target: ≥99.0% with
+      human-in-the-loop for low-confidence fields).
+    - >-
+      Spec nonconformance detection rate and prevention (baseline vs.
+      post-implementation; goal: +30–50% more early detections).
+    - >-
+      SPC signal lead time before spec breach (target: detect drifts ≥2 SD at
+      least 3 lots in advance).
+    - >-
+      False-positive/false-negative rates on holds (target: FP <5%, FN <1% on
+      critical limits).
+    - >-
+      Lot quarantine cycle time (mean time to resolution) and % auto-release
+      upon confirmatory results.
+    - >-
+      Supplier performance scorecards: defects per million opportunities (DPMO),
+      on-time COAs, method bias vs internal labs.
+    - >-
+      Audit readiness: time to compile COA evidence packages (target: hours to
+      minutes).
+    - >-
+      Operational ROI: FTE hours saved per 1,000 COAs (target: 6–12 hours); cost
+      avoidance from prevented nonconforming lots (track $/quarter).
+    - >-
+      GTM/company KPIs: pilot win rate (target: >50%), pilot-to-ARR conversion
+      time (<120 days), gross margin (>75%), NRR (>115%), churn (<5%), payback
+      period (<12 months).
+storyBrand:
+  character: >-
+    QA and operations leaders at Other Animal Food manufacturers who must verify
+    supplier quality and release lots quickly and safely.
+  problem: >-
+    Supplier COAs arrive in many formats and are manually keyed, causing delays,
+    errors, undetected spec drift, and audit risk—leaving teams worried a bad
+    lot could slip through.
+  guide: >-
+    We understand the pressure of animal safety, compliance, and throughput. Our
+    AI, built with feed QA experts, reliably extracts COA data, validates specs,
+    and records traceable decisions.
+  plan: >-
+    1) Ingest: OCR and normalize supplier COAs; 2) Validate: auto-check against
+    purchase specs with instant pass/fail and exceptions; 3) Control: run SPC to
+    detect drift, issue alerts, and recommend release/hold—with full audit
+    trails and ERP/LIMS integration.
+  callToAction: >-
+    Direct: Schedule a demo or start a 30-day pilot. Transitional: Download the
+    ROI calculator and COA mapping guide.
+  success: >-
+    Confident, faster lot release; early detection of process drift; fewer
+    deviations and holds; audit-ready records; lower quality costs; safer feed
+    and a stronger brand.
+  failure: >-
+    Manual errors persist, spec excursions go unnoticed, inventory sits in
+    quarantine or is scrapped, audits stay stressful, and the risk of recalls or
+    citations rises.
+landingPage:
+  hero:
+    title: 'AI COA Ingestion, QC Validation, and SPC Alerts for Animal Feed'
+    subtitle: >-
+      OCR supplier COAs, auto-validate against purchase specs, and trigger
+      SPC-driven holds and releases—fast, accurate, audit-ready.
+    ctaText: Book a demo
+    ctaHref: /demo
+  problem:
+    - Manual COA entry slows lot release and consumes QA time.
+    - Inconsistent COA formats and units create errors and rework.
+    - Spec misses and late trends cause reactive quarantines.
+    - Siloed data makes supplier performance hard to see.
+    - No early warning when processes drift out of control.
+    - Audits require scrambling to prove compliance and traceability.
+  solution:
+    - 'Ingest any supplier COA automatically—email, portal, or PDF.'
+    - 'Normalize data, convert units, and validate against purchase specs.'
+    - Run SPC on every analyte to flag drift before it becomes a deviation.
+    - Get automated quarantine/hold recommendations with reason codes.
+    - Sync results to ERP/MES and streamline release workflows.
+    - 'Maintain an auditable, searchable record for every lot and decision.'
+  features:
+    - 'High-accuracy OCR tuned for COAs (scans, PDFs, images).'
+    - Data normalization with unit conversion and method tagging.
+    - 'Spec engine by material, supplier, season, and PO line.'
+    - 'Pass/fail, warning bands, and conditional release rules.'
+    - 'SPC control charts (I-MR, X-bar/R) and capability metrics.'
+    - Out-of-trend and run-rule alerts (Western Electric/Nelson).
+    - Auto quarantine/hold creation with configurable thresholds.
+    - 'Supplier scorecards: OOT rate, Cpk, on-time COA compliance.'
+    - Lot-level traceability linking COA → PO → receiving.
+    - Approval workflows with e-signatures and full audit trail.
+    - 'Role-based access, SSO/SAML, and enterprise-grade security.'
+    - >-
+      Integrations: SAP, Oracle, Infor, Microsoft D365, NetSuite, API, SFTP,
+      email.
+    - 'Notifications to email, Slack, and Teams.'
+    - Cloud or private VPC deployment options.
+  steps:
+    - 'Connect COA sources (email inbox, supplier portal, SFTP/API).'
+    - 'Import materials, purchase specs, and tolerance rules.'
+    - 'Integrate ERP for POs, receiving, and lot release statuses.'
+    - Auto-ingest new COAs; validate and create holds/exceptions.
+    - 'Review exceptions, approve releases, and monitor SPC dashboards.'
+---
+# FeedGuard AI
+
+Industry: Other Animal Food Manufacturing
+Service: Supplier COA Ingestion, QC Validation, and SPC Alerts

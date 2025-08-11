@@ -1,0 +1,308 @@
+---
+name: FeedFlux AI
+slug: feedflux
+service:
+  title: Least-Cost Feed Formulation and Re-optimization Agent
+  description: >-
+    Automatically generates and re-optimizes formulations for livestock,
+    poultry, aquaculture, equine, and specialty feeds based on nutrient specs,
+    market prices, and constraints.
+  targetUsers:
+    - Formulation/Nutrition teams
+    - Plant managers
+    - Procurement
+  triggers:
+    - Commodity price change > X% or new market close
+    - New spec/SKU or regulatory change
+    - Ingredient shortage/out-of-stock
+  inputs:
+    - Species/SKU nutrient targets and min/max constraints
+    - 'Ingredient nutrient profiles (matrix, digestibility, energy)'
+    - Current and forward ingredient prices
+    - 'Processing constraints (pelletability/PDI, fat limit)'
+    - Regulatory approvals per market
+  steps:
+    - Ingest latest prices and availability from market feeds and ERP
+    - Validate ingredient matrices; impute gaps from libraries
+    - Solve least-cost LP with safety margins and processing constraints
+    - >-
+      Run sensitivity analysis and produce alternative formulations (cost-risk
+      tradeoffs)
+    - Generate batch sheet and push BOM to ERP/MES; notify approver
+  tools:
+    - OR-Tools/PuLP for LP
+    - USDA AMS/CME/Barchart/Quandl for price feeds
+    - 'Excel/CSV/ERP API (e.g., SAP, Microsoft Dynamics)'
+    - Gurobi/HiGHS (optional)
+  outputs:
+    - Approved formulation recipe with inclusions
+    - 'Cost/ton, contribution margin, key nutrient margins'
+    - Sensitivity chart; alternative mixes
+    - Batch sheets and ERP BOM update
+  pricingModel:
+    - One-time setup + monthly subscription (per site/per SKU tier)
+    - Optional success fee on realized cost savings
+  humanInLoop: true
+  feasibility:
+    remoteOnLaptop: 5
+    modelCapability: 4.5
+    overall: 4.5
+  risks:
+    - Nutrition edge cases harming performance
+    - Bad matrices or incorrect constraints
+    - Regulatory non-compliance for additives
+  dependencies:
+    - Access to ERP/BOM and price data subscription
+    - Ingredient nutrient database/licensing
+    - Internal approval workflow integration
+leanCanvas:
+  problem:
+    - >-
+      Raw materials are 60–80% of feed COGS; commodity price volatility (corn,
+      SBM, wheat, oils) compresses margins when formulas aren’t refreshed
+      frequently.
+    - >-
+      Formulators re-optimize weekly or monthly due to manual workflows; missed
+      re-optimization windows lose 1–3% savings per ton.
+    - >-
+      Existing tools are desktop or semi-integrated; they lack real-time price
+      feeds, inventory awareness, and plant-specific manufacturing constraints,
+      causing infeasible or suboptimal formulas.
+    - >-
+      Regulatory and customer-spec compliance (AAFCO, EU 767/2009, label
+      guarantees) require rigorous auditing; manual checks add delays and risk.
+    - >-
+      Multi-plant operations suffer spec drift and inconsistent formulations
+      across sites; aligning pricing and constraints at scale is hard.
+    - >-
+      Shortage of experienced nutritionists/formulators increases workload and
+      risk of errors; onboarding new staff takes months.
+    - >-
+      Aquaculture and specialty diets have complex, nonlinear constraints (e.g.,
+      digestible amino acids, anti-nutritional factors, palatability) that
+      generic LP tools don’t capture.
+  solution:
+    - >-
+      Event-driven optimization: auto-recalculate formulas when price feeds,
+      inventory, or spec changes cross thresholds (e.g., >0.75% price move on
+      key inputs).
+    - >-
+      LP/MILP optimization engine with nutrition-aware constraints
+      (species/stage-specific digestible amino acids, energy systems, fiber
+      fractions, mineral bioavailability, anti-nutritional factors).
+    - >-
+      Inventory- and plant-aware formulation: blend limits, pellet/expander
+      constraints, moisture/steam, throughput caps, micro-dosing capabilities,
+      premix availability.
+    - >-
+      Price data integration and forecasting: ingest real-time/near-real-time
+      quotes, basis, freight; short-term forecasting to guide hedging and
+      sensitivity analysis.
+    - >-
+      Scenario planning: run hundreds of “what-if” formulations across price
+      decks, spec targets, and additive inclusion strategies; surface savings
+      curves and risk trade-offs.
+    - >-
+      Quality/regulatory guardrails: AAFCO/EU labeling checks, customer contract
+      spec compliance, max residue/mycotoxin risk limits, audit trails and
+      e-sign-offs.
+    - >-
+      Multi-plant governance: global templates with local overrides; ensure spec
+      alignment and cost normalization across sites.
+    - >-
+      APIs to ERP/MES/batching: push approved formulas and receive back
+      consumption, QA results, and production exceptions to close the loop.
+    - >-
+      Explainable outputs: shadow prices, binding constraints, cost
+      contributions, and sensitivity ranges that nutritionists trust.
+    - >-
+      Secure cloud with optional on-prem/edge agent for mills with strict IT
+      policies; SOC 2 roadmap and role-based access control.
+  uniqueValueProp: >-
+    Continuously least-cost and compliance-safe feed formulations that
+    re-optimize within minutes of market moves, aligned with plant constraints
+    and inventory, delivering 1–3% ingredient cost savings and 50–70% faster
+    formulation cycles.
+  unfairAdvantage: >-
+    Event-driven, inventory- and plant-aware re-optimization with
+    explainability, backed by proprietary short-term price forecasts and a
+    curated nutrient matrix; accumulating performance benchmarks create
+    switching costs and trusted ROI proofs.
+  customerSegments:
+    - >-
+      Primary: Commercial feed mills (poultry, swine, ruminant), integrators,
+      and premix companies producing 50k–1M+ tons/year.
+    - >-
+      Secondary: Aquaculture feed manufacturers; equine and specialty feed
+      producers; agricultural co-ops and contract mills; nutrition consulting
+      firms.
+    - >-
+      Influencers/Partners: ERP/MES providers to feed mills; batching system
+      OEMs; commodity data vendors; nutrition labs; ingredient suppliers and
+      additive vendors.
+  channels:
+    - >-
+      Direct sales to feed mills and integrators via industry conferences (IPPE,
+      VIV, EuroTier, World Pork Expo, World Aquaculture), webinars, and targeted
+      demos.
+    - >-
+      Partnerships with ERP/MES/batching vendors (e.g., Repete, CPM Beta Raven,
+      Bühler, Adifo/BESTMIX integrations) and implementation partners to
+      co-sell.
+    - >-
+      Alliances with commodity data providers (DTN, Fastmarkets/SPGCI) to bundle
+      price feeds and forecasts.
+    - >-
+      Thought leadership: white papers on realized savings, formulation
+      frequency ROI, and case studies; sponsor AFIA and regional feed
+      association events.
+    - >-
+      Land-and-expand via pilot programs in 2–3 plants; expand to all plants and
+      species lines post-ROI validation.
+    - >-
+      Channel to nutrition consultants and additive vendors who influence mill
+      software decisions; referral incentives.
+  revenueStreams:
+    - >-
+      SaaS subscription per plant: $2,500–$6,000/month based on volume and
+      features.
+    - 'Variable usage fee: $0.03–$0.12 per ton formulated or approved (tiered).'
+    - >-
+      Enterprise plan: multi-plant governance, SSO/SOC 2, advanced APIs and
+      forecasting add-on: +$3,000–$8,000/month.
+    - >-
+      Data add-ons: commodity price feeds and short-term forecasts pass-through
+      plus 10–20% markup.
+    - >-
+      Professional services: onboarding, data cleansing, ERP/MES integrations:
+      $15,000–$75,000 per deployment scope.
+    - 'Training and certification for nutrition teams: $3,000–$10,000 per cohort.'
+    - >-
+      Managed re-optimization service (for smaller mills): monthly retainer
+      $4,000–$12,000.
+  costStructure:
+    - >-
+      R&D team (optimization engineers, data scientists, nutritionists,
+      full-stack engineers).
+    - >-
+      Cloud infrastructure (compute for solvers, storage, VPC networking);
+      solver licenses if using commercial solvers (e.g., Gurobi/CPLEX).
+    - >-
+      Third-party data: commodity price feeds, FX, freight indices; lab data
+      integrations.
+    - Implementation and customer success staffing; travel and training.
+    - 'Sales and marketing (industry events, content creation, demos).'
+    - >-
+      Security and compliance (SOC 2, pen tests, logging/monitoring); liability
+      and E&O insurance.
+    - >-
+      Ongoing nutrition database maintenance and regulatory updates; QA and
+      documentation.
+  keyMetrics:
+    - >-
+      Realized cost savings: $/ton and % vs. baseline; target 1–3% reduction
+      with third-party auditable reports.
+    - >-
+      Re-optimization adoption: % of formulas auto-re-optimized within SLA;
+      target >80% within 24 hours of qualifying price moves.
+    - >-
+      Time-to-formula: median minutes from trigger to approved formula; target
+      <15 minutes (auto-approved) and <2 hours (manual).
+    - >-
+      Formula feasibility rate: % of generated formulas that pass plant and
+      regulatory constraints on first attempt; target >95%.
+    - >-
+      Price latency: median time from data provider update to optimization
+      start; target <5 minutes.
+    - 'Churn (logo and net revenue): target <6% annual logo churn; NRR >110%.'
+    - >-
+      Activation: time-to-value from contract to first plant go-live; target
+      <30–45 days.
+    - >-
+      User engagement: weekly active formulators, scenarios run per user, and
+      API utilization.
+    - >-
+      Support quality: tickets per account per month and median first response
+      <2 hours during business days.
+    - 'Security/availability: uptime >99.9%, no critical P1 security incidents.'
+storyBrand:
+  character: >-
+    Feed manufacturers—plant managers, nutritionists, and planners—who must meet
+    precise nutrient specs at the lowest possible cost across livestock,
+    poultry, aquaculture, equine, and specialty feeds.
+  problem: >-
+    External: volatile ingredient markets, supply shocks, and changing
+    regulatory or customer specs. Internal: manual spreadsheets/LP tools are
+    slow, siloed, and error-prone; reformulations take hours and miss savings.
+    Philosophical: teams should spend time on nutrition strategy, not chasing
+    prices and constraints.
+  guide: >-
+    We understand the pressure to hit specs, margins, and schedules. Our
+    AI-driven least-cost formulation and re-optimization service blends
+    nutrition science with modern optimization and data engineering, syncing
+    prices, specs, and constraints so your formulas stay current.
+  plan: >-
+    1) Connect data: prices, nutrient matrices, constraints, inventory, and
+    demand via API or CSV. 2) Configure species programs, targets, exclusions,
+    and compliance rules. 3) Run continuous optimization; review exceptions;
+    approve and export formulations to ERP/MES.
+  callToAction: Book a 30-minute demo or start a 4-week pilot with your data.
+  success: >-
+    Lower cost per ton, faster turnarounds, higher and more predictable margins,
+    compliant formulations, fewer stockouts and reformulation fire drills, and a
+    team freed to focus on product quality and innovation.
+  failure: >-
+    Keep overpaying for ingredients, missing savings, risking spec drift or
+    non-compliance, reacting slowly to market swings, and burning time on manual
+    rework.
+landingPage:
+  hero:
+    title: Least-Cost Feed Formulation & Re-optimization Agent
+    subtitle: >-
+      AI for Other Animal Food Manufacturing. Automatically formulates and
+      re-optimizes feeds for livestock, poultry, aquaculture, equine, and
+      specialty species using nutrient specs, live prices, and operational
+      constraints.
+    ctaText: Start free trial
+    ctaHref: /start
+  problem:
+    - Volatile ingredient prices make yesterday’s formulas overpriced today.
+    - 'Manual spreadsheets are slow, error-prone, and hard to audit.'
+    - Meeting multi-species nutrient specs and stage targets is complex.
+    - 'Procurement, R&D, and production work from disconnected data.'
+    - 'Reformulations stall due to QA, labeling, and plant constraints.'
+    - No fast way to model price shocks and ingredient substitutions.
+  solution:
+    - Continuous least-cost optimization on live prices and availability.
+    - >-
+      Hard and soft constraints for nutrients, inclusions, and processing
+      limits.
+    - Multi-species templates with stage-specific nutrient targets.
+    - One-click re-optimization when prices or supply change.
+    - Publish approved formulas to ERP/MES and labeling systems.
+    - Scenario modeling to manage risk and protect margins.
+  features:
+    - LP/MIP solver with penalty handling for soft constraints.
+    - 'Dynamic pricing connectors: ERP, supplier quotes, market feeds.'
+    - Nutrient matrix management with custom ingredients and variability.
+    - Risk-adjusted optimization using safety margins and tolerance bands.
+    - 'Min/max inclusions, binary ingredients, premix handling, and binders.'
+    - 'Plant-aware rules: batch sizes, rounding, pelleting, moisture loss.'
+    - COA and lot quality data ingestion with spec checks.
+    - 'Label-ready outputs: ingredient lists and nutrient guarantees.'
+    - 'Full audit trail, versioning, and role-based approvals.'
+    - 'API-first design; export to ERP, MES, PDF, and Excel.'
+    - Alerts when price or COA changes breach specs.
+    - 'What-if scenarios for substitutions, hedges, and contracts.'
+  steps:
+    - 'Connect data: prices, availability, nutrient matrix, and plant rules.'
+    - 'Define species, stage targets, and formulation constraints.'
+    - Generate least-cost formulations with one click.
+    - Run scenarios for price shocks and ingredient swaps.
+    - Approve and publish to ERP/MES and labeling.
+    - Enable auto re-optimization and real-time alerts.
+---
+# FeedFlux AI
+
+Industry: Other Animal Food Manufacturing
+Service: Least-Cost Feed Formulation and Re-optimization Agent
