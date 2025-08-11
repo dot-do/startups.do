@@ -311,3 +311,304 @@ landingPage:
 
 Generated for NAICS 334516 — Analytical Laboratory Instrument Manufacturing.
 Service: Predictive Spare Parts Demand & Inventory Optimizer
+
+## Business Workflow Functions
+
+```typescript
+// Core business types
+interface Lead {
+  companyName: string;
+  industry: string;
+  installedBaseSize: number;
+  spareParts: number;
+  currentSLAs: string[];
+  painPoints: string[];
+  contactInfo: ContactInfo;
+}
+
+interface Customer {
+  id: string;
+  companyProfile: CompanyProfile;
+  contract: Contract;
+  integrationStatus: IntegrationStatus;
+  kpis: CustomerKPIs;
+}
+
+interface ForecastModel {
+  partId: string;
+  region: string;
+  demandHistory: number[];
+  seasonalFactors: number[];
+  reliabilityData: WeibullParameters;
+  slaRequirements: SLAConfig;
+}
+
+interface InventoryPolicy {
+  partId: string;
+  region: string;
+  reorderPoint: number;
+  safetyStock: number;
+  maxStock: number;
+  leadTime: number;
+  serviceLevel: number;
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const proposal = await generateProposal(qualifiedLead);
+  const pilot = await conductPilot(proposal);
+  const contract = await negotiateContract(pilot);
+  return await onboardCustomer(contract);
+}
+
+export async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  // Validate minimum criteria: 10k+ installed base, 5k+ spare parts
+  if (lead.installedBaseSize < 10000 || lead.spareParts < 5000) {
+    throw new Error('Lead does not meet minimum criteria');
+  }
+  
+  const fitScore = await calculateFitScore(lead);
+  const painPointAnalysis = await analyzePainPoints(lead.painPoints);
+  const roiEstimate = await estimateROI(lead);
+  
+  return {
+    ...lead,
+    fitScore,
+    painPointAnalysis,
+    roiEstimate,
+    priority: fitScore > 80 ? 'high' : fitScore > 60 ? 'medium' : 'low'
+  };
+}
+
+export async function generateProposal(qualifiedLead: QualifiedLead): Promise<Proposal> {
+  const scopeDefinition = await definePilotScope(qualifiedLead);
+  const technicalArchitecture = await designTechnicalSolution(qualifiedLead);
+  const pricingModel = await calculatePricing(qualifiedLead);
+  const timeline = await createImplementationTimeline(scopeDefinition);
+  
+  return {
+    customerId: qualifiedLead.companyName,
+    scope: scopeDefinition,
+    architecture: technicalArchitecture,
+    pricing: pricingModel,
+    timeline,
+    expectedROI: qualifiedLead.roiEstimate
+  };
+}
+
+// Product Development Processes
+export async function developForecastingModel(customerData: CustomerData): Promise<ForecastModel> {
+  const cleanedData = await unifyDataSources(customerData);
+  const demandPatterns = await analyzeIntermittentDemand(cleanedData);
+  const reliabilityModel = await buildWeibullSurvivalModel(cleanedData);
+  const hierarchicalModel = await trainHierarchicalForecast(demandPatterns);
+  
+  return await validateAndCalibrateForecast({
+    ...hierarchicalModel,
+    reliabilityFactors: reliabilityModel,
+    validationMetrics: await calculateMAPE(hierarchicalModel, cleanedData)
+  });
+}
+
+export async function optimizeInventoryPolicy(
+  forecastModel: ForecastModel,
+  slaRequirements: SLAConfig,
+  supplierData: SupplierData
+): Promise<InventoryPolicy> {
+  const demandDistribution = await simulateDemandScenarios(forecastModel);
+  const leadTimeVariability = await modelSupplierRisk(supplierData);
+  const serviceLevel = await calculateRequiredServiceLevel(slaRequirements);
+  
+  const optimization = await solveMultiEchelonOptimization({
+    demand: demandDistribution,
+    leadTime: leadTimeVariability,
+    serviceLevel,
+    holdingCosts: await getHoldingCosts(forecastModel.partId),
+    stockoutCosts: await getStockoutCosts(slaRequirements)
+  });
+  
+  return {
+    partId: forecastModel.partId,
+    region: forecastModel.region,
+    reorderPoint: optimization.reorderPoint,
+    safetyStock: optimization.safetyStock,
+    maxStock: optimization.maxStock,
+    leadTime: optimization.expectedLeadTime,
+    serviceLevel: optimization.achievedServiceLevel
+  };
+}
+
+// Revenue Generation Flows
+export async function generateRevenue(customer: Customer): Promise<RevenueEvent> {
+  const subscriptionRevenue = await processSubscriptionBilling(customer);
+  const implementationRevenue = await billImplementationFees(customer);
+  const valueBasedRevenue = await calculateValueBasedUpside(customer);
+  const supportRevenue = await billSupportServices(customer);
+  
+  return {
+    customerId: customer.id,
+    totalRevenue: subscriptionRevenue + implementationRevenue + valueBasedRevenue + supportRevenue,
+    breakdown: {
+      subscription: subscriptionRevenue,
+      implementation: implementationRevenue,
+      valueBased: valueBasedRevenue,
+      support: supportRevenue
+    },
+    billingDate: new Date(),
+    paymentTerms: customer.contract.paymentTerms
+  };
+}
+
+export async function calculateSubscriptionRevenue(customer: Customer): Promise<number> {
+  const activeSKUs = await getActiveSKUCount(customer);
+  const echelonCount = await getEchelonCount(customer);
+  const tierMultiplier = customer.contract.tier === 'enterprise' ? 1.5 : 1.0;
+  
+  const basePrice = activeSKUs * 5; // $5 per SKU per month average
+  const echelonMultiplier = Math.sqrt(echelonCount); // Economies of scale
+  
+  return basePrice * echelonMultiplier * tierMultiplier;
+}
+
+// Operational Procedures
+export async function executeMonthlyPlanningRun(customer: Customer): Promise<PlanningResults> {
+  const latestData = await extractCustomerData(customer);
+  const updatedForecasts = await refreshForecastModels(latestData);
+  const optimizedPolicies = await reoptimizeInventoryPolicies(updatedForecasts);
+  const purchaseRecommendations = await generatePurchaseOrders(optimizedPolicies);
+  const exceptions = await identifyPlanningExceptions(optimizedPolicies);
+  
+  await publishResultsToERP(customer, purchaseRecommendations);
+  await notifyPlanners(customer, exceptions);
+  
+  return {
+    customerId: customer.id,
+    forecastAccuracy: await measureForecastAccuracy(updatedForecasts),
+    inventoryReduction: await calculateInventoryReduction(optimizedPolicies),
+    fillRateImprovement: await measureFillRateImprovement(customer),
+    recommendationsGenerated: purchaseRecommendations.length,
+    exceptionsRaised: exceptions.length
+  };
+}
+
+export async function handleSupplierLeadTimeChange(
+  supplierId: string,
+  newLeadTime: number,
+  affectedParts: string[]
+): Promise<void> {
+  for (const partId of affectedParts) {
+    const currentPolicy = await getInventoryPolicy(partId);
+    const updatedPolicy = await recalculatePolicy(currentPolicy, { leadTime: newLeadTime });
+    await updateInventoryPolicy(partId, updatedPolicy);
+    await notifyPlanners({
+      type: 'LEAD_TIME_CHANGE',
+      partId,
+      oldLeadTime: currentPolicy.leadTime,
+      newLeadTime,
+      policyChanges: updatedPolicy
+    });
+  }
+}
+
+// Decision-Making Workflows
+export async function evaluateNewCustomerFit(lead: Lead): Promise<CustomerFitDecision> {
+  const technicalFit = await assessTechnicalFit(lead);
+  const commercialFit = await assessCommercialFit(lead);
+  const strategicFit = await assessStrategicFit(lead);
+  const riskAssessment = await assessImplementationRisk(lead);
+  
+  const overallScore = (technicalFit.score + commercialFit.score + strategicFit.score) / 3;
+  const adjustedScore = overallScore * (1 - riskAssessment.riskFactor);
+  
+  return {
+    decision: adjustedScore > 75 ? 'PURSUE' : adjustedScore > 50 ? 'EVALUATE' : 'DECLINE',
+    score: adjustedScore,
+    reasoning: {
+      technical: technicalFit.reasoning,
+      commercial: commercialFit.reasoning,
+      strategic: strategicFit.reasoning,
+      risks: riskAssessment.risks
+    },
+    recommendedActions: await generateRecommendedActions(adjustedScore, riskAssessment)
+  };
+}
+
+export async function decidePricingStrategy(
+  customer: Customer,
+  competitiveIntel: CompetitiveIntelligence
+): Promise<PricingDecision> {
+  const valueDelivered = await calculateValueDelivered(customer);
+  const competitivePosition = await analyzeCompetitivePosition(competitiveIntel);
+  const customerWillingness = await estimateWillingnessToPay(customer);
+  const costStructure = await calculateCustomerCostStructure(customer);
+  
+  const recommendedPrice = Math.min(
+    valueDelivered * 0.3, // 30% of value delivered
+    customerWillingness * 0.9, // 90% of willingness to pay
+    competitivePosition.marketPrice * 1.1 // 10% premium to market
+  );
+  
+  return {
+    recommendedPrice,
+    strategy: await selectPricingStrategy(recommendedPrice, costStructure),
+    justification: await generatePricingJustification(valueDelivered, competitivePosition),
+    negotiationRange: {
+      floor: costStructure.totalCost * 1.2, // 20% margin minimum
+      ceiling: valueDelivered * 0.4 // 40% of value delivered maximum
+    }
+  };
+}
+
+// Integration and Data Processing Workflows
+export async function integrateCustomerSystems(customer: Customer): Promise<IntegrationStatus> {
+  const erpIntegration = await connectERP(customer.systems.erp);
+  const fsmIntegration = await connectFSM(customer.systems.fsm);
+  const plmIntegration = await connectPLM(customer.systems.plm);
+  const dataValidation = await validateDataQuality([erpIntegration, fsmIntegration, plmIntegration]);
+  
+  if (dataValidation.quality < 0.8) {
+    throw new Error(`Data quality insufficient: ${dataValidation.issues.join(', ')}`);
+  }
+  
+  return {
+    customerId: customer.id,
+    systems: {
+      erp: erpIntegration.status,
+      fsm: fsmIntegration.status,
+      plm: plmIntegration.status
+    },
+    dataQuality: dataValidation.quality,
+    readyForProduction: dataValidation.quality > 0.9,
+    nextSteps: await generateIntegrationNextSteps(dataValidation)
+  };
+}
+
+// Monitoring and Success Measurement
+export async function measureCustomerSuccess(customer: Customer): Promise<SuccessMetrics> {
+  const inventoryReduction = await measureInventoryReduction(customer);
+  const fillRateImprovement = await measureFillRateImprovement(customer);
+  const forecastAccuracy = await measureForecastAccuracy(customer);
+  const slaCompliance = await measureSLACompliance(customer);
+  const costSavings = await calculateCostSavings(customer);
+  
+  return {
+    customerId: customer.id,
+    metrics: {
+      inventoryReduction: inventoryReduction.percentage,
+      fillRate: fillRateImprovement.current,
+      forecastAccuracy: forecastAccuracy.mape,
+      slaCompliance: slaCompliance.percentage,
+      annualSavings: costSavings.annual
+    },
+    roi: costSavings.annual / customer.contract.annualValue,
+    healthScore: await calculateCustomerHealthScore({
+      inventoryReduction,
+      fillRateImprovement,
+      forecastAccuracy,
+      slaCompliance
+    }),
+    renewalProbability: await predictRenewalProbability(customer)
+  };
+}
+```
