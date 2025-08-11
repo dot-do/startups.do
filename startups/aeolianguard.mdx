@@ -286,3 +286,486 @@ landingPage:
 
 Generated for NAICS 212319 — Other Crushed and Broken Stone Mining and Quarrying.
 Service: Dust and Noise Compliance Analytics
+
+## Business Process Workflows
+
+```typescript
+// Core Types
+interface Lead {
+  id: string
+  companyName: string
+  naicsCode: string
+  location: { lat: number; lng: number }
+  annualTonnage: number
+  proximityToReceptors: number // miles
+  currentCompliance: 'manual' | 'periodic' | 'none'
+  painPoints: string[]
+  contactInfo: ContactInfo
+}
+
+interface Customer {
+  id: string
+  lead: Lead
+  sites: Site[]
+  subscription: Subscription
+  onboardingStatus: OnboardingStatus
+}
+
+interface Site {
+  id: string
+  customerId: string
+  location: { lat: number; lng: number }
+  sensors: SensorNode[]
+  permits: Permit[]
+  alertThresholds: AlertThreshold[]
+  operationalData: OperationalData
+}
+
+interface SensorNode {
+  id: string
+  type: 'dust' | 'noise' | 'weather'
+  location: { lat: number; lng: number }
+  status: 'active' | 'maintenance' | 'offline'
+  calibrationDate: Date
+  dataStreams: DataStream[]
+}
+
+interface ExceedanceEvent {
+  id: string
+  siteId: string
+  timestamp: Date
+  type: 'dust' | 'noise'
+  value: number
+  threshold: number
+  confidence: number
+  attributedSources: AttributedSource[]
+  windConditions: WindConditions
+  mitigationActions: MitigationAction[]
+}
+
+interface ComplianceReport {
+  id: string
+  siteId: string
+  period: { start: Date; end: Date }
+  jurisdiction: string
+  exceedances: ExceedanceEvent[]
+  summaryStats: SummaryStats
+  qaqcMetadata: QAQCMetadata
+  regulatoryFormat: 'EPA' | 'MSHA' | 'state' | 'local'
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead)
+  const siteAssessment = await conductSiteAssessment(qualifiedLead)
+  const proposal = await generateProposal(siteAssessment)
+  const pilot = await proposePilotProgram(proposal)
+  const contract = await negotiateContract(pilot)
+  return await onboardCustomer(contract)
+}
+
+export async function qualifyLead(lead: Lead): Promise<Lead> {
+  // Validate NAICS 212319 and proximity to sensitive receptors
+  if (lead.naicsCode !== '212319') {
+    throw new Error('Lead must be NAICS 212319 quarry operator')
+  }
+  
+  if (lead.proximityToReceptors > 2) {
+    throw new Error('Site must be within 2 miles of sensitive receptors')
+  }
+  
+  // Score lead based on tonnage, compliance history, and pain points
+  const leadScore = calculateLeadScore(lead)
+  
+  if (leadScore < 70) {
+    throw new Error('Lead score below qualification threshold')
+  }
+  
+  return { ...lead, qualified: true, score: leadScore }
+}
+
+export async function conductSiteAssessment(lead: Lead): Promise<SiteAssessment> {
+  const windPatterns = await analyzeWindPatterns(lead.location)
+  const dustSources = await identifyDustSources(lead.location)
+  const noiseSources = await identifyNoiseSources(lead.location)
+  const receptorMap = await mapSensitiveReceptors(lead.location)
+  const permitRequirements = await analyzePermitRequirements(lead.location)
+  
+  return {
+    leadId: lead.id,
+    windPatterns,
+    dustSources,
+    noiseSources,
+    receptorMap,
+    permitRequirements,
+    recommendedSensorPlan: await generateSensorPlan({
+      windPatterns,
+      dustSources,
+      noiseSources,
+      receptorMap
+    })
+  }
+}
+
+export async function generateProposal(assessment: SiteAssessment): Promise<Proposal> {
+  const sensorNodes = assessment.recommendedSensorPlan
+  const hardwareCosts = calculateHardwareCosts(sensorNodes)
+  const subscriptionTier = recommendSubscriptionTier(assessment)
+  const implementationCosts = calculateImplementationCosts(assessment)
+  const roi = calculateROI(assessment, hardwareCosts, subscriptionTier)
+  
+  return {
+    assessmentId: assessment.id,
+    sensorNodes,
+    hardwareCosts,
+    subscriptionTier,
+    implementationCosts,
+    roi,
+    pilotTerms: generatePilotTerms(assessment)
+  }
+}
+
+// Sensor Deployment and Monitoring Processes
+export async function deploySensorNetwork(site: Site): Promise<DeploymentResult> {
+  const installationPlan = await createInstallationPlan(site)
+  const fieldTeam = await scheduleFieldTeam(installationPlan)
+  
+  for (const node of site.sensors) {
+    await installSensorNode(node, installationPlan)
+    await calibrateSensor(node)
+    await validateDataStream(node)
+  }
+  
+  const networkValidation = await validateNetworkCoverage(site)
+  await configureAlertThresholds(site)
+  
+  return {
+    siteId: site.id,
+    deployedNodes: site.sensors.length,
+    networkCoverage: networkValidation.coverage,
+    dataQuality: networkValidation.dataQuality,
+    goLiveDate: new Date()
+  }
+}
+
+export async function monitorSensorHealth(site: Site): Promise<HealthReport> {
+  const healthChecks = await Promise.all(
+    site.sensors.map(sensor => checkSensorHealth(sensor))
+  )
+  
+  const maintenanceNeeded = healthChecks.filter(check => 
+    check.status === 'maintenance' || check.batteryLevel < 20
+  )
+  
+  if (maintenanceNeeded.length > 0) {
+    await scheduleMaintenanceVisit(site, maintenanceNeeded)
+  }
+  
+  return {
+    siteId: site.id,
+    totalSensors: site.sensors.length,
+    healthySensors: healthChecks.filter(c => c.status === 'active').length,
+    maintenanceRequired: maintenanceNeeded.length,
+    dataCompleteness: calculateDataCompleteness(healthChecks)
+  }
+}
+
+// Real-time Alert and Response Systems
+export async function processRealTimeData(siteId: string, dataPoint: DataPoint): Promise<void> {
+  const site = await getSite(siteId)
+  const exceedanceCheck = await checkForExceedance(dataPoint, site.alertThresholds)
+  
+  if (exceedanceCheck.isExceedance) {
+    const attribution = await performSourceAttribution(dataPoint, site)
+    const exceedanceEvent = await createExceedanceEvent(dataPoint, attribution)
+    
+    await sendRealTimeAlert(exceedanceEvent, site)
+    await logExceedanceEvent(exceedanceEvent)
+    
+    const mitigationActions = await suggestMitigationActions(exceedanceEvent)
+    await notifyOperationsTeam(exceedanceEvent, mitigationActions)
+  }
+  
+  await updateRealTimeDashboard(siteId, dataPoint)
+}
+
+export async function performSourceAttribution(
+  dataPoint: DataPoint, 
+  site: Site
+): Promise<AttributionResult> {
+  const windData = await getCurrentWindConditions(site)
+  const operationalData = await getCurrentOperations(site)
+  
+  // AI-powered inverse dispersion modeling
+  const plumeModel = await runInverseDispersionModel({
+    measurement: dataPoint,
+    windConditions: windData,
+    siteGeometry: site.geometry,
+    sources: site.dustSources
+  })
+  
+  const attributionScores = await calculateAttributionScores(plumeModel, operationalData)
+  
+  return {
+    timestamp: dataPoint.timestamp,
+    confidence: plumeModel.confidence,
+    attributedSources: attributionScores,
+    windContribution: windData,
+    recommendedActions: await generateMitigationRecommendations(attributionScores)
+  }
+}
+
+export async function sendRealTimeAlert(
+  event: ExceedanceEvent, 
+  site: Site
+): Promise<AlertResult> {
+  const alertChannels = site.alertConfiguration.channels
+  const alertResults = []
+  
+  for (const channel of alertChannels) {
+    switch (channel.type) {
+      case 'sms':
+        alertResults.push(await sendSMSAlert(event, channel))
+        break
+      case 'email':
+        alertResults.push(await sendEmailAlert(event, channel))
+        break
+      case 'scada':
+        alertResults.push(await sendSCADAAlert(event, channel))
+        break
+      case 'dashboard':
+        alertResults.push(await updateDashboardAlert(event, channel))
+        break
+    }
+  }
+  
+  return {
+    eventId: event.id,
+    alertsSent: alertResults.length,
+    deliveryStatus: alertResults,
+    responseTime: Date.now() - event.timestamp.getTime()
+  }
+}
+
+// Regulatory Reporting Automation
+export async function generateComplianceReport(
+  siteId: string,
+  period: { start: Date; end: Date },
+  jurisdiction: string
+): Promise<ComplianceReport> {
+  const site = await getSite(siteId)
+  const exceedances = await getExceedancesForPeriod(siteId, period)
+  const sensorData = await getSensorDataForPeriod(siteId, period)
+  
+  const summaryStats = await calculateSummaryStatistics(sensorData, exceedances)
+  const qaqcMetadata = await generateQAQCMetadata(sensorData, site.sensors)
+  
+  const reportTemplate = await getReportTemplate(jurisdiction)
+  const formattedReport = await formatReportForJurisdiction(
+    {
+      siteId,
+      period,
+      exceedances,
+      summaryStats,
+      qaqcMetadata
+    },
+    reportTemplate
+  )
+  
+  await validateReportCompliance(formattedReport, jurisdiction)
+  
+  return formattedReport
+}
+
+export async function automateReportingCycle(site: Site): Promise<ReportingCycleResult> {
+  const reportingSchedule = site.reportingConfiguration.schedule
+  const results = []
+  
+  for (const schedule of reportingSchedule) {
+    const period = calculateReportingPeriod(schedule)
+    const report = await generateComplianceReport(site.id, period, schedule.jurisdiction)
+    
+    if (schedule.autoSubmit) {
+      await submitReportToRegulator(report, schedule.jurisdiction)
+    }
+    
+    await archiveReport(report)
+    results.push({ schedule: schedule.name, status: 'completed', reportId: report.id })
+  }
+  
+  return {
+    siteId: site.id,
+    cycleDate: new Date(),
+    reportsGenerated: results.length,
+    results
+  }
+}
+
+// Revenue Generation Workflows
+export async function processSubscriptionBilling(customer: Customer): Promise<BillingResult> {
+  const billingPeriod = calculateBillingPeriod(customer.subscription)
+  const usage = await calculateUsageMetrics(customer, billingPeriod)
+  
+  let totalAmount = customer.subscription.baseFee
+  
+  // Add usage-based charges
+  if (usage.apiCalls > customer.subscription.includedApiCalls) {
+    totalAmount += (usage.apiCalls - customer.subscription.includedApiCalls) * 
+                   customer.subscription.apiCallRate
+  }
+  
+  // Add hardware lease fees
+  const hardwareFees = await calculateHardwareFees(customer.sites)
+  totalAmount += hardwareFees
+  
+  // Add professional services
+  const servicesFees = await calculateServicesFees(customer, billingPeriod)
+  totalAmount += servicesFees
+  
+  const invoice = await generateInvoice({
+    customerId: customer.id,
+    period: billingPeriod,
+    baseFee: customer.subscription.baseFee,
+    usageFees: totalAmount - customer.subscription.baseFee - hardwareFees - servicesFees,
+    hardwareFees,
+    servicesFees,
+    totalAmount
+  })
+  
+  await processPayment(invoice)
+  
+  return {
+    customerId: customer.id,
+    invoiceId: invoice.id,
+    amount: totalAmount,
+    status: 'processed'
+  }
+}
+
+export async function expandCustomerAccount(customer: Customer): Promise<ExpansionResult> {
+  const expansionOpportunities = await identifyExpansionOpportunities(customer)
+  const recommendations = []
+  
+  for (const opportunity of expansionOpportunities) {
+    switch (opportunity.type) {
+      case 'additional_sites':
+        recommendations.push(await proposeAdditionalSites(customer, opportunity))
+        break
+      case 'tier_upgrade':
+        recommendations.push(await proposeTierUpgrade(customer, opportunity))
+        break
+      case 'professional_services':
+        recommendations.push(await proposeProfessionalServices(customer, opportunity))
+        break
+      case 'api_integration':
+        recommendations.push(await proposeAPIIntegration(customer, opportunity))
+        break
+    }
+  }
+  
+  return {
+    customerId: customer.id,
+    opportunities: expansionOpportunities.length,
+    recommendations,
+    potentialARR: recommendations.reduce((sum, rec) => sum + rec.annualValue, 0)
+  }
+}
+
+// Operational Excellence Workflows
+export async function optimizeOperations(site: Site): Promise<OptimizationResult> {
+  const historicalData = await getHistoricalData(site.id, { months: 12 })
+  const patterns = await analyzeOperationalPatterns(historicalData)
+  
+  const blastingOptimization = await optimizeBlastingWindows(patterns.blasting, patterns.wind)
+  const haulRouteOptimization = await optimizeHaulRoutes(patterns.hauling, patterns.dust)
+  const dustControlROI = await analyzeDustControlROI(patterns.mitigation, patterns.exceedances)
+  
+  const recommendations = [
+    ...blastingOptimization.recommendations,
+    ...haulRouteOptimization.recommendations,
+    ...dustControlROI.recommendations
+  ]
+  
+  return {
+    siteId: site.id,
+    analysisDate: new Date(),
+    recommendations,
+    potentialSavings: recommendations.reduce((sum, rec) => sum + rec.estimatedSavings, 0),
+    implementationPriority: prioritizeRecommendations(recommendations)
+  }
+}
+
+export async function handleComplaintCorrelation(
+  complaint: CommunityComplaint,
+  site: Site
+): Promise<ComplaintResponse> {
+  const complaintTime = complaint.timestamp
+  const timeWindow = { 
+    start: new Date(complaintTime.getTime() - 2 * 60 * 60 * 1000), // 2 hours before
+    end: new Date(complaintTime.getTime() + 1 * 60 * 60 * 1000)    // 1 hour after
+  }
+  
+  const sensorData = await getSensorDataForPeriod(site.id, timeWindow)
+  const windData = await getWindDataForPeriod(site.id, timeWindow)
+  const operationalData = await getOperationalDataForPeriod(site.id, timeWindow)
+  
+  const correlation = await correlateComplaintWithData({
+    complaint,
+    sensorData,
+    windData,
+    operationalData
+  })
+  
+  const response = await generateComplaintResponse(correlation)
+  
+  return {
+    complaintId: complaint.id,
+    correlation,
+    response,
+    confidence: correlation.confidence,
+    recommendedActions: correlation.recommendedActions
+  }
+}
+
+// Decision-Making Workflows
+export async function makeComplianceDecision(
+  event: ExceedanceEvent,
+  site: Site
+): Promise<ComplianceDecision> {
+  const riskAssessment = await assessComplianceRisk(event, site)
+  const mitigationOptions = await evaluateMitigationOptions(event, site)
+  const costBenefitAnalysis = await performCostBenefitAnalysis(mitigationOptions)
+  
+  const decision = await selectOptimalMitigation(costBenefitAnalysis, riskAssessment)
+  
+  await implementMitigationDecision(decision, site)
+  await logComplianceDecision(event, decision)
+  
+  return decision
+}
+
+export async function prioritizeMaintenanceActions(
+  site: Site
+): Promise<MaintenancePriority[]> {
+  const sensorHealth = await assessSensorHealth(site.sensors)
+  const dataQuality = await assessDataQuality(site)
+  const complianceRisk = await assessComplianceRisk(site)
+  
+  const maintenanceActions = await identifyMaintenanceActions(sensorHealth, dataQuality)
+  const prioritizedActions = await prioritizeByRiskAndCost(maintenanceActions, complianceRisk)
+  
+  return prioritizedActions
+}
+```
+
+## Implementation Notes
+
+The above TypeScript functions represent the core business processes for AeolianGuard's environmental monitoring platform. These functions are designed to be:
+
+- **Modular**: Each function handles a specific business process
+- **Composable**: Functions can call other functions to build complex workflows  
+- **Type-safe**: Strong typing ensures data integrity across the system
+- **Async**: All operations are asynchronous to handle real-time data processing
+- **Error-handling**: Functions include proper error handling and validation
+
+The workflows cover the complete customer lifecycle from acquisition through ongoing operations, regulatory compliance, and revenue optimization. The functions can be implemented using modern cloud infrastructure and integrated with existing quarry management systems.
