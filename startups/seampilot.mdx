@@ -308,3 +308,467 @@ landingPage:
 
 Generated for NAICS 332431 — Metal Can Manufacturing.
 Service: Seamer Predictive Maintenance and Setup Advisor
+
+## Business Workflows as Code
+
+```typescript
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead)
+  const proposal = await generateProposal(qualifiedLead)
+  const pilot = await setupPilot(proposal)
+  const contract = await negotiateContract(pilot)
+  return await onboardCustomer(contract)
+}
+
+export async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  // Validate lead fits target customer segments
+  const isTargetSegment = await validateCustomerSegment(lead, {
+    primaryNAICS: '332431', // Metal can manufacturers
+    adjacentSegments: ['beverage_manufacturers', 'food_manufacturers', 'co_packers'],
+    minimumLineSpeed: 200, // CPM for craft breweries
+    hasSeamerEquipment: true
+  })
+  
+  if (!isTargetSegment) {
+    throw new Error('Lead does not match target customer segments')
+  }
+  
+  // Assess pain points and budget authority
+  const painPointScore = await assessPainPoints(lead, [
+    'unplanned_downtime',
+    'seam_defects',
+    'changeover_time',
+    'maintenance_costs',
+    'quality_variability'
+  ])
+  
+  const budgetAuthority = await validateBudgetAuthority(lead, {
+    minimumBudget: 50000, // Annual minimum for pilot + subscription
+    decisionMakers: ['maintenance_manager', 'quality_manager', 'plant_manager']
+  })
+  
+  return {
+    ...lead,
+    painPointScore,
+    budgetAuthority,
+    qualificationDate: new Date(),
+    nextSteps: ['technical_discovery', 'pilot_proposal']
+  }
+}
+
+export async function generateProposal(qualifiedLead: QualifiedLead): Promise<Proposal> {
+  // Conduct technical discovery
+  const siteAssessment = await conductSiteAssessment(qualifiedLead, {
+    seamerModels: await identifySeamerEquipment(qualifiedLead.facility),
+    dataAvailability: await assessDataSources(qualifiedLead.facility),
+    integrationComplexity: await evaluateIntegrations(qualifiedLead.facility)
+  })
+  
+  // Calculate ROI based on current pain points
+  const roiCalculation = await calculateROI(siteAssessment, {
+    currentDowntimeCost: siteAssessment.downtimeCostPerHour * siteAssessment.averageDowntimeHours,
+    defectReductionPotential: 0.3, // 30% reduction target
+    downtimeReductionPotential: 0.25, // 25% reduction target
+    changeoverTimeReduction: 0.45 // 45% reduction target
+  })
+  
+  // Generate customized proposal
+  return {
+    customer: qualifiedLead,
+    siteAssessment,
+    roiCalculation,
+    recommendedTier: selectServiceTier(siteAssessment),
+    pilotScope: definePilotScope(siteAssessment),
+    pricing: calculatePricing(siteAssessment),
+    timeline: generateImplementationTimeline(siteAssessment),
+    successMetrics: defineSuccessMetrics(roiCalculation)
+  }
+}
+
+export async function setupPilot(proposal: Proposal): Promise<PilotProgram> {
+  // Install edge data acquisition kit
+  const edgeKit = await deployEdgeKit(proposal.customer.facility, {
+    sensors: ['vibration', 'acoustic', 'temperature', 'current'],
+    seamers: proposal.pilotScope.targetSeamers,
+    dataIngestion: ['spc_data', 'teardown_data', 'maintenance_logs']
+  })
+  
+  // Configure baseline monitoring
+  const baseline = await establishBaseline(edgeKit, {
+    duration: '2-4 weeks',
+    metrics: ['mtbf', 'defect_rate', 'changeover_time', 'maintenance_frequency'],
+    learningMode: true
+  })
+  
+  // Train seamer-specific models
+  const models = await trainModels(baseline.data, {
+    rulModels: await trainRULModels(baseline.componentData),
+    anomalyDetection: await trainAnomalyDetection(baseline.sensorData),
+    setupAdvisor: await trainSetupAdvisor(baseline.qualityData)
+  })
+  
+  return {
+    customer: proposal.customer,
+    edgeKit,
+    baseline,
+    models,
+    startDate: new Date(),
+    duration: 90, // days
+    successCriteria: proposal.successMetrics
+  }
+}
+
+// Product Development Processes
+export async function developPredictiveModels(requirements: ModelRequirements): Promise<MLModels> {
+  // Component RUL (Remaining Useful Life) Models
+  const rulModels = await developRULModels({
+    components: ['bearings', 'rolls', 'chucks'],
+    features: ['vibration_rms', 'temperature_trend', 'current_signature'],
+    algorithms: ['xgboost', 'lstm', 'survival_analysis'],
+    leadTime: '2-6 weeks',
+    confidenceIntervals: true
+  })
+  
+  // Anomaly Detection Models
+  const anomalyModels = await developAnomalyDetection({
+    signals: ['vibration', 'acoustic', 'temperature', 'torque'],
+    methods: ['isolation_forest', 'autoencoder', 'statistical_process_control'],
+    falseAlarmRate: '<1 per line per week'
+  })
+  
+  // Setup Advisor Models
+  const setupAdvisor = await developSetupAdvisor({
+    qualityMetrics: ['seam_thickness', 'countersink', 'overlap', 'tightness'],
+    settingParameters: ['roll_position', 'chuck_pressure', 'lifter_height'],
+    correlationEngine: 'geometry_based_physics_model',
+    recommendationPrecision: '0.001 inch'
+  })
+  
+  return {
+    rulModels,
+    anomalyModels,
+    setupAdvisor,
+    validationResults: await validateModels([rulModels, anomalyModels, setupAdvisor]),
+    deploymentPackage: await packageForEdgeDeployment([rulModels, anomalyModels, setupAdvisor])
+  }
+}
+
+export async function enhanceEdgePlatform(currentPlatform: EdgePlatform): Promise<EdgePlatform> {
+  // Upgrade data acquisition capabilities
+  const enhancedSensors = await upgradeSensorSuite({
+    vibration: 'high_frequency_accelerometers',
+    acoustic: 'ultrasonic_microphones',
+    temperature: 'thermal_imaging',
+    current: 'power_quality_analyzers'
+  })
+  
+  // Improve edge computing performance
+  const edgeCompute = await upgradeEdgeCompute({
+    processor: 'industrial_gpu',
+    memory: '32GB_ECC',
+    storage: '1TB_SSD',
+    connectivity: ['opc_ua', 'mqtt', '5g_cellular']
+  })
+  
+  // Enhance security architecture
+  const security = await implementSecurity({
+    encryption: 'aes_256',
+    authentication: 'certificate_based',
+    compliance: ['iso_27001', 'iec_62443'],
+    offlineCapability: true
+  })
+  
+  return {
+    ...currentPlatform,
+    sensors: enhancedSensors,
+    compute: edgeCompute,
+    security,
+    capabilities: await updateCapabilities(currentPlatform.capabilities)
+  }
+}
+
+// Revenue Generation Flows
+export async function generateRecurringRevenue(customer: Customer): Promise<RevenueStream> {
+  // SaaS subscription management
+  const subscription = await manageSubscription(customer, {
+    tier: customer.serviceTier,
+    monthlyFee: calculateMonthlyFee(customer.seamers.length, customer.serviceTier),
+    features: getFeaturesByTier(customer.serviceTier),
+    billing: 'monthly_advance'
+  })
+  
+  // Usage-based revenue
+  const usageRevenue = await trackUsageRevenue(customer, {
+    edgeKitLeasing: customer.edgeKits.map(kit => kit.monthlyLease),
+    professionalServices: await trackProfessionalServices(customer),
+    premiumSupport: customer.supportTier === 'premium' ? subscription.monthlyFee * 0.15 : 0
+  })
+  
+  // Performance-based bonuses
+  const performanceBonus = await calculatePerformanceBonus(customer, {
+    downtimeReduction: await measureDowntimeReduction(customer),
+    defectReduction: await measureDefectReduction(customer),
+    maintenanceSavings: await measureMaintenanceSavings(customer),
+    bonusRate: 0.05 // 5% of verified savings
+  })
+  
+  return {
+    customer,
+    subscription,
+    usageRevenue,
+    performanceBonus,
+    totalMonthlyRevenue: subscription.monthlyFee + usageRevenue.monthly + performanceBonus.monthly,
+    renewalProbability: await calculateRenewalProbability(customer)
+  }
+}
+
+export async function expandCustomerAccount(customer: Customer): Promise<ExpansionOpportunity> {
+  // Identify expansion opportunities
+  const expansionOpportunities = await identifyExpansionOpportunities(customer, {
+    additionalLines: await identifyUnmonitoredSeamers(customer.facility),
+    additionalSites: await identifyOtherFacilities(customer.organization),
+    upgradeOpportunities: await assessTierUpgrade(customer),
+    newFeatures: await recommendNewFeatures(customer.usagePatterns)
+  })
+  
+  // Calculate expansion value
+  const expansionValue = await calculateExpansionValue(expansionOpportunities, {
+    additionalMRR: expansionOpportunities.additionalLines.length * customer.monthlyFeePerLine,
+    upgradeValue: expansionOpportunities.tierUpgrade ? calculateTierUpgradeValue(customer) : 0,
+    newSiteValue: expansionOpportunities.additionalSites.length * customer.averageSiteValue
+  })
+  
+  // Create expansion proposal
+  return {
+    customer,
+    opportunities: expansionOpportunities,
+    value: expansionValue,
+    proposal: await generateExpansionProposal(customer, expansionOpportunities),
+    timeline: generateExpansionTimeline(expansionOpportunities),
+    successProbability: await calculateExpansionProbability(customer, expansionOpportunities)
+  }
+}
+
+// Operational Procedures
+export async function executeMaintenanceWorkflow(alert: PredictiveAlert): Promise<MaintenanceExecution> {
+  // Validate alert and create work order
+  const workOrder = await createCMMS_WorkOrder(alert, {
+    system: alert.customer.cmmsSystem, // SAP PM, Maximo, Fiix
+    priority: alert.severity,
+    estimatedParts: alert.recommendedParts,
+    estimatedLabor: alert.estimatedLabor,
+    schedulingWindow: alert.recommendedWindow
+  })
+  
+  // Push SOPs to operators
+  const sopDelivery = await deliverSOPs(workOrder, {
+    targetRoles: ['maintenance_technician', 'seamer_operator'],
+    deliveryMethod: ['mobile_app', 'workstation_display'],
+    content: await generateSOPs(alert.component, alert.recommendedAction)
+  })
+  
+  // Execute maintenance
+  const maintenanceExecution = await executeMaintenanceAction(workOrder, {
+    preWorkChecklist: await generatePreWorkChecklist(alert),
+    workInstructions: sopDelivery.content,
+    safetyProcedures: await getSafetyProcedures(alert.component),
+    qualityChecks: await generateQualityChecks(alert)
+  })
+  
+  // Verify results via post-adjustment SPC
+  const verification = await verifyMaintenanceResults(maintenanceExecution, {
+    spcChecks: await runPostMaintenanceSPC(alert.seamer),
+    performanceMetrics: await measurePerformanceImprovement(alert.seamer),
+    componentHealth: await assessComponentHealth(alert.component)
+  })
+  
+  return {
+    alert,
+    workOrder,
+    execution: maintenanceExecution,
+    verification,
+    completionDate: new Date(),
+    effectivenessScore: verification.improvementScore
+  }
+}
+
+export async function manageChangeoverProcess(changeover: ChangeoverRequest): Promise<ChangeoverExecution> {
+  // Retrieve changeover playbook
+  const playbook = await getChangeoverPlaybook(changeover, {
+    fromSKU: changeover.currentSKU,
+    toSKU: changeover.targetSKU,
+    seamerModel: changeover.seamer.model,
+    historicalData: await getHistoricalChangeoverData(changeover)
+  })
+  
+  // Generate setup recommendations
+  const setupRecommendations = await generateSetupRecommendations(playbook, {
+    rollPositions: await calculateOptimalRollPositions(changeover.targetSKU),
+    chuckPressure: await calculateOptimalChuckPressure(changeover.targetSKU),
+    lifterSettings: await calculateOptimalLifterSettings(changeover.targetSKU),
+    speedSettings: await calculateOptimalSpeed(changeover.targetSKU)
+  })
+  
+  // Execute changeover with real-time guidance
+  const changeoverExecution = await executeChangeover(setupRecommendations, {
+    stepByStepGuidance: true,
+    realTimeAdjustments: true,
+    qualityMonitoring: true,
+    scrapMinimization: true
+  })
+  
+  // Validate seam quality and optimize
+  const qualityValidation = await validateSeamQuality(changeoverExecution, {
+    targetMetrics: changeover.targetSKU.seamSpecifications,
+    samplingPlan: await generateSamplingPlan(changeover.targetSKU),
+    adjustmentRecommendations: true
+  })
+  
+  return {
+    changeover,
+    playbook,
+    setupRecommendations,
+    execution: changeoverExecution,
+    qualityValidation,
+    totalTime: changeoverExecution.endTime - changeoverExecution.startTime,
+    scrapGenerated: changeoverExecution.scrapCount,
+    successRate: qualityValidation.firstTimeQuality
+  }
+}
+
+// Decision-Making Workflows
+export async function prioritizeMaintenanceActions(alerts: PredictiveAlert[]): Promise<MaintenancePriority[]> {
+  // Score alerts by business impact
+  const scoredAlerts = await Promise.all(alerts.map(async alert => {
+    const businessImpact = await calculateBusinessImpact(alert, {
+      downtimeRisk: alert.failureProbability * alert.downtimeCost,
+      qualityRisk: alert.defectProbability * alert.qualityCost,
+      safetyRisk: alert.safetyRisk,
+      urgency: alert.timeToFailure
+    })
+    
+    const resourceRequirements = await assessResourceRequirements(alert, {
+      laborHours: alert.estimatedLabor,
+      partsCost: alert.estimatedPartsCost,
+      downtimeRequired: alert.maintenanceDowntime,
+      skillsRequired: alert.requiredSkills
+    })
+    
+    return {
+      alert,
+      businessImpact,
+      resourceRequirements,
+      priorityScore: businessImpact.totalImpact / resourceRequirements.totalCost
+    }
+  }))
+  
+  // Optimize maintenance schedule
+  const optimizedSchedule = await optimizeMaintenanceSchedule(scoredAlerts, {
+    constraints: {
+      availableLabor: await getAvailableLabor(),
+      productionSchedule: await getProductionSchedule(),
+      partsAvailability: await checkPartsAvailability(scoredAlerts)
+    },
+    objectives: ['minimize_downtime', 'maximize_reliability', 'optimize_costs']
+  })
+  
+  return optimizedSchedule.map(item => ({
+    alert: item.alert,
+    priority: item.priority,
+    scheduledDate: item.scheduledDate,
+    justification: item.justification,
+    expectedOutcome: item.expectedOutcome
+  }))
+}
+
+export async function optimizeSeamerSettings(seamer: Seamer, qualityData: QualityData): Promise<OptimizationResult> {
+  // Analyze current performance
+  const currentPerformance = await analyzeCurrentPerformance(seamer, qualityData, {
+    defectRates: await calculateDefectRates(qualityData),
+    processCapability: await calculateProcessCapability(qualityData),
+    variabilityAnalysis: await analyzeVariability(qualityData)
+  })
+  
+  // Run optimization simulation
+  const optimization = await runOptimizationSimulation(seamer, {
+    objectives: ['minimize_defects', 'maximize_throughput', 'minimize_variability'],
+    constraints: {
+      seamSpecifications: seamer.currentSKU.seamSpecifications,
+      equipmentLimits: seamer.operatingLimits,
+      materialProperties: seamer.currentMaterial.properties
+    },
+    algorithm: 'multi_objective_genetic_algorithm'
+  })
+  
+  // Validate recommendations
+  const validation = await validateOptimizationResults(optimization, {
+    simulationAccuracy: await validateSimulationModel(optimization.model),
+    riskAssessment: await assessOptimizationRisks(optimization.recommendations),
+    implementationFeasibility: await assessImplementationFeasibility(optimization.recommendations)
+  })
+  
+  return {
+    seamer,
+    currentPerformance,
+    optimization,
+    validation,
+    recommendations: optimization.recommendations,
+    expectedImprovement: optimization.expectedImprovement,
+    implementationPlan: await generateImplementationPlan(optimization.recommendations)
+  }
+}
+
+// Supporting Types
+interface Lead {
+  company: string
+  contact: ContactInfo
+  facility: FacilityInfo
+  painPoints: string[]
+  budget: number
+  timeline: string
+}
+
+interface QualifiedLead extends Lead {
+  painPointScore: number
+  budgetAuthority: BudgetAuthority
+  qualificationDate: Date
+  nextSteps: string[]
+}
+
+interface Customer {
+  organization: Organization
+  facility: FacilityInfo
+  seamers: Seamer[]
+  serviceTier: 'basic' | 'pro' | 'enterprise'
+  edgeKits: EdgeKit[]
+  supportTier: 'standard' | 'premium'
+  monthlyFeePerLine: number
+  averageSiteValue: number
+  cmmsSystem: 'sap_pm' | 'maximo' | 'fiix' | 'other'
+}
+
+interface PredictiveAlert {
+  seamer: Seamer
+  component: Component
+  severity: 'low' | 'medium' | 'high' | 'critical'
+  failureProbability: number
+  timeToFailure: number
+  recommendedAction: MaintenanceAction
+  recommendedParts: Part[]
+  estimatedLabor: number
+  estimatedPartsCost: number
+  downtimeCost: number
+  qualityCost: number
+  safetyRisk: number
+  customer: Customer
+}
+
+interface ChangeoverRequest {
+  seamer: Seamer
+  currentSKU: SKU
+  targetSKU: SKU
+  requestedDate: Date
+  priority: 'low' | 'medium' | 'high'
+}
+```
