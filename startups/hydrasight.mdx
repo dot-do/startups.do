@@ -307,3 +307,505 @@ landingPage:
 
 Generated for NAICS 333996 — Fluid Power Pump and Motor Manufacturing.
 Service: Test-Stand Anomaly Detection for Pumps/Motors
+
+## Business Process Functions
+
+```typescript
+// Core Types
+interface Lead {
+  id: string;
+  company: string;
+  contactName: string;
+  email: string;
+  phone: string;
+  naicsCode: string;
+  testStandCount: number;
+  currentPainPoints: string[];
+  source: 'direct' | 'partner' | 'referral' | 'content';
+  qualificationScore?: number;
+}
+
+interface Customer {
+  id: string;
+  company: string;
+  contractValue: number;
+  testStands: TestStand[];
+  subscriptionTier: 'basic' | 'pro' | 'enterprise';
+  onboardingStatus: 'pending' | 'in-progress' | 'complete';
+  supportLevel: 'standard' | 'premium';
+}
+
+interface TestStand {
+  id: string;
+  location: string;
+  standType: 'EOL' | 'development' | 'R&D';
+  sensors: Sensor[];
+  connectivity: 'OPC-UA' | 'EtherNet-IP' | 'Modbus' | 'TDMS';
+  productFamilies: string[];
+  currentLimits: TestLimits;
+}
+
+interface Sensor {
+  type: 'pressure' | 'flow' | 'vibration' | 'temperature' | 'torque' | 'acoustic';
+  samplingRate: number;
+  calibrationDate: Date;
+  health: 'good' | 'degraded' | 'failed';
+}
+
+interface TestLimits {
+  staticThresholds: Record<string, number>;
+  spcLimits: Record<string, number>;
+  guardBands: Record<string, number>;
+}
+
+interface TestResult {
+  testId: string;
+  standId: string;
+  productSerial: string;
+  timestamp: Date;
+  signals: TimeSeriesData;
+  anomalyScore: number;
+  faultHypothesis?: FaultType[];
+  passFailStatus: 'pass' | 'fail' | 'review';
+  confidence: number;
+}
+
+interface TimeSeriesData {
+  pressure: number[];
+  flow: number[];
+  vibration: number[];
+  temperature: number[];
+  torque: number[];
+  timestamps: Date[];
+}
+
+type FaultType = 'cavitation' | 'internal-leakage' | 'bearing-wear' | 'misalignment' | 'contamination';
+
+interface MLModel {
+  id: string;
+  productFamily: string;
+  version: string;
+  accuracy: number;
+  lastTraining: Date;
+  driftStatus: 'stable' | 'degrading' | 'requires-retraining';
+}
+
+interface Revenue {
+  subscriptionRevenue: number;
+  professionalServices: number;
+  premiumSupport: number;
+  partnerRevenue: number;
+  period: 'monthly' | 'quarterly' | 'annual';
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  try {
+    const qualifiedLead = await qualifyLead(lead);
+    const proposal = await generateProposal(qualifiedLead);
+    const contract = await negotiateContract(proposal);
+    const customer = await onboardCustomer(contract);
+    await setupInitialTestStands(customer);
+    return customer;
+  } catch (error) {
+    throw new Error(`Customer acquisition failed: ${error.message}`);
+  }
+}
+
+async function qualifyLead(lead: Lead): Promise<Lead> {
+  // Qualify based on NAICS 333996, test stand count, and pain points
+  const qualificationCriteria = {
+    naicsMatch: lead.naicsCode === '333996',
+    minTestStands: lead.testStandCount >= 2,
+    hasWarrantyIssues: lead.currentPainPoints.includes('warranty-claims'),
+    hasFalseRejects: lead.currentPainPoints.includes('false-rejects'),
+    hasManualProcesses: lead.currentPainPoints.includes('manual-analysis')
+  };
+  
+  const score = Object.values(qualificationCriteria).filter(Boolean).length;
+  lead.qualificationScore = score / Object.keys(qualificationCriteria).length;
+  
+  if (lead.qualificationScore < 0.6) {
+    throw new Error('Lead does not meet qualification criteria');
+  }
+  
+  return lead;
+}
+
+async function generateProposal(lead: Lead): Promise<any> {
+  const estimatedACV = calculateACV(lead.testStandCount);
+  const roi = await calculateROI(lead);
+  
+  return {
+    leadId: lead.id,
+    subscriptionCost: estimatedACV,
+    implementationCost: estimateImplementationCost(lead.testStandCount),
+    projectedROI: roi,
+    paybackPeriod: calculatePaybackPeriod(roi, estimatedACV),
+    pilotProposal: generatePilotProposal(lead)
+  };
+}
+
+async function negotiateContract(proposal: any): Promise<any> {
+  // Contract negotiation workflow
+  return {
+    ...proposal,
+    finalTerms: await getFinalTerms(proposal),
+    signedDate: new Date(),
+    contractDuration: 36 // months
+  };
+}
+
+async function onboardCustomer(contract: any): Promise<Customer> {
+  const customer: Customer = {
+    id: generateCustomerId(),
+    company: contract.company,
+    contractValue: contract.subscriptionCost,
+    testStands: [],
+    subscriptionTier: determineSubscriptionTier(contract.subscriptionCost),
+    onboardingStatus: 'pending',
+    supportLevel: contract.premiumSupport ? 'premium' : 'standard'
+  };
+  
+  await createCustomerAccount(customer);
+  await scheduleKickoffMeeting(customer);
+  
+  return customer;
+}
+
+// Product Development Processes
+export async function developMLModel(productFamily: string, trainingData: TimeSeriesData[]): Promise<MLModel> {
+  try {
+    const features = await extractPhysicsInformedFeatures(trainingData);
+    const model = await trainAnomalyModel(features, productFamily);
+    const validatedModel = await validateModel(model, trainingData);
+    await deployModel(validatedModel);
+    return validatedModel;
+  } catch (error) {
+    throw new Error(`Model development failed: ${error.message}`);
+  }
+}
+
+async function extractPhysicsInformedFeatures(data: TimeSeriesData[]): Promise<any[]> {
+  // Extract domain-specific features for fluid power systems
+  const features = [];
+  
+  for (const sample of data) {
+    features.push({
+      pressureRippleHarmonics: calculatePressureRipple(sample.pressure),
+      caseDrainFlowTransients: analyzeCaseDrainFlow(sample.flow),
+      torqueRippleSignature: calculateTorqueRipple(sample.torque),
+      vibrationSpectralKurtosis: calculateSpectralKurtosis(sample.vibration),
+      cavitationIndices: detectCavitationSignatures(sample.pressure, sample.flow),
+      bearingWearIndicators: analyzeBearingSignatures(sample.vibration),
+      leakageProxies: calculateLeakageIndicators(sample.flow, sample.pressure)
+    });
+  }
+  
+  return features;
+}
+
+async function trainAnomalyModel(features: any[], productFamily: string): Promise<MLModel> {
+  // Train self-supervised anomaly detection model
+  const model: MLModel = {
+    id: generateModelId(),
+    productFamily,
+    version: '1.0.0',
+    accuracy: 0.95, // Target ≥95% recall
+    lastTraining: new Date(),
+    driftStatus: 'stable'
+  };
+  
+  await trainModelWithFeatures(model, features);
+  return model;
+}
+
+async function validateModel(model: MLModel, testData: TimeSeriesData[]): Promise<MLModel> {
+  const validationResults = await runSeededFaultValidation(model, testData);
+  
+  if (validationResults.recall < 0.95 || validationResults.falsePositiveRate > 0.005) {
+    throw new Error('Model validation failed to meet performance criteria');
+  }
+  
+  model.accuracy = validationResults.recall;
+  return model;
+}
+
+// Revenue Generation Flows
+export async function generateRevenue(customer: Customer, period: 'monthly' | 'quarterly' | 'annual'): Promise<Revenue> {
+  try {
+    const subscriptionRevenue = await calculateSubscriptionRevenue(customer, period);
+    const servicesRevenue = await calculateServicesRevenue(customer, period);
+    const supportRevenue = await calculateSupportRevenue(customer, period);
+    const partnerRevenue = await calculatePartnerRevenue(customer, period);
+    
+    return {
+      subscriptionRevenue,
+      professionalServices: servicesRevenue,
+      premiumSupport: supportRevenue,
+      partnerRevenue,
+      period
+    };
+  } catch (error) {
+    throw new Error(`Revenue generation failed: ${error.message}`);
+  }
+}
+
+async function calculateSubscriptionRevenue(customer: Customer, period: string): Promise<number> {
+  const baseRate = getSubscriptionRate(customer.subscriptionTier);
+  const standCount = customer.testStands.length;
+  const periodMultiplier = period === 'annual' ? 12 : period === 'quarterly' ? 3 : 1;
+  
+  return baseRate * standCount * periodMultiplier;
+}
+
+async function processSubscriptionRenewal(customer: Customer): Promise<boolean> {
+  const usageMetrics = await getCustomerUsageMetrics(customer.id);
+  const satisfactionScore = await getCustomerSatisfactionScore(customer.id);
+  
+  if (satisfactionScore > 8 && usageMetrics.activeStands > 0) {
+    await generateRenewalProposal(customer);
+    return true;
+  }
+  
+  await initiateChurnPrevention(customer);
+  return false;
+}
+
+// Operational Procedures
+export async function deployTestStand(customer: Customer, testStand: TestStand): Promise<void> {
+  try {
+    await validateTestStandRequirements(testStand);
+    await installEdgeAgent(testStand);
+    await configureDataConnectors(testStand);
+    await calibrateBaselines(testStand);
+    await runAcceptanceTesting(testStand);
+    await trainOperators(customer, testStand);
+    await goLive(testStand);
+  } catch (error) {
+    throw new Error(`Test stand deployment failed: ${error.message}`);
+  }
+}
+
+async function validateTestStandRequirements(testStand: TestStand): Promise<void> {
+  // Validate minimum sensor set and sampling rates
+  const requiredSensors = ['pressure', 'flow', 'vibration'];
+  const availableSensors = testStand.sensors.map(s => s.type);
+  
+  for (const required of requiredSensors) {
+    if (!availableSensors.includes(required as any)) {
+      throw new Error(`Missing required sensor: ${required}`);
+    }
+  }
+  
+  // Validate sampling rates
+  for (const sensor of testStand.sensors) {
+    if (sensor.samplingRate < 1000) { // Minimum 1kHz
+      throw new Error(`Insufficient sampling rate for ${sensor.type}: ${sensor.samplingRate}Hz`);
+    }
+  }
+}
+
+async function installEdgeAgent(testStand: TestStand): Promise<void> {
+  // Install edge computing agent for real-time inference
+  await deployEdgeHardware(testStand);
+  await configureNetworking(testStand);
+  await installMLRuntime(testStand);
+  await setupSecurityCertificates(testStand);
+}
+
+async function monitorSystemHealth(): Promise<void> {
+  const allTestStands = await getAllActiveTestStands();
+  
+  for (const stand of allTestStands) {
+    const health = await checkTestStandHealth(stand);
+    
+    if (health.status === 'degraded') {
+      await alertMaintenanceTeam(stand, health.issues);
+    }
+    
+    if (health.modelDrift > 0.1) {
+      await scheduleModelRetraining(stand);
+    }
+  }
+}
+
+// Decision-Making Workflows
+export async function processTestResults(testResult: TestResult): Promise<void> {
+  try {
+    const decision = await makeQualityDecision(testResult);
+    await executeDecision(decision, testResult);
+    await updateQualityMetrics(testResult, decision);
+    await notifyStakeholders(testResult, decision);
+  } catch (error) {
+    throw new Error(`Test result processing failed: ${error.message}`);
+  }
+}
+
+async function makeQualityDecision(testResult: TestResult): Promise<'pass' | 'fail' | 'review'> {
+  // AI-driven quality decision with explainability
+  if (testResult.anomalyScore < 0.1 && testResult.confidence > 0.9) {
+    return 'pass';
+  }
+  
+  if (testResult.anomalyScore > 0.8 && testResult.confidence > 0.8) {
+    return 'fail';
+  }
+  
+  // Require human review for uncertain cases
+  return 'review';
+}
+
+async function detectAnomalies(signals: TimeSeriesData, model: MLModel): Promise<TestResult> {
+  const features = await extractPhysicsInformedFeatures([signals]);
+  const anomalyScore = await runInference(model, features[0]);
+  const faultHypothesis = await generateFaultHypothesis(features[0], anomalyScore);
+  
+  return {
+    testId: generateTestId(),
+    standId: 'unknown', // Would be provided by caller
+    productSerial: 'unknown', // Would be provided by caller
+    timestamp: new Date(),
+    signals,
+    anomalyScore,
+    faultHypothesis,
+    passFailStatus: anomalyScore > 0.5 ? 'fail' : 'pass',
+    confidence: calculateConfidence(anomalyScore, features[0])
+  };
+}
+
+async function optimizeTestCycles(testStand: TestStand): Promise<void> {
+  // Optimize test cycle times while maintaining quality
+  const historicalData = await getHistoricalTestData(testStand.id);
+  const cycleOptimization = await analyzeCycleEfficiency(historicalData);
+  
+  if (cycleOptimization.potentialReduction > 0.05) { // >5% improvement
+    await updateTestRecipe(testStand, cycleOptimization.newParameters);
+    await validateOptimization(testStand, cycleOptimization);
+  }
+}
+
+// Helper Functions
+function calculateACV(testStandCount: number): number {
+  const baseRate = 30000; // $30k per stand per year
+  const volumeDiscount = testStandCount > 10 ? 0.15 : testStandCount > 5 ? 0.1 : 0;
+  return testStandCount * baseRate * (1 - volumeDiscount);
+}
+
+async function calculateROI(lead: Lead): Promise<number> {
+  // Calculate ROI based on warranty reduction and false reject savings
+  const warrantyReduction = lead.testStandCount * 50000 * 0.15; // 15% reduction
+  const falseRejectSavings = lead.testStandCount * 25000 * 0.25; // 25% reduction
+  const cycleTimeSavings = lead.testStandCount * 15000 * 0.1; // 10% improvement
+  
+  return warrantyReduction + falseRejectSavings + cycleTimeSavings;
+}
+
+function generateCustomerId(): string {
+  return `CUST_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+}
+
+function generateModelId(): string {
+  return `MODEL_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+}
+
+function generateTestId(): string {
+  return `TEST_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+}
+
+// Placeholder implementations for domain-specific functions
+async function calculatePressureRipple(pressure: number[]): Promise<number[]> {
+  // Implement pressure ripple harmonic analysis
+  return [];
+}
+
+async function analyzeCaseDrainFlow(flow: number[]): Promise<number[]> {
+  // Implement case drain flow transient analysis
+  return [];
+}
+
+async function calculateTorqueRipple(torque: number[]): Promise<number[]> {
+  // Implement torque ripple signature analysis
+  return [];
+}
+
+async function calculateSpectralKurtosis(vibration: number[]): Promise<number> {
+  // Implement spectral kurtosis calculation
+  return 0;
+}
+
+async function detectCavitationSignatures(pressure: number[], flow: number[]): Promise<number[]> {
+  // Implement cavitation detection algorithms
+  return [];
+}
+
+async function analyzeBearingSignatures(vibration: number[]): Promise<number[]> {
+  // Implement bearing wear analysis
+  return [];
+}
+
+async function calculateLeakageIndicators(flow: number[], pressure: number[]): Promise<number[]> {
+  // Implement internal leakage detection
+  return [];
+}
+
+// Additional placeholder implementations
+async function trainModelWithFeatures(model: MLModel, features: any[]): Promise<void> {}
+async function runSeededFaultValidation(model: MLModel, testData: TimeSeriesData[]): Promise<any> {
+  return { recall: 0.96, falsePositiveRate: 0.003 };
+}
+async function deployModel(model: MLModel): Promise<void> {}
+async function createCustomerAccount(customer: Customer): Promise<void> {}
+async function scheduleKickoffMeeting(customer: Customer): Promise<void> {}
+async function getFinalTerms(proposal: any): Promise<any> { return {}; }
+async function getSubscriptionRate(tier: string): number { return 30000; }
+async function getCustomerUsageMetrics(customerId: string): Promise<any> { return { activeStands: 5 }; }
+async function getCustomerSatisfactionScore(customerId: string): Promise<number> { return 9; }
+async function generateRenewalProposal(customer: Customer): Promise<void> {}
+async function initiateChurnPrevention(customer: Customer): Promise<void> {}
+async function deployEdgeHardware(testStand: TestStand): Promise<void> {}
+async function configureNetworking(testStand: TestStand): Promise<void> {}
+async function installMLRuntime(testStand: TestStand): Promise<void> {}
+async function setupSecurityCertificates(testStand: TestStand): Promise<void> {}
+async function configureDataConnectors(testStand: TestStand): Promise<void> {}
+async function calibrateBaselines(testStand: TestStand): Promise<void> {}
+async function runAcceptanceTesting(testStand: TestStand): Promise<void> {}
+async function trainOperators(customer: Customer, testStand: TestStand): Promise<void> {}
+async function goLive(testStand: TestStand): Promise<void> {}
+async function getAllActiveTestStands(): Promise<TestStand[]> { return []; }
+async function checkTestStandHealth(stand: TestStand): Promise<any> { return { status: 'healthy', issues: [] }; }
+async function alertMaintenanceTeam(stand: TestStand, issues: any[]): Promise<void> {}
+async function scheduleModelRetraining(stand: TestStand): Promise<void> {}
+async function executeDecision(decision: string, testResult: TestResult): Promise<void> {}
+async function updateQualityMetrics(testResult: TestResult, decision: string): Promise<void> {}
+async function notifyStakeholders(testResult: TestResult, decision: string): Promise<void> {}
+async function runInference(model: MLModel, features: any): Promise<number> { return 0.1; }
+async function generateFaultHypothesis(features: any, anomalyScore: number): Promise<FaultType[]> { return []; }
+async function calculateConfidence(anomalyScore: number, features: any): Promise<number> { return 0.9; }
+async function getHistoricalTestData(standId: string): Promise<any[]> { return []; }
+async function analyzeCycleEfficiency(data: any[]): Promise<any> { return { potentialReduction: 0.1, newParameters: {} }; }
+async function updateTestRecipe(testStand: TestStand, parameters: any): Promise<void> {}
+async function validateOptimization(testStand: TestStand, optimization: any): Promise<void> {}
+function determineSubscriptionTier(contractValue: number): 'basic' | 'pro' | 'enterprise' {
+  if (contractValue > 200000) return 'enterprise';
+  if (contractValue > 100000) return 'pro';
+  return 'basic';
+}
+function calculatePaybackPeriod(roi: number, acv: number): number {
+  return acv / (roi / 12); // months
+}
+function generatePilotProposal(lead: Lead): any {
+  return {
+    duration: 12, // weeks
+    standCount: Math.min(2, lead.testStandCount),
+    cost: 25000
+  };
+}
+function estimateImplementationCost(standCount: number): number {
+  return 25000 + (standCount * 5000);
+}
+async function calculateServicesRevenue(customer: Customer, period: string): Promise<number> { return 0; }
+async function calculateSupportRevenue(customer: Customer, period: string): Promise<number> { return 0; }
+async function calculatePartnerRevenue(customer: Customer, period: string): Promise<number> { return 0; }
+async function setupInitialTestStands(customer: Customer): Promise<void> {}
+```
