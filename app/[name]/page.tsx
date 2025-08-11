@@ -77,11 +77,26 @@ export async function generateMetadata({ params }: { params: Promise<{ name: str
   const { name } = await params
   let title = name
   let desc = `Explore the AI-generated startup concept for ${title}`
+  
   try {
     const doc = await getStartup<Record<string, unknown>>(name)
-    title = (doc.data?.['name'] as string) || name
-    desc = (doc.data as any)?.tagline || `Explore the AI-generated startup concept for ${title}`
-  } catch {}
+    // Get the actual startup name from the frontmatter
+    const startupName = doc.data?.name as string
+    if (startupName) {
+      title = startupName
+    }
+    // Get tagline for description
+    const tagline = (doc.data as any)?.tagline || (doc.data as any)?.service?.title
+    if (tagline) {
+      desc = tagline
+    } else {
+      desc = `Explore the AI-generated startup concept for ${title}`
+    }
+  } catch (error) {
+    // If startup document not found, use the slug as fallback
+    title = name.charAt(0).toUpperCase() + name.slice(1)
+  }
+  
   return {
     title,
     description: desc
