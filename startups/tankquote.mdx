@@ -352,3 +352,424 @@ landingPage:
 
 Generated for NAICS 332420 — Metal Tank (Heavy Gauge) Manufacturing.
 Service: RFQ-to-Quote Estimator for Heavy-Gauge Tanks
+
+## Business Workflow Functions
+
+The following TypeScript functions encode TankQuote AI's core business processes as executable code:
+
+```typescript
+// Core Types
+interface RFQPackage {
+  id: string;
+  files: File[];
+  customerInfo: CustomerInfo;
+  receivedAt: Date;
+  complexity: 'simple' | 'standard' | 'complex';
+  estimatedPages: number;
+}
+
+interface Lead {
+  id: string;
+  company: string;
+  contact: ContactInfo;
+  naicsCode: string;
+  revenue: number;
+  estimatorCount: number;
+  source: 'direct' | 'partner' | 'event' | 'content';
+}
+
+interface Quote {
+  id: string;
+  rfqId: string;
+  itemizedBOM: LineItem[];
+  laborHours: number;
+  materialCosts: number;
+  leadTime: number;
+  assumptions: string[];
+  confidenceScore: number;
+  reviewRequired: boolean;
+}
+
+interface Customer {
+  id: string;
+  company: string;
+  tier: 'starter' | 'pro' | 'enterprise';
+  seats: number;
+  monthlyRFQs: number;
+  onboardingComplete: boolean;
+}
+
+// RFQ Processing and Quote Generation Workflows
+export async function processRFQToQuote(rfq: RFQPackage): Promise<Quote> {
+  try {
+    // Step 1: Parse and extract requirements
+    const extractedData = await parseRFQDocuments(rfq.files);
+    
+    // Step 2: Validate technical requirements
+    const validatedSpecs = await validateTechnicalSpecs(extractedData);
+    
+    // Step 3: Generate cost estimates
+    const costEstimate = await generateCostEstimate(validatedSpecs);
+    
+    // Step 4: Calculate lead times with capacity awareness
+    const leadTime = await calculateCapacityAwareLeadTime(validatedSpecs);
+    
+    // Step 5: Build assumptions and exceptions
+    const assumptions = await buildAssumptionsAndExceptions(validatedSpecs);
+    
+    // Step 6: Assemble final quote
+    const quote = await assembleQuote({
+      rfqId: rfq.id,
+      costEstimate,
+      leadTime,
+      assumptions,
+      confidenceScore: calculateConfidenceScore(extractedData, costEstimate)
+    });
+    
+    // Step 7: Determine if human review required
+    if (quote.confidenceScore < 0.85 || rfq.complexity === 'complex') {
+      quote.reviewRequired = true;
+      await queueForHumanReview(quote);
+    }
+    
+    return quote;
+  } catch (error) {
+    await logProcessingError(rfq.id, error);
+    throw new Error(`RFQ processing failed: ${error.message}`);
+  }
+}
+
+async function parseRFQDocuments(files: File[]): Promise<ExtractedData> {
+  const ocrResults = await Promise.all(
+    files.map(file => extractFromDocument(file))
+  );
+  
+  return {
+    dimensions: extractDimensions(ocrResults),
+    materials: extractMaterials(ocrResults),
+    weldTypes: extractWeldTypes(ocrResults),
+    ndeRequirements: extractNDERequirements(ocrResults),
+    coatings: extractCoatings(ocrResults),
+    designCodes: extractDesignCodes(ocrResults),
+    deliveryLocation: extractDeliveryLocation(ocrResults)
+  };
+}
+
+async function generateCostEstimate(specs: ValidatedSpecs): Promise<CostEstimate> {
+  // Parametric cost model calibrated to shop processes
+  const laborCosts = await calculateLaborCosts(specs);
+  const materialCosts = await calculateMaterialCosts(specs);
+  const consumableCosts = await calculateConsumableCosts(specs);
+  const freightCosts = await calculateFreightCosts(specs);
+  
+  // Apply dynamic pricing with current market rates
+  const adjustedCosts = await applyDynamicPricing({
+    laborCosts,
+    materialCosts,
+    consumableCosts,
+    freightCosts
+  });
+  
+  return adjustedCosts;
+}
+
+// Customer Acquisition Workflows
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  try {
+    // Step 1: Qualify lead based on criteria
+    const qualifiedLead = await qualifyLead(lead);
+    
+    // Step 2: Generate tailored proposal
+    const proposal = await generateProposal(qualifiedLead);
+    
+    // Step 3: Conduct pilot program
+    const pilotResults = await conductPilot(qualifiedLead, proposal);
+    
+    // Step 4: Negotiate contract terms
+    const contract = await negotiateContract(pilotResults);
+    
+    // Step 5: Onboard new customer
+    const customer = await onboardCustomer(contract);
+    
+    return customer;
+  } catch (error) {
+    await logAcquisitionError(lead.id, error);
+    throw new Error(`Customer acquisition failed: ${error.message}`);
+  }
+}
+
+async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  const qualificationCriteria = {
+    naicsMatch: lead.naicsCode === '332420',
+    revenueRange: lead.revenue >= 10_000_000 && lead.revenue <= 200_000_000,
+    estimatorCount: lead.estimatorCount >= 2 && lead.estimatorCount <= 10,
+    hasRFQVolume: await estimateRFQVolume(lead) >= 50
+  };
+  
+  const qualificationScore = calculateQualificationScore(qualificationCriteria);
+  
+  if (qualificationScore < 0.7) {
+    throw new Error('Lead does not meet qualification criteria');
+  }
+  
+  return { ...lead, qualificationScore, criteria: qualificationCriteria };
+}
+
+async function conductPilot(lead: QualifiedLead, proposal: Proposal): Promise<PilotResults> {
+  // 6-10 week pilot with historical RFQs
+  const historicalRFQs = await getHistoricalRFQs(lead, 5);
+  const pilotQuotes = await Promise.all(
+    historicalRFQs.map(rfq => processRFQToQuote(rfq))
+  );
+  
+  const metrics = await calculatePilotMetrics(pilotQuotes, historicalRFQs);
+  
+  return {
+    quotesGenerated: pilotQuotes.length,
+    averageProcessingTime: metrics.avgProcessingTime,
+    accuracyScore: metrics.accuracyScore,
+    timeReduction: metrics.timeReduction,
+    customerSatisfaction: await collectPilotFeedback(lead)
+  };
+}
+
+// Revenue Generation Flows
+export async function generateRevenue(customer: Customer, month: number): Promise<Revenue> {
+  try {
+    // Calculate base subscription revenue
+    const subscriptionRevenue = calculateSubscriptionRevenue(customer);
+    
+    // Calculate usage overage if applicable
+    const usageRevenue = await calculateUsageOverage(customer, month);
+    
+    // Calculate premium module revenue
+    const premiumRevenue = calculatePremiumModuleRevenue(customer);
+    
+    // Calculate professional services revenue
+    const servicesRevenue = await calculateServicesRevenue(customer, month);
+    
+    const totalRevenue = subscriptionRevenue + usageRevenue + premiumRevenue + servicesRevenue;
+    
+    await recordRevenue({
+      customerId: customer.id,
+      month,
+      subscription: subscriptionRevenue,
+      usage: usageRevenue,
+      premium: premiumRevenue,
+      services: servicesRevenue,
+      total: totalRevenue
+    });
+    
+    return {
+      total: totalRevenue,
+      breakdown: {
+        subscription: subscriptionRevenue,
+        usage: usageRevenue,
+        premium: premiumRevenue,
+        services: servicesRevenue
+      }
+    };
+  } catch (error) {
+    await logRevenueError(customer.id, month, error);
+    throw new Error(`Revenue generation failed: ${error.message}`);
+  }
+}
+
+function calculateSubscriptionRevenue(customer: Customer): number {
+  const tierPricing = {
+    starter: 1500, // up to 3 seats, 150 RFQs/yr
+    pro: 3500,     // up to 5 seats, 600 RFQs/yr
+    enterprise: 0  // custom pricing
+  };
+  
+  return tierPricing[customer.tier] || 0;
+}
+
+async function calculateUsageOverage(customer: Customer, month: number): Promise<number> {
+  const monthlyUsage = await getRFQUsage(customer.id, month);
+  const tierLimits = {
+    starter: 12.5,  // 150/12 RFQs per month
+    pro: 50,        // 600/12 RFQs per month
+    enterprise: Infinity
+  };
+  
+  const limit = tierLimits[customer.tier];
+  const overage = Math.max(0, monthlyUsage - limit);
+  const overageRate = customer.tier === 'starter' ? 10 : 25;
+  
+  return overage * overageRate;
+}
+
+// Operational Procedures
+export async function calibrateShopModel(customer: Customer): Promise<CalibrationResult> {
+  try {
+    // Step 1: Ingest historical data
+    const historicalData = await ingestHistoricalData(customer);
+    
+    // Step 2: Analyze shop-specific processes
+    const processAnalysis = await analyzeShopProcesses(historicalData);
+    
+    // Step 3: Tune cost model parameters
+    const tunedModel = await tuneModelParameters(processAnalysis);
+    
+    // Step 4: Validate against known actuals
+    const validationResults = await validateModel(tunedModel, historicalData);
+    
+    // Step 5: Deploy calibrated model
+    if (validationResults.accuracy >= 0.92) {
+      await deployModel(customer.id, tunedModel);
+      return { success: true, accuracy: validationResults.accuracy };
+    } else {
+      throw new Error(`Model accuracy ${validationResults.accuracy} below threshold`);
+    }
+  } catch (error) {
+    await logCalibrationError(customer.id, error);
+    throw new Error(`Model calibration failed: ${error.message}`);
+  }
+}
+
+async function updatePricingData(): Promise<void> {
+  try {
+    // Update steel plate indices
+    const steelPrices = await fetchSteelPrices(['CRU', 'MetalMiner']);
+    
+    // Update coating prices
+    const coatingPrices = await fetchCoatingPrices();
+    
+    // Update freight rates
+    const freightRates = await fetchFreightRates();
+    
+    // Update cost libraries
+    await updateCostLibraries({
+      steel: steelPrices,
+      coatings: coatingPrices,
+      freight: freightRates,
+      lastUpdated: new Date()
+    });
+    
+    await notifyCustomersOfPriceUpdates();
+  } catch (error) {
+    await logPricingUpdateError(error);
+    throw new Error(`Pricing update failed: ${error.message}`);
+  }
+}
+
+// Decision-Making Workflows
+export async function makePricingDecision(
+  quote: Quote,
+  marketConditions: MarketConditions,
+  competitiveIntel: CompetitiveIntel
+): Promise<PricingDecision> {
+  try {
+    // Analyze risk factors
+    const riskAssessment = await assessProjectRisk(quote);
+    
+    // Calculate target margins by category
+    const targetMargin = calculateTargetMargin(quote, riskAssessment);
+    
+    // Apply competitive adjustments
+    const competitiveAdjustment = calculateCompetitiveAdjustment(competitiveIntel);
+    
+    // Make final pricing decision
+    const finalPrice = quote.totalCost * (1 + targetMargin + competitiveAdjustment);
+    
+    return {
+      recommendedPrice: finalPrice,
+      margin: targetMargin,
+      riskLevel: riskAssessment.level,
+      competitivePosition: competitiveIntel.position,
+      confidence: calculatePricingConfidence(riskAssessment, competitiveIntel)
+    };
+  } catch (error) {
+    await logPricingDecisionError(quote.id, error);
+    throw new Error(`Pricing decision failed: ${error.message}`);
+  }
+}
+
+export async function makeCapacityDecision(
+  quote: Quote,
+  currentCapacity: CapacityStatus
+): Promise<CapacityDecision> {
+  try {
+    // Analyze current workload
+    const workloadAnalysis = await analyzeCurrentWorkload(currentCapacity);
+    
+    // Project capacity requirements
+    const capacityRequirement = await projectCapacityRequirement(quote);
+    
+    // Check critical work centers
+    const bottleneckAnalysis = await analyzeBottlenecks(capacityRequirement);
+    
+    // Calculate realistic lead time
+    const leadTime = await calculateRealisticLeadTime(
+      capacityRequirement,
+      bottleneckAnalysis,
+      currentCapacity
+    );
+    
+    return {
+      canAccept: leadTime <= quote.requestedLeadTime,
+      proposedLeadTime: leadTime,
+      bottlenecks: bottleneckAnalysis.criticalPaths,
+      utilizationImpact: workloadAnalysis.projectedUtilization,
+      recommendation: leadTime <= quote.requestedLeadTime ? 'accept' : 'negotiate'
+    };
+  } catch (error) {
+    await logCapacityDecisionError(quote.id, error);
+    throw new Error(`Capacity decision failed: ${error.message}`);
+  }
+}
+
+// Integration and Monitoring Functions
+export async function integrateWithERP(
+  customer: Customer,
+  erpSystem: 'Epicor' | 'Infor' | 'JobBOSS'
+): Promise<IntegrationResult> {
+  try {
+    const integration = await setupERPIntegration(customer, erpSystem);
+    const testResult = await testIntegration(integration);
+    
+    if (testResult.success) {
+      await enableIntegration(customer.id, integration);
+      return { success: true, integrationId: integration.id };
+    } else {
+      throw new Error(`Integration test failed: ${testResult.error}`);
+    }
+  } catch (error) {
+    await logIntegrationError(customer.id, erpSystem, error);
+    throw new Error(`ERP integration failed: ${error.message}`);
+  }
+}
+
+export async function monitorSystemHealth(): Promise<HealthStatus> {
+  const metrics = await collectSystemMetrics();
+  
+  return {
+    overallHealth: calculateOverallHealth(metrics),
+    processingLatency: metrics.avgProcessingTime,
+    errorRate: metrics.errorRate,
+    modelAccuracy: metrics.modelAccuracy,
+    customerSatisfaction: metrics.customerSatisfaction,
+    alerts: generateHealthAlerts(metrics)
+  };
+}
+
+// Helper types and interfaces would be defined here...
+interface ExtractedData { /* ... */ }
+interface ValidatedSpecs { /* ... */ }
+interface CostEstimate { /* ... */ }
+interface QualifiedLead extends Lead { /* ... */ }
+interface Proposal { /* ... */ }
+interface PilotResults { /* ... */ }
+interface Revenue { /* ... */ }
+interface CalibrationResult { /* ... */ }
+interface MarketConditions { /* ... */ }
+interface CompetitiveIntel { /* ... */ }
+interface PricingDecision { /* ... */ }
+interface CapacityStatus { /* ... */ }
+interface CapacityDecision { /* ... */ }
+interface IntegrationResult { /* ... */ }
+interface HealthStatus { /* ... */ }
+```
+
+These functions encode TankQuote AI's business logic as executable TypeScript, enabling the startup to operate through code-driven workflows that can be automated, monitored, and continuously improved.
