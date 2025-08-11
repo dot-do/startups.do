@@ -295,7 +295,501 @@ landingPage:
     - Apply changes and re-check; system confirms in-spec status
     - Publish the lot report and enable real-time drift alerts
 ---
+
 # SeamSight AI — Double Seam QA Analyzer
 
 Generated for NAICS 332431 — Metal Can Manufacturing.
 Service: Double Seam QA Analyzer (Images + Measurements)
+
+## Business Process Functions
+
+```typescript
+// Core data types for SeamSight business processes
+interface Lead {
+  id: string;
+  company: string;
+  contactName: string;
+  email: string;
+  phone: string;
+  plantLocations: string[];
+  seamersCount: number;
+  currentQAProcess: 'manual' | 'semi-automated' | 'automated';
+  painPoints: string[];
+  budget: number;
+  timeline: string;
+  source: 'direct' | 'oem-partner' | 'trade-show' | 'referral';
+}
+
+interface QualifiedLead extends Lead {
+  qualificationScore: number;
+  decisionMakers: string[];
+  technicalRequirements: TechnicalRequirements;
+  competitiveAlternatives: string[];
+}
+
+interface TechnicalRequirements {
+  seamersModels: string[];
+  productionVolume: number; // CPM
+  qualityStandards: string[];
+  integrationNeeds: string[];
+  deploymentPreference: 'on-prem' | 'cloud' | 'hybrid';
+}
+
+interface Customer {
+  id: string;
+  lead: QualifiedLead;
+  contractValue: number;
+  deploymentSites: Site[];
+  subscriptionTier: 'basic' | 'pro' | 'enterprise';
+  onboardingStatus: 'pending' | 'in-progress' | 'complete';
+}
+
+interface Site {
+  id: string;
+  location: string;
+  seamers: Seamer[];
+  imagingKits: number;
+  edgeGateways: number;
+}
+
+interface Seamer {
+  id: string;
+  model: string;
+  heads: number;
+  productionRate: number; // CPM
+}
+
+interface Pilot {
+  id: string;
+  customer: string;
+  duration: number; // weeks
+  seamersCount: number;
+  roiMetrics: string[];
+  successCriteria: SuccessCriteria;
+  status: 'planning' | 'active' | 'complete' | 'failed';
+}
+
+interface SuccessCriteria {
+  recommendationAccuracy: number; // target ≥95%
+  timeToReduction: number; // target <8 minutes
+  downtimeReduction: number; // target 25-40%
+  defectReduction: number; // target 30% PPM
+}
+
+// Customer Acquisition Workflows
+
+export async function acquireCustomer(lead: Lead): Promise<Customer> {
+  const qualifiedLead = await qualifyLead(lead);
+  const pilot = await conductPilot(qualifiedLead);
+  const proposal = await generateProposal(pilot);
+  const contract = await negotiateContract(proposal);
+  return await onboardCustomer(contract);
+}
+
+export async function qualifyLead(lead: Lead): Promise<QualifiedLead> {
+  const technicalFit = await assessTechnicalFit(lead);
+  const budgetAlignment = await validateBudget(lead);
+  const decisionProcess = await mapDecisionMakers(lead);
+  const competitiveAnalysis = await analyzeCompetition(lead);
+  
+  const qualificationScore = calculateQualificationScore({
+    technicalFit,
+    budgetAlignment,
+    decisionProcess,
+    competitiveAnalysis
+  });
+
+  if (qualificationScore < 70) {
+    throw new Error('Lead does not meet qualification threshold');
+  }
+
+  return {
+    ...lead,
+    qualificationScore,
+    decisionMakers: decisionProcess.stakeholders,
+    technicalRequirements: technicalFit.requirements,
+    competitiveAlternatives: competitiveAnalysis.alternatives
+  };
+}
+
+export async function conductPilot(lead: QualifiedLead): Promise<Pilot> {
+  const pilotPlan = await designPilotProgram(lead);
+  const pilotSite = await selectPilotSite(lead.plantLocations);
+  const baselineMetrics = await establishBaseline(pilotSite);
+  
+  const pilot = await executePilot({
+    customer: lead.company,
+    site: pilotSite,
+    duration: 6, // 6-8 week proof-of-value
+    seamersCount: Math.min(3, lead.seamersCount),
+    roiMetrics: ['downtime_reduction', 'defect_rate', 'changeover_time'],
+    successCriteria: {
+      recommendationAccuracy: 95,
+      timeToReduction: 8,
+      downtimeReduction: 25,
+      defectReduction: 30
+    }
+  });
+
+  return pilot;
+}
+
+export async function generateProposal(pilot: Pilot): Promise<Proposal> {
+  const pilotResults = await analyzePilotResults(pilot);
+  const roiCalculation = await calculateROI(pilotResults);
+  const scalingPlan = await developScalingPlan(pilot.customer);
+  
+  return {
+    customerId: pilot.customer,
+    pilotResults,
+    roiCalculation,
+    scalingPlan,
+    pricing: await calculatePricing(scalingPlan),
+    timeline: await estimateDeploymentTimeline(scalingPlan)
+  };
+}
+
+// Product Development Processes
+
+export async function developSeamAnalysisModel(): Promise<MLModel> {
+  const trainingData = await collectSeamImageDataset();
+  const labeledData = await labelSeamDefects(trainingData);
+  const model = await trainComputerVisionModel(labeledData);
+  const validatedModel = await validateModelAccuracy(model);
+  
+  if (validatedModel.accuracy < 0.95) {
+    throw new Error('Model accuracy below threshold');
+  }
+  
+  return await deployModel(validatedModel);
+}
+
+export async function integrateHardwareKit(): Promise<HardwareKit> {
+  const imagingComponents = await procureImagingComponents();
+  const calibrationSystem = await developCalibrationSystem();
+  const edgeGateway = await buildEdgeGateway();
+  
+  const kit = await assembleHardwareKit({
+    lighting: imagingComponents.lighting,
+    camera: imagingComponents.camera,
+    mount: imagingComponents.mount,
+    scale: calibrationSystem.scale,
+    target: calibrationSystem.target,
+    gateway: edgeGateway
+  });
+
+  return await validateHardwareKit(kit);
+}
+
+export async function buildGuidanceEngine(): Promise<GuidanceEngine> {
+  const seamKnowledgeBase = await compileSeamingExpertise();
+  const adjustmentMappings = await createAdjustmentMappings();
+  const ruleEngine = await implementRuleEngine(seamKnowledgeBase);
+  
+  return {
+    knowledgeBase: seamKnowledgeBase,
+    adjustmentMappings,
+    ruleEngine,
+    recommendationEngine: await buildRecommendationEngine(ruleEngine)
+  };
+}
+
+// Revenue Generation Flows
+
+export async function processSubscriptionRevenue(): Promise<RevenueReport> {
+  const activeSubscriptions = await getActiveSubscriptions();
+  const usageMetrics = await calculateUsageMetrics();
+  const billingCycles = await processBillingCycles(activeSubscriptions);
+  
+  return {
+    subscriptionRevenue: billingCycles.totalRevenue,
+    usageRevenue: await calculateUsageRevenue(usageMetrics),
+    churnRate: await calculateChurnRate(activeSubscriptions),
+    expansionRevenue: await calculateExpansionRevenue()
+  };
+}
+
+export async function manageCustomerLifecycle(customer: Customer): Promise<CustomerHealth> {
+  const usageAnalytics = await analyzeCustomerUsage(customer);
+  const satisfactionScore = await measureCustomerSatisfaction(customer);
+  const expansionOpportunities = await identifyExpansionOpportunities(customer);
+  
+  if (satisfactionScore < 7) {
+    await triggerCustomerSuccessIntervention(customer);
+  }
+  
+  if (expansionOpportunities.length > 0) {
+    await initiateExpansionConversation(customer, expansionOpportunities);
+  }
+  
+  return {
+    healthScore: calculateHealthScore(usageAnalytics, satisfactionScore),
+    riskLevel: assessChurnRisk(customer),
+    expansionPotential: expansionOpportunities
+  };
+}
+
+// Operational Procedures
+
+export async function onboardCustomer(contract: Contract): Promise<Customer> {
+  const kickoffMeeting = await scheduleKickoffMeeting(contract);
+  const technicalAssessment = await conductTechnicalAssessment(contract.sites);
+  const installationPlan = await createInstallationPlan(technicalAssessment);
+  
+  const customer = await createCustomerRecord(contract);
+  await deployHardwareKits(installationPlan);
+  await configureSeamerModels(customer.deploymentSites);
+  await trainCustomerTeam(customer);
+  await validateDeployment(customer);
+  
+  return customer;
+}
+
+export async function provideCustomerSupport(ticket: SupportTicket): Promise<Resolution> {
+  const ticketClassification = await classifyTicket(ticket);
+  const urgencyLevel = await assessUrgency(ticket);
+  
+  if (urgencyLevel === 'critical') {
+    await escalateToExpert(ticket);
+    return await provideCriticalSupport(ticket);
+  }
+  
+  const knowledgeBaseResults = await searchKnowledgeBase(ticket.issue);
+  if (knowledgeBaseResults.length > 0) {
+    return await provideSelfServiceResolution(ticket, knowledgeBaseResults);
+  }
+  
+  return await assignToSupportEngineer(ticket);
+}
+
+export async function maintainSystemHealth(): Promise<SystemStatus> {
+  const systemMetrics = await collectSystemMetrics();
+  const performanceAnalysis = await analyzePerformance(systemMetrics);
+  const healthChecks = await runHealthChecks();
+  
+  if (performanceAnalysis.issues.length > 0) {
+    await triggerMaintenanceAlerts(performanceAnalysis.issues);
+  }
+  
+  return {
+    uptime: systemMetrics.uptime,
+    performance: performanceAnalysis,
+    healthStatus: healthChecks.status,
+    recommendations: await generateMaintenanceRecommendations(systemMetrics)
+  };
+}
+
+// Decision-Making Workflows
+
+export async function evaluateMarketExpansion(market: Market): Promise<ExpansionDecision> {
+  const marketAnalysis = await analyzeMarketOpportunity(market);
+  const competitiveAssessment = await assessCompetitiveLandscape(market);
+  const resourceRequirements = await estimateResourceNeeds(market);
+  const riskAssessment = await evaluateMarketRisks(market);
+  
+  const expansionScore = calculateExpansionScore({
+    marketSize: marketAnalysis.totalAddressableMarket,
+    competitiveIntensity: competitiveAssessment.intensity,
+    resourceFit: resourceRequirements.feasibility,
+    riskLevel: riskAssessment.overallRisk
+  });
+  
+  return {
+    recommendation: expansionScore > 75 ? 'proceed' : 'defer',
+    score: expansionScore,
+    rationale: await generateExpansionRationale(marketAnalysis, competitiveAssessment),
+    timeline: resourceRequirements.timeline,
+    investment: resourceRequirements.investment
+  };
+}
+
+export async function prioritizeProductFeatures(features: Feature[]): Promise<ProductRoadmap> {
+  const customerFeedback = await analyzeCustomerFeedback();
+  const marketDemand = await assessMarketDemand(features);
+  const technicalComplexity = await evaluateTechnicalComplexity(features);
+  const competitiveAnalysis = await analyzeCompetitiveFeatures(features);
+  
+  const prioritizedFeatures = features
+    .map(feature => ({
+      ...feature,
+      priority: calculateFeaturePriority({
+        customerDemand: customerFeedback[feature.id]?.demand || 0,
+        marketOpportunity: marketDemand[feature.id]?.opportunity || 0,
+        technicalFeasibility: 1 / (technicalComplexity[feature.id]?.complexity || 1),
+        competitiveAdvantage: competitiveAnalysis[feature.id]?.advantage || 0
+      })
+    }))
+    .sort((a, b) => b.priority - a.priority);
+  
+  return {
+    quarters: await allocateFeaturesToQuarters(prioritizedFeatures),
+    resourceAllocation: await planResourceAllocation(prioritizedFeatures),
+    milestones: await defineDevelopmentMilestones(prioritizedFeatures)
+  };
+}
+
+export async function optimizePricingStrategy(customer: Customer): Promise<PricingRecommendation> {
+  const valueAnalysis = await analyzeCustomerValue(customer);
+  const competitiveBenchmark = await benchmarkCompetitivePricing();
+  const priceElasticity = await analyzePriceElasticity(customer.segment);
+  const willingness = await assessWillingnessToPay(customer);
+  
+  const optimalPricing = calculateOptimalPricing({
+    valueDelivered: valueAnalysis.totalValue,
+    competitivePosition: competitiveBenchmark.position,
+    elasticity: priceElasticity.coefficient,
+    willingness: willingness.maxPrice
+  });
+  
+  return {
+    recommendedPrice: optimalPricing.price,
+    expectedRevenue: optimalPricing.revenue,
+    conversionProbability: optimalPricing.probability,
+    rationale: await generatePricingRationale(valueAnalysis, competitiveBenchmark)
+  };
+}
+
+// Helper function implementations (referenced by main functions)
+
+async function assessTechnicalFit(lead: Lead): Promise<TechnicalFitAssessment> {
+  // Assess compatibility with existing seamer models and QA processes
+  return {
+    compatibility: 0.9,
+    requirements: {
+      seamersModels: ['Angelus', 'Ferrum'],
+      productionVolume: 2000,
+      qualityStandards: ['ISO 9001', 'BRC'],
+      integrationNeeds: ['PLC', 'MES'],
+      deploymentPreference: 'hybrid'
+    }
+  };
+}
+
+async function validateBudget(lead: Lead): Promise<BudgetValidation> {
+  // Validate budget alignment with solution cost
+  return {
+    budgetAdequate: lead.budget >= 50000,
+    paybackPeriod: 6,
+    roiProjection: 3.2
+  };
+}
+
+async function calculateQualificationScore(factors: QualificationFactors): Promise<number> {
+  // Calculate weighted qualification score
+  return (
+    factors.technicalFit.compatibility * 0.3 +
+    (factors.budgetAlignment.budgetAdequate ? 1 : 0) * 0.25 +
+    factors.decisionProcess.stakeholders.length * 0.2 +
+    (1 - factors.competitiveAnalysis.intensity) * 0.25
+  ) * 100;
+}
+
+// Additional type definitions for completeness
+interface Proposal {
+  customerId: string;
+  pilotResults: PilotResults;
+  roiCalculation: ROICalculation;
+  scalingPlan: ScalingPlan;
+  pricing: PricingStructure;
+  timeline: DeploymentTimeline;
+}
+
+interface Contract {
+  customerId: string;
+  value: number;
+  sites: Site[];
+  terms: ContractTerms;
+}
+
+interface MLModel {
+  id: string;
+  version: string;
+  accuracy: number;
+  deploymentStatus: 'development' | 'testing' | 'production';
+}
+
+interface HardwareKit {
+  id: string;
+  components: HardwareComponent[];
+  calibrated: boolean;
+  validated: boolean;
+}
+
+interface GuidanceEngine {
+  knowledgeBase: SeamKnowledgeBase;
+  adjustmentMappings: AdjustmentMapping[];
+  ruleEngine: RuleEngine;
+  recommendationEngine: RecommendationEngine;
+}
+
+interface RevenueReport {
+  subscriptionRevenue: number;
+  usageRevenue: number;
+  churnRate: number;
+  expansionRevenue: number;
+}
+
+interface CustomerHealth {
+  healthScore: number;
+  riskLevel: 'low' | 'medium' | 'high';
+  expansionPotential: ExpansionOpportunity[];
+}
+
+interface SupportTicket {
+  id: string;
+  customerId: string;
+  issue: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  status: 'open' | 'in-progress' | 'resolved' | 'closed';
+}
+
+interface Resolution {
+  ticketId: string;
+  solution: string;
+  timeToResolve: number;
+  customerSatisfaction: number;
+}
+
+interface SystemStatus {
+  uptime: number;
+  performance: PerformanceMetrics;
+  healthStatus: 'healthy' | 'degraded' | 'critical';
+  recommendations: MaintenanceRecommendation[];
+}
+
+interface Market {
+  region: string;
+  size: number;
+  growth: number;
+  segments: MarketSegment[];
+}
+
+interface ExpansionDecision {
+  recommendation: 'proceed' | 'defer' | 'reject';
+  score: number;
+  rationale: string;
+  timeline: string;
+  investment: number;
+}
+
+interface Feature {
+  id: string;
+  name: string;
+  description: string;
+  effort: number;
+  impact: number;
+}
+
+interface ProductRoadmap {
+  quarters: QuarterPlan[];
+  resourceAllocation: ResourcePlan;
+  milestones: Milestone[];
+}
+
+interface PricingRecommendation {
+  recommendedPrice: number;
+  expectedRevenue: number;
+  conversionProbability: number;
+  rationale: string;
+}
+```
